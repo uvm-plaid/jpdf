@@ -3,7 +3,7 @@
    computations over the binary field.
 
    e ::= true | false | lab[n,n] | v[n,n] := e | e;e | not e | e and e
-   | e or e | e xor e lab ::= s | v | flip
+   | e or e | e xor e | lab ::= s | v | flip
 
    Identifiers are denoted lab[n1,n2], where n1 is the party id and n2
    is the index, and lab is s if its a secret, v if it's a view, and
@@ -37,7 +37,8 @@
 
      P(s[1,1],s[1,2]|s[3,1]|v[3,1]|v[0,1])
 
-   Thus, to show that a protocol is secure, we need to show:
+   Thus, to show that the protocol is secure with respect to this honest/corrupt 
+   partition, we need to show:
 
      P(s[1,1],s[1,2]|s[3,1]|v[0,1]) = P(s[1,1],s[1,2]|s[3,1]|v[3,1]|v[0,1])
 
