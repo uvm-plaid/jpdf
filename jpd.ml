@@ -183,6 +183,38 @@ let passive_secure e n o =
       let ci = List.filter (fun (l,pi,_) -> l = Secret && List.mem pi c) s in
       let cv = List.filter (fun (l,pi,_) -> l = View && List.mem pi c) v in
       check_leakage hi ci cv o pdf) partitions;;
+      
+(*
+  passive_secure : expr -> int -> id -> bool
+  in : protocol e, number of parties n, output view o
+  out : true iff e is passive secure for n parties.
+*)
+let passive_secure e n o =
+  (* find the different types of variables- secrets, flips, views- in the protocol *)
+  let (s,f,v) = vars e in
+  (* generate the jpdf for the expression given input variables. The jpdf is encoded 
+     as a mapping from view ids to their truth tables.  *)
+  let pdf = jpdf e (s@f) in
+  (* enumerate all partitions of parties into honest and corrupt sets. Each element 
+     of partitions is a pair h,c which is a 2-set partition of parties, where the size
+     of c (the corrupt parties) is |n|/2 with h the honest majority. *)
+  let partitions = group (enumerate n) [n - (n/2); (n/2)] in
+  (* For every honest,corrupt partition (h,c), search for a witness of unequal 
+     ideal and adversarial knowledge *)
+  List.for_all
+    (fun [h;c] ->
+      (* List all the honest input variables as hi *)
+      let hi = List.filter (fun (l,pi,_) -> l = Secret && List.mem pi h) s  in
+      (* List all the corrupt input variables as ci *)
+      let ci = List.filter (fun (l,pi,_) -> l = Secret && List.mem pi c) s in
+      (* List all the corrupt views as cv *)
+      let cv = List.filter (fun (l,pi,_) -> l = View && List.mem pi c) v in
+      (* Letting P be jpdf encoded as pdf, in check leakage we check:
+                   P(hi|ci|o) = P(hi|ci|cv|o). 
+         We do this by iterating over all possible assignments of hi, ci, cv, and o, and 
+         checking equality of their marginal distributions. *)
+      check_leakage hi ci cv o pdf) 
+  partitions;;
 
 
 
