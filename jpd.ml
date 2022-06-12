@@ -163,26 +163,6 @@ let vars e =
      (VS.union s1 s2,VS.union f1 f2,VS.union v1 v2)
   in
   let (s,f,v) = vs e in (VS.elements s,VS.elements f,VS.elements v);;
-
-(*
-  passive_secure : expr -> int -> id -> bool
-  in : protocol e, number of parties n, output view o
-  out : true iff e is passive secure for n parties.
- *)
-let passive_secure e n o =
-  (* find the different types of variables- secrets, flips, views- in the protocol *)
-  let (s,f,v) = vars e in
-  (* generate the jpdf for the expressive given variables *)
-  let pdf = jpdf e (s@f) in
-  (* enumerate all partitions of parties into honest and corrupt sets *)
-  let partitions = group (enumerate n) [n - (n/2); (n/2)] in
-  (* search for a witness of unequal ideal and adversarial knowledge *)
-  List.for_all
-    (fun [h;c] ->
-      let hi = List.filter (fun (l,pi,_) -> l = Secret && List.mem pi h) s  in
-      let ci = List.filter (fun (l,pi,_) -> l = Secret && List.mem pi c) s in
-      let cv = List.filter (fun (l,pi,_) -> l = View && List.mem pi c) v in
-      check_leakage hi ci cv o pdf) partitions;;
       
 (*
   passive_secure : expr -> int -> id -> bool
