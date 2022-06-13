@@ -133,7 +133,7 @@ module VS =
   Set.Make(
       struct
         type t = id
-        let compare (x : t) (y : t) = compare x y (* if x = y then 0 else if x < y then -1 else 1 *)
+        let compare (x : t) (y : t) = compare x y
       end);;
 
 let vars e =
