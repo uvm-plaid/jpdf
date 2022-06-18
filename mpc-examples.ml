@@ -91,12 +91,63 @@
 
    *** Examples ***
 
-   In the following we illustrate these ideas with a 3-party additive sharing protocol.
-   First we define the protocol correctly, and then introduce a bug that is caught 
-   by passive_secure.
+   Included are the following examples:
 
+     - Lambda obliv examples from Figure 3 
+     - Additive secret sharing (binary field)
+     - Garbled circuits (binary field)
  *)
 
+(* LAMBDA OBLIV (Figure 3 examples). We show how dependent probabilities can 
+   be used to precisely characterize leakage of information. *)
+
+(* Figure 3(a) example 
+
+x[1,0] := flip[1,0];
+x[1,1] := flip[1,1];
+
+x[1,2] := select(s[1,0],x[1,0],x[1,1]);
+
+v[0,0] := x[1,2];
+v[0,1] := x[1,0];;
+*)
+
+let ex_a =
+(Seq(Assign((Local, 1, 0), Var(Flip, 1, 0)),
+Seq(Assign((Local, 1, 1), Var(Flip, 1, 1)),
+Seq(Assign((Local, 1, 2), Select(Var(Secret, 1, 0), Var(Local, 1, 0), Var(Local, 1, 1))),
+Seq(Assign((View, 0, 0), Var(Local, 1, 2)),
+Assign((View, 0, 1), Var(Local, 1, 0)))))));;
+
+(* This reveals the leakage discussed on page 5. The first probability is 1/2, the
+   second is 2/3. *)
+marg_dist [((Secret,1,0),strue)] [((View, 0, 0),strue)] (genpdf ex_a);;
+marg_dist [((Secret,1,0),strue)] [((View, 0, 0),strue);((View, 0, 1),strue)] (genpdf ex_a);;
+
+(* Figure 3(b) example 
+
+x[1,0] := flip[1,0];
+x[1,1] := flip[1,1];
+
+x[1,2] := select(x[1,0],x[1,0],x[1,1]);
+x[1,3] := select(s[1,0],x[1,2],flip[1,2]);
+
+v[0,0] := x[1,3];;
+*)
+
+let ex_b =
+(Seq(Assign((Local, 1, 0), Var(Flip, 1, 0)),
+Seq(Assign((Local, 1, 1), Var(Flip, 1, 1)),
+Seq(Assign((Local, 1, 2), Select(Var(Local, 1, 0), Var(Local, 1, 0), Var(Local, 1, 1))),
+Seq(Assign((Local, 1, 3), Select(Var(Secret, 1, 0), Var(Local, 1, 2), Var(Flip, 1, 2))),
+Assign((View, 0, 0), Var(Local, 1, 3)))))));;
+
+(* This reveals the leakage discussed on page 6- the probability that
+   the secret is 1 is higher given 1 observed in the output. *)
+marg_dist [((Secret,1,0),strue)] [] (genpdf ex_b);;   
+marg_dist [((Secret,1,0),strue)] [((View, 0, 0),strue)] (genpdf ex_b);;
+
+(* ADDITIVE SHARING *)
 (*
 Secure 3-party addition over binary field
 
@@ -394,12 +445,12 @@ Assign((View, 0, 0), Xor(Var(View, 1, 10), Xor(Var(View, 1, 20), Var(View, 1, 10
 passive_secure gc_fail 2 (View,0,0);;
 
 (* Failure (leakage) witness. *)
-
+let gc_fail_witness =
 ([((Secret, 2, 0), "0")],
  [((Secret, 1, 0), "0"); ((View, 1, 10), "1"); ((View, 1, 11), "1");
   ((View, 1, 20), "1"); ((View, 1, 21), "1"); ((View, 1, 40), "0");
   ((View, 1, 41), "1"); ((View, 1, 42), "1"); ((View, 1, 43), "1");
-  ((View, 1, 100), "0"); ((View, 0, 0), "0")])
+  ((View, 1, 100), "0"); ((View, 0, 0), "0")]);;
 
 (* Demonstrating correct output... *)
 
