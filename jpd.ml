@@ -1,4 +1,4 @@
-type vart = Secret | View | Flip;;
+type vart = Secret | View | Flip | Local;;
 
 type id = vart * int * int;;
 
@@ -9,6 +9,7 @@ type expr =
   And of expr * expr |
   Or of expr * expr |
   Xor of expr * expr |
+  Select of expr * expr * expr |
   Assign of id * expr |
   Seq of expr * expr;;
 
@@ -46,6 +47,7 @@ let truth_tables e =
       (Bool true) -> (gen_rows [], TT.empty)
     | (Bool false) -> (TT.empty, gen_rows [])
     | (Var ((View,_,_) as v)) -> find vtabs v
+    | (Var ((Local,_,_) as v)) -> find vtabs v
     | (Var ((Secret,_,_) as s)) -> (gen_rows [(idx s, strue)], gen_rows [(idx s, sfalse)])
     | (Var ((Flip,_,_) as f)) -> (gen_rows [(idx f, strue)], gen_rows [(idx f, sfalse)]) 
     | (Not e) ->
@@ -62,22 +64,31 @@ let truth_tables e =
        let (t1,f1) = tt e1 in
        let (t2,f2) = tt e2 in
        (join (meet t1 f2) (meet f1 t2), join (meet t1 t2) (meet f1 f2))
-    | (Assign((View,p,j) as v,e)) -> 
+    | (Select (e1,e2,e3)) -> 
+       let (t1,f1) = tt e1 in
+       let (t2,f2) = tt e2 in
+       let (t3,f3) = tt e3 in
+       (join (meet t1 t2) (meet f1 t3), join (meet t1 f2) (meet f1 f3))
+    | (Assign((View,_,_) as v,e)) -> 
+       let (t,f) = tt e in (add vtabs v (t,f); (t,f))
+    | (Assign((Local,_,_) as v,e)) -> 
        let (t,f) = tt e in (add vtabs v (t,f); (t,f))
     | (Seq(e1,e2)) -> (let _ = tt e1 in tt e2)
   in let _ = tt e in vtabs;;
 
 let marg_dist inputs deps vtabs =
-  let deptab =
-    foldr (fun (x,b) tt ->
-        match x with
-          (View,_,_) as v ->
-           let (t,f) = find vtabs v in
-           if b = strue then meet t tt else meet f tt
-        | (Secret,_,_) as s -> meet (gen_rows [(idx s,b)]) tt) deps (gen_rows [])
+  let f =
+    (fun (x,b) tt ->
+      match x with
+        (View,_,_) as v ->
+         let (t,f) = find vtabs v in
+         if b = strue then meet t tt else meet f tt
+      | (Secret,_,_) as s -> meet (gen_rows [(idx s,b)]) tt
+      | (Flip,_,_) as f -> meet (gen_rows [(idx f,b)]) tt)
   in
-  float(TT.cardinal (meet (gen_rows (map (fun (v,b) -> idx v,b) inputs)) deptab)) /.
-    float(TT.cardinal deptab);;
+  let deptab = foldr f deps (gen_rows []) in
+  let intab = foldr f inputs deptab in
+  float(TT.cardinal intab) /. float(TT.cardinal deptab);;
 
 let jpdf e vars = (make_idx vars; truth_tables e);;
   
@@ -87,9 +98,12 @@ let gen_deps xs =
     | n -> let vs = gd (n-1) in
            map (fun r -> strue :: r) vs @  map (fun r -> sfalse :: r) vs
   in
-  let vs = gd (List.length xs) in
-  map (List.combine xs) vs;;
+  if xs = [] then [] else
+    let vs = gd (List.length xs) in
+    map (List.combine xs) vs;;
 
+let witness = ref ([],[]);;
+              
 let check_leakage hi ci cv o vtabs = 
   let hdeps = gen_deps hi in
   let cdeps = gen_deps (ci@cv@[o]) in
@@ -97,8 +111,11 @@ let check_leakage hi ci cv o vtabs =
   (fun cdep ->
     List.for_all
       (fun hdep ->
-        marg_dist hdep cdep vtabs =
-          marg_dist hdep (List.filter (fun (x,_) -> List.mem x (ci@[o])) cdep) vtabs)
+        if (marg_dist (hdep@cdep) [] vtabs) = 0.0 then true else
+          let p1 = marg_dist hdep cdep vtabs in
+          let p2 = marg_dist hdep (List.filter (fun (x,_) -> List.mem x (ci@[o])) cdep) vtabs in
+          if p1 = p2 then true else (witness := (hdep, cdep); false)
+      )
       hdeps) cdeps
 
 let rec enumerate = function
@@ -136,12 +153,13 @@ module VS =
         let compare (x : t) (y : t) = compare x y
       end);;
 
-let vars e =
+let iovars e =
   let rec vs = function
     (Bool _) -> (VS.empty,VS.empty,VS.empty)
   | (Var ((View,_,_) as v)) -> (VS.empty,VS.empty,VS.singleton v)
   | (Var ((Secret,_,_) as s)) -> (VS.singleton s,VS.empty,VS.empty)
   | (Var ((Flip,_,_) as f)) -> (VS.empty,VS.singleton f,VS.empty)
+  | (Var (Local,_,_)) -> (VS.empty,VS.empty,VS.empty)
   | (Not e) -> vs e
   | (And (e1,e2)) ->
      let (s1,f1,v1) = vs e1 in
@@ -155,15 +173,23 @@ let vars e =
      let (s1,f1,v1) = vs e1 in
      let (s2,f2,v2) = vs e2 in 
      (VS.union s1 s2,VS.union f1 f2,VS.union v1 v2)
+  | (Select (e1,e2,e3)) ->
+     let (s1,f1,v1) = vs e1 in
+     let (s2,f2,v2) = vs e2 in 
+     let (s3,f3,v3) = vs e3 in 
+     (VS.union (VS.union s1 s2) s3,VS.union (VS.union f1 f2) f3,VS.union (VS.union v1 v2) v3)
   | (Assign((View,p,j) as v',e)) -> 
-     let (s,f,v) = vs e in (s,f,VS.union (VS.singleton v') v)     
+     let (s,f,v) = vs e in (s,f,VS.union (VS.singleton v') v)  
+  | (Assign((Local,p,j) as v',e)) -> vs e
   | (Seq(e1,e2)) -> 
      let (s1,f1,v1) = vs e1 in
      let (s2,f2,v2) = vs e2 in 
      (VS.union s1 s2,VS.union f1 f2,VS.union v1 v2)
   in
   let (s,f,v) = vs e in (VS.elements s,VS.elements f,VS.elements v);;
-      
+
+let genpdf e = let (s,f,_) = iovars e in jpdf e (s@f);;
+
 (*
   passive_secure : expr -> int -> id -> bool
   in : protocol e, number of parties n, output view o
@@ -171,7 +197,7 @@ let vars e =
 *)
 let passive_secure e n o =
   (* find the different types of variables- secrets, flips, views- in the protocol *)
-  let (s,f,v) = vars e in
+  let (s,f,v) = iovars e in
   (* generate the jpdf for the expression given input variables. The jpdf is encoded 
      as a mapping from view ids to their truth tables.  *)
   let pdf = jpdf e (s@f) in

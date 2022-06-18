@@ -2,14 +2,35 @@
    We define the following language of expressions e that models multi-party 
    computations over the binary field.
 
-   e ::= true | false | lab[n,n] | v[n,n] := e | e;e | not e | e and e
-   | e or e | e xor e | lab ::= s | v | flip
+   e ::= true | false | lab[n,n] | lab[n,n] := e | e;e | not e | e and e |
+         e or e | e xor e | select(e,e,e)
+ 
+   lab ::= s | v | x | flip
 
    Identifiers are denoted lab[n1,n2], where n1 is the party id and n2
-   is the index, and lab is s if its a secret, v if it's a view, and
-   flip if it's boolean value in a uniform random distribution. Only
-   views can be assigned to, indicating communication between
-   parties. We require that views are assigned to at most once.
+   is the index, and lab is:
+
+      - s if its a secret
+      - v if it's a view
+      - flip if it's a boolean value in a uniform random distribution
+      - x if it's a local variable.
+
+   We make the additional restriction that only views and local variables
+   can be assigned to, and only once. In general, secrets and flips are inputs 
+   to programs,  and views are outputs. Communication between parties is modeled 
+   by assignment to views. The semantics of select(e1,e2,e3) are to return the 
+   result of e2 if e1 is true, otherwise e1. So for example, 
+  
+     select(true, not true, true and true) 
+  
+   evaluates to false. We model OT using a "cross party" select where the 
+   selection bit belongs to the receiver and does not occur in the sender's 
+   view, e.g.:
+
+     v[1,0] := select(s[1,0],x[2,0],x[2,1])
+
+   models an oblivious transfer of party 2's local values x[2,0] and x[2,1]
+   to party 1, using party 1's secret s[1,0] as the OT selection bit. 
 
    * We assume metatheory developed here: https://www.overleaf.com/read/cykgnbtskkbv *
       
@@ -202,7 +223,189 @@ let pdf2 = jpdf e2 vs2 in marg_dist i2 d2' pdf2;;
 let pdf2 = jpdf e2 vs2 in marg_dist i2 d2 pdf2 = marg_dist i2 d2' pdf2;;
 
 
+(* GARBLED CIRCUITS over binary field. *)
+
+(* Garbled circuits with OT of table entry. This is passive secure. *)
+
+(*
+x[2,0] := flip[2,0];
+x[2,1] := not flip[2,0];
+
+x[2,10] := flip[2,1];
+x[2,11] := not flip[2,1];
+
+x[2,220] := flip[2,2];
+x[2,221] := not flip[2,2];
+
+x[2,120] := flip[2,3];
+x[2,121] := not flip[2,3];
+
+x[2,100] := x[2,0] xor x[2,10] xor false;
+x[2,101] := x[2,0] xor x[2,11] xor false;
+x[2,110] := x[2,1] xor x[2,10] xor false;
+x[2,111] := x[2,1] xor x[2,11] xor true;
+
+v[1,20] := select(s[2,0],x[2,1],x[2,0]);
+v[1,21] := select(s[2,0],x[2,221],x[2,220]);
+
+v[1,10] := select(s[1,0],x[2,11],x[2,10]);
+v[1,11] := select(s[1,0],x[2,121],x[2,120]);
+
+x[2,40] :=
+ (x[2,120] and x[2,220] and x[2,100]) xor
+ (x[2,120] and x[2,221] and x[2,101]) xor
+ (x[2,121] and x[2,220] and x[2,110]) xor
+ (x[2,121] and x[2,221] and x[2,111]);
+x[2,41] :=
+ (x[2,120] and not x[2,220] and x[2,100]) xor
+ (x[2,120] and not x[2,221] and x[2,101]) xor
+ (x[2,121] and not x[2,220] and x[2,110]) xor
+ (x[2,121] and not x[2,221] and x[2,111]);
+x[2,42] :=
+ (not x[2,120] and x[2,220] and x[2,100]) xor
+ (not x[2,120] and x[2,221] and x[2,101]) xor
+ (not x[2,121] and x[2,220] and x[2,110]) xor
+ (not x[2,121] and x[2,221] and x[2,111]);
+x[2,43] :=
+ (not x[2,120] and not x[2,220] and x[2,100]) xor
+ (not x[2,120] and not x[2,221] and x[2,101]) xor
+ (not x[2,121] and not x[2,220] and x[2,110]) xor
+ (not x[2,121] and not x[2,221] and x[2,111]);
+
+v[1,100] := select(v[1,11],select(v[1,21],x[2,40],x[2,41]),select(v[1,21],x[2,42],x[2,43]));
+
+v[0,0] := v[1,10] xor v[1,20] xor v[1,100];;
+*)
+
+let gc_ot =
+(Seq(Assign((Local, 2, 0), Var(Flip, 2, 0)),
+Seq(Assign((Local, 2, 1), Not(Var(Flip, 2, 0))),
+Seq(Assign((Local, 2, 10), Var(Flip, 2, 1)),
+Seq(Assign((Local, 2, 11), Not(Var(Flip, 2, 1))),
+Seq(Assign((Local, 2, 220), Var(Flip, 2, 2)),
+Seq(Assign((Local, 2, 221), Not(Var(Flip, 2, 2))),
+Seq(Assign((Local, 2, 120), Var(Flip, 2, 3)),
+Seq(Assign((Local, 2, 121), Not(Var(Flip, 2, 3))),
+Seq(Assign((Local, 2, 100), Xor(Var(Local, 2, 0), Xor(Var(Local, 2, 10), Bool(false)))),
+Seq(Assign((Local, 2, 101), Xor(Var(Local, 2, 0), Xor(Var(Local, 2, 11), Bool(false)))),
+Seq(Assign((Local, 2, 110), Xor(Var(Local, 2, 1), Xor(Var(Local, 2, 10), Bool(false)))),
+Seq(Assign((Local, 2, 111), Xor(Var(Local, 2, 1), Xor(Var(Local, 2, 11), Bool(true)))),
+Seq(Assign((View, 1, 20), Select(Var(Secret, 2, 0), Var(Local, 2, 1), Var(Local, 2, 0))),
+Seq(Assign((View, 1, 21), Select(Var(Secret, 2, 0), Var(Local, 2, 221), Var(Local, 2, 220))),
+Seq(Assign((View, 1, 10), Select(Var(Secret, 1, 0), Var(Local, 2, 11), Var(Local, 2, 10))),
+Seq(Assign((View, 1, 11), Select(Var(Secret, 1, 0), Var(Local, 2, 121), Var(Local, 2, 120))),
+Seq(Assign((Local, 2, 40), Xor(And(Var(Local, 2, 120), And(Var(Local, 2, 220), Var(Local, 2, 100))), Xor(And(Var(Local, 2, 120), And(Var(Local, 2, 221), Var(Local, 2, 101))), Xor(And(Var(Local, 2, 121), And(Var(Local, 2, 220), Var(Local, 2, 110))), And(Var(Local, 2, 121), And(Var(Local, 2, 221), Var(Local, 2, 111))))))),
+Seq(Assign((Local, 2, 41), Xor(And(Var(Local, 2, 120), And(Not(Var(Local, 2, 220)), Var(Local, 2, 100))), Xor(And(Var(Local, 2, 120), And(Not(Var(Local, 2, 221)), Var(Local, 2, 101))), Xor(And(Var(Local, 2, 121), And(Not(Var(Local, 2, 220)), Var(Local, 2, 110))), And(Var(Local, 2, 121), And(Not(Var(Local, 2, 221)), Var(Local, 2, 111))))))),
+Seq(Assign((Local, 2, 42), Xor(And(Not(Var(Local, 2, 120)), And(Var(Local, 2, 220), Var(Local, 2, 100))), Xor(And(Not(Var(Local, 2, 120)), And(Var(Local, 2, 221), Var(Local, 2, 101))), Xor(And(Not(Var(Local, 2, 121)), And(Var(Local, 2, 220), Var(Local, 2, 110))), And(Not(Var(Local, 2, 121)), And(Var(Local, 2, 221), Var(Local, 2, 111))))))),
+Seq(Assign((Local, 2, 43), Xor(And(Not(Var(Local, 2, 120)), And(Not(Var(Local, 2, 220)), Var(Local, 2, 100))), Xor(And(Not(Var(Local, 2, 120)), And(Not(Var(Local, 2, 221)), Var(Local, 2, 101))), Xor(And(Not(Var(Local, 2, 121)), And(Not(Var(Local, 2, 220)), Var(Local, 2, 110))), And(Not(Var(Local, 2, 121)), And(Not(Var(Local, 2, 221)), Var(Local, 2, 111))))))),
+Seq(Assign((View, 1, 100), Select(Var(View, 1, 11), Select(Var(View, 1, 21), Var(Local, 2, 40), Var(Local, 2, 41)), Select(Var(View, 1, 21), Var(Local, 2, 42), Var(Local, 2, 43)))),
+Assign((View, 0, 0), Xor(Var(View, 1, 10), Xor(Var(View, 1, 20), Var(View, 1, 100))))))))))))))))))))))))));;
+
+(* This is true. *)
+passive_secure gc_ot 2 (View,0,0);;
+
+(* Demonstrating correct output... *)
+
+(* P(s[2,0] = 1 | s[1,0] = 0 | v[0,0] = 0) = .5 *)
+marg_dist [((Secret,2,0),strue)] [((Secret,1,0),sfalse);((View,0,0),sfalse)] (genpdf gc_ot);;
+
+(* P(s[2,0] = 1 | s[1,0] = 0 | v[0,0] = 0) = .333333... *)
+marg_dist [((Secret,2,0),strue);((Secret,1,0),sfalse)] [((View,0,0),sfalse)] (genpdf gc_ot);;
 
 
+(* Garbled circuits where full table is communicated. This version is not passive
+   secure, some information is leaked with full garbled table view. *)
 
+(*
+x[2,0] := flip[2,0];
+x[2,1] := not flip[2,0];
+
+x[2,10] := flip[2,1];
+x[2,11] := not flip[2,1];
+
+x[2,220] := flip[2,2];
+x[2,221] := not flip[2,2];
+
+x[2,120] := flip[2,3];
+x[2,121] := not flip[2,3];
+
+x[2,100] := x[2,0] xor x[2,10] xor false;
+x[2,101] := x[2,0] xor x[2,11] xor false;
+x[2,110] := x[2,1] xor x[2,10] xor false;
+x[2,111] := x[2,1] xor x[2,11] xor true;
+
+v[1,20] := select(s[2,0],x[2,1],x[2,0]);
+v[1,21] := select(s[2,0],x[2,221],x[2,220]);
+
+v[1,10] := select(s[1,0],x[2,11],x[2,10]);
+v[1,11] := select(s[1,0],x[2,121],x[2,120]);
+
+v[1,40] :=
+ (x[2,120] and x[2,220] and x[2,100]) xor
+ (x[2,120] and x[2,221] and x[2,101]) xor
+ (x[2,121] and x[2,220] and x[2,110]) xor
+ (x[2,121] and x[2,221] and x[2,111]);
+v[1,41] :=
+ (x[2,120] and not x[2,220] and x[2,100]) xor
+ (x[2,120] and not x[2,221] and x[2,101]) xor
+ (x[2,121] and not x[2,220] and x[2,110]) xor
+ (x[2,121] and not x[2,221] and x[2,111]);
+v[1,42] :=
+ (not x[2,120] and x[2,220] and x[2,100]) xor
+ (not x[2,120] and x[2,221] and x[2,101]) xor
+ (not x[2,121] and x[2,220] and x[2,110]) xor
+ (not x[2,121] and x[2,221] and x[2,111]);
+v[1,43] :=
+ (not x[2,120] and not x[2,220] and x[2,100]) xor
+ (not x[2,120] and not x[2,221] and x[2,101]) xor
+ (not x[2,121] and not x[2,220] and x[2,110]) xor
+ (not x[2,121] and not x[2,221] and x[2,111]);
+
+v[1,100] := select(v[1,11],select(v[1,21],v[1,40],v[1,41]),select(v[1,21],v[1,42],v[1,43]));
+
+v[0,0] := v[1,10] xor v[1,20] xor v[1,100];;
+*)
+
+let gc_fail =
+(Seq(Assign((Local, 2, 0), Var(Flip, 2, 0)),
+Seq(Assign((Local, 2, 1), Not(Var(Flip, 2, 0))),
+Seq(Assign((Local, 2, 10), Var(Flip, 2, 1)),
+Seq(Assign((Local, 2, 11), Not(Var(Flip, 2, 1))),
+Seq(Assign((Local, 2, 220), Var(Flip, 2, 2)),
+Seq(Assign((Local, 2, 221), Not(Var(Flip, 2, 2))),
+Seq(Assign((Local, 2, 120), Var(Flip, 2, 3)),
+Seq(Assign((Local, 2, 121), Not(Var(Flip, 2, 3))),
+Seq(Assign((Local, 2, 100), Xor(Var(Local, 2, 0), Xor(Var(Local, 2, 10), Bool(false)))),
+Seq(Assign((Local, 2, 101), Xor(Var(Local, 2, 0), Xor(Var(Local, 2, 11), Bool(false)))),
+Seq(Assign((Local, 2, 110), Xor(Var(Local, 2, 1), Xor(Var(Local, 2, 10), Bool(false)))),
+Seq(Assign((Local, 2, 111), Xor(Var(Local, 2, 1), Xor(Var(Local, 2, 11), Bool(true)))),
+Seq(Assign((View, 1, 20), Select(Var(Secret, 2, 0), Var(Local, 2, 1), Var(Local, 2, 0))),
+Seq(Assign((View, 1, 21), Select(Var(Secret, 2, 0), Var(Local, 2, 221), Var(Local, 2, 220))),
+Seq(Assign((View, 1, 10), Select(Var(Secret, 1, 0), Var(Local, 2, 11), Var(Local, 2, 10))),
+Seq(Assign((View, 1, 11), Select(Var(Secret, 1, 0), Var(Local, 2, 121), Var(Local, 2, 120))),
+Seq(Assign((View, 1, 40), Xor(And(Var(Local, 2, 120), And(Var(Local, 2, 220), Var(Local, 2, 100))), Xor(And(Var(Local, 2, 120), And(Var(Local, 2, 221), Var(Local, 2, 101))), Xor(And(Var(Local, 2, 121), And(Var(Local, 2, 220), Var(Local, 2, 110))), And(Var(Local, 2, 121), And(Var(Local, 2, 221), Var(Local, 2, 111))))))),
+Seq(Assign((View, 1, 41), Xor(And(Var(Local, 2, 120), And(Not(Var(Local, 2, 220)), Var(Local, 2, 100))), Xor(And(Var(Local, 2, 120), And(Not(Var(Local, 2, 221)), Var(Local, 2, 101))), Xor(And(Var(Local, 2, 121), And(Not(Var(Local, 2, 220)), Var(Local, 2, 110))), And(Var(Local, 2, 121), And(Not(Var(Local, 2, 221)), Var(Local, 2, 111))))))),
+Seq(Assign((View, 1, 42), Xor(And(Not(Var(Local, 2, 120)), And(Var(Local, 2, 220), Var(Local, 2, 100))), Xor(And(Not(Var(Local, 2, 120)), And(Var(Local, 2, 221), Var(Local, 2, 101))), Xor(And(Not(Var(Local, 2, 121)), And(Var(Local, 2, 220), Var(Local, 2, 110))), And(Not(Var(Local, 2, 121)), And(Var(Local, 2, 221), Var(Local, 2, 111))))))),
+Seq(Assign((View, 1, 43), Xor(And(Not(Var(Local, 2, 120)), And(Not(Var(Local, 2, 220)), Var(Local, 2, 100))), Xor(And(Not(Var(Local, 2, 120)), And(Not(Var(Local, 2, 221)), Var(Local, 2, 101))), Xor(And(Not(Var(Local, 2, 121)), And(Not(Var(Local, 2, 220)), Var(Local, 2, 110))), And(Not(Var(Local, 2, 121)), And(Not(Var(Local, 2, 221)), Var(Local, 2, 111))))))),
+Seq(Assign((View, 1, 100), Select(Var(View, 1, 11), Select(Var(View, 1, 21), Var(View, 1, 40), Var(View, 1, 41)), Select(Var(View, 1, 21), Var(View, 1, 42), Var(View, 1, 43)))),
+Assign((View, 0, 0), Xor(Var(View, 1, 10), Xor(Var(View, 1, 20), Var(View, 1, 100))))))))))))))))))))))))));;
+
+(* This is false. *)
+passive_secure gc_fail 2 (View,0,0);;
+
+(* Failure (leakage) witness. *)
+
+([((Secret, 2, 0), "0")],
+ [((Secret, 1, 0), "0"); ((View, 1, 10), "1"); ((View, 1, 11), "1");
+  ((View, 1, 20), "1"); ((View, 1, 21), "1"); ((View, 1, 40), "0");
+  ((View, 1, 41), "1"); ((View, 1, 42), "1"); ((View, 1, 43), "1");
+  ((View, 1, 100), "0"); ((View, 0, 0), "0")])
+
+(* Demonstrating correct output... *)
+
+(* P(s[2,0] = 1 | s[1,0] = 0 | v[0,0] = 0) = .5 *)
+marg_dist [((Secret,2,0),strue)] [((Secret,1,0),sfalse);((View,0,0),sfalse)] (genpdf gc_fail);;
+
+(* P(s[2,0] = 1 | s[1,0] = 0 | v[0,0] = 0) = .333333... *)
+marg_dist [((Secret,2,0),strue);((Secret,1,0),sfalse)] [((View,0,0),sfalse)] (genpdf gc_fail);;
 
