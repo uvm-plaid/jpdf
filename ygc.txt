@@ -232,10 +232,10 @@ let wls2 = input_labels(2) in
 let wls3 = input_labels(3) in
 let wls4 = input_labels(4) in
 
-(* Build the circuit *)
-let g1 = and_gate(wls1, wls3.wla) in
-let g2 = or_gate(wls2, wls3.wlb) in
-let g3 = and_gate(wls3, wls4.wla) in
+(* Build the circuit. Note wire connections between gates. *)
+let g1 = and_gate(1, wls1.a, wls1.b, wls3.wla) in
+let g2 = or_gate(2, wls2.a, wls2.b, wls3.wlb) in
+let g3 = and_gate(3, wls3.a, wls3.b, wls4.wla) in
 let out = output_table(wls4.wla) in
 
 (*
