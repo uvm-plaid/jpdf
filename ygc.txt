@@ -1,0 +1,266 @@
+(*
+   Here we enrich the language introduced in mpc-examples.ml. We enrich our identifier
+   language to allow "identifier expressions" to distinguish labels, for example:
+
+     s[1, "party 1 secret bit"]
+
+   Identifier expressions j are either string literals, boolean values, variables, or j1 || j2
+   denoting concatenation of j1 and j2. We also add a primitive form for oblivious transfer
+   (instead of encoding with select) and oracle consultation:
+
+     OT(e1, e2, e3)    use e1 as the receiver's selection bit for either e2 or e3 from sender
+     H(j)              consult the random oracle H with input string j
+
+   To support structured data to maintain sanity we also introduce records:
+
+     { l1 = e1; ...; ln = en }
+
+   where each of l1..ln are field identifiers accessed using dot notation. We also add
+   standard let expressions for local variable declaration and use, and function definitions
+   of the form:
+
+     f(x1, ..., xn) { e }
+
+   Throughout this document I'll enclose comments in delimeters (* ... *) OCaml-style.
+*)
+
+(*
+   YGC Protocol.
+
+   Party 2 is the garbler and party 1 is the evaluator.
+
+   We essentially follow the definition in Pragmatic MPC, using point and permute
+   and 1-bit keys. Wire labels are represented as records r of the form:
+   
+      { w0 = { k = b1; p = b2 }; w1 = { k = b3; p = b4 } }
+
+   Where r.w0.k and r.w1.k are encodings of the 0 and 1 values on the wire, and
+   r.w0.p and r.w1.p are selection bits for point-and-permute. Note that both of
+   r.w0 and r.w1 represent active labels during evaluation. 
+*)
+
+(*
+  Create two input labels for a binary gate identified as gid. Crucially, these
+  are created by party 2 (the garbler) using their flips.
+*)
+input_labels(gid) {
+ let wla0 = { k = flip[2, gid || "ka" || "0"]; p = flip[2, gid || "pa" || "0"] } in
+ let wla1 = { k = flip[2, gid || "ka" || "1"]; p = flip[2, gid || "pa" || "1"] } in
+
+ let wlb0 = { k = flip[2, gid || "kb" || "0"]; p = flip[2, gid || "pb" || "0"] } in
+ let wlb1 = { k = flip[2, gid || "kb" || "1"]; p = flip[2, gid || "pb" || "1"] } in
+
+ { wla = { w0 = wla0; w1 = wla1 }; wlb = { w0 = wlb0; w1 = wlb1 } } 
+}
+
+(*
+  Following are and, xor, and or table constructions. This construction consults
+  the random oracle and guarantees independent uniformity through uniqueness of
+  input strings. 
+*)
+encode_and_table(gid, wla, wlb, wlc) {
+ { r00 = (H[gid || wla.w0.k || wlb.w0.k ] xor wlc.w0.k);
+   r10 = (H[gid || wla.w1.k || wlb.w0.k ] xor wlc.w0.k);
+   r01 = (H[gid || wla.w0.k || wlb.w1.k ] xor wlc.w0.k);
+   r11 = (H[gid || wla.w1.k || wlb.w1.k ] xor wlc.w1.k);
+
+   (* This part I'm not sure about- can the same key be used to encode both the
+      output value and the output pointer bit? Could easily use different key *)
+   p00 = (H[gid || wla.w0.k || wlb.w0.k ] xor wlc.w0.p);
+   p10 = (H[gid || wla.w1.k || wlb.w0.k ] xor wlc.w0.p);
+   p01 = (H[gid || wla.w0.k || wlb.w1.k ] xor wlc.w0.p);
+   p11 = (H[gid || wla.w1.k || wlb.w1.k ] xor wlc.w1.p) }
+}
+
+encode_xor_table(gid, wla, wlb, wlc) {
+ { r00 = (H[gid || wla.w0.k || wlb.w0.k ] xor wlc.w0.k);
+   r10 = (H[gid || wla.w1.k || wlb.w0.k ] xor wlc.w1.k);
+   r01 = (H[gid || wla.w0.k || wlb.w1.k ] xor wlc.w0.k);
+   r11 = (H[gid || wla.w1.k || wlb.w1.k ] xor wlc.w1.k);
+ 
+   p00 = (H[gid || wla.w0.k || wlb.w0.k ] xor wlc.w0.p);
+   p10 = (H[gid || wla.w1.k || wlb.w0.k ] xor wlc.w1.p);
+   p01 = (H[gid || wla.w0.k || wlb.w1.k ] xor wlc.w0.p);
+   p11 = (H[gid || wla.w1.k || wlb.w1.k ] xor wlc.w1.p) }
+}
+
+encode_or_table(gid, wla, wlb, wlc) {
+ { r00 = (H[gid || wla.w0.k || wlb.w0.k ] xor wlc.w0.k);
+   r10 = (H[gid || wla.w1.k || wlb.w0.k ] xor wlc.w1.k);
+   r01 = (H[gid || wla.w0.k || wlb.w1.k ] xor wlc.w1.k);
+   r11 = (H[gid || wla.w1.k || wlb.w1.k ] xor wlc.w1.k);
+ 
+   p00 = (H[gid || wla.w0.k || wlb.w0.k ] xor wlc.w0.p);
+   p10 = (H[gid || wla.w1.k || wlb.w0.k ] xor wlc.w1.p);
+   p01 = (H[gid || wla.w0.k || wlb.w1.k ] xor wlc.w1.p);
+   p11 = (H[gid || wla.w1.k || wlb.w1.k ] xor wlc.w1.p) }
+}
+
+(*
+   Here we permute a binary input table by ordering them according to the relevant
+   active label pointer bits. Both the encoded values and pointers need to be permuted
+   in tandem so they can be retrieved and used during evaluation.
+*)
+permute_table(table, wla, wlb) {
+ let gr11 =
+   ((wla.w0.p and wlb.w0.p and table.r00) xor
+    (wla.w1.p and wlb.w0.p and table.r10) xor
+    (wla.w0.p and wlb.w1.p and table.r01) xor
+    (wla.w1.p and wlb.w1.p and table.r11)) in
+ let gr10 =
+   ((wla.w0.p and not wlb.w0.p and table.r00) xor
+    (wla.w1.p and not wlb.w0.p and table.r10) xor
+    (wla.w0.p and not wlb.w1.p and table.r01) xor
+    (wla.w1.p and not wlb.w1.p and table.r11)) in
+ let gr01 =
+   ((not wla.w0.p and wlb.w0.p and table.r00) xor
+    (not wla.w1.p and wlb.w0.p and table.r10) xor
+    (not wla.w0.p and wlb.w1.p and table.r01) xor
+    (not wla.w1.p and wlb.w1.p and table.r11)) in
+ let gr00 =
+   ((not wla.w0.p and not wlb.w0.p and table.r00) xor
+    (not wla.w1.p and not wlb.w0.p and table.r10) xor
+    (not wla.w0.p and not wlb.w1.p and table.r01) xor
+    (not wla.w1.p and not wlb.w1.p and table.r11)) in
+
+ let gp11 =
+   ((wla.w0.p and wlb.w0.p and table.p00) xor
+    (wla.w1.p and wlb.w0.p and table.p10) xor
+    (wla.w0.p and wlb.w1.p and table.p01) xor
+    (wla.w1.p and wlb.w1.p and table.p11)) in
+ let gp10 =
+   ((wla.w0.p and not wlb.w0.p and table.p00) xor
+    (wla.w1.p and not wlb.w0.p and table.p10) xor
+    (wla.w0.p and not wlb.w1.p and table.p01) xor
+    (wla.w1.p and not wlb.w1.p and table.p11)) in
+ let gp01 =
+   ((not wla.w0.p and wlb.w0.p and table.p00) xor
+    (not wla.w1.p and wlb.w0.p and table.p10) xor
+    (not wla.w0.p and wlb.w1.p and table.p01) xor
+    (not wla.w1.p and wlb.w1.p and table.p11)) in
+ let gp00 =
+   ((not wla.w0.p and not wlb.w0.p and table.p00) xor
+    (not wla.w1.p and not wlb.w0.p and table.p10) xor
+    (not wla.w0.p and not wlb.w1.p and table.p01) xor
+    (not wla.w1.p and not wlb.w1.p and table.p11)) in
+
+ { r1 = { k = gr11; p = gp11 };
+   r2 = { k = gr10; p = gp10 };
+   r3 = { k = gr01; p = gp01 };
+   r4 = { k = gr00; p = gp00 } } }
+}
+
+(* Functions for creating garbled gates *)
+and_gate(gid, wla, wlb, wlc)
+{
+  let table = encode_and_table(gid, wla, wlb, wlc) in
+  { id = gid; table = permute_table(table, wla, wlb) }
+}
+
+xor_gate(gid, wla, wlb, wlc)
+{
+  let table = encode_xor_table(gid, wla, wlb, wlc) in
+  { id = gid; table = permute_table(table, wla, wlb) }
+}
+
+or_gate(gid, wla, wlb, wlc)
+{
+  let table = encode_or_table(gid, wla, wlb, wlc) in
+  { id = gid; table = permute_table(table, wla, wlb) }
+}
+
+(* The output decoding table *)
+output_table(wl)
+{
+  let o0 = H["output" || wl.w0.k] xor false in
+  let o1 = H["output" || wl.w0.k] xor true in
+
+  { r0 = select(wl.w0.p, o1, o0); r1 = select(wl.w1.p, o1, o0) }
+}
+
+(*
+   Evaluation is performed by party 1, so the table for a give gate must
+   first be communicated to party 1's views. Note that input active labels
+   for internal gates will be computed by party 1, though initial secret
+   inputs will need to be obtained from the garbler.
+*)
+eval(gate, ala, alb) {
+
+ v[1, gate.gid || "k1"] := gate.table.r1.k;
+ v[1, gate.gid || "k2"] := gate.table.r2.k;
+ v[1, gate.gid || "k3"] := gate.table.r3.k;
+ v[1, gate.gid || "k4"] := gate.table.r4.k;
+ 
+ v[1, gate.gid || "p1"] := gate.table.r1.p;
+ v[1, gate.gid || "p2"] := gate.table.r2.p;
+ v[1, gate.gid || "p3"] := gate.table.r3.p;
+ v[1, gate.gid || "p4"] := gate.table.r4.p;
+
+ (* Use the pointer bits in the active input labels to select the correct row *)
+ let ck =
+ select(ala.b,
+     	select(alb.b, v[1, gate.id || "k1"], v[1, gate.id || "k2"]),
+	select(alb.b, v[1, gate.id || "k3"], v[1, gate.id || "k4"])) in
+ let cp =
+ select(ala.b,
+     	select(alb.b, v[1, gate.id || "p1"], v[1, gate.id || "p2"]),
+	select(alb.b, v[1, gate.id || "p3"], v[1, gate.id || "p4"])) in
+
+ (* Use the keys in the active input labels to decode the active output label *)
+ { k = H[gid || ala.k || alb.k] xor ck; p = H[gid || ala.k || alb.k] xor cp }
+}
+
+(* Build the output decoding table. *)
+decode(out_table, al) {
+  v[1, "out r0"] := out_table.r0;
+  v[1, "out r1"] := out_table.r1;
+  H["output" || al.k] xor select(al.p, v[1, "out r0"], v[1, "out r1"])
+}
+
+(*
+   The main program! In this example we will securely compute:
+
+       (s[2, 1] and s[1,1) and (s[2,2] or s[1,2])
+
+   Where s[1,i] and s[2,i] for i in {1,2} are party 1 and 2's secret inputs.
+*)
+
+
+(* Start by generating wire labels for the entire circuit on party 2. *)  
+let wls1 = input_labels(1) in 
+let wls2 = input_labels(2) in 
+let wls3 = input_labels(3) in
+let wls4 = input_labels(4) in
+
+(* Build the circuit *)
+let g1 = and_gate(wls1, wls3.wla) in
+let g2 = or_gate(wls2, wls3.wlb) in
+let g3 = and_gate(wls3, wls4.wla) in
+let out = output_table(wls4.wla) in
+
+(*
+   Now party 2 communicates the secret values to party 1. Party 1 shares their initial
+   active labels directly, whereas party 2 receives theirs via OT. All of these must go
+   into party 1's views.
+*)   
+v[1, "party 2 secret value 1"] := select(s[2, "secret 1", wls1.wla.w1.k, wls1.wla.w0.k]);
+v[1, "party 2 secret pointer 1"] := select(s[2, "secret 1", wls1.wla.w1.p, wls1.wla.w0.p]);
+
+v[1, "party 2 secret value 2"] := select(s[2, "secret 2", wls2.wla.w1.k, wls1.wla.w0.k]);
+v[1, "party 2 secret pointer 2"] := select(s[2, "secret 2", wl21.wla.w1.p, wls1.wla.w0.p]);
+
+v[1, "party 1 secret value 1"] := OT(s[1, "secret 1", wls1.wlb.w1.k, wls1.wlb.w0.k]);
+v[1, "party 1 secret pointer 1"] := OT(s[1, "secret 1", wls1.wlb.w1.p, wls1.wlb.w0.p]);
+
+v[1, "party 1 secret value 2"] := OT(s[1, "secret 2", wls2.wlb.w1.k, wls1.wlb.w0.k]);
+v[1, "party 1 secret pointer 2"] := OT(s[1, "secret 2", wl21.wlb.w1.p, wls1.wlb.w0.p]);
+
+(* Initial active labels constructed on the evaluator from information now in their views. *)
+let ala1 = { k = v[1, "party 2 secret value 1"]; p = v[1, "party 2 secret pointer 1"] } in
+let alb1 = { k = v[1, "party 1 secret value 1"]; p = v[1, "party 1 secret pointer 1"] } in
+
+let ala2 = { k = v[1, "party 2 secret value 2"]; p = v[1, "party 2 secret pointer 2"] } in
+let alb2 = { k = v[1, "party 1 secret value 2"]; p = v[1, "party 1 secret pointer 2"] } in
+
+(* Evaluate the circuit using active labels and reveal the output. *)
+v[0,"public output"] := decode(out, eval(g3, eval(g1, ala1, alb1), eval(g2, ala2, alb2)))
