@@ -21,6 +21,9 @@
 
      f(x1, ..., xn) { e }
 
+   A *program* is a list of function definitions followed by an expression which is
+   the main entry point of the program.
+
    Throughout this document I'll enclose comments in delimeters (* ... *) OCaml-style.
 *)
 
