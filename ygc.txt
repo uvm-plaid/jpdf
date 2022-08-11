@@ -220,7 +220,7 @@ decode(out_table, al) {
 (*
    The main program! In this example we will securely compute:
 
-       (s[2, 1] and s[1,1) and (s[2,2] or s[1,2])
+       (s[2, 1] and s[1,1]) and (s[2,2] or s[1,2])
 
    Where s[1,i] and s[2,i] for i in {1,2} are party 1 and 2's secret inputs.
 *)
