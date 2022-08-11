@@ -243,17 +243,17 @@ let out = output_table(wls4.wla) in
    active labels directly, whereas party 2 receives theirs via OT. All of these must go
    into party 1's views.
 *)   
-v[1, "party 2 secret value 1"] := select(s[2, "secret 1", wls1.wla.w1.k, wls1.wla.w0.k]);
-v[1, "party 2 secret pointer 1"] := select(s[2, "secret 1", wls1.wla.w1.p, wls1.wla.w0.p]);
+v[1, "party 2 secret value 1"] := select(s[2,1], wls1.wla.w1.k, wls1.wla.w0.k]);
+v[1, "party 2 secret pointer 1"] := select(s[2,1], wls1.wla.w1.p, wls1.wla.w0.p]);
 
-v[1, "party 2 secret value 2"] := select(s[2, "secret 2", wls2.wla.w1.k, wls1.wla.w0.k]);
-v[1, "party 2 secret pointer 2"] := select(s[2, "secret 2", wl21.wla.w1.p, wls1.wla.w0.p]);
+v[1, "party 2 secret value 2"] := select(s[2,2], wls2.wla.w1.k, wls1.wla.w0.k]);
+v[1, "party 2 secret pointer 2"] := select(s[2,2], wl21.wla.w1.p, wls1.wla.w0.p]);
 
-v[1, "party 1 secret value 1"] := OT(s[1, "secret 1", wls1.wlb.w1.k, wls1.wlb.w0.k]);
-v[1, "party 1 secret pointer 1"] := OT(s[1, "secret 1", wls1.wlb.w1.p, wls1.wlb.w0.p]);
+v[1, "party 1 secret value 1"] := OT(s[1,1], wls1.wlb.w1.k, wls1.wlb.w0.k]);
+v[1, "party 1 secret pointer 1"] := OT(s[1,1], wls1.wlb.w1.p, wls1.wlb.w0.p]);
 
-v[1, "party 1 secret value 2"] := OT(s[1, "secret 2", wls2.wlb.w1.k, wls1.wlb.w0.k]);
-v[1, "party 1 secret pointer 2"] := OT(s[1, "secret 2", wl21.wlb.w1.p, wls1.wlb.w0.p]);
+v[1, "party 1 secret value 2"] := OT(s[1,2], wls2.wlb.w1.k, wls1.wlb.w0.k]);
+v[1, "party 1 secret pointer 2"] := OT(s[1,2], wl21.wlb.w1.p, wls1.wlb.w0.p]);
 
 (* Initial active labels constructed on the evaluator from information now in their views. *)
 let ala1 = { k = v[1, "party 2 secret value 1"]; p = v[1, "party 2 secret pointer 1"] } in
