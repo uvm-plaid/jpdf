@@ -1,39 +1,27 @@
-type vartype = Secret | View | Flip;;
+type cid  = Int
 
-type w = string
+type field = string 
+type fname = string
 
-type svar = string
-
-type ss = w | svar | Prod of ss * ss
-
-type id = vartype * Int * ss
-
-(* type function_ident = *)
-
-(* type bool = Bool *)
-
-type client  = Int
+type sexp = String of string | SVar of string | Concat of sexp * sexp
 
 type expr =
-    Var of id 
+    Var of string 
   | Bool of Bool
   | Not of expr 
   | And of expr * expr 
   | Or of expr * expr 
   | Xor of expr * expr 
-
-  | H of ss
+  | H of expr
+  | Flip of cid * expr
+  | View of cid * expr
+  | Sexp of sexp
   | Select of expr * expr * expr 
   | OT of expr * expr * expr 
-  | Assign of id * expr 
-  | Function of id list * expr
-
-  | Appl of funct_identif * expr list
+  | Assign of expr * expr 
+  | Appl of fname * expr list
   | Record of (field * expr) list
   | Dot of expr * field
-  | Let of id * expr * expr
-  | Str of ss
-  | At of Bool * client
-
+  | Let of expr * expr * expr
   | Seq of expr * expr;;
 
