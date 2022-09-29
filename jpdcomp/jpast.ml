@@ -17,9 +17,9 @@ type expr =
   | Select of expr * expr * expr 
   | OT of expr * expr * expr 
   | Assign of expr * expr 
-  | Appl of fname * expr list
+  | Appl of id * expr list
   | Record of (field * expr) list
   | Dot of expr * field
-  | Let of expr * expr * expr
+  | Let of id * expr * expr
   | Seq of expr * expr;;
 
