@@ -1,8 +1,8 @@
 type vartype = Secret | View | Flip | Local;;
 
-type id = vartype * int * ss
+type id = vartype * Int * ss
 
-type w = string
+type w = String
 
 type svar = String
 
