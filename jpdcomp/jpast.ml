@@ -23,3 +23,6 @@ type expr =
   | Let of id * expr * expr
   | Seq of expr * expr;;
 
+type fndecl = id * id list * expr
+
+type progn = fndecl list * expr
