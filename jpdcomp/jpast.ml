@@ -1,12 +1,9 @@
-type cid  = Int
-
+type cid  = int
+type id = SVar of string | TVar of string | Fname of string
 type field = string 
-type fname = string
-
-type sexp = String of string | SVar of string | Concat of sexp * sexp
 
 type expr =
-    Var of string 
+    Var of id 
   | Bool of Bool
   | Not of expr 
   | And of expr * expr 
@@ -15,7 +12,8 @@ type expr =
   | H of expr
   | Flip of cid * expr
   | View of cid * expr
-  | Sexp of sexp
+  | String of string
+  | Concat of expr * expr
   | Select of expr * expr * expr 
   | OT of expr * expr * expr 
   | Assign of expr * expr 
