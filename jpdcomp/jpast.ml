@@ -4,7 +4,7 @@ type field = string
 
 type expr =
     Var of id 
-  | Bool of Bool
+  | Bool of bool
   | Not of expr 
   | And of expr * expr 
   | Or of expr * expr 
