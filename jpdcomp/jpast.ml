@@ -11,6 +11,7 @@ type expr =
   | Xor of expr * expr 
   | H of expr
   | Flip of cid * expr
+  | Secret of cid * expr
   | View of cid * expr
   | String of string
   | Concat of expr * expr
