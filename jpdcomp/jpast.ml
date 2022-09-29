@@ -1,18 +1,16 @@
-type vartype = Secret | View | Flip | Local;;
+type vartype = Secret | View | Flip;;
 
-type id = vartype * Int * ss
+type w = string
 
-type w = String
-
-type svar = String
+type svar = string
 
 type ss = w | svar | Prod of ss * ss
 
+type id = vartype * Int * ss
+
+(* type function_ident = *)
+
 (* type bool = Bool *)
-
-type val = expr
-
-type tau = Nat | Bool | Prod of tau * tau
 
 type client  = Int
 
@@ -28,13 +26,14 @@ type expr =
   | Select of expr * expr * expr 
   | OT of expr * expr * expr 
   | Assign of id * expr 
-  | Function of id * tau * expr
+  | Function of id list * expr
 
-  | Appl of expr * expr
+  | Appl of funct_identif * expr list
   | Record of (field * expr) list
   | Dot of expr * field
   | Let of id * expr * expr
-
+  | Str of ss
   | At of Bool * client
 
   | Seq of expr * expr;;
+
