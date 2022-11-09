@@ -1,6 +1,5 @@
 (* Syntax *)
 
-type cid  = int;;
 type id = SVar of string | TVar of string | Fname of string;;
 type field = string;;
 
@@ -12,11 +11,12 @@ type expr =
   | Or of expr * expr 
   | Xor of expr * expr 
   | H of expr
-  | F of cid * expr
-  | S of cid * expr
-  | V of cid * expr
+  | F of expr * expr
+  | S of expr * expr
+  | V of expr * expr
   | String of string
   | Concat of expr * expr
+  | Cid of int
   | Select of expr * expr * expr 
   | OT of expr * expr * expr 
   | Assign of expr * expr 
@@ -37,6 +37,7 @@ type ppdf =
 type jpdty =
     RecTy of (field * jpdty) list
   | StringTy of expr
+  | CidTy of expr
   | Jpdf of ppdf * ppdf
   | GenFn of jpdty list * (jpdty * views)
   | Unit
@@ -56,6 +57,7 @@ exception TypeError of string;;
 let synthesize t1s t2s =
   let rec synth = function
       (StringTy(Var(SVar(x))), StringTy(e)) -> ([], [((SVar x),e)])
+    | (CidTy(Var(SVar(x))), CidTy(e)) -> ([], [((SVar x),e)])
     | (Jpdf((DVar(_) as alpha), (DVar(_) as beta)), Jpdf(pdf1, pdf2)) ->
        ([(alpha, pdf1); (beta, pdf2)], [])
     | (RecTy(fs1), RecTy(fs2)) ->
@@ -76,14 +78,15 @@ let substitute t (tsubs, esubs) =
   let rec esub = function
       (Var(SVar x)) -> List.assoc (SVar x) esubs 
     | (String s) -> (String s)
+    | (Cid n) -> (Cid n)
     | (Concat(e1,e2)) ->
        (match (esub e1, esub e2) with
         | (String s1, String s2) -> String(s1 ^ s2)
         | (s1,s2) -> Concat(s1, s2))
     | (H(e)) -> H(esub e)
-    | (V(p,e)) -> V(p, esub e)
-    | (S(p,e)) -> S(p, esub e)
-    | (F(p,e)) -> F(p, esub e)
+    | (V(e1,e2)) -> V(esub e1, esub e2)
+    | (S(e1,e2)) -> S(esub e1, esub e2)
+    | (F(e1,e2)) -> F(esub e1, esub e2)
     | _ -> raise (TypeError "unexpected expression in substitution")
   in
   let rec pdfsub = function
@@ -96,6 +99,7 @@ let substitute t (tsubs, esubs) =
   in
   let rec tsub = function
       (StringTy e) -> StringTy(esub e)
+    | (CidTy e) -> CidTy(esub e)
     | (RecTy fs) -> RecTy(List.map (fun (f,t) -> (f, (tsub t))) fs)
     | (Jpdf(pdft, pdff)) -> Jpdf(pdfsub pdft, pdfsub pdff)
     | Unit -> Unit
@@ -107,6 +111,7 @@ let rec pty (gamma : bindings) (views : views) = function
     (Bool true) -> Jpdf(Top, Bot), views 
   | (Bool false) -> Jpdf(Bot, Top), views
   | (Var x) -> (List.assoc x gamma), views
+  | (Cid cid) -> CidTy(Cid cid), views
   | (String s) -> StringTy(String s), views
   | (Concat(e1, e2)) ->
      (match (pty gamma views e1) with
@@ -115,18 +120,27 @@ let rec pty (gamma : bindings) (views : views) = function
             (StringTy(s2), v2) -> StringTy(Concat(s1,s2)), v2
           | _ ->  raise (TypeError "non-string type in string expression"))
       |  _ ->  raise (TypeError "non-string type in string expression")) 
-  | (F(p,e)) ->
-     (match (pty gamma views e) with
-        (StringTy si, v) -> (Jpdf((Dist(F(p,si),true)),(Dist(F(p,si),false))), v)
-      | _ -> raise (TypeError "not a string type in flip id"))
-  | (S(p,e)) ->
-     (match (pty gamma views e) with
-        (StringTy si, v) -> (Jpdf((Dist(S(p,si),true)),(Dist(S(p,si),false))), v)
-      | _ -> raise (TypeError "not a string type in secret id"))
-  | (V(p,e)) ->
-     (match (pty gamma views e) with
-        (StringTy si, v) -> (Jpdf((Dist(V(p,si),true)),(Dist(V(p,si),false))), v)
-      | _ -> raise (TypeError "not a string type in view id"))
+  | (F(e1,e2)) ->
+     (match (pty gamma views e1) with
+        (CidTy p, vp) -> 
+         (match (pty gamma vp e2) with
+            (StringTy si, v) -> (Jpdf((Dist(F(p,si),true)),(Dist(F(p,si),false))), v)
+          | _ -> raise (TypeError "not a string type in flip id"))
+      | _ -> raise (TypeError "not a cid type in flip cid"))
+  | (S(e1,e2)) ->
+     (match (pty gamma views e1) with
+        (CidTy p, vp) -> 
+         (match (pty gamma vp e2) with
+            (StringTy si, v) -> (Jpdf((Dist(S(p,si),true)),(Dist(S(p,si),false))), v)
+          | _ -> raise (TypeError "not a string type in secret id"))
+      | _ -> raise (TypeError "not a cid type in secret cid"))
+  | (V(e1,e2)) ->
+     (match (pty gamma views e1) with
+        (CidTy p, vp) -> 
+         (match (pty gamma vp e2) with
+            (StringTy si, v) -> (Jpdf((Dist(V(p,si),true)),(Dist(V(p,si),false))), v)
+          | _ -> raise (TypeError "not a string type in view id"))
+      | _ -> raise (TypeError "not a cid type in view cid"))
   | (H e) ->
      (match (pty gamma views e) with
         (StringTy si, v) -> (Jpdf((Dist(H(si),true)),(Dist(H(si),false))), v)
@@ -148,6 +162,14 @@ let rec pty (gamma : bindings) (views : views) = function
            (Jpdf(t2,f2), v2) -> Jpdf(Meet(t1, t2), Join(f1,f2)), v2
          | _ ->  raise (TypeError "non-pdf type in logical formula"))
       |  _ ->  raise (TypeError "non-pdf type in logical formula")) 
+  | (Xor (e1, e2)) ->
+     (match (pty gamma views e1) with
+        (Jpdf(t1,f1), v1) ->
+        (match (pty gamma v1 e2) with
+           (Jpdf(t2,f2), v2) ->
+            Jpdf(Join(Meet(t1, f2),Meet(f1,t2)), Join(Meet(t1,t2),Meet(f1,f2))), v2
+         | _ ->  raise (TypeError "non-pdf type in logical formula"))
+      |  _ ->  raise (TypeError "non-pdf type in logical formula")) 
   | (Appl (f, args)) ->
      (match (List.assoc f gamma) with
         (GenFn(t1s, (t2, vf))) -> 
@@ -158,7 +180,20 @@ let rec pty (gamma : bindings) (views : views) = function
          in
          let subs = synthesize t1s arg_tys in
          (substitute t2 subs, v@(List.map (fun (v,t) -> (v, substitute t subs)) vf))
-      | _ -> raise (TypeError "wrong function type")) 
+      | _ -> raise (TypeError "wrong function type"))
+  | (Let(x,e1,e2)) ->  let (t,v) = pty gamma views e1 in pty ((x,t)::gamma) v e2
+  | (Seq(e1,e2)) -> let (_,v) = pty gamma views e1 in pty gamma v e2
+  | (Dot(e,f)) ->
+     (match (pty gamma views e) with
+        (RecTy(fs), v) -> (List.assoc f fs, v)
+      | _ -> raise (TypeError "record type in select"))
+  | (Record fs) ->
+     let (fts,v) =
+       List.fold_left
+         (fun (fts, v) (f,e) -> let (t,v') = pty gamma v e in (fts@[(f,t)],v'))
+         ([],views) fs
+     in
+     (RecTy fts, v)
   | _ -> raise (TypeError "UNFINISHED");;
 
 let fnpty (gamma : bindings) ((f, params, e) : fndecl) =
@@ -168,8 +203,7 @@ let progty ((fns, e) : progn) =
   let gamma = List.fold_left (fun g ((f,_,_) as fn) -> g@[(f,fnpty g fn)]) [] fns in
   pty gamma [] e;;
 
-(* PDF solver and analysis *)
-
+(* PDF solver and marginal distribution query *)
 
 open Hashtbl;;
 
@@ -274,7 +308,9 @@ let marg_dist inputs deps vtabs =
   let deptab = foldr f deps (gen_rows []) in
   let intab = foldr f inputs deptab in
   float(TT.cardinal intab) /. float(TT.cardinal deptab);;
-  
+
+(* Simulator security analysis *)
+
 let gen_deps xs =
   let rec gd = function
       0 -> [[]]
@@ -328,41 +364,3 @@ let group list sizes =
   let all = aux list in
   let complete = List.filter (List.for_all (fun (x, _) -> x = 0)) all in
   List.map (List.map snd) complete;;
-
-(*
-
-(*
-  passive_secure : expr -> int -> id -> bool
-  in : protocol e, number of parties n, output view o
-  out : true iff e is passive secure for n parties.
-*)
-let passive_secure e n o =
-  (* find the different types of variables- secrets, flips, views- in the protocol *)
-  let (s,f,v) = iovars e in
-  (* generate the jpdf for the expression given input variables. The jpdf is encoded 
-     as a mapping from view ids to their truth tables.  *)
-  let pdf = jpdf e (s@f) in
-  (* enumerate all partitions of parties into honest and corrupt sets. Each element 
-     of partitions is a pair h,c which is a 2-set partition of parties, where the size
-     of c (the corrupt parties) is |n|/2 with h the honest majority. *)
-  let partitions = group (enumerate n) [n - (n/2); (n/2)] in
-  (* For every honest,corrupt partition (h,c), search for a witness of unequal 
-     ideal and adversarial knowledge *)
-  List.for_all
-    (fun [h;c] ->
-      (* List all the honest input variables as hi *)
-      let hi = List.filter (fun (l,pi,_) -> l = Secret && List.mem pi h) s  in
-      (* List all the corrupt input variables as ci *)
-      let ci = List.filter (fun (l,pi,_) -> l = Secret && List.mem pi c) s in
-      (* List all the corrupt views as cv *)
-      let cv = List.filter (fun (l,pi,_) -> l = View && List.mem pi c) v in
-      (* Letting P be jpdf encoded as pdf, in check leakage we check:
-                   P(hi|ci|o) = P(hi|ci|cv|o). 
-         We do this by iterating over all possible assignments of hi, ci, cv, and o, and 
-         checking equality of their marginal distributions. *)
-      check_leakage hi ci cv o pdf) 
-  partitions;;
-
-
-
- *)
