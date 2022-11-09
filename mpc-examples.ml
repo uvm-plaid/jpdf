@@ -460,3 +460,4 @@ marg_dist [((Secret,2,0),strue)] [((Secret,1,0),sfalse);((View,0,0),sfalse)] (ge
 (* P(s[2,0] = 1 | s[1,0] = 0 | v[0,0] = 0) = .333333... *)
 marg_dist [((Secret,2,0),strue);((Secret,1,0),sfalse)] [((View,0,0),sfalse)] (genpdf gc_fail);;
 
+

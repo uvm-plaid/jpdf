@@ -168,40 +168,6 @@ let progty ((fns, e) : progn) =
   let gamma = List.fold_left (fun g ((f,_,_) as fn) -> g@[(f,fnpty g fn)]) [] fns in
   pty gamma [] e;;
 
-
-(*
-   Here (f, [(x1,t1),...,(xn,tn)], t, e) : GenFn([t1;...;tn],t) means:
- 
-    f(x1 : t1, ..., xn tn) : t { e } :  \forall ftv(t1,...,tn) . \Pi fsv(t1,...,tn) . (t1 * ... * tn) -> t
-  
-   with the restriction that any string variables occuring in t1...tn are not concatenated 
-   nor occur within a jpdf type.
-
-   Example:
-
-   f(x : jpdf('a, 'b), s : string(s))
-   {
-      H[s || "foo"] and x
-   }
-
-     : 
-
-   \forall 'a, 'b, \Pi s . 
-        jpdf('a, 'b), s : string(s) -> jpdf ((H[s || "foo"]|T meet 'a, (H[s || "foo"]|F join 'b)))
-
-   f(H["bar"],"baz") :  jpdf ((H["bazfoo"]|T meet H["bar"]|T, (H["bazfoo"]|F join H["bar]|F)))
- *)
-
-
-let (ex1 : progn) =
-  [
-  (Fname("f"),
-   [(TVar("x"), Jpdf(DVar("a"),DVar("b"))); (SVar("s"), StringTy(Var(SVar("s"))))],
-   And(H(Concat(Var(SVar("s")), String("foo"))), Var(TVar("x")))
-  )
-  ], Assign(V(0,String("pub")), Appl(Fname("f"), [F(1, String("bar")); String("baz")]));;
-
-
 (* PDF solver and analysis *)
 
 
@@ -217,9 +183,18 @@ let join = TT.union;;
 
 let strue = "1";;
 let sfalse = "0";;
+
 let hidx = create 0;;
 
+module VS =
+  Set.Make(
+      struct
+        type t = expr
+        let compare (x : t) (y : t) = compare x y
+      end);;
+
 let idx x = find hidx x;;
+
 let make_idx vars =
   (reset hidx; let i = ref 0 in List.iter (fun x -> add hidx x !i; i := !i + 1) vars);;
 
@@ -238,26 +213,63 @@ let truth_tables views =
   let rec tt = function
       Top -> gen_rows []
     | Bot -> TT.empty
-    | Dist((V(_,_)) as v, true) -> fst(find vtabs v)
-    | Dist((V(_,_)) as v, false) -> snd(find vtabs v)
+    | Dist((V(_)) as v, true) -> fst(find vtabs v)
+    | Dist((V(_)) as v, false) -> snd(find vtabs v)
     | Dist(x, true) ->  gen_rows [(idx x, strue)]
     | Dist(x, false) -> gen_rows [(idx x, sfalse)]
     | Meet(p1, p2) -> meet (tt p1) (tt p2)
     | Join(p1, p2) -> join (tt p1) (tt p2)
-    | _ -> raise (TypeError "free variable encountered in solution")
+    | _ -> raise (TypeError "free variable encountered in truth_tables")
   in
   (ignore(map (fun (v, Jpdf(p1,p2)) -> add vtabs v (tt p1, tt p2)) views);
    vtabs)
+
+let iovars views =
+  let rec vs = function
+      Top -> (VS.empty, VS.empty)
+    | Bot -> (VS.empty, VS.empty)
+    | Dist(V(_), _) -> (VS.empty,VS.empty)
+    | Dist((H(_)) as f, _) -> (VS.empty,VS.singleton f)
+    | Dist((F(_)) as f, _) -> (VS.empty,VS.singleton f)
+    | Dist((S(_)) as s, _) -> (VS.singleton s,VS.empty)
+    | Meet(p1, p2) -> 
+       let (s1,f1) = vs p1 in
+       let (s2,f2) = vs p2 in
+       (VS.union s1 s2,VS.union f1 f2)
+    | Join(p1, p2) -> 
+       let (s1,f1) = vs p1 in
+       let (s2,f2) = vs p2 in
+       (VS.union s1 s2,VS.union f1 f2)
+    | _ -> raise (TypeError "free variable encountered in iovars")
+  in
+  let (ss, fs, vs) =
+    List.fold_left
+      (fun (ss,fs,views) (v,Jpdf(t,f)) ->
+        let (st,ft) = vs t in
+        let (sf,ff) = vs f in
+        (VS.union (VS.union ss st) sf,
+         VS.union (VS.union fs ft) ff,
+         VS.union views (VS.singleton v)))
+      (VS.empty, VS.empty, VS.empty) views
+  in
+  (VS.elements ss, VS.elements fs, VS.elements vs)
+
+let jpdf views vars = (make_idx vars; truth_tables views);;
+
+let solve views =  let (s,f,_) = iovars views in jpdf views (s@f);;
+
+let genpdf e = solve (snd (progty e));;
 
 let marg_dist inputs deps vtabs =
   let f =
     (fun (x,b) tt ->
       match x with
-        (View,_,_) as v ->
+        V(_) as v ->
          let (t,f) = find vtabs v in
          if b = strue then meet t tt else meet f tt
-      | (Secret,_,_) as s -> meet (gen_rows [(idx s,b)]) tt
-      | (Flip,_,_) as f -> meet (gen_rows [(idx f,b)]) tt)
+      | S(_) as s -> meet (gen_rows [(idx s,b)]) tt
+      | F(_) as f -> meet (gen_rows [(idx f,b)]) tt
+      | H(_) as f -> meet (gen_rows [(idx f,b)]) tt)
   in
   let deptab = foldr f deps (gen_rows []) in
   let intab = foldr f inputs deptab in
@@ -317,51 +329,7 @@ let group list sizes =
   let complete = List.filter (List.for_all (fun (x, _) -> x = 0)) all in
   List.map (List.map snd) complete;;
 
-module VS =
-  Set.Make(
-      struct
-        type t = id
-        let compare (x : t) (y : t) = compare x y
-      end);;
-
-let iovars e =
-  let rec vs = function
-    (Bool _) -> (VS.empty,VS.empty,VS.empty)
-  | (Var ((View,_,_) as v)) -> (VS.empty,VS.empty,VS.singleton v)
-  | (Var ((Secret,_,_) as s)) -> (VS.singleton s,VS.empty,VS.empty)
-  | (Var ((Flip,_,_) as f)) -> (VS.empty,VS.singleton f,VS.empty)
-  | (Var (Local,_,_)) -> (VS.empty,VS.empty,VS.empty)
-  | (Not e) -> vs e
-  | (And (e1,e2)) ->
-     let (s1,f1,v1) = vs e1 in
-     let (s2,f2,v2) = vs e2 in
-     (VS.union s1 s2,VS.union f1 f2,VS.union v1 v2)
-  | (Or (e1,e2)) ->
-     let (s1,f1,v1) = vs e1 in
-     let (s2,f2,v2) = vs e2 in
-     (VS.union s1 s2,VS.union f1 f2,VS.union v1 v2)
-  | (Xor (e1,e2)) ->
-     let (s1,f1,v1) = vs e1 in
-     let (s2,f2,v2) = vs e2 in 
-     (VS.union s1 s2,VS.union f1 f2,VS.union v1 v2)
-  | (Select (e1,e2,e3)) ->
-     let (s1,f1,v1) = vs e1 in
-     let (s2,f2,v2) = vs e2 in 
-     let (s3,f3,v3) = vs e3 in 
-     (VS.union (VS.union s1 s2) s3,VS.union (VS.union f1 f2) f3,VS.union (VS.union v1 v2) v3)
-  | (Assign((View,p,j) as v',e)) -> 
-     let (s,f,v) = vs e in (s,f,VS.union (VS.singleton v') v)  
-  | (Assign((Local,p,j) as v',e)) -> vs e
-  | (Seq(e1,e2)) -> 
-     let (s1,f1,v1) = vs e1 in
-     let (s2,f2,v2) = vs e2 in 
-     (VS.union s1 s2,VS.union f1 f2,VS.union v1 v2)
-  in
-  let (s,f,v) = vs e in (VS.elements s,VS.elements f,VS.elements v);;
-
-let jpdf e vars = (make_idx vars; truth_tables e);;
-
-let genpdf e = let (s,f,_) = iovars e in jpdf e (s@f);;
+(*
 
 (*
   passive_secure : expr -> int -> id -> bool
@@ -397,4 +365,4 @@ let passive_secure e n o =
 
 
 
-
+ *)
