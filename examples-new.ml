@@ -1,11 +1,61 @@
 (*
-  
-  
 
- *)
+LAMBDA OBLIV (Figure 3 examples). We show how dependent probabilities can 
+be used to precisely characterize leakage of information. 
 
+Example from Figure 3(a):
+
+let f0 = flip[1,"0"] in
+let f1 = flip[1,"1"] in
+let f2 = select(s[1,"0"], f0, f1) in
+v[0,"0"] := f2;
+v[0,"1"] := f0   
+
+*)
+
+let (ex0 : progn) = 
+[],
+Let(EVar("f0"), F(Cid(1), String("0")),
+Let(EVar("f1"), F(Cid(1), String("1")),
+Let(EVar("f2"), Select(S(Cid(1), String("0")),Var(EVar("f0")),Var(EVar("f1"))),
+Seq(
+Assign(V(Cid(0), String("0")), Var(EVar("f2"))),
+Assign(V(Cid(0), String("1")), Var(EVar("f0")))))));;
+
+(* This reveals the leakage discussed on page 5. The first probability is 1/2, the
+   second is 2/3. *)
+marg_dist [(S(Cid(1), String("0")),strue)] [(V(Cid(0), String("0")),strue)] (genpdf ex0);;
+marg_dist [(S(Cid(1), String("0")),strue)] [(V(Cid(0), String("0")),strue);(V(Cid(0), String("1")),strue)] (genpdf ex0);;
+
+(* 
+
+Example from LAMBDA OBLIV Figure 3(b):
+
+let f0 = flip[1,"0"] in
+let f1 = flip[1,"1"] in
+let f2 = select(f0, f0, f1) in
+let f3 = select(s[1,"0"],f2,flip[1,"2"]) in
+v[0,"0"] := f3
+
+*)
+
+let (ex1 : progn) = 
+[],
+Let(EVar("f0"), F(Cid(1), String("0")),
+Let(EVar("f1"), F(Cid(1), String("1")),
+Let(EVar("f2"), Select(Var(EVar("f0")),Var(EVar("f0")),Var(EVar("f1"))),
+Let(EVar("f3"), Select(S(Cid(1), String("0")),Var(EVar("f2")),F(Cid(1), String("2"))),
+Assign(V(Cid(0), String("0")), Var(EVar("f3")))))));;
+
+(* This reveals the leakage discussed on page 6- the probability that
+   the secret is 1 is higher given 1 observed in the output. *)
+marg_dist [(S(Cid(1), String("0")),strue)] [] (genpdf ex1);;   
+marg_dist [(S(Cid(1), String("0")),strue)] [(V(Cid(0), String("0")),strue)] (genpdf ex1);;   
 
 (*
+
+Contrived example showing off features of the syntax and type system. 
+
 
 f(x : jpdf('a, 'b), s : string(s))
 {
@@ -17,7 +67,7 @@ v[0,"pub"] := f(flip[1,"bar"],"baz")
 *)
 
 
-let (ex1 : progn) =
+let (ex2 : progn) =
   [
   (Fname("f"),
    [(EVar("x"), Jpdf(DVar("a"),DVar("b"))); (EVar("s"), StringTy(Var(EVar("s"))))],
@@ -25,7 +75,10 @@ let (ex1 : progn) =
   )
   ], Assign(V(Cid(0),String("pub")), Appl(Fname("f"), [F(Cid(1), String("bar")); String("baz")]));;
 
-(*
+(* 
+
+3-party additive secret sharing over the binary field:
+
 
 share3(client : cid(client), secretid : string(sid))
 {
@@ -53,7 +106,7 @@ v[0,pub] := v[0,1] xor v[0,2] xor v[0,3]
 
 *)
 
-let ex2 =
+let ex3 =
 (
 [
 (
@@ -85,5 +138,7 @@ Seq(Assign(V(Cid(0),String("3")),
   Xor(Xor(Dot(Var(EVar("shares3")), "s3"),V(Cid(3),String("0"))),V(Cid(3),String("1")))),
 Assign(V(Cid(0),String("pub")),
   Xor(Xor(V(Cid(0),String("1")),V(Cid(0),String("2"))),V(Cid(0),String("3"))))))))))))))))
-)
+);;
 
+(* This is true! *)
+passive_secure ex2 3 (V(Cid(0),String("pub")));;
