@@ -370,10 +370,11 @@ let group list sizes =
   in : protocol p, number of parties n, output view o
   out : true iff p is passive secure for n parties.
 *)
-let passive_secure p n o =
-  (* generate program typing *)
+let passive_secure p n (V(Cid(pubid),_) as o) =
+  (* generate views from program typing *)
   let (_,views) = progty p in
-  (* find the different types of variables- secrets, flips (including oracular), views- in the protocol *)
+  (* find the different types of variables- secrets, flips (including oracular), views- used 
+     in the protocol *)
   let (s,f,v) = iovars views in
   (* generate the jpdf by solving the views given input variables. The jpdf is encoded 
      as a mapping from view ids to their truth tables.  *)
@@ -383,13 +384,13 @@ let passive_secure p n o =
      of c (the corrupt parties) is |n|/2 with h the honest majority. *)
   let partitions = group (enumerate n) [n - (n/2); (n/2)] in
   (* For every honest,corrupt partition (h,c), search for a witness of unequal 
-     ideal and adversarial knowledge *)
+     ideal and adversarial knowledge. The public client is always corrupt. *)
   List.for_all
     (fun [h;c] ->
       (* List all the honest input variables as hi *)
-      let hi = List.filter (fun (S(Cid(pi),_)) -> List.mem pi h) s  in
+      let hi = List.filter (fun (S(Cid(pi),_)) -> List.mem pi h && pi <> pubid) s  in
       (* List all the corrupt input variables as ci *)
-      let ci = List.filter (fun (S(Cid(pi),_)) -> List.mem pi c) s in
+      let ci = List.filter (fun (S(Cid(pi),_)) -> List.mem pi c || pi = pubid) s in
       (* List all the corrupt views as cv *)
       let cv = List.filter (fun (V(Cid(pi),_)) -> List.mem pi c) v in
       (* Letting P be jpdf encoded as pdf, in check leakage we check:
