@@ -1,6 +1,6 @@
 (* Syntax *)
 
-type id = SVar of string | TVar of string | Fname of string;;
+type id = EVar of string | Fname of string;;
 type field = string;;
 
 type expr =
@@ -56,8 +56,8 @@ exception TypeError of string;;
 
 let synthesize t1s t2s =
   let rec synth = function
-      (StringTy(Var(SVar(x))), StringTy(e)) -> ([], [((SVar x),e)])
-    | (CidTy(Var(SVar(x))), CidTy(e)) -> ([], [((SVar x),e)])
+      (StringTy(Var(x)), StringTy(e)) -> ([], [(x,e)])
+    | (CidTy(Var(x)), CidTy(e)) -> ([], [(x,e)])
     | (Jpdf((DVar(_) as alpha), (DVar(_) as beta)), Jpdf(pdf1, pdf2)) ->
        ([(alpha, pdf1); (beta, pdf2)], [])
     | (RecTy(fs1), RecTy(fs2)) ->
@@ -76,7 +76,7 @@ let synthesize t1s t2s =
 
 let substitute t (tsubs, esubs) =
   let rec esub = function
-      (Var(SVar x)) -> List.assoc (SVar x) esubs 
+      (Var x) -> List.assoc x esubs 
     | (String s) -> (String s)
     | (Cid n) -> (Cid n)
     | (Concat(e1,e2)) ->
