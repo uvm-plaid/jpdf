@@ -382,15 +382,15 @@ let passive_secure p n (V(Cid(pubid),_) as o) =
   (* enumerate all partitions of parties into honest and corrupt sets. Each element 
      of partitions is a pair h,c which is a 2-set partition of parties, where the size
      of c (the corrupt parties) is |n|/2 with h the honest majority. *)
-  let partitions = group (enumerate n) [n - (n/2); (n/2)] in
+  let partitions = group (List.filter (fun x -> x <> pubid) (enumerate n)) [n - (n/2); (n/2)] in
   (* For every honest,corrupt partition (h,c), search for a witness of unequal 
      ideal and adversarial knowledge. The public client is always corrupt. *)
   List.for_all
     (fun [h;c] ->
       (* List all the honest input variables as hi *)
-      let hi = List.filter (fun (S(Cid(pi),_)) -> List.mem pi h && pi <> pubid) s  in
+      let hi = List.filter (fun (S(Cid(pi),_)) -> List.mem pi h) s  in
       (* List all the corrupt input variables as ci *)
-      let ci = List.filter (fun (S(Cid(pi),_)) -> List.mem pi c || pi = pubid) s in
+      let ci = List.filter (fun (S(Cid(pi),_)) -> List.mem pi c) s in
       (* List all the corrupt views as cv *)
       let cv = List.filter (fun (V(Cid(pi),_)) -> List.mem pi c) v in
       (* Letting P be jpdf encoded as pdf, in check leakage we check:
