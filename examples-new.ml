@@ -1,11 +1,20 @@
 (*
-   f(x : jpdf('a, 'b), s : string(s))
-   {
-      H[s || "foo"] and x
-   }
+  
+  
 
-   f(H["bar"],"baz") :  jpdf ((H["bazfoo"]|T meet H["bar"]|T, (H["bazfoo"]|F join H["bar"]|F)))
  *)
+
+
+(*
+
+f(x : jpdf('a, 'b), s : string(s))
+{
+   H[s || "foo"] and x
+}
+
+v[0,"pub"] := f(flip[1,"bar"],"baz") 
+
+*)
 
 
 let (ex1 : progn) =

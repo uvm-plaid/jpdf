@@ -162,6 +162,17 @@ let rec pty (gamma : bindings) (views : views) = function
            (Jpdf(t2,f2), v2) -> Jpdf(Meet(t1, t2), Join(f1,f2)), v2
          | _ ->  raise (TypeError "non-pdf type in logical formula"))
       |  _ ->  raise (TypeError "non-pdf type in logical formula")) 
+  | (Select (e1, e2, e3)) ->
+     (match (pty gamma views e1) with
+        (Jpdf(t1,f1), v1) ->
+        (match (pty gamma v1 e2) with
+           (Jpdf(t2,f2), v2) ->
+            (match (pty gamma v2 e3) with
+               (Jpdf(t3,f3), v3) ->
+                Jpdf(Join(Meet(t1,t2),Meet(f1,t3)), Join(Meet(t1,f2),Meet(f1,f3))), v3 
+             | _ ->  raise (TypeError "non-pdf type in logical formula"))
+         |  _ ->  raise (TypeError "non-pdf type in logical formula"))
+      |  _ ->  raise (TypeError "non-pdf type in logical formula"))
   | (Xor (e1, e2)) ->
      (match (pty gamma views e1) with
         (Jpdf(t1,f1), v1) ->
