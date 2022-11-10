@@ -106,7 +106,7 @@ v[0,pub] := v[0,1] xor v[0,2] xor v[0,3]
 
 *)
 
-let ex3 =
+let (ex3 : progn) =
 (
 [
 (
