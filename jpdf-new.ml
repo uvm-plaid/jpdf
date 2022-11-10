@@ -386,7 +386,7 @@ let passive_secure p n (V(Cid(pubid),_) as o) =
   (* For every honest,corrupt partition (h,c), search for a witness of unequal 
      ideal and adversarial knowledge. The public client is always corrupt. *)
   List.for_all
-    (fun [h;c] ->
+    (fun [h;pubid::c] ->
       (* List all the honest input variables as hi *)
       let hi = List.filter (fun (S(Cid(pi),_)) -> List.mem pi h) s  in
       (* List all the corrupt input variables as ci *)
