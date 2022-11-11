@@ -140,5 +140,59 @@ Assign(V(Cid(0),String("pub")),
   Xor(Xor(V(Cid(0),String("1")),V(Cid(0),String("2"))),V(Cid(0),String("3"))))))))))))))))
 );;
 
+stable ex3 (V(Cid(0),String("pub")));;
+
 (* This is true! *)
-passive_secure ex2 3 (V(Cid(0),String("pub")));;
+passive_secure ex3 3 (V(Cid(0),String("pub")));;
+
+
+(*
+
+// a dumb example of an unstable protocol //
+
+v[0,"pub"] := s[0,"secret"] xor flip[1,"flip"]
+
+*)
+
+let ex4 = 
+(
+  [],
+  Assign(V(Cid(0),String("pub")), Xor(S(Cid(1),String("secret")), F(Cid(1),String("flip"))))
+);;
+
+(* This is false *)
+stable ex4 (V(Cid(0),String("pub")));;
+
+(*
+Notes on metatheory:
+
+<M,e> -R->[l] <M,e>
+
+PD(M,e) = { (R,l) | R \in tapes, <M,e> -R->[l] M' }
+
+pd(l) = |{ (R,l) | (R,l) \in pd }| / |pd|
+
+tapes(pd) = {R | (R,l) \in pd}
+
+pd1 ~ pd2 <=> tapes(pd1) = tapes(pd2) and pd1(l) = pd2(l) for all l
+
+e is stable <=> there exists unique o . for all R . (M,e) -R-> M' then out(M') = o.
+We say that o = output(M,e) for stable e.
+
+NIMO(e,C) <=>
+
+  e is stable and (M1 =_C M2 and output(M1,e) = output(M2,e) => PD(M1,e) ~ PD(M2,e))
+
+Theorem. If NIMO(e,C) for all C assuming |C| <= |P|/2, then PS(e).
+
+Proof. In the real world we have all inputs M, and PD(M,e).
+The simulator picks arbitrary M' =_C M with output(M',e) = output(M',e).
+Since e is stable, the simulator can iterate through all random
+tapes R running (M',e) with each, generating PD(M',e) which is equivalent
+to PD(M,e) by assumption and definition. QED
+
+Theorem. Given |C| <= |P|/2 and stable e:
+
+  (prob(M|o) = prob(M|l|o) for all l with PD(M,e)(l) > 0) iff  NIMO(e,C).
+
+*)

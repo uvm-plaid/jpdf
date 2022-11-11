@@ -376,6 +376,13 @@ let group list sizes =
   let complete = List.filter (List.for_all (fun (x, _) -> x = 0)) all in
   List.map (List.map snd) complete;;
 
+let stable p (V(Cid(pubid),_) as o) =
+  let (_,views) = progty p in
+  let (s,f,v) = iovars views in
+  let pdf = jpdf views (s@f) in
+  let sdeps = gen_deps s in
+  List.for_all (fun sds -> let md = marg_dist [(o,strue)] sds pdf in (md = 1.0 || md = 0.0)) sdeps
+  
 (*
   passive_secure : progn -> int -> id -> bool
   in : protocol p, number of parties n, output view o
