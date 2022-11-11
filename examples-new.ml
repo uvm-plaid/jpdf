@@ -3,7 +3,7 @@
 LAMBDA OBLIV (Figure 3 examples). We show how dependent probabilities can 
 be used to precisely characterize leakage of information. 
 
-Example from Figure 3(a):
+// Example from Figure 3(a): // 
 
 let f0 = flip[1,"0"] in
 let f1 = flip[1,"1"] in
@@ -29,7 +29,7 @@ marg_dist [(S(Cid(1), String("0")),strue)] [(V(Cid(0), String("0")),strue);(V(Ci
 
 (* 
 
-Example from LAMBDA OBLIV Figure 3(b):
+// Example from LAMBDA OBLIV Figure 3(b): // 
 
 let f0 = flip[1,"0"] in
 let f1 = flip[1,"1"] in
@@ -54,10 +54,10 @@ marg_dist [(S(Cid(1), String("0")),strue)] [(V(Cid(0), String("0")),strue)] (gen
 
 (*
 
-Contrived example showing off features of the syntax and type system. 
+// Contrived example showing off features of the syntax and type system. //
 
 
-f(x : jpdf('a, 'b), s : string(s))
+f(x : jpd('a, 'b), s : string(s))
 {
    H[s || "foo"] and x
 }
@@ -77,7 +77,7 @@ let (ex2 : progn) =
 
 (* 
 
-3-party additive secret sharing over the binary field:
+// 3-party additive secret sharing over the binary field: // 
 
 
 share3(client : cid(client), secretid : string(sid))
