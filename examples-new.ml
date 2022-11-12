@@ -190,7 +190,7 @@ Defn. pd1 ~ pd2 <=> tapes(pd1) = tapes(pd2) and pd1(l) = pd2(l) for all l   // i
 
 // stability- randomizations should have no effect on output. 
 
-Defn. e is stable <=> there exists unique o . for all R . (M,e) -R-> M' then out(M') = o.
+Defn. e is stable <=> for all M . there exists unique o . for all R . (M,e) -R-> o.
 We say that o = output(M,e) for stable e, and i(e) is the ideal functionality 
 induced by output.
 
@@ -219,7 +219,6 @@ PD(M,e). The simulator picks arbitrary M' =_C M with i(e)(M',e) =
 output(M,e). Since e is stable, the simulator can iterate through all random
 tapes R running (M',e) with each, generating PD(M',e) ~ PD(M,e) by 
 definition of NIMO. QED
-
 
 // Deriving pdf analysis for NIMO and thus PS. Intuitively, a protocol is secure
 // if the adversary can never make any better guesses about inputs given corrupt views 
