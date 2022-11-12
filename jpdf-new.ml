@@ -317,8 +317,9 @@ let marg_dist inputs deps vtabs =
       | H(_) as f -> meet (gen_rows [(idx f,b)]) tt)
   in
   let deptab = foldr f deps (gen_rows []) in
-  let intab = foldr f inputs deptab in
-  float(TT.cardinal intab) /. float(TT.cardinal deptab);;
+  if TT.cardinal deptab = 0 then 0.0 else
+    let intab = foldr f inputs deptab in
+    float(TT.cardinal intab) /. float(TT.cardinal deptab)
 
 (* Simulator security analysis *)
 
@@ -332,21 +333,26 @@ let gen_deps xs =
     let vs = gd (List.length xs) in
     map (List.combine xs) vs;;
 
-let witness = ref ([],[]);;
+let witness = ref ([],[],[]);;
               
 let check_leakage hi ci cv o vtabs = 
   let hdeps = gen_deps hi in
-  let cdeps = gen_deps (ci@cv@[o]) in
+  let cdeps = gen_deps ci in
+  let vdeps = gen_deps cv in 
   List.for_all
-  (fun cdep ->
-    List.for_all
-      (fun hdep ->
-        if (marg_dist (hdep@cdep) [] vtabs) = 0.0 then true else
-          let p1 = marg_dist hdep cdep vtabs in
-          let p2 = marg_dist hdep (List.filter (fun (x,_) -> List.mem x (ci@[o])) cdep) vtabs in
-          if p1 = p2 then true else (witness := (hdep, cdep); false)
-      )
-      hdeps) cdeps
+    (fun hdep ->
+      List.for_all
+        (fun cdep ->
+          List.for_all
+            (fun vdep ->
+              let odep = [(o, List.assoc o vdep)] in
+              let p1 = marg_dist hdep (cdep@vdep) vtabs in
+              p1 = 0.0 ||  
+                let p2 = marg_dist hdep (cdep@odep) vtabs in
+                p1 = p2 || (witness := (hdep, cdep@vdep, cdep@odep); false))
+            vdeps)
+        cdeps)
+    hdeps;;
 
 let rec enumerate = function
     0 -> []
@@ -402,15 +408,15 @@ let passive_secure p n (V(Cid(pubid),_) as o) =
      of c (the corrupt parties) is |n|/2 with h the honest majority. *)
   let partitions = group (List.filter (fun x -> x <> pubid) (enumerate n)) [n - (n/2); (n/2)] in
   (* For every honest,corrupt partition (h,c), search for a witness of unequal 
-     ideal and adversarial knowledge. The public client is always corrupt. *)
+     ideal and adversarial knowledge. Public views are always corrupt. *)
   List.for_all
-    (fun [h;pubid::c] ->
+    (fun [h;c] ->
       (* List all the honest input variables as hi *)
       let hi = List.filter (fun (S(Cid(pi),_)) -> List.mem pi h) s  in
       (* List all the corrupt input variables as ci *)
       let ci = List.filter (fun (S(Cid(pi),_)) -> List.mem pi c) s in
       (* List all the corrupt views as cv *)
-      let cv = List.filter (fun (V(Cid(pi),_)) -> List.mem pi c) v in
+      let cv = List.filter (fun (V(Cid(pi),_)) -> List.mem pi c || pi = pubid) v in
       (* Letting P be jpdf encoded as pdf, in check leakage we check:
                    P(hi|ci|o) = P(hi|ci|cv|o). 
          We do this by iterating over all possible assignments of hi, ci, cv, and o, and 
