@@ -208,15 +208,15 @@ Defn. PS(e) <=>
   
   For all |C| < |P|/2, M, R, and l, if (<M,e> -R->[l] o) then the simulator
   can reconstruct a probability distribution pd ~ PD(M,e) given just the
-  corrupt part of M and o and i(e). 
+  corrupt part of M, o, and i(e). 
 
 // NIMO implies passive security. 
 
 Theorem. If NIMO(e,C) for all C assuming |C| <= |P|/2, then PS(e).
 
-Proof. In the real world we have all inputs M and PD(M,e).
-The simulator picks arbitrary M' =_C M with i(e)(M',e) = output(M,e).
-Since e is stable, the simulator can iterate through all random
+Proof. Pick any M and C. In the real world we have all inputs M and 
+PD(M,e). The simulator picks arbitrary M' =_C M with i(e)(M',e) = 
+output(M,e). Since e is stable, the simulator can iterate through all random
 tapes R running (M',e) with each, generating PD(M',e) ~ PD(M,e) by 
 definition of NIMO. QED
 
