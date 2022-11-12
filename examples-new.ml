@@ -180,23 +180,23 @@ Reduction relations:
 <M,e> -R->[l] M'       // multi step with final memory M'
 <M,e> -R->[l] o        // multi step with final memory M' where out(M') = o.
 
-PD(M,e) = { (R,l) | R \in tapes, <M,e> -R->[l] M' }   // explicit probability distribution
+Defn. PD(M,e) = { (R,l) | R \in tapes, <M,e> -R->[l] M' }   // explicit probability distribution
 
-pd(l) = |{ (R,l) | (R,l) \in pd }| / |pd|    // numeric computation of view probability
+Defn. pd(l) = |{ (R,l) | (R,l) \in pd }| / |pd|    // numeric computation of view probability
 
-tapes(pd) = {R | (R,l) \in pd}
+Defn. tapes(pd) = {R | (R,l) \in pd}
 
-pd1 ~ pd2 <=> tapes(pd1) = tapes(pd2) and pd1(l) = pd2(l) for all l   // indistinguishability
+Defn. pd1 ~ pd2 <=> tapes(pd1) = tapes(pd2) and pd1(l) = pd2(l) for all l   // indistinguishability
 
 // stability- randomizations should have no effect on output. 
 
-e is stable <=> there exists unique o . for all R . (M,e) -R-> M' then out(M') = o.
+Defn. e is stable <=> there exists unique o . for all R . (M,e) -R-> M' then out(M') = o.
 We say that o = output(M,e) for stable e, and i(e) is the ideal functionality 
 induced by output.
 
 // noninterference modulo output (NIMO) 
 
-NIMO(e,C) <=>
+Defn. NIMO(e,C) <=>
 
   e is stable and (M1 =_C M2 and output(M1,e) = output(M2,e) => PD(M1,e) ~ PD(M2,e))
 
@@ -216,14 +216,14 @@ definition of NIMO. QED
 // if the adversary can't make any better guess about inputs given corrupt views 
 // than they can from the output and corrupt inputs alone.
 
-prob_i(e)(M|o) = if i(e)(M) = o then (1 / |{M | i(e)M = o}|) else 0
+Defn. prob_i(e)(M|o) = if i(e)(M) = o then (1 / |{M | i(e)M = o}|) else 0
  
-prob_e(M|o) = |{ R | exists l . <M,e> -R->[l] o }| / |{ (M,R) | exists l . <M,e> -R->[l] o}|
+Defn. prob_e(M|o) = |{ R | exists l . <M,e> -R->[l] o }| / |{ (M,R) | exists l . <M,e> -R->[l] o}|
  
 Lemma. If e is stable then prob_i(e)(M|o) = prob_e(M|o), and if output(M1,e) = 
 output(M2,e) then prob_i(e)(M1|o) = prob_i(e)(M2|o).
 
-prob_e(M|l|o) = |PD(M,e)(l)| / |{ (M,R) | exists R . <M,e> -R->[l] o}|
+Defn. prob_e(M|l|o) = |PD(M,e)(l)| / |{ (M,R) | exists R . <M,e> -R->[l] o}|
 
 Lemma. Given |C| <= |P|/2 and stable e:
 
