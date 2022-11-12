@@ -164,35 +164,86 @@ let ex4 =
 stable ex4 (V(Cid(0),String("pub")));;
 
 (*
-Notes on metatheory:
+Notes on metatheory with Random Tape formulation:
 
-<M,e> -R->[l] <M,e>
+// Basic Definitions
 
-PD(M,e) = { (R,l) | R \in tapes, <M,e> -R->[l] M' }
+We use e for programs, M for memories, R for random tapes, l for observable 
+traces. We assume the memory has a public output location accessed by out(M). 
+Random tapes are assumed fixed and provided as a parameter of execution which 
+is deterministic given R. Tapes have a finite domain so the set of all tapes 
+is finite. 
 
-pd(l) = |{ (R,l) | (R,l) \in pd }| / |pd|
+Reduction relations:
+
+<M,e> -R->[l] <M',e'>  // single step 
+<M,e> -R->[l] M'       // multi step with final memory M'
+<M,e> -R->[l] o        // multi step with final memory M' where out(M') = o.
+
+PD(M,e) = { (R,l) | R \in tapes, <M,e> -R->[l] M' }   // explicit probability distribution
+
+pd(l) = |{ (R,l) | (R,l) \in pd }| / |pd|    // numeric computation of view probability
 
 tapes(pd) = {R | (R,l) \in pd}
 
-pd1 ~ pd2 <=> tapes(pd1) = tapes(pd2) and pd1(l) = pd2(l) for all l
+pd1 ~ pd2 <=> tapes(pd1) = tapes(pd2) and pd1(l) = pd2(l) for all l   // indistinguishability
+
+// stability- randomizations should have no effect on output. 
 
 e is stable <=> there exists unique o . for all R . (M,e) -R-> M' then out(M') = o.
-We say that o = output(M,e) for stable e.
+We say that o = output(M,e) for stable e, and i(e) is the ideal functionality 
+induced by output.
+
+// noninterference modulo output (NIMO) 
 
 NIMO(e,C) <=>
 
   e is stable and (M1 =_C M2 and output(M1,e) = output(M2,e) => PD(M1,e) ~ PD(M2,e))
 
+
+// NIMO implies passive security. PS(e) means e is passive secure.
+
 Theorem. If NIMO(e,C) for all C assuming |C| <= |P|/2, then PS(e).
 
 Proof. In the real world we have all inputs M, and PD(M,e).
 The simulator picks arbitrary M' =_C M with output(M',e) = output(M',e).
-Since e is stable, the simulator can iterate through all random
-tapes R running (M',e) with each, generating PD(M',e) which is equivalent
-to PD(M,e) by assumption and definition. QED
+Since e is stable, the simulator can then iterate through all random
+tapes R running (M',e) with each, generating PD(M',e) ~ PD(M,e) by 
+definition of NIMO. QED
 
-Theorem. Given |C| <= |P|/2 and stable e:
 
-  (prob(M|o) = prob(M|l|o) for all l with PD(M,e)(l) > 0) iff  NIMO(e,C).
+// Deriving pdf analysis for NIMO and thus PS. Intuitively, a protocol is secure
+// if the adversary can't make any better guess about inputs given corrupt views 
+// than they can from the output and corrupt inputs alone.
+
+prob_i(e)(M|o) = if i(e)(M) = o then 1 / |{M | i(e)M = o}|
+ 
+prob_e(M|o) = |{ R | exists l . <M,e> -R->[l] o }| / |{ (M,R) | exists l . <M,e> -R->[l] o}|
+ 
+Lemma. If e is stable then prob_i(e)(M|o) = prob_e(M|o), and if output(M1,e) = 
+output(M2,e) then prob_i(e)(M1|o) = prob_i(e)(M2|o).
+
+prob_e(M|l|o) = |PD(M,e)(l)| / |{ (M,R) | exists R . <M,e> -R->[l] o}|
+
+Lemma. Given |C| <= |P|/2 and stable e:
+
+  (prob_e(M|o) = prob_e(M|l|o) for all M,l with PD(M,e)(l) > 0) iff NIMO(e,C).
+
+Proof. On the one hand, suppose (prob_e(M|o) = prob_e(M|l|o) for all M,l with PD(M,e)(l) > 0)
+but on the contrary ~NIMO(C,e). Then it must be the case that there exists M1 =_C M2 
+with output(M1,e) = output(M2,e) but not (PD(M1,e) ~ PD(M2,e)) with the implication that 
+there is some l such that PD(M1,e)(l) <> PD(M2,e)(l). Letting o = output(M1,e) = output(M2,e) 
+we thus have that prob_e(M1|l|o) <>  prob_e(M2|l|o). But by the above Lemma we 
+have prob_i(e)(M1|o) = prob_i(e)(M2|o), so by assumption it is the case that prob_e(M1|l|o) =  
+prob_e(M2|l|o), which is a contradiction.
+
+On the other hand, suppose NIMO(e,C). This implies PD(M1,e) ~ PD(M2,e) for all 
+M1 =_C M2. Since |{ (M1,R) | <M1,e> -R->[l] o}| = |{ (M2,R) | <M2,e> -R->[l] o}|
+for all o and l is a consequence of stability, we have prob_e(M1|l|o) = prob_e(M2|l|o).
+The result follows since probabilities must sum to 1 for both probabilities 
+(dependent on views and not dependent on views) and we also assume prob_e(M1|o) 
+= prob_e(M2|o) by definition of NIMO. 
+
+QED
 
 *)
