@@ -216,7 +216,7 @@ definition of NIMO. QED
 // if the adversary can't make any better guess about inputs given corrupt views 
 // than they can from the output and corrupt inputs alone.
 
-prob_i(e)(M|o) = if i(e)(M) = o then 1 / |{M | i(e)M = o}|
+prob_i(e)(M|o) = if i(e)(M) = o then (1 / |{M | i(e)M = o}|) else 0
  
 prob_e(M|o) = |{ R | exists l . <M,e> -R->[l] o }| / |{ (M,R) | exists l . <M,e> -R->[l] o}|
  
