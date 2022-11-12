@@ -191,7 +191,7 @@ Defn. pd1 ~ pd2 <=> tapes(pd1) = tapes(pd2) and pd1(l) = pd2(l) for all l   // i
 // stability- randomizations should have no effect on output. 
 
 Defn. e is stable <=> for all M . there exists unique o . for all R . (M,e) -R-> o.
-We say that o = output(M,e) for stable e, and i(e) is the ideal functionality 
+We say that o = output(M,e) for stable e, and i(e) is the ideal functionality of e
 induced by output.
 
 // noninterference modulo output (NIMO) 
