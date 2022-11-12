@@ -206,7 +206,7 @@ NIMO(e,C) <=>
 Theorem. If NIMO(e,C) for all C assuming |C| <= |P|/2, then PS(e).
 
 Proof. In the real world we have all inputs M, and PD(M,e).
-The simulator picks arbitrary M' =_C M with output(M',e) = output(M',e).
+The simulator picks arbitrary M' =_C M with output(M',e) = output(M,e).
 Since e is stable, the simulator can then iterate through all random
 tapes R running (M',e) with each, generating PD(M',e) ~ PD(M,e) by 
 definition of NIMO. QED
