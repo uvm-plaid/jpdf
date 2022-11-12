@@ -196,12 +196,22 @@ induced by output.
 
 // noninterference modulo output (NIMO) 
 
+Defn. M1 =_C M2 <=> M1 and M2 are low equivalent up to C. 
+
 Defn. NIMO(e,C) <=>
 
   e is stable and (M1 =_C M2 and output(M1,e) = output(M2,e) => PD(M1,e) ~ PD(M2,e))
 
+// Passive security. P is the set of all parties.
 
-// NIMO implies passive security. PS(e) means e is passive secure.
+Defn. PS(e) <=> 
+  
+  For all |C| < |P|/2, M, R, and l, if (<M,e> -R->[l] o) then the simulator
+  can reconstruct a probability distribution pd ~ PD(M,e) given just the
+  corrupt part of M and o. 
+
+
+// NIMO implies passive security. 
 
 Theorem. If NIMO(e,C) for all C assuming |C| <= |P|/2, then PS(e).
 
