@@ -112,8 +112,8 @@ let (ex3 : progn) =
 (
 Fname("share3"),
 [
-(EVar("client"), CidTy(Var(EVar("s1"))));
-(EVar("secretid"), StringTy(Var(EVar("s2"))))
+(EVar("client"), CidTy(Var(EVar("client"))));
+(EVar("secretid"), StringTy(Var(EVar("sid"))))
 ],
 Let(EVar("s1"), F(Var(EVar("client")), String("share 1")),
 Let(EVar("s2"), F(Var(EVar("client")), String("share 2")),

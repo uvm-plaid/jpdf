@@ -384,7 +384,7 @@ let group list sizes =
 
 let stable p (V(Cid(pubid),_) as o) =
   let (_,views) = progty p in
-  let (s,f,v) = iovars views in
+  let (s,f,_) = iovars views in
   let pdf = jpdf views (s@f) in
   let sdeps = gen_deps s in
   List.for_all (fun sds -> let md = marg_dist [(o,strue)] sds pdf in (md = 1.0 || md = 0.0)) sdeps
