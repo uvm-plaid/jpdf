@@ -208,22 +208,21 @@ Defn. PS(e) <=>
   
   For all |C| < |P|/2, M, R, and l, if (<M,e> -R->[l] o) then the simulator
   can reconstruct a probability distribution pd ~ PD(M,e) given just the
-  corrupt part of M and o. 
-
+  corrupt part of M and o and i(e). 
 
 // NIMO implies passive security. 
 
 Theorem. If NIMO(e,C) for all C assuming |C| <= |P|/2, then PS(e).
 
 Proof. In the real world we have all inputs M, and PD(M,e).
-The simulator picks arbitrary M' =_C M with output(M',e) = output(M,e).
-Since e is stable, the simulator can then iterate through all random
+The simulator picks arbitrary M' =_C M with i(e)(M',e) = output(M,e).
+Since e is stable, the simulator can iterate through all random
 tapes R running (M',e) with each, generating PD(M',e) ~ PD(M,e) by 
 definition of NIMO. QED
 
 
 // Deriving pdf analysis for NIMO and thus PS. Intuitively, a protocol is secure
-// if the adversary can't make any better guess about inputs given corrupt views 
+// if the adversary can never make any better guesses about inputs given corrupt views 
 // than they can from the output and corrupt inputs alone.
 
 Defn. prob_i(e)(M|o) = if i(e)(M) = o then (1 / |{M | i(e)M = o}|) else 0
@@ -252,8 +251,6 @@ M1 =_C M2. Since |{ (M1,R) | <M1,e> -R->[l] o}| = |{ (M2,R) | <M2,e> -R->[l] o}|
 for all o and l is a consequence of stability, we have prob_e(M1|l|o) = prob_e(M2|l|o).
 The result follows since probabilities must sum to 1 for both probabilities 
 (dependent on views and not dependent on views) and we also assume prob_e(M1|o) 
-= prob_e(M2|o) by definition of NIMO. 
-
-QED
+= prob_e(M2|o) by definition of NIMO. QED
 
 *)
