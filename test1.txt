@@ -1,0 +1,11 @@
+let f0 = flip[1,"0"] in
+let f1 = flip[1,"1"] in
+let f2 = select[s[1,"0"], f0, f1] in
+v[0,"0"] := f2;
+v[0,"1"] := f0
+
+let f0 = flip[1,"0"] in
+let f1 = flip[1,"1"] in
+let f2 = select[f0, f0, f1] in
+let f3 = select[s[1,"0"],f2,flip[1,"2"]] in
+v[0,"0"] := f3
