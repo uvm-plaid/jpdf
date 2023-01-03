@@ -145,6 +145,7 @@ stable ex3 (V(Cid(0),String("pub")));;
 (* This is true! *)
 passive_secure ex3 3 (V(Cid(0),String("pub")));;
 
+query mu [S(Cid(1),String("secret")),true] [V(Cid(0),String("pub")),true];;
 
 (*
 
