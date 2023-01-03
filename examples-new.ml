@@ -27,6 +27,11 @@ Assign(V(Cid(0), String("1")), Var(EVar("f0")))))));;
 marg_dist [(S(Cid(1), String("0")),strue)] [(V(Cid(0), String("0")),strue)] (genpdf ex0);;
 marg_dist [(S(Cid(1), String("0")),strue)] [(V(Cid(0), String("0")),strue);(V(Cid(0), String("1")),strue)] (genpdf ex0);;
 
+
+query mu [(S(Cid(1), String("0")),true)] [(V(Cid(0), String("0")),true)];;
+query mu [(S(Cid(1), String("0")),true)] [(V(Cid(0), String("0")),true);(V(Cid(0), String("1")),true)];;
+
+
 (* 
 
 // Example from LAMBDA OBLIV Figure 3(b): // 

@@ -33,10 +33,12 @@ let restrict (m : mem) (s : mids) : mem = Mem.filter (fun (id,_) -> S.mem id s) 
 
 let margd (s1 : mids) (s2, d : dist) : dist =
   let deps = gen_deps (S.diff s2 s1) in
-  s1, (fun (ma : Mem.t) -> MS.fold (fun mb p -> (d (Mem.union ma mb)) +. p) deps 0.0);;
+  s1, (fun (ma : Mem.t) -> List.fold_left (fun p mb -> (d (Mem.union ma mb)) +. p) 0.0 ((MS.elements) deps));;
 
 let condd mb (s,d : dist) : dist =
-  S.diff s (dom mb), (fun (ma : Mem.t) -> (d (Mem.union ma mb)) /. ((snd (margd (dom mb) (s,d))) mb));;
+  S.diff s (dom mb), (fun (ma : Mem.t) ->
+    let p = ((snd (margd (dom mb) (s,d))) mb) in
+    if p = 0.0 then 0.0 else (d (Mem.union ma mb)) /. p);;
 
 let meetd (s1,d1 : dist) (s2,d2 as mu2 : dist) : dist =    (* P(A and B) = P(A) * P(B|A) *)
   S.union s1 s2,
@@ -47,8 +49,15 @@ let meetd (s1,d1 : dist) (s2,d2 as mu2 : dist) : dist =    (* P(A and B) = P(A) 
 
 exception MemDomain;;
 
+let rec pow a = function
+  | 0 -> 1
+  | 1 -> a
+  | n -> 
+    let b = pow a (n / 2) in
+    b * b * (if n mod 2 = 0 then 1 else a)
+
 let initd (s : mids) : dist =
-  let prob = 1.0 /. 2.0 ** float_of_int(S.cardinal s) in 
+  let prob = 1.0 /. float_of_int(pow 2 (S.cardinal s)) in 
   s, (fun m -> if S.equal (dom m) s then prob else raise MemDomain);;
 
 let uni (ms : mems) : dist =
@@ -56,7 +65,7 @@ let uni (ms : mems) : dist =
   s, 
   (fun (m : Mem.t) ->
     if (S.equal (dom m) s) then
-      if (MS.mem m ms) then (1.0 /. float(MS.cardinal ms))
+      if (MS.mem m ms) then (1.0 /. float_of_int(MS.cardinal ms))
       else 0.0
     else raise MemDomain);;
 
@@ -116,7 +125,7 @@ let iovars (views : views) =
     (VS.empty, VS.empty, VS.empty) views
 
 
-let hidx = Hashtbl.create 50;;
+let hidx = Hashtbl.create 0;;
 let make_idx vars =
   (Hashtbl.reset hidx; let i = ref 0 in VS.iter (fun x -> Hashtbl.add hidx x !i; i := !i + 1) vars);;
 let idx x = Hashtbl.find hidx x;;
@@ -150,6 +159,8 @@ let truth_tables (views : views) : mems list =
 
 let viewsd invars vtts : dist = List.fold_left (fun mu tt -> meetd mu (uni tt)) (initd invars) vtts;;
 
+let viewsd_tabular invars vtts : dist = uni (List.fold_left (fun ftt tt -> meet ftt tt) (gen_deps invars) vtts);;
+
 let to_s vs = S.of_list (List.map (fun x -> idx x) (VS.elements vs));;
 
 let tts p =
@@ -163,6 +174,12 @@ let pdf p =
   let (ss, fs, vs) = iovars views in (
   make_idx (VS.union ss (VS.union fs vs));
   viewsd (S.union (to_s ss) (to_s fs)) (truth_tables views));;
+
+let pdft p =
+  let (_,views) = progty p in
+  let (ss, fs, vs) = iovars views in (
+  make_idx (VS.union ss (VS.union fs vs));
+  viewsd_tabular (S.union (to_s ss) (to_s fs)) (truth_tables views));;
   
 let query mu hdep ldep =
   let tomem deps = Mem.of_list (List.map (fun (x,b) -> idx x, b) deps) in
