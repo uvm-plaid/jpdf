@@ -176,7 +176,7 @@ or_gate(gid, wla, wlb, wlc)
 output_table(wl)
 {
   let o0 = H["output" || wl.w0.k] xor false in
-  let o1 = H["output" || wl.w0.k] xor true in
+  let o1 = H["output" || wl.w1.k] xor true in
 
   { r0 = select(wl.w0.p, o1, o0); r1 = select(wl.w1.p, o1, o0) }
 }
