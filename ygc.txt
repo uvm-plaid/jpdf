@@ -201,13 +201,13 @@ eval(gate, ala, alb) {
 
  (* Use the pointer bits in the active input labels to select the correct row *)
  let ck =
- select(ala.b,
-     	select(alb.b, v[1, gate.id || "k1"], v[1, gate.id || "k2"]),
-	select(alb.b, v[1, gate.id || "k3"], v[1, gate.id || "k4"])) in
+ select(ala.p,
+     	select(alb.p, v[1, gate.id || "k1"], v[1, gate.id || "k2"]),
+	select(alb.p, v[1, gate.id || "k3"], v[1, gate.id || "k4"])) in
  let cp =
- select(ala.b,
-     	select(alb.b, v[1, gate.id || "p1"], v[1, gate.id || "p2"]),
-	select(alb.b, v[1, gate.id || "p3"], v[1, gate.id || "p4"])) in
+ select(ala.p,
+     	select(alb.p, v[1, gate.id || "p1"], v[1, gate.id || "p2"]),
+	select(alb.p, v[1, gate.id || "p3"], v[1, gate.id || "p4"])) in
 
  (* Use the keys in the active input labels to decode the active output label *)
  { k = H[gid || ala.k || alb.k] xor ck; p = H[gid || ala.k || alb.k] xor cp }
