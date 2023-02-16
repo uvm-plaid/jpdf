@@ -83,8 +83,8 @@ encode_xor_table(gid, wla, wlb, wlc) {
  
    p00 = (H[gid || wla.w0.k || wlb.w0.k ] xor wlc.w0.p);
    p10 = (H[gid || wla.w1.k || wlb.w0.k ] xor wlc.w1.p);
-   p01 = (H[gid || wla.w0.k || wlb.w1.k ] xor wlc.w0.p);
-   p11 = (H[gid || wla.w1.k || wlb.w1.k ] xor wlc.w1.p) }
+   p01 = (H[gid || wla.w0.k || wlb.w1.k ] xor wlc.w1.p);
+   p11 = (H[gid || wla.w1.k || wlb.w1.k ] xor wlc.w0.p) }
 }
 
 encode_or_table(gid, wla, wlb, wlc) {
