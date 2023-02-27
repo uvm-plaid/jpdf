@@ -35,6 +35,7 @@ expr
     | record_expr {% id %}
     | assign_expr {% id %}
     | fun_expr {% id %}
+    | paren_expr {% id %}
 
 
 fun_expr
@@ -70,105 +71,109 @@ flip_expr
 view_expr
     -> "v" _ "[" _ val_expr _ "," _ val_expr _ "]"
         {%
-            d => (["View",[d[4], d[8]]])
+            data => (["View",[data[4], data[8]]])
         %}
 
 secret_expr
     -> "s" _ "[" _ val_expr _ "," _ val_expr _ "]"
         {%
-            d => (["Secret",[d[4], d[8]]])
+            data => (["Secret",[data[4], data[8]]])
         %}
 
 
 ot_expr
     -> "OT" _ "[" _ val_expr _ "," _ val_expr _ "," _ val_expr _ "]"
         {%
-            d => (["OT",[d[4], d[8], d[12]]]
+            data => (["OT",[data[4], data[8], data[12]]]
             )
         %}
 
 assign_expr
     -> expr _ ":=" _ var_assign
         {%
-            d => (["Assign",[d[0], d[4]]]
+            data => (["Assign",[data[0], data[4]]]
             )
         %}
     | expr _ ":=" _ expr
     {%
-            d => (["Assign",[d[0], d[4]]]
+            data => (["Assign",[data[0], data[4]]]
             )
         %}
 
 var_assign
     -> evar_expr
         {%
-            d => (["Var",[d[0]]]
+            data => (["Var",[data[0]]]
             )
         %}
 
 h_expr
     -> "H" _ "[" _ val_expr _ "]"
         {%
-            d => (["H",[d[4]]])
+            data => (["H",[data[4]]])
         %}
 
 
 select_expr
     -> "select" _ "[" _ val_expr _ "," _ val_expr _ "," _ val_expr _ "]"
         {%
-            d => (["Select",[d[4], d[8], d[12]]])
+            data => (["Select",[data[4], data[8], data[12]]])
         %}
 
 concat_expr
     -> val_expr _ "||" _ val_expr
         {%
-            d => (["Concat",[d[0], d[4]]])
+            data => (["Concat",[data[0], data[4]]])
         %}
+
+paren_expr
+    -> "(" _ expr _ ")"
+        {% (data) => data[2] %}
 
 let_expr
     -> "let" _ evar_expr _ "=" _ expr _ "in"
         {%
-            d => (["Let",[d[2], d[6]]]
+            data => (["Let",[data[2], data[6]]]
             )
         %}
     | "let" _ evar_expr _ "=" _ expr _ "in" _ expr
         {%
-            d => (["Let",[d[2], d[6], d[10]]])
+            data => (["Let",[data[2], data[6], data[10]]])
         %}
 
 seq_expr
     -> expr _ ";"
         {%
-            d => (["Seq",[d[0]]])
+            data => (["Seq",[data[0]]])
         %}
 
 dot_expr
     -> evar_expr "." field_expr
         {%
-            d => (["Dot",[d[0], d[2]]])
+            data => (["Dot",[data[0], data[2]]])
         %}
 
 record_expr
     -> "{" _ record_vals _ "}"
         {%
-            d => (["Record",[d[2]]])
+            data => (["Record",[data[2]]])
         %}
 
 record_vals
     -> _ record_val _
-     {% id %}
-    | _ record_val _ "," _ record_vals
-     {% id %}
+     {% (data) => data[1] %}
+    | _ record_val _ ";" _ record_vals
+     {% (data) => [data[1], data[5]] %}
 
 record_val
     -> _ field_expr _ "=" _ val_expr _
-    {% (data) => [data[1], data[5]] %}
+    {% data => [data[1], data[5]] %}
 
 
 appl_expr
     -> fname_expr "(" _ values _ ")"
         {%
-            d => (["Appl",[d[0], d[3]]])
+            data => (["Appl",[data[0], data[3]]])
         %}
 
 values -> val_expr {% id %}
@@ -179,20 +184,20 @@ values -> val_expr {% id %}
 not_expr
     -> "not" _ val_expr
         {%
-            d => (["Not",[d[2]]])
+            data => (["Not",[data[2]]])
         %}
 
 and_expr
     -> val_expr _ "and" _ val_expr
         {%
-            d => (["And",[d[0], d[4]]])
+            data => (["And",[data[0], data[4]]])
         %}
 
 
 xor_expr
     -> val_expr _ "xor" _ val_expr
         {%
-            d => (["Xor",[d[0], d[4]]])
+            data => (["Xor",[data[0], data[4]]])
         %}
 
 val_expr -> expr {% id %}
@@ -210,7 +215,6 @@ type_val
 record_type
     -> "{" _ record_types _ "}"
     {% (data) => [data[2]] %}
-
 
 record_types
     -> record_type {% id %}
@@ -245,15 +249,15 @@ cid_type
         %}
 
 jpd_type
-    -> "jpd" "(" _ dvar_expr _ "," _ dvar_expr _ ")"
+    -> "jpd" "(" _ dvar_expr _ ")"
         {%
-            data => (["JpdTy",[data[3], data[7]]]
+            data => (["JpdTy",[data[3]]]
             )
         %}
 
 
 dvar_expr
-    -> "'" alpha_char
+    -> alpha_char "'" 
     {%
             data => (["Dvar",[data[1]]]
             )

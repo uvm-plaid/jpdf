@@ -8,7 +8,7 @@ var grammar = {
     ParserRules: [
     {"name": "input", "symbols": ["top_level"], "postprocess": id},
     {"name": "top_level", "symbols": ["top_level_expr"], "postprocess": (data) => [data[0]]},
-    {"name": "top_level", "symbols": ["top_level_expr", "_", {"literal":"\n"}, "_", "top_level"], "postprocess": (data) => [data[0], ... data[4]]},
+    {"name": "top_level", "symbols": ["_", "top_level_expr", "_", {"literal":"\n"}, "_", "top_level"], "postprocess": (data) => [data[1], ... data[5]]},
     {"name": "top_level", "symbols": ["_", {"literal":"\n"}, "top_level"], "postprocess": (data) => data[2]},
     {"name": "top_level", "symbols": ["_"], "postprocess": 
         data => []
@@ -29,6 +29,7 @@ var grammar = {
     {"name": "expr", "symbols": ["let_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["ot_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["dot_expr"], "postprocess": id},
+    {"name": "expr", "symbols": ["record_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["assign_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["fun_expr"], "postprocess": id},
     {"name": "fun_expr", "symbols": ["fname_expr", {"literal":"("}, "_", "parameter_list", "_", {"literal":")"}, "_", {"literal":"{"}, "_", "code_block", "_", {"literal":"}"}, "_", {"literal":"\n"}], "postprocess": 
@@ -775,7 +776,7 @@ if (typeof module !== 'undefined'&& typeof module.exports !== 'undefined') {
 
 },{}],3:[function(require,module,exports){
 const nearley = require("nearley");
-const grammar = require("./grammar.js");
+const grammar = require("./grammar_new.js");
 
 const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 
@@ -788,9 +789,9 @@ catch(e){
     console.log("parse failed", e.message);
 }
 
-let value = parser.results.flat();
+let value = parser.results[0];
 
-    var newstring = "";
+var newstring = "";
 
 for (let i = 0; i < value.length; i++){
 
@@ -838,5 +839,5 @@ function format(str){
   }
 
 module.exports = parse;
-},{"./grammar.js":1,"nearley":2}]},{},[3])(3)
+},{"./grammar_new.js":1,"nearley":2}]},{},[3])(3)
 });
