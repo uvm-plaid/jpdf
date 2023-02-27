@@ -1,0 +1,16 @@
+{
+  "name": "nearly-parser",
+  "version": "1.0.0",
+  "description": "npm install -g nearley",
+  "main": "grammar.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "nearley": "^2.20.1"
+  }
+}
