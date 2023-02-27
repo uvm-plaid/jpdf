@@ -1,10 +1,10 @@
 input -> top_level {% id %}
 
 top_level
-    ->  top_level_expr
+    -> top_level_expr
         {%  (data) => [data[0]] %}
-    |  top_level_expr _ "\n" _ top_level
-        {%  (data) => [data[0], ... data[4]] %}
+    |  _ top_level_expr _ "\n" _ top_level
+        {%  (data) => [data[1], ... data[5]] %}
     |  _ "\n" top_level
         {% (data) => data[2] %}
     |  _
@@ -32,6 +32,7 @@ expr
     | let_expr {% id %}
     | ot_expr {% id %}
     | dot_expr {% id %}
+    | record_expr {% id %}
     | assign_expr {% id %}
     | fun_expr {% id %}
 

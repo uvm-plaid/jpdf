@@ -1,5 +1,5 @@
 const nearley = require("nearley");
-const grammar = require("./grammar.js");
+const grammar = require("./grammar_new.js");
 
 const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 
@@ -14,7 +14,7 @@ catch(e){
     console.log("parse failed", e.message);
 }
 
-let value = parser.results.flat();
+let value = parser.results[0];
 
 for (let i = 0; i < value.length; i++){
     let formattedstr = convert(value[i]);
