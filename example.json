@@ -1,0 +1,89 @@
+{
+"info":
+{
+"views":
+[
+{"cid": 0,"name": "V_0_0"},
+{"cid": 0,"name": "V_0_0.0"},
+{"cid": 0,"name": "V_0_0.1"},
+{"cid": 0,"name": "V_0_0.2"},
+{"cid": 0,"name": "V_0_0.3"},
+{"cid": 0,"name": "V_0_1"},
+{"cid": 0,"name": "notV_0_0"},
+{"cid": 0,"name": "notV_0_0.0"},
+{"cid": 0,"name": "notV_0_0.1"},
+{"cid": 0,"name": "notV_0_0.2"},
+{"cid": 0,"name": "notV_0_0.3"},
+{"cid": 0,"name": "notV_0_1"}
+],
+"secrets":
+[
+{"cid": 1,"name": "S_1_0"},
+{"cid": 1,"name": "notS_1_0"}
+],
+"flips":
+[
+{"cid": 1,"name": "F_1_0"},
+{"cid": 1,"name": "F_1_1"},
+{"cid": 1,"name": "notF_1_0"},
+{"cid": 1,"name": "notF_1_1"}
+]
+},
+"program":
+[
+{
+"head": "V_0_0.1", "body": ["F_1_0", "notF_1_1", "S_1_0"]
+},
+{
+"head": "V_0_0", "body": ["V_0_0.3"]
+},
+{
+"head": "V_0_0", "body": ["V_0_0.2"]
+},
+{
+"head": "V_0_0", "body": ["V_0_0.1"]
+},
+{
+"head": "V_0_0", "body": ["V_0_0.0"]
+},
+{
+"head": "V_0_1", "body": ["F_1_0"]
+},
+{
+"head": "notV_0_0.1", "body": ["notF_1_0", "notF_1_1", "S_1_0"]
+},
+{
+"head": "V_0_0.0", "body": ["notF_1_0", "F_1_1", "notS_1_0"]
+},
+{
+"head": "notV_0_1", "body": ["notF_1_0"]
+},
+{
+"head": "notV_0_0.3", "body": ["F_1_0", "notF_1_1", "notS_1_0"]
+},
+{
+"head": "notV_0_0.2", "body": ["notF_1_0", "F_1_1", "S_1_0"]
+},
+{
+"head": "V_0_0.2", "body": ["F_1_0", "F_1_1", "notS_1_0"]
+},
+{
+"head": "notV_0_0.0", "body": ["notF_1_0", "notF_1_1", "notS_1_0"]
+},
+{
+"head": "V_0_0.3", "body": ["F_1_0", "F_1_1", "S_1_0"]
+},
+{
+"head": "notV_0_0", "body": ["notV_0_0.3"]
+},
+{
+"head": "notV_0_0", "body": ["notV_0_0.2"]
+},
+{
+"head": "notV_0_0", "body": ["notV_0_0.1"]
+},
+{
+"head": "notV_0_0", "body": ["notV_0_0.0"]
+}
+]
+}
