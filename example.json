@@ -1,32 +1,19 @@
 {
-"info":
+"base":
 {
 "views":
 [
 {"cid": 0,"name": "V_0_0"},
-{"cid": 0,"name": "V_0_0.0"},
-{"cid": 0,"name": "V_0_0.1"},
-{"cid": 0,"name": "V_0_0.2"},
-{"cid": 0,"name": "V_0_0.3"},
-{"cid": 0,"name": "V_0_1"},
-{"cid": 0,"name": "notV_0_0"},
-{"cid": 0,"name": "notV_0_0.0"},
-{"cid": 0,"name": "notV_0_0.1"},
-{"cid": 0,"name": "notV_0_0.2"},
-{"cid": 0,"name": "notV_0_0.3"},
-{"cid": 0,"name": "notV_0_1"}
+{"cid": 0,"name": "V_0_1"}
 ],
 "secrets":
 [
-{"cid": 1,"name": "S_1_0"},
-{"cid": 1,"name": "notS_1_0"}
+{"cid": 1,"name": "S_1_0"}
 ],
 "flips":
 [
-{"cid": 1,"name": "F_1_0"},
-{"cid": 1,"name": "F_1_1"},
-{"cid": 1,"name": "notF_1_0"},
-{"cid": 1,"name": "notF_1_1"}
+{"name": "F_1_0"},
+{"name": "F_1_1"}
 ]
 },
 "program":

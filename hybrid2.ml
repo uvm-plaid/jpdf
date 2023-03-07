@@ -96,10 +96,6 @@ module VS =
         let compare (x : t) (y : t) = compare x y
       end);;
 
-let g_ss = ref VS.empty;;
-let g_fs = ref VS.empty;;
-let g_vs = ref VS.empty;;
-
 let var_to_string t c s = t ^ "_" ^ (string_of_int c) ^ "_" ^ s;;
 
 let iovars (views : views) =
@@ -151,9 +147,7 @@ let parse_string x = let s_list = String.split_on_char '_' x in
 
 let mems_to_lists x = List.map (fun y -> List.map (fun z -> 
   let (t, c, _) = parse_string (fst(z)) in
-  let set = ref VS.empty in
-  let ret = if snd(z) = false then (set := VS.add (c, "not" ^ fst(z)) !set; "not" ^ fst(z)) else (fst(z)) in
-  if t = "S" then g_ss := VS.union !g_ss !set else if t = "V" then g_vs := VS.union !g_vs !set else g_fs := VS.union !g_fs !set; ret) 
+  if snd(z) = false then ("not" ^ fst(z)) else (fst(z))) 
   (Mem.elements y)) (MS.elements x);;
 
 let truth_tables (views : views) h =
@@ -178,8 +172,7 @@ let truth_tables (views : views) h =
       let tp = tt p in
       let tv = match v with (V(Cid(c), String(s))) -> "V" ^ "_" ^ (string_of_int c) ^ "_" ^ s in
       Hashtbl.add h tv (mems_to_lists tp);
-      Hashtbl.add h ("not" ^ tv) (mems_to_lists (comp tp));
-      g_vs := VS.union !g_vs (VS.singleton (let (_, c, _) = parse_string tv in (c, "not" ^ tv))))
+      Hashtbl.add h ("not" ^ tv) (mems_to_lists (comp tp)))
     views;;
 
 let multiple_defs h1 h2 = 
@@ -187,8 +180,7 @@ let multiple_defs h1 h2 =
     if List.length v > 1 then
       let i = ref 0 in
       List.iter (fun x -> Hashtbl.add h2 (k ^ "." ^ (string_of_int !i)) x; 
-      Hashtbl.add h2 k [(k ^ "." ^ (string_of_int !i))]; 
-      g_vs := VS.union !g_vs (VS.singleton (let (_, c, _) = parse_string k in (c, k ^ "." ^ (string_of_int !i))));
+      Hashtbl.add h2 k [(k ^ "." ^ (string_of_int !i))];
       i := !i + 1) v
     else 
       Hashtbl.add h2 k (List.nth v 0)
@@ -196,36 +188,36 @@ let multiple_defs h1 h2 =
 
 let print_table t = Hashtbl.iter (fun k v -> Printf.printf "%-11s <- %s\n" k (String.concat ", " v)) t;;
 
-let write_json filename = 
+let write_json filename ss fs vs = 
   let oc = open_out filename in
-  Printf.fprintf oc "{\n\"info\":\n{\n\"views\":\n[\n";
+  Printf.fprintf oc "{\n\"base\":\n{\n\"views\":\n[\n";
   let i = ref 0 in
-  let n = List.length (VS.elements !g_vs) in
+  let n = List.length (VS.elements vs) in
   List.iter (fun x ->  
     Printf.fprintf oc "{\"cid\": %d,\"name\": \"%s\"}" (fst x) (snd x);
     if !i < n - 1 then Printf.fprintf oc ",";
     Printf.fprintf oc "\n";
-    i := !i + 1) (VS.elements !g_vs);
+    i := !i + 1) (VS.elements vs);
   Printf.fprintf oc "],\n";
 
   Printf.fprintf oc "\"secrets\":\n[\n";
   let i = ref 0 in
-  let n = List.length (VS.elements !g_ss) in
+  let n = List.length (VS.elements ss) in
   List.iter (fun x ->  
     Printf.fprintf oc "{\"cid\": %d,\"name\": \"%s\"}" (fst x) (snd x);
     if !i < n - 1 then Printf.fprintf oc ",";
     Printf.fprintf oc "\n";
-    i := !i + 1) (VS.elements !g_ss);
+    i := !i + 1) (VS.elements ss);
   Printf.fprintf oc "],\n";
 
   Printf.fprintf oc "\"flips\":\n[\n";
   let i = ref 0 in
-  let n = List.length (VS.elements !g_fs) in
+  let n = List.length (VS.elements fs) in
   List.iter (fun x ->  
-    Printf.fprintf oc "{\"cid\": %d,\"name\": \"%s\"}" (fst x) (snd x);
+    Printf.fprintf oc "{\"name\": \"%s\"}" (snd x);
     if !i < n - 1 then Printf.fprintf oc ",";
     Printf.fprintf oc "\n";
-    i := !i + 1) (VS.elements !g_fs);
+    i := !i + 1) (VS.elements fs);
   Printf.fprintf oc "]";
 
   Printf.fprintf oc "\n},\n";
@@ -248,15 +240,13 @@ let write_json filename =
   Printf.fprintf oc "}";
   close_out oc;;
 
-let lp p =
+let lp p filename =
   let (_,views) = progty p in
   let (ss, fs, vs) = iovars views in (
-    g_ss := VS.union !g_ss ss;
-    g_fs := VS.union !g_fs fs;
-    g_vs := VS.union !g_vs vs;
     truth_tables views lines_temp;
     multiple_defs lines_temp lines;
-    print_table lines);;
+    print_table lines;
+    write_json filename ss fs vs);;
 
 let (ex0 : progn) = 
   [],
@@ -267,5 +257,4 @@ let (ex0 : progn) =
                 Assign(V(Cid(0), String("0")), Var(EVar("f2"))),
                 Assign(V(Cid(0), String("1")), Var(EVar("f0"))))))) 
   in        
-  lp ex0;
-  write_json "logic.json";;
+  lp ex0 "example.json";;
