@@ -130,15 +130,37 @@ let to_s vs = S.of_list (List.map idx (VS.elements vs));;
 let pdf_of_tt (xs : VS.t) (tt : TT.t) : dist =
   let s = to_s xs in
   let ms = gen_deps s in
-  let ph = Hashtbl.create 50 in
   let ptt m =
-    let dtt = TT.inter tt (gen_rows m) in
-    Hashtbl.add ph m (float(TT.cardinal dtt) /. float(TT.cardinal tt)) in
-  (MS.iter ptt ms; (s, (fun m -> Hashtbl.find ph m)))
-    
+    let dtt = TT.inter tt (gen_rows m) in (float(TT.cardinal dtt) /. float(TT.cardinal tt))
+  in
+  let ptts = List.map (fun m -> (m, ptt m)) (MS.elements ms) in
+  (s, (fun m -> snd(List.find (fun (m',_) -> Mem.equal m m') ptts)));;
+                      
 let pdf p =
   let (_,views) = progty p in
   let (ss, fs, vs) = iovars views in (
   make_idx (VS.union ss fs);
   pdf_of_tt (VS.union ss vs) (truth_tables views));;
 
+(* This seems correct but is intractably slow *)
+let query mu hdep ldep =
+  let tomem deps = Mem.of_list (List.map (fun (x,b) -> idx x, b) deps) in
+  let lomem = tomem ldep in
+  let himem = tomem hdep in
+  let hids = dom himem in
+  snd(margd hids (condd lomem mu)) himem;;
+
+(* Here we just generate the full truth table for the program *)
+let progtt p =
+  let (_,views) = progty p in
+  let (ss, fs, vs) = iovars views in (
+  make_idx (VS.union ss fs);
+  truth_tables views);;
+
+(* This solution is much faster *)
+let cdist_tt tt hdep ldep =
+  let trans deps = List.map (fun (x,b) -> idx x, sbool b) deps in
+  let filt_tt deps tt = TT.filter (fun r -> List.for_all (fun (i,b) -> r.[i] = b.[0]) (trans deps)) tt in
+  let lowtt = filt_tt ldep tt in 
+  let hitt = filt_tt hdep lowtt in
+  float(TT.cardinal hitt) /. float(TT.cardinal lowtt)
