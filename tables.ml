@@ -31,7 +31,9 @@ let gen_deps (s : mids) : mems = expand (MS.singleton (Mem.empty)) s;;
 
 let margd (s1 : mids) (s2, d : dist) : dist =
   let deps = gen_deps (S.diff s2 s1) in
-  s1, (fun (ma : Mem.t) -> List.fold_left (fun p mb -> (d (Mem.union ma mb)) +. p) 0.0 ((MS.elements) deps));;
+  s1, (fun (ma : Mem.t) ->
+    List.fold_left
+      (fun p mb -> (d (Mem.union ma mb)) +. p) 0.0 ((MS.elements) deps));;
 
 let condd mb (s,d : dist) : dist =
   S.diff s (dom mb), (fun (ma : Mem.t) ->
@@ -125,12 +127,10 @@ let truth_tables (views : views) =
 
 let to_s vs = S.of_list (List.map idx (VS.elements vs));;
 
-let ph = Hashtbl.create 50;;
-
 let pdf_of_tt (xs : VS.t) (tt : TT.t) : dist =
   let s = to_s xs in
   let ms = gen_deps s in
-  (* let ph = Hashtbl.create 50 in *)
+  let ph = Hashtbl.create 50 in
   let ptt m =
     let dtt = TT.inter tt (gen_rows m) in
     Hashtbl.add ph m (float(TT.cardinal dtt) /. float(TT.cardinal tt)) in
