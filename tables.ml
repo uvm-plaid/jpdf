@@ -77,9 +77,12 @@ let iovars (views : views) =
 let hidx = Hashtbl.create 0;;
 let make_idx vars =
   (Hashtbl.reset hidx; let i = ref 0 in VS.iter (fun x -> Hashtbl.add hidx x !i; i := !i + 1) vars);;
+let extend_idx v = Hashtbl.add hidx v (Hashtbl.length hidx);;
 let idx x = Hashtbl.find hidx x;;
+
 let strue = "1";;
 let sfalse = "0";;
+let sbool b = if b then strue else sfalse;;
 
 module TT = Set.Make(String);;
 
@@ -87,23 +90,18 @@ let meet = TT.inter;;
 let join = TT.union;;
 let diff = TT.diff;;
 
-let gen_rows deps =
+let gen_rows (m : mem) : TT.t =
+  let deps = Mem.elements m in
   let rec gr = function
-      0 -> if (List.mem_assoc 0 deps) then [(List.assoc 0 deps)]
+      0 -> if (List.mem_assoc 0 deps) then [sbool (List.assoc 0 deps)]
             else [strue;sfalse]
     | n -> 
-        if (List.mem_assoc n deps) then List.map (fun r -> r ^ (List.assoc n deps)) (gr (n-1))
+        if (List.mem_assoc n deps) then List.map (fun r -> r ^ (sbool (List.assoc n deps))) (gr (n-1))
         else List.map (fun r -> r ^ strue) (gr (n-1)) @  List.map (fun r -> r ^ sfalse) (gr (n-1))
   in
   TT.of_list (gr ((Hashtbl.length hidx) - 1));;
 
-(*
- This uses the views type from hybrid.ml and the TT type from jpd.ml.
- It also assumes the extension of the domain of idx to include views,
- with each view index in the order of its declaration and all view indices
- greater than secret and flip indices. 
-*)
-let truth_tables (views : views) start : TT.t =
+let truth_tables (views : views) =
   let rec tt ptt = function
       Top -> ptt
     | Bot -> TT.empty
@@ -119,27 +117,28 @@ let truth_tables (views : views) start : TT.t =
   in
   List.fold_left
     (fun ptt (v, Jpdf(p)) ->
-      let tp = tt ptt p in
-      (* due to assumptions about idx, string concatenation comports with indices *)	 
-      join (TT.map (fun r -> r ^ strue) tp) (TT.map (fun r -> r ^ sfalse) (diff ptt tp)))
-    (* assume this call behaves as in jpd.ml- it just generates the tt for secrets and flips,
-        not views, and is the basis of the folding *)
-    start
+      (extend_idx v;
+       let tp = tt ptt p in
+       join (TT.map (fun r -> r ^ strue) tp) (TT.map (fun r -> r ^ sfalse) (diff ptt tp))))
+    (gen_rows Mem.empty)
     views;;
 
-(* Example of use *)
-(*
-let (ex0 : progn) = 
-[],
-Let(EVar("f0"), F(Cid(1), String("0")),
-    Let(EVar("f1"), F(Cid(1), String("1")),
-        Let(EVar("f2"), Select(S(Cid(1), String("0")),Var(EVar("f0")),Var(EVar("f1"))),
-            Seq(
-              Assign(V(Cid(0), String("0")), Var(EVar("f2"))),
-              Assign(V(Cid(0), String("1")), Var(EVar("f0"))))))) in
-let (_,views) = progty ex0 in
-let (ss, fs, vs) = iovars views in
-let start = make_idx (VS.union ss fs); gen_rows [] in
-let table = make_idx (VS.union (VS.union ss fs) vs); truth_tables views start in
-TT.elements table;;
-*)
+let to_s vs = S.of_list (List.map idx (VS.elements vs));;
+
+let ph = Hashtbl.create 50;;
+
+let pdf_of_tt (xs : VS.t) (tt : TT.t) : dist =
+  let s = to_s xs in
+  let ms = gen_deps s in
+  (* let ph = Hashtbl.create 50 in *)
+  let ptt m =
+    let dtt = TT.inter tt (gen_rows m) in
+    Hashtbl.add ph m (float(TT.cardinal dtt) /. float(TT.cardinal tt)) in
+  (MS.iter ptt ms; (s, (fun m -> Hashtbl.find ph m)))
+    
+let pdf p =
+  let (_,views) = progty p in
+  let (ss, fs, vs) = iovars views in (
+  make_idx (VS.union ss fs);
+  pdf_of_tt (VS.union ss vs) (truth_tables views));;
+

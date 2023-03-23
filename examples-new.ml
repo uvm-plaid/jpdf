@@ -31,6 +31,7 @@ marg_dist [(S(Cid(1), String("0")),strue)] [(V(Cid(0), String("0")),strue);(V(Ci
 query mu [(S(Cid(1), String("0")),true)] [(V(Cid(0), String("0")),true)];;
 query mu [(S(Cid(1), String("0")),true)] [(V(Cid(0), String("0")),true);(V(Cid(0), String("1")),true)];;
 
+query mu [(S(Cid(0), String("0")),true)]  [];;
 
 (* 
 
