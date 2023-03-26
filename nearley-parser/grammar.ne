@@ -58,9 +58,10 @@ func_param
     {% (data) => [data[0], data[4]] %}
 
 code_block
-    -> _ expr _ "\n" {% id %}
+    -> _ expr _ "\n"
+    {% (data) => [data[1]] %}
     | _ expr _ "\n" _ code_block _
-    {% (data) => [data[0], data[4]] %}
+    {% (data) => [data[1], data[5]] %}
 
 flip_expr
     -> "flip" _ "[" _ val_expr _ "," _ val_expr _ "]"
@@ -257,9 +258,9 @@ jpd_type
 
 
 dvar_expr
-    -> alpha_char "'" 
+    -> "'" alpha_char 
     {%
-            data => (["Dvar",[data[1]]]
+            data => (["Dvar",["\"" + data[1] + "\""]]
             )
         %}
 
@@ -277,19 +278,19 @@ boolean_expr
 evar_expr
     -> alpha_char
     {%
-            data => (["Evar",[data[0]]])
+            data => (["Evar",["\"" + data[0] + "\""]])
         %}
 
 fname_expr
     -> alpha_char
     {%
-            data => (["Fname", [data[0]]])
+            data => (["Fname", ["\"" + data[0] + "\""]])
         %}
 
 field_expr
     -> alpha_char
     {%
-            data => (["Field",[data[0]]]
+            data => (["Field",["\"" + data[0] + "\""]]
             )
         %}
 
@@ -302,7 +303,7 @@ cid_expr
 
 string_expr -> "\"" characters "\""
         {%
-            data => (["String", [data[1]]])
+            data => (["String", ["\"" + data[1] + "\""]])
         %}
 
 characters
@@ -332,5 +333,5 @@ digits -> digit {% id %}
 digit
     -> [0-9] {% id %}
 
-_ -> [ \t]:*
+_ -> [ \t]:* {% function(d) {return null; } %}
 

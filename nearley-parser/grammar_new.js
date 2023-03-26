@@ -41,8 +41,8 @@ var grammar = {
     {"name": "parameter_list", "symbols": ["func_param"], "postprocess": id},
     {"name": "parameter_list", "symbols": ["_", "func_param", "_", {"literal":","}, "_", "parameter_list", "_"], "postprocess": (data) => [data[1], data[5]]},
     {"name": "func_param", "symbols": ["evar_expr", "_", {"literal":":"}, "_", "type_val", "_"], "postprocess": (data) => [data[0], data[4]]},
-    {"name": "code_block", "symbols": ["_", "expr", "_", {"literal":"\n"}], "postprocess": id},
-    {"name": "code_block", "symbols": ["_", "expr", "_", {"literal":"\n"}, "_", "code_block", "_"], "postprocess": (data) => [data[0], data[4]]},
+    {"name": "code_block", "symbols": ["_", "expr", "_", {"literal":"\n"}], "postprocess": (data) => [data[1]]},
+    {"name": "code_block", "symbols": ["_", "expr", "_", {"literal":"\n"}, "_", "code_block", "_"], "postprocess": (data) => [data[1], data[5]]},
     {"name": "flip_expr$string$1", "symbols": [{"literal":"f"}, {"literal":"l"}, {"literal":"i"}, {"literal":"p"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "flip_expr", "symbols": ["flip_expr$string$1", "_", {"literal":"["}, "_", "val_expr", "_", {"literal":","}, "_", "val_expr", "_", {"literal":"]"}], "postprocess": 
         data => (["Flip",[data[4], data[8]]])
@@ -157,8 +157,8 @@ var grammar = {
         data => (["JpdTy",[data[3]]]
         )
                 },
-    {"name": "dvar_expr", "symbols": ["alpha_char", {"literal":"'"}], "postprocess": 
-        data => (["Dvar",[data[1]]]
+    {"name": "dvar_expr", "symbols": [{"literal":"'"}, "alpha_char"], "postprocess": 
+        data => (["Dvar",["\"" + data[1] + "\""]]
         )
                 },
     {"name": "boolean_expr$string$1", "symbols": [{"literal":"t"}, {"literal":"r"}, {"literal":"u"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
@@ -170,13 +170,13 @@ var grammar = {
         data => (["Bool",[data[0]]])
                 },
     {"name": "evar_expr", "symbols": ["alpha_char"], "postprocess": 
-        data => (["Evar",[data[0]]])
+        data => (["Evar",["\"" + data[0] + "\""]])
                 },
     {"name": "fname_expr", "symbols": ["alpha_char"], "postprocess": 
-        data => (["Fname", [data[0]]])
+        data => (["Fname", ["\"" + data[0] + "\""]])
                 },
     {"name": "field_expr", "symbols": ["alpha_char"], "postprocess": 
-        data => (["Field",[data[0]]]
+        data => (["Field",["\"" + data[0] + "\""]]
         )
                 },
     {"name": "cid_expr", "symbols": ["number"], "postprocess": 
@@ -184,7 +184,7 @@ var grammar = {
         )
                 },
     {"name": "string_expr", "symbols": [{"literal":"\""}, "characters", {"literal":"\""}], "postprocess": 
-        data => (["String", [data[1]]])
+        data => (["String", ["\"" + data[1] + "\""]])
                 },
     {"name": "characters", "symbols": ["character"], "postprocess": id},
     {"name": "characters", "symbols": ["character", "characters"], "postprocess": (data) => data[0] + data[1]},
@@ -198,7 +198,7 @@ var grammar = {
     {"name": "digit", "symbols": [/[0-9]/], "postprocess": id},
     {"name": "_$ebnf$1", "symbols": []},
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[ \t]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "_", "symbols": ["_$ebnf$1"]}
+    {"name": "_", "symbols": ["_$ebnf$1"], "postprocess": function(d) {return null; }}
 ]
   , ParserStart: "input"
 }
