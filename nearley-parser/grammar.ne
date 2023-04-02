@@ -12,7 +12,6 @@ top_level
             data => []
         %}
 
-
 top_level_expr
     -> expr {% id %}
     | seq_expr {% id %}
@@ -37,21 +36,20 @@ expr
     | fun_expr {% id %}
     | paren_expr {% id %}
 
-
 fun_expr
     -> fname_expr "(" _ parameter_list _ ")" _ "{" _ code_block _ "}" _ "\n"
     {%
-            data => (["Fun", [data[0], data[3], data[9]]])
+            data => ([[data[0], data[3], data[9]]])
         %}
     | fname_expr "(" _ parameter_list _ ")" _ "\n" _ "{" _ "\n" _ code_block _ "}" _ "\n"
     {%
-            data => (["Fun", [data[0], data[3], data[13]]])
+            data => ([[data[0], data[3], data[13]]])
         %}
 
 parameter_list
-    -> func_param {% id %}
+    -> func_param {% (data) => [data[0]] %}
     | _ func_param _ "," _ parameter_list _
-        {% (data) => [data[1], data[5]] %}
+        {% (data) => [data[1], ...data[5]] %}
 
 func_param
     -> evar_expr _ ":" _ type_val _
@@ -61,12 +59,12 @@ code_block
     -> _ expr _ "\n"
     {% (data) => [data[1]] %}
     | _ expr _ "\n" _ code_block _
-    {% (data) => [data[1], data[5]] %}
+    {% (data) => [data[1], ...data[5]] %}
 
 flip_expr
     -> "flip" _ "[" _ val_expr _ "," _ val_expr _ "]"
         {%
-            data => (["Flip",[data[4], data[8]]])
+            data => (["F",[data[4], data[8]]])
         %}
 
 view_expr
@@ -162,9 +160,9 @@ record_expr
 
 record_vals
     -> _ record_val _
-     {% (data) => data[1] %}
+     {% (data) => [data[1]] %}
     | _ record_val _ ";" _ record_vals
-     {% (data) => [data[1], data[5]] %}
+     {% (data) => [data[1], ...data[5]] %}
 
 record_val
     -> _ field_expr _ "=" _ val_expr _
@@ -177,9 +175,9 @@ appl_expr
             data => (["Appl",[data[0], data[3]]])
         %}
 
-values -> val_expr {% id %}
+values -> val_expr {% (data) => [data[0]] %}
     | _ val_expr _ "," _ values _
-        {% (data) => [data[1], data[5]] %}
+        {% (data) => [data[1], ...data[5]] %}
 
 
 not_expr
@@ -218,9 +216,9 @@ record_type
     {% (data) => [data[2]] %}
 
 record_types
-    -> record_type {% id %}
+    -> record_type {% (data) => [data[0]] %}
     | _ record_type _ ";" _ record_types _
-    {% (data) => [data[1], data[5]] %}
+    {% (data) => [data[1], ...data[5]] %}
 
 record_type
     -> _ field_expr _ ":" _ field_type _ 
@@ -290,7 +288,7 @@ fname_expr
 field_expr
     -> alpha_char
     {%
-            data => (["Field",["\"" + data[0] + "\""]]
+            data => (["\"" + data[0] + "\""]
             )
         %}
 
