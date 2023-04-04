@@ -103,6 +103,17 @@ let gen_rows (m : mem) : TT.t =
   in
   TT.of_list (gr ((Hashtbl.length hidx) - 1));;
 
+let gen_start n = 
+  let l = ref [""] in
+  for i = 0 to n-1 do
+    let old = !l in
+    l := [];
+    List.iter (fun x -> l := (x ^ sfalse)::!l) old;
+    List.iter (fun x -> l := (x ^ strue)::!l) old;
+  done;
+  TT.of_list !l;;
+
+
 let truth_tables (views : views) =
   let rec tt ptt = function
       Top -> ptt
@@ -122,7 +133,7 @@ let truth_tables (views : views) =
       (extend_idx v;
        let tp = tt ptt p in
        join (TT.map (fun r -> r ^ strue) tp) (TT.map (fun r -> r ^ sfalse) (diff ptt tp))))
-    (gen_rows Mem.empty)
+    (gen_start (Hashtbl.length hidx))
     views;;
 
 let to_s vs = S.of_list (List.map idx (VS.elements vs));;
