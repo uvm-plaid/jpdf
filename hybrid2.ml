@@ -98,6 +98,7 @@ module VS =
 
 let var_to_string t c s = t ^ "_" ^ (string_of_int c) ^ "_" ^ s;;
 
+(* Rather than an expr type, store a pair of the cid and corresponding string/name *)
 let iovars (views : views) =
   let rec vs = function
       Top -> (VS.empty, VS.empty)
@@ -133,24 +134,31 @@ let ms_bot = MS.empty;;
 
 let ms t c s = MS.singleton (Mem.of_list [(var_to_string t c s, true)]);;
 
-(* Not sure how big to set the hashtable initially, for now using two since I don't want to add to one while iterating *)
-let lines_temp = Hashtbl.create 0;;
-
-let lines = Hashtbl.create 0;;
-
-let parse_string x = let s_list = String.split_on_char '_' x in
-  let s_0 = if String.starts_with "not" (List.nth s_list 0) then Char.escaped (List.nth s_list 0).[3] else (List.nth s_list 0) in
+(* 
+  Get the type (S, F, H, or V), cid, and identifier of a variable from string form. For H use -1 as cid 
+  Input is of the form V_0_0 or H_0
+*)
+let parse_string x = 
+  let s_list = String.split_on_char '_' x in
+  let s_0 = if String.starts_with "not" (List.nth s_list 0) then 
+    Char.escaped (List.nth s_list 0).[3] 
+  else 
+    (List.nth s_list 0) in
   if s_0 = "H" then
     (s_0, -1, List.nth s_list 1)
   else
     (s_0, int_of_string (List.nth s_list 1), List.nth s_list 2);;
 
-let mems_to_lists x = List.map (fun y -> List.map (fun z -> 
-  let (t, c, _) = parse_string (fst(z)) in
-  if snd(z) = false then ("not" ^ fst(z)) else (fst(z))) 
+(* 
+  Remove negation from clause body
+  Replace mem format of (name, true/false) with just name and prepending not when false 
+*)
+let remove_negation_lists x = 
+  List.map (fun y -> List.map (fun z -> 
+    if snd(z) = false then ("not" ^ fst(z)) else (fst(z)))
   (Mem.elements y)) (MS.elements x);;
 
-let truth_tables (views : views) h =
+let truth_tables (views : views) =
   let rec tt = function
       Top -> ms_top
     | Bot -> ms_bot
@@ -167,74 +175,69 @@ let truth_tables (views : views) h =
        join (meet tp1 (comp tp2)) (meet (comp tp1) tp2)
     | _ -> raise (TypeError "free variable encountered in truth_tables")
   in
-  List.iter
+  List.concat_map
     (fun (v, Jpdf(p)) ->
       let tp = tt p in
       let tv = match v with (V(Cid(c), String(s))) -> "V" ^ "_" ^ (string_of_int c) ^ "_" ^ s in
-      Hashtbl.add h tv (mems_to_lists tp);
-      Hashtbl.add h ("not" ^ tv) (mems_to_lists (comp tp)))
+      (* Add the "not" version of the variable and remove negation in body*)
+      [(tv, (remove_negation_lists tp));(("not" ^ tv), (remove_negation_lists (comp tp)))]
+      )
     views;;
 
-let multiple_defs h1 h2 = 
-  Hashtbl.iter (fun k v -> 
+(* 
+  Deal with multiple definitions
+  If a head appears more than once and the body of any of those clauses is longer than 1, create new head variables for each part
+  with corresponding rules added going back to the original head.
+*)
+let multiple_defs logic = 
+  List.concat_map (fun (k,v) -> 
     if List.length v > 1 then
-      let i = ref 0 in
-      List.iter (fun x -> Hashtbl.add h2 (k ^ "." ^ (string_of_int !i)) x; 
-      Hashtbl.add h2 k [(k ^ "." ^ (string_of_int !i))];
-      i := !i + 1) v
-    else 
-      Hashtbl.add h2 k (List.nth v 0)
-  ) h1;;
+      (List.mapi (fun i x -> ((k ^ "." ^ (string_of_int i)), x)) v) @ (List.mapi (fun i x -> (k, [(k ^ "." ^ (string_of_int i))])) v)
+    else
+      [(k, (List.nth v 0))]
+  ) logic;;
 
-let print_table t = Hashtbl.iter (fun k v -> Printf.printf "%-11s <- %s\n" k (String.concat ", " v)) t;;
+let print_table t = List.iter (fun (k, v) -> Printf.printf "%-11s <- %s\n" k (String.concat ", " v)) t;;
 
-let write_json filename ss fs vs = 
+let write_json filename ss fs vs logic_program = 
   let oc = open_out filename in
   Printf.fprintf oc "{\n\"base\":\n{\n\"views\":\n[\n";
-  let i = ref 0 in
   let n = List.length (VS.elements vs) in
-  List.iter (fun x ->  
+  List.iteri (fun i x ->  
     Printf.fprintf oc "{\"cid\": %d,\"name\": \"%s\"}" (fst x) (snd x);
-    if !i < n - 1 then Printf.fprintf oc ",";
-    Printf.fprintf oc "\n";
-    i := !i + 1) (VS.elements vs);
+    if i < n - 1 then Printf.fprintf oc ",";
+    Printf.fprintf oc "\n") (VS.elements vs);
   Printf.fprintf oc "],\n";
 
   Printf.fprintf oc "\"secrets\":\n[\n";
-  let i = ref 0 in
   let n = List.length (VS.elements ss) in
-  List.iter (fun x ->  
+  List.iteri (fun i x ->  
     Printf.fprintf oc "{\"cid\": %d,\"name\": \"%s\"}" (fst x) (snd x);
-    if !i < n - 1 then Printf.fprintf oc ",";
-    Printf.fprintf oc "\n";
-    i := !i + 1) (VS.elements ss);
+    if i < n - 1 then Printf.fprintf oc ",";
+    Printf.fprintf oc "\n") (VS.elements ss);
   Printf.fprintf oc "],\n";
 
   Printf.fprintf oc "\"flips\":\n[\n";
-  let i = ref 0 in
   let n = List.length (VS.elements fs) in
-  List.iter (fun x ->  
+  List.iteri (fun i x ->  
     Printf.fprintf oc "{\"name\": \"%s\"}" (snd x);
-    if !i < n - 1 then Printf.fprintf oc ",";
-    Printf.fprintf oc "\n";
-    i := !i + 1) (VS.elements fs);
+    if i < n - 1 then Printf.fprintf oc ",";
+    Printf.fprintf oc "\n") (VS.elements fs);
   Printf.fprintf oc "]";
 
   Printf.fprintf oc "\n},\n";
 
   Printf.fprintf oc "\"program\":\n[\n";
-  let i = ref 0 in
-  let n = Hashtbl.length lines in
-  Hashtbl.iter (fun k v -> 
+  let n = List.length logic_program in
+  List.iteri (fun i (k, v) -> 
     Printf.fprintf oc "{\n";
     Printf.fprintf oc "\"head\": \"%s\", " k;
     Printf.fprintf oc "\"body\": [";
     Printf.fprintf oc "\"%s\"" (String.concat "\", \"" v);
     Printf.fprintf oc "]\n";
     Printf.fprintf oc "}";
-    if !i < n - 1 then Printf.fprintf oc ",";
-    Printf.fprintf oc "\n";
-    i := !i + 1) lines;
+    if i < n - 1 then Printf.fprintf oc ",";
+    Printf.fprintf oc "\n";) logic_program;
   Printf.fprintf oc "]\n";
 
   Printf.fprintf oc "}";
@@ -242,19 +245,8 @@ let write_json filename ss fs vs =
 
 let lp p filename =
   let (_,views) = progty p in
-  let (ss, fs, vs) = iovars views in (
-    truth_tables views lines_temp;
-    multiple_defs lines_temp lines;
-    print_table lines;
-    write_json filename ss fs vs);;
-
-let (ex0 : progn) = 
-  [],
-  Let(EVar("f0"), F(Cid(1), String("0")),
-      Let(EVar("f1"), F(Cid(1), String("1")),
-          Let(EVar("f2"), Select(S(Cid(1), String("0")),Var(EVar("f0")),Var(EVar("f1"))),
-              Seq(
-                Assign(V(Cid(0), String("0")), Var(EVar("f2"))),
-                Assign(V(Cid(0), String("1")), Var(EVar("f0"))))))) 
-  in        
-  lp ex0 "example.json";;
+  let (ss, fs, vs) = iovars views in 
+  let temp_logic_program = truth_tables views in
+  let logic_program = multiple_defs temp_logic_program in
+  print_table logic_program;
+  write_json filename ss fs vs logic_program;;
