@@ -191,10 +191,10 @@ let truth_tables (views : views) =
 *)
 let multiple_defs logic = 
   List.concat_map (fun (k,v) -> 
-    if List.length v > 1 then
+    if List.length v > 1 && List.exists (fun l -> List.length l > 1) v then
       (List.mapi (fun i x -> ((k ^ "." ^ (string_of_int i)), x)) v) @ (List.mapi (fun i x -> (k, [(k ^ "." ^ (string_of_int i))])) v)
     else
-      [(k, (List.nth v 0))]
+      List.map (fun x -> (k, x)) v
   ) logic;;
 
 let print_table t = List.iter (fun (k, v) -> Printf.printf "%-11s <- %s\n" k (String.concat ", " v)) t;;
