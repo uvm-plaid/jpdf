@@ -12,8 +12,8 @@ var grammar = {
     {"name": "top_level", "symbols": ["_"], "postprocess": 
         data => []
                 },
-    {"name": "top_level_expr", "symbols": ["expr"], "postprocess": id},
-    {"name": "top_level_expr", "symbols": ["seq_expr"], "postprocess": id},
+    {"name": "top_level_expr", "symbols": ["fun_expr"], "postprocess": id},
+    {"name": "top_level_expr", "symbols": ["other_expr"], "postprocess": data => null},
     {"name": "expr", "symbols": ["flip_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["view_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["secret_expr"], "postprocess": id},
@@ -32,6 +32,8 @@ var grammar = {
     {"name": "expr", "symbols": ["assign_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["fun_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["paren_expr"], "postprocess": id},
+    {"name": "other_expr", "symbols": ["expr"]},
+    {"name": "other_expr", "symbols": ["seq_expr"]},
     {"name": "fun_expr", "symbols": ["fname_expr", {"literal":"("}, "_", "parameter_list", "_", {"literal":")"}, "_", {"literal":"{"}, "_", "code_block", "_", {"literal":"}"}, "_", {"literal":"\n"}], "postprocess": 
         data => ([[data[0], data[3], data[9]]])
                 },
@@ -95,7 +97,7 @@ var grammar = {
     {"name": "let_expr", "symbols": ["let_expr$string$3", "_", "evar_expr", "_", {"literal":"="}, "_", "expr", "_", "let_expr$string$4", "_", "expr"], "postprocess": 
         data => (["Let",[data[2], data[6], data[10]]])
                 },
-    {"name": "seq_expr", "symbols": ["expr", "_", {"literal":";"}], "postprocess": 
+    {"name": "seq_expr", "symbols": ["_", "expr", "_", {"literal":";"}], "postprocess": 
         data => (["Seq",[data[0]]])
                 },
     {"name": "dot_expr", "symbols": ["evar_expr", {"literal":"."}, "field_expr"], "postprocess": 
@@ -134,8 +136,8 @@ var grammar = {
     {"name": "type_val", "symbols": ["record_type"], "postprocess": id},
     {"name": "type_val", "symbols": ["jpd_type"], "postprocess": id},
     {"name": "record_type", "symbols": [{"literal":"{"}, "_", "record_types", "_", {"literal":"}"}], "postprocess": (data) => [data[2]]},
-    {"name": "record_types", "symbols": ["record_type"], "postprocess": (data) => [data[0]]},
-    {"name": "record_types", "symbols": ["_", "record_type", "_", {"literal":";"}, "_", "record_types", "_"], "postprocess": (data) => [data[1], ...data[5]]},
+    {"name": "record_types", "symbols": ["record_type"], "postprocess": id},
+    {"name": "record_types", "symbols": ["_", "record_type", "_", {"literal":";"}, "_", "record_types", "_"], "postprocess": (data) => [data[1], data[5]]},
     {"name": "record_type", "symbols": ["_", "field_expr", "_", {"literal":":"}, "_", "field_type", "_"], "postprocess": 
         data => (["RecordTy",[data[1], data[5]]]
         )
