@@ -14,12 +14,19 @@ catch(e){
     console.log("parse failed", e.message);
 }
 
-let value = parser.results[0];
+let funcVals = funcParser.results[0];
 
-progn(funcVals, value);
-
+try {
+  parser.feed(text);
+}
+catch(e){
+  console.log("parse failed", e.message);
 }
 
+let value = parser.results[0];
+
+return progn(funcVals, value);
+}
 
 function progn(funcVals, value){
   var output = "(\n[\n";
@@ -27,6 +34,7 @@ function progn(funcVals, value){
   for (let i = 0; i < funcVals.length; i++){
       if(funcVals[i] != null) {
         let formattedstr = convert(funcVals[i], -1);
+        console.log(formattedstr);
         if(funcs === 0){
           output += formattedstr;
         } else {
@@ -36,17 +44,17 @@ function progn(funcVals, value){
       }
   }
   output += "\n],";
-  //do the other pass through all of it without top level function definitions here
-
-for (let i = 0; i < value.length; i++){
+  for (let i = 1; i < value.length; i++){
 
     let formatedstr = convert(value[i]);
     output += formatedstr;
     console.log(formatedstr);
-}
-  output += "\n);;";
+  }
+    output += "\n);;";
+    console.log(output);
+  
   return output;
-}
+  }
 
 function convert(arr, brackets){
   var result = "";
