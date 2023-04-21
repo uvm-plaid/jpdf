@@ -1,0 +1,24 @@
+
+<html>
+    <head><script src="output.js"></script></head>
+    
+    <body>
+        <center>
+        <h1>Secure Multiparty Computation Parser</h1>
+    
+        <textarea type="text" placeholder="Program Input..." style="font-size:15pt;height:400px;width:400px;" id="inputStr"></textarea><br><br>
+        <button type="button" onclick="getParseVal();">Parse</button><br><br>
+        
+        <div id="output"></div>
+        <script type="text/javascript">
+        function getParseVal(){
+          var element = document.getElementById("output");
+          var input = document.getElementById("inputStr").value;
+          element.innerHTML = parse(input);
+        }
+     </script>
+    </center>
+    
+    </body>
+    
+    </html>
