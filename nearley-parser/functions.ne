@@ -3,15 +3,12 @@ input -> top_level {% id %}
 top_level
     -> top_level_expr
         {%  (data) => [data[0]] %}
-    |  _ top_level_expr _ "\n" _ top_level
-        {%  (data) => [data[1], ... data[5]] %}
-    |  _ "\n" top_level
-        {% (data) => data[2] %}
+    |  _ top_level_expr _ top_level
+        {%  (data) => [data[1], ... data[3]] %}
     |  _
         {%
-            data => []
+            data => null
         %}
-
 
 top_level_expr
     -> fun_expr {% id %}
@@ -46,13 +43,9 @@ other_expr
     | seq_expr 
 
 fun_expr
-    -> fname_expr "(" _ parameter_list _ ")" _ "{" _ code_block _ "}" _ "\n"
+    -> fname_expr "(" _ parameter_list _ ")" _ "{" _ code_block _ "}" _ 
     {%
             data => ([[data[0], data[3], data[9]]])
-        %}
-    | fname_expr "(" _ parameter_list _ ")" _ "\n" _ "{" _ "\n" _ code_block _ "}" _ "\n"
-    {%
-            data => ([[data[0], data[3], data[13]]])
         %}
 
 parameter_list
@@ -65,10 +58,10 @@ func_param
     {% (data) => [data[0], data[4]] %}
 
 code_block
-    -> _ expr _ "\n"
+    -> _ expr _
     {% (data) => [data[1]] %}
-    | _ expr _ "\n" _ code_block _
-    {% (data) => [data[1], ...data[5]] %}
+    | _ expr _ code_block _
+    {% (data) => [data[1], ...data[3]] %}
 
 flip_expr
     -> "flip" _ "[" _ val_expr _ "," _ val_expr _ "]"
@@ -340,5 +333,4 @@ digits -> digit {% id %}
 digit
     -> [0-9] {% id %}
 
-_ -> [ \t]:* {% function(d) {return null; } %}
-
+_ -> null | _ [\s] {% function() {} %}
