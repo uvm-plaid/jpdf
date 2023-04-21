@@ -1,5 +1,5 @@
 const nearley = require("nearley");
-const grammar = require("./grammar_new.js");
+const grammar = require("./grammar.js");
 const functions = require("./functions.js");
 
 const funcParser = new nearley.Parser(nearley.Grammar.fromCompiled(functions));
@@ -50,11 +50,15 @@ function progn(funcVals, value){
       }
   }
   output += "\n],";
-  //do the other pass through all of it without top level function definitions here
+  for (let i = 1; i < value.length; i++){
 
-  output += "\n);;";
-  console.log(output);
-}
+    let formatedstr = convert(value[i]);
+    output += formatedstr;
+    console.log(formatedstr);
+  }
+    output += "\n);;";
+    console.log(output);
+  }
 
 function convert(arr, brackets){
   var result = "";
@@ -103,7 +107,7 @@ function format(str){
         newstr += str[i];
       }
     }
-    //separate pass through to replace certain commas
+    //i gave up trying to count depth in that loop since it skips i's
     var depth = 0;
     var bracketDepth = -1;
     var laststr = "";
