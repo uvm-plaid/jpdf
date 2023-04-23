@@ -3,11 +3,13 @@ input -> top_level {% id %}
 top_level
     -> top_level_expr
         {%  (data) => [data[0]] %}
-    |  _ top_level_expr _ top_level
-        {%  (data) => [data[1], ... data[3]] %}
+    |  _ top_level_expr _ "\n" _ top_level
+        {%  (data) => [data[1], ... data[5]] %}
+    |  _ "\n" top_level
+        {% (data) => data[2] %}
     |  _
         {%
-            data => null
+            data => []
         %}
 
 top_level_expr
@@ -43,9 +45,13 @@ other_expr
     | seq_expr 
 
 fun_expr
-    -> fname_expr "(" _ parameter_list _ ")" _ "{" _ code_block _ "}" _ 
+    -> fname_expr "(" _ parameter_list _ ")" _ "{" _ code_block _ "}" _ "\n"
     {%
             data => ([[data[0], data[3], data[9]]])
+        %}
+    | fname_expr "(" _ parameter_list _ ")" _ "\n" _ "{" _ "\n" _ code_block _ "}" _ "\n"
+    {%
+            data => ([[data[0], data[3], data[13]]])
         %}
 
 parameter_list
@@ -58,10 +64,10 @@ func_param
     {% (data) => [data[0], data[4]] %}
 
 code_block
-    -> _ expr _
+    -> _ expr _ "\n"
     {% (data) => [data[1]] %}
-    | _ expr _ code_block _
-    {% (data) => [data[1], ...data[3]] %}
+    | _ expr _ "\n" _ code_block _
+    {% (data) => [data[1], ...data[5]] %}
 
 flip_expr
     -> "flip" _ "[" _ val_expr _ "," _ val_expr _ "]"
@@ -72,13 +78,13 @@ flip_expr
 view_expr
     -> "v" _ "[" _ val_expr _ "," _ val_expr _ "]"
         {%
-            data => (["View",[data[4], data[8]]])
+            data => (["V",[data[4], data[8]]])
         %}
 
 secret_expr
     -> "s" _ "[" _ val_expr _ "," _ val_expr _ "]"
         {%
-            data => (["Secret",[data[4], data[8]]])
+            data => (["S",[data[4], data[8]]])
         %}
 
 
@@ -132,10 +138,9 @@ paren_expr
         {% (data) => data[2] %}
 
 let_expr
-    -> "let" _ evar_expr _ "=" _ expr _ "in"
+    -> "let" _ evar_expr _ "=" _ expr _ "in" _ "\n" _ expr
         {%
-            data => (["Let",[data[2], data[6]]]
-            )
+            data => (["Let",[data[2], data[6], data[12]]])
         %}
     | "let" _ evar_expr _ "=" _ expr _ "in" _ expr
         {%
@@ -252,7 +257,7 @@ cid_type
 jpd_type
     -> "jpd" "(" _ dvar_expr _ ")"
         {%
-            data => (["JpdTy",[data[3]]]
+            data => (["Jpdf",[data[3]]]
             )
         %}
 
@@ -260,7 +265,7 @@ jpd_type
 dvar_expr
     -> "'" alpha_char 
     {%
-            data => (["Dvar",["\"" + data[1] + "\""]]
+            data => (["DVar",["\"" + data[1] + "\""]]
             )
         %}
 
@@ -278,7 +283,7 @@ boolean_expr
 evar_expr
     -> alpha_char
     {%
-            data => (["Evar",["\"" + data[0] + "\""]])
+            data => (["EVar",["\"" + data[0] + "\""]])
         %}
 
 fname_expr
@@ -333,4 +338,4 @@ digits -> digit {% id %}
 digit
     -> [0-9] {% id %}
 
-_ -> null | _ [\s] {% function() {} %}
+_ -> [ \t]:* {% function(d) {return null; } %}

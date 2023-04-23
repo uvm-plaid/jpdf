@@ -77,13 +77,14 @@ flip_expr
 view_expr
     -> "v" _ "[" _ val_expr _ "," _ val_expr _ "]"
         {%
-            data => (["View",[data[4], data[8]]])
+            data => (["V",[data[4], data[8]]])
         %}
+
 
 secret_expr
     -> "s" _ "[" _ val_expr _ "," _ val_expr _ "]"
         {%
-            data => (["Secret",[data[4], data[8]]])
+            data => (["S",[data[4], data[8]]])
         %}
 
 
@@ -137,15 +138,15 @@ paren_expr
         {% (data) => data[2] %}
 
 let_expr
-    -> "let" _ evar_expr _ "=" _ expr _ "in"
+    -> "let" _ evar_expr _ "=" _ expr _ "in" _ "\n" _ expr
         {%
-            data => (["Let",[data[2], data[6]]]
-            )
+            data => (["Let",[data[2], data[6], data[12]]])
         %}
     | "let" _ evar_expr _ "=" _ expr _ "in" _ expr
         {%
             data => (["Let",[data[2], data[6], data[10]]])
         %}
+
 
 seq_expr
     -> expr _ ";"
@@ -257,7 +258,7 @@ cid_type
 jpd_type
     -> "jpd" "(" _ dvar_expr _ ")"
         {%
-            data => (["JpdTy",[data[3]]]
+            data => (["Jpdf",[data[3]]]
             )
         %}
 
@@ -265,7 +266,7 @@ jpd_type
 dvar_expr
     -> "'" alpha_char 
     {%
-            data => (["Dvar",["\"" + data[1] + "\""]]
+            data => (["DVar",["\"" + data[1] + "\""]]
             )
         %}
 
