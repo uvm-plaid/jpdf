@@ -17,8 +17,6 @@ type mems = MS.t
 
 let dom (m : mem) : mids = S.of_list (fst(List.split (Mem.elements m)));;
 
-type dist = mids * (mem -> float);;
-
 let expand (ms : mems) ids =
   let ex ms i = 
     MS.union
@@ -28,46 +26,6 @@ let expand (ms : mems) ids =
   S.fold (fun i ms -> ex ms i) ids ms;;
 
 let gen_deps (s : mids) : mems = expand (MS.singleton (Mem.empty)) s;;
-
-let restrict (m : mem) (s : mids) : mem = Mem.filter (fun (id,_) -> S.mem id s) m;;
-
-let margd (s1 : mids) (s2, d : dist) : dist =
-  let deps = gen_deps (S.diff s2 s1) in
-  s1, (fun (ma : Mem.t) -> List.fold_left (fun p mb -> (d (Mem.union ma mb)) +. p) 0.0 ((MS.elements) deps));;
-
-let condd mb (s,d : dist) : dist =
-  S.diff s (dom mb), (fun (ma : Mem.t) ->
-    let p = ((snd (margd (dom mb) (s,d))) mb) in
-    if p = 0.0 then 0.0 else (d (Mem.union ma mb)) /. p);;
-
-let meetd (s1,d1 : dist) (s2,d2 as mu2 : dist) : dist =    (* P(A and B) = P(A) * P(B|A) *)
-  S.union s1 s2,
-  (fun m ->
-    let s = S.inter s1 s2 in
-    if S.is_empty s then d1(restrict m s1) *. d2(restrict m s2)
-    else d1(restrict m s1) *. (snd(condd (restrict m s) mu2) (restrict m (S.diff s2 s))));;
-
-exception MemDomain;;
-
-let rec pow a = function
-  | 0 -> 1
-  | 1 -> a
-  | n -> 
-    let b = pow a (n / 2) in
-    b * b * (if n mod 2 = 0 then 1 else a)
-
-let initd (s : mids) : dist =
-  let prob = 1.0 /. float_of_int(pow 2 (S.cardinal s)) in 
-  s, (fun m -> if S.equal (dom m) s then prob else raise MemDomain);;
-
-let uni (ms : mems) : dist =
-  let s = dom (MS.choose ms) in
-  s, 
-  (fun (m : Mem.t) ->
-    if (S.equal (dom m) s) then
-      if (MS.mem m ms) then (1.0 /. float_of_int(MS.cardinal ms))
-      else 0.0
-    else raise MemDomain);;
 
 let meet ms1 ms2 =
   if MS.is_empty ms1 || MS.is_empty ms2 then ms1 else
@@ -248,5 +206,5 @@ let lp p filename =
   let (ss, fs, vs) = iovars views in 
   let temp_logic_program = truth_tables views in
   let logic_program = multiple_defs temp_logic_program in
-  print_table logic_program;
+  (* print_table logic_program; *)
   write_json filename ss fs vs logic_program;;

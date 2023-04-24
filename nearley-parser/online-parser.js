@@ -44,7 +44,7 @@ function progn(funcVals, value){
       }
   }
   output += "\n],";
-  for (let i = 1; i < value.length; i++){
+  for (let i = 0; i < value.length; i++){
 
     let formatedstr = convert(value[i]);
     output += formatedstr;
@@ -76,6 +76,7 @@ function convert(arr, brackets){
         } else {
           result += "(" + convert(arr[i], (brackets > 0 ? brackets - 1 : -1)) + ")";
         }
+        brackets = -1;
       } else {
           result += arr[i];
       }

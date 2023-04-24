@@ -21,9 +21,11 @@ top_level_expr
 #     | seq_expr {% id %}
 
 expr
-    -> flip_expr {% id %}
+    -> paren_expr {% id %}
+    | flip_expr {% id %}
     | view_expr {% id %}
     | secret_expr {% id %}
+    | let_expr {% id %}
     | not_expr {% id %}
     | and_expr {% id %}
     | select_expr {% id %}
@@ -32,16 +34,15 @@ expr
     | appl_expr {% id %}
     | h_expr {% id %}
     | concat_expr {% id %}
-    | let_expr {% id %}
     | ot_expr {% id %}
     | dot_expr {% id %}
     | record_expr {% id %}
     | assign_expr {% id %}
     | fun_expr {% id %}
-    | paren_expr {% id %}
+    | seq_expr {% id %}
 
 other_expr
-    -> expr
+    -> let_expr
     | seq_expr 
 
 fun_expr
@@ -81,6 +82,7 @@ view_expr
             data => (["V",[data[4], data[8]]])
         %}
 
+
 secret_expr
     -> "s" _ "[" _ val_expr _ "," _ val_expr _ "]"
         {%
@@ -96,18 +98,18 @@ ot_expr
         %}
 
 assign_expr
-    -> expr _ ":=" _ var_assign
+    -> view_expr _ ":=" _ var_expr
         {%
             data => (["Assign",[data[0], data[4]]]
             )
         %}
-    | expr _ ":=" _ expr
+    | view_expr _ ":=" _ expr
     {%
             data => (["Assign",[data[0], data[4]]]
             )
         %}
 
-var_assign
+var_expr
     -> evar_expr
         {%
             data => (["Var",[data[0]]]
@@ -138,23 +140,28 @@ paren_expr
         {% (data) => data[2] %}
 
 let_expr
-    -> "let" _ evar_expr _ "=" _ expr _ "in" _ "\n" _ expr
+    -> "let" _ evar_expr _ "=" _ expr _ "in" _ "\n" _ body_expr _
         {%
             data => (["Let",[data[2], data[6], data[12]]])
         %}
-    | "let" _ evar_expr _ "=" _ expr _ "in" _ expr
+    | "let" _ evar_expr _ "=" _ expr _ "in" _ body_expr _ 
         {%
             data => (["Let",[data[2], data[6], data[10]]])
         %}
 
+body_expr
+    -> let_expr
+    | seq_expr
+    | assign_expr
+
 seq_expr
-    -> expr _ ";"
+    -> assign_expr _ ";" _ "\n" _ body_expr
         {%
-            data => (["Seq",[data[0]]])
+            data => (["Seq",[data[0], data[6]]])
         %}
 
 dot_expr
-    -> evar_expr "." field_expr
+    -> var_expr "." field_expr
         {%
             data => (["Dot",[data[0], data[2]]])
         %}
@@ -206,11 +213,12 @@ xor_expr
             data => (["Xor",[data[0], data[4]]])
         %}
 
-val_expr -> expr {% id %}
+val_expr 
+    -> expr {% id %}
     | boolean_expr {% id %}
     | cid_expr  {% id %}
     | string_expr {% id %}
-    | evar_expr {% id %}
+    | var_expr {% id %}
 
 type_val
     -> cid_type {% id %}
@@ -242,14 +250,14 @@ field_type
 
 
 string_type
-    -> "string" "(" _ var_assign _ ")"
+    -> "string" "(" _ var_expr _ ")"
         {%
             data => (["StringTy",[data[3]]]
             )
         %}
 
 cid_type
-    -> "cid" "(" _ var_assign _ ")"
+    -> "cid" "(" _ var_expr _ ")"
     {%
             data => (["CidTy",[data[3]]])
         %}

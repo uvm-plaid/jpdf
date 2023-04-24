@@ -27,6 +27,8 @@ catch(e){
 
 let value = parser.results[0];
 
+// console.log(value.length);
+
 // for (let i = 0; i < value.length; i++){
 //   console.log(value[i]);
 // }
@@ -50,11 +52,12 @@ function progn(funcVals, value){
       }
   }
   output += "\n],";
-  for (let i = 1; i < value.length; i++){
-
-    let formatedstr = convert(value[i]);
-    output += formatedstr;
-    console.log(formatedstr);
+  for (let i = 0; i < value.length; i++){
+    if(value[i] != null){
+      let formatedstr = convert(value[i]);
+      output += formatedstr;
+    //console.log(formatedstr);
+    }
   }
     output += "\n);;";
     console.log(output);
@@ -80,6 +83,7 @@ function convert(arr, brackets){
         } else {
           result += "(" + convert(arr[i], (brackets > 0 ? brackets - 1 : -1)) + ")";
         }
+        brackets = -1;
       } else {
           result += arr[i];
       }
