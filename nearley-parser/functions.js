@@ -100,6 +100,11 @@ var grammar = {
     {"name": "body_expr", "symbols": ["let_expr"]},
     {"name": "body_expr", "symbols": ["seq_expr"]},
     {"name": "body_expr", "symbols": ["assign_expr"]},
+    {"name": "body_expr", "symbols": ["record_expr"]},
+    {"name": "body_expr", "symbols": ["select_expr"]},
+    {"name": "body_expr", "symbols": ["flip_expr"], "postprocess": id},
+    {"name": "body_expr", "symbols": ["view_expr"], "postprocess": id},
+    {"name": "body_expr", "symbols": ["secret_expr"], "postprocess": id},
     {"name": "seq_expr", "symbols": ["assign_expr", "_", {"literal":";"}, "_", {"literal":"\n"}, "_", "body_expr"], "postprocess": 
         data => (["Seq",[data[0], data[6]]])
                 },

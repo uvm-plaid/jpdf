@@ -68,6 +68,9 @@ function convert(arr, brackets){
         if(arr[i][0] === "Record"){
           brackets = 2;
         }
+        if(arr[i][0] === "Let" || arr[i][0] === "Seq") {
+          result += "\n";
+        }
         if (i === funcCount + 1){
           funcCount = -2;
           result += "[" + convert(arr[i], (brackets > 0 ? brackets - 1 : -1)) + "]";

@@ -154,6 +154,12 @@ body_expr
     | seq_expr
     | assign_expr
 
+    | record_expr
+    | select_expr
+    | flip_expr {% id %}
+    | view_expr {% id %}
+    | secret_expr {% id %}
+
 seq_expr
     -> assign_expr _ ";" _ "\n" _ body_expr
         {%
