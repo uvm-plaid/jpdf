@@ -241,18 +241,11 @@ record_types
     {% (data) => [data[1], ...data[5]] %}
 
 record_type
-    -> _ field_expr _ ":" _ field_type _ 
+    -> _ field_expr _ ":" _ type_val _ 
         {%
             data => (["RecordTy",[data[1], data[5]]]
             )
         %}
-
-field_type
-    ->  alpha_char
-    {%
-            data => (["FieldTy",[data[0]]])
-        %}
-
 
 string_type
     -> "string" "(" _ var_expr _ ")"

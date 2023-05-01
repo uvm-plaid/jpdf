@@ -109,21 +109,21 @@ function format(str){
     }
     //separate pass through to replace certain commas
     var depth = 0;
-    var bracketDepth = -1;
+    var bracketDepth = [];
     var laststr = "";
     for(var i = 0; i < newstr.length; i++){
       if (newstr[i] === "(" || newstr[i] === "["){
         depth++;
         if(newstr[i] === "["){
-          bracketDepth = depth;
+          bracketDepth.push(depth);
         }
       } else if (newstr[i] === ")" || newstr[i] === "]") {
         depth--;
         if(newstr[i] === "]"){
-          bracketDepth = -1;
+          bracketDepth.pop();
         }
       }
-      if(newstr[i] === "," && (depth === bracketDepth)){
+      if(newstr[i] === "," && (bracketDepth.includes(depth))){
         laststr += ";"
         continue;
       }

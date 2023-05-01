@@ -146,12 +146,9 @@ var grammar = {
     {"name": "record_type", "symbols": [{"literal":"{"}, "_", "record_types", "_", {"literal":"}"}], "postprocess": (data) => [data[2]]},
     {"name": "record_types", "symbols": ["record_type"], "postprocess": (data) => [data[0]]},
     {"name": "record_types", "symbols": ["_", "record_type", "_", {"literal":";"}, "_", "record_types", "_"], "postprocess": (data) => [data[1], ...data[5]]},
-    {"name": "record_type", "symbols": ["_", "field_expr", "_", {"literal":":"}, "_", "field_type", "_"], "postprocess": 
+    {"name": "record_type", "symbols": ["_", "field_expr", "_", {"literal":":"}, "_", "type_val", "_"], "postprocess": 
         data => (["RecordTy",[data[1], data[5]]]
         )
-                },
-    {"name": "field_type", "symbols": ["alpha_char"], "postprocess": 
-        data => (["FieldTy",[data[0]]])
                 },
     {"name": "string_type$string$1", "symbols": [{"literal":"s"}, {"literal":"t"}, {"literal":"r"}, {"literal":"i"}, {"literal":"n"}, {"literal":"g"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "string_type", "symbols": ["string_type$string$1", {"literal":"("}, "_", "var_expr", "_", {"literal":")"}], "postprocess": 
