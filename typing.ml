@@ -231,3 +231,10 @@ let rec pty (gamma : bindings) (views : views) = function
         |  _ ->  raise (TypeError "non-pdf type in logical formula"))
  
   | _ -> raise (TypeError "UNFINISHED");;
+
+let fnpty (gamma : bindings) ((f, params, e) : fndecl) =
+  GenFn((List.map (fun (x,t) -> t) params),(pty (params@gamma) [] e));;
+
+let progty ((fns, e) : progn) =
+  let gamma = List.fold_left (fun g ((f,_,_) as fn) -> g@[(f,fnpty g fn)]) [] fns in
+  pty gamma [] e;;
