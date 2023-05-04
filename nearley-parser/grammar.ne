@@ -166,10 +166,14 @@ seq_expr
         %}
 
 dot_expr
-    -> var_expr "." field_expr
+    -> dot_val "." field_expr
         {%
             data => (["Dot",[data[0], data[2]]])
         %}
+
+dot_val
+    -> dot_expr {% id %}
+    | val_expr {% id %}
 
 record_expr
     -> "{" _ record_vals _ "}"

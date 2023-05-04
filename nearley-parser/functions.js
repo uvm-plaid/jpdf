@@ -108,9 +108,11 @@ var grammar = {
     {"name": "seq_expr", "symbols": ["assign_expr", "_", {"literal":";"}, "_", {"literal":"\n"}, "_", "body_expr"], "postprocess": 
         data => (["Seq",[data[0], data[6]]])
                 },
-    {"name": "dot_expr", "symbols": ["var_expr", {"literal":"."}, "field_expr"], "postprocess": 
+    {"name": "dot_expr", "symbols": ["dot_val", {"literal":"."}, "field_expr"], "postprocess": 
         data => (["Dot",[data[0], data[2]]])
                 },
+    {"name": "dot_val", "symbols": ["dot_expr"], "postprocess": id},
+    {"name": "dot_val", "symbols": ["val_expr"], "postprocess": id},
     {"name": "record_expr", "symbols": [{"literal":"{"}, "_", "record_vals", "_", {"literal":"}"}], "postprocess": 
         data => (["Record",[data[2]]])
                 },
