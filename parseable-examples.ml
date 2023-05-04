@@ -68,7 +68,7 @@ v[0,"pub"] := (v[0,"1"] xor v[0,"2"]) xor v[0,"3"]
 (Seq((Assign((V((Cid(0)),(String("3")))),(Xor((Xor((Dot((Var((EVar("shares3")))),("s3"))),(V((Cid(3)),(String("0")))))),(V((Cid(3)),(String("1")))))))),((Assign((V((Cid(0)),(String("pub")))),(Xor((Xor((V((Cid(0)),(String("1")))),(V((Cid(0)),(String("2")))))),(V((Cid(0)),(String("3"))))))))))))))))))))))))))))))))))))))))))))
 );;
 
-(* garbled and using select4 (this is bugged and passive_secure = false) *)
+(* garbled and using select4 *)
 
 (* 
 select4(b1 : jpd('a),b2 : jpd('b),x1 : jpd('a1),x2 : jpd('a2),x3 : jpd('a3),x4 : jpd('a4))
@@ -89,7 +89,7 @@ let r11 = k11 xor true in
 let gr11 = (((((wla.p0 and wlb.p0) and r00) xor ((wla.p1 and wlb.p0) and r10)) xor ((wla.p0 and wlb.p1) and r01)) xor ((wla.p1 and wlb.p1) and r11)) in
 let gr10 = (((((wla.p0 and (not wlb.p0)) and r00) xor ((wla.p1 and (not wlb.p0)) and r10)) xor ((wla.p0 and (not wlb.p1)) and r01)) xor ((wla.p1 and (not wlb.p1)) and r11)) in
 let gr01 = ((((((not wla.p0) and wlb.p0) and r00) xor (((not wla.p1) and wlb.p0) and r10)) xor (((not wla.p0) and wlb.p1) and r01)) xor (((not wla.p1) and wlb.p1) and r11)) in
-let gr00 = ((((((not wla.p0) and (not wlb.p0)) and r00)) xor (((not wla.p1) and (not wlb.p0)) and r10) xor (((not wla.p0) and (not wlb.p1)) and r01)) xor (((not wla.p1) and (not wlb.p1)) and r11)) in
+let gr00 = ((((((not wla.p0) and not wlb.p0) and r00) xor (((not wla.p1) and not wlb.p0) and r10)) xor (((not wla.p0) and not wlb.p1) and r01)) xor (((not wla.p1) and not wlb.p1) and r11)) in
 v[1,"r1"] := gr00;
 v[1,"r2"] := gr01;
 v[1,"r3"] := gr10;
@@ -118,7 +118,7 @@ v[0,"output"] := select4(v[1,"p1Key"],v[1,"p2Key"],H["1"],H["2"],H["3"],H["4"]) 
 (Let((EVar("gr11")),(Xor((Xor((Xor((And((And((Dot((Var((EVar("wla")))),("p0"))),(Dot((Var((EVar("wlb")))),("p0"))))),(Var((EVar("r00")))))),(And((And((Dot((Var((EVar("wla")))),("p1"))),(Dot((Var((EVar("wlb")))),("p0"))))),(Var((EVar("r10")))))))),(And((And((Dot((Var((EVar("wla")))),("p0"))),(Dot((Var((EVar("wlb")))),("p1"))))),(Var((EVar("r01")))))))),(And((And((Dot((Var((EVar("wla")))),("p1"))),(Dot((Var((EVar("wlb")))),("p1"))))),(Var((EVar("r11")))))))),(
 (Let((EVar("gr10")),(Xor((Xor((Xor((And((And((Dot((Var((EVar("wla")))),("p0"))),(Not((Dot((Var((EVar("wlb")))),("p0"))))))),(Var((EVar("r00")))))),(And((And((Dot((Var((EVar("wla")))),("p1"))),(Not((Dot((Var((EVar("wlb")))),("p0"))))))),(Var((EVar("r10")))))))),(And((And((Dot((Var((EVar("wla")))),("p0"))),(Not((Dot((Var((EVar("wlb")))),("p1"))))))),(Var((EVar("r01")))))))),(And((And((Dot((Var((EVar("wla")))),("p1"))),(Not((Dot((Var((EVar("wlb")))),("p1"))))))),(Var((EVar("r11")))))))),(
 (Let((EVar("gr01")),(Xor((Xor((Xor((And((And((Not((Dot((Var((EVar("wla")))),("p0"))))),(Dot((Var((EVar("wlb")))),("p0"))))),(Var((EVar("r00")))))),(And((And((Not((Dot((Var((EVar("wla")))),("p1"))))),(Dot((Var((EVar("wlb")))),("p0"))))),(Var((EVar("r10")))))))),(And((And((Not((Dot((Var((EVar("wla")))),("p0"))))),(Dot((Var((EVar("wlb")))),("p1"))))),(Var((EVar("r01")))))))),(And((And((Not((Dot((Var((EVar("wla")))),("p1"))))),(Dot((Var((EVar("wlb")))),("p1"))))),(Var((EVar("r11")))))))),(
-(Let((EVar("gr00")),(Xor((Xor((And((And((Not((Dot((Var((EVar("wla")))),("p0"))))),(Not((Dot((Var((EVar("wlb")))),("p0"))))))),(Var((EVar("r00")))))),(Xor((And((And((Not((Dot((Var((EVar("wla")))),("p1"))))),(Not((Dot((Var((EVar("wlb")))),("p0"))))))),(Var((EVar("r10")))))),(And((And((Not((Dot((Var((EVar("wla")))),("p0"))))),(Not((Dot((Var((EVar("wlb")))),("p1"))))))),(Var((EVar("r01")))))))))),(And((And((Not((Dot((Var((EVar("wla")))),("p1"))))),(Not((Dot((Var((EVar("wlb")))),("p1"))))))),(Var((EVar("r11")))))))),(
+(Let((EVar("gr00")),(Xor((Xor((Xor((And((And((Not((Dot((Var((EVar("wla")))),("p0"))))),(Not((Dot((Var((EVar("wlb")))),("p0"))))))),(Var((EVar("r00")))))),(And((And((Not((Dot((Var((EVar("wla")))),("p1"))))),(Not((Dot((Var((EVar("wlb")))),("p0"))))))),(Var((EVar("r10")))))))),(And((And((Not((Dot((Var((EVar("wla")))),("p0"))))),(Not((Dot((Var((EVar("wlb")))),("p1"))))))),(Var((EVar("r01")))))))),(And((And((Not((Dot((Var((EVar("wla")))),("p1"))))),(Not((Dot((Var((EVar("wlb")))),("p1"))))))),(Var((EVar("r11")))))))),(
 (Seq((Assign((V((Cid(1)),(String("r1")))),(Var((EVar("gr00")))))),(
 (Seq((Assign((V((Cid(1)),(String("r2")))),(Var((EVar("gr01")))))),(
 (Seq((Assign((V((Cid(1)),(String("r3")))),(Var((EVar("gr10")))))),(

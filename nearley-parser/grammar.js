@@ -111,7 +111,7 @@ var grammar = {
         data => (["Dot",[data[0], data[2]]])
                 },
     {"name": "dot_val", "symbols": ["dot_expr"], "postprocess": id},
-    {"name": "dot_val", "symbols": ["val_expr"], "postprocess": id},
+    {"name": "dot_val", "symbols": ["var_expr"], "postprocess": id},
     {"name": "record_expr", "symbols": [{"literal":"{"}, "_", "record_vals", "_", {"literal":"}"}], "postprocess": 
         data => (["Record",[data[2]]])
                 },
@@ -144,11 +144,11 @@ var grammar = {
     {"name": "type_val", "symbols": ["string_type"], "postprocess": id},
     {"name": "type_val", "symbols": ["record_type"], "postprocess": id},
     {"name": "type_val", "symbols": ["jpd_type"], "postprocess": id},
-    {"name": "record_type", "symbols": [{"literal":"{"}, "_", "record_types", "_", {"literal":"}"}], "postprocess": (data) => [data[2]]},
-    {"name": "record_types", "symbols": ["record_type"], "postprocess": (data) => [data[0]]},
-    {"name": "record_types", "symbols": ["_", "record_type", "_", {"literal":";"}, "_", "record_types", "_"], "postprocess": (data) => [data[1], ...data[5]]},
-    {"name": "record_type", "symbols": ["_", "field_expr", "_", {"literal":":"}, "_", "type_val", "_"], "postprocess": 
-        data => (["RecordTy",[data[1], data[5]]]
+    {"name": "record_type", "symbols": [{"literal":"{"}, "_", "record_types", "_", {"literal":"}"}], "postprocess": (data) => ["RecTy", [data[2]]]},
+    {"name": "record_types", "symbols": ["record_part"], "postprocess": (data) => [data[0]]},
+    {"name": "record_types", "symbols": ["_", "record_part", "_", {"literal":";"}, "_", "record_types", "_"], "postprocess": (data) => [data[1], ...data[5]]},
+    {"name": "record_part", "symbols": ["_", "field_expr", "_", {"literal":":"}, "_", "type_val", "_"], "postprocess": 
+        data => ([data[1], data[5]]
         )
                 },
     {"name": "string_type$string$1", "symbols": [{"literal":"s"}, {"literal":"t"}, {"literal":"r"}, {"literal":"i"}, {"literal":"n"}, {"literal":"g"}], "postprocess": function joiner(d) {return d.join('');}},

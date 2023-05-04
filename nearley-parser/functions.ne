@@ -174,7 +174,7 @@ dot_expr
 
 dot_val
     -> dot_expr {% id %}
-    | val_expr {% id %}
+    | var_expr {% id %}
 
 
 record_expr
@@ -239,17 +239,17 @@ type_val
 
 record_type
     -> "{" _ record_types _ "}"
-    {% (data) => [data[2]] %}
+    {% (data) => ["RecTy", [data[2]]] %}
 
 record_types
-    -> record_type {% (data) => [data[0]] %}
-    | _ record_type _ ";" _ record_types _
+    -> record_part {% (data) => [data[0]] %}
+    | _ record_part _ ";" _ record_types _
     {% (data) => [data[1], ...data[5]] %}
 
-record_type
+record_part
     -> _ field_expr _ ":" _ type_val _ 
         {%
-            data => (["RecordTy",[data[1], data[5]]]
+            data => ([data[1], data[5]]
             )
         %}
 

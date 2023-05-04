@@ -72,7 +72,7 @@ function convert(arr, brackets){
           funcCount = i;
         }
         //since the nested structure always? makes it 2 parentheses down
-        if(arr[i][0] === "Record"){
+        if(arr[i][0] === "Record" || arr[i][0] === "RecTy"){
           brackets = 2;
         }
         if(arr[i][0] === "Let" || arr[i][0] === "Seq") {
