@@ -61,10 +61,12 @@ let iovars (views : views) =
     (VS.empty, VS.empty, VS.empty) views
 
 let hidx = Hashtbl.create 0;;
+let rhidx = Hashtbl.create 0;;
 let make_idx vars =
-  (Hashtbl.reset hidx; let i = ref 0 in VS.iter (fun x -> Hashtbl.add hidx x !i; i := !i + 1) vars);;
-let extend_idx v = Hashtbl.add hidx v (Hashtbl.length hidx);;
+  (Hashtbl.reset hidx; Hashtbl.reset rhidx; let i = ref 0 in VS.iter (fun x -> Hashtbl.add hidx x !i; Hashtbl.add rhidx !i x; i := !i + 1) vars);;
+let extend_idx v = Hashtbl.add hidx v (Hashtbl.length hidx); Hashtbl.add rhidx (Hashtbl.length rhidx) v;;
 let idx x = Hashtbl.find hidx x;;
+let ridx x = Hashtbl.find rhidx x;;
 
 let strue = "1";;
 let sfalse = "0";;
@@ -128,9 +130,9 @@ let prepend p list =
   let rec aux emit acc = function
     | [] -> emit [] acc
     | (n, l) as h :: t ->
-       let acc = if n > 0 then emit ((n - 1, p :: l) :: t) acc
-                 else acc in
-       aux (fun l acc -> emit (h :: l) acc) acc t
+        let acc = if n > 0 then emit ((n - 1, p :: l) :: t) acc
+                  else acc in
+        aux (fun l acc -> emit (h :: l) acc) acc t
   in
   aux emit [] list
 in
@@ -144,7 +146,9 @@ List.map (List.map snd) complete;;
 
 let witness = ref ([],[]);;
 
-let mems_to_lists x = List.map (fun y -> List.map (fun (i, b) -> (i, sbool b)) (Mem.elements y)) (MS.elements x)
+let report_witness w = (fun (x, y) -> ((List.map (fun (a, b) -> ((ridx a), b))) x, (List.map (fun (a, b) -> ((ridx a), b)) y))) w;;
+
+let mems_to_lists x = List.map (fun y -> List.map (fun (i, b) -> (i, sbool b)) (Mem.elements y)) (MS.elements x);;
 
 let check_leakage hi ci cv o tt = 
   let hdeps = gen_deps (S.of_list (List.map (fun x -> idx x) (VS.elements hi))) in
@@ -165,7 +169,7 @@ let check_leakage hi ci cv o tt =
 (*
   passive_secure : expr -> int -> id -> bool
   in : protocol e, number of parties n, output view o in the form of an expression like (V(Cid(0), String("1")))
-  out : true iff e is passive secure for n parties.
+  out : true iff e is passive secure for n parties. 2nd value of pair is failure witness
 *)
 let passive_secure e n (V(Cid(p), _) as o) =
   let (_,views) = progty e in
@@ -173,12 +177,12 @@ let passive_secure e n (V(Cid(p), _) as o) =
   make_idx (VS.union ss fs);
   let pdf = truth_tables views in
   (* enumerate all partitions of parties into honest and corrupt sets. Each element 
-     of partitions is a pair h,c which is a 2-set partition of parties, where the size
-     of c (the corrupt parties) is |n|/2 with h the honest majority. *)
+      of partitions is a pair h,c which is a 2-set partition of parties, where the size
+      of c (the corrupt parties) is |n|/2 with h the honest majority. *)
   let partitions = group (enumerate n) [n - (n/2); (n/2)] in
   (* For every honest,corrupt partition (h,c), search for a witness of unequal 
-     ideal and adversarial knowledge *)
-  List.for_all
+      ideal and adversarial knowledge *)
+  let result = (List.for_all
     (fun [h;c] ->
       (* List all the honest input variables as hi *)
       let hi = VS.filter (fun (S(Cid(i), _)) -> List.mem i h) ss in
@@ -187,8 +191,9 @@ let passive_secure e n (V(Cid(p), _) as o) =
       (* List all the corrupt views as cv *)
       let cv = VS.filter (fun (V(Cid(i), _)) -> List.mem i (p::c)) vs in
       (* Letting P be jpdf encoded as pdf, in check leakage we check:
-                   P(hi|ci|o) = P(hi|ci|cv|o). 
-         We do this by iterating over all possible assignments of hi, ci, cv, and o, and 
-         checking equality of their marginal distributions. *)
+                    P(hi|ci|o) = P(hi|ci|cv|o). 
+          We do this by iterating over all possible assignments of hi, ci, cv, and o, and 
+          checking equality of their marginal distributions. *)
       check_leakage hi ci cv (VS.singleton o) pdf) 
-  partitions;;
+  partitions) in
+  (result, report_witness !witness);;
