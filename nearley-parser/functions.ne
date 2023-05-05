@@ -283,13 +283,13 @@ dvar_expr
 
 
 boolean_expr
-    -> "true"
+    -> "~true"
     {%
-            data => (["Bool",[data[0]]])
+            data => (["Bool",["true"]])
         %}
-    | "false"
+    | "~false"
         {%
-            data => (["Bool",[data[0]]])
+            data => (["Bool",["false"]])
         %}
 
 evar_expr

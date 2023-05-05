@@ -169,13 +169,13 @@ var grammar = {
         data => (["DVar",["\"" + data[1] + "\""]]
         )
                 },
-    {"name": "boolean_expr$string$1", "symbols": [{"literal":"t"}, {"literal":"r"}, {"literal":"u"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "boolean_expr$string$1", "symbols": [{"literal":"~"}, {"literal":"t"}, {"literal":"r"}, {"literal":"u"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "boolean_expr", "symbols": ["boolean_expr$string$1"], "postprocess": 
-        data => (["Bool",[data[0]]])
+        data => (["Bool",["true"]])
                 },
-    {"name": "boolean_expr$string$2", "symbols": [{"literal":"f"}, {"literal":"a"}, {"literal":"l"}, {"literal":"s"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "boolean_expr$string$2", "symbols": [{"literal":"~"}, {"literal":"f"}, {"literal":"a"}, {"literal":"l"}, {"literal":"s"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "boolean_expr", "symbols": ["boolean_expr$string$2"], "postprocess": 
-        data => (["Bool",[data[0]]])
+        data => (["Bool",["false"]])
                 },
     {"name": "evar_expr", "symbols": ["alpha_char"], "postprocess": 
         data => (["EVar",["\"" + data[0] + "\""]])
