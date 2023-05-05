@@ -14,11 +14,7 @@ top_level
 
 top_level_expr
     -> fun_expr {% id %}
-    | other_expr {% data => null %}
-
-# top_level_expr
-#     -> expr {% id %}
-#     | seq_expr {% id %}
+    | expr {% data => null %}
 
 expr
     -> paren_expr {% id %}
@@ -38,12 +34,8 @@ expr
     | dot_expr {% id %}
     | record_expr {% id %}
     | assign_expr {% id %}
-    | fun_expr {% id %}
     | seq_expr {% id %}
-
-other_expr
-    -> let_expr
-    | seq_expr 
+    | var_expr {% id %}
 
 fun_expr
     -> fname_expr "(" _ parameter_list _ ")" _ "{" _ code_block _ "}" _ "\n"
@@ -89,21 +81,26 @@ secret_expr
             data => (["S",[data[4], data[8]]])
         %}
 
+val_expr 
+    -> cid_expr  {% id %}
+    | string_expr {% id %}
+    | var_expr {% id %}
+    | concat_expr {% id %}
 
 ot_expr
-    -> "OT" _ "[" _ val_expr _ "," _ val_expr _ "," _ val_expr _ "]"
+    -> "OT" _ "[" _ expr _ "," _ expr _ "," _ expr _ "]"
         {%
             data => (["OT",[data[4], data[8], data[12]]]
             )
         %}
 
 assign_expr
-    -> view_expr _ ":=" _ var_expr
+    -> view_expr _ ":=" _ expr
         {%
             data => (["Assign",[data[0], data[4]]]
             )
         %}
-    | view_expr _ ":=" _ expr
+    | view_expr _ ":=" _ var_expr
     {%
             data => (["Assign",[data[0], data[4]]]
             )
@@ -124,44 +121,39 @@ h_expr
 
 
 select_expr
-    -> "select" _ "[" _ val_expr _ "," _ val_expr _ "," _ val_expr _ "]"
+    -> "select" _ "[" _ expr _ "," _ expr _ "," _ expr _ "]"
         {%
             data => (["Select",[data[4], data[8], data[12]]])
         %}
 
 concat_expr
-    -> val_expr _ "||" _ val_expr
+    -> concatable_expr _ "||" _ concatable_expr
         {%
             data => (["Concat",[data[0], data[4]]])
         %}
+
+concatable_expr
+    -> paren_expr {% id %}
+    | var_expr {% id %}
+    | string_expr {% id %}
+    | concat_expr {% id %}
 
 paren_expr
     -> "(" _ expr _ ")"
         {% (data) => data[2] %}
 
 let_expr
-    -> "let" _ evar_expr _ "=" _ expr _ "in" _ "\n" _ body_expr _
+    -> "let" _ evar_expr _ "=" _ expr _ "in" _ "\n" _ expr _
         {%
             data => (["Let",[data[2], data[6], data[12]]])
         %}
-    | "let" _ evar_expr _ "=" _ expr _ "in" _ body_expr _ 
+    | "let" _ evar_expr _ "=" _ expr _ "in" _ expr _ 
         {%
             data => (["Let",[data[2], data[6], data[10]]])
         %}
 
-body_expr
-    -> let_expr
-    | seq_expr
-    | assign_expr
-
-    | record_expr
-    | select_expr
-    | flip_expr {% id %}
-    | view_expr {% id %}
-    | secret_expr {% id %}
-
 seq_expr
-    -> assign_expr _ ";" _ "\n" _ body_expr
+    -> assign_expr _ ";" _ "\n" _ expr
         {%
             data => (["Seq",[data[0], data[6]]])
         %}
@@ -176,7 +168,6 @@ dot_val
     -> dot_expr {% id %}
     | var_expr {% id %}
 
-
 record_expr
     -> "{" _ record_vals _ "}"
         {%
@@ -190,7 +181,7 @@ record_vals
      {% (data) => [data[1], ...data[5]] %}
 
 record_val
-    -> _ field_expr _ "=" _ val_expr _
+    -> _ field_expr _ "=" _ expr _
     {% data => [data[1], data[5]] %}
 
 
@@ -200,36 +191,33 @@ appl_expr
             data => (["Appl",[data[0], data[3]]])
         %}
 
-values -> val_expr {% (data) => [data[0]] %}
+values -> expr 
+        {% (data) => [data[0]] %}
+    | _ expr _ "," _ values _
+        {% (data) => [data[1], ...data[5]] %}
+    | val_expr 
+        {% (data) => [data[0]] %}
     | _ val_expr _ "," _ values _
         {% (data) => [data[1], ...data[5]] %}
 
-
 not_expr
-    -> "not" _ val_expr
+    -> "not" _ expr
         {%
             data => (["Not",[data[2]]])
         %}
 
 and_expr
-    -> val_expr _ "and" _ val_expr
+    -> expr _ "and" _ expr
         {%
             data => (["And",[data[0], data[4]]])
         %}
 
 
 xor_expr
-    -> val_expr _ "xor" _ val_expr
+    -> expr _ "xor" _ expr
         {%
             data => (["Xor",[data[0], data[4]]])
         %}
-
-val_expr 
-    -> expr {% id %}
-    | boolean_expr {% id %}
-    | cid_expr  {% id %}
-    | string_expr {% id %}
-    | var_expr {% id %}
 
 type_val
     -> cid_type {% id %}

@@ -51,7 +51,7 @@ function progn(funcVals, value){
         funcs++;
       }
   }
-  output += "\n],";
+  output += "\n],\n";
   for (let i = 0; i < value.length; i++){
     if(value[i] != null){
       let formatedstr = convert(value[i]);
