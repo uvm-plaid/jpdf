@@ -116,6 +116,9 @@ let cdist_tt tt hdep ldep =
   let hitt = filt_tt hdep lowtt in
   float(TT.cardinal hitt) /. float(TT.cardinal lowtt);;
 
+let condd_tt tt hdep ldep =
+  let f = (fun (x,v) -> (idx x, v)) in cdist_tt tt (List.map f hdep) (List.map f ldep)
+
 let rec enumerate = function
   0 -> []
   | n -> n :: enumerate (n-1);;
@@ -165,6 +168,12 @@ let check_leakage hi ci cv o tt =
           if p1 = p2 then true else (witness := (hdep, cdep); false)
       )
       (mems_to_lists hdeps)) (mems_to_lists cdeps);;
+
+let progtt e = 
+  let (_,views) = progty e in
+  let (ss, fs, vs) = iovars views in
+  make_idx (VS.union ss fs);
+  truth_tables views
 
 (*
   passive_secure : expr -> int -> id -> bool
