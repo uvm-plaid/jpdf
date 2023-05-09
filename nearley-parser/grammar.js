@@ -95,12 +95,12 @@ var grammar = {
     {"name": "paren_expr", "symbols": [{"literal":"("}, "_", "expr", "_", {"literal":")"}], "postprocess": (data) => data[2]},
     {"name": "let_expr$string$1", "symbols": [{"literal":"l"}, {"literal":"e"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "let_expr$string$2", "symbols": [{"literal":"i"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "let_expr", "symbols": ["let_expr$string$1", "_", "evar_expr", "_", {"literal":"="}, "_", "expr", "_", "let_expr$string$2", "_", {"literal":"\n"}, "_", "expr", "_"], "postprocess": 
+    {"name": "let_expr", "symbols": ["let_expr$string$1", "_", "evar_expr", "_", {"literal":"="}, "_", "expr", "_", "let_expr$string$2", "_", {"literal":"\n"}, "_", "expr"], "postprocess": 
         data => (["Let",[data[2], data[6], data[12]]])
                 },
     {"name": "let_expr$string$3", "symbols": [{"literal":"l"}, {"literal":"e"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "let_expr$string$4", "symbols": [{"literal":"i"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "let_expr", "symbols": ["let_expr$string$3", "_", "evar_expr", "_", {"literal":"="}, "_", "expr", "_", "let_expr$string$4", "_", "expr", "_"], "postprocess": 
+    {"name": "let_expr", "symbols": ["let_expr$string$3", "_", "evar_expr", "_", {"literal":"="}, "_", "expr", "_", "let_expr$string$4", "_", "expr"], "postprocess": 
         data => (["Let",[data[2], data[6], data[10]]])
                 },
     {"name": "seq_expr", "symbols": ["assign_expr", "_", {"literal":";"}, "_", {"literal":"\n"}, "_", "expr"], "postprocess": 
@@ -111,19 +111,19 @@ var grammar = {
                 },
     {"name": "dot_val", "symbols": ["dot_expr"], "postprocess": id},
     {"name": "dot_val", "symbols": ["var_expr"], "postprocess": id},
-    {"name": "record_expr", "symbols": [{"literal":"{"}, "_", "record_vals", "_", {"literal":"}"}], "postprocess": 
-        data => (["Record",[data[2]]])
+    {"name": "record_expr", "symbols": [{"literal":"{"}, "record_vals", {"literal":"}"}], "postprocess": 
+        data => (["Record",[data[1]]])
                 },
-    {"name": "record_vals", "symbols": ["_", "record_val", "_"], "postprocess": (data) => [data[1]]},
-    {"name": "record_vals", "symbols": ["_", "record_val", "_", {"literal":";"}, "_", "record_vals"], "postprocess": (data) => [data[1], ...data[5]]},
+    {"name": "record_vals", "symbols": ["record_val"], "postprocess": (data) => [data[0]]},
+    {"name": "record_vals", "symbols": ["record_val", {"literal":";"}, "record_vals"], "postprocess": (data) => [data[0], ...data[2]]},
     {"name": "record_val", "symbols": ["_", "field_expr", "_", {"literal":"="}, "_", "expr", "_"], "postprocess": data => [data[1], data[5]]},
-    {"name": "appl_expr", "symbols": ["fname_expr", {"literal":"("}, "_", "values", "_", {"literal":")"}], "postprocess": 
-        data => (["Appl",[data[0], data[3]]])
+    {"name": "appl_expr", "symbols": ["fname_expr", {"literal":"("}, "values", {"literal":")"}], "postprocess": 
+        data => (["Appl",[data[0], data[2]]])
                 },
-    {"name": "values", "symbols": ["expr"], "postprocess": (data) => [data[0]]},
-    {"name": "values", "symbols": ["_", "expr", "_", {"literal":","}, "_", "values", "_"], "postprocess": (data) => [data[1], ...data[5]]},
-    {"name": "values", "symbols": ["val_expr"], "postprocess": (data) => [data[0]]},
-    {"name": "values", "symbols": ["_", "val_expr", "_", {"literal":","}, "_", "values", "_"], "postprocess": (data) => [data[1], ...data[5]]},
+    {"name": "values", "symbols": ["_", "expr", "_"], "postprocess": (data) => [data[1]]},
+    {"name": "values", "symbols": ["_", "expr", "_", {"literal":","}, "values"], "postprocess": (data) => [data[1], ...data[4]]},
+    {"name": "values", "symbols": ["_", "val_expr", "_"], "postprocess": (data) => [data[1]]},
+    {"name": "values", "symbols": ["_", "val_expr", "_", {"literal":","}, "values"], "postprocess": (data) => [data[1], ...data[4]]},
     {"name": "not_expr$string$1", "symbols": [{"literal":"n"}, {"literal":"o"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "not_expr", "symbols": ["not_expr$string$1", "_", "expr"], "postprocess": 
         data => (["Not",[data[2]]])
@@ -140,9 +140,9 @@ var grammar = {
     {"name": "type_val", "symbols": ["string_type"], "postprocess": id},
     {"name": "type_val", "symbols": ["record_type"], "postprocess": id},
     {"name": "type_val", "symbols": ["jpd_type"], "postprocess": id},
-    {"name": "record_type", "symbols": [{"literal":"{"}, "_", "record_types", "_", {"literal":"}"}], "postprocess": (data) => ["RecTy", [data[2]]]},
+    {"name": "record_type", "symbols": [{"literal":"{"}, "record_types", {"literal":"}"}], "postprocess": (data) => ["RecTy", [data[1]]]},
     {"name": "record_types", "symbols": ["record_part"], "postprocess": (data) => [data[0]]},
-    {"name": "record_types", "symbols": ["_", "record_part", "_", {"literal":";"}, "_", "record_types", "_"], "postprocess": (data) => [data[1], ...data[5]]},
+    {"name": "record_types", "symbols": ["record_part", {"literal":";"}, "record_types"], "postprocess": (data) => [data[0], ...data[2]]},
     {"name": "record_part", "symbols": ["_", "field_expr", "_", {"literal":":"}, "_", "type_val", "_"], "postprocess": 
         data => ([data[1], data[5]]
         )

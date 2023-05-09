@@ -143,11 +143,11 @@ paren_expr
         {% (data) => data[2] %}
 
 let_expr
-    -> "let" _ evar_expr _ "=" _ expr _ "in" _ "\n" _ expr _
+    -> "let" _ evar_expr _ "=" _ expr _ "in" _ "\n" _ expr
         {%
             data => (["Let",[data[2], data[6], data[12]]])
         %}
-    | "let" _ evar_expr _ "=" _ expr _ "in" _ expr _ 
+    | "let" _ evar_expr _ "=" _ expr _ "in" _ expr
         {%
             data => (["Let",[data[2], data[6], data[10]]])
         %}
@@ -169,16 +169,16 @@ dot_val
     | var_expr {% id %}
 
 record_expr
-    -> "{" _ record_vals _ "}"
+    -> "{" record_vals "}"
         {%
-            data => (["Record",[data[2]]])
+            data => (["Record",[data[1]]])
         %}
 
 record_vals
-    -> _ record_val _
-     {% (data) => [data[1]] %}
-    | _ record_val _ ";" _ record_vals
-     {% (data) => [data[1], ...data[5]] %}
+    -> record_val
+     {% (data) => [data[0]] %}
+    | record_val ";" record_vals
+     {% (data) => [data[0], ...data[2]] %}
 
 record_val
     -> _ field_expr _ "=" _ expr _
@@ -186,19 +186,19 @@ record_val
 
 
 appl_expr
-    -> fname_expr "(" _ values _ ")"
+    -> fname_expr "(" values ")"
         {%
-            data => (["Appl",[data[0], data[3]]])
+            data => (["Appl",[data[0], data[2]]])
         %}
 
-values -> expr 
-        {% (data) => [data[0]] %}
-    | _ expr _ "," _ values _
-        {% (data) => [data[1], ...data[5]] %}
-    | val_expr 
-        {% (data) => [data[0]] %}
-    | _ val_expr _ "," _ values _
-        {% (data) => [data[1], ...data[5]] %}
+values -> _ expr _
+        {% (data) => [data[1]] %}
+    | _ expr _ "," values
+        {% (data) => [data[1], ...data[4]] %}
+    | _ val_expr _
+        {% (data) => [data[1]] %}
+    | _ val_expr _ "," values
+        {% (data) => [data[1], ...data[4]] %}
 
 not_expr
     -> "not" _ expr
@@ -226,13 +226,13 @@ type_val
     | jpd_type {% id %}
 
 record_type
-    -> "{" _ record_types _ "}"
-    {% (data) => ["RecTy", [data[2]]] %}
+    -> "{" record_types "}"
+    {% (data) => ["RecTy", [data[1]]] %}
 
 record_types
     -> record_part {% (data) => [data[0]] %}
-    | _ record_part _ ";" _ record_types _
-    {% (data) => [data[1], ...data[5]] %}
+    | record_part ";" record_types
+    {% (data) => [data[0], ...data[2]] %}
 
 record_part
     -> _ field_expr _ ":" _ type_val _ 
