@@ -6,8 +6,8 @@ var grammar = {
     Lexer: undefined,
     ParserRules: [
     {"name": "input", "symbols": ["top_level"], "postprocess": id},
-    {"name": "top_level", "symbols": ["top_level_expr"], "postprocess": (data) => [data[0]]},
-    {"name": "top_level", "symbols": ["_", "top_level_expr", "_", {"literal":"\n"}, "_", "top_level"], "postprocess": (data) => [data[1], ... data[5]]},
+    {"name": "top_level", "symbols": ["_", "top_level_expr", "_"], "postprocess": (data) => [data[1]]},
+    {"name": "top_level", "symbols": ["_", "top_level_expr", "_", {"literal":"\n"}, "top_level"], "postprocess": (data) => [data[1], ... data[4]]},
     {"name": "top_level", "symbols": ["_", {"literal":"\n"}, "top_level"], "postprocess": (data) => data[2]},
     {"name": "top_level", "symbols": ["_"], "postprocess": 
         data => []
@@ -33,17 +33,17 @@ var grammar = {
     {"name": "expr", "symbols": ["assign_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["seq_expr"], "postprocess": id},
     {"name": "expr", "symbols": ["var_expr"], "postprocess": id},
-    {"name": "fun_expr", "symbols": ["fname_expr", {"literal":"("}, "_", "parameter_list", "_", {"literal":")"}, "_", {"literal":"{"}, "_", "code_block", "_", {"literal":"}"}, "_", {"literal":"\n"}], "postprocess": 
-        data => ([[data[0], data[3], data[9]]])
+    {"name": "fun_expr", "symbols": ["fname_expr", {"literal":"("}, "parameter_list", {"literal":")"}, "_", {"literal":"{"}, "code_block", {"literal":"}"}, "_", {"literal":"\n"}], "postprocess":  
+        data => ([[data[0], data[2], data[6]]]) 
                 },
-    {"name": "fun_expr", "symbols": ["fname_expr", {"literal":"("}, "_", "parameter_list", "_", {"literal":")"}, "_", {"literal":"\n"}, "_", {"literal":"{"}, "_", {"literal":"\n"}, "_", "code_block", "_", {"literal":"}"}, "_", {"literal":"\n"}], "postprocess": 
-        data => ([[data[0], data[3], data[13]]])
+    {"name": "fun_expr", "symbols": ["fname_expr", {"literal":"("}, "parameter_list", {"literal":")"}, "_", {"literal":"\n"}, "_", {"literal":"{"}, "_", {"literal":"\n"}, "code_block", {"literal":"}"}, "_", {"literal":"\n"}], "postprocess":  
+        data => ([[data[0], data[2], data[10]]]) 
                 },
     {"name": "parameter_list", "symbols": ["func_param"], "postprocess": (data) => [data[0]]},
-    {"name": "parameter_list", "symbols": ["_", "func_param", "_", {"literal":","}, "_", "parameter_list", "_"], "postprocess": (data) => [data[1], ...data[5]]},
-    {"name": "func_param", "symbols": ["evar_expr", "_", {"literal":":"}, "_", "type_val", "_"], "postprocess": (data) => [data[0], data[4]]},
+    {"name": "parameter_list", "symbols": ["func_param", {"literal":","}, "parameter_list"], "postprocess": (data) => [data[0], ...data[2]]},
+    {"name": "func_param", "symbols": ["_", "evar_expr", "_", {"literal":":"}, "_", "type_val", "_"], "postprocess": (data) => [data[1], data[5]]},
     {"name": "code_block", "symbols": ["_", "expr", "_", {"literal":"\n"}], "postprocess": (data) => [data[1]]},
-    {"name": "code_block", "symbols": ["_", "expr", "_", {"literal":"\n"}, "_", "code_block", "_"], "postprocess": (data) => [data[1], ...data[5]]},
+    {"name": "code_block", "symbols": ["_", "expr", "_", {"literal":"\n"}, "code_block"], "postprocess": (data) => [data[1], ...data[4]]},
     {"name": "flip_expr$string$1", "symbols": [{"literal":"f"}, {"literal":"l"}, {"literal":"i"}, {"literal":"p"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "flip_expr", "symbols": ["flip_expr$string$1", "_", {"literal":"["}, "_", "val_expr", "_", {"literal":","}, "_", "val_expr", "_", {"literal":"]"}], "postprocess": 
         data => (["F",[data[4], data[8]]])

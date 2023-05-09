@@ -1,10 +1,10 @@
 input -> top_level {% id %}
 
-top_level
-    -> top_level_expr
-        {%  (data) => [data[0]] %}
-    |  _ top_level_expr _ "\n" _ top_level
-        {%  (data) => [data[1], ... data[5]] %}
+top_level 
+    -> _ top_level_expr _
+        {%  (data) => [data[1]] %} 
+    |  _ top_level_expr _ "\n" top_level 
+        {%  (data) => [data[1], ... data[4]] %}
     |  _ "\n" top_level
         {% (data) => data[2] %}
     |  _
@@ -37,30 +37,30 @@ expr
     | seq_expr {% id %}
     | var_expr {% id %}
 
-fun_expr
-    -> fname_expr "(" _ parameter_list _ ")" _ "{" _ code_block _ "}" _ "\n"
-    {%
-            data => ([[data[0], data[3], data[9]]])
-        %}
-    | fname_expr "(" _ parameter_list _ ")" _ "\n" _ "{" _ "\n" _ code_block _ "}" _ "\n"
-    {%
-            data => ([[data[0], data[3], data[13]]])
-        %}
+fun_expr 
+    -> fname_expr "(" parameter_list ")" _ "{" code_block "}" _ "\n" 
+    {% 
+            data => ([[data[0], data[2], data[6]]]) 
+        %} 
+    | fname_expr "(" parameter_list ")" _ "\n" _ "{" _ "\n" code_block "}" _ "\n" 
+    {% 
+            data => ([[data[0], data[2], data[10]]]) 
+        %} 
 
-parameter_list
-    -> func_param {% (data) => [data[0]] %}
-    | _ func_param _ "," _ parameter_list _
-        {% (data) => [data[1], ...data[5]] %}
+parameter_list 
+    -> func_param {% (data) => [data[0]] %} 
+    | func_param "," parameter_list 
+        {% (data) => [data[0], ...data[2]] %} 
 
-func_param
-    -> evar_expr _ ":" _ type_val _
-    {% (data) => [data[0], data[4]] %}
-
-code_block
-    -> _ expr _ "\n"
-    {% (data) => [data[1]] %}
-    | _ expr _ "\n" _ code_block _
-    {% (data) => [data[1], ...data[5]] %}
+func_param 
+    -> _ evar_expr _ ":" _ type_val _ 
+    {% (data) => [data[1], data[5]] %} 
+  
+code_block 
+    -> _ expr _ "\n" 
+    {% (data) => [data[1]] %} 
+    | _ expr _ "\n" code_block 
+    {% (data) => [data[1], ...data[4]] %}
 
 flip_expr
     -> "flip" _ "[" _ val_expr _ "," _ val_expr _ "]"
