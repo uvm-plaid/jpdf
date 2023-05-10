@@ -204,3 +204,84 @@ Seq((Assign((V((Cid(2)),(String("rd")))),(Select((F((Cid(2)),(String("d")))),(H(
 (Seq((Assign((V((Cid(2)),(String("f1")))),(Xor((S((Cid(1)),(String("m1")))),(Select((Not((V((Cid(1)),(String("e")))))),(H((String("r1")))),(H((String("r0")))))))))),
 (Assign((V((Cid(2)),(String("mc")))),(Xor((Select((S((Cid(2)),(String("c")))),(V((Cid(2)),(String("f1")))),(V((Cid(2)),(String("f0")))))),(V((Cid(2)),(String("rd")))))))))))))))
 );;
+
+
+(* AND garbled circuit- verified correct and passive secure. *)
+
+(*
+
+select4(b1 : jpd('a),b2 : jpd('b),x1 : jpd('a1),x2 : jpd('a2),x3 : jpd('a3),x4 : jpd('a4))
+{
+  select[b1,select[b2,x1,x2],select[b2,x3,x4]]
+}
+
+permute4(b1 : jpd('a),b2 : jpd('b),x1 : jpd('a1),x2 : jpd('a2),x3 : jpd('a3),x4 : jpd('a4))
+{
+  let val1 = ((b1 and (b2 and x1)) xor ((b1 and ((not b2) and x2)) xor (((not b1) and (b2 and x3)) xor (((not b1) and ((not b2) and x4)))))) in
+  let val2 = ((b1 and ((not b2) and x1)) xor ((b1 and (b2 and x2)) xor (((not b1) and ((not b2) and x3)) xor (((not b1) and (b2 and x4)))))) in
+  let val3 = (((not b1) and (b2 and x1)) xor (((not b1) and ((not b2) and x2)) xor ((b1 and (b2 and x3)) xor ((b1 and ((not b2) and x4)))))) in
+  let val4 = (((not b1) and ((not b2) and x1)) xor (((not b1) and (b2 and x2)) xor ((b1 and ((not b2) and x3)) xor ((b1 and (b2 and x4)))))) in
+  {v1 = val1;v2 = val2;v3 = val3;v4 = val4} 
+}
+
+let p1 = flip[2,"p1"] in
+let p2 = flip[2,"p2"] in
+let ka = flip[2,"ka"] in
+let kb = flip[2,"kb"] in
+let k11 = select4(ka,kb,H["1"],H["2"],H["3"],H["4"]) in
+let k10 = select4(ka,not kb,H["1"],H["2"],H["3"],H["4"]) in
+let k01 = select4(not ka,kb,H["1"],H["2"],H["3"],H["4"]) in
+let k00 = select4(not ka,not kb,H["1"],H["2"],H["3"],H["4"]) in
+let r11 = k11 xor ~true in
+let r10 = k10 xor ~false in
+let r01 = k01 xor ~false in
+let r00 = k00 xor ~false in
+let table = permute4(p1,p2,r11,r10,r01,r00) in
+v[1,"gr1"] := table.v1;
+v[1,"gr2"] := table.v2;
+v[1,"gr3"] := table.v3;
+v[1,"gr4"] := table.v4;
+v[1,"wlap"] := select[s[1,"0"],p1,(not p1)];
+v[1,"wlbp"] := select[s[2,"0"],p2,(not p2)];
+v[1,"ka"] := select[s[1,"0"],ka,(not ka)];
+v[1,"kb"] := select[s[2,"0"],kb,(not kb)];
+v[1,"key"] := select4(v[1,"ka"],v[1,"kb"],H["1"],H["2"],H["3"],H["4"]);
+v[1,"row"] := select4(v[1,"wlap"],v[1,"wlbp"],v[1,"gr1"],v[1,"gr2"],v[1,"gr3"],v[1,"gr4"]);
+v[0,"out1"] := (v[1,"key"] xor v[1,"row"])
+
+*)
+
+
+let agc = (
+[
+((Fname("select4")),[((EVar("b1")),(Jpdf((DVar("a")))));((EVar("b2")),(Jpdf((DVar("b")))));((EVar("x1")),(Jpdf((DVar("a1")))));((EVar("x2")),(Jpdf((DVar("a2")))));((EVar("x3")),(Jpdf((DVar("a3")))));((EVar("x4")),(Jpdf((DVar("a4")))))],((Select((Var((EVar("b1")))),(Select((Var((EVar("b2")))),(Var((EVar("x1")))),(Var((EVar("x2")))))),(Select((Var((EVar("b2")))),(Var((EVar("x3")))),(Var((EVar("x4"))))))))));
+((Fname("permute4")),[((EVar("b1")),(Jpdf((DVar("a")))));((EVar("b2")),(Jpdf((DVar("b")))));((EVar("x1")),(Jpdf((DVar("a1")))));((EVar("x2")),(Jpdf((DVar("a2")))));((EVar("x3")),(Jpdf((DVar("a3")))));((EVar("x4")),(Jpdf((DVar("a4")))))],(
+(Let((EVar("val1")),(Xor((And((Var((EVar("b1")))),(And((Var((EVar("b2")))),(Var((EVar("x1")))))))),(Xor((And((Var((EVar("b1")))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x2")))))))),(Xor((And((Not((Var((EVar("b1")))))),(And((Var((EVar("b2")))),(Var((EVar("x3")))))))),(And((Not((Var((EVar("b1")))))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x4")))))))))))))),
+(Let((EVar("val2")),(Xor((And((Var((EVar("b1")))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x1")))))))),(Xor((And((Var((EVar("b1")))),(And((Var((EVar("b2")))),(Var((EVar("x2")))))))),(Xor((And((Not((Var((EVar("b1")))))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x3")))))))),(And((Not((Var((EVar("b1")))))),(And((Var((EVar("b2")))),(Var((EVar("x4")))))))))))))),
+(Let((EVar("val3")),(Xor((And((Not((Var((EVar("b1")))))),(And((Var((EVar("b2")))),(Var((EVar("x1")))))))),(Xor((And((Not((Var((EVar("b1")))))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x2")))))))),(Xor((And((Var((EVar("b1")))),(And((Var((EVar("b2")))),(Var((EVar("x3")))))))),(And((Var((EVar("b1")))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x4")))))))))))))),
+(Let((EVar("val4")),(Xor((And((Not((Var((EVar("b1")))))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x1")))))))),(Xor((And((Not((Var((EVar("b1")))))),(And((Var((EVar("b2")))),(Var((EVar("x2")))))))),(Xor((And((Var((EVar("b1")))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x3")))))))),(And((Var((EVar("b1")))),(And((Var((EVar("b2")))),(Var((EVar("x4")))))))))))))),(Record([(("v1"),(Var((EVar("val1")))));(("v2"),(Var((EVar("val2")))));(("v3"),(Var((EVar("val3")))));(("v4"),(Var((EVar("val4")))))]))))))))))))
+],
+Let((EVar("p1")),(F((Cid(2)),(String("p1")))),
+(Let((EVar("p2")),(F((Cid(2)),(String("p2")))),
+(Let((EVar("ka")),(F((Cid(2)),(String("ka")))),
+(Let((EVar("kb")),(F((Cid(2)),(String("kb")))),
+(Let((EVar("k11")),(Appl((Fname("select4")),[(Var((EVar("ka"))));(Var((EVar("kb"))));(H((String("1"))));(H((String("2"))));(H((String("3"))));(H((String("4"))))])),
+(Let((EVar("k10")),(Appl((Fname("select4")),[(Var((EVar("ka"))));(Not((Var((EVar("kb"))))));(H((String("1"))));(H((String("2"))));(H((String("3"))));(H((String("4"))))])),
+(Let((EVar("k01")),(Appl((Fname("select4")),[(Not((Var((EVar("ka"))))));(Var((EVar("kb"))));(H((String("1"))));(H((String("2"))));(H((String("3"))));(H((String("4"))))])),
+(Let((EVar("k00")),(Appl((Fname("select4")),[(Not((Var((EVar("ka"))))));(Not((Var((EVar("kb"))))));(H((String("1"))));(H((String("2"))));(H((String("3"))));(H((String("4"))))])),
+(Let((EVar("r11")),(Xor((Var((EVar("k11")))),(Bool(true)))),
+(Let((EVar("r10")),(Xor((Var((EVar("k10")))),(Bool(false)))),
+(Let((EVar("r01")),(Xor((Var((EVar("k01")))),(Bool(false)))),
+(Let((EVar("r00")),(Xor((Var((EVar("k00")))),(Bool(false)))),
+(Let((EVar("table")),(Appl((Fname("permute4")),[(Var((EVar("p1"))));(Var((EVar("p2"))));(Var((EVar("r11"))));(Var((EVar("r10"))));(Var((EVar("r01"))));(Var((EVar("r00"))))])),
+(Seq((Assign((V((Cid(1)),(String("gr1")))),(Dot((Var((EVar("table")))),("v1"))))),
+(Seq((Assign((V((Cid(1)),(String("gr2")))),(Dot((Var((EVar("table")))),("v2"))))),
+(Seq((Assign((V((Cid(1)),(String("gr3")))),(Dot((Var((EVar("table")))),("v3"))))),
+(Seq((Assign((V((Cid(1)),(String("gr4")))),(Dot((Var((EVar("table")))),("v4"))))),
+(Seq((Assign((V((Cid(1)),(String("wlap")))),(Select((S((Cid(1)),(String("0")))),(Var((EVar("p1")))),(Not((Var((EVar("p1")))))))))),
+(Seq((Assign((V((Cid(1)),(String("wlbp")))),(Select((S((Cid(2)),(String("0")))),(Var((EVar("p2")))),(Not((Var((EVar("p2")))))))))),
+(Seq((Assign((V((Cid(1)),(String("ka")))),(Select((S((Cid(1)),(String("0")))),(Var((EVar("ka")))),(Not((Var((EVar("ka")))))))))),
+(Seq((Assign((V((Cid(1)),(String("kb")))),(Select((S((Cid(2)),(String("0")))),(Var((EVar("kb")))),(Not((Var((EVar("kb")))))))))),
+(Seq((Assign((V((Cid(1)),(String("key")))),(Appl((Fname("select4")),[(V((Cid(1)),(String("ka"))));(V((Cid(1)),(String("kb"))));(H((String("1"))));(H((String("2"))));(H((String("3"))));(H((String("4"))))])))),
+(Seq((Assign((V((Cid(1)),(String("row")))),(Appl((Fname("select4")),[(V((Cid(1)),(String("wlap"))));(V((Cid(1)),(String("wlbp"))));(V((Cid(1)),(String("gr1"))));(V((Cid(1)),(String("gr2"))));(V((Cid(1)),(String("gr3"))));(V((Cid(1)),(String("gr4"))))])))),(Assign((V((Cid(0)),(String("out1")))),(Xor((V((Cid(1)),(String("key")))),(V((Cid(1)),(String("row")))))))))))))))))))))))))))))))))))))))))))))))))))))
+);;
