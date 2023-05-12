@@ -56,7 +56,7 @@ let iovars (views : views) =
     | _ -> raise (TypeError "free variable encountered in iovars")
   in
   List.fold_left
-    (fun (ss,fs,vidss) (v, Jpdf(p)) ->
+    (fun (ss,fs,vidss) (Jpdf(Dist(v)), Jpdf(p)) ->
       let (s,f) = vs p in (VS.union s ss, VS.union f fs, VS.add v vidss))
     (VS.empty, VS.empty, VS.empty) views
 
@@ -103,7 +103,7 @@ let truth_tables (views : views) =
     | _ -> raise (TypeError "free variable encountered in truth_tables")
   in
   List.fold_left
-    (fun ptt (v, Jpdf(p)) ->
+    (fun ptt (Jpdf(Dist(v)), Jpdf(p)) ->
       (extend_idx v;
         let tp = tt ptt p in
         join (TT.map (fun r -> r ^ strue) tp) (TT.map (fun r -> r ^ sfalse) (diff ptt tp))))

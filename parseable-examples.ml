@@ -206,7 +206,7 @@ Seq((Assign((V((Cid(2)),(String("rd")))),(Select((F((Cid(2)),(String("d")))),(H(
 );;
 
 
-(* AND garbled circuit- verified correct and passive secure. *)
+(* AND garbled gate- verified correct and passive secure. *)
 
 (*
 
@@ -284,4 +284,140 @@ Let((EVar("p1")),(F((Cid(2)),(String("p1")))),
 (Seq((Assign((V((Cid(1)),(String("kb")))),(Select((S((Cid(2)),(String("0")))),(Var((EVar("kb")))),(Not((Var((EVar("kb")))))))))),
 (Seq((Assign((V((Cid(1)),(String("key")))),(Appl((Fname("select4")),[(V((Cid(1)),(String("ka"))));(V((Cid(1)),(String("kb"))));(H((String("1"))));(H((String("2"))));(H((String("3"))));(H((String("4"))))])))),
 (Seq((Assign((V((Cid(1)),(String("row")))),(Appl((Fname("select4")),[(V((Cid(1)),(String("wlap"))));(V((Cid(1)),(String("wlbp"))));(V((Cid(1)),(String("gr1"))));(V((Cid(1)),(String("gr2"))));(V((Cid(1)),(String("gr3"))));(V((Cid(1)),(String("gr4"))))])))),(Assign((V((Cid(0)),(String("out1")))),(Xor((V((Cid(1)),(String("key")))),(V((Cid(1)),(String("row")))))))))))))))))))))))))))))))))))))))))))))))))))))
+  );;
+
+(* 
+   AND garbled circuit- verified correct and passive secure. Note: this takes a long time to parse with current 
+   parser. Also this is starting to push tractability bounds on desktop..
+*)
+
+(*
+select4(b1 : jpd('a),b2 : jpd('b),x1 : jpd('a1),x2 : jpd('a2),x3 : jpd('a3),x4 : jpd('a4))
+{
+  select[b1,select[b2,x1,x2],select[b2,x3,x4]]
+}
+
+permute4(b1 : jpd('a),b2 : jpd('b),x1 : jpd('a1),x2 : jpd('a2),x3 : jpd('a3),x4 : jpd('a4))
+{
+  let val1 = ((b1 and (b2 and x1)) xor ((b1 and ((not b2) and x2)) xor (((not b1) and (b2 and x3)) xor (((not b1) and ((not b2) and x4)))))) in
+  let val2 = ((b1 and ((not b2) and x1)) xor ((b1 and (b2 and x2)) xor (((not b1) and ((not b2) and x3)) xor (((not b1) and (b2 and x4)))))) in
+  let val3 = (((not b1) and (b2 and x1)) xor (((not b1) and ((not b2) and x2)) xor ((b1 and (b2 and x3)) xor ((b1 and ((not b2) and x4)))))) in
+  let val4 = (((not b1) and ((not b2) and x1)) xor (((not b1) and (b2 and x2)) xor ((b1 and ((not b2) and x3)) xor ((b1 and (b2 and x4)))))) in
+  {v1 = val1;v2 = val2;v3 = val3;v4 = val4} 
+}
+
+garbledecode(wl : { k : jpd('ck); p : jpd('cp) })
+{
+  let r1 = wl.k xor ~true in
+  let r0 = (not wl.k) xor ~false in
+  v[1,"OUTtt1"] := select[wl.p,r1,r0];
+  v[1,"OUTtt2"] := select[not wl.p,r1,r0]
+}
+
+keygen(b1 : jpd('a),b2 : jpd('b))
+{
+  let k11 = select4(wla.k,wlb.k,H[gid || "1"],H[gid || "2"],H[gid || "3"],H[gid || "4"]) in
+  let k10 = select4(wla.k,not wlb.k,H[gid || "1"],H[gid || "2"],H[gid || "3"],H[gid || "4"]) in
+  let k01 = select4(not wla.k,wlb.k,H[gid || "1"],H[gid || "2"],H[gid || "3"],H[gid || "4"]) in
+  let k00 = select4(not wla.k,not wlb.k,H[gid || "1"],H[gid || "2"],H[gid || "3"],H[gid || "4"]) in
+  {k11 = k11;k10 = k10;k01 = k01;k00 = k00}
+}
+
+sharetable(gid : string(gid), vid : string(vid), table : {v1 : jpd('a1);v2 : jpd('a2);v3 : jpd('a3);v4 : jpd('a4)})
+{   
+  v[1,gid || vid || "1"] := table.v1;
+  v[1,gid || vid || "2"] := table.v2;
+  v[1,gid || vid || "3"] := table.v3;
+  v[1,gid || vid || "4"] := table.v4
+}
+
+garblegate(gid : string(gid), wla : {k : jpd('ak);p : jpd('ap)}, wlb : {k : jpd('bk);p : jpd('bp)}, wlc : {k : jpd('ck);p : jpd('cp)}) 
+{
+  let keys = keygen(wla.k,wlb.k) in
+  let r11 = keys.k11 xor wlc.k in 
+  let r10 = keys.k10 xor (not wlc.k) in
+  let r01 = keys.k01 xor (not wlc.k) in
+  let r00 = keys.k00 xor (not wlc.k) in
+  let p11 = keys.k11 xor wlc.p in
+  let p10 = keys.k10 xor (not wlc.p) in
+  let p01 = keys.k01 xor (not wlc.p) in
+  let p00 = keys.k00 xor (not wlc.p) in  
+  let null = sharetable(gid, "tt", permute4(wla.p,wlb.p,r11,r10,r01,r00)) in
+  sharetable(gid, "pt", permute4(wla.p,wlb.p,p11,p10,p01,p00))
+}
+
+decode(wl : { k : jpd('ck); p : jpd('cp) })
+{
+  wl.k xor select[wl.p,v[1,"OUTtt1"],v[1,"OUTtt2"]]
+}
+
+evalgate(gid : string(gid), wla : { k : jpd('ak); p : jpd('ap) }, wlb : { k : jpd('bk); p : jpd('bp) })
+{
+  let k = select4(wla.k,wlb.k,H[gid || "1"],H[gid || "2"],H[gid || "3"],H[gid || "4"]) in
+  let ct = select4(wla.p,wlb.p,v[1,gid || "tt1"],v[1,gid || "tt2"],v[1,gid || "tt3"],v[1,gid || "tt4"]) in
+  let cp = select4(wla.p,wlb.p,v[1,gid || "pt1"],v[1,gid || "pt2"],v[1,gid || "pt3"],v[1,gid || "pt4"]) in
+  { k = k xor ct; p = k xor cp }
+}
+
+let wl1 = { k = flip[2,"fwl1"]; p = flip[2,"pwl1"] } in
+let wl2 = { k = flip[2,"fwl2"]; p = flip[2,"pwl2"] } in
+let wlo = { k = flip[2,"fwlo"]; p = flip[2,"fwlo"] } in
+let null = garbledecode(wlo) in
+let null = garblegate("1",wl1,wl2,wlo) in
+v[1,"k1"] := select[s[1,"0"],wl1.k,(not wl1.k)];
+v[1,"p1"] := select[s[1,"0"],wl1.p,(not wl1.p)];
+v[1,"k2"] := select[s[2,"0"],wl2.k,(not wl2.k)];
+v[1,"p2"] := select[s[2,"0"],wl2.p,(not wl2.p)];
+v[0,"out1"] := decode(evalgate("1",{ k = v[1,"k1"]; p = v[1,"p1"] },{k = v[1,"k2"]; p = v[1,"p2"] }))
+ 
+ *)
+
+(
+[
+((Fname("select4")),[((EVar("b1")),(Jpdf((DVar("a")))));((EVar("b2")),(Jpdf((DVar("b")))));((EVar("x1")),(Jpdf((DVar("a1")))));((EVar("x2")),(Jpdf((DVar("a2")))));((EVar("x3")),(Jpdf((DVar("a3")))));((EVar("x4")),(Jpdf((DVar("a4")))))],((Select((Var((EVar("b1")))),(Select((Var((EVar("b2")))),(Var((EVar("x1")))),(Var((EVar("x2")))))),(Select((Var((EVar("b2")))),(Var((EVar("x3")))),(Var((EVar("x4"))))))))));
+((Fname("permute4")),[((EVar("b1")),(Jpdf((DVar("a")))));((EVar("b2")),(Jpdf((DVar("b")))));((EVar("x1")),(Jpdf((DVar("a1")))));((EVar("x2")),(Jpdf((DVar("a2")))));((EVar("x3")),(Jpdf((DVar("a3")))));((EVar("x4")),(Jpdf((DVar("a4")))))],(
+(Let((EVar("val1")),(Xor((And((Var((EVar("b1")))),(And((Var((EVar("b2")))),(Var((EVar("x1")))))))),(Xor((And((Var((EVar("b1")))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x2")))))))),(Xor((And((Not((Var((EVar("b1")))))),(And((Var((EVar("b2")))),(Var((EVar("x3")))))))),(And((Not((Var((EVar("b1")))))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x4")))))))))))))),
+(Let((EVar("val2")),(Xor((And((Var((EVar("b1")))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x1")))))))),(Xor((And((Var((EVar("b1")))),(And((Var((EVar("b2")))),(Var((EVar("x2")))))))),(Xor((And((Not((Var((EVar("b1")))))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x3")))))))),(And((Not((Var((EVar("b1")))))),(And((Var((EVar("b2")))),(Var((EVar("x4")))))))))))))),
+(Let((EVar("val3")),(Xor((And((Not((Var((EVar("b1")))))),(And((Var((EVar("b2")))),(Var((EVar("x1")))))))),(Xor((And((Not((Var((EVar("b1")))))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x2")))))))),(Xor((And((Var((EVar("b1")))),(And((Var((EVar("b2")))),(Var((EVar("x3")))))))),(And((Var((EVar("b1")))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x4")))))))))))))),
+(Let((EVar("val4")),(Xor((And((Not((Var((EVar("b1")))))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x1")))))))),(Xor((And((Not((Var((EVar("b1")))))),(And((Var((EVar("b2")))),(Var((EVar("x2")))))))),(Xor((And((Var((EVar("b1")))),(And((Not((Var((EVar("b2")))))),(Var((EVar("x3")))))))),(And((Var((EVar("b1")))),(And((Var((EVar("b2")))),(Var((EVar("x4")))))))))))))),(Record([(("v1"),(Var((EVar("val1")))));(("v2"),(Var((EVar("val2")))));(("v3"),(Var((EVar("val3")))));(("v4"),(Var((EVar("val4")))))]))))))))))));
+((Fname("garbledecode")),[((EVar("wl")),(RecTy([(("k"),(Jpdf((DVar("ck")))));(("p"),(Jpdf((DVar("cp")))))])))],(
+(Let((EVar("r1")),(Xor((Dot((Var((EVar("wl")))),("k"))),(Bool(true)))),
+(Let((EVar("r0")),(Xor((Not((Dot((Var((EVar("wl")))),("k"))))),(Bool(false)))),
+(Seq((Assign((V((Cid(1)),(String("OUTtt1")))),(Select((Dot((Var((EVar("wl")))),("p"))),(Var((EVar("r1")))),(Var((EVar("r0")))))))),(Assign((V((Cid(1)),(String("OUTtt2")))),(Select((Not((Dot((Var((EVar("wl")))),("p"))))),(Var((EVar("r1")))),(Var((EVar("r0"))))))))))))))));
+((Fname("keygen")),[((EVar("b1")),(Jpdf((DVar("a")))));((EVar("b2")),(Jpdf((DVar("b")))))],(
+(Let((EVar("k11")),(Appl((Fname("select4")),[(Dot((Var((EVar("wla")))),("k")));(Dot((Var((EVar("wlb")))),("k")));(H((Concat((Var((EVar("gid")))),(String("1"))))));(H((Concat((Var((EVar("gid")))),(String("2"))))));(H((Concat((Var((EVar("gid")))),(String("3"))))));(H((Concat((Var((EVar("gid")))),(String("4"))))))])),
+(Let((EVar("k10")),(Appl((Fname("select4")),[(Dot((Var((EVar("wla")))),("k")));(Not((Dot((Var((EVar("wlb")))),("k")))));(H((Concat((Var((EVar("gid")))),(String("1"))))));(H((Concat((Var((EVar("gid")))),(String("2"))))));(H((Concat((Var((EVar("gid")))),(String("3"))))));(H((Concat((Var((EVar("gid")))),(String("4"))))))])),
+(Let((EVar("k01")),(Appl((Fname("select4")),[(Not((Dot((Var((EVar("wla")))),("k")))));(Dot((Var((EVar("wlb")))),("k")));(H((Concat((Var((EVar("gid")))),(String("1"))))));(H((Concat((Var((EVar("gid")))),(String("2"))))));(H((Concat((Var((EVar("gid")))),(String("3"))))));(H((Concat((Var((EVar("gid")))),(String("4"))))))])),
+(Let((EVar("k00")),(Appl((Fname("select4")),[(Not((Dot((Var((EVar("wla")))),("k")))));(Not((Dot((Var((EVar("wlb")))),("k")))));(H((Concat((Var((EVar("gid")))),(String("1"))))));(H((Concat((Var((EVar("gid")))),(String("2"))))));(H((Concat((Var((EVar("gid")))),(String("3"))))));(H((Concat((Var((EVar("gid")))),(String("4"))))))])),(Record([(("k11"),(Var((EVar("k11")))));(("k10"),(Var((EVar("k10")))));(("k01"),(Var((EVar("k01")))));(("k00"),(Var((EVar("k00")))))]))))))))))));
+((Fname("sharetable")),[((EVar("gid")),(StringTy((Var((EVar("gid")))))));((EVar("vid")),(StringTy((Var((EVar("vid")))))));((EVar("table")),(RecTy([(("v1"),(Jpdf((DVar("a1")))));(("v2"),(Jpdf((DVar("a2")))));(("v3"),(Jpdf((DVar("a3")))));(("v4"),(Jpdf((DVar("a4")))))])))],(
+(Seq((Assign((V((Cid(1)),(Concat((Concat((Var((EVar("gid")))),(Var((EVar("vid")))))),(String("1")))))),(Dot((Var((EVar("table")))),("v1"))))),
+(Seq((Assign((V((Cid(1)),(Concat((Concat((Var((EVar("gid")))),(Var((EVar("vid")))))),(String("2")))))),(Dot((Var((EVar("table")))),("v2"))))),
+(Seq((Assign((V((Cid(1)),(Concat((Concat((Var((EVar("gid")))),(Var((EVar("vid")))))),(String("3")))))),(Dot((Var((EVar("table")))),("v3"))))),(Assign((V((Cid(1)),(Concat((Concat((Var((EVar("gid")))),(Var((EVar("vid")))))),(String("4")))))),(Dot((Var((EVar("table")))),("v4")))))))))))));
+((Fname("garblegate")),[((EVar("gid")),(StringTy((Var((EVar("gid")))))));((EVar("wla")),(RecTy([(("k"),(Jpdf((DVar("ak")))));(("p"),(Jpdf((DVar("ap")))))])));((EVar("wlb")),(RecTy([(("k"),(Jpdf((DVar("bk")))));(("p"),(Jpdf((DVar("bp")))))])));((EVar("wlc")),(RecTy([(("k"),(Jpdf((DVar("ck")))));(("p"),(Jpdf((DVar("cp")))))])))],(
+(Let((EVar("keys")),(Appl((Fname("keygen")),[(Dot((Var((EVar("wla")))),("k")));(Dot((Var((EVar("wlb")))),("k")))])),
+(Let((EVar("r11")),(Xor((Dot((Var((EVar("keys")))),("k11"))),(Dot((Var((EVar("wlc")))),("k"))))),
+(Let((EVar("r10")),(Xor((Dot((Var((EVar("keys")))),("k10"))),(Not((Dot((Var((EVar("wlc")))),("k"))))))),
+(Let((EVar("r01")),(Xor((Dot((Var((EVar("keys")))),("k01"))),(Not((Dot((Var((EVar("wlc")))),("k"))))))),
+(Let((EVar("r00")),(Xor((Dot((Var((EVar("keys")))),("k00"))),(Not((Dot((Var((EVar("wlc")))),("k"))))))),
+(Let((EVar("p11")),(Xor((Dot((Var((EVar("keys")))),("k11"))),(Dot((Var((EVar("wlc")))),("p"))))),
+(Let((EVar("p10")),(Xor((Dot((Var((EVar("keys")))),("k10"))),(Not((Dot((Var((EVar("wlc")))),("p"))))))),
+(Let((EVar("p01")),(Xor((Dot((Var((EVar("keys")))),("k01"))),(Not((Dot((Var((EVar("wlc")))),("p"))))))),
+(Let((EVar("p00")),(Xor((Dot((Var((EVar("keys")))),("k00"))),(Not((Dot((Var((EVar("wlc")))),("p"))))))),
+(Let((EVar("null")),(Appl((Fname("sharetable")),[(Var((EVar("gid"))));(String("tt"));(Appl((Fname("permute4")),[(Dot((Var((EVar("wla")))),("p")));(Dot((Var((EVar("wlb")))),("p")));(Var((EVar("r11"))));(Var((EVar("r10"))));(Var((EVar("r01"))));(Var((EVar("r00"))))]))])),(Appl((Fname("sharetable")),[(Var((EVar("gid"))));(String("pt"));(Appl((Fname("permute4")),[(Dot((Var((EVar("wla")))),("p")));(Dot((Var((EVar("wlb")))),("p")));(Var((EVar("p11"))));(Var((EVar("p10"))));(Var((EVar("p01"))));(Var((EVar("p00"))))]))]))))))))))))))))))))))));
+((Fname("decode")),[((EVar("wl")),(RecTy([(("k"),(Jpdf((DVar("ck")))));(("p"),(Jpdf((DVar("cp")))))])))],((Xor((Dot((Var((EVar("wl")))),("k"))),(Select((Dot((Var((EVar("wl")))),("p"))),(V((Cid(1)),(String("OUTtt1")))),(V((Cid(1)),(String("OUTtt2"))))))))));
+((Fname("evalgate")),[((EVar("gid")),(StringTy((Var((EVar("gid")))))));((EVar("wla")),(RecTy([(("k"),(Jpdf((DVar("ak")))));(("p"),(Jpdf((DVar("ap")))))])));((EVar("wlb")),(RecTy([(("k"),(Jpdf((DVar("bk")))));(("p"),(Jpdf((DVar("bp")))))])))],(
+(Let((EVar("k")),(Appl((Fname("select4")),[(Dot((Var((EVar("wla")))),("k")));(Dot((Var((EVar("wlb")))),("k")));(H((Concat((Var((EVar("gid")))),(String("1"))))));(H((Concat((Var((EVar("gid")))),(String("2"))))));(H((Concat((Var((EVar("gid")))),(String("3"))))));(H((Concat((Var((EVar("gid")))),(String("4"))))))])),
+(Let((EVar("ct")),(Appl((Fname("select4")),[(Dot((Var((EVar("wla")))),("p")));(Dot((Var((EVar("wlb")))),("p")));(V((Cid(1)),(Concat((Var((EVar("gid")))),(String("tt1"))))));(V((Cid(1)),(Concat((Var((EVar("gid")))),(String("tt2"))))));(V((Cid(1)),(Concat((Var((EVar("gid")))),(String("tt3"))))));(V((Cid(1)),(Concat((Var((EVar("gid")))),(String("tt4"))))))])),
+(Let((EVar("cp")),(Appl((Fname("select4")),[(Dot((Var((EVar("wla")))),("p")));(Dot((Var((EVar("wlb")))),("p")));(V((Cid(1)),(Concat((Var((EVar("gid")))),(String("pt1"))))));(V((Cid(1)),(Concat((Var((EVar("gid")))),(String("pt2"))))));(V((Cid(1)),(Concat((Var((EVar("gid")))),(String("pt3"))))));(V((Cid(1)),(Concat((Var((EVar("gid")))),(String("pt4"))))))])),(Record([(("k"),(Xor((Var((EVar("k")))),(Var((EVar("ct")))))));(("p"),(Xor((Var((EVar("k")))),(Var((EVar("cp")))))))]))))))))))
+],
+Let((EVar("wl1")),(Record([(("k"),(F((Cid(2)),(String("fwl1")))));(("p"),(F((Cid(2)),(String("pwl1")))))])),
+(Let((EVar("wl2")),(Record([(("k"),(F((Cid(2)),(String("fwl2")))));(("p"),(F((Cid(2)),(String("pwl2")))))])),
+(Let((EVar("wlo")),(Record([(("k"),(F((Cid(2)),(String("fwlo")))));(("p"),(F((Cid(2)),(String("fwlo")))))])),
+(Let((EVar("null")),(Appl((Fname("garbledecode")),[(Var((EVar("wlo"))))])),
+(Let((EVar("null")),(Appl((Fname("garblegate")),[(String("1"));(Var((EVar("wl1"))));(Var((EVar("wl2"))));(Var((EVar("wlo"))))])),
+(Seq((Assign((V((Cid(1)),(String("k1")))),(Select((S((Cid(1)),(String("0")))),(Dot((Var((EVar("wl1")))),("k"))),(Not((Dot((Var((EVar("wl1")))),("k"))))))))),
+(Seq((Assign((V((Cid(1)),(String("p1")))),(Select((S((Cid(1)),(String("0")))),(Dot((Var((EVar("wl1")))),("p"))),(Not((Dot((Var((EVar("wl1")))),("p"))))))))),
+(Seq((Assign((V((Cid(1)),(String("k2")))),(Select((S((Cid(2)),(String("0")))),(Dot((Var((EVar("wl2")))),("k"))),(Not((Dot((Var((EVar("wl2")))),("k"))))))))),
+(Seq((Assign((V((Cid(1)),(String("p2")))),(Select((S((Cid(2)),(String("0")))),(Dot((Var((EVar("wl2")))),("p"))),(Not((Dot((Var((EVar("wl2")))),("p"))))))))),(Assign((V((Cid(0)),(String("out1")))),(Appl((Fname("decode")),[(Appl((Fname("evalgate")),[(String("1"));(Record([(("k"),(V((Cid(1)),(String("k1")))));(("p"),(V((Cid(1)),(String("p1")))))]));(Record([(("k"),(V((Cid(1)),(String("k2")))));(("p"),(V((Cid(1)),(String("p2")))))]))]))])))))))))))))))))))))
 );;
+

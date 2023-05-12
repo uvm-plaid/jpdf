@@ -44,7 +44,7 @@ type jpdty =
   | GenFn of jpdty list * (jpdty * views)
   | Unit
 
-and views = (expr * jpdty) list;;
+and views = (jpdty * jpdty) list;;
 
 type bindings = (id * jpdty) list;;
   
@@ -149,14 +149,11 @@ let rec pty (gamma : bindings) (views : views) = function
         (StringTy si, v) -> (Jpdf(Dist(H(si))), v)
       | _ -> raise (TypeError "not a string type in oracle id"))
   | (Assign (e1,e2)) ->
-     (match e1 with
-        (V(p, e)) ->
-         (match (pty gamma views e) with
-            (StringTy si, v1) ->
-             (match (pty gamma v1 e2) with
-                (Jpdf(mu), v2) -> (Unit, v2@[(V(p,si),Jpdf(mu))])
-              | _ -> raise (TypeError "not a distribution type in assignment"))
-          | _ -> raise (TypeError "not a string type in view id"))
+     (match (pty gamma views e1) with
+        ((Jpdf(Dist(V(_)))) as v, v1) ->
+         (match (pty gamma v1 e2) with
+            (Jpdf(mu), v2) -> (Unit, v2@[v,Jpdf(mu)])
+          | _ -> raise (TypeError "not a distribution type in assignment"))
       | _ -> raise (TypeError "non-view assignment"))
   | (And (e1, e2)) ->
      (match (pty gamma views e1) with
@@ -203,7 +200,7 @@ let rec pty (gamma : bindings) (views : views) = function
              ([],views) args
          in
          let subs = synthesize t1s arg_tys in
-         (substitute t2 subs, v@(List.map (fun (v,t) -> (v, substitute t subs)) vf))
+         (substitute t2 subs, v@(List.map (fun (v,t) -> (substitute v subs, substitute t subs)) vf))
       | _ -> raise (TypeError "wrong function type"))
   | (Let(x,e1,e2)) ->  let (t,v) = pty gamma views e1 in pty ((x,t)::gamma) v e2
   | (Seq(e1,e2)) -> let (_,v) = pty gamma views e1 in pty gamma v e2
