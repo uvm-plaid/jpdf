@@ -1,25 +1,10 @@
-garblegate(gid : string(gid), wla : {k : jpd('ak);p : jpd('ap)}, wlb : {k : jpd('bk);p : jpd('bp)}, wlc : {k : jpd('ck);p : jpd('cp)}) 
-{
-  let keys = keygen(wla.k,wlb.k) in
-  let r11 = keys.k11 xor wlc.k in 
-  let r10 = keys.k10 xor (not wlc.k) in
-  let r01 = keys.k01 xor (not wlc.k) in
-  let r00 = keys.k00 xor (not wlc.k) in
-  let p11 = keys.k11 xor wlc.p in
-  let p10 = keys.k10 xor (not wlc.p) in
-  let p01 = keys.k01 xor (not wlc.p) in
-  let p00 = keys.k00 xor (not wlc.p) in  
-  let null = sharetable(gid, "tt", permute4(wla.p,wlb.p,r11,r10,r01,r00)) in
-  sharetable(gid, "pt", permute4(wla.p,wlb.p,p11,p10,p01,p00))
-}
-
-let wl1 = { k = flip[2,"fwl1"]; p = flip[2,"pwl1"] } in
-let wl2 = { k = flip[2,"fwl2"]; p = flip[2,"pwl2"] } in
-let wlo = { k = flip[2,"fwlo"]; p = flip[2,"fwlo"] } in
-let null = garbledecode(wlo) in
-let null = garblegate("1",wl1,wl2,wlo) in
-v[1,"k1"] := select[s[1,"0"],wl1.k,(not wl1.k)];
-v[1,"p1"] := select[s[1,"0"],wl1.p,(not wl1.p)];
-v[1,"k2"] := select[s[2,"0"],wl2.k,(not wl2.k)];
-v[1,"p2"] := select[s[2,"0"],wl2.p,(not wl2.p)];
-v[0,"out1"] := decode(evalgate("1",{ k = v[1,"k1"]; p = v[1,"p1"] },{k = v[1,"k2"]; p = v[1,"p2"] }))
+let wla = { k = flip[2,"fwl1"]; p = flip[2,"pwl1"] } in
+let wlb = { k = flip[2,"fwl2"]; p = flip[2,"pwl2"] } in
+let wlc = { k = flip[2,"fwlo"]; p = flip[2,"fwlo"] } in
+let null = garbledecode(wlc) in
+let null = andgate("0",wla,wlb,wlc) in
+v[1,"k1"] := select[s[1,"0"],wla.k,(not wla.k)];
+v[1,"p1"] := select[s[1,"0"],wla.p,(not wla.p)];
+v[1,"k2"] := select[s[2,"0"],wlb.k,(not wlb.k)];
+v[1,"p2"] := select[s[2,"0"],wlb.p,(not wlb.p)];
+v[0,"out1"] := decode(evalgate("0",{ k = v[1,"k1"]; p = v[1,"p1"] },{k = v[1,"k2"]; p = v[1,"p2"] }))
