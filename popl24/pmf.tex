@@ -1,0 +1,68 @@
+\section{Probability Mass Functions and Program Distributions}
+
+\begin{definition}
+  A \emph{memory probability distribution} $\pdf{X}$ is a function mapping
+  memories in $\mems(X)$ to values in $[0..1]$, such that:
+  $$
+  \sum_{\store \in \mems(X)} \pdf{X}(\store) \  = \ 1
+  $$
+  We call $X$ the \emph{domain} of $\pdf{X}$.
+\end{definition}
+
+\begin{definition}
+  Given $X$ the \emph{marginal distribution} of $Y \subseteq X$
+  in a distribution $\pdf{X}$, denoted $\margd{\pdf{X}}{Y}$,
+  is a distribution with domain $Y$ where for all
+  $\store \in \mems(Y)$:
+  $$
+  (\margd{\pdf{X}}{Y})(\store) =
+  \sum_{\store' \in \mems(X-Y)} \pdf{X}(\store \cup \store')
+  $$
+\end{definition}
+
+\begin{definition}
+  Given $\pdf{X}$, its \emph{conditional distribution given
+  $\store$} with $\dom(\store) = Y$ and $Y \subseteq X$, denoted
+  $\condd{\pdf{X}}{\store}$, is a distribution with domain $X - Y$ where for all
+  $\store' \in \mems(X - Y)$:
+  $$
+  (\condd{\pdf{X}}{\store})(\store') =
+      \pdf{X}(\store \cup \store') / ((\margd{\pdf{X}}{Y})(\store))
+  $$
+\end{definition}
+
+Now we can define the probability distribution of a program $\prog$,
+that we denote $\progd(\prog)$. Recall that $\fedcat$ is
+deterministic, so a run is determined by the input secrets together
+with random flip assignments. And since we constrain programs to not
+overwrite memories, we can be sure that final memories resulting from
+computation contain both a complete record of all initial secrets and
+flips as well as views of communicated information. Thus a final
+memory represents a run of the program, and since we consider and set
+of \emph{input} secrets and flips to be equally likely, we consider
+each memory in the set of final memories of a program to be equally
+likely, which establishes the basic probability distribution for the
+program. And since we don't care about flip values which are only
+obversable insofar as they affect views, the probability distribution
+we are really interested in is the marginal distribution of secrets
+and views in this basic program distribution.
+\begin{definition}
+  Given progam $\prog$ with $\iov(\prog) = (S,V)$ and $\flips(\prog) = F$, define $M$ as:
+  $$
+  M \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
+  $$
+  Define also $\pdf{S \cup V \cup F}$ as the program's \emph{basic distribution} such that for all
+  $\store \in \mems(S \cup V \cup F)$:
+  $$
+  \pdf{S \cup V \cup F}(\store) =
+  \begin{cases}
+    1 / |M| & \text{if}\ \store \in M\\
+    0 & \text{otherwise}
+  \end{cases}
+  $$
+  Then the \emph{program distribution of $\prog$}, denoted $\progd(\prog)$, is the
+  marginal distribution of $S \cup V$ in $\prog$'s basic distribution:
+  $$
+  \progd(\prog) =  \margd{\pdf{S \cup V \cup F}}{S\cup V}
+  $$
+\end{definition}

@@ -1,0 +1,40 @@
+\documentclass[acmsmall,screen,review]{acmart}
+
+\usepackage{amsmath}
+\usepackage{amstext}
+\usepackage{fp-frame}
+\usepackage[latin1]{inputenc}
+\usepackage{mathpartir}
+\usepackage{fancyvrb}
+\usepackage{moreverb}
+\usepackage{stmaryrd}
+\usepackage{enumerate}
+
+
+
+\input{macros}
+
+\begin{document}
+
+\title{Automating MPC Security}
+
+\author{Author names withheld for double-blind reviewing.}
+
+\begin{abstract}
+  We show how to formulate a sound hyperproperty of MPC passive security, and how this
+  supports automated verification.
+\end{abstract}
+
+\maketitle
+
+\input{minicat}
+
+\input{pmf}
+
+\input{hyperprop}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+\end{document}
+\endinput

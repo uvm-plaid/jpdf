@@ -1,0 +1,339 @@
+\section{Hyperproperties}
+
+Finally, consider our secure communications example, that we call program
+$\prog_3$. We will assume that $H = \{ 1,2 \}$ and $C = \{ 0 \}$, so
+the adversary has access to $\vx{0}{0}$ in particular:
+\begin{verbatimtab}
+v[2,0] := f[1,0];
+v[0,0] := f[1,0] xor s[1,0];
+v[2,1] := v[0,0];
+v[2,2] := v[2,1] xor v[2,0]
+\end{verbatimtab}
+First, let's focus on information available to the adversary
+about the secret $\sx{1}{0}$ (aside from its publicly-known marginal
+distribution). We will consider the marginal distribution
+of $\sx{1}{0}$ and $\vx{0}{0}$:
+\begin{mathpar}
+X \defeq \{ \vx{0}{0}, \sx{1}{0} \}
+  
+\pdf{X} \defeq \margd{\progd(\prog_3)}{X}
+\end{mathpar}
+Since the adversary can directly observe the value in $\vx{0}{0}$ in
+any given run, we therefore consider the distribution conditioned on
+that value. As we can see, this shows that the protocol reveals
+no information about the secret:
+\begin{mathpar}
+  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 0\})}(\{ \sx{1}{0} \mapsto 0\}) = .5
+  
+  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 0\})}(\{ \sx{1}{0} \mapsto 1\}) = .5
+  
+  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 1\})}(\{ \sx{1}{0} \mapsto 0\}) = .5
+
+  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 1\})}(\{ \sx{1}{0} \mapsto 1\}) = .5
+\end{mathpar}
+
+Now, let's focus on the information directly available to honest parties,
+and specifically the information available through $\vx{2}{2}$ about
+$\sx{1}{0}$. We first define the relevant marginal distribution:
+\begin{mathpar}
+X \defeq \{ \vx{2}{2}, \sx{1}{0} \}
+  
+\pdf{X} \defeq \margd{\progd(\prog_3)}{X}
+\end{mathpar}
+Then we consider the marginal distribution of the secret conditioned
+on the view $\vx{2}{2}$, which shows the direct correlation and therefore
+correctness. 
+\begin{mathpar}
+  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 0\})}(\{ \sx{1}{0} \mapsto 0\}) = 1
+  
+  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 0\})}(\{ \sx{1}{0} \mapsto 1\}) = 0
+  
+  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 1\})}(\{ \sx{1}{0} \mapsto 0\}) = 0
+
+  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 1\})}(\{ \sx{1}{0} \mapsto 1\}) = 1
+\end{mathpar}
+
+\subsection{Probabilistic Noninterference} The discussion above suggests a
+security semantics- that is, a hyperproperty- analagous to
+noninterference in a probabilistic setting. First, let's
+define low equivalence of memories in the current setting:
+\begin{definition}[Memory Low Equivalence]
+  Given $\store^1$ and $\store^2$ with $\dom(\store^1) = \dom(\store^2) = X$,
+  we write $\store^1 =_C \store^2$ iff $\store^1_{X_C} = \store^2_{X_C}$.
+\end{definition}
+Now, we can define probabilistic noninterference as a property of
+programs ensuring that low-equivalent initial memories produce
+the same low-observable trace (i.e., corrupt views) \emph{with the
+same probability}. 
+\begin{definition}[Probabilistic Noninterference]
+  Given a program $\prog$ with $\iov(\prog) = (S,V)$, we say that
+  $\prog$ satisfies \emph{probabilistic noninterference} iff for all
+  $\store_1, \store_2 \in \mems(S)$:
+  $$\store_1 =_C \store_2 \implies
+    \margd{(\condd{\progd(\prog)}{\store_1})}{V_C} =
+    \margd{(\condd{\progd(\prog)}{\store_2})}{V_C}$$
+\end{definition}
+
+An important consequence of probabilistic noninterference refines an
+idea we introduced in Lecture Notes 12, which is that noninterering
+programs do not improve adversarial knowledge about secrets.
+More precisely, in $\fedcat$ the initial probability of a correct
+guess by the adversary is the marginal distribution of honest secrets
+in the program distribution conditioned by corrupt inputs.
+The final (and thus best, due to monotonicity) adversarial
+knowledge is also the marginal distribution of honest secrets in the
+program distribution, but conditioned by corrupt inputs \emph{and}
+corrupt views. Noninterference in the probabilistic setting implies
+that these are the same.
+\begin{lemma}
+  Given a program $\prog$ with $\iov(\prog) = (S,V)$, 
+  $\prog$ satisfies probabilistic noninterference iff for all
+  $\store \in \mems(S \cup V)$:
+  $$\margd{(\condd{\progd(\prog)}{\store_{S_C}})}{S_H} =
+    \margd{(\condd{\progd(\prog)}{\store_{(S\cup V)_C}})}{S_H} $$
+\end{lemma}
+
+
+\example{Example: Additive Secret Sharing} A nice ``Hello World''
+example of an MPC protocol is additive secret sharing, where $k$
+parties split up their secrets into \emph{shares}, with the property
+that all $k$ shares are required to reconstruct the secret and any
+fewer reveals nothing. In $\fedcat$, we can use $\ttt{xor}$, again, to
+generate shares. Here, party 1 generates 3 shares of the secret
+$\sx{1}{1}$- one is given to party 2 through view $\vx{2}{s1}$, one is
+given to party 3 through view $\vx{3}{s1}$, and party 1 keeps
+$\fx{1}{s1}$ for itself:
+\begin{verbatimtab}
+v[2,s1] := flip[1,1] xor flip[1,s1] xor s[1,1];
+v[3,s1] := flip[1,1];
+\end{verbatimtab}
+Note that $\vx{2}{s1}$ and $\vx{3}{s1}$ are both in uniform
+random distributions.
+
+Another property of $\ttt{xor}$ is that it is additively homomorphic,
+while functioning as addition in the boolean algebra (i.e., the binary
+field). That is, given:
+\begin{mathpar}
+  x_1\ \ttt{xor}\ y_1 = z_1
+
+  x_2\ \ttt{xor}\ y_2 = z_2
+\end{mathpar}
+then we have:
+$$
+(x_1\ \ttt{xor}\ x_2)\ \ttt{xor}\ (y_1\ \ttt{xor}\ y_2) = z_1\ \ttt{xor}\ z_2
+$$
+Thus, we can obtain secret 3-party summation (xor) by continuing
+the protocol begun above- parties 2 and 3 can share their secrets
+in the same fashion:
+\begin{verbatimtab}
+v[1,s2] := flip[2,1] xor flip[2,s2] xor s[2,1];
+v[3,s2] := flip[2,1];
+
+v[1,s3] := flip[3,1] xor flip[3,s3] xor s[3,1];
+v[2,s3] := flip[3,1];
+\end{verbatimtab}
+Then, assuming that party 0 is the ``public party'', each party sums
+its own shares, and then the sum of sum of shares is revealed
+in the output view $\vx{0}{output}$. By additive homomorphism of
+$\ttt{xor}$, this output is the sum of the 3 secrets, but
+the protocol reveals nothing to the adversary, even if one
+(or even two, in fact) of $\{1,2,3\}$ are corrupt. 
+\begin{verbatimtab}
+v[0,ss1] := v[1,s2] xor v[1,s3] xor flip[1,s1];
+v[0,ss2] := v[2,s1] xor v[2,s3] xor flip[2,s2];
+v[0,ss3] := v[3,s1] xor v[3,s2] xor flip[3,s3];
+
+v[0,output] := v[0,ss1] xor v[0,ss2] xor v[0,ss3]
+\end{verbatimtab}
+
+Because this protocol correctly implements 3-party addition in the
+binary field, it can reveal information to the adversary. For example,
+suppose that $1 \in C$, and $\sx{1}{1}$ is $1$, and after running the
+protocol suppose that $\vx{0}{output}$ is 0. Then the adversary knows
+that 2 and 3's secrets are either 1 and 0, or 0 and 1, with 50/50
+probability, and definitely neither 0 and 0, nor 1 and 1. However, the
+protocol does not reveal anything more through adversarial views than
+what the output reveals.
+
+\medskip
+
+\subsection{Passive Security and the Real/Ideal Model} The traditional
+security model of MPC is formulated by positing a \emph{simulator} that
+exists in the ideal world, and is trying to reconstruct observable
+information in a real world run of a protocol $\prog$ that
+correctly implements an ideal functionality $\idealf$- that is,
+execution of a configuration $(\store,\prog)$. We will assume
+that any protocol $\prog$ includes a public \emph{output view}
+$x$ where the result is published. The protocol is
+\emph{correct} iff the resulting memory contains $x \mapsto
+\idealf(\store_S)$, where $S$ are the secret inputs (honest
+and corrupt) in $\prog$.
+
+The simulator is given just the corrupt inputs to the run- that is,
+$\store_{S_C}$- and the output of the protocol- that is,
+$\idealf(\store)$- and tries to reconstruct the \emph{distribution of
+adversarial views} observed in the real world. The intuition here is
+that the simulator is given the information that is necessarily
+available to the adversary by observing a run of the protocl, and if
+the simulator can reconstruct whatever information appears in the real
+world adversarial views, by reconstructing their distributions, then
+those views leak no additional information, i.e., \emph{have no
+additional dependencies on honest input secrets than what is revealed
+by the output and conditionings on corrupt inputs}.
+
+The simulator is represented by a probabilistic algorithm $\SIM_C$,
+aka a \emph{simulation}, that is parameterized by a corrupt inputs and
+the output of an ideal functionality, and that returns a set of
+adversarial views (as a memory) with some probability. Given
+corrupt inputs $\store$ and ideal functionality output $v$,  
+we write:
+$$
+\prob(\SIM_C(\store,v) = \store')
+$$
+to denote the probability that $\SIM_C(\store,v)$
+returns corrupt views $\store'$ as a result. We can then define the
+probability distribution of corrupt views reconstructed
+by the simulator as follows:
+\begin{definition}
+  Given $C$, $\store$, and $v$, we write $\progd(\SIM_C(\store,v))$ to
+  denote the distribution of corrupt views reconstructed by the
+  simulation, which is a distribution $\pdf{V}$ where for
+  all $\store' \in \mems(V)$:
+  $$
+  \pdf{V}(\store')\ \defeq\ \prob(\SIM_C(\store,v) = \store') 
+  $$
+\end{definition}
+
+Then we can define passive security in the real/ideal
+model as follows. One detail here is the assumption of an
+\emph{honest majority} which is a standard bound on the
+capabilities of the adversary in this threat model.
+\begin{definition}[Passive Security]
+  Assume given a program $\prog$ that correctly implements an ideal
+  functionality $\idealf$, with $\iov(\prog) = (S,V)$.  Then $\prog$
+  is \emph{passive secure in the simulator model} iff for all
+  partitions of the federation into honest and corrupt sets $H$ and $C$
+  with $|C| < |H|$ and for all $\store \in \mems(S)$ there exists a
+  simulation $\SIM_C$ such that:
+  $$
+  \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \margd{(\condd{\progd(\prog)}{\store})}{V_C}
+  $$
+\end{definition}
+
+
+%\newcommand{\outv}{\mathit{out}}
+
+\subsection{A Sound Hyperproperty for Passive Security} The real/ideal
+model can be hard to understand and passive security of protocols can
+be difficult to prove, much less enforce automatically. Formulating
+a hyperproperty that implies passive security can provide some
+insights into the meaning of passive security, provide a connection
+to the foundational theories we've discussed, and can provide
+methodological support for proofs and even enforcement.
+
+The intuition that passive security means that the protocol releases
+no more information than what is released by the output suggests a
+refinement of noninterference. Specifically, it suggests that in
+passive secure protocols, the adversarial knowledge (in the Lecture
+Notes 12 sense) obtained from the output does not change during
+protocol execution, which otherwise should be noninterfering.  That
+is, the set of low equivalent initial memories that can produce the
+same output should generate the same distributions of adversarial
+views. 
+\begin{definition}[Noninterference Modulo Output]
+  Given $H$, $C$, and a program $\prog$ with $\iov(\prog) = (S,V)$ and output
+  view $x \in V$, we say that
+  $\prog$ satisfies \emph{noninterference modulo output} iff for all
+  $\store_1,\store_2 \in \mems(S)$:
+  \begin{eqnarray*}
+    & \store_1 =_C \store_2 \wedge
+     (\margd{(\condd{\progd(\prog)}{\store_1})}{\{ x \}} =
+     \margd{(\condd{\progd(\prog)}{\store_2})}{\{ x \}}) \\
+    & \implies \\
+    & \margd{(\condd{\progd(\prog)}{\store_1})}{V_C} =
+    \margd{(\condd{\progd(\prog)}{\store_2})}{V_C}
+  \end{eqnarray*}
+\end{definition}
+We can show, for example, that the 3-party xor protocol defined above
+satisfies noninterference modulo output.
+
+What is the formal connection with passive security? Note in
+particular that the hyperproperty implies that the simulator can use
+the protocol itself to reconstruct the distribution of adversarial
+views by making a random guess about honest secrets given public
+knowledge about the ideal functionality $\idealf$ a protocol
+implements. However, there is a subtlety here in that the adversary
+must be able to tractably reconstruct this knowledge. This is not
+generally true, in particular if $\idealf$ is a 1-way
+function. Define:
+\begin{definition}[Ideal Knowledge]
+  Given a functionality $\idealf$ and output value $v$, the associated
+  \emph{ideal knowledge}, denoted $\ik(\idealf,v)$ is:
+  $$
+  \{ \store | \idealf(\store) = v \}
+  $$
+  We say that $\idealf$ is \emph{invertible} iff $\ik(\idealf, v)$ for all
+  $v$ can be computed tractably.
+\end{definition}
+Now we can show our main result, that noninterference modulo output,
+together with the assumption that $\idealf$ is invertible, implies
+passive security of a protocol\footnote{We emphasize that the converse
+is not asserted.}. 
+\begin{theorem}
+  Assume given invertible $\idealf$ and a protocol $\prog$ that
+  correctly implements $\idealf$.  If program $\prog$ satisfies
+  noninterference modulo output for all $H$ and $C$ with $|H| < |C|$,
+  then $\prog$ is passive secure.
+\end{theorem}
+
+\begin{proof}
+  Let $H$ and $C$ be an arbitrary partition of the federation and
+  suppose $\prog$ satifies noninterference modulo output. Let
+  $\iov(\prog) = (V,S)$ and $\flips(\prog) = F$ with output view $x
+  \in V$ and let $\store$ be an arbitrary member of $\mems(S \cup
+  F)$. Then the distribution of adversarial views in the real world
+  is, by definition:
+  $$\margd{(\condd{\progd(\prog)}{\store_S})}{V_C}$$
+
+  In the ideal world, the simulator is given both $\store_{S_C}$ and
+  $\idealf(\store_S)$.  The simulation $\SIM_C(\store_{S_C},
+  \idealf(\store_S))$ can be defined as follows. First, some $\store'
+  \in \ik(\idealf,\idealf(\store))$ is randomly chosen such that
+  $\store' =_C \store_S$, as is a random tape $\store'' \in
+  \mems(F)$\footnote{The real/ideal model allows consultation of a
+  ``Random Oracle''.}. Then, the run of $(\store' \cup \store'',
+  \prog)$ is evaluated in simulation, yielding $(\store^{\SIM},\varnothing)$.
+  The simulation returns $\store^{\SIM}_{V_C}$ as a result.
+
+  Now, since the random tape is selected in simulation from the same distribution
+  that we assume for the real world, after selection of $\store'$ the
+  probability that any particular $\store^{\SIM}_{V_C}$ is returned is by definition:
+  $$
+   (\margd{(\condd{\progd(\prog)}{\store'})}{V_C})(\store^{\SIM}_{V_C})
+  $$
+  Furthermore, since we assume that $\prog$ correctly implements $\idealf$, this
+  means:
+  $$
+  \store_S =_C \store' \wedge
+     (\margd{(\condd{\progd(\prog)}{\store_S})}{\{ x \}} =
+      \margd{(\condd{\progd(\prog)}{\store'})}{\{ x \}})
+  $$
+  so by the definition of noninterference modulo output the choice
+  any choice of $\store'$ yields the same distribution, i.e.:
+  $$\margd{(\condd{\progd(\prog)}{\store_S})}{V_C}$$
+  Thus, by definition:
+  $$
+   \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \margd{(\condd{\progd(\prog)}{\store_S})}{V_C}
+  $$
+  \qed
+\end{proof}
+
+
+\begin{lemma}
+  Given $H$, $C$, and a program $\prog$ with $\iov(\prog) = (S,V)$ and
+  output view $x \in V$
+  $\prog$ satisfies noninterference modulo output iff for all
+  $\store \in \mems(S \cup V)$:
+  $$\margd{(\condd{\progd(\prog)}{\store_{(S \cup \{x\})_C}})}{S_H} =
+    \margd{(\condd{\progd(\prog)}{\store_{(S\cup V)_C}})}{S_H} $$
+\end{lemma}

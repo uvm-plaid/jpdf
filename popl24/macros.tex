@@ -1,0 +1,330 @@
+\newcommand{\note}[1]{\noindent\textit{(\textbf{$\star$note$\star$:}\ \ #1)}}
+
+\newcommand{\setdefn}[1]{\{#1\}}
+\newcommand{\evals}{\Downarrow}
+\newcommand{\diverges}{\Uparrow}
+\newcommand{\intt}{\mathrm{int}}
+\newcommand{\unitt}{\mathrm{unit}}
+\newcommand{\boolt}{\mathrm{bool}}
+\newcommand{\floatt}{\mathrm{float}}
+\newcommand{\stringt}{\mathrm{string}}
+\newcommand{\chart}{\mathrm{char}}
+\newcommand{\vb}[1]{\verb+#1+}
+\newcommand{\evalexmp}[2]{\texttt{#1}\ \ensuremath{\evals}\ \texttt{#2}}
+\newcommand{\texmp}[2]{\texttt{#1\ :\ #2}}
+\newcommand{\skipper}{\bigskip\\}
+\newcommand{\fyi}{\noindent\textbf{\textit{fyi:}}\ }
+\newcommand{\NB}{\noindent\textbf{NB:\ }}
+\newcommand{\const}{\ensuremath{\mathbf{c}}}
+\newcommand{\defn}{\heading{definition}}
+\newcommand{\defeq}{\triangleq}
+\newcommand{\nat}{\mathbb{N}}
+\newcommand{\atom}{\texttt{const}}
+\def\squareforqed{\hbox{\rlap{$\sqcap$}$\sqcup$}}
+\def\qed{\ifmmode\squareforqed\else{\unskip\nobreak\hfil
+\penalty50\hskip1em\null\nobreak\hfil\squareforqed
+\parfillskip=0pt\finalhyphendemerits=0\endgraf}\fi}
+\newcommand{\exampletab}[1]{\skipper\begin{tabular}{lll}#1\end{tabular}\skipper}
+\newcommand{\verbtab}[1]{\skipper\begin{verbatimtab}{#1}\end{verbatimtab}\skipper}
+\newcommand{\eqntab}[1]{\skipper\begin{tabular}{rcl}#1\end{tabular}\skipper}
+\newcommand{\recdefn}[1]{\{#1\}}
+\newcommand{\ttt}[1]{\texttt{#1}}
+\newcommand{\gdesc}[1]{\text{\textit{#1}}}
+\newcommand{\true}{\mathrm{true}}
+\newcommand{\false}{\mathrm{false}}
+\newcommand{\etrue}{\texttt{true}}
+\newcommand{\efalse}{\texttt{false}}
+\newcommand{\reval}{\Rightarrow}
+\newcommand{\Dand}{\ \mathrm{and}\ }
+\newcommand{\Dor}{\ \mathrm{or}\ }
+\newcommand{\Dxor}{\ \mathrm{xor}\ }
+\newcommand{\Dnot}{\mathrm{not}\ }
+\newcommand{\cod}[1]{\llbracket #1 \rrbracket}
+\newcommand{\lcod}[2]{\llbracket #2 \rrbracket_{#1}}
+\newcommand{\Dplus}{\mathrm{Plus}}
+\newcommand{\Dminus}{\mathrm{Minus}}
+\newcommand{\Dequal}{\mathrm{=}}
+\newcommand{\Dabs}[2]{(\mathrm{Function}\ #1 \rightarrow #2)}
+\newcommand{\Dfix}[3]{(\mathrm{Fix}\ #1 . #2 \rightarrow #3)}
+\newcommand{\Dite}[3]{\mathrm{If}\ #1\ \mathrm{Then}\ #2\ \mathrm{Else}\ #3}
+\newcommand{\dotminus}{\stackrel{.}{-}}
+\newcommand{\Dlet}[3]{\mathrm{Let}\ #1 = #2\ \mathrm{In}\ #3}
+\newcommand{\Dletrec}[4]{\mathrm{Let\ Rec}\ #1\ #2 = #3\ \mathrm{In}\ #4}
+\newcommand{\Dfst}{\mathrm{left}}
+\newcommand{\Dsnd}{\mathrm{right}}
+\newcommand{\labset}{\mathit{Lab}}
+\newcommand{\Drec}[1]{\{ #1 \}}
+\newcommand{\linfer}[3]{\inferrule*[right=(\TirName{#1})]{#2}{#3}}
+\newcommand{\lab}[1]{\mathrm{#1}}
+\newcommand{\loc}{\ell}
+\newcommand{\Dref}[1]{\mathrm{Ref}\,#1}
+\newcommand{\store}{\mathcal{M}}
+\newcommand{\config}[2]{\langle #1,#2 \rangle}
+\newcommand{\configf}[2]{\begin{array}[t]{l}\langle #1\\,\\ #2 \rangle \end{array}}
+\newcommand{\extend}[3]{#1\{#2 \mapsto #3\}}
+\newcommand{\emptystore}{\{\}}
+\newcommand{\storedefn}[1]{\{#1\}}
+\newcommand{\Dret}[1]{\mathrm{Return}\,#1}
+\newcommand{\Draise}[1]{\mathrm{Raise}\,#1}
+\newcommand{\Dexn}[2]{\#\!#1\,#2}
+\newcommand{\Dtry}[3]{\mathrm{Try}\,#1\,\mathrm{With}\,#2 \rightarrow #3}
+\newcommand{\xname}{\mathit{exn}}
+\newcommand{\Dboolt}{\mathrm{Bool}}
+\newcommand{\Dreft}[1]{#1\,\mathrm{ref}}
+\newcommand{\reft}[1]{#1\,\mathrm{ref}}
+\newcommand{\Dintt}{\mathrm{Int}}
+\newcommand{\tjudge}[3]{#1 \vdash #2 : #3}
+\newcommand{\textend}[3]{#1;#2:#3}
+\newcommand{\fnty}[2]{#1 \rightarrow #2}
+\newcommand{\TDabs}[3]{(\mathrm{Function}\ (#1 : #2) \rightarrow #3)}
+\newcommand{\TDfix}[5]{(\mathrm{Fix}\ #1 . (#2 : #3) : #4 \rightarrow #5)}
+\newcommand{\TDletrec}[6]{\Dletrec{#1}{#2 : #3}{#4 : #5}{#6}}
+\newcommand{\emptyenv}{\varnothing}
+\newcommand{\tfail}{\mathbf{fail}}
+\newcommand{\tcheck}{\mathrm{TC}}
+\newcommand{\tcheckfail}{\mathbf{TypeMismatch}}
+\newcommand{\algtab}[1]
+{
+\vspace*{-3mm}
+\begin{tabbing}
+\hspace*{12mm}\=\hspace{9mm}\=\hspace{9mm}\=\hspace{6mm}\=\hspace{6mm}\=
+\hspace{6mm}\=
+#1
+\end{tabbing}
+}
+\newcommand{\eassign}[2]{#1 := #2}
+\newcommand{\ederef}[1]{\,!#1}
+\newcommand{\declass}[2]{\mathrm{declassify}_{#2}(#1)}
+\newcommand{\eendorse}[2]{\mathrm{endorse}_{#2}(#1)}
+\newcommand{\lt}{\left\{}
+\newcommand{\rt}{\right\}}
+\newcommand{\Lt}{\left\{\!\!\right.}
+\newcommand{\Rt}{\left.\!\!\right\}}
+\newcommand{\tinfer}{\mathit{PT}}
+\newcommand{\unify}{\mathit{unify}}
+\newcommand{\tsubn}{\varphi}
+\newcommand{\scheme}[2]{\forall #1 . #2}
+\newcommand{\Dself}{\mathrm{this}}
+\newcommand{\Dsuper}{\mathrm{super}}
+\newcommand{\Dsend}[3]{#1.#2(#3)}
+\newcommand{\Dselect}[2]{#1.#2}
+\newcommand{\Demptyclass}{\mathrm{EmptyClass}}
+%\newcommand{\Dclass}[3]{\mathrm{Class}\ \mathrm{Extends}\ #1\ \mathrm{Inst}
+%\ #2\ \mathrm{Meth}\ #3}
+\newcommand{\Dclass}[2]{\mathrm{Class}\ \mathrm{Inst} \ #1\ \mathrm{Meth}\ #2}
+\newcommand{\Dobj}[2]{\mathrm{Object}\ \mathrm{Inst}\ #1\ \mathrm{Meth}\ #2}
+%\newcommand{\Dclassf}[3]{
+%\begin{array}[t]{l}
+%\mathrm{Class}\ \mathrm{Extends}\ #1 \\
+%\quad \mathrm{Inst}\\
+%\qquad #2 \\ 
+%\quad \mathrm{Meth}\\
+%\qquad #3
+%\end{array}
+%}
+\newcommand{\Dclassf}[3]{
+\begin{array}[t]{l}
+\mathrm{Class}\\
+\quad \mathrm{Inst}\\
+\qquad #1 \\ 
+\quad \mathrm{Meth}\\
+\qquad #2
+\end{array}
+}
+\newcommand{\Dobjf}[2]{
+\begin{array}[t]{l}
+\mathrm{Object}\\
+\quad \mathrm{Inst}\\
+\qquad #1 \\ 
+\quad \mathrm{Meth}\\
+\qquad #2
+\end{array}
+}
+\newcommand{\Dnew}[1]{\mathrm{New}\ #1}
+\newcommand{\vtab}[1]{\begin{verbatimtab}[4]#1\end{verbatimtab}}
+
+\newcounter{topiccounter}
+\setcounter{topiccounter}{1}
+\newcommand{\topic}[1]
+    {\noindent \textbf{Topic \arabic{topiccounter}.\ \textit{#1}. } \stepcounter{topiccounter}}
+
+
+\newcommand{\lcalc}{$\lambda$-calculus}
+\newcommand{\redx}{\rightarrow}
+\newcommand{\redxs}{\redx^*}
+\newcommand{\idfn}{\mathit{ID}}
+\newcommand{\mlfn}[2]{\mathrm{fun}\, #1 \rightarrow #2}
+\newcommand{\mlrecfn}[3]{\mathrm{fix}\,#1.#2 \rightarrow #3}
+\newcommand{\mlfix}{\mathrm{fix}}
+\newcommand{\eite}[3]{\mathrm{if}\ #1\ \mathrm{then} \ #2\ \mathrm{else} \ #3\ }
+\newcommand{\esucc}[1]{\texttt{succ}\ #1}
+\newcommand{\epred}[1]{\texttt{pred}\ #1}
+\newcommand{\eiszero}[1]{\texttt{iszero}\ #1}
+\newcommand{\ezero}{\texttt{0}}
+\newcommand{\elet}[3]{\mathrm{let}\ #1 = #2\ \mathrm{in}\ #3}
+\newcommand{\eletrec}[3]{\mathrm{letrec}\ #1 = #2\ \mathrm{in}\ #3}
+\newcommand{\fv}{\mathrm{fv}}
+\newcommand{\ourml}{\mathit{ML}_{\mathit{Cat}}}
+\newcommand{\raisexn}{\mathrm{raise}}
+\newcommand{\handler}[3]{\mathrm{try}\, #1\, \mathrm{with}\, \exn(#2) \Rightarrow #3}
+\newcommand{\exn}{\mathit{exn}}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\efst}{\mathrm{fst}}
+\newcommand{\esnd}{\mathrm{snd}}
+\newcommand{\natt}{\textrm{Nat}}
+\newcommand{\eand}{\mathrm{and}}
+\newcommand{\earray}{\mathrm{array}}
+\newcommand{\varray}{\alpha}
+\newcommand{\length}{\mathit{length}}
+\newcommand{\arrayml}{\ourml^{\earray}}
+\newcommand{\stackml}{\ourml^{\mathit{stack}}}
+\newcommand{\flowml}{\ourml^{\mathit{flow}}}
+\newcommand{\taintml}{\ourml^{\mathit{taint}}}
+\newcommand{\secfail}{\mathbf{secfail}}
+\newcommand{\tr}{\theta}
+\newcommand{\rewrite}[1]{\mathcal{R}(#1)}
+%\newcommand{\secprop}{\mathcal{P}}
+%\newcommand{\trprop}{\hat{\secprop}}
+\newcommand{\Prop}{\mathbf{P}}
+\newcommand{\Hprop}{\mathbf{H}}
+\newcommand{\secprop}{\phi}
+\newcommand{\hyprop}{\eta}
+\newcommand{\trprop}{\gamma}
+\newcommand{\tracess}{\Sigma}
+\newcommand{\trsprop}{\sigma}
+\newcommand{\traces}{\Psi}
+\newcommand{\fpkeyword}[1]{\mathrm{#1}}
+\newcommand{\ebinop}[2]{#1\,\mathit{binop}\,#2}
+\newcommand{\eenablepriv}[2]{\fpkeyword{enable}\ #1\ \fpkeyword{for}\ #2}
+\newcommand{\echeckpriv}[2]{\fpkeyword{check}\ #1\ \fpkeyword{then}\ #2}
+\newcommand{\esigned}[2]{#1.#2}
+\newcommand{\enabled}{\mathit{enabledprivs}}
+%\newcommand{\acl}{\mathcal{A}}
+\newcommand{\priv}{\pi}
+\newcommand{\privs}{\mathit{R}}
+\newcommand{\prin}{p}
+\newcommand{\nobody}{\mathit{nobody}}
+\newcommand{\po}{\preceq}
+\newcommand{\seclattice}{\mathcal{S}}
+\newcommand{\binsl}{\mathcal{S}_{\mathrm{bin}}}
+\newcommand{\seclevs}{\mathcal{L}}
+\newcommand{\latel}{\varsigma}
+\newcommand{\hilab}{H}
+\newcommand{\lolab}{L}
+\newcommand{\hiloc}{\mathit{hi}}
+\newcommand{\loloc}{\mathit{low}}
+\newcommand{\labty}[2]{#1 \cdot #2}
+\newcommand{\labval}[2]{#1 \cdot #2}
+\newcommand{\mi}[1]{\mathit{#1}}
+\newcommand{\pc}{\latel_{\mathit{pc}}}
+\newcommand{\cfnty}[3]{#1 \rightarrow_{#2} #3}
+\newcommand{\pow}{\mathrm{pow}}
+
+%\newcommand{\tr}{\theta}
+
+
+\newcommand{\problemheading}[1]{\noindent\textbf{#1}\ }
+\newcounter{problemcounter}
+\setcounter{problemcounter}{1}
+
+\newcommand{\EC}[1]
+    {\problemheading{Extra Credit \textit{(#1 points)}.}}
+
+\newcommand{\pproblem}[1]
+    {\problemheading{Problem \arabic{problemcounter} \textit{(#1 points)}.} \stepcounter{problemcounter}}
+           
+\newcommand{\gproblem}[1]
+    {\problemheading{Problem \arabic{problemcounter} \textit{(Graduate Students Only; #1 points)}.} \stepcounter{problemcounter}}
+
+\newcommand{\problem}
+    {\problemheading{Problem \arabic{problemcounter}.} \stepcounter{problemcounter}}
+
+\newcounter{solncounter}
+\setcounter{solncounter}{1}
+\newcommand{\solution}
+    {\problemheading{Solution to Problem \arabic{solncounter}.} \stepcounter{solncounter}}
+
+\newcommand{\chash}{\mathcal{H}}
+\newcommand{\acl}{\mathit{Auth}}
+\newcommand{\opn}{\mathit{op}}
+\newcommand{\egid}{\mathit{egid}}
+\newcommand{\euid}{\mathit{euid}}
+\newcommand{\suid}{\ttt{suid}}
+\newcommand{\sgid}{\ttt{sgid}}
+\newcommand{\uxroot}{\ttt{root}}
+\newcommand{\fowner}[1]{\mathit{owner}_{#1}}
+\newcommand{\fgroup}[1]{\mathit{group}_{#1}}
+\newcommand{\gprivs}[1]{\mathit{Privs_{#1}}.\mathit{group}}
+\newcommand{\uprivs}[1]{\mathit{Privs_{#1}}.\mathit{owner}}
+\newcommand{\oprivs}[1]{\mathit{Privs_{#1}}.\mathit{other}}
+\newcommand{\uxprivs}[1]{\mathit{Privs_{#1}}}
+
+\newcommand{\seclab}{\mathcal{L}}
+\newcommand{\sle}{\preceq}
+\newcommand{\ile}{\preceq_I}
+\newcommand{\ilab}{\seclab_I}
+
+\newcommand{\minicat}{\mathit{minicat}}
+\newcommand{\mlscat}{\mathit{mlscat}}
+\newcommand{\flowcat}{\mathit{flowcat}}
+\newcommand{\dflowcat}{\mathit{dflowcat}}
+\newcommand{\minicatde}{\mathit{minicat}_{\mathit{de}}}
+\newcommand{\minicatexp}{\mathit{minicat}_{\mathit{taint}}}
+\newcommand{\codebase}{\mathcal{C}}
+\newcommand{\prog}{\mathcal{P}}
+\newcommand{\main}{\mathit{main}}
+\renewcommand{\reval}{\redx}
+\renewcommand{\Dite}{\eite}
+
+
+%\renewcommand{\labty}[2]{#2}
+\newcommand{\fnsty}{\Sigma}
+\newcommand{\secty}{\latel}
+
+\newcommand{\tc}{\mathrm{TC}}
+\newcommand{\validate}{\mathrm{validate}}
+
+
+\newcommand{\mlsid}[1]{\mathrm{mls}(#1)}
+\newcommand{\mlsredx}[1]{\redx_{\mlsid{#1}}}
+\newcommand{\confid}{\mathit{flow}}
+\newcommand{\taintid}{\mathit{dflow}}
+\newcommand{\credx}{\redx_{\confid}}
+\newcommand{\tredx}{\redx_{\taintid}}
+\newcommand{\ccod}[1]{\lcod{\confid}{#1}}
+\newcommand{\tcod}[1]{\lcod{\taintid}{#1}}
+\renewcommand{\mod}{\ \textrm{mod}\ }
+
+
+\newcommand{\mtrace}[1]{\mathit{trace}_{#1}}
+\newcommand{\mtraces}[1]{\mathit{traces}_{#1}}
+\newcommand{\head}{\mathit{hd}}
+\newcommand{\memt}{\mathit{mems}}
+
+\newcommand{\bop}{\ \mathit{binop}\ }
+\newcommand{\ak}{K}
+\newcommand{\ik}{K_i}
+%\newcommand{\deassign}[2]{\eassign{#1}{\mathrm{declassify}(#2)}
+\newcommand{\deassign}[2]{#1 :=  [#2]_\wedge }
+%\newcommand{\deassign}[2]{#1\ \wedge\!\,=  #2}
+
+\newcommand{\mems}{\mathit{mems}}
+\newcommand{\mto}{\mapsto}
+\newcommand{\pdf}[1]{D_{#1}}
+\newcommand{\margd}[2]{#1\backslash#2}
+\newcommand{\condd}[2]{#1|#2}
+\newcommand{\progd}{\mathrm{PD}}
+\newcommand{\iov}{\mathit{iovars}}
+\newcommand{\flips}{\mathit{flips}}
+\newcommand{\fedcat}{\mathit{fedcat}}
+
+\newcommand{\sx}[2]{\texttt{s[#1,#2]}}
+\newcommand{\fx}[2]{\texttt{f[#1,#2]}}
+\newcommand{\vx}[2]{\texttt{v[#1,#2]}}
+
+\newcommand{\IF}[1]{#1_{\mathit{i}}}
+\newcommand{\idealf}{\mathcal{F}}
+\newcommand{\SIM}{\mathrm{Sim}}
+\newcommand{\prob}{\mathrm{Pr}}
+
+\def\TirName#1{\text{\sc #1}}
