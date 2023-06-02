@@ -1,6 +1,5 @@
 \newcommand{\note}[1]{\noindent\textit{(\textbf{$\star$note$\star$:}\ \ #1)}}
 
-\newcommand{\setdefn}[1]{\{#1\}}
 \newcommand{\evals}{\Downarrow}
 \newcommand{\diverges}{\Uparrow}
 \newcommand{\intt}{\mathrm{int}}
@@ -40,7 +39,7 @@
 \newcommand{\Dxor}{\ \mathrm{xor}\ }
 \newcommand{\Dnot}{\mathrm{not}\ }
 \newcommand{\cod}[1]{\llbracket #1 \rrbracket}
-\newcommand{\lcod}[2]{\llbracket #2 \rrbracket_{#1}}
+\newcommand{\lcod}[2]{\llbracket #1 \rrbracket_{#2}}
 \newcommand{\Dplus}{\mathrm{Plus}}
 \newcommand{\Dminus}{\mathrm{Minus}}
 \newcommand{\Dequal}{\mathrm{=}}
@@ -172,7 +171,6 @@
 \newcommand{\efst}{\mathrm{fst}}
 \newcommand{\esnd}{\mathrm{snd}}
 \newcommand{\natt}{\textrm{Nat}}
-\newcommand{\eand}{\mathrm{and}}
 \newcommand{\earray}{\mathrm{array}}
 \newcommand{\varray}{\alpha}
 \newcommand{\length}{\mathit{length}}
@@ -270,7 +268,6 @@
 \newcommand{\dflowcat}{\mathit{dflowcat}}
 \newcommand{\minicatde}{\mathit{minicat}_{\mathit{de}}}
 \newcommand{\minicatexp}{\mathit{minicat}_{\mathit{taint}}}
-\newcommand{\codebase}{\mathcal{C}}
 \newcommand{\prog}{\mathcal{P}}
 \newcommand{\main}{\mathit{main}}
 \renewcommand{\reval}{\redx}
@@ -328,3 +325,57 @@
 \newcommand{\prob}{\mathrm{Pr}}
 
 \def\TirName#1{\text{\sc #1}}
+
+\newcommand{\srct}{\chi}
+\newcommand{\cidty}[1]{\mathtt{cid}(#1)}
+\newcommand{\stringty}[1]{\mathtt{string}(#1)}
+\newcommand{\jpdty}[2]{\mathtt{jpd}(#1,#2)}
+
+\newcommand{\flip}[2]{\ttt{flip[}#1\ttt{,}#2\ttt{]}}
+\newcommand{\secret}[2]{\ttt{s[}#1\ttt{,}#2\ttt{]}}
+\newcommand{\view}[2]{\ttt{v[}#1\ttt{,}#2\ttt{]}}
+\newcommand{\oracle}[1]{\ttt{H[}#1\ttt{]}}
+\newcommand{\Oracle}{H}
+\renewcommand{\etrue}{\ttt{true}}
+\renewcommand{\efalse}{\ttt{false}}
+\newcommand{\enot}{\ttt{not}}
+\newcommand{\eand}{\ttt{and}}
+\newcommand{\eor}{\ttt{or}}
+\newcommand{\exor}{\ttt{xor}}
+\renewcommand{\elet}[3]{\ttt{let}\ #1\ \ttt{=}\ #2\ \ttt{in}\ #3}
+\newcommand{\vloc}[2]{#1@#2}
+\renewcommand{\redx}{\xrightarrow{}}
+\renewcommand{\redxs}{\xrightarrow{}^{*}}
+\newcommand{\lredx}[1]{\xrightarrow{#1}}
+\newcommand{\mem}{M}
+\newcommand{\randos}{R}
+\newcommand{\tape}{\randos}
+\newcommand{\secrets}{S}
+\newcommand{\clients}{C}
+\newcommand{\views}{V}
+\newcommand{\str}{\varsigma}
+\newcommand{\cid}{\iota}
+\newcommand{\send}[2]{#1\ \ttt{:=}\ #2}
+\newcommand{\OT}[3]{\ttt{OT(} #1 \ttt{,}\ #2 \ttt{,}\ #3 \ttt{)}}
+\newcommand{\select}[3]{\ttt{select(} #1 \ttt{,}\ #2 \ttt{,}\ #3 \ttt{)}}
+\newcommand{\codebase}{\mathcal{C}}
+\newcommand{\interp}[1]{\llbracket #1 \rrbracket}
+\newcommand{\finterp}[2]{\llbracket #1 \rrbracket_{#2}}
+\newcommand{\prot}{\rho}
+\newcommand{\Tapes}{\mathcal{R}}
+\newcommand{\outloc}{\mathit{output}}
+\newcommand{\pdist}{\mathit{pd}}
+\newcommand{\genpdf}{\mathrm{PD}}
+\newcommand{\card}[1]{|#1|}
+\newcommand{\setdefn}[2]{\{#1\ |\ #2 \}}
+\newcommand{\tapes}{\mathit{tapes}}
+\newcommand{\nimo}{\mathit{NIMO}}
+\newcommand{\passec}{PS}
+\newcommand{\parties}{\mathcal{P}}
+\newcommand{\iout}{\mathit{output}}
+\newcommand{\kideal}{k_i}
+\newcommand{\jpdf}{\mathrm{pdf}}
+\newcommand{\leakproof}{\mathit{LP}}
+\newcommand{\flab}{\ell}
+\newcommand{\be}{\epsilon}
+\newcommand{\instr}{\mathbf{c}}

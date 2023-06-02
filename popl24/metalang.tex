@@ -1,0 +1,81 @@
+\section{A Protocol Metalanguage}
+
+$$
+\begin{array}{rcl@{\hspace{8mm}}r}
+b &\in& \{ \etrue, \efalse \} \\
+w &\in& \mathrm{String} \\ 
+\cid &\in& \mathrm{Clients} \qquad  (\mathrm{Clients} \subset \mathbb{N} \text{\ in\ this\ presentation})\\[2mm]
+\bop &\in& \{ \eand, \eor, \exor \} \\[2mm]
+\be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
+& &  \enot\ \be \mid \be\ \bop\ \be \mid \OT{\be}{\be}{\be} \mid \select{\be}{\be}{\be} \\[2mm]
+\instr &::=& \eassign{\view{\cid}{w}}{\be} \mid \eassign{\view{\cid}{w}}{\OT{\be}{\be}{\be}} & \textit{view assignments} \\[2mm]
+\prog &::=& \instr \mid \instr; \prog & \textit{protocols}
+\end{array}
+$$
+
+\begin{eqnarray*}
+\lcod{\store, \etrue}{\cid} &=& \etrue\\
+\lcod{\store, \efalse}{\cid} &=& \efalse\\
+\lcod{\store, \flip{\cid}{w}}{\cid} &=& \store(\flip{\cid}{w})\\
+\lcod{\store, \secret{\cid}{w}}{\cid} &=& \store(\secret{\cid}{w})\\
+\lcod{\store, \view{\cid}{w}}{\cid} &=& \store(\view{\cid}{w})\\
+\lcod{\store, \oracle{w}}{\cid} &=& \store(\oracle{w})\\
+\lcod{\store, \enot\ \be}{\cid} &=& \cod{\enot\ \lcod{\store,\be}{\cid}}\\
+\lcod{\store, \be_1\ \mathit{binop}\ \be_2}{\cid} &=&
+    \cod{\lcod{\store,\be_1}{\cid}\ \mathit{binop}\ \lcod{\store,\be_2}{\cid}}\\
+\lcod{\store, \select{\be_1}{\be_2}{\be_3}}{\cid} &=&
+             \begin{cases}
+                \lcod{\store,\be_2}{\cid} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
+                \lcod{\store,\be_3}{\cid} & \text{otherwise}
+             \end{cases}
+\end{eqnarray*}
+
+\begin{mathpar}
+  (\store, \eassign{\view{\cid}{w}}{\be};\prog) \redx (\extend{\store}{\view{\cid}{w}}{\lcod{\store,\be}{\cid}}, \prog)
+
+  \inferrule
+  {b = \text{if\ } \lcod{\store,\be_1}{\cid}  \text{\ then\ } \lcod{\store,\be_2}{\cid'} \text{\ else\ } \lcod{\store,\be_3}{\cid'}}
+      {(\store, \eassign{\view{\cid}{w}}{\OT{\be_1}{\be_2}{\be_3}};\prog) \redx (\extend{\store}{\view{\cid}{w}}{b}, \prog)}
+\end{mathpar}
+
+$$
+\begin{array}{rcl@{\hspace{8mm}}r}
+b &\in& \{ \etrue, \efalse \} \\
+w &\in& \mathrm{String} \\ 
+\flab &\in& \mathrm{Field}\\
+s,x &\in& \mathrm{EVar}\\
+f &\in& \mathrm{FName}\\
+\cid &\in& \mathrm{Clients} \qquad  \mathrm{Clients} = \mathbb{N} \text{\ is\ OK}\\
+\alpha,\beta &\in& \mathrm{DVar} \qquad \ttt{'a}, \ttt{'b} \text{\ etc.\ is\ OK}\\[5mm]
+% \str &::=& w \ \mid \ s \ \mid \ \str||\str & \textit{string terms}\\[2mm]
+e &::=& b \mid \flip{e}{e} \mid \secret{e}{e} \mid \view{e}{e} \mid \oracle{e} \mid \enot\ e \mid e\ \eand\ e \mid e\ \exor\ e \mid & \textit{expressions}\\[1mm]
+& & \OT{e}{e}{e} \mid \select{e}{e}{e} \mid 
+\send{\view{e}{e}}{e} \mid e;e \mid \elet{x}{e}{e} \mid\\[1mm]
+& & x \mid f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \}
+\mid e.\flab \mid e\ttt{||}e \mid (e) \\[2mm]
+v &::=& w \mid b \mid \cid \mid \{ \flab = v;\ldots;\flab = v \} 
+ \mid (\,) & \textit{values}
+\end{array}
+$$
+
+The syntax of functions is as follows. We require type annotations 
+formal parameters. These types support the categories of values. 
+The full type syntax is richer than the syntax of type annotations, 
+as we show below, but a restricted language here simplifies type 
+checking.
+$$
+\begin{array}{rcl@{\hspace{15mm}}r}
+{fn} &::=& f(x : \srct,\ldots,x : \srct) \{ e \} & \textit{functions}\\[3mm]
+\srct &::=& \cidty{x} \mid \stringty{x} \mid \jpdty{\alpha}{\alpha} \mid
+    \{ \flab : \srct;\ldots;\flab : \srct \} 
+& \textit{annotated types} \end{array}
+$$
+
+\begin{definition}
+A \emph{codebase} $\codebase$ is a list of function 
+declarations. We write $ \codebase(f) = x_1,\ldots,x_n,\ e$
+iff $f(x : \srct,\ldots,x : \srct) \{ e \} \in \codebase$.
+A \emph{program}, aka \emph{protocol} $\prot$ is a pair of a 
+codebase and expression $\codebase, e$. We may omit
+$\codebase$ if it is clear from context.  
+\end{definition}
