@@ -31,7 +31,7 @@ $$
 \end{eqnarray*}
 
 \begin{mathpar}
-  (\store, \eassign{\view{\cid}{w}}{\be};\prog) \redx (\extend{\store}{\view{\cid}{w}}{\lcod{\store,\be}{\cid}}, \prog)
+  (\store, \eassign{\view{\cid}{w}}{\be};\prog) \redx (\extend{\store}{\view{\cid}{w}}{\lcod{\store,\be}{\cid'}}, \prog)
 
   \inferrule
   {b = \text{if\ } \lcod{\store,\be_1}{\cid}  \text{\ then\ } \lcod{\store,\be_2}{\cid'} \text{\ else\ } \lcod{\store,\be_3}{\cid'}}
