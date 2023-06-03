@@ -22,6 +22,7 @@ for  $x\not\in\dom(\store)$ to denote the memory $\store'$ such that $\store'(x)
 $\store'(y) = \store(y)$ for all $y \in \dom(\store)$.
 \end{definition}
 
+
 \begin{eqnarray*}
 \lcod{\store, \etrue}{\cid} &=& \etrue\\
 \lcod{\store, \efalse}{\cid} &=& \efalse\\
@@ -51,3 +52,26 @@ $\store'(y) = \store(y)$ for all $y \in \dom(\store)$.
   {b = \text{if\ } \lcod{\store,\be_1}{\cid}  \text{\ then\ } \lcod{\store,\be_2}{\cid'} \text{\ else\ } \lcod{\store,\be_3}{\cid'}}
       {(\store, \eassign{\view{\cid}{w}}{\OT{\be_1}{\be_2}{\be_3}};\prog) \redx (\extend{\store}{\view{\cid}{w}}{b}, \prog)}
 \end{mathpar}
+
+
+
+\paragraph{Variable and Memory Conventions} Given a program $\prog$, we
+write $\iov(\prog)$ to denote the pair $(S,V)$
+where $S$ is the set of secret variables in $\prog$ and
+$V$ is the set of views in $\prog$, and we write $\flips(\prog)$ to
+denote the set $F$ of flip variables in $\prog$. For any set of variables $X$
+and parties $P$, we write $X_P$ to denote the subset
+of $X$ owned by any party in $P$, and we write $X_H$ and
+$X_C$ to denote the subsets belonging to honest and
+corrupt parties, respectively.
+
+Given a set of variables $X$, we write $\store_X$ to mean the memory
+$\store$ restricted to the domain $X$, and
+and we define $\mems(X)$ as:
+$$
+\mems(X) \defeq \{ \store \mid \dom(\store) = X \}
+$$
+We will also write $\store_1 \cup \store_2$ to denote
+the memory resulting by combining disjoint
+memories $\store_1$ and $\store_2$, i.e.,
+under the assumption that $\dom(\store_1) \cap \dom(\store_2) = \varnothing$.
