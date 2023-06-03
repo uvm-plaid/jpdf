@@ -7,7 +7,7 @@ w &\in& \mathrm{String} \\
 \cid &\in& \mathrm{Clients} \qquad  (\mathrm{Clients} \subset \mathbb{N} \text{\ in\ this\ presentation})\\[2mm]
 \bop &\in& \{ \eand, \eor, \exor \} \\[2mm]
 \be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
-& &  \enot\ \be \mid \be\ \bop\ \be \mid \OT{\be}{\be}{\be} \mid \select{\be}{\be}{\be} \\[2mm]
+& &  \enot\ \be \mid \be\ \bop\ \be \mid \select{\be}{\be}{\be} \\[2mm]
 \instr &::=& \eassign{\view{\cid}{w}}{\be} \mid \eassign{\view{\cid}{w}}{\OT{\be}{\be}{\be}} & \textit{view assignments} \\[2mm]
 \prog &::=& \instr \mid \instr; \prog & \textit{protocols}
 \end{array}
@@ -40,42 +40,54 @@ $$
 
 $$
 \begin{array}{rcl@{\hspace{8mm}}r}
-b &\in& \{ \etrue, \efalse \} \\
-w &\in& \mathrm{String} \\ 
 \flab &\in& \mathrm{Field}\\
-s,x &\in& \mathrm{EVar}\\
-f &\in& \mathrm{FName}\\
-\cid &\in& \mathrm{Clients} \qquad  \mathrm{Clients} = \mathbb{N} \text{\ is\ OK}\\
-\alpha,\beta &\in& \mathrm{DVar} \qquad \ttt{'a}, \ttt{'b} \text{\ etc.\ is\ OK}\\[5mm]
-% \str &::=& w \ \mid \ s \ \mid \ \str||\str & \textit{string terms}\\[2mm]
-e &::=& b \mid \flip{e}{e} \mid \secret{e}{e} \mid \view{e}{e} \mid \oracle{e} \mid \enot\ e \mid e\ \eand\ e \mid e\ \exor\ e \mid & \textit{expressions}\\[1mm]
-& & \OT{e}{e}{e} \mid \select{e}{e}{e} \mid 
-\send{\view{e}{e}}{e} \mid e;e \mid \elet{x}{e}{e} \mid\\[1mm]
-& & x \mid f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \}
+x &\in& \mathrm{EVar}\\
+f &\in& \mathrm{FName}\\[2mm]
+e &::=& b \mid \flip{e}{e} \mid \secret{e}{e} \mid \view{e}{e} \mid \oracle{e} \mid \enot\ e \mid e\ \eand\ e \mid e\ \exor\ e \mid & \textit{expressions}\\[0mm]
+& & \select{e}{e}{e} \mid 
+\send{\view{e}{e}}{e} \mid \send{\view{e}{e}}{\OT{e}{e}{e}} \mid e;e \mid \\[0mm]
+& & x \mid \elet{x}{e}{e} \mid f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \}
 \mid e.\flab \mid e\ttt{||}e \mid (e) \\[2mm]
 v &::=& w \mid b \mid \cid \mid \{ \flab = v;\ldots;\flab = v \} 
- \mid (\,) & \textit{values}
+\mid (\,) & \textit{values}\\[2mm]
+{fn} &::=& f(x,\ldots,x) \{ e \} & \textit{functions}
 \end{array}
-$$
-
-The syntax of functions is as follows. We require type annotations 
-formal parameters. These types support the categories of values. 
-The full type syntax is richer than the syntax of type annotations, 
-as we show below, but a restricted language here simplifies type 
-checking.
-$$
-\begin{array}{rcl@{\hspace{15mm}}r}
-{fn} &::=& f(x : \srct,\ldots,x : \srct) \{ e \} & \textit{functions}\\[3mm]
-\srct &::=& \cidty{x} \mid \stringty{x} \mid \jpdty{\alpha}{\alpha} \mid
-    \{ \flab : \srct;\ldots;\flab : \srct \} 
-& \textit{annotated types} \end{array}
 $$
 
 \begin{definition}
 A \emph{codebase} $\codebase$ is a list of function 
 declarations. We write $ \codebase(f) = x_1,\ldots,x_n,\ e$
-iff $f(x : \srct,\ldots,x : \srct) \{ e \} \in \codebase$.
-A \emph{program}, aka \emph{protocol} $\prot$ is a pair of a 
+iff $f(x_1,\ldots,x_n) \{ e \} \in \codebase$.
+A \emph{metaprogram}, aka \emph{mataprotocol} is a pair of a 
 codebase and expression $\codebase, e$. We may omit
 $\codebase$ if it is clear from context.  
 \end{definition}
+
+$$
+\begin{array}{rcl@{\hspace{3mm}}r}
+E &::=& [\,] \mid \enot\ E \mid E\ \bop\ e \mid v\ \bop\ E \mid & \textit{evaluation contexts}\\[1mm]
+& & \flip{E}{e} \mid \secret{E}{e} \mid \view{E}{e} \mid \oracle{E} \mid  \\[1mm]
+& & \flip{\cid}{E} \mid \secret{\cid}{E} \mid \view{\cid}{E} \mid \send{E}{e} \mid \send{\view{\cid}{w}}{E}\\[1mm]
+& & \OT{E}{e}{e} \mid \OT{v}{E}{e} \mid \OT{v}{v}{E} \mid\\[1mm]
+& & \select{E}{e}{e} \mid \select{v}{E}{e} \mid \select{v}{v}{E} \mid\\[1mm]
+& & \elet{x}{E}{e} \mid f(v,\ldots,v,E,e,\ldots,e) \mid \\[1mm]
+& & \{ \flab = v;\ldots;\flab = v;\flab = E;\flab = e;\ldots;\flab = e \} \mid E.\flab \mid E\ttt{||}e \mid v \ttt{||}E
+\end{array}
+$$
+
+$$
+\begin{array}{rcl@{\hspace{10mm}}r}
+\config{\prog}{\elet{x}{v}{e}} &\redx& \config{\prog}{e[v/x]}\\
+\config{\prog}{f(v_1,...,v_n)} &\redx&
+\config{\prog}{e[v_1/x_1,\ldots,v_n/x_n]} & 
+ \codebase(f) = x_1,\ldots,x_n,\ e\\
+\config{\prog}{\{\ldots; \flab = v; \ldots\}.\flab} &\redx&
+ \config{\prog}{v}\\
+ \config{\prog}{w_1\ttt{||}w_2} &\redx& \config{\prog}{w_1w_2}\\
+ \config{\prog}{v;e} &\redx& \config{\prog}{e}\\
+\config{\prog}{\instr} &\redx& \config{\prog;\instr}{()}\\
+\config{\prog}{E[e]} &\redx& \config{\prog'}{E[e']} & \text{if}\ \config{\prog}{e} \redx \config{\prog'}{e'} 
+\end{array}
+$$
+
+
