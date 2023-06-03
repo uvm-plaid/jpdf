@@ -47,16 +47,16 @@ obversable insofar as they affect views, the probability distribution
 we are really interested in is the marginal distribution of secrets
 and views in this basic program distribution.
 \begin{definition}
-  Given progam $\prog$ with $\iov(\prog) = (S,V)$ and $\flips(\prog) = F$, define $M$ as:
+  Given progam $\prog$ with $\iov(\prog) = (S,V)$ and $\flips(\prog) = F$, define $\stores$ as:
   $$
-  M \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
+  \stores \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
   $$
   Define also $\pdf{S \cup V \cup F}$ as the program's \emph{basic distribution} such that for all
   $\store \in \mems(S \cup V \cup F)$:
   $$
   \pdf{S \cup V \cup F}(\store) =
   \begin{cases}
-    1 / |M| & \text{if}\ \store \in M\\
+    1 / |\stores| & \text{if}\ \store \in \stores\\
     0 & \text{otherwise}
   \end{cases}
   $$

@@ -1,0 +1,42 @@
+\section{Brute Force Verification}
+
+\begin{eqnarray*}
+\solve{\stores}{\etrue} &=& \stores\\
+\solve{\stores}{\efalse} &=& \varnothing\\
+\solve{\stores}{\flip{\cid}{w}} &=& \{ \store \in \stores \mid \store(\flip{\cid}{w}) \} \\
+\solve{\stores}{\secret{\cid}{w}} &=& \{ \store \in \stores \mid \store(\secret{\cid}{w}) \} \\
+\solve{\stores}{\view{\cid}{w}} &=& \{ \store \in \stores \mid \store(\view{\cid}{w}) \} \\
+\solve{\stores}{\oracle{w}} &=& \{ \store \in \stores \mid \store(\oracle{w}) \} \\
+\solve{\stores}{(\enot\ \be)} &=& \stores - (\solve{\stores}{\be})\\
+\solve{\stores}{(\be_1\ \eand\ \be_2)} &=& (\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2}) \\
+\solve{\stores}{(\be_1\ \eor\ \be_2)} &=& (\solve{\stores}{\be_1}) \cup (\solve{\stores}{\be_2}) \\
+\solve{\stores}{(\be_1\ \exor\ \be_2)} &=&
+ ((\solve{\stores}{\be_1}) \cap (\stores - \solve{\stores}{\be_2})) \cup
+ ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \\
+\solve{\stores}{\select{\be_1}{\be_2}{\be_3}} &=&
+ ((\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \cup
+ ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_3})) \\
+\solve{\stores}{\OT{\be_1}{\be_2}{\be_3}} &=&
+ ((\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \cup
+ ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_3}))
+\end{eqnarray*}
+
+
+$$
+g\ \ \stores\ (\eassign{\view{\cid}{w}}{\be}) =\begin{array}[t]{l}
+\elet{\stores'}{\solve{(\mems(\vars\ \be))}{\be}}{}\\
+  \{\extend{\store}{\view{\cid}{w}}{\etrue} \mid \store \in \stores' \} \cup
+  \{\extend{\store}{\view{\cid}{w}}{\efalse} \mid \store \in \stores - \stores' \}\end{array}
+$$
+
+$$
+\mathit{foldl}\ g\ \mems(S \cup F)\ \prog
+$$
+
+$$
+f(\eassign{\view{\cid}{w}}{\be}) = (\view{\cid}{w}, (\solve{(\mems(\vars\ \be))}{\be}))
+$$
+
+$$
+\mathit{map}\ f\ \prog
+$$

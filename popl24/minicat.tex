@@ -1,113 +1,53 @@
-\section{The $\minicat$ Language}
+\section{The $\minifed$ Language}
 
-The language $\minicat$ comprises a standard syntax of
-boolean algebra and arithmetic expressions over integers. In addition, we allow reference
-to \emph{variables} in expressions. \emph{Programs} are possibly empty
-lists of assignments of expressions to variables.
+
 $$
-\begin{array}{rcl@{\qquad\qquad}r}
-x,y,z &\in& \mathcal{V} & \textit{variables}\\
-n &\in& \mathbb{Z} & \textit{integers}\\
-b &::=& \true \mid \false & \textit{booleans}\\
-v &::=& n \mid b & \textit{values} \\[2mm]
-\mathit{unop} &::=& \mathrm{not} \mid - & \textit{unary operations} \\
-\mathit{binop} &::=& \mathrm{and} \mid \mathrm{or} \mid + \mid * \mid \mod \mid\ =\ \mid & \textit{binary operations} \\[2mm]
-e &::=& x \mid v \mid\, \mathit{unop}\, e \mid e\, \mathit{binop}\, e \mid  \eite{e}{e}{e}  & \textit{expressions}\\[2mm]
-\prog &::=& \varnothing\quad \mid\quad \eassign{x}{e};\ \prog & \textit{programs}
+\begin{array}{rcl@{\hspace{8mm}}r}
+b &\in& \{ \etrue, \efalse \} \\
+w &\in& \mathrm{String} \\ 
+\cid &\in& \mathrm{Clients} \qquad  (\mathrm{Clients} \subset \mathbb{N} \text{\ in\ this\ presentation})\\[2mm]
+\bop &\in& \{ \eand, \eor, \exor \} \\[2mm]
+\be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
+& &  \enot\ \be \mid \be\ \bop\ \be \mid \select{\be}{\be}{\be} \mid \OT{\be}{\be}{\be} \\[2mm]
+\instr &::=& \eassign{\view{\cid}{w}}{\be} & \textit{view assignments} \\[2mm]
+\prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
 \end{array}
 $$
-So for example, the following is a program- note that it assume the existence of an
-\emph{input} variable $x$, which is undefined by the program itself:
-$$
-\eassign{y}{x + 1}; \eassign{z}{2 * y}
-$$
 
-For variable-free expressions in $\minicat$,
-we can extend our interpretation of
-boolean algebra $\cod{\cdot}$ to integer arithmetic in the obvious
-manner, so for example $\cod{2 * 4} = 8$. However, to resolve
-expressions that include variables, we need to define the semantics in
-terms of references to \emph{memories}. We take the view that memories
-map variables to values.
 \begin{definition}[Memories]
 A \emph{memory}, aka \emph{store} $\store$ is a finite (partial) mapping from variables to values.
 The \emph{domain} of a memory is written $\dom(\store)$ and is the finite
 set of variables on which the memory is defined. We write $\store\{ x \mapsto v\}$
-to denote the memory $\store'$ such that $\store'(x) = v$ and otherwise
-$\store'(y) = \store(y)$ for all $y \in (\dom(\store) - \{ x \}) $.
+for  $x\not\in\dom(\store)$ to denote the memory $\store'$ such that $\store'(x) = v$ and otherwise
+$\store'(y) = \store(y)$ for all $y \in \dom(\store)$.
 \end{definition}
-Now we can modify our interpretation of expressions to take into account a given memory.
-We write $\cod{\store, e}$ to mean the interpretation of $e$ where each variable $x$ in $e$
-is replaced by $\store(x)$. In full detail, we define this as follows:
+
 \begin{eqnarray*}
-\cod{\store, x} &=& \store(x)\\
-\cod{\store, \mathit{unop}\ e} &=& \cod{\mathit{unop}\ \cod{\store,e}}\\
-\cod{\store, e_1\ \mathit{binop}\ e_2} &=& \cod{\cod{\store,e_1}\ \mathit{binop}\ \cod{\store,e_2}}\\
-\cod{\store, \eite{e_1}{e_2}{e_3}} &=&
+\lcod{\store, \etrue}{\cid} &=& \etrue\\
+\lcod{\store, \efalse}{\cid} &=& \efalse\\
+\lcod{\store, \flip{\cid}{w}}{\cid} &=& \store(\flip{\cid}{w})\\
+\lcod{\store, \secret{\cid}{w}}{\cid} &=& \store(\secret{\cid}{w})\\
+\lcod{\store, \view{\cid}{w}}{\cid} &=& \store(\view{\cid}{w})\\
+\lcod{\store, \oracle{w}}{\cid} &=& \store(\oracle{w})\\
+\lcod{\store, \enot\ \be}{\cid} &=& \cod{\enot\ \lcod{\store,\be}{\cid}}\\
+\lcod{\store, \be_1\ \mathit{binop}\ \be_2}{\cid} &=&
+    \cod{\lcod{\store,\be_1}{\cid}\ \mathit{binop}\ \lcod{\store,\be_2}{\cid}}\\
+\lcod{\store, \select{\be_1}{\be_2}{\be_3}}{\cid} &=&
              \begin{cases}
-                \cod{\store,e_2} & \text{if\ } \cod{\store,e_1}\\
-                \cod{\store,e_3} & \text{otherwise}
-             \end{cases}
+                \lcod{\store,\be_2}{\cid} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
+                \lcod{\store,\be_3}{\cid} & \text{if\ } \neg\lcod{\store,\be_1}{\cid}
+             \end{cases}%\\
+%\lcod{\store, \OT{\be_1}{\be_2}{\be_3}}{\cid} &=&
+%             \begin{cases}
+%                \lcod{\store,\be_2}{\cid'} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
+%                \lcod{\store,\be_3}{\cid'} & \text{if\ } \neg\lcod{\store,\be_1}{\cid}
+%             \end{cases}
 \end{eqnarray*}
 
-A critical point is that the semantics of $\minicat$ is defined not
-just with respect to programs, but with respect to a pair of a memory
-and a program $(\store, \prog)$, which we call
-a \emph{configuration}. Together with the interpretation of
-expressions that reference memories, we can obtain
-an \emph{operational} semantics for configurations. This semantics
-specifies how memories evolve during computation as a result of
-assignments to variables in programs. The fundamental relation is
-the \emph{reduction} aka \emph{evaluation} relation $\redx$,
-which is a relation on configurations, that we define as follows:
-$$
-(\store, \eassign{x}{e};\prog) \redx (\extend{\store}{x}{\cod{\store,e}}, \prog)
-$$
+\begin{mathpar}
+  (\store, \eassign{\view{\cid}{w}}{\be};\prog) \redx (\extend{\store}{\view{\cid}{w}}{\lcod{\store,\be}{\cid'}}, \prog)
 
-\subsection{Synchronous Distributed Protocols} With some minor syntactic
-modifications to $\minicat$, we can model and reason about security in
-protocols for distributed communications. We will call this modified
-system $\fedcat$, alluding to the existence of a group of participants
-we call a \emph{federation}. We restrict ourselves to boolean values
-in $\fedcat$, which we will denote $1$ and $0$ for convenience.  We
-assume the full set of the usual boolean operations including xor.
-
-We identify participants by integers $n$, and assume that the
-federation can be partitioned into two sets $H$ and $C$ where $H$ are
-all \emph{honest} and $C$ are \emph{corrupt}. Then, we modify
-variables $x$ to be of the form $\sx{n}{s}$ denoting a \emph{secret}
-belonging to party $n$ and distinguished by a string $s$, or of
-the form $\vx{n}{s}$ denoting a \emph{view} belonging to party $n$ and
-distinguished by $s$. A view is a memory location that records a value
-received by a party. So for example, in the following program, party 1
-sends the negation of their secret $\ttt{foo}$ to party 2, with the
-value recorded in party 2's $\ttt{bar}$ view:
-$$
-\eassign{\vx{2}{bar}}{\Dnot (\sx{1}{foo})}
-$$ In $\fedcat$ we require that all assignments are to views, and in
-any assignment $\eassign{\vx{n}{s}}{e}$ we require all variables that
-occur in $e$ to belong to the same party. We will also assume that
-secrets are defined in initial memories, that views are not, and that
-views are never redefined (overwritten). This models communication
-between parties through views, where each party can compute locally on
-its own values, and ensures that the final memory after computation
-contains a record of all secrets and views. We will use
-\emph{protocol} as a synonym for program in $\fedcat$ given our intent
-to model synchronous distributed computations.
-
- Although $\fedcat$ is a simple
-language we can explore some surprisingly complex distributed
-protocols with the introduction of randomized elements. In $\fedcat$
-we accomplish this by introducing a new form of variables called
-\emph{flips}, written $\fx{n}{s}$, which are owned by a party $n$ and
-distinguished by string $s$. We will assume that flips can be either
-$1$ or $0$ with equal probability.  So for example, in this
-program, party 1 sends their flip $\ttt{foo}$ to party 2,
-with the value recorded in party 2's $\ttt{bar}$ view:
-$$
-\eassign{\vx{2}{bar}}{\fx{1}{foo}}
-$$
-We don't change anything about the semantics of $\fedcat$
-to model this randomization, rather we will assume that all
-flip values are randomly assigned in initial memories. This is
-the so-called ``random tape'' approach.
+  \inferrule
+  {b = \text{if\ } \lcod{\store,\be_1}{\cid}  \text{\ then\ } \lcod{\store,\be_2}{\cid'} \text{\ else\ } \lcod{\store,\be_3}{\cid'}}
+      {(\store, \eassign{\view{\cid}{w}}{\OT{\be_1}{\be_2}{\be_3}};\prog) \redx (\extend{\store}{\view{\cid}{w}}{b}, \prog)}
+\end{mathpar}

@@ -2,44 +2,6 @@
 
 $$
 \begin{array}{rcl@{\hspace{8mm}}r}
-b &\in& \{ \etrue, \efalse \} \\
-w &\in& \mathrm{String} \\ 
-\cid &\in& \mathrm{Clients} \qquad  (\mathrm{Clients} \subset \mathbb{N} \text{\ in\ this\ presentation})\\[2mm]
-\bop &\in& \{ \eand, \eor, \exor \} \\[2mm]
-\be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
-& &  \enot\ \be \mid \be\ \bop\ \be \mid \select{\be}{\be}{\be} \\[2mm]
-\instr &::=& \eassign{\view{\cid}{w}}{\be} \mid \eassign{\view{\cid}{w}}{\OT{\be}{\be}{\be}} & \textit{view assignments} \\[2mm]
-\prog &::=& \instr \mid \instr; \prog & \textit{protocols}
-\end{array}
-$$
-
-\begin{eqnarray*}
-\lcod{\store, \etrue}{\cid} &=& \etrue\\
-\lcod{\store, \efalse}{\cid} &=& \efalse\\
-\lcod{\store, \flip{\cid}{w}}{\cid} &=& \store(\flip{\cid}{w})\\
-\lcod{\store, \secret{\cid}{w}}{\cid} &=& \store(\secret{\cid}{w})\\
-\lcod{\store, \view{\cid}{w}}{\cid} &=& \store(\view{\cid}{w})\\
-\lcod{\store, \oracle{w}}{\cid} &=& \store(\oracle{w})\\
-\lcod{\store, \enot\ \be}{\cid} &=& \cod{\enot\ \lcod{\store,\be}{\cid}}\\
-\lcod{\store, \be_1\ \mathit{binop}\ \be_2}{\cid} &=&
-    \cod{\lcod{\store,\be_1}{\cid}\ \mathit{binop}\ \lcod{\store,\be_2}{\cid}}\\
-\lcod{\store, \select{\be_1}{\be_2}{\be_3}}{\cid} &=&
-             \begin{cases}
-                \lcod{\store,\be_2}{\cid} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
-                \lcod{\store,\be_3}{\cid} & \text{otherwise}
-             \end{cases}
-\end{eqnarray*}
-
-\begin{mathpar}
-  (\store, \eassign{\view{\cid}{w}}{\be};\prog) \redx (\extend{\store}{\view{\cid}{w}}{\lcod{\store,\be}{\cid'}}, \prog)
-
-  \inferrule
-  {b = \text{if\ } \lcod{\store,\be_1}{\cid}  \text{\ then\ } \lcod{\store,\be_2}{\cid'} \text{\ else\ } \lcod{\store,\be_3}{\cid'}}
-      {(\store, \eassign{\view{\cid}{w}}{\OT{\be_1}{\be_2}{\be_3}};\prog) \redx (\extend{\store}{\view{\cid}{w}}{b}, \prog)}
-\end{mathpar}
-
-$$
-\begin{array}{rcl@{\hspace{8mm}}r}
 \flab &\in& \mathrm{Field}\\
 x &\in& \mathrm{EVar}\\
 f &\in& \mathrm{FName}\\[2mm]
