@@ -1,18 +1,63 @@
 \section{The $\minifed$ Language}
 
+The $\minifed$ language provides a simple model of synchronous
+protocols between a federation of \emph{clients} exchanging values in
+the binary field. We will identify clients by natural numbers, and
+federations- finite sets of clients- are always given statically.
+As we will see, our threat model assumes a partition of the federation
+into \emph{honest} and \emph{corrupt} subsets.
 
+We model probabilistic programming via the \emph{random tape}
+approach. That is, we will assume that programs can make reference to
+values chosen from a uniform random distribution- coin ``flips''- via
+values arbitrarily assigned in the initial program memory- the random
+tape. Programs execute deterministically given the random tape.
+
+\subsection{Syntax} The syntax of $\minifed$ includes a standard
+boolean algebra with $\eand$, $\eor$, $\exor$, and $\enot$ as
+primitives. In addition programs have different kinds of variables,
+including \emph{secrets} $\secret{\cid}{w}$, \emph{flips}
+$\flip{\cid}{w}$, and \emph{views} $\view{\cid}{w}$.  Each of these
+variables are indexed by an ``owner'' client $\cid$ and distinguishing
+string $w$. So for example, $\secret{\ttt{1}}{\ttt{foo}}$ is client
+$\ttt{1}$'s secret called $\ttt{foo}$. All clients can make reference
+to the \emph{oracle} through variables $\oracle{w}$- this is a form
+of shared randomness that is standard in the MPC setting \cite{XXX}.
+Each client can only compute on their own variables in
+\emph{expressions} $\be$, and share values with other clients by
+assignment to their views as in $\eassign{\view{\cid}{w}}{\be}$.  A
+\emph{protocol} $\prog$ is a possibly empty sequence of view
+assignments.
+
+Expressions also include $\select{\be_1}{\be_2}{\be_3}$ which is
+like a conditional expression in the binary field with:
+$$
+\select{\be_1}{\be_2}{\be_3} \equiv (\be_1\ \eand\ \be_2)\ \eor\ (\enot\ \be_1\ \eand\ \be_3)
+$$
+We also include \emph{oblivious transfer} $\OT{\be_1}{\be_2}{\be_3}$ as a primitive,
+with semantics similar to $\ttt{select}$ but with important nuances
+related to communication between clients as we discuss more below.
+As we will demonstrate, it is not necessary to include $\ttt{OT}$
+as a primitive since we can implement it in a provably secure
+fashion. However its inclusion simplifies our presentation and is a useful
+convenience.
+
+\subsection{Semantics}
+
+\begin{fpfig}[t]{$\minifed$ source code syntax.}{fig-minifed}
 $$
 \begin{array}{rcl@{\hspace{8mm}}r}
 b &\in& \{ \etrue, \efalse \} \\
 w &\in& \mathrm{String} \\ 
-\cid &\in& \mathrm{Clients} \qquad  (\mathrm{Clients} \subset \mathbb{N} \text{\ in\ this\ presentation})\\[2mm]
+\cid &\in& \mathrm{Clients} \subset  \mathbb{N} \\[2mm]%\qquad  (\mathrm{Clients} \subset \mathbb{N} \text{\ in\ this\ presentation})\\[2mm]
 \bop &\in& \{ \eand, \eor, \exor \} \\[2mm]
 \be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
 & &  \enot\ \be \mid \be\ \bop\ \be \mid \select{\be}{\be}{\be} \mid \OT{\be}{\be}{\be} \\[2mm]
 \instr &::=& \eassign{\view{\cid}{w}}{\be} & \textit{view assignments} \\[2mm]
 \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
 \end{array}
-$$
+$$ 
+\end{fpfig}
 
 \begin{definition}[Memories]
 A \emph{memory}, aka \emph{store} $\store$ is a finite (partial) mapping from variables to values.
