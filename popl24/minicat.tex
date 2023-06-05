@@ -10,8 +10,10 @@ into \emph{honest} and \emph{corrupt} subsets.
 We model probabilistic programming via the \emph{random tape}
 approach. That is, we will assume that programs can make reference to
 values chosen from a uniform random distribution- coin ``flips''- via
-values arbitrarily assigned in the initial program memory- the random
-tape. Programs execute deterministically given the random tape.
+values arbitrarily assigned in the initial program memory.  Programs
+execute deterministically given the random tape. The random tape
+formulation supports our automated analysis as we discuss in
+section 
 
 \subsection{Syntax} The syntax of $\minifed$ includes a standard
 boolean algebra with $\eand$, $\eor$, $\exor$, and $\enot$ as

@@ -116,9 +116,6 @@ let cdist_tt tt hdep ldep =
   let hitt = filt_tt hdep lowtt in
   float(TT.cardinal hitt) /. float(TT.cardinal lowtt);;
 
-let condd_tt tt hdep ldep =
-  let f = (fun (x,v) -> (idx x, v)) in cdist_tt tt (List.map f hdep) (List.map f ldep)
-
 let rec enumerate = function
   0 -> []
   | n -> n :: enumerate (n-1);;
@@ -149,9 +146,20 @@ List.map (List.map snd) complete;;
 
 let witness = ref ([],[]);;
 
-let report_witness w = (fun (x, y) -> ((List.map (fun (a, b) -> ((ridx a), b))) x, (List.map (fun (a, b) -> ((ridx a), b)) y))) w;;
+let report_witness w =
+  (fun (x, y) -> ((List.map (fun (a, b) -> ((ridx a), b))) x, (List.map (fun (a, b) -> ((ridx a), b)) y))) w;;
 
 let mems_to_lists x = List.map (fun y -> List.map (fun (i, b) -> (i, sbool b)) (Mem.elements y)) (MS.elements x);;
+
+let check_sep vs1 vs2 tt = 
+  let deps1 = gen_deps (S.of_list (List.map (fun x -> idx x) (VS.elements vs1))) in
+  let deps2 = gen_deps (S.of_list (List.map (fun x -> idx x) (VS.elements vs2))) in
+  List.for_all
+  (fun dep1 ->
+    List.for_all
+      (fun dep2 -> (cdist_tt tt (dep1@dep2) []) = (cdist_tt tt dep1 []) *. (cdist_tt tt dep2 []))
+      (mems_to_lists deps2))
+  (mems_to_lists deps1);;
 
 let check_leakage hi ci cv o tt = 
   let hdeps = gen_deps (S.of_list (List.map (fun x -> idx x) (VS.elements hi))) in
