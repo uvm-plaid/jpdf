@@ -10,7 +10,7 @@ e &::=& b \mid \flip{e}{e} \mid \secret{e}{e} \mid \view{e}{e} \mid \oracle{e} \
 \send{\view{e}{e}}{e} \mid \send{\view{e}{e}}{\OT{e}{e}{e}} \mid e;e \mid \\[0mm]
 & & x \mid \elet{x}{e}{e} \mid f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \}
 \mid e.\flab \mid e\ttt{||}e \mid (e) \\[2mm]
-v &::=& w \mid b \mid \cid \mid \{ \flab = v;\ldots;\flab = v \} 
+v &::=& w \mid \cid \mid \be \mid \{ \flab = v;\ldots;\flab = v \} 
 \mid (\,) & \textit{values}\\[2mm]
 {fn} &::=& f(x,\ldots,x) \{ e \} & \textit{functions}
 \end{array}
@@ -52,4 +52,28 @@ $$
 \end{array}
 $$
 
+\begin{verbatimtab}
+andgg(g, wla, wlb, wlc, wva, wvb) {
+andgate(g, wla, wlb, wlc);
+evalgate(g, wva, wvb)
+}
+\end{verbatimtab}
 
+$$
+\config{\prog_1}{E[\ttt{andgg}(w,v_1,\ldots,v_5)]} \redxs \config{\prog_1;\prog_2}{E[v_6]}
+$$
+
+\begin{mathpar}
+  \forall 1 \le i \le 6 . v_i = \{ \ttt{k} = \be_k^i; \ttt{p} = \be_p^i\}
+
+  \forall 1 \le i \le 3 . \exists w^i_1,w^i_2 . \be_k^i \sim \flip{2}{w^i_1} \wedge  \be_p^i \sim \flip{2}{w^i_2} 
+
+  \forall 4 \le i \le 5 . \gNIMO(\progd(\prog_1,\be_k^i), \flip{2}{w^{i-3}_1}) \wedge \gNIMO(\progd(\prog_1,\be_p^i), \flip{2}{w^{i-3}_2})
+\end{mathpar}
+
+
+\begin{mathpar}
+  \gNIMO(\progd(\prog_1;\prog_2,\be_k^6), \flip{2}{w^3_1}) \wedge \gNIMO(\progd(\prog_1;\prog_2,\be_p^6), \flip{2}{w^3_2})
+
+  (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})
+\end{mathpar}

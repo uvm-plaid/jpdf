@@ -5,7 +5,7 @@ protocols between a federation of \emph{clients} exchanging values in
 the binary field. We will identify clients by natural numbers, and
 federations- finite sets of clients- are always given statically.
 As we will see, our threat model assumes a partition of the federation
-into \emph{honest} and \emph{corrupt} subsets.
+into \emph{honest} $H$ and \emph{corrupt} $C$ subsets.
 
 We model probabilistic programming via the \emph{random tape}
 approach. That is, we will assume that programs can make reference to
@@ -31,8 +31,19 @@ assignment to their views as in $\eassign{\view{\cid}{w}}{\be}$.  A
 \emph{protocol} $\prog$ is a possibly empty sequence of view
 assignments.
 
-Expressions also include $\select{\be_1}{\be_2}{\be_3}$ which is
-like a conditional expression in the binary field with:
+We let $X$ range over sets of variables and $S,V,F$ to range over sets
+of secrets, views, and flips respectively. Given a program $\prog$, we
+write $\iov(\prog)$ to denote the pair $(S,V)$ where $S$ is the set of
+secret variables in $\prog$ and $V$ is the set of views in $\prog$,
+and we write $\flips(\prog)$ to denote the set $F$ of flip variables
+in $\prog$. For any set of variables $X$ and parties $P$, we write
+$X_P$ to denote the subset of $X$ owned by any party in $P$, and we
+write $X_H$ and $X_C$ to denote the subsets belonging to honest and
+corrupt parties, respectively.
+
+Expressions forms include the convenience
+$\select{\be_1}{\be_2}{\be_3}$ which is like a conditional expression
+in the binary field with:
 $$
 \select{\be_1}{\be_2}{\be_3} \equiv (\be_1\ \eand\ \be_2)\ \eor\ (\enot\ \be_1\ \eand\ \be_3)
 $$
@@ -61,13 +72,34 @@ w &\in& \mathrm{String} \\
 $$ 
 \end{fpfig}
 
-\begin{definition}[Memories]
-A \emph{memory}, aka \emph{store} $\store$ is a finite (partial) mapping from variables to values.
-The \emph{domain} of a memory is written $\dom(\store)$ and is the finite
-set of variables on which the memory is defined. We write $\store\{ x \mapsto v\}$
-for  $x\not\in\dom(\store)$ to denote the memory $\store'$ such that $\store'(x) = v$ and otherwise
-$\store'(y) = \store(y)$ for all $y \in \dom(\store)$.
-\end{definition}
+\emph{Memories} are fundamental to the semantics of $\fedcat$ and
+provide the random tape and secret inputs to protocols, and record
+view assignments. Memories $\store$ are finite (partial) mapping from
+variables to values. The \emph{domain} of a memory is written
+$\dom(\store)$ and is the finite set of variables on which the memory
+is defined. We write $\store\{ x \mapsto v\}$ for
+$x\not\in\dom(\store)$ to denote the memory $\store'$ such that
+$\store'(x) = v$ and otherwise $\store'(y) = \store(y)$ for all $y \in
+\dom(\store)$. 
+
+Given a set of variables $X$, we write $\store_X$ to denoted the
+memory $\store$ restricted to the domain $X$, and and we define
+$\mems(X)$ as the set of all memories with domain $X$:
+$$
+\mems(X) \defeq \{ \store \mid \dom(\store) = X \}
+$$
+Thus, given a protocol $\prog$, the set of all random tapes for
+$\prog$ is $\mems(\flips(\prog))$. We let $\stores$ range
+over sets of memories.
+
+Given a variable-free boolean expression $\be$, we write
+$\cod{\be}$ to denote the standard interpretation of $\be$.
+With the introduction of variables to expressions, we
+have two concerns. First, we need to interpret expressions
+with respect to a specific memory, and second, we need
+to ensure that variables are used ``legally''. That is,
+since expressions define local computation, all variables
+used in an expression must belong to the same client.
 
 
 \begin{eqnarray*}
@@ -100,25 +132,3 @@ $\store'(y) = \store(y)$ for all $y \in \dom(\store)$.
       {(\store, \eassign{\view{\cid}{w}}{\OT{\be_1}{\be_2}{\be_3}};\prog) \redx (\extend{\store}{\view{\cid}{w}}{b}, \prog)}
 \end{mathpar}
 
-
-
-\paragraph{Variable and Memory Conventions} Given a program $\prog$, we
-write $\iov(\prog)$ to denote the pair $(S,V)$
-where $S$ is the set of secret variables in $\prog$ and
-$V$ is the set of views in $\prog$, and we write $\flips(\prog)$ to
-denote the set $F$ of flip variables in $\prog$. For any set of variables $X$
-and parties $P$, we write $X_P$ to denote the subset
-of $X$ owned by any party in $P$, and we write $X_H$ and
-$X_C$ to denote the subsets belonging to honest and
-corrupt parties, respectively.
-
-Given a set of variables $X$, we write $\store_X$ to mean the memory
-$\store$ restricted to the domain $X$, and
-and we define $\mems(X)$ as:
-$$
-\mems(X) \defeq \{ \store \mid \dom(\store) = X \}
-$$
-We will also write $\store_1 \cup \store_2$ to denote
-the memory resulting by combining disjoint
-memories $\store_1$ and $\store_2$, i.e.,
-under the assumption that $\dom(\store_1) \cap \dom(\store_2) = \varnothing$.

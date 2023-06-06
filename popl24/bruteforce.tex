@@ -25,7 +25,7 @@
 
 $$
 g\ \ \stores\ (\eassign{\view{\cid}{w}}{\be}) =\begin{array}[t]{l}
-\elet{\stores'}{\solve{(\mems(\vars\ \be))}{\be}}{}\\
+\elet{\stores'}{\solve{\stores}{\be}}{}\\
   \{\extend{\store}{\view{\cid}{w}}{\etrue} \mid \store \in \stores' \} \cup
   \{\extend{\store}{\view{\cid}{w}}{\efalse} \mid \store \in \stores - \stores' \}\end{array}
 $$
