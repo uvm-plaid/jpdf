@@ -52,6 +52,8 @@ $$
 \end{array}
 $$
 
+\subsection{Compositional Properties: Garbled $\NIMO$}
+
 \begin{verbatimtab}
 andgg(g, wla, wlb, wlc, wva, wvb) {
 andgate(g, wla, wlb, wlc);
@@ -59,9 +61,7 @@ evalgate(g, wva, wvb)
 }
 \end{verbatimtab}
 
-\subsection{Compositional Properties}
-
-\begin{definition}
+\begin{definition}[Garbled $\NIMO$]
   We write $\gNIMO(\prog,\{ \ttt{k} = \be_{\ttt{k}}; \ttt{p} = \be_{\ttt{p}}\}, g)$ iff for all $H$, $C$,
   both $w \in \{\ttt{p},\ttt{k}\}$, and all 
   memories $\store \in \mems(\iov(\prog) \cup \{ \itv \})$ where
@@ -73,7 +73,15 @@ evalgate(g, wva, wvb)
   \margd{(\condd{\progd(\prog,\be_w)}{\store_{S_C \cup \{\itv \}}})}{S_H} =
   \margd{(\condd{\progd(\prog,\be_w)}{\store_{S_C \cup V_C \cup \{\itv \}}})}{S_H}
   $$
- \end{definition}
+\end{definition}
+
+\begin{definition}
+  We write $\owl(\prog, \{ \ttt{k} = \be_{\ttt{k}}; \ttt{p} = \be_{\ttt{p}}\}, g)$
+  iff for all $b$ and both $w \in \{\ttt{p},\ttt{k}\}$:
+  $$
+  (\margd{(\condd{\progd(\prog,\be_{w})}{\{ \flip{2}{g.w} \mapsto b \}})}{\itv})(\{ \itv \mapsto b\}) = 1
+  $$
+\end{definition}
 
 \begin{lemma}[Input Encoding]
 Assume given the following evaluation relation:

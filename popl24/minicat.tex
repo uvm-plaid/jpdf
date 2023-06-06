@@ -15,7 +15,8 @@ execute deterministically given the random tape. The random tape
 formulation supports our automated analysis as we discuss in
 section 
 
-\subsection{Syntax} The syntax of $\minifed$ includes a standard
+\subsection{Syntax} The syntax of $\minifed$, defined in
+Figure \ref{fig-minifed-syntax}, includes a standard
 boolean algebra with $\eand$, $\eor$, $\exor$, and $\enot$ as
 primitives. In addition programs have different kinds of variables,
 including \emph{secrets} $\secret{\cid}{w}$, \emph{flips}
@@ -33,7 +34,7 @@ assignments.
 
 We let $X$ range over sets of variables and $S,V,F$ to range over sets
 of secrets, views, and flips respectively. Given a program $\prog$, we
-write $\iov(\prog)$ to denote the pair $(S,V)$ where $S$ is the set of
+write $\iov(\prog)$ to denote $S \cup V$ where $S$ is the set of
 secret variables in $\prog$ and $V$ is the set of views in $\prog$,
 and we write $\flips(\prog)$ to denote the set $F$ of flip variables
 in $\prog$. For any set of variables $X$ and parties $P$, we write
@@ -42,8 +43,8 @@ write $X_H$ and $X_C$ to denote the subsets belonging to honest and
 corrupt parties, respectively.
 
 Expressions forms include the convenience
-$\select{\be_1}{\be_2}{\be_3}$ which is like a conditional expression
-in the binary field with:
+$\select{\be_1}{\be_2}{\be_3}$ which is essentiall a conditional
+expression with:
 $$
 \select{\be_1}{\be_2}{\be_3} \equiv (\be_1\ \eand\ \be_2)\ \eor\ (\enot\ \be_1\ \eand\ \be_3)
 $$
@@ -57,7 +58,7 @@ convenience.
 
 \subsection{Semantics}
 
-\begin{fpfig}[t]{$\minifed$ source code syntax.}{fig-minifed}
+\begin{fpfig}[t]{$\minifed$ source code syntax.}{fig-minifed-syntax}
 $$
 \begin{array}{rcl@{\hspace{8mm}}r}
 b &\in& \{ \etrue, \efalse \} \\
@@ -92,16 +93,19 @@ Thus, given a protocol $\prog$, the set of all random tapes for
 $\prog$ is $\mems(\flips(\prog))$. We let $\stores$ range
 over sets of memories.
 
-Given a variable-free boolean expression $\be$, we write
-$\cod{\be}$ to denote the standard interpretation of $\be$.
-With the introduction of variables to expressions, we
-have two concerns. First, we need to interpret expressions
-with respect to a specific memory, and second, we need
-to ensure that variables are used ``legally''. That is,
-since expressions define local computation, all variables
-used in an expression must belong to the same client.
+Given a variable-free boolean expression $\be$, we write $\cod{\be}$
+to denote the standard interpretation of $\be$.  With the introduction
+of variables to expressions, we have two concerns. First, we need to
+interpret variables with respect to a specific memory, and second,
+we need to ensure that variables are used ``legally''. That is, since
+expressions define local computation, all variables used in an
+expression must belong to the same client.  Thus, we denote
+interpretation of expressions $\be$ possibly containing variables as
+$\lcod{\store,\be}{\cid}$, where $\store$ associates variables with
+values and all variables must be owned by client $\cid$. This is
+defined in Figure \ref{fig-minifed-interp}.
 
-
+\begin{fpfig}[t]{$\minifed$ expression interpretation.}{fig-minifed-interp}
 \begin{eqnarray*}
 \lcod{\store, \etrue}{\cid} &=& \etrue\\
 \lcod{\store, \efalse}{\cid} &=& \efalse\\
@@ -123,12 +127,44 @@ used in an expression must belong to the same client.
 %                \lcod{\store,\be_3}{\cid'} & \text{if\ } \neg\lcod{\store,\be_1}{\cid}
 %             \end{cases}
 \end{eqnarray*}
+\end{fpfig}
 
+Evaluation of configurations is then defined via a small-step reduction relation $\redx$.
+This is defined in the obvious manner for view assignments other than through
+$\ttt{OT}$- however note that reduction requires that views are never reassigned. 
 \begin{mathpar}
   (\store, \eassign{\view{\cid}{w}}{\be};\prog) \redx (\extend{\store}{\view{\cid}{w}}{\lcod{\store,\be}{\cid'}}, \prog)
-
+\end{mathpar}
+For view assignments through $\ttt{OT}$, we define a different reduction rule that
+captures the appropriate semantics- that is, the selection bit is \emph{not} communicated
+to the sender (through a view assignment), and only the selected bit is sent to the receiver:
+\begin{mathpar}
   \inferrule
   {b = \text{if\ } \lcod{\store,\be_1}{\cid}  \text{\ then\ } \lcod{\store,\be_2}{\cid'} \text{\ else\ } \lcod{\store,\be_3}{\cid'}}
       {(\store, \eassign{\view{\cid}{w}}{\OT{\be_1}{\be_2}{\be_3}};\prog) \redx (\extend{\store}{\view{\cid}{w}}{b}, \prog)}
 \end{mathpar}
+We define $\redxs$ as the reflexive, transitive closure of $\redx$.
 
+Given $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$,
+any execution of $\prog$ is assumed to be an evaluation of a
+configuration $\config{\store}{\prog}$ where $\store \in \mems(S \cup
+F)$- that is, with secrets and the random tape as inputs- and where
+$\config{\store}{\prog} \redxs \config{\store'}{\varnothing}$ it is
+the case that $\store' \in \mems(S \cup F \cup V)$.
+
+\subsection{Examples}
+
+\begin{verbatimtab}
+v[2,0] := f[1,0];
+v[0,0] := f[1,0] xor s[1,0];
+v[2,1] := v[0,0];
+v[2,2] := v[2,1] xor v[2,0]
+\end{verbatimtab}
+
+\begin{verbatimtab}
+v[2, rd] := select[flip[2, d], H[r1], H[r0]];
+v[1, e] := s[2, c] xor flip[2, d];
+v[2, f0] := s[1, m0] xor select[v[1, e], H[r1], H[r0]];
+v[2, f1] := s[1, m1] xor select[not v[1, e], H[r1], H[r0]];
+v[2, mc] := (select[s[2, c], v[2, f1], v[2, f0]] xor v[2, rd])
+\end{verbatimtab}
