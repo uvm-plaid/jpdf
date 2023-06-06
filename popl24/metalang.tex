@@ -60,25 +60,18 @@ evalgate(g, wva, wvb)
 \end{verbatimtab}
 
 \begin{definition}
-  We write $\gNIMO(\prog,\{ \ttt{k} = \be_k; \ttt{p} = \be_p\}, g)$ iff for all $H$, $C$ and
-  memories $\store \in \mems(\iov(\prog) \cup \{ \itv \})$ where:
+  We write $\gNIMO(\prog,\{ \ttt{k} = \be_{\ttt{k}}; \ttt{p} = \be_{\ttt{p}}\}, g)$ iff for all $H$, $C$,
+  both $w \in \{\ttt{p},\ttt{k}\}$, and all 
+  memories $\store \in \mems(\iov(\prog) \cup \{ \itv \})$ where
   $
-  \store(\itv) = \store(\flip{2}{g.\ttt{k}})$ or $\store(\itv) = \neg\store(\flip{2}{g.\ttt{k}})
+  \store(\itv) = \store(\flip{2}{g.w})$ or $\store(\itv) = \neg\store(\flip{2}{g.w})
   $
   it is the case that:
   $$
-  \margd{(\condd{\progd(\prog,\be_k)}{\store_{S_C \cup \{\itv \}}})}{S_H} =
-  \margd{(\condd{\progd(\prog,\be_k)}{\store_{S_C \cup V_C \cup \{\itv \}}})}{S_H}
+  \margd{(\condd{\progd(\prog,\be_w)}{\store_{S_C \cup \{\itv \}}})}{S_H} =
+  \margd{(\condd{\progd(\prog,\be_w)}{\store_{S_C \cup V_C \cup \{\itv \}}})}{S_H}
   $$
-  and where: $$
-  \store(\itv) = \store(\flip{2}{g.\ttt{p}}) \vee \store(\itv) = \neg\store(\flip{2}{g.\ttt{p}})
-  $$
-  it is the case that:
-  $$
-  \margd{(\condd{\progd(\prog,\be_p)}{\store_{S_C \cup \{\itv \}}})}{S_H} =
-  \margd{(\condd{\progd(\prog,\be_p)}{\store_{S_C \cup V_C \cup \{\itv \}}})}{S_H}
-  $$
-\end{definition}
+ \end{definition}
 
 \begin{lemma}[Input Encoding]
 Assume given the following evaluation relation:
