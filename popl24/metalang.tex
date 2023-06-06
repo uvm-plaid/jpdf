@@ -59,6 +59,15 @@ evalgate(g, wva, wvb)
 }
 \end{verbatimtab}
 
+\begin{definition}
+  We write $\gNIMO(\prog,\{ k = \be_k; p = \be_p\}, g)$ iff for all $H$, $C$ and
+  $\store \in \mems(\iovars(\prog) \cup \{\ \itv \})$:
+  $$
+  \margd{(\condd{\progd(\prog,\be_k)}{\store_{S_C \cup \{\itv \}}})}{S_H} =
+  \margd{(\condd{\progd(\prog,\be_k)}{\store_{S_C \cup V_C \cup \{\itv \}}})}{S_H}
+  $$
+\end{definition}
+
 \begin{lemma}[Input Encoding]
 Assume given the following evaluation relation:
 $$
