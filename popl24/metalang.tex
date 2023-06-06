@@ -59,21 +59,53 @@ evalgate(g, wva, wvb)
 }
 \end{verbatimtab}
 
+\begin{lemma}[Input Encoding]
+Assume given the following evaluation relation:
 $$
-\config{\prog_1}{E[\ttt{andgg}(w,v_1,\ldots,v_5)]} \redxs \config{\prog_1;\prog_2}{E[v_6]}
+\config{\prog_1}{E[\ttt{encode}(w,v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[v]}
 $$
+If there exists gate identifiers $g_1, g_2$ such that:
+\begin{enumerate}
+  \item $g_1 \ne g_2 \wedge g_1,g_2 \not\in \gates(\prog_1)$
+  \item $\owl(\prog_1,v_1,g_1) \wedge \owl(\prog_1,v_2,g_2)$
+  \item $\gNIMO(\prog_1,v.\ttt{wv1},g_1) \wedge \gNIMO(\prog_1,v.\ttt{wv2},g_2)$
+\end{enumerate}
+then:
+\begin{enumerate}
+\item $g_1,g_2 \in  \gates(\prog_2)$
+\item $\gNIMO(\prog_1;\prog_2,v.\ttt{wv1},g_1) \wedge \gNIMO(\prog_1;\prog_2,v.\ttt{wv2},g_2)$
+\item $$(\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})$$
+\end{enumerate}
+\end{lemma}
 
-\begin{mathpar}
-  \forall 1 \le i \le 6 . v_i = \{ \ttt{k} = \be_k^i; \ttt{p} = \be_p^i\}
+\begin{lemma}[Composition ($\eand$)]
+Assume given the following evaluation relation:
+$$
+\config{\prog_1}{E[\ttt{andgg}(g,v_1,\ldots,v_5)]} \redxs \config{\prog_1;\prog_2}{E[v_6]}
+$$
+If there exist gate identifiers $g_1, g_2$ such that:
+\begin{enumerate}
+  \item $g_1 \ne g_2 \ne g \wedge g_1,g_2 \in \gates(\prog_1) \wedge g \not\in \gates(\prog_1)$
+  \item $\owl(\prog_1,v_1,g_1) \wedge \owl(\prog_1,v_2,g_2) \wedge \owl(\prog_1,v_3,g)$
+  \item $\gNIMO(\prog_1,v_4,g_1) \wedge \gNIMO(\prog_1,v_5,g_2)$
+\end{enumerate}
+then:
+\begin{enumerate}
+  \item $g \in \gates(\prog_2)$
+  \item $\gNIMO(\prog_1;\prog_2,v_6,g)$
+  \item $(\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})$
+\end{enumerate}
+\end{lemma}
 
-  \forall 1 \le i \le 3 . \exists w^i_1,w^i_2 . \be_k^i \sim \flip{2}{w^i_1} \wedge  \be_p^i \sim \flip{2}{w^i_2} 
-
-  \forall 4 \le i \le 5 . \gNIMO(\progd(\prog_1,\be_k^i), \flip{2}{w^{i-3}_1}) \wedge \gNIMO(\progd(\prog_1,\be_p^i), \flip{2}{w^{i-3}_2})
-\end{mathpar}
-
-
-\begin{mathpar}
-  \gNIMO(\progd(\prog_1;\prog_2,\be_k^6), \flip{2}{w^3_1}) \wedge \gNIMO(\progd(\prog_1;\prog_2,\be_p^6), \flip{2}{w^3_2})
-
-  (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})
-\end{mathpar}
+\begin{lemma}[Decoding]
+Assume given the following evaluation relation:
+$$
+\config{\prog_1}{E[\ttt{decoder}(v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[\be]}
+$$
+If there exists gate identifier $g \in \gates(\prog_1)$ such that:
+\begin{enumerate}
+  \item $\owl(\prog_1,v_1,g)$
+  \item $\gNIMO(\prog_1,v_2,g)$
+\end{enumerate}
+Then $\NIMO(\prog_1;\prog_2;\eassign{x}{\be})$.
+\end{lemma}
