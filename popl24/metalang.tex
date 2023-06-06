@@ -68,7 +68,6 @@ If there exists gate identifiers $g_1, g_2$ such that:
 \begin{enumerate}
   \item $g_1 \ne g_2 \wedge g_1,g_2 \not\in \gates(\prog_1)$
   \item $\owl(\prog_1,v_1,g_1) \wedge \owl(\prog_1,v_2,g_2)$
-  \item $\gNIMO(\prog_1,v.\ttt{wv1},g_1) \wedge \gNIMO(\prog_1,v.\ttt{wv2},g_2)$
 \end{enumerate}
 then:
 \begin{enumerate}
@@ -86,12 +85,12 @@ $$
 If there exist gate identifiers $g_1, g_2$ such that:
 \begin{enumerate}
   \item $g_1 \ne g_2 \ne g \wedge g_1,g_2 \in \gates(\prog_1) \wedge g \not\in \gates(\prog_1)$
-  \item $\owl(\prog_1,v_1,g_1) \wedge \owl(\prog_1,v_2,g_2) \wedge \owl(\prog_1,v_3,g)$
+  \item $\owl(\prog_1,v_1,g_1) \wedge \owl(\prog_1,v_2,g_2)$
   \item $\gNIMO(\prog_1,v_4,g_1) \wedge \gNIMO(\prog_1,v_5,g_2)$
 \end{enumerate}
 then:
 \begin{enumerate}
-  \item $g \in \gates(\prog_2)$
+  \item $g \in \gates(\prog_2) \wedge \owl(\prog_1;\prog_2,v_3,g)$
   \item $\gNIMO(\prog_1;\prog_2,v_6,g)$
   \item $(\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})$
 \end{enumerate}
