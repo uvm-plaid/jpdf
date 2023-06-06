@@ -62,9 +62,9 @@ evalgate(g, wva, wvb)
 \begin{definition}
   We write $\gNIMO(\prog,\{ \ttt{k} = \be_k; \ttt{p} = \be_p\}, g)$ iff for all $H$, $C$ and
   memories $\store \in \mems(\iov(\prog) \cup \{ \itv \})$ where:
-  $$
-  \store(\itv) = \store(\flip{2}{g.\ttt{k}}) \vee \store(\itv) = \neg\store(\flip{2}{g.\ttt{k}})
-  $$
+  $
+  \store(\itv) = \store(\flip{2}{g.\ttt{k}})$ or $\store(\itv) = \neg\store(\flip{2}{g.\ttt{k}})
+  $
   it is the case that:
   $$
   \margd{(\condd{\progd(\prog,\be_k)}{\store_{S_C \cup \{\itv \}}})}{S_H} =
