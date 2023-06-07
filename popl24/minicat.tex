@@ -16,21 +16,24 @@ formulation supports our automated analysis as we discuss in
 section 
 
 \subsection{Syntax} The syntax of $\minifed$, defined in
-Figure \ref{fig-minifed-syntax}, includes a standard
-boolean algebra with $\eand$, $\eor$, $\exor$, and $\enot$ as
-primitives. In addition programs have different kinds of variables,
-including \emph{secrets} $\secret{\cid}{w}$, \emph{flips}
-$\flip{\cid}{w}$, and \emph{views} $\view{\cid}{w}$.  Each of these
-variables are indexed by an ``owner'' client $\cid$ and distinguishing
-string $w$. So for example, $\secret{\ttt{1}}{\ttt{foo}}$ is client
-$\ttt{1}$'s secret called $\ttt{foo}$. All clients can make reference
-to the \emph{oracle} through variables $\oracle{w}$- this is a form
-of shared randomness that is standard in the MPC setting \cite{XXX}.
-Each client can only compute on their own variables in
-\emph{expressions} $\be$, and share values with other clients by
-assignment to their views as in $\eassign{\view{\cid}{w}}{\be}$.  A
-\emph{protocol} $\prog$ is a possibly empty sequence of view
-assignments.
+Figure \ref{fig-minifed-syntax}, includes a standard boolean algebra
+with $\eand$, $\eor$, $\exor$, and $\enot$ as primitives. In addition
+programs have different kinds of variables, including \emph{secrets}
+$\secret{\cid}{w}$, \emph{flips} $\flip{\cid}{w}$, and \emph{views}
+$\view{\cid}{w}$.  Each of these variables are indexed by an ``owner''
+client $\cid$ and distinguishing string $w$. So for example,
+$\secret{\ttt{1}}{\ttt{foo}}$ is client $\ttt{1}$'s secret called
+$\ttt{foo}$. All clients can make reference to the \emph{oracle}
+through variables $\oracle{w}$- this is a form of shared randomness
+that is standard in the MPC setting \cite{XXX}.  Each client can only
+compute on their own variables in \emph{expressions} $\be$, and share
+values with other clients by assignment to their views as in
+$\eassign{\view{\cid}{w}}{\be}$.  A \emph{protocol} $\prog$ is a
+possibly empty sequence of view assignments. We will generally omit
+$\varnothing$ from example code, i.e., writing $c_1;\ldots;\c_n$
+instead of $c_1;\ldots;\c_n;\varnothing$, and abusing notation we will
+write $\prog_1;\prog_2$ to denote the concatenation of $\prog_1$
+and $\prog_2$.
 
 We let $X$ range over sets of variables and $S,V,F$ to range over sets
 of secrets, views, and flips respectively. Given a program $\prog$, we
