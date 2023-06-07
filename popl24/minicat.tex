@@ -76,12 +76,12 @@ $$
 \emph{Memories} are fundamental to the semantics of $\fedcat$ and
 provide the random tape and secret inputs to protocols, and record
 view assignments. Memories $\store$ are finite (partial) mapping from
-variables to values. The \emph{domain} of a memory is written
-$\dom(\store)$ and is the finite set of variables on which the memory
-is defined. We write $\store\{ x \mapsto v\}$ for
+variables to binary values $\beta \in \{0,1\}$. The \emph{domain} of a
+memory is written $\dom(\store)$ and is the finite set of variables on
+which the memory is defined. We write $\store\{ x \mapsto \beta\}$ for
 $x\not\in\dom(\store)$ to denote the memory $\store'$ such that
-$\store'(x) = v$ and otherwise $\store'(y) = \store(y)$ for all $y \in
-\dom(\store)$. 
+$\store'(x) = \beta$ and otherwise $\store'(y) = \store(y)$ for all $y \in
+\dom(\store)$.
 
 Given a set of variables $X$, we write $\store_X$ to denoted the
 memory $\store$ restricted to the domain $X$, and and we define
@@ -94,21 +94,21 @@ $\prog$ is $\mems(\flips(\prog))$. We let $\stores$ range
 over sets of memories.
 
 Given a variable-free boolean expression $\be$, we write $\cod{\be}$
-to denote the standard interpretation of $\be$.  With the introduction
-of variables to expressions, we have two concerns. First, we need to
-interpret variables with respect to a specific memory, and second,
-we need to ensure that variables are used ``legally''. That is, since
-expressions define local computation, all variables used in an
-expression must belong to the same client.  Thus, we denote
-interpretation of expressions $\be$ possibly containing variables as
-$\lcod{\store,\be}{\cid}$, where $\store$ associates variables with
-values and all variables must be owned by client $\cid$. This is
-defined in Figure \ref{fig-minifed-interp}.
+to denote the standard interpretation of $\be$ in the binary field.
+With the introduction of variables to expressions, we have two
+concerns. First, we need to interpret variables with respect to a
+specific memory, and second, we need to ensure that variables are used
+``legally''. That is, since expressions define local computation, all
+variables used in an expression must belong to the same client.  Thus,
+we denote interpretation of expressions $\be$ possibly containing
+variables as $\lcod{\store,\be}{\cid}$, where $\store$ associates
+variables with values and all variables must be owned by client
+$\cid$. This is defined in Figure \ref{fig-minifed-interp}.
 
 \begin{fpfig}[t]{$\minifed$ expression interpretation.}{fig-minifed-interp}
 \begin{eqnarray*}
-\lcod{\store, \etrue}{\cid} &=& \etrue\\
-\lcod{\store, \efalse}{\cid} &=& \efalse\\
+\lcod{\store, \etrue}{\cid} &=& 1\\
+\lcod{\store, \efalse}{\cid} &=& 0\\
 \lcod{\store, \flip{\cid}{w}}{\cid} &=& \store(\flip{\cid}{w})\\
 \lcod{\store, \secret{\cid}{w}}{\cid} &=& \store(\secret{\cid}{w})\\
 \lcod{\store, \view{\cid}{w}}{\cid} &=& \store(\view{\cid}{w})\\
@@ -140,8 +140,8 @@ captures the appropriate semantics- that is, the selection bit is \emph{not} com
 to the sender (through a view assignment), and only the selected bit is sent to the receiver:
 \begin{mathpar}
   \inferrule
-  {b = \text{if\ } \lcod{\store,\be_1}{\cid}  \text{\ then\ } \lcod{\store,\be_2}{\cid'} \text{\ else\ } \lcod{\store,\be_3}{\cid'}}
-      {(\store, \eassign{\view{\cid}{w}}{\OT{\be_1}{\be_2}{\be_3}};\prog) \redx (\extend{\store}{\view{\cid}{w}}{b}, \prog)}
+  {\beta = \text{if\ } \lcod{\store,\be_1}{\cid}  \text{\ then\ } \lcod{\store,\be_2}{\cid'} \text{\ else\ } \lcod{\store,\be_3}{\cid'}}
+      {(\store, \eassign{\view{\cid}{w}}{\OT{\be_1}{\be_2}{\be_3}};\prog) \redx (\extend{\store}{\view{\cid}{w}}{\beta}, \prog)}
 \end{mathpar}
 We define $\redxs$ as the reflexive, transitive closure of $\redx$.
 

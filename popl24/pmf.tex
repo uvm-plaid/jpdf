@@ -1,14 +1,35 @@
 \section{Probability Mass Functions and Program Distributions}
 
+In order to precisely characterize distributions of secrets and views
+in programs we define probability mass functions in a standard manner,
+following the formulation in \ref{XXX}. In this formulation, memories
+denote conjunctions of variable assignments. Intuitively, given a
+program $\prog$ with $\iov(\prog) = S \cup V$ and $\store \in
+\mems(\iov(\prog))$, when considering the execution of $\prog$
+initialized with secrets $\store_S$, we are fundamentally concerned
+with the joint probability of the assignments in $\store_V$
+conditioned by the assignments $\store_S$. This is because
+probabilistic dependence between honest secrets and corrupt views
+\emph{is} information leakage. 
+
+\subsection{Basic Definitions} We begin by defining memory probability distributions as follows.
 \begin{definition}
-  A \emph{memory probability distribution} $\pdf{X}$ is a function mapping
-  memories in $\mems(X)$ to values in $[0..1]$, such that:
+  A \emph{memory probability distribution} $\pdf{X}$ is a function
+  mapping memories in $\mems(X)$ to values in $[0..1]$, such that:
   $$
   \sum_{\store \in \mems(X)} \pdf{X}(\store) \  = \ 1
   $$
   We call $X$ the \emph{domain} of $\pdf{X}$.
 \end{definition}
-
+To recover succinct and familiar notation, we may omit the domain of a
+distribution when it is clear from an application context-
+i.e., we allow the following sugaring:
+$$
+\pdf{}(\store) \defeq \pdf{\dom(\store)}(\store)
+$$
+Now, we can define a notion of marginal and conditional
+distributions as follows, which are standard for discrete
+probability mass functions. 
 \begin{definition}
   Given $X$ the \emph{marginal distribution} of $Y \subseteq X$
   in a distribution $\pdf{X}$, denoted $\margd{\pdf{X}}{Y}$,
@@ -30,23 +51,36 @@
       \pdf{X}(\store \cup \store') / ((\margd{\pdf{X}}{Y})(\store))
   $$
 \end{definition}
+To recover familiar notation we allow the following syntactic
+sugarings:
+\begin{eqnarray*}
+\pdf{X}(\store|\store') &\defeq& (\condd{\pdf{X}}{\store})(\store')\\
+\pdf{X}(\store) &\defeq& (\margd{\pdf{X}}{\dom(\store)})(\store) \qquad \dom(\store) \subset X
+\end{eqnarray*}
 
+\subsection{Program Distributions}
 Now we can define the probability distribution of a program $\prog$,
-that we denote $\progd(\prog)$. Recall that $\fedcat$ is
-deterministic, so a run is determined by the input secrets together
-with random flip assignments. And since we constrain programs to not
-overwrite memories, we can be sure that final memories resulting from
-computation contain both a complete record of all initial secrets and
-flips as well as views of communicated information. Thus a final
-memory represents a run of the program, and since we consider and set
-of \emph{input} secrets and flips to be equally likely, we consider
-each memory in the set of final memories of a program to be equally
-likely, which establishes the basic probability distribution for the
-program. And since we don't care about flip values which are only
-obversable insofar as they affect views, the probability distribution
-we are really interested in is the marginal distribution of secrets
-and views in this basic program distribution.
+that we denote $\progd(\prog)$. Since $\fedcat$ is deterministic the
+results (view assignments) of any run are determined by the input
+secrets together with the random tape. And since we constrain programs
+to not overwrite views we are assured that \emph{final} memories
+contain both a complete record of all initial secrets as well as views
+resulting from communicated information.
+
+We consider random tapes to be selected from a uniform distribution.
+In our threat model we will also assume that any possible initial
+secrets are equally likely when formulating the program distribution.
+In this setting, given a program $\prog$ with $\iov(\prog) = S \cup
+V$ we will consider all $\store
+\in \mems(\iov(\prog) \cup \flips(\prog))$ such that
+$
+\config{\store_{S \cup \flips(\prog)}}{\prog} \redxs \config{\store_}{\varnothing}
+$
+to be equally probable, establishing the basic distribution of the
+program. From this we can immediately derive the marginal distribution
+of $S \cup V$ to reason about dependencies between secrets and views. 
 \begin{definition}
+  \label{def-progd}
   Given progam $\prog$ with $\iov(\prog) = (S,V)$ and $\flips(\prog) = F$, define $\stores$ as:
   $$
   \stores \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
