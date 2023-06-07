@@ -71,10 +71,10 @@ We consider random tapes to be selected from a uniform distribution.
 In our threat model we will also assume that any possible initial
 secrets are equally likely when formulating the program distribution.
 In this setting, given a program $\prog$ with $\iov(\prog) = S \cup
-V$ we will consider all $\store
-\in \mems(\iov(\prog) \cup \flips(\prog))$ such that
+V$ and $\flips(\prog) = F$ we will consider all $\store
+\in \mems(S \cup V \cup F)$ such that
 $
-\config{\store_{S \cup \flips(\prog)}}{\prog} \redxs \config{\store_}{\varnothing}
+\config{\store_{S \cup F}}{\prog} \redxs \config{\store_}{\varnothing}
 $
 to be equally probable, establishing the basic distribution of the
 program. From this we can immediately derive the marginal distribution
@@ -99,4 +99,9 @@ of $S \cup V$ to reason about dependencies between secrets and views.
   $$
   \progd(\prog) =  \margd{\pdf{S \cup V \cup F}}{S\cup V}
   $$
+  In some cases we will also be concerned with the (joint)
+  probabilities of expression interpretation given a preceding program
+  execution, and we write $\progd(\prog, \be)$ to denote the program
+  distribution $\progd(\prog;\eassign{\itv}{\be})$ where $\itv$ is a
+  special variable that is never used in programs.
 \end{definition}
