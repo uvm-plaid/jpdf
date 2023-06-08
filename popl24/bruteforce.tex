@@ -22,7 +22,6 @@
  ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_3}))
 \end{eqnarray*}
 
-
 $$
 g\ \ \stores\ (\eassign{\view{\cid}{w}}{\be}) =\begin{array}[t]{l}
 \elet{\stores'}{\solve{\stores}{\be}}{}\\
@@ -42,6 +41,17 @@ $$
 \mathit{map}\ f\ \prog
 $$
 
+\begin{mathpar}
+  \logit{x \mapsto 1} = x
+
+  \logit{x \mapsto 0} = \neg x
+
+  \logit{\{ x_1 \mapsto \beta_1, \ldots, x_n \mapsto \beta_n\}} =
+  \logit{x_1 \mapsto \beta_1}, \ldots, \logit{x_n \mapsto \beta_n}
+
+  \mathit{clauses}(x,\{ \store_1,...,\store_n \}) = x \gets \logit{\store_1},\ldots, x \gets \logit{\store_n}
+\end{mathpar}
+
 $$
-\floor{5}
+\mathit{map}\ \mathit{clauses}\ (\mathit{map}\ f\ \prog)
 $$
