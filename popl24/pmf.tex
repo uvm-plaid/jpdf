@@ -183,3 +183,9 @@ More precisely:
 \begin{mathpar}
   (\sum_{\beta}(\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto \beta, \sx{2}{1} \mapsto \beta, \sx{3}{1} \mapsto \beta \}|\{ \vx{0}{output} \mapsto 0 \})) = 1
 \end{mathpar}
+If we assume that a client is corrupted we can formally consider the
+impacts on information released to the adversary by conditioning the
+program distribution on corrupt secrets.  For example, if we assume
+client 2 with input secret 1 is corrupted and the output is 0, then
+adversary knows with certainty that clients 1 and 3 also have input
+secrets 1. We can express this as:
