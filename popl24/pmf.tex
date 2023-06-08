@@ -105,3 +105,33 @@ of $S \cup V$ to reason about dependencies between secrets and views.
   distribution $\progd(\prog;\eassign{\itv}{\be})$ where $\itv$ is a
   special variable that is never used in programs.
 \end{definition}
+
+\subsection{Examples}
+
+{\footnotesize
+  $$
+  \begin{array}{cc}
+    \begin{array}{cccccc}
+      \verb+s[1,0]+ & \verb+f[1,0]+ & \verb+v[2,0]+  & \verb+v[2,1]+ & \verb+v[2,2]+ & \verb+v[0,0]+\\
+      \hline
+      0 & 0 & 0 & 0 & 0 & 0 \\ 
+      0 & 1 & 1 & 1 & 0 & 1 \\ 
+      1 & 0 & 0 & 1 & 1 & 1 \\ 
+      1 & 1 & 1 & 0 & 1 & 0
+    \end{array}
+    & 
+    \begin{array}{ccccc}
+      \verb+s[1,s]+ & \verb+f[1,sx]+ & \verb+f[1,sy]+ & \verb+v[0,0]+ & \verb+v[0,1]+ \\
+      \hline
+      0 & 0 & 0 & 0 & 0 \\ 
+      0 & 0 & 1 & 1 & 0 \\ 
+      0 & 1 & 0 & 0 & 1 \\ 
+      0 & 1 & 1 & 1 & 1 \\
+      1 & 0 & 0 & 0 & 0 \\ 
+      1 & 0 & 1 & 0 & 0 \\ 
+      1 & 1 & 0 & 1 & 1 \\ 
+      1 & 1 & 1 & 1 & 1  
+    \end{array}
+  \end{array}
+  $$
+}

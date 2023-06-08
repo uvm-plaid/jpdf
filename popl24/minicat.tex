@@ -196,17 +196,17 @@ probabilistically independent of the secret $\sx{1}{0}$.
   $\lambda_{\mathrm{obliv}}$, a language for oblivious memory
   management. We consider their translations here where we
   assume $H = \{ 1 \}$ and $C = \{ 0 \}$. First, the following
-  examples shows that reuse of coin flips can result in release of
+  example shows that the reuse of coin flips can result in release of
   information, even though flips are chosen from a uniform
   distribution. This is because the adversary can deduce that
   $\secret{1}{s}$ is more likely to be 1 in case their views are the
-  same value:
+  same value. We call this subexample $(a)$:
   \begin{verbatimtab}
     v[0,0] := select(s[1,s], flip[1,sx], flip[1,sy]);
     v[0,1] := flip[1,sx] \end{verbatimtab}
   In the next example, since the nested select is more likely to evaluate
   to $1$ than $0$, the adversary can deduce that $\secret{1}{s}$ is
-  more likely to be 1 in case $\view{0}{0}$ is 1:
+  more likely to be 1 in case $\view{0}{0}$ is 1. We call this subexample $(b)$:
   \begin{verbatimtab}
   v[0,0] := select(s[1,s],select(flip[1,sx], flip[1,sx], flip[1,sy]),flip[1,z]) \end{verbatimtab}
   We note that these examples are considered ``bad'' in \cite{XXX} since there
