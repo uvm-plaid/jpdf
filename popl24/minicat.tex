@@ -157,31 +157,34 @@ the case that $\store' \in \mems(S \cup F \cup V)$.
 
 \subsection{Examples}
 
+Here we introduce some examples to illustrate $\minifed$ and how it
+can be used to model secure communication protocols for values in the
+binary field. Most of these are translations (into $\minifed$) of
+object examples in previous related work \cite{XXX}. We will return to
+these as running examples throughout the paper to illustrate various
+concepts and advantages of our methods.
 \begin{example}[One-Time Pad]
   \label{example-otp}
-We can model secure communication between two parties
-using symmetric key encryption over an insecure channel, for
-example. In the following program, we assume $H = \{ 1,2 \}$ and
-$C = \{ 0 \}$. Party 1 first shares the randomly generated
-key $\fx{1}{0}$ with party 2. Then, party 1 encrypts
-its secret $\sx{1}{0}$ and sends it to party 0,
-which relays the ciphertext in $\vx{0}{0}$ to
-party 2. Finally, party 2 decrypts\footnote{Recall we are using
-a random tape approach, so the value of $\fx{1}{0}$ remains
-consistent during any run the program, though that value
-is randomly determined by the initial memory in a given
-run} the ciphertext and stores the plaintext in $\vx{2}{2}$. 
+As observed in \cite{XXX} and elsewhere, coin flips with $\exor$ can
+be used to model one-time pad encryption in the binary field. On the
+basis of this we can model secure communication between over an
+insecure channel using symmetric key encryption. In the following
+program, we assume $H = \{ 1,2 \}$ and $C = \{ 0 \}$. Client 1 first
+shares the randomly generated ``key'' $\fx{1}{0}$ with client 2
+through view $\view{2}{0}$. Then, client 1 encrypts its secret
+$\sx{1}{0}$ and sends it to party 0, which relays the ciphertext in
+$\vx{0}{0}$ to client 2. Finally, client 2 decrypts the the ciphertext
+and stores the plaintext in $\vx{2}{2}$.
 \begin{verbatimtab}
 v[2,0] := f[1,0];
 v[0,0] := f[1,0] xor s[1,0];
 v[2,1] := v[0,0];
 v[2,2] := v[2,1] xor v[2,0]
 \end{verbatimtab}
-This protocol is \emph{correct} because $\vx{2}{2}$ is exactly
-correlated with the secret $\sx{1}{0}$, and it is \emph{secure}
-because the corrupt view $\vx{0}{0}$ in isolation is probabilistically
-independent of the secret $\sx{1}{0}$, while serving as a
-communication channel for its encryption. 
+Intuitively, this protocol is \emph{correct} because $\vx{2}{2}$ is
+exactly correlated with the secret $\sx{1}{0}$, and it is
+\emph{secure} because the corrupt view $\vx{0}{0}$ in isolation is
+probabilistically independent of the secret $\sx{1}{0}$.
 \end{example}
 
 \begin{example}[Lambda-obliv]
