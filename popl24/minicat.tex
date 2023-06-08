@@ -187,91 +187,100 @@ exactly correlated with the secret $\sx{1}{0}$, and it is
 probabilistically independent of the secret $\sx{1}{0}$.
 \end{example}
 
-\begin{example}[Lambda-obliv]
+\begin{example}[$\lambda_{\mathrm{obliv}}$]
   \label{example-lambda-obliv}
-
+  In \cite{XXX}, Figure 3, two examples are introduced that illustrate
+  subtleties of probabilistic programming in
+  $\lambda_{\mathrm{obliv}}$, a language for oblivious memory
+  management. We consider their translations here where we
+  assume $H = \{ 1 \}$ and $C = \{ 0 \}$. First, the following
+  examples shows that reuse of coin flips can result in release of
+  information, even though flips are chosen from a uniform
+  distribution. This is because the adversary can deduce that
+  $\secret{1}{s}$ is more likely to be 1 in case their views are the
+  same value:
   \begin{verbatimtab}
-v[0,0] := select(s[1,0], flip[1,0], flip[1,1] );
-v[0,1] := flip[1,0]
-\end{verbatimtab}
-
-\begin{verbatimtab}
-v[0,0] := select(s[1,0],select(flip[1,0], flip[1,0], flip[1,1]),flip[1,2])
-\end{verbatimtab}
+    v[0,0] := select(s[1,s], flip[1,sx], flip[1,sy]);
+    v[0,1] := flip[1,sx] \end{verbatimtab}
+  In the next example, since the nested select is more likely to evaluate
+  to $1$ than $0$, the adversary can deduce that $\secret{1}{s}$ is
+  more likely to be 1 in case $\view{0}{0}$ is 1:
+  \begin{verbatimtab}
+  v[0,0] := select(s[1,s],select(flip[1,sx], flip[1,sx], flip[1,sy]),flip[1,z]) \end{verbatimtab}
+  We note that these examples are considered ``bad'' in \cite{XXX} since there
+  no information about honest secrets should be revealed to the adversary in
+  their threat model. For this reason they disallow reuse of flips through a
+  linear type discipline, which is a culprit in both of these examples. However,
+  as we have shown in Example \ref{example-otp} the reuse of flips is useful in
+  the modeling of symmetric key encryption, and generally we will not enforce
+  the same linear type discipline on the use of flips.
 \end{example}
 
 \begin{example}[Oblivious Transfer]
   \label{example-lambda-OT}
-
+  In \cite{XXX} a protocol for $\ttt{OT}$ is defined that we recreate as
+  follows, where client 2 is the receiver and client 1 is the sender. Whereas
+  in \cite{XXX} a trusted third party provides the sender and receiver with
+  shared randomness, in our version both clients refer to the oracle $\ttt{H}$
+  to obtain shared random values. 
 \begin{verbatimtab}
-v[2, rd] := select[flip[2, d], H[r1], H[r0]];
-v[1, e] := s[2, c] xor flip[2, d];
-v[2, f0] := s[1, m0] xor select[v[1, e], H[r1], H[r0]];
-v[2, f1] := s[1, m1] xor select[not v[1, e], H[r1], H[r0]];
-v[2, mc] := (select[s[2, c], v[2, f1], v[2, f0]] xor v[2, rd])
+  v[2, rd] := select(flip[2, d], H[r1], H[r0]);
+  v[1, e] := s[2, c] xor flip[2, d];
+  v[2, f0] := s[1, m0] xor select(v[1, e], H[r1], H[r0]);
+  v[2, f1] := s[1, m1] xor select(not v[1, e], H[r1], H[r0]);
+  v[2, mc] := select(s[2, c], v[2, f1], v[2, f0]) xor v[2, rd]
+\end{verbatimtab}
+Below we will discuss how to automatically verify security properties
+of this protocol that correspond to the properties proven manually in
+\cite{XXX}, and additionally how to automatically verify its passive
+security in the simulator model. With respect to our language primitives,
+we note that this protocol is probabilistically equivalent to the
+following:
+\begin{verbatimtab}  
+  view[2, mc] := OT(s[2, c], s[1, m1], s[1, m0])
 \end{verbatimtab}
 \end{example}
 
 \begin{example}[Additive Secret Sharing]
     \label{example-lambda-he}
-Another 
-example of an MPC protocol is additive secret sharing, where $k$
-parties split up their secrets into \emph{shares}, with the property
-that all $k$ shares are required to reconstruct the secret and any
-fewer reveals nothing. In $\fedcat$, we can use $\ttt{xor}$, again, to
-generate shares. Here, party 1 generates 3 shares of the secret
-$\sx{1}{1}$- one is given to party 2 through view $\vx{2}{s1}$, one is
-given to party 3 through view $\vx{3}{s1}$, and party 1 keeps
-$\fx{1}{s1}$ for itself:
+Additive secret sharing is an MPC protocol where $k$ parties split up
+their secrets into \emph{shares}, with the property that all $k$
+shares are required to reconstruct the secret and any fewer reveals
+nothing. Additionally, this sharing enjoys additive homomorphism. In
+the binary field it is well-known that we can extend our use
+of $\ttt{xor}$ and flips to generate an arbitrary number of shares
+with additive homomorphism. 
+
+For example, to generate shares for three-party additive sharing,
+clients 1,2, and 3 can break up and distribute their shares to
+each other as follows:
 \begin{verbatimtab}
-v[2,s1] := flip[1,1] xor flip[1,s1] xor s[1,1];
-v[3,s1] := flip[1,1];
+  v[2,s1] := flip[1,1] xor flip[1,s1] xor s[1,1];
+  v[3,s1] := flip[1,1];
+
+  v[1,s2] := flip[2,1] xor flip[2,s2] xor s[2,1];
+  v[3,s2] := flip[2,1];
+
+  v[1,s3] := flip[3,1] xor flip[3,s3] xor s[3,1];
+  v[2,s3] := flip[3,1];
 \end{verbatimtab}
-Note that $\vx{2}{s1}$ and $\vx{3}{s1}$ are both in uniform
-random distributions.
-
-Another property of $\ttt{xor}$ is that it is additively homomorphic,
-while functioning as addition in the boolean algebra (i.e., the binary
-field). That is, given:
-\begin{mathpar}
-  x_1\ \ttt{xor}\ y_1 = z_1
-
-  x_2\ \ttt{xor}\ y_2 = z_2
-\end{mathpar}
-then we have:
-$$
-(x_1\ \ttt{xor}\ x_2)\ \ttt{xor}\ (y_1\ \ttt{xor}\ y_2) = z_1\ \ttt{xor}\ z_2
-$$
-Thus, we can obtain secret 3-party summation (xor) by continuing
-the protocol begun above- parties 2 and 3 can share their secrets
-in the same fashion:
-\begin{verbatimtab}
-v[1,s2] := flip[2,1] xor flip[2,s2] xor s[2,1];
-v[3,s2] := flip[2,1];
-
-v[1,s3] := flip[3,1] xor flip[3,s3] xor s[3,1];
-v[2,s3] := flip[3,1];
-\end{verbatimtab}
-Then, assuming that party 0 is the ``public party'', each party sums
+Then, assuming that party 0 is a ``public'' client, each party sums
 its own shares, and then the sum of sum of shares is revealed
 in the output view $\vx{0}{output}$. By additive homomorphism of
-$\ttt{xor}$, this output is the sum of the 3 secrets, but
-the protocol reveals nothing to the adversary, even if one
-(or even two, in fact) of $\{1,2,3\}$ are corrupt. 
+$\ttt{xor}$, this output is the sum of the 3 secrets.
 \begin{verbatimtab}
-v[0,ss1] := v[1,s2] xor v[1,s3] xor flip[1,s1];
-v[0,ss2] := v[2,s1] xor v[2,s3] xor flip[2,s2];
-v[0,ss3] := v[3,s1] xor v[3,s2] xor flip[3,s3];
+  v[0,ss1] := v[1,s2] xor v[1,s3] xor flip[1,s1];
+  v[0,ss2] := v[2,s1] xor v[2,s3] xor flip[2,s2];
+  v[0,ss3] := v[3,s1] xor v[3,s2] xor flip[3,s3];
 
-v[0,output] := v[0,ss1] xor v[0,ss2] xor v[0,ss3]
+  v[0,output] := v[0,ss1] xor v[0,ss2] xor v[0,ss3]
 \end{verbatimtab}
-
-Because this protocol correctly implements 3-party addition in the
-binary field, it can reveal information to the adversary. For example,
-suppose that $1 \in C$, and $\sx{1}{1}$ is $1$, and after running the
-protocol suppose that $\vx{0}{output}$ is 0. Then the adversary knows
-that 2 and 3's secrets are either 1 and 0, or 0 and 1, with 50/50
-probability, and definitely neither 0 and 0, nor 1 and 1. However, the
-protocol does not reveal anything more through adversarial views than
-what the output reveals.
+We note that, as for MPC protocols generally, the notion of
+``secrecy'' here is subtle and not the same as for encryption as in
+Example \ref{example-otp}, particularly when the threat model allows
+protocol participants to be corrupt. For example, suppose that $1 \in C$, and
+$\sx{1}{1}$ is $1$, and after running the protocol suppose that
+$\vx{0}{output}$ is 0. Then the adversary knows that 2 and 3's secrets
+are either 1 and 0, or 0 and 1, with 50/50 probability, and definitely
+neither 0 and 0, nor 1 and 1. 
 \end{example}
