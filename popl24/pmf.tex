@@ -85,6 +85,7 @@ of $S \cup V$ to reason about dependencies between secrets and views.
   $$
   \stores \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
   $$
+  We note immediately that $|\stores| = 2^{S \cup F}$ given the (deterministic) definition of $\redx$. 
   Define also $\pdf{S \cup V \cup F}$ as the program's \emph{basic distribution} such that for all
   $\store \in \mems(S \cup V \cup F)$:
   $$
@@ -106,9 +107,14 @@ of $S \cup V$ to reason about dependencies between secrets and views.
   special variable that is never used in programs.
 \end{definition}
 
+
 \subsection{Examples}
 
-\begin{fpfig}[t]{Visualization of basic distributions for Examples \ref{example-otp} and \ref{example-lambda-obliv}.}{fig-basic-distributions}
+In the following, we will refer to program examples defined in
+Section \ref{section-minicat-examples} as $\prog_x$, where $x$
+is the Example number. 
+
+\begin{fpfig}[t]{Truth table visualization of basic distributions for Examples \ref{example-otp} (L) and \ref{example-lambda-obliv}(a) (R).}{fig-basic-distributions}
 {\footnotesize
   $$
   \begin{array}{cc}
@@ -137,3 +143,43 @@ of $S \cup V$ to reason about dependencies between secrets and views.
   $$
 }
 \end{fpfig}
+
+\paragraph{Example \ref{example-otp} revisited} For small programs it is
+helpful to visualize their basic distributions graphically as their
+truth tables, where each row corresponds to an equally likely final
+memory for the given program. In Figure \ref{fig-basic-distributions}
+we show this for Example \ref{example-otp}. In this truth table we can
+see that $\sx{1}{0}$ and $\vx{2}{2}$ are perfectly correlated. But
+from the adversarial view, $\sx{1}{0}$ is 1 or 0 with equal
+probability given any value of $\vx{0}{0}$. More precisely, for any
+$\beta_1,\beta_2$ we have:
+\begin{mathpar}
+(\progd(\prog_{\ref{example-otp}}))(\{\sx{1}{0} \mapsto \beta_1 \}|\{ \vx{0}{0} \mapsto \beta_2 \}) = .5
+\end{mathpar}
+Note that this corresponds to \emph{perfect secrecy} as described
+in \cite{XXX}.
+
+\paragraph{Example \ref{example-lambda-obliv}(a) revisited} As demonstrated
+by Example \ref{example-lambda-obliv} taken from \cite{XXX}, it is possible
+to leak information probabilistically through obvservable dependencies
+in views. In the basic distribution for Example \ref{example-lambda-obliv}(a)
+illustrated in Figure \ref{fig-basic-distributions}, we can see that
+the adversarial views $\vx{0}{0}$ and $\vx{0}{1}$ are both 1 in
+three different runs of the protocol, and in 2 out of 3 the
+honest secret $\sx{1}{0}$ is 1. More precisely:
+$$
+(\progd(\prog_{\ref{example-lambda-obliv}(a)}))(\{\sx{1}{0} \mapsto 1 \}|\{ \vx{0}{0} \mapsto 1, \vx{0}{1} \mapsto 1, \}) = 2/3
+$$
+
+\paragraph{Example \ref{example-he} revisited} This standard example
+of an MPC secure protocol illustrates how a functionality- in this
+case addition (in the binary field)- can be implemented securely. As
+mentioned previously, it is \emph{not} the case that \emph{no}
+information about input secrets can be revealed to the adversary in
+the MPC threat model, since the result of the functionality can itself
+reveal information. For example, if the result of addition is $0$,
+the adversary knows that all clients must have the same value.
+More precisely:
+\begin{mathpar}
+  (\sum_{\beta}(\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto \beta, \sx{2}{1} \mapsto \beta, \sx{3}{1} \mapsto \beta \}|\{ \vx{0}{output} \mapsto 0 \})) = 1
+\end{mathpar}
