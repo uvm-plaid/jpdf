@@ -47,9 +47,9 @@ $$
   \logit{x \mapsto 0} = \neg x
 
   \logit{\{ x_1 \mapsto \beta_1, \ldots, x_n \mapsto \beta_n\}} =
-  \logit{x_1 \mapsto \beta_1}, \ldots, \logit{x_n \mapsto \beta_n}
+  \logit{x_1 \mapsto \beta_1} \wedge \cdots \wedge \logit{x_n \mapsto \beta_n}
 
-  \mathit{clauses}(x,\{ \store_1,...,\store_n \}) = x \gets \logit{\store_1},\ldots, x \gets \logit{\store_n}
+  \mathit{clauses}(x,\{ \store_1,...,\store_n \}) = x \gets \logit{\store_1} \vee \cdots \vee x \gets \logit{\store_n}
 \end{mathpar}
 
 $$
