@@ -46,16 +46,15 @@ functionality $\idealf$- that is, execution of a configuration
 $\config{\store}{\prog}$. We will assume that any protocol $\prog$
 includes a public \emph{output view} $\outv$ where the result is
 published, where $0$ is the ``public'' client and thus $\outv$
-is of the form $\vx{0}{w}$ for some $w$, i.e., is owned by 0.
-Cl
+is of the form $\view{0}{w}$ for some $w$, i.e., is owned by 0.
 Note that the protocol is \emph{correct} iff the resulting
 memory contains $\outv \mapsto \idealf(\store_S)$, where $S$ are the
 secret inputs (honest and corrupt) in $\prog$.
 
 The simulator is given just the corrupt inputs to the run- that is,
 $\store_{S_C}$- and the output of the protocol- that is,
-$\idealf(\store)$- and tries to reconstruct the \emph{distribution of
-adversarial views} observed in the real world. The intuition here is
+$\idealf(\store)$- and aims to reconstruct the distribution of
+adversarial views observed in the real world. The intuition here is
 that the simulator is given the information that is necessarily
 available to the adversary by observing a run of the protocl, and if
 the simulator can reconstruct whatever information appears in the real
@@ -101,7 +100,9 @@ model as follows.
   $$
 \end{definition}
 
-\subsection{Probabilistic Noninterference} Previous work has noted
+\subsection{Probabilistic Noninterference}
+\label{section-ni}
+Previous work has noted
 relations between probabilistic noninterference and security
 properties such as memory trace obliviousness \cite{XXX} and passive
 security \cite{XXX}. And above (Section \ref{section-pmf-examples}) we
@@ -156,34 +157,39 @@ of so-called gradual release \cite{XXX}.
 \end{lemma}
 
 \subsection{A Sound Hyperproperty for Passive Security}
+\label{section-nimo}
 The intuition that passive security means that the protocol releases
-no more information than what is released by the output suggests a
+no more information than what is released by conditioning on the
+public output and corrupt inputs suggests a
 refinement of noninterference. That is, the set of low equivalent
-initial memories that can produce the same output should generate the
+initial memories \emph{that can produce the same output} should generate the
 same distributions of adversarial views.
 \begin{definition}[Noninterference Modulo Output]
-  Given $H$, $C$, and a program $\prog$ with $\iov(\prog) = (S,V)$ and output
-  view $x \in V$, we say that
-  $\prog$ satisfies \emph{noninterference modulo output} iff for all
-  $\store_1,\store_2 \in \mems(S)$:
+  We say that a program  $\prog$ satisfies \emph{noninterference modulo output},
+  written $\NIMO(\prog)$, iff for all $H$, $C$, and 
+  $\store_1,\store_2 \in \mems(S)$ we have:
   \begin{eqnarray*}
     & \store_1 =_C \store_2 \wedge
-     (\margd{(\condd{\progd(\prog)}{\store_1})}{\{ x \}} =
-     \margd{(\condd{\progd(\prog)}{\store_2})}{\{ x \}}) \\
+     (\margd{(\condd{\progd(\prog)}{\store_1})}{\{ \outv \}} =
+     \margd{(\condd{\progd(\prog)}{\store_2})}{\{ \outv \}}) \\
     & \implies \\
     & \margd{(\condd{\progd(\prog)}{\store_1})}{V_C} =
     \margd{(\condd{\progd(\prog)}{\store_2})}{V_C}
   \end{eqnarray*}
+where $\iov(\prog) = (S,V)$.
 \end{definition}
-We can show, for example, that the 3-party xor protocol defined above
-satisfies noninterference modulo output.
 
-What is the formal connection with passive security? Note in
-particular that the hyperproperty implies that the simulator can use
+From an information flow perspective, we can say that a $\NIMO$
+protocol does not release information beyond what is declassified
+via the public output. From a real/ideal perspective, we can
+observe that $\NIMO$ implies that the simulator can use
 the protocol itself to reconstruct the distribution of adversarial
-views by making a random guess about honest secrets given public
-knowledge about the ideal functionality $\idealf$ a protocol
-implements. However, there is a subtlety here in that the adversary
+views. That is, given the output of the ideal functionality
+$\idealf(\store_S)$, the simulator can randomly choose any
+$\store'$ such that $\store' =_C \store$ and $\idealf(\store'_S) =
+\idealf(\store_S)$ and run the protocol with initial memory $\store'$-
+$\NIMO$ guarantees ideal reconstruction of the real-world corrupt views. 
+ However, there is a subtlety here in that the adversary
 must be able to tractably reconstruct this knowledge. This is not
 generally true, in particular if $\idealf$ is a 1-way
 function. Define:
@@ -198,8 +204,7 @@ function. Define:
 \end{definition}
 Now we can show our main result, that noninterference modulo output,
 together with the assumption that $\idealf$ is invertible, implies
-passive security of a protocol\footnote{We emphasize that the converse
-is not asserted.}. 
+passive security of a protocol.
 \begin{theorem}
   Assume given invertible $\idealf$ and a protocol $\prog$ that
   correctly implements $\idealf$.  If program $\prog$ satisfies
@@ -246,7 +251,6 @@ is not asserted.}.
   $$
    \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \margd{(\condd{\progd(\prog)}{\store_S})}{V_C}
   $$
-  \qed
 \end{proof}
 
 \begin{lemma}
