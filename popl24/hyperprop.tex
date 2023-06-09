@@ -155,23 +155,12 @@ of so-called gradual release \cite{XXX}.
     \margd{(\condd{\progd(\prog)}{\store_{(S\cup V)_C}})}{S_H} $$
 \end{lemma}
 
-\subsection{A Sound Hyperproperty for Passive Security} The real/ideal
-model can be hard to understand and passive security of protocols can
-be difficult to prove, much less enforce automatically. Formulating
-a hyperproperty that implies passive security can provide some
-insights into the meaning of passive security, provide a connection
-to the foundational theories we've discussed, and can provide
-methodological support for proofs and even enforcement.
-
+\subsection{A Sound Hyperproperty for Passive Security}
 The intuition that passive security means that the protocol releases
 no more information than what is released by the output suggests a
-refinement of noninterference. Specifically, it suggests that in
-passive secure protocols, the adversarial knowledge (in the Lecture
-Notes 12 sense) obtained from the output does not change during
-protocol execution, which otherwise should be noninterfering.  That
-is, the set of low equivalent initial memories that can produce the
-same output should generate the same distributions of adversarial
-views. 
+refinement of noninterference. That is, the set of low equivalent
+initial memories that can produce the same output should generate the
+same distributions of adversarial views.
 \begin{definition}[Noninterference Modulo Output]
   Given $H$, $C$, and a program $\prog$ with $\iov(\prog) = (S,V)$ and output
   view $x \in V$, we say that
@@ -259,7 +248,6 @@ is not asserted.}.
   $$
   \qed
 \end{proof}
-
 
 \begin{lemma}
   Given $H$, $C$, and a program $\prog$ with $\iov(\prog) = (S,V)$ and
