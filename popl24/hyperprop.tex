@@ -166,7 +166,7 @@ initial memories \emph{that can produce the same output} should generate the
 same distributions of adversarial views.
 \begin{definition}[Noninterference Modulo Output]
   We say that a program  $\prog$ satisfies \emph{noninterference modulo output},
-  written $\NIMO(\prog)$, iff for all $H$, $C$, and 
+  written $\NIMO(\prog)$, iff for all $H$ and $C$ with $|C|\le|H|$ and 
   $\store_1,\store_2 \in \mems(S)$ we have:
   \begin{eqnarray*}
     & \store_1 =_C \store_2 \wedge
@@ -207,8 +207,7 @@ together with the assumption that $\idealf$ is invertible, implies
 passive security of a protocol.
 \begin{theorem}
   Assume given invertible $\idealf$ and a protocol $\prog$ that
-  correctly implements $\idealf$.  If program $\prog$ satisfies
-  noninterference modulo output for all $H$ and $C$ with $|H| < |C|$,
+  correctly implements $\idealf$.  If $\NIMO(\prog)$
   then $\prog$ is passive secure.
 \end{theorem}
 
@@ -253,6 +252,13 @@ passive security of a protocol.
   $$
 \end{proof}
 
+As for noninterference, we can show that $\NIMO$ is equivalent
+to saying that a given program does not change the probability
+of honest secrets conditioned on corrupt secrets and views
+(including the output view), as compared to conditioning on
+just the corrupt secrets and input. In addition to providing
+insights about $\NIMO$, this form is helpful for
+verification techniques. 
 \begin{lemma}
   Given $H$, $C$, and a program $\prog$ with $\iov(\prog) = (S,V)$ and
   output view $x \in V$
