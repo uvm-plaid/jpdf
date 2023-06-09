@@ -1,109 +1,34 @@
 \section{Hyperproperties of MPC Passive Security}
 
-Finally, consider our secure communications example, that we call program
-$\prog_3$. We will assume that $H = \{ 1,2 \}$ and $C = \{ 0 \}$, so
-the adversary has access to $\vx{0}{0}$ in particular:
-\begin{verbatimtab}
-v[2,0] := f[1,0];
-v[0,0] := f[1,0] xor s[1,0];
-v[2,1] := v[0,0];
-v[2,2] := v[2,1] xor v[2,0]
-\end{verbatimtab}
-First, let's focus on information available to the adversary
-about the secret $\sx{1}{0}$ (aside from its publicly-known marginal
-distribution). We will consider the marginal distribution
-of $\sx{1}{0}$ and $\vx{0}{0}$:
-\begin{mathpar}
-X \defeq \{ \vx{0}{0}, \sx{1}{0} \}
-  
-\pdf{X} \defeq \margd{\progd(\prog_3)}{X}
-\end{mathpar}
-Since the adversary can directly observe the value in $\vx{0}{0}$ in
-any given run, we therefore consider the distribution conditioned on
-that value. As we can see, this shows that the protocol reveals
-no information about the secret:
-\begin{mathpar}
-  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 0\})}(\{ \sx{1}{0} \mapsto 0\}) = .5
-  
-  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 0\})}(\{ \sx{1}{0} \mapsto 1\}) = .5
-  
-  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 1\})}(\{ \sx{1}{0} \mapsto 0\}) = .5
+As we've discussed in our section on Related Work
+(\ref{section-related}), previous authors have noted connections
+between the traditional formulation of the MPC security model- aka the
+simulator security model- and hyperproperty-style formulations of
+program trace behavior \cite{XXX} including probabilistic
+noninterference. This formulation of hyperproperties that are at least
+sound with respect to simulator security bridges a conceptual gap
+between foundational approaches to security, and also motivates and
+supports automated analysis \cite{XXX}.
 
-  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 1\})}(\{ \sx{1}{0} \mapsto 1\}) = .5
-\end{mathpar}
-
-Now, let's focus on the information directly available to honest parties,
-and specifically the information available through $\vx{2}{2}$ about
-$\sx{1}{0}$. We first define the relevant marginal distribution:
-\begin{mathpar}
-X \defeq \{ \vx{2}{2}, \sx{1}{0} \}
-  
-\pdf{X} \defeq \margd{\progd(\prog_3)}{X}
-\end{mathpar}
-Then we consider the marginal distribution of the secret conditioned
-on the view $\vx{2}{2}$, which shows the direct correlation and therefore
-correctness. 
-\begin{mathpar}
-  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 0\})}(\{ \sx{1}{0} \mapsto 0\}) = 1
-  
-  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 0\})}(\{ \sx{1}{0} \mapsto 1\}) = 0
-  
-  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 1\})}(\{ \sx{1}{0} \mapsto 0\}) = 0
-
-  \condd{(\pdf{X}}{\{ \vx{0}{0} \mto 1\})}(\{ \sx{1}{0} \mapsto 1\}) = 1
-\end{mathpar}
-
-\subsection{Probabilistic Noninterference} The discussion above suggests a
-security semantics- that is, a hyperproperty- analagous to
-noninterference in a probabilistic setting. First, let's
-define low equivalence of memories in the current setting:
-\begin{definition}[Memory Low Equivalence]
-  Given $\store^1$ and $\store^2$ with $\dom(\store^1) = \dom(\store^2) = X$,
-  we write $\store^1 =_C \store^2$ iff $\store^1_{X_C} = \store^2_{X_C}$.
-\end{definition}
-Now, we can define probabilistic noninterference as a property of
-programs ensuring that low-equivalent initial memories produce
-the same low-observable trace (i.e., corrupt views) \emph{with the
-same probability}. 
-\begin{definition}[Probabilistic Noninterference]
-  Given a program $\prog$ with $\iov(\prog) = (S,V)$, we say that
-  $\prog$ satisfies \emph{probabilistic noninterference} iff for all
-  $\store_1, \store_2 \in \mems(S)$:
-  $$\store_1 =_C \store_2 \implies
-    \margd{(\condd{\progd(\prog)}{\store_1})}{V_C} =
-    \margd{(\condd{\progd(\prog)}{\store_2})}{V_C}$$
-\end{definition}
-
-An important consequence of probabilistic noninterference refines an
-idea we introduced in Lecture Notes 12, which is that noninterering
-programs do not improve adversarial knowledge about secrets.
-More precisely, in $\fedcat$ the initial probability of a correct
-guess by the adversary is the marginal distribution of honest secrets
-in the program distribution conditioned by corrupt inputs.
-The final (and thus best, due to monotonicity) adversarial
-knowledge is also the marginal distribution of honest secrets in the
-program distribution, but conditioned by corrupt inputs \emph{and}
-corrupt views. Noninterference in the probabilistic setting implies
-that these are the same.
-\begin{lemma}
-  Given a program $\prog$ with $\iov(\prog) = (S,V)$, 
-  $\prog$ satisfies probabilistic noninterference iff for all
-  $\store \in \mems(S \cup V)$:
-  $$\margd{(\condd{\progd(\prog)}{\store_{S_C}})}{S_H} =
-    \margd{(\condd{\progd(\prog)}{\store_{(S\cup V)_C}})}{S_H} $$
-\end{lemma}
+In this section we formulate a new hyperproperty that we show is sound
+for passive security in the real/ideal model, called
+\emph{noninterference modulo output ($\NIMO$)}. We do not claim
+completeness with respect to passive security, but soundness
+guarantees that enforcement of $\NIMO$ in our analyses implies passive
+security. In Section \section{section-bruteforce} we show how $\NIMO$ can
+be automatically enforced in a brute-force manner, and in
+Section \section{section-bruteforce}
 
 \subsection{Passive Security and the Real/Ideal Model} The traditional
-security model of MPC is formulated by positing a \emph{simulator} that
-exists in the ideal world, and is trying to reconstruct observable
-information in a real world run of a protocol $\prog$ that
+security model of MPC is formulated by positing a \emph{simulator}
+that exists in the ideal world, and is trying to reconstruct
+observable information in a real world run of a protocol $\prog$ that
 correctly implements an ideal functionality $\idealf$- that is,
-execution of a configuration $(\store,\prog)$. We will assume
-that any protocol $\prog$ includes a public \emph{output view}
-$x$ where the result is published. The protocol is
-\emph{correct} iff the resulting memory contains $x \mapsto
-\idealf(\store_S)$, where $S$ are the secret inputs (honest
-and corrupt) in $\prog$.
+execution of a configuration $(\store,\prog)$. We will assume that any
+protocol $\prog$ includes a public \emph{output view} $x$ where the
+result is published. The protocol is \emph{correct} iff the resulting
+memory contains $x \mapsto \idealf(\store_S)$, where $S$ are the
+secret inputs (honest and corrupt) in $\prog$.
 
 The simulator is given just the corrupt inputs to the run- that is,
 $\store_{S_C}$- and the output of the protocol- that is,
@@ -156,8 +81,46 @@ capabilities of the adversary in this threat model.
   $$
 \end{definition}
 
+\subsection{Probabilistic Noninterference} The discussion above suggests a
+security semantics- that is, a hyperproperty- analagous to
+noninterference in a probabilistic setting. First, let's
+define low equivalence of memories in the current setting:
+\begin{definition}[Memory Low Equivalence]
+  Given $\store^1$ and $\store^2$ with $\dom(\store^1) = \dom(\store^2) = X$,
+  we write $\store^1 =_C \store^2$ iff $\store^1_{X_C} = \store^2_{X_C}$.
+\end{definition}
+Now, we can define probabilistic noninterference as a property of
+programs ensuring that low-equivalent initial memories produce
+the same low-observable trace (i.e., corrupt views) \emph{with the
+same probability}. 
+\begin{definition}[Probabilistic Noninterference]
+  Given a program $\prog$ with $\iov(\prog) = (S,V)$, we say that
+  $\prog$ satisfies \emph{probabilistic noninterference} iff for all
+  $\store_1, \store_2 \in \mems(S)$:
+  $$\store_1 =_C \store_2 \implies
+    \margd{(\condd{\progd(\prog)}{\store_1})}{V_C} =
+    \margd{(\condd{\progd(\prog)}{\store_2})}{V_C}$$
+\end{definition}
 
-%\newcommand{\outv}{\mathit{out}}
+An important consequence of probabilistic noninterference refines an
+idea we introduced in Lecture Notes 12, which is that noninterering
+programs do not improve adversarial knowledge about secrets.
+More precisely, in $\fedcat$ the initial probability of a correct
+guess by the adversary is the marginal distribution of honest secrets
+in the program distribution conditioned by corrupt inputs.
+The final (and thus best, due to monotonicity) adversarial
+knowledge is also the marginal distribution of honest secrets in the
+program distribution, but conditioned by corrupt inputs \emph{and}
+corrupt views. Noninterference in the probabilistic setting implies
+that these are the same.
+\begin{lemma}
+  Given a program $\prog$ with $\iov(\prog) = (S,V)$, 
+  $\prog$ satisfies probabilistic noninterference iff for all
+  $\store \in \mems(S \cup V)$:
+  $$\margd{(\condd{\progd(\prog)}{\store_{S_C}})}{S_H} =
+    \margd{(\condd{\progd(\prog)}{\store_{(S\cup V)_C}})}{S_H} $$
+\end{lemma}
+
 
 \subsection{A Sound Hyperproperty for Passive Security} The real/ideal
 model can be hard to understand and passive security of protocols can

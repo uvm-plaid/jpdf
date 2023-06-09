@@ -1,0 +1,81 @@
+\section{Compositional Properties: Garbled $\NIMO$}
+\label{section-composition}
+
+\begin{verbatimtab}
+andgg(g, wla, wlb, wlc, wva, wvb) {
+andgate(g, wla, wlb, wlc);
+evalgate(g, wva, wvb)
+}
+\end{verbatimtab}
+
+\begin{definition}[Garbled $\NIMO$]
+  We write $\gNIMO(\prog,\{ \ttt{k} = \be_{\ttt{k}}; \ttt{p} = \be_{\ttt{p}}\}, g)$ iff for all $H$, $C$,
+  both $w \in \{\ttt{p},\ttt{k}\}$, and all 
+  memories $\store \in \mems(\iov(\prog) \cup \{ \itv \})$ where
+  $
+  \store(\itv) = \store(\flip{2}{g.w})$ or $\store(\itv) = \neg\store(\flip{2}{g.w})
+  $
+  it is the case that:
+  $$
+  \margd{(\condd{\progd(\prog,\be_w)}{\store_{S_C \cup \{\itv \}}})}{S_H} =
+  \margd{(\condd{\progd(\prog,\be_w)}{\store_{S_C \cup V_C \cup \{\itv \}}})}{S_H}
+  $$
+\end{definition}
+
+\begin{definition}
+  We write $\owl(\prog, \{ \ttt{k} = \be_{\ttt{k}}; \ttt{p} = \be_{\ttt{p}}\}, g)$
+  iff for all $b$ and both $w \in \{\ttt{p},\ttt{k}\}$:
+  $$
+  (\margd{(\condd{\progd(\prog,\be_{w})}{\{ \flip{2}{g.w} \mapsto b \}})}{\itv})(\{ \itv \mapsto b\}) = 1
+  $$
+\end{definition}
+
+\begin{lemma}[Input Encoding]
+Assume given the following evaluation relation:
+$$
+\config{\prog_1}{E[\ttt{encode}(w,v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[v]}
+$$
+If there exists gate identifiers $g_1, g_2$ such that:
+\begin{enumerate}
+  \item $g_1 \ne g_2 \wedge g_1,g_2 \not\in \gates(\prog_1)$
+  \item $\owl(\prog_1,v_1,g_1) \wedge \owl(\prog_1,v_2,g_2)$
+\end{enumerate}
+then:
+\begin{enumerate}
+\item $g_1,g_2 \in  \gates(\prog_2)$
+\item $\gNIMO(\prog_1;\prog_2,v.\ttt{wv1},g_1) \wedge \gNIMO(\prog_1;\prog_2,v.\ttt{wv2},g_2)$
+\item $(\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})$
+\end{enumerate}
+\end{lemma}
+
+\begin{lemma}[Composition ($\eand$)]
+Assume given the following evaluation relation:
+$$
+\config{\prog_1}{E[\ttt{andgg}(g,v_1,\ldots,v_5)]} \redxs \config{\prog_1;\prog_2}{E[v_6]}
+$$
+If there exist gate identifiers $g_1, g_2$ such that:
+\begin{enumerate}
+  \item $g_1 \ne g_2 \ne g \wedge g_1,g_2 \in \gates(\prog_1) \wedge g \not\in \gates(\prog_1)$
+  \item $\owl(\prog_1,v_1,g_1) \wedge \owl(\prog_1,v_2,g_2)$
+  \item $\gNIMO(\prog_1,v_4,g_1) \wedge \gNIMO(\prog_1,v_5,g_2)$
+\end{enumerate}
+then:
+\begin{enumerate}
+  \item $g \in \gates(\prog_2) \wedge \owl(\prog_1;\prog_2,v_3,g)$
+  \item $\gNIMO(\prog_1;\prog_2,v_6,g)$
+  \item $(\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})$
+\end{enumerate}
+\end{lemma}
+
+\begin{lemma}[Decoding]
+Assume given the following evaluation relation:
+$$
+\config{\prog_1}{E[\ttt{decoder}(v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[\be]}
+$$
+If there exists gate identifier $g \in \gates(\prog_1)$ such that:
+\begin{enumerate}
+  \item $\owl(\prog_1,v_1,g)$
+  \item $\gNIMO(\prog_1,v_2,g)$
+\end{enumerate}
+Then $\NIMO(\prog_1;\prog_2;\eassign{x}{\be})$.
+\end{lemma}
