@@ -260,10 +260,9 @@ just the corrupt secrets and input. In addition to providing
 insights about $\NIMO$, this form is helpful for
 verification techniques. 
 \begin{lemma}
-  Given $H$, $C$, and a program $\prog$ with $\iov(\prog) = (S,V)$ and
-  output view $x \in V$
-  $\prog$ satisfies noninterference modulo output iff for all
+  $\NIMO(\prog)$ iff for all $H$ and $C$ with $|C| \le |H|$ and
   $\store \in \mems(S \cup V)$:
-  $$\margd{(\condd{\progd(\prog)}{\store_{(S \cup \{x\})_C}})}{S_H} =
-    \margd{(\condd{\progd(\prog)}{\store_{(S\cup V)_C}})}{S_H} $$
+  $$\margd{(\condd{\progd(\prog)}{\store_{(S \cup \{\outv\})_C}})}{S_H} =
+  \margd{(\condd{\progd(\prog)}{\store_{(S\cup V)_C}})}{S_H} $$
+  where  $\iov(\prog) = (S,V)$.
 \end{lemma}
