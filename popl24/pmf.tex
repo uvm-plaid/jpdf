@@ -178,14 +178,37 @@ mentioned previously, it is \emph{not} the case that \emph{no}
 information about input secrets can be revealed to the adversary in
 the MPC threat model, since the result of the functionality can itself
 reveal information. For example, if the result of addition is $0$,
-the adversary knows that all clients must have the same value.
-More precisely:
+the adversary knows that two of the clients' secrets must be 0
+and the third's must be 1, though not whose is whose- so we can
+observe:
 \begin{mathpar}
-  (\sum_{\beta}(\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto \beta, \sx{2}{1} \mapsto \beta, \sx{3}{1} \mapsto \beta \}|\{ \vx{0}{output} \mapsto 0 \})) = 1
+  (\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0, \sx{2}{1} \mapsto 1, \sx{3}{1} \mapsto 0 \}|\{ \vx{0}{output} \mapsto 0 \}) = .33
 \end{mathpar}
-If we assume that a client is corrupted we can formally consider the
-impacts on information released to the adversary by conditioning the
-program distribution on corrupt secrets.  For example, if we assume
-client 2 with input secret 1 is corrupted and the output is 0, then
-adversary knows with certainty that clients 1 and 3 also have input
-secrets 1. We can express this as:
+Further, since the standard MPC threat model allows partipating
+clients to be corrupted we can formally consider the impacts on
+information released to the adversary by conditioning the program
+distribution on corrupt secrets.  So if we assume client 2
+with input secret 1 is corrupted, and we assume the output is 0, then
+adversary knows with certainty that clients 1 and 3 both have input
+secrets 0. We can express this as:
+$$
+\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0, \sx{3}{1} \mapsto 0 \}|\{ \sx{2}{1} \mapsto 1, \vx{0}{output} \mapsto 0 \})
+= 1
+$$ A critical point to note is that this information revealed to the
+adversary does not violate MPC security- under the assumption of
+public release of the functionality result, and under the assumption
+of the possible corruption of clients, this is the cost of doing
+business. Rather, the concern is that the protocol does not release
+any additional information through information communicated to views
+of corrupted parties. Additive secret sharing as realized in
+$\prog_{\ref{example-he}}$ is MPC secure in this sense- so for
+example, for any $\beta_1$ and $\beta_2$ we have:
+$$
+\begin{array}{c}
+\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0 \}|\{ \sx{2}{1} \mapsto 0, \vx{0}{output} \mapsto 0 \})
+= \\
+\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0 \}|\{ \vx{2}{s1} \mapsto \beta_1, \vx{2}{s3} \mapsto \beta_2, \sx{2}{1} \mapsto 0, \vx{0}{output} \mapsto 0 \})
+= \\
+.5
+\end{array}
+$$
