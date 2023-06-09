@@ -33,6 +33,20 @@ $$
 \mathit{foldl}\ g\ \mems(S \cup F)\ \prog
 $$
 
+\begin{lemma}
+  For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
+  $(\solve{\stores}{\be}) = \{ \store \in \store \ \mid\ \lcod{\store,\be}{\cid} = 1 \}$
+  for some $\cid$.
+\end{lemma}
+
+\begin{lemma}
+  For all $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$:
+  $$
+  (\mathit{foldl}\ g\ \mems(S \cup F)\ \prog) =
+  \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \redxs \config{\store}{\varnothing} \}
+  $$
+\end{lemma}
+
 $$
 f(\eassign{\view{\cid}{w}}{\be}) = (\view{\cid}{w}, (\solve{(\mems(\vars\ \be))}{\be}))
 $$
