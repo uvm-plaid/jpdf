@@ -66,38 +66,44 @@ compositional properties in larger programs.
 
 \subsection{Method 1: Enumerating $\runs(\prog)$}
 
+Here we describe a straightforward technique for obtaining program
+distributions $\progd(\prog)$ through direct computation of
+$\runs(\prog)$. An implementation of these techniques along with
+Examples from Sections \ref{section-minicat-examples} and
+\ref{section-metalang-ygc} is available online \cite{XXX}.
 
-
-$$
-g\ \ \stores\ (\eassign{\view{\cid}{w}}{\be}) =\begin{array}[t]{l}
-\elet{\stores'}{\solve{\stores}{\be}}{}\\
-  \{\extend{\store}{\view{\cid}{w}}{\etrue} \mid \store \in \stores' \} \cup
-  \{\extend{\store}{\view{\cid}{w}}{\efalse} \mid \store \in \stores - \stores' \}\end{array}
-$$
-
-$$
-\mathit{foldl}\ g\ \mems(S \cup F)\ \prog
-$$
-
+In Figure \ref{fig-solve} we define the algorithm $\solve{\stores}{\be}$
+which filters $\stores$ based on satisfaction of $\be$. This algorithm
+is fundamental to our brute force methods. It's correctness is characterized
+as follows. 
 \begin{lemma}
   For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
   $(\solve{\stores}{\be}) = \{ \store \in \stores \ \mid\ \lcod{\store,\be}{\cid} = 1 \}$
   for some $\cid$.
 \end{lemma}
+\begin{proof}
+  Since we assume safety of programs we can assume that all variables in $\be$ have the
+  same owner $\cid$. The result otherwise follows in a straightforward manner by induction
+  on $\be$. 
+\end{proof}
 
 \begin{lemma}
-  For all $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$:
-  $$
-  (\mathit{foldl}\ g\ \mems(S \cup F)\ \prog) =
-  \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \redxs \config{\store}{\varnothing} \}
-  $$
+  Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define:
+  \begin{eqnarray*}
+    {tt}\ \ \stores\ (\eassign{\view{\cid}{w}}{\be}) &\defeq& \begin{array}{l}
+      \mathrm{let}\ \stores' = \solve{\stores}{\be} \ \mathrm{in}\\
+      \ \ \{\extend{\store}{\view{\cid}{w}}{\etrue} \mid \store \in \stores' \}\ \cup\\
+      \ \ \{\extend{\store}{\view{\cid}{w}}{\efalse} \mid \store \in \stores - \stores' \}\end{array}\\[2mm]
+    \cruns(\prog) &\defeq& \mathit{foldl}\ {tt}\ \mems(S \cup F)\ \prog
+  \end{eqnarray*}
+  Then $\cruns(\prog) = \runs(\prog)$.
 \end{lemma}
 
 \begin{lemma}
   Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define:
   $$
   \pdf{S \cup F \cup V}(\store) = \begin{cases}1/2^{|S \cup F|} & \text{if\ } \store \in
-    (\mathit{foldl}\ g\ \mems(S \cup F)\ \prog) \\ 0 & \text{otherwise} \end{cases} 
+    \cruns(\prog) \\ 0 & \text{otherwise} \end{cases} 
   $$
   Then:
   $$
