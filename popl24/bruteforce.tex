@@ -68,9 +68,15 @@ compositional properties in larger programs.
 
 Here we describe a straightforward technique for obtaining program
 distributions $\progd(\prog)$ through direct computation of
-$\runs(\prog)$. An implementation of these techniques along with
-Examples from Sections \ref{section-minicat-examples} and
-\ref{section-metalang-ygc} is available online \cite{XXX}.
+$\runs(\prog)$. Although we could obtain $\runs(\prog)$ simply by
+executing $\prog$ given all random tapes and input secrets, the method
+we describe here is empirically more efficient (though still
+exponential in the length of the random tape), and also supports the
+translation to Datalog described in Section
+\ref{section-bruteforce-datalog}. An implementation of these
+techniques along with Examples from Sections
+\ref{section-minicat-examples} and \ref{section-metalang-ygc} is
+available online \cite{XXX}.
 
 In Figure \ref{fig-solve} we define the algorithm $\solve{\stores}{\be}$
 which filters $\stores$ based on satisfaction of $\be$. This algorithm
@@ -155,13 +161,10 @@ verifying $\NIMO$ described here generalizes to any $\prog$.
 \end{proof}
 
 \subsection{Method 2: Rewriting to Datalog}
+\label{section-bruteforce-datalog}
 
 $$
-f(\eassign{\view{\cid}{w}}{\be}) = (\view{\cid}{w}, (\solve{(\mems(\vars\ \be))}{\be}))
-$$
-
-$$
-\mathit{map}\ f\ \prog
+{vtt}(\eassign{\view{\cid}{w}}{\be}) = (\view{\cid}{w}, (\solve{(\mems(\vars\ \be))}{\be}))
 $$
 
 \begin{mathpar}
@@ -176,5 +179,10 @@ $$
 \end{mathpar}
 
 $$
-\mathit{map}\ \mathit{clauses}\ (\mathit{map}\ f\ \prog)
+\datalog(\prog) \defeq  \mathit{map}\ \mathit{clauses}\ (\mathit{map}\ {vtt}\ \prog)
 $$
+
+For all $\prog$, $\datalog(\prog)$ is a \emph{normal}, \emph{stratified}
+program \cite{aspis2018linear}, and $\store$ is the unique least Herbrand
+model of $\mathit{facts}(\store_{S \cup F}),\datalog(\prog)$
+iff $\store \in \runs(\prog)$.
