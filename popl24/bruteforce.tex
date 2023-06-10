@@ -1,6 +1,47 @@
 \section{Brute Force Verification}
 \label{section-bruteforce}
 
+We have shown how our formulation of program distributions, a precise
+definition of intensional protocol behavior, can be used to enforce
+the extensional property of MPC security. This intensional description
+also has the benefit of being flexible- we can use the same mechanisms
+to desribe $\NIMO$, noninterference, perfect secrecy, violations of
+obliviousness, etc. These mechanisms can also be exploited to support
+automated program analysis.
+
+We initially explore a brute force approach to automatically verifying
+program behaviour, the first step of which is to compute the basic
+distribution of a program $\prog$. The program distribution
+$\progd(\prog)$ can obviously be automatically derived from that, as
+can be any of its marginal or conditional distributions. In this
+Section we consider two automated mechanisms for deriving
+$\progd(\prog)$ in this way. The first is through a straightforward
+computation of all final program memories.  The second approach
+rewrites $\minifed$ programs to stratified Datalog programs, that are
+amenable HPC optimizations such as parallelization and GPU matrix
+computations as shown in recent work \cite{XXX}.
+
+The basic distribution of a program $\prog$ is based on the
+final memories resulting from any run of $\prog$, denoted
+$\runs(\prog)$.
+\begin{definition}
+  Given $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$:
+  $$
+  \runs(\prog) \defeq \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \redxs \config{\store}{\varnothing} \}
+  $$
+\end{definition}
+As we've observed, $|\runs(\prog)| = 2^{|S \cup F|}$, so the size of
+$\runs(\prog)$ is exponential in the amount of randomness used in the
+protocol which generally can be used as a proxy for the protocol
+size. In Section \ref{section-composition} we will show how the
+methods described here can be used to individually verify
+compositional properties of small program components, that guarantee
+security properties in larger protocols that combine them. Thus, while
+scalability to program size is a clear challenge for our brute force
+techniques alone, our ultimate goal is to use them for verification of
+compositional properties in larger programs.
+
+\begin{fpfig}[t]{Filtering memories that satisfy a boolean expression.}{fig-solve}
 \begin{eqnarray*}
 \solve{\stores}{\etrue} &=& \stores\\
 \solve{\stores}{\efalse} &=& \varnothing\\
@@ -12,15 +53,20 @@
 \solve{\stores}{(\be_1\ \eand\ \be_2)} &=& (\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2}) \\
 \solve{\stores}{(\be_1\ \eor\ \be_2)} &=& (\solve{\stores}{\be_1}) \cup (\solve{\stores}{\be_2}) \\
 \solve{\stores}{(\be_1\ \exor\ \be_2)} &=&
- ((\solve{\stores}{\be_1}) \cap (\stores - \solve{\stores}{\be_2})) \cup
- ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \\
+ ((\solve{\stores}{\be_1}) \cap (\stores - \solve{\stores}{\be_2})) \cup\\
+ && ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \\
 \solve{\stores}{\select{\be_1}{\be_2}{\be_3}} &=&
- ((\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \cup
- ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_3})) \\
+ ((\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \cup \\
+ && ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_3})) \\
 \solve{\stores}{\OT{\be_1}{\be_2}{\be_3}} &=&
- ((\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \cup
- ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_3}))
+ ((\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \cup\\
+ && ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_3}))
 \end{eqnarray*}
+\end{fpfig}
+
+\subsection{Enumerating $\runs(\prog)$}
+
+
 
 $$
 g\ \ \stores\ (\eassign{\view{\cid}{w}}{\be}) =\begin{array}[t]{l}
@@ -46,6 +92,19 @@ $$
   \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \redxs \config{\store}{\varnothing} \}
   $$
 \end{lemma}
+
+\begin{lemma}
+  Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define:
+  $$
+  \pdf{S \cup F \cup V}(\store) = \begin{cases}1/2^{|S \cup F|} & \text{if\ } \store \in
+    (\mathit{foldl}\ g\ \mems(S \cup F)\ \prog) \\ 0 & \text{otherwise} \end{cases} 
+  $$
+  Then:
+  $$
+  \margd{\pdf{S \cup F \cup V}}{S \cup V} = \progd(\prog)
+  $$
+\end{lemma}
+
 
 $$
 f(\eassign{\view{\cid}{w}}{\be}) = (\view{\cid}{w}, (\solve{(\mems(\vars\ \be))}{\be}))
