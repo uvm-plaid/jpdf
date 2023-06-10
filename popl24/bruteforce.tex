@@ -77,6 +77,7 @@ which filters $\stores$ based on satisfaction of $\be$. This algorithm
 is fundamental to our brute force methods. It's correctness is characterized
 as follows. 
 \begin{lemma}
+  \label{lemma-solves}
   For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
   $(\solve{\stores}{\be}) = \{ \store \in \stores \ \mid\ \lcod{\store,\be}{\cid} = 1 \}$
   for some $\cid$.
@@ -87,29 +88,71 @@ as follows.
   on $\be$. 
 \end{proof}
 
+In order to automatically obtain $\runs(\prog)$, we can do a left
+folding of $\solve$ across $\prog$, inductively extending memories
+with valid view assignments in the order of their definition.
+We can then use this to compute $\progd(\prog)$. We denote
+these computations as $\cruns$ and $\progd$ respectively.
 \begin{lemma}
+  \label{lemma-cruns}
   Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define:
   \begin{eqnarray*}
     {tt}\ \ \stores\ (\eassign{\view{\cid}{w}}{\be}) &\defeq& \begin{array}{l}
       \mathrm{let}\ \stores' = \solve{\stores}{\be} \ \mathrm{in}\\
-      \ \ \{\extend{\store}{\view{\cid}{w}}{\etrue} \mid \store \in \stores' \}\ \cup\\
-      \ \ \{\extend{\store}{\view{\cid}{w}}{\efalse} \mid \store \in \stores - \stores' \}\end{array}\\[2mm]
+      \ \ \{\extend{\store}{\view{\cid}{w}}{1} \mid \store \in \stores' \}\ \cup\\
+      \ \ \{\extend{\store}{\view{\cid}{w}}{0} \mid \store \in \stores - \stores' \}\end{array}\\[2mm]
     \cruns(\prog) &\defeq& \mathit{foldl}\ {tt}\ \mems(S \cup F)\ \prog
   \end{eqnarray*}
   Then $\cruns(\prog) = \runs(\prog)$.
 \end{lemma}
-
+\begin{proof}
+  By Lemma \ref{lemma-solves} and induction on the length of $\prog$. 
+\end{proof}
 \begin{lemma}
-  Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define:
+  \label{lemma-cprogd}
+  Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define
+  $\cprogd(\prog)$ as the distribution $\margd{\pdf{S \cup F \cup V}}{S\cup V}$,
+  where:
   $$
   \pdf{S \cup F \cup V}(\store) = \begin{cases}1/2^{|S \cup F|} & \text{if\ } \store \in
     \cruns(\prog) \\ 0 & \text{otherwise} \end{cases} 
   $$
   Then:
   $$
-  \margd{\pdf{S \cup F \cup V}}{S \cup V} = \progd(\prog)
+  \cprogd(\prog) = \progd(\prog)
   $$
 \end{lemma}
+\begin{proof}
+  Immediately by Lemma \ref{lemma-cruns} and Definition \ref{def-progd}.
+\end{proof}
+
+We have used the code for $\cruns$ and $\cprogd$ extensively to design and
+verify the examples in this paper. We will discuss other examples in
+Section \ref{section-composition}, but here we note that we've verified
+passive security of Examples \ref{example-he} and \ref{example-OT}-
+for the former this is well-known so the result is a simple proof-of-concept,
+but the latter is a new (though unsurprising) result, having not been
+directly proven in \cite{XXX}. The method for
+verifying $\NIMO$ described here generalizes to any $\prog$. 
+\begin{lemma}[Automated Verification of Passive Security]
+  $\prog_{\ref{example-he}}$ and $\prog_{\ref{example-OT}};\eassign{\outv}{\vx{2}{mc}}$ are
+  passive secure.
+\end{lemma}
+\begin{proof}
+  For both $\prog \in \{
+  \prog_{\ref{example-he}},\prog_{\ref{example-OT}};\eassign{\outv}{\vx{2}{mc}}\}$
+  we compute $\cruns(\prog)$ and $\cprogd(\prog)$ and then verify
+  $\NIMO(\prog)$ using the following algorithm. Given $\iov(\prog) = S
+  \cup V$ and $\flips(\prog) = F$, we enumerate all memories $\store
+  \in \cruns(\prog)$, then enumerate all partitions of clients into
+  sets $H$,$C$ such that $|C| \le |H|$ and $0 \in C$, and then check:
+  $$
+  \cprogd(\prog)(\store_{S_H}|\store_{S_C \cup \{\outv\}}) =
+  \cprogd(\prog)(\store_{S_H}|\store_{S_C \cup V_C})
+  $$
+  for each $H,C,\store$. By Lemma \ref{lemma-cprogd} and Theorem \ref{theorem-nimo}
+  the result follows.
+\end{proof}
 
 \subsection{Method 2: Rewriting to Datalog}
 

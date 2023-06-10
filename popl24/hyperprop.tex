@@ -8,7 +8,7 @@ program trace behavior \cite{XXX} including probabilistic
 noninterference. This formulation of hyperproperties that are at least
 sound with respect to simulator security bridges a conceptual gap
 between foundational approaches to security, and also motivates and
-supports automated analysis \cite{XXX}.
+supports automated analysis \cite{XXX}. 
 
 In this section we formulate a new hyperproperty that we show is sound
 for passive security in the real/ideal model, called
@@ -206,6 +206,7 @@ Now we can show our main result, that noninterference modulo output,
 together with the assumption that $\idealf$ is invertible, implies
 passive security of a protocol.
 \begin{theorem}
+  \label{theorem-nimo}
   Assume given invertible $\idealf$ and a protocol $\prog$ that
   correctly implements $\idealf$.  If $\NIMO(\prog)$
   then $\prog$ is passive secure.
