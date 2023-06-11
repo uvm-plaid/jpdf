@@ -64,7 +64,7 @@ compositional properties in larger programs.
 \end{eqnarray*}
 \end{fpfig}
 
-\subsection{Method 1: Enumerating $\runs(\prog)$}
+\subsection{Method 1: Inductive Computation of $\runs(\prog)$}
 
 Here we describe a straightforward technique for obtaining program
 distributions $\progd(\prog)$ through direct computation of
@@ -98,7 +98,7 @@ In order to automatically obtain $\runs(\prog)$, we can do a left
 folding of $\solve$ across $\prog$, inductively extending memories
 with valid view assignments in the order of their definition.
 We can then use this to compute $\progd(\prog)$. We denote
-these computations as $\cruns$ and $\progd$ respectively.
+these computations as $\cruns$ and $\cprogd$ respectively.
 \begin{lemma}
   \label{lemma-cruns}
   Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define:
@@ -170,20 +170,18 @@ high performance computers \cite{XXX}. The method here also enumerates
 $\runs(\prog)$ memory-by-memory, rather than in a ``batched'' manner
 as in our first method, allowing parallelization of model
 computation. The rewriting we describe here is to Datalog with
-negation, with a negation-as-failure model. Here is the syntax,
-where \emph{atoms} are $\minicat$ variables, \emph{literals}
+negation, with a negation-as-failure model, though we can use also
+use techniques in \cite{XXX} to also eliminate negation from
+resulting programs. \emph{Atoms} are $\minicat$ variables, \emph{literals}
 are atoms or negated atoms, and clause bodies are conjunctions of literals.
 A \emph{Datalog program} is a list of clauses.
 $$
 \begin{array}{rclr}
   \alpha &::=& \view{\cid}{w} \mid  \secret{\cid}{w} \mid \flip{\cid}{w} \mid \oracle{w} & \qquad \textit{(atoms)}\\
-  \mathit{body} &::=&  \alpha \mid \neg \alpha \mid alpha \wedge \mathit{body} \mid \neg\alpha \wedge \mathit{body} \mid \varnothing \\
+  \mathit{body} &::=&  \alpha \mid \neg \alpha \mid \alpha \wedge \mathit{body} \mid \neg\alpha \wedge \mathit{body} \mid \varnothing \\
   \mathit{clause} &::=& \alpha \gets \mathit{body}
 \end{array}
 $$
-We can use techniques in \cite{XXX} to also eliminate negation from
-resulting programs, this presentation is just to summarize our
-fundamental approach.
 
 The first step in converting a protocol $\prot$ to a Datalog
 program is to apply $\solve$ ``locally'' to each view definition
