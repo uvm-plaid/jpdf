@@ -26,6 +26,8 @@ codebase and expression $\codebase, e$. We may omit
 $\codebase$ if it is clear from context.  
 \end{definition}
 
+\input{ygc}
+
 $$
 \begin{array}{rcl@{\hspace{3mm}}r}
 E &::=& [\,] \mid \enot\ E \mid E\ \bop\ e \mid v\ \bop\ E \mid & \textit{evaluation contexts}\\[1mm]
@@ -52,3 +54,7 @@ $$
 \config{\prog}{E[e]} &\redx& \config{\prog'}{E[e']} & \text{if}\ \config{\prog}{e} \redx \config{\prog'}{e'} 
 \end{array}
 $$
+
+\subsection{An Implementation of Yao's Garbled Circuits}
+\label{section-metalang-ygc}
+

@@ -1,0 +1,83 @@
+\begin{fpfig}[t]{Yao's Garbled Circuits, auxiliary functions.}{fig-ygc-aux}
+{\footnotesize
+\begin{verbatimtab}
+  keygen(gid, b1, b2) { select4(b1,b2,H[gid || "1"],H[gid || "2"],H[gid || "3"],H[gid || "4"]) }
+  
+  keysgen(gid, b1, b2)
+  {
+    let k11 = keygen(gid,b1,b2) in
+    let k10 = keygen(gid,b1,not b2) in
+    let k01 = keygen(gid,not b1,b2) in
+    let k00 = keygen(gid,not b1,not b2) in
+    {k11 = k11; k10 = k10; k01 = k01; k00 = k00}
+  }
+  
+  andtable(keys, bt, ap, bp)
+  {
+    let r11 = (keys.k11 xor bt) in 
+    let r10 = (keys.k10 xor (not bt)) in
+    let r01 = (keys.k01 xor (not bt)) in
+    let r00 = (keys.k00 xor (not bt)) in
+    permute4(ap,bp,r11,r10,r01,r00)
+  }
+  
+  sharetable(gid, vid, table)
+  {   
+    v[1, "gate:" || gid || vid || "1"] := table.v1;
+    v[1, "gate:" || gid || vid || "2"] := table.v2;
+    v[1, "gate:" || gid || vid || "3"] := table.v3;
+    v[1, "gate:" || gid || vid || "4"] := table.v4
+  }
+\end{verbatimtab}
+}
+\end{fpfig}
+
+\begin{fpfig}[t]{Yao's Garbled Circuits, garbled gates and evaluation code.}{fig-ygc-gates}
+{\footnotesize
+\begin{verbatimtab}
+  garbledecode(wl)
+  {
+    let r1 = wl.k xor true in
+    let r0 = (not wl.k) xor false in
+    v[1,"OUTtt1"] := select[wl.p,r1,r0];
+    v[1,"OUTtt2"] := select[not wl.p,r1,r0]
+  }
+  
+  evaldecode(wl, p) { wl.k xor select[wl.p,v[1,"OUTtt1"],v[1,"OUTtt2"]] }
+  
+  evalgate(gid, wla, wlb)
+  {
+    let k = keygen(gid,wla.k,wlb.k) in
+    let ct = select4(wla.p,wlb.p,
+               v[1,gid || "tt1"],v[1,gid || "tt2"],v[1,gid || "tt3"],v[1,gid || "tt4"]) in
+    let cp = select4(wla.p,wlb.p,
+               v[1,gid || "pt1"],v[1,gid || "pt2"],v[1,gid || "pt3"],v[1,gid || "pt4"]) in
+    { k = k xor ct; p = k xor cp }
+  }
+  
+  andgate(gid, wla, wlb, wlc) 
+  {
+    let keys = keysgen(gid,wla.k,wlb.k) in
+    sharetable(gid,"tt",andtable(keys,wlc.k,wla.p,wlb.p));
+    sharetable(gid,"pt",andtable(keys,wlc.p,wla.p,wlb.p))
+  }
+  
+  encode(gid, wla,wlb)
+  {
+    let wla = { k = flip[2,"fwl1"]; p = flip[2,"pwl1"] } in
+    let wlb = { k = flip[2,"fwl2"]; p = flip[2,"pwl2"] } in
+    { wv1 = { k = OT[s[1,"0"],wla.k,(not wla.k)]; p = OT[s[1,"0"],wla.p,(not wla.p)]}; 
+      wv2 = { k = select[s[2,"0"],wlb.k,(not wlb.k)]; p = select[s[2,"0"],wlb.p,(not wlb.p)] } }
+  }
+\end{verbatimtab}
+}
+\end{fpfig}
+
+%  andtable(keys, bt, ap, bp)
+%  {
+%    let r11 = (keys.k11 xor bt) in 
+%    let r10 = (keys.k10 xor (not bt)) in
+%    let r01 = (keys.k01 xor (not bt)) in
+%    let r00 = (keys.k00 xor (not bt)) in
+%    permute4(ap,bp,r11,r10,r01,r00)
+%  }
