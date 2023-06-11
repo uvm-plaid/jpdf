@@ -172,7 +172,7 @@ as in our first method, allowing parallelization of model
 computation. The rewriting we describe here is to Datalog with
 negation, with a negation-as-failure model, though we can use also
 use techniques in \cite{XXX} to also eliminate negation from
-resulting programs. \emph{Atoms} are $\minicat$ variables, \emph{literals}
+resulting programs. \emph{Atoms} are $\minifed$ variables, \emph{literals}
 are atoms or negated atoms, and clause bodies are conjunctions of literals.
 A \emph{Datalog program} is a list of clauses.
 $$
@@ -214,7 +214,7 @@ to clauses as follows:
 \begin{mathpar}
   \mathit{clauses}(\alpha,\{ \store_1,...,\store_n \}) = \alpha \gets \logit{\store_1} \vee \cdots \vee \alpha \gets \logit{\store_n}
 \end{mathpar}
-The $\minicat$-to-Datalog conversion is then defined as:
+The $\minifed$-to-Datalog conversion is then defined as:
 $$
 \datalog(\prog) \defeq  \mathit{map}\ \mathit{clauses}\ (\mathit{map}\ {vtt}\ \prog)
 $$
