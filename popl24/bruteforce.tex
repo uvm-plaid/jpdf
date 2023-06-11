@@ -186,10 +186,22 @@ We can use techniques in \cite{XXX} to also eliminate negation from
 resulting programs, this presentation is just to summarize our
 fundamental approach.
 
-
+The first step in converting a protocol $\prot$ to a Datalog
+program is to apply $\solve$ ``locally'' to each view definition
+in $\prog$, obtaining constraints on memories that satisfy each
+view in isolation.  
+\begin{lemma} Let $\vars(\be)$ be the variables in $\be$, and define:
 $$
-{vtt}(\eassign{\view{\cid}{w}}{\be}) = (\view{\cid}{w}, (\solve{(\mems(\vars\ \be))}{\be}))
+{vtt}(\eassign{\view{\cid}{w}}{\be}) \defeq (\view{\cid}{w}, (\solve{(\mems(\vars\ \be))}{\be}))
 $$
+Then ${vtt}(\eassign{\view{\cid}{w}}{\be}) = (\view{\cid}{w},\stores)$ where $\stores
+  = \{ \store \in \mems(\vars\ \be) \mid \lcod{\store,\be}{\cid} = 1 \}$ for some $\cid$.
+\end{lemma}
+Given this definition, the mapping of ${vtt}$ across a program
+$\prog$- i.e., $(\mathit{map}\ {vtt}\ \prog)$- essentially defines the
+logic program for ``view atoms'' modulo syntactic conversion. We can
+accomplish the latter as follows, where $\datalog(\prog)$ defines the
+full conversion.
 
 \begin{mathpar}
   \logit{\alpha \mapsto 1} = \alpha
