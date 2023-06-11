@@ -163,19 +163,43 @@ verifying $\NIMO$ described here generalizes to any $\prog$.
 \subsection{Method 2: Rewriting to Datalog}
 \label{section-bruteforce-datalog}
 
+Here we show how to rewrite any $\prog$ to an equivalent Datalog
+program, which supports application of recent work in linear algebraic
+interpretation of Datalog and optimizations of model computation on
+high performance computers \cite{XXX}. The method here also enumerates
+$\runs(\prog)$ memory-by-memory, rather than in a ``batched'' manner
+as in our first method, allowing parallelization of model
+computation. The rewriting we describe here is to Datalog with
+negation, with a negation-as-failure model. Here is the syntax,
+where \emph{atoms} are $\minicat$ variables, \emph{literals}
+are atoms or negated atoms, and clause bodies are lists of
+literals that we interpret as conjoined. A Datalog program
+is a list of clauses:
+$$
+\begin{array}{rclr}
+  \alpha &::=& \view{\cid}{w} \mid  \secret{\cid}{w} \mid \flip{\cid}{w} \mid \oracle{w} & \qquad \textit{(atoms)}\\
+  \mathit{body} &::=&  \alpha,\mathit{body} \mid \neg\alpha,\mathit{body} \mid \varnothing \\
+  \mathit{clause} &::=& \alpha \gets \mathit{body}
+\end{array}
+$$
+We can use techniques in \cite{XXX} to also eliminate negation from
+resulting programs, this presentation is just to summarize our
+fundamental approach.
+
+
 $$
 {vtt}(\eassign{\view{\cid}{w}}{\be}) = (\view{\cid}{w}, (\solve{(\mems(\vars\ \be))}{\be}))
 $$
 
 \begin{mathpar}
-  \logit{x \mapsto 1} = x
+  \logit{\alpha \mapsto 1} = \alpha
 
-  \logit{x \mapsto 0} = \neg x
+  \logit{\alpha \mapsto 0} = \neg \alpha
 
-  \logit{\{ x_1 \mapsto \beta_1, \ldots, x_n \mapsto \beta_n\}} =
-  \logit{x_1 \mapsto \beta_1} \wedge \cdots \wedge \logit{x_n \mapsto \beta_n}
+  \logit{\{ \alpha_1 \mapsto \beta_1, \ldots, \alpha_n \mapsto \beta_n\}} =
+  \logit{\alpha_1 \mapsto \beta_1} \wedge \cdots \wedge \logit{\alpha_n \mapsto \beta_n}
 
-  \mathit{clauses}(x,\{ \store_1,...,\store_n \}) = x \gets \logit{\store_1} \vee \cdots \vee x \gets \logit{\store_n}
+  \mathit{clauses}(\alpha,\{ \store_1,...,\store_n \}) = \alpha \gets \logit{\store_1} \vee \cdots \vee \alpha \gets \logit{\store_n}
 \end{mathpar}
 
 $$
