@@ -36,14 +36,14 @@ write $\prog_1;\prog_2$ to denote the concatenation of $\prog_1$
 and $\prog_2$.
 
 We let $X$ range over sets of variables and $S,V,F$ to range over sets
-of secrets, views, and flips respectively. Given a program $\prog$, we
-write $\iov(\prog)$ to denote $S \cup V$ where $S$ is the set of
-secret variables in $\prog$ and $V$ is the set of views in $\prog$,
-and we write $\flips(\prog)$ to denote the set $F$ of flip variables
-in $\prog$. For any set of variables $X$ and parties $P$, we write
-$X_P$ to denote the subset of $X$ owned by any party in $P$, and we
-write $X_H$ and $X_C$ to denote the subsets belonging to honest and
-corrupt parties, respectively.
+of secrets, views, and flips (including invocations of the oracle)
+respectively. Given a program $\prog$, we write $\iov(\prog)$ to
+denote $S \cup V$ where $S$ is the set of secret variables in $\prog$
+and $V$ is the set of views in $\prog$, and we write $\flips(\prog)$
+to denote the set $F$ of flip variables in $\prog$. For any set of
+variables $X$ and parties $P$, we write $X_P$ to denote the subset of
+$X$ owned by any party in $P$, and we write $X_H$ and $X_C$ to denote
+the subsets belonging to honest and corrupt parties, respectively.
 
 Expressions forms include the convenience
 $\select{\be_1}{\be_2}{\be_3}$ which is essentially a conditional
