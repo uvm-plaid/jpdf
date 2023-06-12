@@ -83,12 +83,12 @@ of splitting a given client's secret into 3 separate shares.
     let shares = share3(1, mysecret) in
     v[2,s1] := shares.s2;
     v[3,s1] := shares.s3 \end{verbatimtab}
-  which generates the following $\minifed$ program:
+  which generates the following $\minifed$ program, as we formalize in Example \ref{example-share3-eval}
+  below:
   \begin{verbatimtab}
     v[2,s1] := flip[1, share2];
     v[3,s1] := flip[1, share1] xor flip[1, share2] xor s[client, s:mysecret] \end{verbatimtab}
 \end{example}
-
 
 \subsection{Semantics}
 
@@ -118,6 +118,15 @@ $$
 \end{array}
 $$
 \end{fpfig}
+
+\begin{example}
+  \label{example-share3-eval}
+  Let $\codebase,e_{\ref{example-share3}}$ be the $\metaprot$ program, and let 
+  $\prog_{\ref{example-share3}}$ be the  $\minifed$ program defined
+  in Example \ref{example-share3}. We refer to the latter as ``accumulated''
+  by evaluation in the sense that $\config{\varnothing}{e_{\ref{example-share3}}}
+  \redxs \config{\prog_{\ref{example-share3}}}{\varnothing}$.
+\end{example}
 
 \subsection{An Implementation of Yao's Garbled Circuits}
 \label{section-metalang-ygc}
