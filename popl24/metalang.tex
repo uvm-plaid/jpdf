@@ -149,6 +149,15 @@ and instantiation of compositional program elements.
 
 \input{ygc}
 
-In Figures \ref{fig-ygc-aux,fig-ygc-gates}
+In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
+codebase for garbled circuits. This definition follows the
+\emph{point-and-permute} method described in \cite{XXX} and elsewhere,
+to which the reader is referred for more in-depth discussion.
+In this implementation client 2 is the \emph{garbler} and
+client 1 is the \emph{evaluator}. The garbler builds the garbled
+tables and shares them with the evaluator, who then evaluates
+the gate in an oblivious fashion until the final public output is
+generated through decryption.
+
 
 
