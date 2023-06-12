@@ -31,16 +31,17 @@ and does not include abstractions for defining composable elements.
 In this Section we introduce the $\metaprot$ language which includes
 structured data and function definitions, which are sufficiently
 expressive to define composable protocol elements such as garbled
-gates. The $\metaprot$ language is a \emph{metalanguage}- it produces
-$\fedprot$ protocols as a result of computation. That is, $\metaprot$ is
-a high-level language that generates low-level protocol code. 
+gates. The $\metaprot$ language is a \emph{metalanguage}, in the sense
+that it produces $\fedprot$ protocols as a result of computation. That
+is, $\metaprot$ is a high-level language that generates low-level
+protocol code.
 
 \subsection{Syntax}
 
 The syntax of $\metaprot$ is defined in Figure
 \ref{fig-metaprot-syntax}.  It includes a syntax of function
 definitions and records, and values include client ids, identifier
-strings, and boolean expressions.  Expression forms allow dynamic
+strings, and boolean expressions. Expression forms allow dynamic
 construction of boolean expression forms and view assignments. When
 $\metaprot$ programs construct a $\fedprot$ assignment, a side effect
 occurs whereby the assignment is added to the end of the $\fedprot$
@@ -119,6 +120,21 @@ $$
 $$
 \end{fpfig}
 
+We define a small-step evaluation aka reduction relation $\redx$ in
+Figure \ref{fig-metaprot-semantics}.  We write $\redxs$ to denote the
+reflexive, transitive closure of $\redx$. Reduction is defined on
+\emph{configurations} which are pairs of the form $\config{\prog}{e}$,
+where $\prog$ is the $\minifed$ program accumulated during evaluation.
+In this definition we write $e[v/x]$ to denote the substitution of $v$
+for free occurences of $x$ in $e$. The rules are mostly standard,
+except why a concrete $\minifed$ assignment is encountered it is added
+to the end of $\prog$.
+
+The rules rely on a definition of \emph{evaluation contexts} $E$
+allowing computation within a larger program context, where $E[e]$
+denotes an expression with $e$ in the hole $[]$ of $E$. Evaluation
+contexts include boolean expression forms, allowing generalization
+and instantiation of compositional program elements.
 \begin{example}
   \label{example-share3-eval}
   Let $\codebase,e_{\ref{example-share3}}$ be the $\metaprot$ program, and let 
