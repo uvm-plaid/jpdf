@@ -19,6 +19,24 @@ v &::=& w \mid \cid \mid \be \mid \{ \flab = v;\ldots;\flab = v \}
 $$
 \end{fpfig}
 
+Large practical MPC computations are based on much larger protocols
+than the examples we've considered so far. These larger protocols are
+typically based on compositional units. An example of this is Yao's
+Garbled Circuits (YGC), which are composed of so-called garbled gates.
+Languages for defined garbled circuits, beginning with Fairplay \cite{XXX},
+treat gates as compositional units that are wired together by the programmer
+to generate a complete circuit. The $\fedprot$ language is low-level
+and does not include abstractions for defining composable elements. 
+
+In this Section we introduce the $\metaprot$ language which includes
+structured data and function definitions, which are sufficiently
+expressive to define composable protocol elements such as garbled
+gates. The $\metaprot$ language is a \emph{metalanguage}- it produces
+$\fedprot$ protocols as a result of computation. That is, $\metaprot$ is
+a high-level language that generates low-level protocol code. 
+
+\subsection{Syntax}
+
 \begin{definition}
 A \emph{codebase} $\codebase$ is a list of function 
 declarations. We write $ \codebase(f) = x_1,\ldots,x_n,\ e$
@@ -27,6 +45,30 @@ A \emph{metaprogram}, aka \emph{mataprotocol} is a pair of a
 codebase and expression $\codebase, e$. We may omit
 $\codebase$ if it is clear from context.  
 \end{definition}
+
+\begin{example} Consider the following function definition,
+  that splits a client's secret into 3 shares as in
+  Example \ref{example-he}. 
+  \begin{verbatimtab}
+    share3(client, secretid)
+    {
+      let s1 = flip[client, share1] in
+      let s2 = flip[client, share2] in
+      let s3 = (s1 xor s2) xor s[client, s: || secretid] in
+      {s1 = s1;s2 = s2;s3 = s3}
+    } \end{verbatimtab}
+  Here is $\metaprot$ program that uses this this function definition:
+  \begin{verbatimtab}
+    let shares = share3(1, mysecret) in
+    v[2,s1] := shares.s2;
+    v[3,s1] := shares.s3 \end{verbatimtab}
+  which generates the following $\minifed$ program:
+  \begin{verbatimtab}
+    v[2,s1] := flip[1, share2];
+    v[3,s1] := flip[1, share1] xor flip[1, share2] xor s[client, s:mysecret] \end{verbatimtab}
+\end{example}
+
+\subsection{Semantics}
 
 \begin{fpfig}[t]{Evaluation contexts and operational semantics of $\metaprot$.}{fig-metaprot-semantics}
 $$
