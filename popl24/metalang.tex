@@ -37,6 +37,17 @@ a high-level language that generates low-level protocol code.
 
 \subsection{Syntax}
 
+The syntax of $\metaprot$ is defined in Figure
+\ref{fig-metaprot-syntax}.  It includes a syntax of function
+definitions and records, and values include client ids, identifier
+strings, and boolean expressions.  Expression forms allow dynamic
+construction of boolean expression forms and view assignments. When
+$\metaprot$ programs construct a $\fedprot$ assignment, a side effect
+occurs whereby the assignment is added to the end of the $\fedprot$
+program accumulated during evaluation.
+
+Formally, we consider a complete metaprogram to include both a
+codebase and a ``main'' program that uses the codebase. 
 \begin{definition}
 A \emph{codebase} $\codebase$ is a list of function 
 declarations. We write $ \codebase(f) = x_1,\ldots,x_n,\ e$
@@ -46,9 +57,19 @@ codebase and expression $\codebase, e$. We may omit
 $\codebase$ if it is clear from context.  
 \end{definition}
 
-\begin{example} Consider the following function definition,
-  that splits a client's secret into 3 shares as in
-  Example \ref{example-he}. 
+When we consider the example of YGC in detail below, our focus will be
+on developing a codebase that can be used to define arbitrary
+circuits, i.e., complete and concrete protocols. Since strings and
+identifiers can be constructed manually, and expressions can occur
+inside assignments and boolean expression forms, function definitions
+can generalize over $\fedprot$-level patterns to obtain composable
+program units. As a simple example, consider 3 party secret
+sharing as illustrated in Example \ref{example-he}. We can
+define a function $\ttt{share3}$ that abstracts the process
+of splitting a given client's secret into 3 separate shares.
+\begin{example} The function $\ttt{share3}$ 
+  splits a client's secret into 3 shares returned as a record
+  with fields $\ttt{s1-3}$:
   \begin{verbatimtab}
     share3(client, secretid)
     {
@@ -67,6 +88,7 @@ $\codebase$ if it is clear from context.
     v[2,s1] := flip[1, share2];
     v[3,s1] := flip[1, share1] xor flip[1, share2] xor s[client, s:mysecret] \end{verbatimtab}
 \end{example}
+
 
 \subsection{Semantics}
 
