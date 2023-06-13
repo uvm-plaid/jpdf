@@ -73,7 +73,7 @@
 \newcommand{\Dreft}[1]{#1\,\mathrm{ref}}
 \newcommand{\reft}[1]{#1\,\mathrm{ref}}
 \newcommand{\Dintt}{\mathrm{Int}}
-\newcommand{\tjudge}[3]{#1 \vdash #2 : #3}
+%\newcommand{\tjudge}[3]{#1 \vdash #2 : #3}
 \newcommand{\textend}[3]{#1;#2:#3}
 \newcommand{\fnty}[2]{#1 \rightarrow #2}
 \newcommand{\TDabs}[3]{(\mathrm{Function}\ (#1 : #2) \rightarrow #3)}
@@ -331,10 +331,16 @@
 
 \def\TirName#1{\text{\sc #1}}
 
-\newcommand{\srct}{\chi}
-\newcommand{\cidty}[1]{\mathtt{cid}(#1)}
-\newcommand{\stringty}[1]{\mathtt{string}(#1)}
+\newcommand{\srct}{\tau}
+\newcommand{\cidty}[1]{\ttt{cid(}#1\ttt{)}}
+\newcommand{\stringty}[1]{\ttt{string(}#1\ttt{)}}
+\newcommand{\unity}{\mathtt{unit}}
 \newcommand{\jpdty}[2]{\mathtt{jpd}(#1,#2)}
+\newcommand{\viewst}{\mathcal{V}}
+\newcommand{\tjudge}[5]{#1, #2 \vdash #3 : #4,#5}
+\newcommand{\bet}[1]{\ttt{bool[}#1\ttt{]}}
+\newcommand{\tas}{\mathcal{A}}
+
 
 \newcommand{\flip}[2]{\ttt{flip[}#1\ttt{,}#2\ttt{]}}
 \newcommand{\secret}[2]{\ttt{s[}#1\ttt{,}#2\ttt{]}}

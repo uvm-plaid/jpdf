@@ -13,7 +13,7 @@ e &::=& b \mid \flip{e}{e} \mid \secret{e}{e} \mid \view{e}{e} \mid \oracle{e} \
 & & x \mid \elet{x}{e}{e} \mid f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \}
 \mid e.\flab \mid e\concat e \mid (e) \\[2mm]
 v &::=& w \mid \cid \mid \be \mid \{ \flab = v;\ldots;\flab = v \} 
-\mid (\,) & \textit{values}\\[2mm]
+\mid \ttt{()} & \textit{values}\\[2mm]
 {fn} &::=& f(x,\ldots,x) \{ e \} & \textit{functions}
 \end{array}
 $$
@@ -141,85 +141,129 @@ and instantiation of compositional program elements.
   $\prog_{\ref{example-share3}}$ be the  $\minifed$ program defined
   in Example \ref{example-share3}. We refer to the latter as ``accumulated''
   by evaluation of the former in the sense that $\config{\varnothing}{e_{\ref{example-share3}}}
-  \redxs \config{\prog_{\ref{example-share3}}}{\varnothing}$.
+  \redxs \config{\prog_{\ref{example-share3}}}{\ttt{()}}$.
 \end{example}
 
-\subsection{A Library for Yao's Garbled Circuits}
-\label{section-metalang-ygc}
+\subsection{Type Theory and Static Type Safety}
 
-\input{ygc}
+It is desirable to statically enforce safety of both $\metaprot$
+programs and the safety of the $\fedprot$ programs they
+generate. Although safety of the latter could be enforced
+post-generation by a direct analysis, for large programs this can be
+much more expensive and it is also better to not wast time on
+resource-intensive compilation of programs with known errors
+\cite{XXX}. Some consequences of safety errors, for example accidental
+reuse of one-time pads, can also undermine security.
 
-In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
-codebase for garbled circuits. This definition follows the
-\emph{point-and-permute} method described in \cite{XXX} and elsewhere,
-to which the reader is referred for more in-depth discussion.
-In this implementation client 2 is the \emph{garbler} and
-client 1 is the \emph{evaluator}. The garbler builds the garbled
-tables and shares them with the evaluator, who then evaluates
-the gate in an oblivious fashion until the final public output is
-generated through decryption.
+The type syntax of $\metaprot$ is defined in Figure
+\ref{fig-metaprot-tsyntax}. It includes a weak form of dependency:
+string types $\stringty{e}$ and client types $\cidty{e}$
+are parameterized by expressions $e$ that precisely reflect the
+type of the value. Boolean expression forms have the type
+$\bet{e}$ indexed by expressions $e$ indicating the client
+id type of the expression.
 
-\emph{Wire labels} are fundamental to YGC, and essentially represent
-gate output values in an encrypted form. In our definition, wire
-labels are representated by records $\ttt{\{ k = }\beta_1\ttt{; p =
-}\beta_2\ttt{ \}}$, where $\ttt{k}$ is the \emph{key bit} and
-$\ttt{p}$ is the \emph{pointer bit}, and $\beta_1$ and $\beta_2$ are
-flips. Flips in each output wire label are owned by the garbler and
-are unique per gate by definition of their identifying string, and the
-representation of $0$ is the negation of $1$. For example, here is the
-representation of 1 and 0 respectively in the output wire label for a
-hypothetical gate 6:
+
+\begin{example}
+  Given $\ttt{share3}$ as defined in Example \ref{example-share3} and
+  annotation:
+  $$\tas(\ttt{share3}) =  \ttt{cid(client)}\ *\ \ttt{string(sid)}$$
+  the type of $\ttt{share3}$ is $\tas(\ttt{share3}) \rightarrow \tau,\varnothing$
+  where $\tau$ is:
+  $$
+  \ttt{\{ s1 : bool[client]; s2 : bool[client]; s3 : bool[client] \}}
+  $$
+\end{example}
+
+\begin{fpfig}[t]{Type Syntax of $\metaprot$.}{fig-metaprot-tsyntax}
+$$
+\begin{array}{rcl@{\hspace{2mm}}r}
+\srct &::=& \cidty{e} \mid \stringty{e} \mid \bet{e} \mid  & \gdesc{types}\\ 
+ &&  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst \\[1mm]
+\viewst  &::=& \view{e}{e};\viewst \mid \varnothing   & \gdesc{view effects}\\[1mm]
+\Gamma &::=& \Gamma; x : \tau \mid \varnothing & \gdesc{type environments}    
+\end{array}
+$$
+\end{fpfig}
+
+\begin{fpfig}[t]{$\metaprot$ type judgement rules.}{fig-metaprot-tjudge}
 \begin{mathpar}
-  \ttt{\{ k = flip[2,gate:6.k]; p =  flip[2,gate:6.p]] \}}
-    
-  \ttt{\{ k = not flip[2,gate:6.k]; p =  not flip[2,gate:6.p]] \}}
-\end{mathpar}
-The pointer bits in wire labels are used to select permuted rows in
-table garblings. The key bits are used to identify a unique key for
-table row in each garbled gate. Intuitively, if $\beta_1$ and
-$\beta_2$ are either key or pointer bits encoding 1 on two input wire
-labels to a binary gate, rows and keys in the gate are enumerated in
-the order:
-$$
-\neg\beta_1\neg\beta_2,\ \neg\beta_1\beta_2,\ \beta_1\neg\beta_2,\ \beta_1\beta_2
-$$
+\inferrule[\TirName{VarT}]
+{}
+{\tjudge{\viewst}{\Gamma}{x}{\Gamma(x)}{\viewst}}
 
-In our implementation, gates are wired together using gate
-identifiers, which are strings $w$. Top-level functionality in Figures
-\ref{fig-ygc-aux} and \ref{fig-ygc-gates} includes the following:
-\begin{itemize}
-\item \ttt{andgate}: This defines a subprotocol for the garbler
-  to define a garbled gate $\ttt{gid}$ with input wires from gates
-  $\ttt{ga}$ and $\ttt{gb}$. The garbler generates keys and garbles
-  the rows in YGC fashion, them with client $1$ in
-  views in a standard form. For example, the view for
-  a hypothetical gate 6, row 2 garbled truth table is $\ttt{v[1,gate:6tt2]}$.
-  We note that garbled gates of other binary operators can be obtained with
-  replacement of $\ttt{andtable}$ with appropriate garbled  table definitions. 
-\item \ttt{evalgate}: This defines a subprotocol for the evaluator to
-  evaluate gate $\ttt{gid}$ given input wire values $\ttt{wva}$ and
-  $\ttt{wvb}$.
-\item \ttt{garbledecode} and \ttt{evaldecode}: The former function
-  defines the garbler's protocol for encrypting the circuit
-  output from final gate $\ttt{gid}$, and the latter defines
-  the evaluator's output decryption protocol.
-\item \ttt{encode}: This defines the initial phase of the protocol,
-  where the evaluator receives the wire value from their own
-  secret $\sx{1}{sa}$ via $\ttt{OT}$, and the garbler communicates
-  the wire value for their own secret $\sx{2}{sb}$ directly.
-\end{itemize}
-Here is an example program that uses this library to define
-a ciruit with a single and gate and input secrets $\ttt{s1}$ and
-$\ttt{s2}$ from client's 1 and 2 respectively. 
-\begin{verbatimtab}
-  andgate(0,s1,s2);
-  garbledecode(0);
-  let secrets = encode(s1,s2) in
-  v[0,output] := decode(evalgate(0, secrets.wv1, secrets.wv2))
-\end{verbatimtab}
-We have verified passive security of the $\fedprot$ protocol
-generated by this and other small circuits using the
-technique described in Lemma \ref{lemma-bruteforce-nimo}.
-But obviously large circuits with thousands of gates would be
-intractable to verify with this method. In the next Section
-we discuss compositional methods to address this issue. 
+\inferrule[\TirName{CidT}]
+{}
+{\tjudge{\viewst}{\Gamma}{\cid}{\cidty{\cid}}{\viewst}}
+
+\inferrule[\TirName{StringT}]
+{}
+{\tjudge{\viewst}{\Gamma}{w}{\stringty{w}}{\viewst}}
+
+\inferrule[\TirName{ConcatT}]
+{\tjudge{\viewst}{\Gamma}{e_1}{\stringty{e_1'}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}
+}
+{\tjudge{\viewst}{\Gamma}{e_1||e_2}{\stringty{e_1' ||e_2'}}{\viewst_2}}
+
+\inferrule[\TirName{BoolT}]
+{}
+{\tjudge{\viewst}{\Gamma}{\etrue}{\bet{\cid}}{\viewst}}
+
+\inferrule[\TirName{OracleT}]
+{\tjudge{\viewst}{\Gamma}{e}{\stringty{e'}}{\viewst'}}
+{\tjudge{\viewst}{\Gamma}{\oracle{e}}{\bet{\cid}}{\viewst'}}
+
+\inferrule[\TirName{SecretT}]
+{\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}}
+{\tjudge{\viewst}{\Gamma}{\secret{e_1}{e_2}}{\bet{e_1'}}}
+
+\inferrule[\TirName{AndT}]
+{
+\tjudge{\viewst}{\Gamma}{e_1}{\bet{e}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\bet{e}}{\viewst_2}
+}
+{\tjudge{\viewst}{\Gamma}{e_1\ \eand\ e_2}{\bet{e}}{\viewst_2}}
+
+\inferrule[\TirName{AssignT}]
+{
+\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}\\
+\tjudge{\viewst_2}{\Gamma}{e_3}{\bet{e_3'}}{\viewst_3}
+}
+{
+\tjudge{\viewst}{\Gamma}{\eassign{\view{e_1}{e_2}}{e_3}}{\unity}{(\viewst_3 ; \view{e_1'}{e_2'} )}
+}
+
+\inferrule[AppT]
+{\Gamma(f) =  
+ \tau_1 * \cdots * \tau_n \rightarrow \tau, \viewst_f \\ 
+ \tjudge{\viewst}{\Gamma}{e_1}{\sigma(\tau_1)}{\viewst_1}
+ \ \cdots\  
+ \tjudge{\viewst_{n-1}}{\Gamma}{e_n}{\sigma(\tau_n)}{\viewst_n}}
+{\tjudge{\viewst}{\Gamma}{f(e_1,\ldots,e_n)}{\sigma(\tau)}{(\viewst_n ; \sigma(\viewst_f))}}
+
+\inferrule[FnT]
+{
+  \codebase(f) = x_1,\ldots,x_n,\ e \\ \tas(f) = \tau_1 * \cdots * \tau_n \\
+  \tjudge{\varnothing}{\Gamma; x_1 : \tau_1; \ldots; x_n : \tau_n}{e}{\tau}{\viewst_f}
+}
+{ \Gamma \vdash f : \tau_1 * \cdots * \tau_n \rightarrow \tau, \viewst_f }
+
+\inferrule[ProgT]
+{
+\forall f \in \dom(\codebase)\ .\ \Gamma \vdash f : \Gamma(f) \\ \Gamma \vdash e : \tau, \view{\cid_1}{w_1};\ldots;\view{\cid_1}{w_1}
+}
+{
+\Gamma \vdash \codebase,e : \tau,\{\view{\cid_1}{w_1}\} \sqcup \cdots \sqcup \{ \view{\cid_n}{w_n}\}
+}
+\end{mathpar}
+\end{fpfig}
+
+\begin{theorem}
+  \label{theorem-metalang-safety}
+  Given $\codebase$, $e$, and $\Gamma$ with $\Gamma \vdash \codebase,e : \unity : V$,
+  then $\config{\varnothing}{e} \redxs \config{\prog}{\ttt{()}}$ where
+  $\prog$ is safe with $\iov(\prog) = S \cup V$ for some $S$.
+\end{theorem}

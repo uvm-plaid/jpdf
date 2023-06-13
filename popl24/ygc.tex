@@ -1,4 +1,4 @@
-\begin{fpfig}[t]{Yao's Garbled Circuits, auxiliary functions.}{fig-ygc-aux}
+\begin{fpfig}[t]{Yao's Garbled Circuits, selected auxiliary functions.}{fig-ygc-aux}
 {\footnotesize
 \begin{verbatimtab}
   keygen(gid, b1, b2) { select4(b1,b2,H[gid || 1],H[gid || 2],H[gid || 3],H[gid || 4]) }
@@ -37,7 +37,7 @@
 \begin{fpfig}[t]{Yao's Garbled Circuits, garbled gates and evaluation code.}{fig-ygc-gates}
 {\footnotesize
 \begin{verbatimtab}
-  garbledecode(gid)
+  garbledecode(gid)    
   {
     let wl = owl(gid) in
     let r1 = wl.k xor true in
@@ -48,7 +48,7 @@
   
   evaldecode(wv, p) { wv.k xor select[wv.p,v[1,OUTtt1],v[1,OUTtt2]] }
   
-  evalgate(gid, wva, wvb)
+  evalgate(gid, wva, wvb)  
   {
     let k = keygen(gid,wva.k,wvb.k) in
     let ct = select4(wva.p,wvb.p,

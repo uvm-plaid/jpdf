@@ -159,9 +159,11 @@ program as \emph{safe} iff for all $\store \in \mems(S \cup F)$ there
 exists $\store'$ where $\config{\store}{\prog} \redxs
 \config{\store'}{\varnothing}$. Unsafe programs are those where views
 are used before they're defined, or where expressions mix owners of
-variables. As a sanity condition we will only consider safe programs
-in our presentation, though in Section \ref{section-composition} we
-define a type system that guarantees program safety. 
+variables. As a sanity condition we will only consider safe 
+programs in our presentation of $\fedprot$, though in Section
+\ref{section-metalang} we define a type system that guarantees
+program safety by construction, as demonstrated in Theorem
+\ref{theorem-metalang-safety}.
 
 \subsection{Examples}
 \label{section-minicat-examples}
