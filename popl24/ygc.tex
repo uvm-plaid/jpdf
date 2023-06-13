@@ -37,41 +37,47 @@
 \begin{fpfig}[t]{Yao's Garbled Circuits, garbled gates and evaluation code.}{fig-ygc-gates}
 {\footnotesize
 \begin{verbatimtab}
-  garbledecode(wl)
+  garbledecode(gid)
   {
+    let wl = owl(gid) in
     let r1 = wl.k xor true in
     let r0 = (not wl.k) xor false in
-    v[1,OUTtt1] := select[wl.p,r1,r0];
-    v[1,OUTtt2] := select[not wl.p,r1,r0]
+    v[1,OUTtt1] := select(wl.p,r1,r0);
+    v[1,OUTtt2] := select(not wl.p,r1,r0)
   }
   
-  evaldecode(wl, p) { wl.k xor select[wl.p,v[1,OUTtt1],v[1,OUTtt2]] }
+  evaldecode(wv, p) { wv.k xor select[wv.p,v[1,OUTtt1],v[1,OUTtt2]] }
   
-  evalgate(gid, wla, wlb)
+  evalgate(gid, wva, wvb)
   {
-    let k = keygen(gid,wla.k,wlb.k) in
-    let ct = select4(wla.p,wlb.p,
+    let k = keygen(gid,wva.k,wvb.k) in
+    let ct = select4(wva.p,wvb.p,
                v[1,gid || tt1],v[1,gid || tt2],v[1,gid || tt3],v[1,gid || tt4]) in
-    let cp = select4(wla.p,wlb.p,
+    let cp = select4(wva.p,wvb.p,
                v[1,gid || pt1],v[1,gid || pt2],v[1,gid || pt3],v[1,gid || pt4]) in
     { k = k xor ct; p = k xor cp }
   }
   
-  andgate(gid, wla, wlb, wlc) 
+  andgate(gid, ga, gb) 
   {
+    let wla = owl(ga) in
+    let wlb = owl(gb) in
+    let wlc = owl(gid) in
     let keys = keysgen(gid,wla.k,wlb.k) in
     sharetable(gid,tt,andtable(keys,wlc.k,wla.p,wlb.p));
     sharetable(gid,pt,andtable(keys,wlc.p,wla.p,wlb.p))
   }
 
-  encode(sid, owl1, owl2)
+  encode(sa, sb)
   {
-    v[1,gate: || sid || 1.k] := OT(s[1,0],owl1.k,(not owl1.k));
-    v[1,gate: || sid || 1.p] := OT(s[1,0],owl1.p,(not owl1.p));
-    v[1,gate: || sid || 2.k] := select(s[2,0],owl2.k,(not owl2.k));
-    v[1,gate: || sid || 2.p] := select(s[2,0],owl2.p,(not owl2.p));
-    { wv1 = { k = v[1,gate: || sid || 1.k]; p = v[1,gate: || sid || 1.p] };
-      wv2 = { k = v[1,gate: || sid || 2.k]; p = v[1,gate: || sid || 2.p] } }
+    let owl1 = owl(sa) in
+    let owl2 = owl(sb) in
+    v[1,gate: || sa || 1.k] := OT(s[1,sa],owl1.k,(not owl1.k));
+    v[1,gate: || sa || 1.p] := OT(s[1,sa],owl1.p,(not owl1.p));
+    v[1,gate: || sb || 2.k] := select(s[2,sb],owl2.k,(not owl2.k));
+    v[1,gate: || sb || 2.p] := select(s[2,sb],owl2.p,(not owl2.p));
+    { wv1 = { k = v[1,gate: || sa || 1.k]; p = v[1,gate: || sa || 1.p] };
+      wv2 = { k = v[1,gate: || sb || 2.k]; p = v[1,gate: || sb || 2.p] } }
   }
 \end{verbatimtab}
 }
