@@ -88,7 +88,7 @@ of splitting a given client's secret into 3 separate shares.
   below:
   \begin{verbatimtab}
     v[2,s1] := flip[1, share2];
-    v[3,s1] := flip[1, share1] xor flip[1, share2] xor s[client, s:mysecret] \end{verbatimtab}
+    v[3,s1] := flip[1, share1] xor flip[1, share2] xor s[1, s:mysecret] \end{verbatimtab}
 \end{example}
 
 \subsection{Semantics}
@@ -137,10 +137,10 @@ contexts include boolean expression forms, allowing generalization
 and instantiation of compositional program elements.
 \begin{example}
   \label{example-share3-eval}
-  Let $\codebase,e_{\ref{example-share3}}$ be the $\metaprot$ program, and let 
+  Let $\codebase,e_{\ref{example-share3}}$ be the $\metaprot$ program and let 
   $\prog_{\ref{example-share3}}$ be the  $\minifed$ program defined
   in Example \ref{example-share3}. We refer to the latter as ``accumulated''
-  by evaluation in the sense that $\config{\varnothing}{e_{\ref{example-share3}}}
+  by evaluation of the former in the sense that $\config{\varnothing}{e_{\ref{example-share3}}}
   \redxs \config{\prog_{\ref{example-share3}}}{\varnothing}$.
 \end{example}
 
@@ -159,5 +159,13 @@ tables and shares them with the evaluator, who then evaluates
 the gate in an oblivious fashion until the final public output is
 generated through decryption.
 
-
+\begin{verbatimtab}
+  let wla = owl(s1) in
+  let wlb = owl(s2) in
+  let wlc = owl(0) in
+  andgate(0,wla,wlb,wlc);
+  garbledecode(wlc);
+  let secrets = encode(secrets,wla,wlb) in
+  v[0,output] := decode(evalgate(0, secrets.wv1, secrets.wv2))
+\end{verbatimtab}
 
