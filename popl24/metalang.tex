@@ -161,9 +161,45 @@ string types $\stringty{e}$ and client types $\cidty{e}$
 are parameterized by expressions $e$ that precisely reflect the
 type of the value. Boolean expression forms have the type
 $\bet{e}$ indexed by expressions $e$ indicating the client
-id type of the expression.
+id type of the expression. 
 
+Type judgements for expressions are of the form
+$\tjudge{\viewst_1}{\gamma}{e}{\viewst_2}$ where the \emph{view
+effect} $\viewst_1$ denotes the views that have been defined so far,
+and $\viewst_2$ records new views defined as the effect of the
+expression on the residual $\minifed$ program.  Type judgements are
+syntax-directed- selected rules are shown in Figure
+\ref{fig-metaprot-tjudge}. The $\TirName{AssignT}$ rule
+captures the effect of new view definitions. The
+$\TirName{And}$ rule illustrates how program safety is enforced,
+by ensuring that subexpressions of boolean expressions have the
+same owner.
 
+The $\TirName{FnT}$ and $\TirName{Appt}$ rules apply to function
+definition and application respectively, and rely on the
+definition of function input type annotations $\tas$ and
+type term substitutions $\sigma$. 
+\begin{definition}
+  A \emph{function input type annotation} $\tas$ is a mapping from
+  function names $f$ to type products $\tau_1 * \cdots * \tau_n$.
+  A \emph{type term substitution} $\sigma$ is a mapping from
+  $\minifed$ variables $x$ to values, where $\sigma(\tau)$ denotes
+  the replacement of occurences of $x$ in $\tau$ with $\sigma(x)$. 
+\end{definition}
+We assume that input type annotations $\tas$ are provided by the
+programmer for all function definitions. This guarantees that
+$\metaprot$ type checking is straightforward and efficient.
+Function types are of the form:
+$$
+\tau_1 * \cdots * \tau_n \rightarrow \tau,\viewst
+$$
+where $\viewst$ denotes the effect of the function on the residual
+program.  The function type can be understood as a dependent $\Pi$
+type, with every term variable bound. When applied, these variables
+are instantiated with a type term substitution $\sigma$. In our
+implementation, we adapt \emph{synthesis} as defined in MetaML \cite{XXX}
+to obtain this $\sigma$- essentially this is a match on the syntactic
+structure of types and expressions. 
 \begin{example}
   Given $\ttt{share3}$ as defined in Example \ref{example-share3} and
   annotation:
@@ -186,7 +222,7 @@ $$
 $$
 \end{fpfig}
 
-\begin{fpfig}[t]{$\metaprot$ type judgement rules.}{fig-metaprot-tjudge}
+\begin{fpfig}[t]{Selected $\metaprot$ type judgement rules.}{fig-metaprot-tjudge}
 \begin{mathpar}
 \inferrule[\TirName{VarT}]
 {}
@@ -261,7 +297,9 @@ $$
 \end{mathpar}
 \end{fpfig}
 
-\begin{theorem}
+Our $\metaprot$ type safety result is as follows. In addition to safe execution of the metaprogram,
+it also guarantees safety of the residual $\fedprot$ program. 
+\begin{theorem}[$\metaprot$ Type Safety]
   \label{theorem-metalang-safety}
   Given $\codebase$, $e$, and $\Gamma$ with $\Gamma \vdash \codebase,e : \unity : V$,
   then $\config{\varnothing}{e} \redxs \config{\prog}{\ttt{()}}$ where

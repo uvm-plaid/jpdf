@@ -46,7 +46,7 @@
     v[1,OUTtt2] := select(not wl.p,r1,r0)
   }
   
-  evaldecode(wv, p) { wv.k xor select[wv.p,v[1,OUTtt1],v[1,OUTtt2]] }
+  evaldecode(wv, p) { wv.k xor select(wv.p,v[1,OUTtt1],v[1,OUTtt2]) }
   
   evalgate(gid, wva, wvb)  
   {
