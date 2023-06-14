@@ -46,7 +46,7 @@
     v[1,OUTtt2] := select(not wl.p,r1,r0)
   }
   
-  evaldecode(wv, p) { wv.k xor select(wv.p,v[1,OUTtt1],v[1,OUTtt2]) }
+  evaldecode(wv) { wv.k xor select(wv.p,v[1,OUTtt1],v[1,OUTtt2]) }
   
   evalgate(gid, wva, wvb)  
   {
@@ -83,6 +83,21 @@
 }
 \end{fpfig}
 
+\begin{fpfig}[t]{Yao's Garbled Circuits, gate library type annotations.}{fig-ygc-types}
+{\footnotesize
+\begin{verbatimtab}
+  garbledecode : string(gid)
+  
+  evaldecode   : { k = bool[1]; p = bool[1] }
+  
+  evalgate     : string(gid) *  { k = bool[1]; p = bool[1] } * { k = bool[1]; p = bool[1] }
+  
+  andgate      : string(gid) * string(ga) * string(gb) 
+
+  encode       : string(sa) * string(sb)
+\end{verbatimtab}
+}
+\end{fpfig}
 %  andtable(keys, bt, ap, bp)
 %  {
 %    let r11 = (keys.k11 xor bt) in 
