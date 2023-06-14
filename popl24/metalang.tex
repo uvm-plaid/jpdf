@@ -302,8 +302,15 @@ $$
 \end{mathpar}
 \end{fpfig}
 
-Our $\metaprot$ type safety result is as follows. In addition to safe execution of the metaprogram,
-it also guarantees safety of the residual $\fedprot$ program. 
+Top-level type judgements are of the form $\Gamma \vdash \codebase, e
+: \tau, V$, where all the functions in $\codebase$ are well-typed in
+$\Gamma$, the top level view effect $V$ is a set of concrete
+$\fedprot$ views which are constructed by disjoint union of the views
+in the effect of $e$- the disjointness requirement guarantees that
+views are uniquely defined. Our $\metaprot$ type safety result is
+formulated as follows. In addition to safe execution of the
+metaprogram, it also guarantees safety of the residual $\fedprot$
+program.
 \begin{theorem}[$\metaprot$ Type Safety]
   \label{theorem-metalang-safety}
   Given $\codebase$, $e$, and $\Gamma$ with $\Gamma \vdash \codebase,e : \unity : V$,
