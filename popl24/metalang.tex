@@ -161,7 +161,12 @@ string types $\stringty{e}$ and client types $\cidty{e}$
 are parameterized by expressions $e$ that precisely reflect the
 type of the value. Boolean expression forms have the type
 $\bet{e}$ indexed by expressions $e$ indicating the client
-id type of the expression. 
+id type of the expression. The dependency is weak in the
+sense that expressions in types are a strict subset of
+expression forms- for any $\stringty{e}$ the expression $e$
+is either a variable, a string, or a concatenation form,
+and for any $\cidty{e}$ or $\bet{e}$ the expression $e$
+is either a variable or a client id $\cid$. 
 
 Type judgements for expressions are of the form
 $\tjudge{\viewst_1}{\gamma}{e}{\viewst_2}$ where the \emph{view
