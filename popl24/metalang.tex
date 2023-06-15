@@ -310,7 +310,9 @@ in the effect of $e$- the disjointness requirement guarantees that
 views are uniquely defined. Our $\metaprot$ type safety result is
 formulated as follows. In addition to safe execution of the
 metaprogram, it also guarantees safety of the residual $\fedprot$
-program.
+program. Of course, it is important to note that ``safety'' here
+means the usual type safety property that programs do not get stuck,
+it does not imply any security hyperproperties. 
 \begin{theorem}[$\metaprot$ Type Safety]
   \label{theorem-metalang-safety}
   Given $\codebase$, $e$, and $\Gamma$ with $\Gamma \vdash \codebase,e : \unity : V$,

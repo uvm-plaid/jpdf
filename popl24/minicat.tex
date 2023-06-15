@@ -84,7 +84,8 @@ memory is written $\dom(\store)$ and is the finite set of variables on
 which the memory is defined. We write $\store\{ x \mapsto \beta\}$ for
 $x\not\in\dom(\store)$ to denote the memory $\store'$ such that
 $\store'(x) = \beta$ and otherwise $\store'(y) = \store(y)$ for all $y \in
-\dom(\store)$.
+\dom(\store)$. We write $\store_1 \cup \store_2$ to denote the extension
+of $\store_1$ with the mappings in $\store_2$.
 
 Given a set of variables $X$, we write $\store_X$ to denoted the
 memory $\store$ restricted to the domain $X$, and and we define

@@ -51,10 +51,11 @@
   evalgate(gid, wva, wvb)  
   {
     let k = keygen(gid,wva.k,wvb.k) in
+    let g = gate: || gid in
     let ct = select4(wva.p,wvb.p,
-               v[1,gid || tt1],v[1,gid || tt2],v[1,gid || tt3],v[1,gid || tt4]) in
+               v[1,g || tt1],v[1,g || tt2],v[1,g || tt3],v[1,g || tt4]) in
     let cp = select4(wva.p,wvb.p,
-               v[1,gid || pt1],v[1,gid || pt2],v[1,gid || pt3],v[1,gid || pt4]) in
+               v[1,g || pt1],v[1,g || pt2],v[1,g || pt3],v[1,g || pt4]) in
     { k = k xor ct; p = k xor cp }
   }
   
