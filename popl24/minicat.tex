@@ -83,9 +83,13 @@ variables to binary values $\beta \in \{0,1\}$. The \emph{domain} of a
 memory is written $\dom(\store)$ and is the finite set of variables on
 which the memory is defined. We write $\store\{ x \mapsto \beta\}$ for
 $x\not\in\dom(\store)$ to denote the memory $\store'$ such that
-$\store'(x) = \beta$ and otherwise $\store'(y) = \store(y)$ for all $y \in
-\dom(\store)$. We write $\store_1 \cup \store_2$ to denote the extension
-of $\store_1$ with the mappings in $\store_2$.
+$\store'(x) = \beta$ and otherwise $\store'(y) = \store(y)$ for all $y
+\in \dom(\store)$. We write $\store_1 \subseteq \store_2$ iff
+$\dom(\store_1) \subseteq \dom(\store_2)$ and $\store_1(x) =
+\store_2(x)$ for all $x \in \dom(\store_1)$. We write $\store_1 \cap
+\store_2$ to denote the combination of $\store_1$ and $\store_2$
+assuming $\store_1(x) = \store_2(x)$ for all $x \in \dom(\store_1)
+\cap \dom(\store_2)$, otherwise $\store_1 \cap \store_2$ is undefined.
 
 Given a set of variables $X$, we write $\store_X$ to denoted the
 memory $\store$ restricted to the domain $X$, and and we define
@@ -96,7 +100,8 @@ $$
 Thus, given a protocol $\prog$, the set of all random tapes for
 $\prog$ is $\mems(\flips(\prog))$. We let $\stores$ range
 over sets of memories with the same domain, and abusing notation
-we write $\dom(\stores)$ to denote the common domain.
+we write $\dom(\stores)$ to denote the common domain,
+and $\stores_X = \{ \store_X | \store \in \stores \}$.
 
 Given a variable-free boolean expression $\be$, we write $\cod{\be}$
 to denote the standard interpretation of $\be$ in the binary field.

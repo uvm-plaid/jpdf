@@ -37,19 +37,22 @@ probability mass functions.
   $\store \in \mems(Y)$:
   $$
   (\margd{\pdf{X}}{Y})(\store) =
-  \sum_{\store' \in \mems(X-Y)} \pdf{X}(\store \cup \store')
+  \sum_{\store' \in \mems(X-Y)} \pdf{X}(\store \cap \store')
   $$
 \end{definition}
 
 \begin{definition}
   Given $\pdf{X}$, its \emph{conditional distribution given
-  $\store$} with $\dom(\store) = Y$ and $Y \subseteq X$, denoted
-  $\condd{\pdf{X}}{\store}$, is a distribution with domain $X - Y$ where for all
-  $\store' \in \mems(X - Y)$:
+  $\stores$} with $\dom(\stores) = Y$ and $Y \subseteq X$, denoted
+  $\condd{\pdf{X}}{\stores}$, is a distribution with domain $X$ where for all
+  $\store \in \mems(X)$:
   $$
-  (\condd{\pdf{X}}{\store})(\store') =
-      \pdf{X}(\store \cup \store') / ((\margd{\pdf{X}}{Y})(\store))
+  (\condd{\pdf{X}}{\stores})(\store) =
+  (\sum_{\store' \in \stores} \pdf{X}(\store \cap \store')) /
+  (\sum_{\store' \in \stores} \pdf{X}(\store'))
   $$
+  where $\pdf{X}(\store \cap \store')) = 0$ if $\store \cap \store'$ is undefined.
+  we write $\condd{\pdf{X}}{\store}$ as an abbreviation for $\condd{\pdf{X}}{\{ \store \}}$.
 \end{definition}
 To recover familiar notation we allow the following syntactic
 sugarings:
