@@ -139,6 +139,14 @@ considering the distribution $\progd(\prog,\be)$.
   $$
 \end{definition}
 
+\begin{lemma}
+  \label{lemma-scope}
+  If $(\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})$
+  and $\flips(\prog_1) \cap \flips(\prog_2) = \varnothing$ then
+  $(\margd{\progd(\prog_1';\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1';\prog_2)}{\iov(\prog_2)})$
+  for any $\prog_1'$ where $\flips(\prog_1') \cap \flips(\prog_2) = \varnothing$.
+\end{lemma}
+
 Our aim now is to express that $\gNIMO$ is an invariant preserved throughout
 the circuit by demonstrating pre-~and post-conditions for component execution.
 Our formulation will assume a protocol definition where the garbler and
