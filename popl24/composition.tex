@@ -113,17 +113,18 @@ considering the distribution $\progd(\prog,\be)$.
 \begin{definition}[Garbled $\NIMO$]
   We write $\gNIMO(\prog,\{ \ttt{k} = \be_{\ttt{k}}; \ttt{p} =
   \be_{\ttt{p}}\}, g)$ with $\iov(\prog) = S \cup V$ iff for all $H$,
-  $C$ with $|C| \le |H|$, for all $\store \in
-  \mems(S_C \cup V_C)$, and for all $\stores$ with domain $X = S_C \cup V_C
-    \cup \{ \itv, \flip{2}{\ttt{gate:}g.w} \}$ for both $w \in \{\ttt{p},\ttt{k}\}$, such that:
+  $C$ with $|C| \le |H|$, for all $\store \in \mems(S_C \cup V_C)$,
+  for both $w \in \{\ttt{p},\ttt{k}\}$, and for all $\stores$ with
+  domain $X = S_C \cup V_C \cup \{ \itv, \flip{2}{\ttt{gate:}g.w} \}$
+  such that:
   $$
   \stores = \{ \store' \mid \store \subset \store' \wedge 
-  \store(\itv) = \store(\flip{2}{\ttt{gate:}g.w}) \} 
+  \store'(\itv) = \store'(\flip{2}{\ttt{gate:}g.w}) \} 
   $$
   or
   $$
   \stores = \{ \store' \mid \store \subset \store' \wedge 
-  \store(\itv) = \neg\store(\flip{2}{\ttt{gate:}g.w}) \} 
+  \store'(\itv) = \neg\store'(\flip{2}{\ttt{gate:}g.w}) \} 
   $$
   %where for any $\beta$:
   %$$\store^2 = \store\{ \flip{2}{\ttt{gate:}g.w} \mapsto \beta \}\{ \itv \mapsto \beta \}$$
