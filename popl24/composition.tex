@@ -141,11 +141,44 @@ considering the distribution $\progd(\prog,\be)$.
 
 \begin{lemma}
   \label{lemma-scope}
-  If $(\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})$
-  and $\flips(\prog_1) \cap \flips(\prog_2) = \varnothing$ then
-  $(\margd{\progd(\prog_1';\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1';\prog_2)}{\iov(\prog_2)})$
-  for any $\prog_1'$ where $\flips(\prog_1') \cap \flips(\prog_2) = \varnothing$.
+  If $(\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) *
+  (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})$ and
+  $\flips(\prog_1) \cap \flips(\prog_2) = \varnothing$ then
+  $(\margd{\progd(\prog_1';\prog_2)}{\iov(\prog_1)}) *
+  (\margd{\progd(\prog_1';\prog_2)}{\iov(\prog_2)})$ for any
+  $\prog_1'$ where $\prog_1';\prog_2$ is safe and $\flips(\prog_1')
+  \cap \flips(\prog_2) = \varnothing$.
 \end{lemma}
+
+\begin{definition}
+  We write $g \in \prog$ iff $\view{1}{\ttt{gate:}g\ttt{tt}i} \in \iov(\prog)$
+  and $\view{1}{\ttt{gate:}g\ttt{pt}i} \in \iov(\prog)$ for all $0 < i \le 4$,
+  or  $\view{1}{\ttt{gate:}gi\ttt{.k}} \in \iov(\prog)$
+  and $\view{1}{\ttt{gate:}gi\ttt{.p}} \in \iov(\prog)$ for all $0 < i \le 2$.
+\end{definition}
+
+\begin{lemma}
+  \label{lemma-gnimo}
+  If $(\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}) * (\margd{\progd(\prog_1;\prog_2)}{\iov(\prog_2)})$
+  and $\flips(\prog_1) \cap \flips(\prog_2) = \varnothing$ and
+  $\gNIMO(\prog_1;\prog_2,\{ \ttt{k} = \be_{\ttt{k}}; \ttt{p} = \be_{\ttt{p}}\}, g)$ for
+  $g \in \prog_1$,
+  then $\gNIMO(\prog_1';\prog_2,\{ \ttt{k} = \be_{\ttt{k}}; \ttt{p} = \be_{\ttt{p}}\}, g)$
+  for any $\prog_1'$ where $\prog_1';\prog_2$ is safe and
+  $\flips(\prog_1') \cap \flips(\prog_2) = \varnothing$.
+\end{lemma}
+
+\begin{lemma}[Input Encoding]
+  Given well-typed $\prog_1;E[\ttt{encode}(s_1,s_2)]$ where:
+  $$
+  \config{\prog_1}{E[\ttt{encode}(s_1,s_2)]} \redxs
+  \config{\prog_1;\prog_2}{E[\ttt{\{ wv1 =} v_1\ttt{; wv2 = } v_2 \ttt{\}}]}
+  $$
+  Then:
+  $$\gNIMO(\prog_1;\prog_2,v_1,s_1) \wedge \gNIMO(\prog_1;\prog_2,v_2,s_2)$$
+\end{lemma}
+
+
 
 Our aim now is to express that $\gNIMO$ is an invariant preserved throughout
 the circuit by demonstrating pre-~and post-conditions for component execution.
@@ -169,7 +202,7 @@ evalgate(g, wva, wvb)
 
 \begin{definition}
   We write $\owl(\prog, \{ \ttt{k} = \be_{\ttt{k}}; \ttt{p} = \be_{\ttt{p}}\}, g)$
-w  iff for all $b$ and both $w \in \{\ttt{p},\ttt{k}\}$:
+ iff for all $b$ and both $w \in \{\ttt{p},\ttt{k}\}$:
   $$
   (\margd{(\condd{\progd(\prog,\be_{w})}{\{ \flip{2}{g.w} \mapsto b \}})}{\itv})(\{ \itv \mapsto b\}) = 1
   $$
