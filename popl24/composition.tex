@@ -344,3 +344,64 @@ If $\gNIMO(\prog_1,v,g)$, then $\NIMO(\prog_1;\prog_2;\eassign{\outv}{\be})$.
     \redxs \config{\prog}{\be}$$
   The result follows by definition of $\gNIMO$ and $\NIMO$.
 \end{proof}
+
+
+
+\begin{fpfig}[t]{YGC copy gate definitions.}{fig-ygc-copy}
+  {\footnotesize
+    \begin{verbatimtab}
+      sharetab2(gid, tid, k, p, b)
+      {
+        let r1 = k xor b in
+        let r0 = (not k) xor (not b) in
+        v[1,gate: || gid || tid || 1] := select(p,r1,r0);
+        v[1,gate: || gid || tid || 2] := select(not p,r1,r0);
+      }
+      
+      copygate(ca,cb,g)
+      {
+        let wl = owl(g) in
+        let owl1 = owl(ca) in
+        let owl2 = owl(cb) in
+        sharetab2(ca,tt,wl.k,wl.p,owl1.k); sharetab2(ca,pt,wl.k,wl.p,owl1.p);
+        sharetab2(cb,tt,wl.k,wl.p,owl2.k); sharetab2(cb,pt,wl.k,wl.p,owl2.p)
+      }
+      
+      evalcopy(ca,cb,wv)
+      {
+        let wv1k = wv.k xor select(wv.p,v[1,gate: || ca || tt1], v[1,gate: || ca || tt2]) in
+        let wv1p = wv.k xor select(wv.p,v[1,gate: || ca || pt1], v[1,gate: || ca || pt1]) in
+        let wv2k = wv.k xor select(wv.p,v[1,gate: || cb || tt1], v[1,gate: || cb || tt2]) in
+        let wv2p = wv.k xor select(wv.p,v[1,gate: || cb || pt1], v[1,gate: || cb || pt1]) in
+        { wv1 = { k = wv1k; p = wv1p }; wv2 = { k = wv2k; p = wv2p } }  
+      }  \end{verbatimtab}
+  }
+\end{fpfig}
+
+\subsection{Building and Extending Circuits: Copy Gates}
+
+Our results in Section \ref{section-pre-post} and Theorem
+\ref{theorem-nimo} imply that any well-typed program using
+$\ttt{encode}$, $\ttt{andgg}$, and $\ttt{decode}$ will generate a
+circuit that is passive secure. To add an $\ttt{or}$ gate to our
+library, we can use $\ttt{andgg}$ as a template, in fact simple
+modification of $\ttt{andtable}$ is all that would be needed. Thus,
+this library embodies a Fairplay-like language where well-typedness
+of metaprograms guarantees safety and security of generated protocols.
+
+The techniques in Section \ref{section-pre-post} also establish an
+analysis that can be used when extending the language. Various
+previous work has proposed different implementation of gates, such as
+optimized $\ttt{xor}$ and $\ttt{and}$ gates \cite{XXX} and our
+verification methods can automatically check their security. For
+example, the naive implementation of copy gates turns out to be
+unsound in YGC \cite{XXX}.
+  
+\begin{verbatimtab}
+  let s = encode(s1,s2) in
+  let s1c = copy(c1s1,c2s1,s1,s.wv1) in
+  let s2c = copy(c1s2,c2s2,s2,s.wv2) in
+  let wv1 = andgg(1,c1s1,c1s2,s1c.wv1,s2c.wv1) in
+  let wv2 = andgg(2,c2s1,c2s2,s1c.wv2,s2c.wv2) in
+  decode(3,andgg(3,1,2,wv1,wv2))
+\end{verbatimtab}
