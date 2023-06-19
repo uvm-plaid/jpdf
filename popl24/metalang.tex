@@ -258,7 +258,7 @@ $$
 \inferrule[\TirName{SecretT}]
 {\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
 \tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}}
-{\tjudge{\viewst}{\Gamma}{\secret{e_1}{e_2}}{\bet{e_1'}}}
+{\tjudge{\viewst}{\Gamma}{\secret{e_1}{e_2}}{\bet{e_1'}}{\views_2}}
 
 \inferrule[\TirName{AndT}]
 {
