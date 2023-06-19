@@ -1,0 +1,35 @@
+\section{Introduction}
+
+In this paper we make the following contributions.
+\begin{itemize}
+\item A new probabilistic programming language $\minifed$ for defining
+  synchronous distributed protocols over the binary field. We consider example
+  protocols including OT, communications encryption with one-time
+  pads, and additive secret sharing (Section \ref{section-minicat}).
+  \cnote{I'm hoping $\minifed$ hasn't been used already.}
+\item A formulation of $\minifed$ program distributions, including
+  distributions of secrets and views, supporting expression of security
+  properties (Section \ref{section-pmf}). This intensional characterization
+  is useful for expressing internal characteristics of protocols, and
+  is needed for MPC due to the fact that obliviousness alone is not sufficient
+  to capture characteristics of the real/ideal model, in particular the
+  allowance of some information leakage through public outputs. 
+\item A novel hyperproperty of program execution traces, called
+  \emph{nonintererence modulo output ($\NIMO$)}, based on our
+  formulation of program distributions, that implies passive security
+  (Section \ref{section-hyperprop}.
+\item A brute force mechanism for verifying passive security in
+  $\minifed$ protocols, that is also amenable to HPC optimizations via
+  translation of $\minifed$ protocols into Datalog (Sectior \ref{section-bruteforce}). 
+\item A new metaprogramming language $\metaprot$ that dynamically
+  generates $\minifed$ protocols. It includes control and data structures
+  and is able to express logical protocol components, and enjoys a
+  type safety result that guarantees that generated protocols
+  are semantically well-defined (Section \ref{section-metalang}).
+\item A formulation of Yao's Garbled Circuits, and a formulation of a
+  compositional property of an extensible library of garbled gate
+  components that is verifiable automatically. This property
+  guarantees that any well-formed circuits using the library are
+  passive secure (Section \ref{section-composition}).
+\end{itemize}
+

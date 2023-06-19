@@ -1,8 +1,9 @@
 \section{Probability Mass Functions and Program Distributions}
+\label{section-pmf}
 
 In order to precisely characterize distributions of secrets and views
 in programs we define probability mass functions in a standard manner,
-following the formulation in \ref{XXX}. In this formulation, memories
+following the formulation in \ref{barthe2019probabilistic}. In this formulation, memories
 denote conjunctions of variable assignments. Intuitively, given a
 program $\prog$ with $\iov(\prog) = S \cup V$ and $\store \in
 \mems(\iov(\prog))$, when considering the execution of $\prog$
@@ -161,10 +162,10 @@ $\beta_1,\beta_2$ we have:
 (\progd(\prog_{\ref{example-otp}}))(\{\sx{1}{0} \mapsto \beta_1 \}|\{ \vx{0}{0} \mapsto \beta_2 \}) = .5
 \end{mathpar}
 Note that this corresponds to \emph{perfect secrecy} as described
-in \cite{XXX}.
+in \cite{barthe2019probabilistic}.
 
 \paragraph{Example \ref{example-lambda-obliv}(a) revisited} As demonstrated
-by Example \ref{example-lambda-obliv} taken from \cite{XXX}, it is possible
+by Example \ref{example-lambda-obliv} taken from \cite{darais2019language}, it is possible
 to leak information probabilistically through obvservable dependencies
 in views. In the basic distribution for Example \ref{example-lambda-obliv}(a)
 illustrated in Figure \ref{fig-basic-distributions}, we can see that

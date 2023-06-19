@@ -23,7 +23,7 @@ Large practical MPC computations are based on much larger protocols
 than the examples we've considered so far. These larger protocols are
 typically based on compositional units. An example of this is Yao's
 Garbled Circuits (YGC), which are composed of so-called garbled gates.
-Languages for defined garbled circuits, beginning with Fairplay \cite{XXX},
+Languages for defined garbled circuits, beginning with Fairplay \cite{269581},
 treat gates as compositional units that are wired together by the programmer
 to generate a complete circuit. The $\fedprot$ language is low-level
 and does not include abstractions for defining composable elements. 
@@ -152,7 +152,7 @@ generate. Although safety of the latter could be enforced
 post-generation by a direct analysis, for large programs this can be
 much more expensive and it is also better to not wast time on
 resource-intensive compilation of programs with known errors
-\cite{XXX}. Some consequences of safety errors, for example accidental
+\cite{kreuter2012billion}. Some consequences of safety errors, for example accidental
 reuse of one-time pads, can also undermine security.
 
 The type syntax of $\metaprot$ is defined in Figure
@@ -202,7 +202,7 @@ where $\viewst$ denotes the effect of the function on the residual
 program.  The function type can be understood as a dependent $\Pi$
 type, with every term variable bound. When applied, these variables
 are instantiated with a type term substitution $\sigma$. In our
-implementation, we adapt \emph{synthesis} as defined in MetaML \cite{XXX}
+implementation, we adapt \emph{synthesis} as defined in Dependent ML \cite{10.1145/292540.292560}
 to obtain this $\sigma$- essentially this is a match on the syntactic
 structure of types and expressions. 
 \begin{example}

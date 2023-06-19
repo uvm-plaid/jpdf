@@ -25,7 +25,7 @@ client $\cid$ and distinguishing string $w$. So for example,
 $\secret{\ttt{1}}{\ttt{foo}}$ is client $\ttt{1}$'s secret called
 $\ttt{foo}$. All clients can make reference to the \emph{oracle}
 through variables $\oracle{w}$- this is a form of shared randomness
-that is standard in the MPC setting \cite{XXX}.  Each client can only
+that is standard in the MPC setting \cite{evans2018pragmatic}.  Each client can only
 compute on their own variables in \emph{expressions} $\be$, and share
 values with other clients by assignment to their views as in
 $\eassign{\view{\cid}{w}}{\be}$.  A \emph{protocol} $\prog$ is a
@@ -34,6 +34,23 @@ $\varnothing$ from example code, writing $\instr_1;\ldots;\instr_n$
 instead of $\instr_1;\ldots;\instr_n;\varnothing$, and abusing notation we will
 write $\prog_1;\prog_2$ to denote the concatenation of $\prog_1$
 and $\prog_2$.
+
+
+
+\begin{fpfig}[t]{$\minifed$ source code syntax.}{fig-minifed-syntax}
+$$
+\begin{array}{rcl@{\hspace{8mm}}r}
+b &\in& \{ \etrue, \efalse \} \\
+w &\in& \mathrm{String} \\ 
+\cid &\in& \mathrm{Clients} \subset  \mathbb{N} \\[2mm]%\qquad  (\mathrm{Clients} \subset \mathbb{N} \text{\ in\ this\ presentation})\\[2mm]
+\bop &\in& \{ \eand, \eor, \exor \} \\[2mm]
+\be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
+& &  \enot\ \be \mid \be\ \bop\ \be \mid \select{\be}{\be}{\be} \mid \OT{\be}{\be}{\be} \\[2mm]
+\instr &::=& \eassign{\view{\cid}{w}}{\be} & \textit{view assignments} \\[2mm]
+\prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
+\end{array}
+$$ 
+\end{fpfig}
 
 We let $X$ range over sets of variables and $S,V,F$ to range over sets
 of secrets, views, and flips (including invocations of the oracle)
@@ -61,21 +78,6 @@ fashion. However its inclusion simplifies our presentation and is a useful
 convenience.
 
 \subsection{Semantics}
-
-\begin{fpfig}[t]{$\minifed$ source code syntax.}{fig-minifed-syntax}
-$$
-\begin{array}{rcl@{\hspace{8mm}}r}
-b &\in& \{ \etrue, \efalse \} \\
-w &\in& \mathrm{String} \\ 
-\cid &\in& \mathrm{Clients} \subset  \mathbb{N} \\[2mm]%\qquad  (\mathrm{Clients} \subset \mathbb{N} \text{\ in\ this\ presentation})\\[2mm]
-\bop &\in& \{ \eand, \eor, \exor \} \\[2mm]
-\be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
-& &  \enot\ \be \mid \be\ \bop\ \be \mid \select{\be}{\be}{\be} \mid \OT{\be}{\be}{\be} \\[2mm]
-\instr &::=& \eassign{\view{\cid}{w}}{\be} & \textit{view assignments} \\[2mm]
-\prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
-\end{array}
-$$ 
-\end{fpfig}
 
 \emph{Memories} are fundamental to the semantics of $\fedcat$ and
 provide the random tape and secret inputs to protocols, and record
@@ -178,14 +180,15 @@ program safety by construction, as demonstrated in Theorem
 Here we introduce some examples to illustrate $\minifed$ and how it
 can be used to model secure communication protocols for values in the
 binary field. Most of these are translations (into $\minifed$) of
-object examples in previous related work \cite{XXX}. We will return to
+object examples in previous related work
+\cite{barthe2019probabilistic,darais2019language}.  We will return to
 these as running examples throughout the paper to illustrate various
-concepts and advantages of our methods. In Section \ref{section-metalang}
-we will formulate a larger example implementation of Yao's
-Garbled Circuits (Example \ref{example-ygc}). 
+concepts and advantages of our methods. In Section
+\ref{section-metalang} we will formulate a larger example
+implementation of Yao's Garbled Circuits (Example \ref{example-ygc}).
 \begin{example}[One-Time Pad]
   \label{example-otp}
-As observed in \cite{XXX} and elsewhere, coin flips with $\exor$ can
+As observed in \cite{barthe2019probabilistic} and elsewhere, coin flips with $\exor$ can
 be used to model one-time pad encryption in the binary field. On the
 basis of this we can model secure communication between over an
 insecure channel using symmetric key encryption. In the following
@@ -209,7 +212,7 @@ probabilistically independent of the secret $\sx{1}{0}$.
 
 \begin{example}[$\lambda_{\mathrm{obliv}}$]
   \label{example-lambda-obliv}
-  In \cite{XXX}, Figure 3, two examples are introduced that illustrate
+  In \cite{darais2019language}, Figure 3, two examples are introduced that illustrate
   subtleties of probabilistic programming in
   $\lambda_{\mathrm{obliv}}$, a language for oblivious memory
   management. We consider their translations here where we
@@ -227,7 +230,7 @@ probabilistically independent of the secret $\sx{1}{0}$.
   more likely to be 1 in case $\view{0}{0}$ is 1. We call this subexample $(b)$:
   \begin{verbatimtab}
   v[0,0] := select(s[1,s],select(flip[1,sx], flip[1,sx], flip[1,sy]),flip[1,z]) \end{verbatimtab}
-  We note that these examples are considered ``bad'' in \cite{XXX} since there
+  We note that these examples are considered ``bad'' in \cite{darais2019language} since there
   no information about honest secrets should be revealed to the adversary in
   their threat model. For this reason they disallow reuse of flips through a
   linear type discipline, which is a culprit in both of these examples. However,
@@ -238,9 +241,9 @@ probabilistically independent of the secret $\sx{1}{0}$.
 
 \begin{example}[Oblivious Transfer]
   \label{example-OT}
-  In \cite{XXX} a protocol for $\ttt{OT}$ is defined that we recreate as
+  In \cite{barthe2019probabilistic} a protocol for $\ttt{OT}$ is defined that we recreate as
   follows, where client 2 is the receiver and client 1 is the sender. Whereas
-  in \cite{XXX} a trusted third party provides the sender and receiver with
+  in \cite{barthe2019probabilistic} a trusted third party provides the sender and receiver with
   shared randomness, in our version both clients refer to the oracle $\ttt{H}$
   to obtain shared random values. 
 \begin{verbatimtab}
@@ -252,7 +255,7 @@ probabilistically independent of the secret $\sx{1}{0}$.
 \end{verbatimtab}
 Below we will discuss how to automatically verify security properties
 of this protocol that correspond to the properties proven manually in
-\cite{XXX}, and additionally how to automatically verify its passive
+\cite{barthe2019probabilistic}, and additionally how to automatically verify its passive
 security in the simulator model. With respect to our language primitives,
 we note that this protocol is probabilistically equivalent to the
 following:

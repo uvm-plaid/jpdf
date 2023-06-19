@@ -19,7 +19,7 @@ formulation.
 
 In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
 codebase for garbled circuits. This definition follows the
-\emph{point-and-permute} method described in \cite{XXX} and elsewhere,
+\emph{point-and-permute} method described in \cite{evans2018pragmatic} and elsewhere,
 to which the reader is referred for more in-depth discussion.
 In this implementation client 2 is the \emph{garbler} and
 client 1 is the \emph{evaluator}. The garbler builds the garbled
@@ -145,6 +145,9 @@ $\progd(\prog,\be)$.
 
 \subsubsection{Verification Witnesses}
 
+\cnote{Lemmas \ref{lemma-scope} and \ref{lemma-gnimo} in this Section may need some
+refinement but I think the general argument is reasonably developed.}
+
 Our aim is to demonstrated that $\gNIMO$ is preserved by gates within circuits,
 where preservation is expressed via pre-~and post-conditions. We can use
 techniques in Section \ref{section-bruteforce} to automatically verify postconditions
@@ -222,7 +225,7 @@ We must also choose witnesses that allow us to generalize verification
 of $\gNIMO$ preservation through gates. We need to consider separately
 the definition of gates and their use. Our type discipline ensures that
 gates can only be defined once, but it is also known that gate output
-wire labels should only be used once \cite{XXX}, in which case we
+wire labels should only be used once \cite{nieminen2023breaking}, in which case we
 say they are \emph{wired}. We return to this issue in more detail in
 Section \ref{section-composition-copy}.
 \begin{definition}
