@@ -5,7 +5,7 @@ We have shown how our formulation of program distributions, a precise
 definition of intensional protocol behavior, can be used to enforce
 the extensional property of MPC security. This intensional description
 also has the benefit of being flexible- we can use the same mechanisms
-to desribe $\NIMO$, noninterference, perfect secrecy, violations of
+to describe $\NIMO$, noninterference, perfect secrecy, violations of
 obliviousness, etc. These mechanisms can also be exploited to support
 automated program analysis.
 
@@ -14,7 +14,7 @@ program behaviour, the first step of which is to compute the basic
 distribution of a program $\prog$. The program distribution
 $\progd(\prog)$ can obviously be automatically derived from that, as
 can be any of its marginal or conditional distributions. In this
-Section we consider two automated mechanisms for deriving
+Section, we consider two automated mechanisms for deriving
 $\progd(\prog)$ in this way. The first is through a straightforward
 computation of all final program memories.  The second approach
 rewrites $\minifed$ programs to stratified Datalog programs, that are
@@ -138,7 +138,7 @@ We have used the code for $\cruns$ and $\cprogd$ extensively to design and
 verify the examples in this paper. We will discuss other examples in
 Section \ref{section-composition}, but here we note that we've verified
 passive security of Examples \ref{example-he} and \ref{example-OT}-
-for the former this is well-known so the result is a simple proof-of-concept,
+for the former, this is well-known so the result is a simple proof-of-concept,
 but the latter is a new (though unsurprising) result, having not been
 directly proven in \cite{barthe2019probabilistic}. The method for
 verifying $\NIMO$ described here generalizes to any $\prog$. 
