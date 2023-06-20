@@ -79,7 +79,7 @@ of splitting a given client's secret into 3 separate shares.
       let s3 = (s1 xor s2) xor s[client, s: || secretid] in
       {s1 = s1;s2 = s2;s3 = s3}
     } \end{verbatimtab}
-  Here is $\metaprot$ program that uses this this function definition:
+  Here is $\metaprot$ program that uses this function definition:
   \begin{verbatimtab}
     let shares = share3(1, mysecret) in
     v[2,s1] := shares.s2;
