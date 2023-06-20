@@ -11,7 +11,7 @@ sound with respect to simulator security bridges a conceptual gap
 between foundational approaches to security, and also motivates and
 supports automated analysis \cite{XXX}. 
 
-In this section we formulate a new hyperproperty that we show is sound
+In this section, we formulate a new hyperproperty that we show is sound
 for passive security in the real/ideal model, called
 \emph{noninterference modulo output ($\NIMO$)}. We do not claim
 completeness with respect to passive security, but soundness
@@ -28,7 +28,7 @@ demonstrates a particular advantage of our hyperproperty formulation.
 \subsection{Passive Security and the Real/Ideal Model} \dnote{would shortening the background info on how simulator model works be a bad idea?} Here we
 briefly summarize the formal definition of MPC security. For a
 more detailed discussion the reader is referred to \cite{XXX}.
-In this paper we will consider the \emph{passive} aka
+In this paper, we will consider the \emph{passive} aka
 semi-honest aka honest-but-curious variant. In this threat
 model, protocol participants can be corrupted, but all clients
 follow the rules of the protocol- as opposed to the
@@ -192,7 +192,7 @@ $\store'$ such that $\store' =_C \store$ and $\idealf(\store'_S) =
 $\NIMO$ guarantees ideal reconstruction of the real-world corrupt views. 
  However, there is a subtlety here in that the adversary
 must be able to tractably reconstruct this knowledge. This is not
-generally true, in particular if $\idealf$ is a 1-way
+generally true, in particular, if $\idealf$ is a 1-way
 function. Define:
 \begin{definition}[Ideal Knowledge]
   Given a functionality $\idealf$ and output value $v$, the associated
@@ -215,7 +215,7 @@ passive security of a protocol.
 
 \begin{proof}
   Let $H$ and $C$ be an arbitrary partition of the federation and
-  suppose $\prog$ satifies noninterference modulo output. Let
+  suppose $\prog$ satisfies noninterference modulo output. Let
   $\iov(\prog) = (V,S)$ and $\flips(\prog) = F$ with output view $x
   \in V$ and let $\store$ be an arbitrary member of $\mems(S \cup
   F)$. Then the distribution of adversarial views in the real world
