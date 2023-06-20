@@ -14,12 +14,12 @@ values chosen from a uniform random distribution- coin ``flips''- via
 values arbitrarily assigned in the initial program memory.  Programs
 execute deterministically given the random tape. The random tape
 formulation supports our automated analysis as we discuss in
-section 
+section \dnote{5?}
 
 \subsection{Syntax} The syntax of $\minifed$, defined in
 Figure \ref{fig-minifed-syntax}, includes a standard boolean algebra
-with $\eand$, $\eor$, $\exor$, and $\enot$ as primitives. In addition
-programs have different kinds of variables, including \emph{secrets}
+with $\eand$, $\eor$, $\exor$, and $\enot$ as primitives. In addition,
+programs have different kinds of variables including \emph{secrets}
 $\secret{\cid}{w}$, \emph{flips} $\flip{\cid}{w}$, and \emph{views}
 $\view{\cid}{w}$.  Each of these variables are indexed by an ``owner''
 client $\cid$ and distinguishing string $w$. So for example,
@@ -64,8 +64,8 @@ variables $X$ and parties $P$, we write $X_P$ to denote the subset of
 $X$ owned by any party in $P$, and we write $X_H$ and $X_C$ to denote
 the subsets belonging to honest and corrupt parties, respectively.
 
-Expressions forms include the convenience
-$\select{\be_1}{\be_2}{\be_3}$ which is essentially a conditional
+Expression forms include the convenience
+$\select{\be_1}{\be_2}{\be_3}$, which is essentially a conditional
 expression with:
 $$
 \select{\be_1}{\be_2}{\be_3} \equiv (\be_1\ \eand\ \be_2)\ \eor\ (\enot\ \be_1\ \eand\ \be_3)
@@ -95,8 +95,8 @@ $\dom(\store_1) \subseteq \dom(\store_2)$ and $\store_1(x) =
 assuming $\store_1(x) = \store_2(x)$ for all $x \in \dom(\store_1)
 \cap \dom(\store_2)$, otherwise $\store_1 \cap \store_2$ is undefined.
 
-Given a set of variables $X$, we write $\store_X$ to denoted the
-memory $\store$ restricted to the domain $X$, and and we define
+Given a set of variables $X$, we write $\store_X$ to denote the
+memory $\store$ restricted to the domain $X$, and we define
 $\mems(X)$ as the set of all memories with domain $X$:
 $$
 \mems(X) \defeq \{ \store \mid \dom(\store) = X \}

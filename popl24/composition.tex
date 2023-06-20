@@ -33,7 +33,7 @@ programs.
 
 \emph{Wire labels} are fundamental to YGC, and essentially represent
 gate output values in an encrypted form. In our definition, wire
-labels are representated by records $\ttt{\{ k = }\beta_1\ttt{; p =
+labels are represented by records $\ttt{\{ k = }\beta_1\ttt{; p =
 }\beta_2\ttt{ \}}$, where $\ttt{k}$ is the \emph{key bit} and
 $\ttt{p}$ is the \emph{pointer bit}, and $\beta_1$ and $\beta_2$ are
 flips. Flips in each output wire label are owned by the garbler and
@@ -83,7 +83,7 @@ identifiers, which are strings $w$. Top-level functionality in Figures
 \begin{example}
   \label{example-andcircuit}
 The following program uses our YGC library to define
-a ciruit with a single and gate and input secrets $\ttt{s1}$ and
+a circuit with a single and gate and input secrets $\ttt{s1}$ and
 $\ttt{s2}$ from client's 1 and 2 respectively. 
 \begin{verbatimtab}
   andgate(0,s1,s2);
@@ -103,13 +103,13 @@ we discuss compositional methods to address this issue.
 
 A basic intuition about YGC is that garbled gates considered
 individually are ``nearly'' passive secure, modulo the feature that
-outputs of individual logic gates in circuits are encryped. That is,
-each gate enjoys an encrypted variant of$\NIMO$ such that the relevant
+outputs of individual logic gates in circuits are encrypted. That is,
+each gate enjoys an encrypted variant of $\NIMO$ such that the relevant
 output is not in the clear but correlated flips sampled for the gate's
 output wire label by the garbler, both key and pointer bits. We call
 this \emph{Garbled $\NIMO$}, or $\gNIMO$. In the definition of
 $\gNIMO$ we consider whether a given value $\itv$ correlates
-positively or negatively to the flip chosen for a wire lable, which
+positively or negatively to the flip chosen for a wire label, which
 can be either $1$ or $0$ uniformly- recall that
 Definition \ref{def-progd} posits a variable $\itv$ to refer to the
 expression $\be$ when considering the distribution

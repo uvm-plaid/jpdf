@@ -2,7 +2,7 @@
 \label{section-pmf}
 
 In order to precisely characterize distributions of secrets and views
-in programs we define probability mass functions in a standard manner,
+in programs, we define probability mass functions in a standard manner,
 following the formulation in \ref{barthe2019probabilistic}. In this formulation, memories
 denote conjunctions of variable assignments. Intuitively, given a
 program $\prog$ with $\iov(\prog) = S \cup V$ and $\store \in
@@ -67,7 +67,7 @@ Now we can define the probability distribution of a program $\prog$,
 that we denote $\progd(\prog)$. Since $\fedcat$ is deterministic the
 results (view assignments) of any run are determined by the input
 secrets together with the random tape. And since we constrain programs
-to not overwrite views we are assured that \emph{final} memories
+to not overwrite views, we are assured that \emph{final} memories
 contain both a complete record of all initial secrets as well as views
 resulting from communicated information.
 
