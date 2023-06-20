@@ -72,7 +72,7 @@ contain both a complete record of all initial secrets as well as views
 resulting from communicated information.
 
 We consider random tapes to be selected from a uniform distribution.
-In our threat model we will also assume that any possible initial
+In our threat model, we will also assume that any possible initial
 secrets are equally likely when formulating the program distribution.
 In this setting, given a program $\prog$ with $\iov(\prog) = S \cup
 V$ and $\flips(\prog) = F$ we will consider all $\store
@@ -81,11 +81,11 @@ $
 \config{\store_{S \cup F}}{\prog} \redxs \config{\store_}{\varnothing}
 $
 to be equally probable, establishing the basic distribution of the
-program. From this we can immediately derive the marginal distribution
+program. From this, we can immediately derive the marginal distribution
 of $S \cup V$ to reason about dependencies between secrets and views. 
 \begin{definition}
   \label{def-progd}
-  Given progam $\prog$ with $\iov(\prog) = (S,V)$ and $\flips(\prog) = F$, define $\stores$ as:
+  Given program $\prog$ with $\iov(\prog) = (S,V)$ and $\flips(\prog) = F$, define $\stores$ as:
   $$
   \stores \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
   $$
@@ -104,7 +104,7 @@ of $S \cup V$ to reason about dependencies between secrets and views.
   $$
   \progd(\prog) =  \margd{\pdf{S \cup V \cup F}}{S\cup V}
   $$
-  In some cases we will also be concerned with the (joint)
+  In some cases, we will also be concerned with the (joint)
   probabilities of expression interpretation given a preceding program
   execution, and we write $\progd(\prog, \be)$ to denote the program
   distribution $\progd(\prog;\eassign{\itv}{\be})$ where $\itv$ is a
@@ -166,7 +166,7 @@ in \cite{barthe2019probabilistic}.
 
 \paragraph{Example \ref{example-lambda-obliv}(a) revisited} As demonstrated
 by Example \ref{example-lambda-obliv} taken from \cite{darais2019language}, it is possible
-to leak information probabilistically through obvservable dependencies
+to leak information probabilistically through observable dependencies
 in views. In the basic distribution for Example \ref{example-lambda-obliv}(a)
 illustrated in Figure \ref{fig-basic-distributions}, we can see that
 the adversarial views $\vx{0}{0}$ and $\vx{0}{1}$ are both 1 in
@@ -192,12 +192,12 @@ observe:
 \begin{mathpar}
   (\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0, \sx{2}{1} \mapsto 1, \sx{3}{1} \mapsto 0 \}|\{ \vx{0}{output} \mapsto 0 \}) = .33
 \end{mathpar}
-Further, since the standard MPC threat model allows partipating
+Further, since the standard MPC threat model allows participating
 clients to be corrupted we can formally consider the impacts on
 information released to the adversary by conditioning the program
 distribution on corrupt secrets.  So if we assume client 2
 with input secret 1 is corrupted, and we assume the output is 0, then
-adversary knows with certainty that clients 1 and 3 both have input
+the adversary knows with certainty that clients 1 and 3 both have input
 secrets 0. We can express this as:
 $$
 \progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0, \sx{3}{1} \mapsto 0 \}|\{ \sx{2}{1} \mapsto 1, \vx{0}{output} \mapsto 0 \})
