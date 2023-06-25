@@ -1,10 +1,10 @@
 \section{Introduction}
 
-In this paper we make the following contributions.
+In this paper, we make the following contributions.
 \begin{itemize}
 \item A new probabilistic programming language $\minifed$ for defining
   synchronous distributed protocols over the binary field. We consider example
-  protocols including OT, communications encryption with one-time
+  protocols including oblivious transfer, communications encryption with one-time
   pads, and additive secret sharing (Section \ref{section-minicat}).
   \cnote{I'm hoping $\minifed$ hasn't been used already.}
 \item A formulation of $\minifed$ program distributions, including
@@ -12,7 +12,7 @@ In this paper we make the following contributions.
   properties (Section \ref{section-pmf}). This intensional characterization
   is useful for expressing internal characteristics of protocols, and
   is needed for MPC due to the fact that obliviousness alone is not sufficient
-  to capture characteristics of the real/ideal model, in particular the
+  to capture characteristics of the real/ideal model, in particular, the
   allowance of some information leakage through public outputs. 
 \item A novel hyperproperty of program execution traces, called
   \emph{noninterference modulo output ($\NIMO$)}, based on our
