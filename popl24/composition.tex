@@ -459,8 +459,8 @@ in other related systems for enforcing obliviousness \cite{darais2019language}.
   $$
   Then the following postconditions hold:
   \begin{enumerate}
-  \item $\sep{\progtt(\prog)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[2,gout]\}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout]\}}}$
+  \item $\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[2,gout]\}}}$
+  \item $\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout]\}}}$
   \end{enumerate}
 \end{lemma}
 
