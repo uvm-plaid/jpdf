@@ -376,15 +376,14 @@ components is passive secure.
 \subsection{Building and Extending Automatically Secure Circuits}
 \label{section-composition-copy}
 
-Our results in Section \ref{section-pre-post} and Theorem
-\ref{theorem-nimo} imply that any well-typed program using
+Theorem \ref{theorem-nimo} means that any well-typed program using
 $\ttt{encode}$, $\ttt{andgg}$, and $\ttt{decode}$ will generate a
-circuit that is passive secure, provided that gate outputs are
-not used more than once. To add an $\ttt{or}$ gate to our
-library, we can use $\ttt{andgg}$ as a template, in fact simple
-modification of $\ttt{andtable}$ is all that would be needed. Thus,
-this library embodies a Fairplay-like language where well-typedness
-of metaprograms guarantees safety and security of generated protocols.
+circuit that is passive secure, provided that gate outputs are not
+used more than once. To add an $\ttt{or}$ gate to our library, we can
+use $\ttt{andgg}$ as a template, in fact simple modification of
+$\ttt{andtable}$ is all that would be needed. Thus, this library
+embodies a Fairplay-like language where well-typedness of metaprograms
+guarantees safety and security of generated protocols.
 
 The requirements that output wire labels are not used more than once
 reflects a known result, that naive copy gate output is unsound in
