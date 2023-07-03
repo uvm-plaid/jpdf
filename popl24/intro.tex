@@ -165,3 +165,14 @@ ensure security in circuits that use them in a manner that scales to
 any circuit size. This approach is extensible, in that new gate
 implementations can be automatically certified to guarantee safe
 inclusion in circuit libraries.
+
+In summary, our analysis takes a ``just do it'' approach- rather than
+using, e.g., traditional security type or linear type disciplines to
+prevent ``bad things'' from happening, we base our analysis on precise
+quantification of intensional protocol behavior and especially
+dependencies between secret inputs, public outputs, and adversarial
+views of protocols. We ameliorate scalability issues associated with
+fine-grained analysis by manually establishing compositional
+properties inspired by probabilistic separation logic
+\cite{barthe2019probabilistic}, obtaining a middle-ground, scalable
+``proof assistant'' style approach enabled by MPC protocol paradigms.
