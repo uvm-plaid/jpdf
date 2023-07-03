@@ -1,18 +1,19 @@
 \section{Introduction}
 
 Secure Multi-Party Computation (MPC) protocols support data privacy in
-important distributed applications such as privacy-preserving machine
-learning and Zero-Knowledge proofs in blockchains. MPC methods have
-been developed by the cryptography community for many years, while
-receiving the attention of the programming languages community only
-relatively recently. In contrast, information flow security has
+important modern, distributed applications such as privacy-preserving
+machine learning and Zero-Knowledge proofs in blockchains \cite{XXX}
+\cnote{Need some banger cites here, maybe more MPC hype.}. MPC methods
+have been developed by the cryptography community for many years,
+while receiving the attention of the programming languages community
+only relatively recently. In contrast, information flow security has
 received significant attention in PL theory and practice especially
 since the turn of the century \cite{1159651}, including a menagerie of
 variants, enforcement mechanisms, and programming frameworks. Much of
 this has been enabled by the unified metatheory of
 \emph{hyperproperties} \cite{10.5555/1891823.1891830} that establishes
 a common conceptual framework for reasoning about and implementing
-systems with information flow security. 
+systems with information flow security.
 
 Our goal is to explore and establish connections between the security
 model of MPC-- the \emph{real/ideal} aka \emph{simulator security}
@@ -33,28 +34,28 @@ that collaboratively compute and publish the result of some known
 is critical. For example, if we take $\idealf$ to be the majority vote
 function, a protocol for computing $\idealf$ is MPC-secure if, given
 any set of input votes, it correctly computes and publishes the voting
-result without directly revealing the votes of individual participants
-to the public or to other participants. However, note that by
-publishing the output, some information about individual votes may be
-implicitly declassified.  For example, in the case of a majority vote
-in a federation of size 3, if the motion carries and party 1 has voted
-no, then party 1 knows exactly the votes of parties 2 and 3. This
-cannot be avoided due to the nature of $\idealf$.
+result but reveals no other information to the public or to other
+participants. However, by publishing the result, some information
+about individual votes may be implicitly declassified.  For example,
+in the case of a majority vote in a federation of size 3, if the
+motion carries and party 1 has voted no, then party 1 knows exactly
+the votes of parties 2 and 3. This cannot be avoided due to the nature
+of $\idealf$.
 
 Security in the MPC setting thus means that protocols cannot reveal
-any more information than the output of the ideal functionality, which
-will be published. The security model also assumes that some subset of
-participants can be corrupted and collude adversarially to infer
-secret information. The accepted method of demonstrating protocol
-security in this setting is to define a \emph{simulation} algorithm
-that runs in the ``ideal'' world which, given just the inputs of
-corrupted parties and the output of the ideal functionality, is able
-to reconstruct information that corrupted parties receive in their
-so-called \emph{views} of the protocol running in the real world.
-This implies that adversarial views provide no information beyond what
-is provided by the ideal output alone. Simulation is defined
-probabilistically since MPC protocols typically rely on cryptographic
-and probabilistic methods.
+any secret information other than what is impicitly declassified by
+the publicized output of the ideal functionality. The security model
+also assumes that some subset of participants can be corrupted and
+collude adversarially to possibly infer more secret information. The
+accepted method of demonstrating protocol security in this setting is
+to define a \emph{simulation} algorithm that runs in the ``ideal''
+world which, given just the inputs of corrupted parties and the output
+of the ideal functionality, is able to reconstruct information that
+corrupted parties receive in their so-called \emph{views} of the
+protocol running in the real world.  This implies that adversarial
+views provide no information beyond what is provided by the ideal
+output alone. Simulation is defined probabilistically since MPC
+protocols typically rely on cryptographic and probabilistic methods.
 
 In Section \ref{section-hyperprop-passive} we formalize real/ideal
 security, and we define and discuss simple examples of MPC protocols
@@ -70,9 +71,31 @@ allows and sets an upper bound on declassification.
 
 We distinguish between \emph{extensional} vs.~\emph{intensional}
 properties and analysis of MPC protocols. By extensional, we mean
-analysis concerned with the use and interaction of complete protocols
-that are proved to be secure. By intensional, we mean analysis of the
-inner workings of protocols themselves. 
+simulator security itself as well as analysis concerned with the use
+and interaction of complete secure protocols. By intensional, we mean
+analysis and inner workings of protocols themselves. While the
+probabilistic formulations we develop could conceivably used
+extensionally, our main focus is on intensional properties of
+protocols, both through whole-program analysis and compositional
+properties of program components that support security.
+
+Previous work on analysis for the SecreC language
+\cite{almeida2018enforcing,10.1145/2637113.2637119} is concerned with
+extensional properties of MPC, in particular the specification and
+enforcement of declassification bounds in programs that use MPC in
+subprograms. This work is explicitly reminiscent of information flow
+approaches such as delimited information release
+\cite{10.1007/978-3-540-37621-7_9} and downgrading policies and
+relaxed noninterference \cite{10.1145/1040305.1040319}. However, their
+program logic assumes correctness of the underlying MPC protocols.
+The Wys$^\star$ language \cite{wysstar}, based on Wysteria
+\cite{rastogi2014wysteria}, has similar goals and includes a
+trace-based semantics for reasoning about the extensional interactions
+of MPC protocols. Their compiler also enforces some intensional
+properties, in particular that underlying multi-threaded protocols
+enforce the single-threaded source language semantics.
+
+
 
 \subsection{Contributions}
 

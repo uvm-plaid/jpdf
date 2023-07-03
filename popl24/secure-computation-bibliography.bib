@@ -365,3 +365,134 @@ isbn="978-3-319-57048-8",
 doi="10.1007/978-3-319-57048-8_6",
 url="https://doi.org/10.1007/978-3-319-57048-8_6"
 }
+
+%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{10.1145/2637113.2637119,
+author = {Bogdanov, Dan and Laud, Peeter and Randmets, Jaak},
+title = {Domain-Polymorphic Programming of Privacy-Preserving Applications},
+year = {2014},
+isbn = {9781450328623},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2637113.2637119},
+doi = {10.1145/2637113.2637119},
+abstract = {Secure Multi-party Computation (SMC) is seen as one of the main enablers for secure outsourcing of computation. Currently, there are many different SMC techniques (garbled circuits, secret sharing, homomorphic encryption, etc.) and none of them is clearly superior to others in terms of efficiency, security guarantees, ease of implementation, etc. For maximum efficiency, and for obeying the trust policies, a privacy-preserving application may wish to use several different SMC techniques for different operations it performs. A straightforward implementation of this application may result in a program that (i) contains a lot of duplicated code, differing only in the used SMC technique; (ii) is difficult to maintain, if policies or SMC implementations change; and (iii) is difficult to reuse in similar applications using different SMC techniques.In this paper, we propose a programming language called SecreC with associated compilation techniques for simple orchestration of multiple SMC techniques and multiple protection domains. It is a simple imperative language with function calls where the types of data items are annotated with protection domains and where the function declarations may be domain-polymorphic. This allows most of the program code working with private data to be written in a SMC-technique-agnostic manner. It also allows rapid deployment of new SMC techniques and implementations in existing applications. We have implemented the compiler for the language, integrated it with Sharemind SMC framework, and are currently using it for new privacy-preserving applications.},
+booktitle = {Proceedings of the Ninth Workshop on Programming Languages and Analysis for Security},
+pages = {53-65},
+numpages = {13},
+keywords = {Secure Multi-Party Computation, Software Engineering},
+location = {Uppsala, Sweden},
+series = {PLAS'14}
+}
+
+%%%%%%%%%%%%%%%%%%%
+
+@InProceedings{10.1007/978-3-540-37621-7_9,
+author="Sabelfeld, Andrei
+and Myers, Andrew C.",
+editor="Futatsugi, Kokichi
+and Mizoguchi, Fumio
+and Yonezaki, Naoki",
+title="A Model for Delimited Information Release",
+booktitle="Software Security - Theories and Systems",
+year="2004",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="174--191",
+abstract="Much work on security-typed languages lacks a satisfactory account of intentional information release. In the context of confidentiality, a typical security guarantee provided by security type systems is noninterference, which allows no information flow from secret inputs to public outputs. However, many intuitively secure programs do allow some release, or declassification, of secret information (e.g., password checking, information purchase, and spreadsheet computation). Noninterference fails to recognize such programs as secure. In this respect, many security type systems enforcing noninterference are impractical. On the other side of the spectrum are type systems designed to accommodate some information leakage. However, there is often little or no guarantee about what is actually being leaked. As a consequence, such type systems are vulnerable to laundering attacks, which exploit declassification mechanisms to reveal more secret data than intended. To bridge this gap, this paper introduces a new security property, delimited release, an end-to-end guarantee that declassification cannot be exploited to construct laundering attacks. In addition, a security type system is given that straightforwardly and provably enforces delimited release.",
+isbn="978-3-540-37621-7"
+}
+
+%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{10.1145/1040305.1040319,
+author = {Li, Peng and Zdancewic, Steve},
+title = {Downgrading Policies and Relaxed Noninterference},
+year = {2005},
+isbn = {158113830X},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1040305.1040319},
+doi = {10.1145/1040305.1040319},
+abstract = {In traditional information-flow type systems, the security policy is often formalized as noninterference properties. However, noninterference alone is too strong to express security properties useful in practice. If we allow downgrading in such systems, it is challenging to formalize the security policy as an extensional property of the system.This paper presents a generalized framework of downgrading policies. Such policies can be specified in a simple and tractable language and can be statically enforced by mechanisms such as type systems. The security guarantee is then formalized as a concise extensional property using program equivalences. This relaxed noninterference generalizes traditional pure noninterference and precisely characterizes the information released due to downgrading.},
+booktitle = {Proceedings of the 32nd ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+pages = {158-170},
+numpages = {13},
+keywords = {language-based security, program equivalence, downgrading policies, information flow, relaxed noninterference},
+location = {Long Beach, California, USA},
+series = {POPL '05}
+}
+
+@article{10.1145/1047659.1040319,
+author = {Li, Peng and Zdancewic, Steve},
+title = {Downgrading Policies and Relaxed Noninterference},
+year = {2005},
+issue_date = {January 2005},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {40},
+number = {1},
+issn = {0362-1340},
+url = {https://doi.org/10.1145/1047659.1040319},
+doi = {10.1145/1047659.1040319},
+abstract = {In traditional information-flow type systems, the security policy is often formalized as noninterference properties. However, noninterference alone is too strong to express security properties useful in practice. If we allow downgrading in such systems, it is challenging to formalize the security policy as an extensional property of the system.This paper presents a generalized framework of downgrading policies. Such policies can be specified in a simple and tractable language and can be statically enforced by mechanisms such as type systems. The security guarantee is then formalized as a concise extensional property using program equivalences. This relaxed noninterference generalizes traditional pure noninterference and precisely characterizes the information released due to downgrading.},
+journal = {SIGPLAN Not.},
+month = {jan},
+pages = {158–170},
+numpages = {13},
+keywords = {language-based security, information flow, relaxed noninterference, program equivalence, downgrading policies}
+}
+
+%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{wysstar,
+  author    = {Aseem Rastogi and
+               Nikhil Swamy and
+               Michael Hicks},
+  editor    = {Flemming Nielson and
+               David Sands},
+  title     = {Wys*: {A} {DSL} for Verified Secure Multi-party Computations},
+  booktitle = {8th International Conference on Principles of Security and Trust (POST)},
+  shortbooktitle = {POST},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {11426},
+  pages     = {99--122},
+  publisher = {Springer},
+  year      = {2019},
+  url       = {https://doi.org/10.1007/978-3-030-17138-4\_5},
+  doi       = {10.1007/978-3-030-17138-4\_5},
+  biburl    = {https://dblp.org/rec/bib/conf/post/RastogiSH19},
+}
+
+%%%%%%%%%%%%%%%%
+
+@INPROCEEDINGS{rastogi14wysteria,
+  AUTHOR = {Aseem Rastogi and Matthew A. Hammer and Michael Hicks},
+  TITLE = {Knowledge Inference for Optimizing Secure Multi-party Computation},
+  BOOKTITLE = {In Proceedings of the 35th IEEE Symposium on Security and Privacy (Oakland) 2014},
+  MONTH = MAY,
+  YEAR = 2014
+}
+
+%%%%%%%%%%%%%%%%
+
+
+@article{10.1145/3498713,
+author = {Ye, Qianchuan and Delaware, Benjamin},
+title = {Oblivious Algebraic Data Types},
+year = {2022},
+issue_date = {January 2022},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {6},
+number = {POPL},
+url = {https://doi.org/10.1145/3498713},
+doi = {10.1145/3498713},
+abstract = {Secure computation allows multiple parties to compute joint functions over private data without leaking any sensitive data, typically using powerful cryptographic techniques. Writing secure applications using these techniques directly can be challenging, resulting in the development of several programming languages and compilers that aim to make secure computation accessible. Unfortunately, many of these languages either lack or have limited support for rich recursive data structures, like trees. In this paper, we propose a novel representation of structured data types, which we call oblivious algebraic data types, and a language for writing secure computations using them. This language combines dependent types with constructs for oblivious computation, and provides a security-type system which ensures that adversaries can learn nothing more than the result of a computation. Using this language, authors can write a single function over private data, and then easily build an equivalent secure computation according to a desired public view of their data.},
+journal = {Proc. ACM Program. Lang.},
+month = {jan},
+articleno = {51},
+numpages = {29},
+keywords = {Algebraic Data Types, Oblivious Computation, Multiparty Computation, Dependent Types}
+}
