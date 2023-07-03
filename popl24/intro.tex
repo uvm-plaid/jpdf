@@ -147,13 +147,15 @@ verifying passive security in $\minifed$ protocols, that is also
 amenable to HPC optimizations via translation of $\minifed$ protocols
 into Datalog \cnote{I think this Section can be on the chopping block
   for space savings, since it's based on truth table
-  computation/Datalog semantics.}. In Section \ref{section-metalang}
-we define a new metaprogramming language $\metaprot$ that dynamically
-generates $\minifed$ protocols. It includes control and data
-structures and is able to express logical protocol components, and
-enjoys a type safety result that guarantees that generated protocols
-are semantically well-defined. Our key analysis results are presented
-in Section \ref{section-composition}, where we show how intensional,
+  computation/Datalog semantics.}.
+
+In Section \ref{section-metalang} we define a new metaprogramming
+language $\metaprot$ that dynamically generates $\minifed$
+protocols. It includes control and data structures and is able to
+express logical protocol components, and enjoys a type safety result
+that guarantees that generated protocols are semantically
+well-defined. Our key analysis results are presented in Section
+\ref{section-composition}, where we show how intensional,
 automatically certifiable properties of program components can be
 composed to obtain whole-program MPC security. We consider the GMW and
 YGC protocols as examplars, both of which use \emph{circuit}
