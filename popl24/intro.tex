@@ -138,38 +138,28 @@ pads, and additive secret sharing. In Section \ref{section-pmf} we
 formulate \emph{program distributions}, a formalism for expressing
 dependencies between secrets and views, useful for expressing
 intensional characteristics of protocols and precisely quantifying
-allowable information leakage in terms of protocol outputs.
-
-In this paper, we make the following contributions.
-\begin{itemize}
-\item A new probabilistic programming language $\minifed$ for defining
-  synchronous distributed protocols over the binary field. We consider example
-  protocols including oblivious transfer, communications encryption with one-time
-  pads, and additive secret sharing (Section \ref{section-minicat}).
-  \cnote{I'm hoping $\minifed$ hasn't been used already.}
-\item A formulation of $\minifed$ program distributions, including
-  distributions of secrets and views, supporting expression of security
-  properties (Section \ref{section-pmf}). This intensional characterization
-  is useful for expressing internal characteristics of protocols, and
-  is needed for MPC due to the fact that obliviousness alone is not sufficient
-  to capture characteristics of the real/ideal model, in particular, the
-  allowance of some information leakage through public outputs. 
-\item A novel hyperproperty of program execution traces, called
-  \emph{noninterference modulo output ($\NIMO$)}, based on our
-  formulation of program distributions, that implies passive security
-  (Section \ref{section-hyperprop}).
-\item A brute force mechanism for verifying passive security in
-  $\minifed$ protocols, that is also amenable to HPC optimizations via
-  translation of $\minifed$ protocols into Datalog (Section \ref{section-bruteforce}). 
-\item A new metaprogramming language $\metaprot$ that dynamically
-  generates $\minifed$ protocols. It includes control and data structures
-  and is able to express logical protocol components, and enjoys a
-  type safety result that guarantees that generated protocols
-  are semantically well-defined (Section \ref{section-metalang}).
-\item A formulation of Yao's Garbled Circuits, and a formulation of a
-  compositional property of an extensible library of garbled gate
-  components that is verifiable automatically. This property
-  guarantees that any well-formed circuits using the library are
-  passive secure (Section \ref{section-composition}).
-\end{itemize}
-
+allowable information leakage in terms of protocol outputs. On this
+basis we then formulate a novel hyperproperty of program execution
+traces, called \emph{noninterference modulo output ($\NIMO$)} that we
+demonstrate implies passive simulator security. In Section
+\ref{section-bruteforce} we define a brute force mechanism for
+verifying passive security in $\minifed$ protocols, that is also
+amenable to HPC optimizations via translation of $\minifed$ protocols
+into Datalog \cnote{I think this Section can be on the chopping block
+  for space savings, since it's based on truth table
+  computation/Datalog semantics.}. In Section \ref{section-metalang}
+we define a new metaprogramming language $\metaprot$ that dynamically
+generates $\minifed$ protocols. It includes control and data
+structures and is able to express logical protocol components, and
+enjoys a type safety result that guarantees that generated protocols
+are semantically well-defined. Our key analysis results are presented
+in Section \ref{section-composition}, where we show how intensional,
+automatically certifiable properties of program components can be
+composed to obtain whole-program MPC security. We consider the GMW and
+YGC protocols as examplars, both of which use \emph{circuit}
+abstractions comprising \emph{gates} in arbitrarily large
+configurations, and show how gates can be automatically certified to
+ensure security in circuits that use them in a manner that scales to
+any circuit size. This approach is extensible, in that new gate
+implementations can be automatically certified to guarantee safe
+inclusion in circuit libraries.
