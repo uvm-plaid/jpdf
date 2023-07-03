@@ -496,3 +496,22 @@ articleno = {51},
 numpages = {29},
 keywords = {Algebraic Data Types, Oblivious Computation, Multiparty Computation, Dependent Types}
 }
+
+%%%%%%%%%%%%%%%%
+
+@INPROCEEDINGS {8429300,
+author = {H. Haagh and A. Karbyshev and S. Oechsner and B. Spitters and P. Strub},
+booktitle = {2018 IEEE 31st Computer Security Foundations Symposium (CSF)},
+title = {Computer-Aided Proofs for Multiparty Computation with Active Security},
+year = {2018},
+volume = {},
+issn = {2374-8303},
+pages = {119-131},
+abstract = {Secure multi-party computation (MPC) is a general cryptographic technique that allows distrusting parties to compute a function of their individual inputs, while only revealing the output of the function. It has found applications in areas such as auctioning, email filtering, and secure teleconference. Given their importance, it is crucial that the protocols are specified and implemented correctly. In the programming language community, it has become good practice to use computer proof assistants to verify correctness proofs. In the field of cryptography, EasyCrypt is the state of the art proof assistant. It provides an embedded language for probabilistic programming, together with a specialized logic, embedded into an ambient general purpose higher-order logic. It allows us to conveniently express cryptographic properties. EasyCrypt has been used successfully on many applications, including public-key encryption, signatures, garbled circuits and differential privacy. Here we show for the first time that it can also be used to prove security of MPC against a malicious adversary. We formalize additive and replicated secret sharing schemes and apply them to Maurer&#x27;s MPC protocol for secure addition and multiplication. Our method extends to general polynomial functions. We follow the insights from EasyCrypt that security proofs can often be reduced to proofs about program equivalence, a topic that is well understood in the verification of programming languages. In particular, we show that for a class of MPC protocols in the passive case the non-interference-based (NI) definition is equivalent to a standard simulation-based security definition. For the active case, we provide a new non-interference based alternative to the usual simulation-based cryptographic definition that is tailored specifically to our protocol.},
+keywords = {cryptography;protocols;additives;probabilistic logic;standards;tools},
+doi = {10.1109/CSF.2018.00016},
+url = {https://doi.ieeecomputersociety.org/10.1109/CSF.2018.00016},
+publisher = {IEEE Computer Society},
+address = {Los Alamitos, CA, USA},
+month = {jul}
+}
