@@ -128,6 +128,18 @@ for allowable information leakage.
 
 \subsection{Overview and Contributions}
 
+In \ref{section-minicat} we develop a new probabilistic programming
+language $\minifed$ for defining synchronous distributed protocols
+over the binary field. The syntax and semantics provides a succinct
+account of \emph{views} and (synchronous) messaging between protocol
+\emph{clients}. In this Section we consider small example protocols
+including oblivious transfer, communications encryption with one-time
+pads, and additive secret sharing. In Section \ref{section-pmf} we
+formulate \emph{program distributions}, a formalism for expressing
+dependencies between secrets and views, useful for expressing
+intensional characteristics of protocols and precisely quantifying
+allowable information leakage in terms of protocol outputs.
+
 In this paper, we make the following contributions.
 \begin{itemize}
 \item A new probabilistic programming language $\minifed$ for defining
