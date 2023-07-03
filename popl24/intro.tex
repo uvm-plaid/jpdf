@@ -1,5 +1,81 @@
 \section{Introduction}
 
+Secure Multi-Party Computation (MPC) protocols support data privacy in
+important distributed applications such as privacy-preserving machine
+learning and Zero-Knowledge proofs in blockchains. MPC methods have
+been developed by the cryptography community for many years, while
+receiving the attention of the programming languages community only
+relatively recently. In contrast, information flow security has
+received significant attention in PL theory and practice especially
+since the turn of the century \cite{1159651}, including a menagerie of
+variants, enforcement mechanisms, and programming frameworks. Much of
+this has been enabled by the unified metatheory of
+\emph{hyperproperties} \cite{10.5555/1891823.1891830} that establishes
+a common conceptual framework for reasoning about and implementing
+systems with information flow security. 
+
+Our goal is to explore and establish connections between the security
+model of MPC-- the \emph{real/ideal} aka \emph{simulator security}
+model -- and trace-based hyperproperties, and to leverage these
+connections to obtain automated enforcement mechanisms for MPC
+protocol development. Currently, proof methods for MPC protocol
+development are well-studied \cite{Lindell2017} but manual and 
+thus tedious and error-prone, and are also non-standardized and
+unfamiliar to most PL theorists. Therefore our exploration will
+make both theoretical and practical contributions by bridging a gap between
+information flow and simulator security methodologies.
+
+\subsection{The Analysis Challenge of MPC} MPC protocols involve communication
+between a group of distributed participants called a \emph{federation}
+that collaboratively compute and publish the result of some known
+\emph{ideal functionality} $\idealf$, while keeping each party's input
+``secret'', without the use of a trusted third party. This last part
+is critical. For example, if we take $\idealf$ to be the majority vote
+function, a protocol for computing $\idealf$ is MPC-secure if, given
+any set of input votes, it correctly computes and publishes the voting
+result without directly revealing the votes of individual participants
+to the public or to other participants. However, note that by
+publishing the output, some information about individual votes may be
+implicitly declassified.  For example, in the case of a majority vote
+in a federation of size 3, if the motion carries and party 1 has voted
+no, then party 1 knows exactly the votes of parties 2 and 3. This
+cannot be avoided due to the nature of $\idealf$.
+
+Security in the MPC setting thus means that protocols cannot reveal
+any more information than the output of the ideal functionality, which
+will be published. The security model also assumes that some subset of
+participants can be corrupted and collude adversarially to infer
+secret information. The accepted method of demonstrating protocol
+security in this setting is to define a \emph{simulation} algorithm
+that runs in the ``ideal'' world which, given just the inputs of
+corrupted parties and the output of the ideal functionality, is able
+to reconstruct information that corrupted parties receive in their
+so-called \emph{views} of the protocol running in the real world.
+This implies that adversarial views provide no information beyond what
+is provided by the ideal output alone. Simulation is defined
+probabilistically since MPC protocols typically rely on cryptographic
+and probabilistic methods.
+
+In Section \ref{section-hyperprop-passive} we formalize real/ideal
+security, and we define and discuss simple examples of MPC protocols
+in Section \ref{section-minicat-examples} and more complex ones in
+Section \ref{section-composition}. But an immediate and main point in
+relation to security hyperproperties is that, due to the potential for
+information release in MPC, simulator security is \emph{not} a strict
+probabilistic noninterference or trace obliviousness property, as we
+show in Section \ref{section-hyperprop-ni}- rather, the public output
+allows and sets an upper bound on declassification.
+
+\subsection{Related Work}
+
+We distinguish between \emph{extensional} vs.~\emph{intensional}
+properties and analysis of MPC protocols. By extensional, we mean
+analysis concerned with the use and interaction of complete protocols
+that are proved to be secure. By intensional, we mean analysis of the
+inner workings of protocols themselves. 
+
+\subsection{Contributions}
+
 In this paper, we make the following contributions.
 \begin{itemize}
 \item A new probabilistic programming language $\minifed$ for defining
