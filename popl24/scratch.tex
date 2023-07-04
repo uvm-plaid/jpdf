@@ -171,11 +171,18 @@ By straightforward structural induction on $\be$.
   and
   $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout]\}}}$$
   Since $\vars(\prog_1) \cap \vars(\prog_2)$ are only the wire inputs to $\ttt{g}$,
-  therefore by assumption and Lemma \ref{lemma-gmw-frame}:
-  $$\sep{\progtt(\prog_1;\prog_2)}{(S_{\{1\}} \cup V_{\{1\}})}{\ttt{\{v[2,gout]\}}}$$
-  and also:
-  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{(S_{\{2\}}\cup V_{\{2\}})}$$
-  etc., so the result follows. 
+  therefore by assumption and Lemma \ref{lemma-gmw-frame} the following assertions are
+  valid:
+  \begin{mathpar}
+    \sep{\progtt(\prog_1;\prog_2)}{(S_{\{1\}} \cup V_{\{1\}})}{\ttt{\{v[2,gout]\}}}
+
+    \sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{(S_{\{2\}}\cup V_{\{2\}})}
+    
+    \sep{\progtt(\prog_1;\prog_2)}{(S_{\{2\}} \cup V_{\{2\}})}{\ttt{\{v[1,gout]\}}}
+
+    \sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{(S_{\{1\}}\cup V_{\{1\}})}
+  \end{mathpar}
+  The result follows by Lemma \ref{lemma-separation}.
 \end{proof}
 
 \begin{definition}[GMW Encode Certification]
