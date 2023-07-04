@@ -94,6 +94,8 @@ $\dom(\store_1) \subseteq \dom(\store_2)$ and $\store_1(x) =
 \store_2$ to denote the combination of $\store_1$ and $\store_2$
 assuming $\store_1(x) = \store_2(x)$ for all $x \in \dom(\store_1)
 \cap \dom(\store_2)$, otherwise $\store_1 \cap \store_2$ is undefined.
+We write $\store_1 \subseteq \store_2$ iff $\store_1 \cap \store_2
+= \store_1$.
 
 Given a set of variables $X$, we write $\store_X$ to denote the
 memory $\store$ restricted to the domain $X$, and we define
@@ -308,3 +310,5 @@ $\vx{0}{output}$ is 0. Then the adversary knows that 2 and 3's secrets
 are either 1 and 0, or 0 and 1, with 50/50 probability, and definitely
 neither 0 and 0, nor 1 and 1. 
 \end{example}
+
+
