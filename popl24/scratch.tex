@@ -35,10 +35,26 @@ from \cite{barthe2019probabilistic} with the same denotations.
   \item $\vc{\pmf}{x}{y}$ if  $\vc{\pmf}{y}{x}$
   \item $\vc{\pmf}{x}{y}$ and $\vc{\pmf}{y}{z}$ imply $\vc{\pmf}{x}{z}$
   \item ($\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z}$) iff $\sep{\pmf}{X}{(Y \cup Z)}$
-  \item If $\prog_1;\prog_2$ is safe and $\vars(\prog_1) \cap \vars(\prog_2) = \varnothing$
-    then $\sep{\progtt(\prog_1;\prog_2)}{\vars(\prog_1)}{\vars(\prog_2)}$.
+  %\item If $\prog_1;\prog_2$ is safe and $\vars(\prog_1) \cap \vars(\prog_2) = \varnothing$
+  %  then $\sep{\progtt(\prog_1;\prog_2)}{\vars(\prog_1)}{\vars(\prog_2)}$.
   \end{enumerate}
 \end{lemma}
+
+\begin{lemma}
+  \label{lemma-sepjoin}
+  $\sep{\progtt(\prog)}{X}{Y}$ iff for all 
+  $\store^1, \store^2 \in \runs(\prog)$ there exists
+  $\store \in \runs(\prog)$ with
+  $\store^1_{X} \cap \store^2_{Y} \subseteq \store$.
+\end{lemma}
+
+%\begin{lemma}[Wire Framing]
+%  \label{lemma-wire-framing}
+%  If $\sep{\progtt(\prog_2)}{X}{Z}$ and
+%  $\vars(\prog_1) \cap \vars(\prog_2) \subseteq X$ then
+%  $\sep{\progtt(\prog_1;\prog_2)}{Y}{Z}$ for
+%  $Y \subseteq \vars(\prog_1)$.
+%\end{lemma}
 
 \begin{definition}[GMW Gate Certification]
   \label{definition-gmwgate-certification}
@@ -64,11 +80,9 @@ from \cite{barthe2019probabilistic} with the same denotations.
 \end{definition}
 
 \begin{lemma}
-  \label{lemma-sepjoin}
-  $\sep{\progtt(\prog)}{X}{Y}$ iff for all 
-  $\store^1, \store^2 \in \runs(\prog)$ there exists
-  $\store \in \runs(\prog)$ with
-  $\store^1_{X} \cap \store^2_{Y} \subseteq \store$.
+  \label{lemma-gmw-frame}
+  If $\sep{\progtt(\prog_2)}{Y}{Z}$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
+  $X \not\in \vars(\prog_2)$ then $\sep{\progtt(\prog_1;\prog_2)}{X}{Z}$. 
 \end{lemma}
 
 \begin{lemma}
@@ -85,49 +99,53 @@ By straightforward structural induction on $\be$.
 
 \begin{lemma}[Substitution]
   \label{lemma-substitution}
-  If $\sep{\progtt(\prog_2)}{\{ f \}}{\vdefs(\prog_2)}$ and
+  If $\sep{\progtt(\prog_2)}{\{ f \}}{X}$ and
   $\prog_1;\prog_2[\be/f]$ is safe with $\vars(\prog_1,\be) \cap
-  \vars(\prog_2) = \varnothing$ then
-  $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vdefs(\prog_1)}{\vdefs(\prog_2[\be/f])}$.
+  X = \varnothing$ then
+  $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vars(\be)}{X}$.
 \end{lemma}
 \begin{proof}
   Suppose on the contrary it was not the case that
-  $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vdefs(\prog_1)}{\vdefs(\prog_2[\be/f])}$.
+  $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vars(\be)}{X}$.
   Then by Lemma \ref{lemma-sepjoin} there exists $\store_1,\store_2
   \in \runs(\prog_1;\prog_2[\be/f])$ with no $\store \in
-  \runs(\prog_1;\prog_2[\be/f])$ such that $\store^1_{\vdefs(\prog_1)}
-  \cap \store^2_{\vdefs(\prog_2)} \subseteq \store$.  But also by
+  \runs(\prog_1;\prog_2[\be/f])$ such that $\store^1_{\vars(\be)}
+  \cap \store^2_X \subseteq \store$.  But also by
   assumption and Lemma \ref{lemma-sepjoin} for any $\beta$ there
   exists $\store' \in \runs(\prog_2)$ with $\{ f \mapsto \beta \} \cap
-  \store^2_{\vdefs(\prog_2)} \subseteq \store'$. So in particular, we
-  have $\{ f \mapsto \lcod{\store^1_{\vdefs(\prog_1)},\be}{i} \} \cap
-  \store^2_{\vdefs(\prog_2)} \subseteq \store'$ for any $i$. This, the
+  \store^2_X \subseteq \store'$. So in particular, we
+  have $\{ f \mapsto \lcod{\store^1_{\vars(\be)},\be}{i} \} \cap
+  \store^2_X \subseteq \store'$ for any $i$. This, the
   assumption $\vars(\prog_1,\be) \cap \vars(\prog_2) = \varnothing$,
   and application of Lemma \ref{lemma-presub} leads to the consequence
   that there exists $\store \in \runs(\prog_1;\prog_2[\be/f])$ with
-  $\store \supseteq \store^1_{\vdefs(\prog_1)} \cap
-  \store^2_{\vdefs(\prog_2)}$ given the assumption $\vars(\prog_1,\be)
+  $\store \supseteq \store^1_{\vars(\be)} \cap
+  \store^2_X$ given the assumption $\vars(\prog_1,\be)
   \cap \vars(\prog_2) = \varnothing$, which is a contradiction.
 \end{proof}
 
-\begin{lemma}[GMW Gate Composition]
-  \label{lemma-composition-gmw}
-  Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ and certified $\mathit{gate}$ where:
+\begin{lemma}[GMW Gate Invariant]
+  \label{lemma-preservation-gmw}
+  Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ and certified $\mathit{gate}$ where
+  for some $\ttt{g1}$ and $\ttt{g2}$, :
   $$
   \begin{array}{lcr}
    v_1 &=& \ttt{\{c1 = v[1,g1out]; c2 = v[2,g1out]\}}\\
    v_2 &=& \ttt{\{c1 = v[1,g2out]; c2 = v[2,g2out]\}}
   \end{array}
   $$
-  for some $\ttt{g1}$ and $\ttt{g2}$ and:
+  and let:
   $$
   \config{\prog_1}{E[\mathit{gate}(\ttt{g},v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{c1 = v[1,gout]; c2 = v[2,gout]\}}]}
   $$
-  Then the following postconditions hold:
-  \begin{enumerate}
-  \item $\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[2,gout]\}}}$
-  \item $\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout]\}}}$
-  \end{enumerate}
+  If we have the following precondition, where $\iov(\prog_1) = S \cup V$:
+  $$
+  \sep{\progd(\prog_1)}{(S_{\{2\}} \cup V_{\{2\}})}{(S_{\{1\}} \cup V_{\{1\}})}
+  $$
+  then we have as a postcondition:
+  $$
+  \sep{\progd(\prog_1)}{(S_{\{2\}} \cup V_{\{2\}} \cup \{ \ttt{v[2,gout]} \})}{(S_{\{1\}} \cup V_{\{1\}} \cup \{ \ttt{v[1,gout]} \})}
+  $$
 \end{lemma}
 
 \begin{proof}
@@ -140,48 +158,24 @@ By straightforward structural induction on $\be$.
       \prog[\ttt{v[1,g1out]}/\ttt{flip[1,s11]}][\ttt{v[2,g1out]}/\ttt{flip[2,s12]}][\ttt{v[1,g2out]}/\ttt{flip[1,s21]}][\ttt{v[2,g2out]}/\ttt{flip[2,s22]}]
     \end{array}
   }
-  $$
-  The assumption of well-typedness of $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ assures
-  that $\ttt{g}$ has not been previously used as a gate identifier, since otherwise the
-  views $\ttt{v[1,gout]}$ and $\ttt{v[1,gout]}$ would have been previously defined. This
-  ensures $\vars(\prog_1,x) \cap
-  \vars(\prog_2) = \varnothing$ for:
+  $$ Now, the assumption of well-typedness of
+  $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ assures that $\ttt{g}$
+  has not been previously used as a gate identifier in $\prog_1$,
+  since otherwise the views $\ttt{v[1,gout]}$ and $\ttt{v[2,gout]}$
+  would have been previously defined. This ensures $\vars(\prog_1,x)
+  \cap \vars(\prog_2) = \varnothing$ for:
   $$x \in \{ \ttt{v[1,g1out]}, \ttt{v[2,g1out]}, \ttt{v[1,g2out]}, \ttt{v[2,g2out]}\}$$
   given condition (iii) in Definition \ref{definition-gmwgate-certification}.
-  The result follows by Lemma \ref{lemma-substitution}. 
-\end{proof}
-
-\begin{lemma}[GMW Gate Invariance]
-  \label{lemma-preservation-gmw}
-  Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ and certified $\mathit{gate}$ where
-  for some $\ttt{g1}$ and $\ttt{g2}$, :
-  $$
-  \begin{array}{lcr}
-   v_1 &=& \ttt{\{c1 = v[1,g1out]; c2 = v[2,g1out]\}}\\
-   v_2 &=& \ttt{\{c1 = v[1,g2out]; c2 = v[2,g2out]\}}
-  \end{array}
-  $$
-  and where $\iov(\prog_1) = S \cup V$ we have:
-  $$
-  \sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}
-  \quad \text{and} \quad \sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}
-  $$
-  and:
-  $$
-  \config{\prog_1}{E[\mathit{gate}(\ttt{g},v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{c1 = v[1,gout]; c2 = v[2,gout]\}}]}
-  $$
-  then we have as a postcondition:
-  %\begin{enumerate}
-  $$\sep{\progd(\prog_1;\prog_2)}{S_{\{2\}}}{(V_{\{1\}} \cup \ttt{\{v[1,gout]\}})}
-  \quad \text{and}\quad \sep{\progd(\prog_1;\prog_2)}{S_{\{1\}}}{(V_{\{2\}} \cup \ttt{\{v[2,gout]\}})}$$
-  %\end{enumerate}
-\end{lemma}
-
-\begin{proof}
-By Lemma \ref{lemma-composition-gmw} we have:
-$$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[2,gout]\}}}$$
-and
-$$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout]\}}}$$
+  Thus by Lemma \ref{lemma-substitution} we have:
+  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[2,gout]\}}}$$
+  and
+  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout]\}}}$$
+  Since $\vars(\prog_1) \cap \vars(\prog_2)$ are only the wire inputs to $\ttt{g}$,
+  therefore by assumption and Lemma \ref{lemma-gmw-frame}:
+  $$\sep{\progtt(\prog_1;\prog_2)}{(S_{\{1\}} \cup V_{\{1\}})}{\ttt{\{v[2,gout]\}}}$$
+  and also:
+  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{(S_{\{2\}}\cup V_{\{2\}})}$$
+  etc., so the result follows. 
 \end{proof}
 
 \begin{definition}[GMW Encode Certification]
