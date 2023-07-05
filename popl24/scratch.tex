@@ -81,9 +81,20 @@ from \cite{barthe2019probabilistic} with the same denotations.
 
 \begin{lemma}
   \label{lemma-gmw-frame}
-  If $\sep{\progtt(\prog_2)}{Y}{Z}$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
-  $X \not\in \vars(\prog_2)$ then $\sep{\progtt(\prog_1;\prog_2)}{X}{Z}$. 
+  If $\sep{\progtt(\prog_1;\prog_2)}{Y}{V}$ for $V \in \vdefs(\prog_2)$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
+  $X \not\in \vars(\prog_2)$ then $\sep{\progtt(\prog_1;\prog_2)}{X}{V}$. 
 \end{lemma}
+\begin{proof}
+  By assumption and Lemma \ref{lemma-sepjoin}, for all
+  $\store^1,\store^2 \in \runs(\prog_1;\prog_2)$ we have $\store^1_Y
+  \cap \store^2_V \subseteq \store$ for some $\store_a \in
+  \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_Y \subseteq
+  \store$ for some $\store_b \in \runs(\prog_1;\prog_2)$.  Thus, since
+  we assume $X \not\in \vars(\prog_2)$ we have $\store_a \cap \store_b
+  \in \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_V =
+  \store_a \cap \store_b$, obtaining the result by
+  \ref{lemma-sepjoin}.
+\end{proof}
 
 \begin{lemma}
   \label{lemma-presub}
@@ -126,7 +137,7 @@ By straightforward structural induction on $\be$.
 
 \begin{lemma}[GMW Gate Invariant]
   \label{lemma-preservation-gmw}
-  Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ and certified $\mathit{gate}$ where
+  Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ for certified $\mathit{gate}$ where
   for some $\ttt{g1}$ and $\ttt{g2}$, :
   $$
   \begin{array}{lcr}
@@ -144,7 +155,7 @@ By straightforward structural induction on $\be$.
   $$
   then we have as a postcondition:
   $$
-  \sep{\progd(\prog_1)}{(S_{\{2\}} \cup V_{\{2\}} \cup \{ \ttt{v[2,gout]} \})}{(S_{\{1\}} \cup V_{\{1\}} \cup \{ \ttt{v[1,gout]} \})}
+  \sep{\progd(\prog_1;\prog_2)}{(S_{\{2\}} \cup V_{\{2\}} \cup \{ \ttt{v[2,gout]} \})}{(S_{\{1\}} \cup V_{\{1\}} \cup \{ \ttt{v[1,gout]} \})}
   $$
 \end{lemma}
 
@@ -186,6 +197,7 @@ By straightforward structural induction on $\be$.
 \end{proof}
 
 \begin{definition}[GMW Encode Certification]
+  \label{definition-gmwencode-certification}
   Let $\mathit{encode}$ be an encoding function, and let:
   $$
   \config{\varnothing}{\ttt{encode(s1,s2)}} \redxs
@@ -200,11 +212,36 @@ By straightforward structural induction on $\be$.
   $$
   Then $\mathit{encode}$ is \emph{certified} iff each of the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progtt(\prog)}{\ttt{\{ s[1,s1] \}}}{\ttt{\{ v[2,s1out], v[2,s2out] \}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{ s[2,s2] \}}}{\ttt{\{ v[1,s1out], v[1,s2out] \}}}$
+  \item $\sep{\progtt(\prog)}{\ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}}}{\ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$
   \item All $x \in \vars(\prog)$ are distinguished by $\ttt{in1}$ or $\ttt{in2}$. 
   \end{enumerate}
 \end{definition}
+
+\begin{lemma}[GMW Encode Invariant] 
+  Given well-typed $\prog_1;E[\mathit{encode}\ttt{(s1,s2)}]$ for certified $\mathit{encode}$, let:
+  $$
+  \config{\prog_1}{E[\mathit{encode}(\ttt{s1},\ttt{s2})]} \redxs
+  \config{\prog_1;\prog_2}{E[\ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}]}
+  $$
+  If we have the following precondition, where $\iov(\prog_1) = S \cup V$:
+  $$
+  \sep{\progd(\prog_1)}{(S_{\{2\}} \cup V_{\{2\}})}{(S_{\{1\}} \cup V_{\{1\}})}
+  $$
+  then we have as a postcondition, where $\iov(\prog_1;\prog_2) = S' \cup V'$:
+  $$
+  \sep{\progd(\prog_1;\prog_2)}{(S'_{\{2\}} \cup V'_{\{2\}})}{(S'_{\{1\}} \cup V'_{\{1\}})}
+  $$
+\end{lemma}
+
+\begin{proof}
+  By Definition \ref{definition-gmwencode-certification} we have:
+  $$\sep{\progtt(\prog)}{\ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}}}{\ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$$
+  Since we assume that secrets are in uniform and independent marginal distributions a priori,
+  and $\vars(\prog_1) \cap \vars(\prog_2)$ by condition (ii) of
+  Definition \ref{definition-gmwencode-certification}, thus by assumption and Lemma \ref{lemma-separation}:
+  $$\sep{\progtt(\prog)}{(S_1 \cup V_1 \cup \ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}})}{(S_2 \cup V_2 \cup \ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$$
+  which was to be proven.
+\end{proof}
 
 \begin{theorem}
   \label{theorem-gmw-NIMO}
