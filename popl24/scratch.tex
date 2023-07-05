@@ -34,7 +34,8 @@ from \cite{barthe2019probabilistic} with the same denotations.
   \item $\sep{\pmf}{Y}{Z}$ iff $\sep{\pmf}{Z}{Y}$
   \item $\vc{\pmf}{x}{y}$ if  $\vc{\pmf}{y}{x}$
   \item $\vc{\pmf}{x}{y}$ and $\vc{\pmf}{y}{z}$ imply $\vc{\pmf}{x}{z}$
-  \item ($\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z}$) iff $\sep{\pmf}{X}{(Y \cup Z)}$
+  \item $\sep{\pmf}{X}{(Y \cup Z)}$ implies $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z})$
+  \item $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z}$ and $\sep{\pmf}{Y}{Z})$ implies $\sep{\pmf}{X}{(Y \cup Z)}$ 
   %\item If $\prog_1;\prog_2$ is safe and $\vars(\prog_1) \cap \vars(\prog_2) = \varnothing$
   %  then $\sep{\progtt(\prog_1;\prog_2)}{\vars(\prog_1)}{\vars(\prog_2)}$.
   \end{enumerate}
@@ -72,8 +73,9 @@ from \cite{barthe2019probabilistic} with the same denotations.
   $.
   Then $\mathit{gate}$ is \emph{certified} iff the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progtt(\prog)}{\ttt{\{flip[1,s11],flip[1,s21]\}}}{\ttt{\{v[2,gout]\}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{flip[2,s12],flip[2,s22]\}}}{\ttt{\{v[1,gout]\}}}$
+  \item $\sep{\progtt(\prog)}{\ttt{\{flip[1,s11],flip[1,s21]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$
+  \item $\sep{\progtt(\prog)}{\ttt{\{flip[2,s12],flip[2,s22]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$
+  % \item $\sep{\progtt(\prog)}{\ttt{\{v[1,gout]\}}}{\ttt{\{v[2,gout]\}}}$
   \item All variables in:$$\vars(\prog) - \{ \ttt{flip[1,s11],flip[1,s21],flip[2,s12],flip[2,s22]}\}$$
     are distinguished by $\ttt{g}$ (i.e., contain $\ttt{g}$ as an identifier substring). 
   \end{enumerate}
@@ -136,30 +138,32 @@ By straightforward structural induction on $\be$.
 \end{proof}
 
 \begin{lemma}[GMW Gate Invariant]
-  \label{lemma-preservation-gmw}
-  Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ for certified $\mathit{gate}$ where
-  for some $\ttt{g1}$ and $\ttt{g2}$, :
+  \label{lemma-gmw-preservation}
+  Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ for certified $\mathit{gate}$ where:
   $$
-  \begin{array}{lcr}
-   v_1 &=& \ttt{\{c1 = v[1,g1out]; c2 = v[2,g1out]\}}\\
-   v_2 &=& \ttt{\{c1 = v[1,g2out]; c2 = v[2,g2out]\}}
-  \end{array}
+  \config{\prog_1}{E[\mathit{gate}(\ttt{g},v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[v]}
   $$
-  and let:
-  $$
-  \config{\prog_1}{E[\mathit{gate}(\ttt{g},v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{c1 = v[1,gout]; c2 = v[2,gout]\}}]}
-  $$
-  If we have the following precondition, where $\iov(\prog_1) = S \cup V$:
-  $$
-  \sep{\progd(\prog_1)}{(S_{\{2\}} \cup V_{\{2\}})}{(S_{\{1\}} \cup V_{\{1\}})}
-  $$
-  then we have as a postcondition:
-  $$
-  \sep{\progd(\prog_1;\prog_2)}{(S_{\{2\}} \cup V_{\{2\}} \cup \{ \ttt{v[2,gout]} \})}{(S_{\{1\}} \cup V_{\{1\}} \cup \{ \ttt{v[1,gout]} \})}
-  $$
+  If we have the following preconditions, where $\iov(\prog_1) = S \cup V$:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$
+  \item $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$
+  \end{enumerate}
+  then we have as a postconditions, where $\iov(\prog_1;\prog_2) = S \cup V'$:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item $\sep{\progd(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$
+  \item $\sep{\progd(\prog_1;\prog_2)}{S_{\{1\}}}{V'_{\{2\}}}$
+  \end{enumerate}
 \end{lemma}
 
 \begin{proof}
+  Given well-typedness of $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$, we have for some $\ttt{g1}$ and $\ttt{g2}$:
+  $$
+  \begin{array}{lcl}
+   v_1 &=& \ttt{\{c1 = v[1,g1out]; c2 = v[2,g1out]\}}\\
+   v_2 &=& \ttt{\{c1 = v[1,g2out]; c2 = v[2,g2out]\}}\\
+    v &=& \ttt{\{c1 = v[1,gout]; c2 = v[2,gout]\}}
+  \end{array}
+  $$
   Let $\prog$ be as defined in Definition \ref{definition-gmwgate-certification}.
   We observe:
   $$
@@ -169,31 +173,25 @@ By straightforward structural induction on $\be$.
       \prog[\ttt{v[1,g1out]}/\ttt{flip[1,s11]}][\ttt{v[2,g1out]}/\ttt{flip[2,s12]}][\ttt{v[1,g2out]}/\ttt{flip[1,s21]}][\ttt{v[2,g2out]}/\ttt{flip[2,s22]}]
     \end{array}
   }
-  $$ Now, the assumption of well-typedness of
-  $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ assures that $\ttt{g}$
+  $$
+  Now, the assumption of well-typedness also assures that $\ttt{g}$
   has not been previously used as a gate identifier in $\prog_1$,
   since otherwise the views $\ttt{v[1,gout]}$ and $\ttt{v[2,gout]}$
   would have been previously defined. This ensures $\vars(\prog_1,x)
-  \cap \vars(\prog_2) = \varnothing$ for:
+  \cap \vars(\prog) = \varnothing$ for:
   $$x \in \{ \ttt{v[1,g1out]}, \ttt{v[2,g1out]}, \ttt{v[1,g2out]}, \ttt{v[2,g2out]}\}$$
-  given condition (iii) in Definition \ref{definition-gmwgate-certification}.
+  given condition (iii) of Definition \ref{definition-gmwgate-certification}.
   Thus by Lemma \ref{lemma-substitution} we have:
-  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[2,gout]\}}}$$
+  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$$
   and
-  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout]\}}}$$
-  Since $\vars(\prog_1) \cap \vars(\prog_2)$ are only the wire inputs to $\ttt{g}$,
-  therefore by assumption and Lemma \ref{lemma-gmw-frame} the following assertions are
-  valid:
-  \begin{mathpar}
-    \sep{\progtt(\prog_1;\prog_2)}{(S_{\{1\}} \cup V_{\{1\}})}{\ttt{\{v[2,gout]\}}}
-
-    \sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{(S_{\{2\}}\cup V_{\{2\}})}
-    
-    \sep{\progtt(\prog_1;\prog_2)}{(S_{\{2\}} \cup V_{\{2\}})}{\ttt{\{v[1,gout]\}}}
-
-    \sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{(S_{\{1\}}\cup V_{\{1\}})}
-  \end{mathpar}
-  The result follows by Lemma \ref{lemma-separation}.
+  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$$
+  And by Lemma \ref{lemma-gmw-frame} and condition (iii) of Definition
+  \ref{definition-gmwgate-certification} we then have:
+  $$\sep{\progtt(\prog_1;\prog_2)}{S_{\{1\}}}{\ttt{\{v[2,gout]\}}} \quad \text{and} \quad
+  \sep{\progtt(\prog_1;\prog_2)}{S_{\{2\}}}{\ttt{\{v[1,gout]\}}}$$
+  so by precondition assumptions and Lemma \ref{lemma-separation} we have:
+  $$\sep{\progtt(\prog_1;\prog_2)}{S_{\{1\}}}{V'_{\{2\}}} \quad \text{and} \quad
+  \sep{\progtt(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$$
 \end{proof}
 
 \begin{definition}[GMW Encode Certification]
@@ -212,53 +210,70 @@ By straightforward structural induction on $\be$.
   $$
   Then $\mathit{encode}$ is \emph{certified} iff each of the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progtt(\prog)}{\ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}}}{\ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$
+    %\item $\sep{\progtt(\prog)}{\ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}}}{\ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$
+  \item $\sep{\progtt(\prog)}{\ttt{\{s[1,s1]\}}}{\ttt{\{v[2,s1out],v[2,s2out]\}}}$
+  \item $\sep{\progtt(\prog)}{\ttt{\{s[2,s2]\}}}{\ttt{\{v[1,s1out],v[1,s2out]\}}}$
   \item All $x \in \vars(\prog)$ are distinguished by $\ttt{in1}$ or $\ttt{in2}$. 
   \end{enumerate}
+  
 \end{definition}
 
-\begin{lemma}[GMW Encode Invariant] 
+\begin{lemma}[GMW Encode Invariant]
+  \label{lemma-gmw-encode}
   Given well-typed $\prog_1;E[\mathit{encode}\ttt{(s1,s2)}]$ for certified $\mathit{encode}$, let:
   $$
   \config{\prog_1}{E[\mathit{encode}(\ttt{s1},\ttt{s2})]} \redxs
-  \config{\prog_1;\prog_2}{E[\ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}]}
+  \config{\prog_1;\prog_2}{E[v]}
   $$
-  If we have the following precondition, where $\iov(\prog_1) = S \cup V$:
-  $$
-  \sep{\progd(\prog_1)}{(S_{\{2\}} \cup V_{\{2\}})}{(S_{\{1\}} \cup V_{\{1\}})}
-  $$
-  then we have as a postcondition, where $\iov(\prog_1;\prog_2) = S' \cup V'$:
-  $$
-  \sep{\progd(\prog_1;\prog_2)}{(S'_{\{2\}} \cup V'_{\{2\}})}{(S'_{\{1\}} \cup V'_{\{1\}})}
-  $$
+  If we have the following preconditions, where $\iov(\prog_1) = S' \cup V$:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$
+  \item $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$
+  \end{enumerate}
+  then we have as a postconditions, where $\iov(\prog_1;\prog_2) = S' \cup V'$: 
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{2\}}}{V'_{\{1\}}}$
+  \item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{1\}}}{V'_{\{2\}}}$
+  \end{enumerate}
 \end{lemma}
 
 \begin{proof}
-  By Definition \ref{definition-gmwencode-certification} we have:
-  $$\sep{\progtt(\prog)}{\ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}}}{\ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$$
-  Since we assume that secrets are in uniform and independent marginal distributions a priori,
-  and $\vars(\prog_1) \cap \vars(\prog_2)$ by condition (ii) of
-  Definition \ref{definition-gmwencode-certification}, thus by assumption and Lemma \ref{lemma-separation}:
-  $$\sep{\progtt(\prog)}{(S_1 \cup V_1 \cup \ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}})}{(S_2 \cup V_2 \cup \ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$$
-  which was to be proven.
+  By assumptions of well-typedness we have:
+  $$
+  \begin{array}{rcl}
+    v &=&  \ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}\\
+    v_1 &=& \ttt{\{ c1 = v[1,s1out]; c2 = v[2,s1out] \}}\\
+    v_2 &=& \ttt{\{ c1 = v[1,s2out]; c2 = v[2,s2out] \}}
+  \end{array}
+  $$
+  And by Definition \ref{definition-gmwencode-certification} we have:
+  \begin{mathpar}
+    \sep{\progtt(\prog)}{\ttt{\{s[1,s1]\}}}{\ttt{\{v[2,s1out],v[2,s2out]\}}}
+    
+    \sep{\progtt(\prog)}{\ttt{\{s[2,s2]\}}}{\ttt{\{v[1,s1out],v[1,s2out]\}}}
+  \end{mathpar}
+  Since we assume that secrets are in uniform and independent marginal
+  distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
+  \varnothing$ by condition (iii) of Definition 
+  \ref{definition-gmwencode-certification} and assumptions of well-typedness, 
+  the result follows by preconditions and Lemma \ref{lemma-separation}.
 \end{proof}
 
 \begin{theorem}
   \label{theorem-gmw-NIMO}
-  If $e$ is a well-typed GMW circuit definition using certified
-  components and $\config{\varnothing}{e} \redxs
+  If $\eassign{\outv}{\ttt{decode}(e)}$ is a well-typed GMW circuit
+  definition using certified components and
+  $\config{\varnothing}{\eassign{\outv}{\ttt{decode}(e)}} \redxs
   \config{\prog}{\varnothing}$, then $\NIMO(\prog)$.
 \end{theorem}
 \begin{proof}
-  Let $\iov(\prog) = S \cup (V \cup \outv)$. Noting that any encoding
-  necessarily uses entirely fresh variables by Definition and type
-  safety, by applying Lemmas \ref{lemma-compose-gmw} and
-  \ref{lemma-wire-framing} and the frame rule of
-  \cite{barthe2019probabilistic} we obtain:
+  Let $\iov(\prog) = S \cup (V \cup \outv)$. By definition of $\ttt{decode}$
+  and assumptions of well-typedness we have for some $\ttt{g}$:
   $$
-  \sep{\progd(\prog)}{(S_{\{2\}}\cup\{\outv\})}{V_{\{1\}}}
-  \quad \text{and} \quad \sep{\progd(\prog)}{(S_{\{1\}}\cup\{\outv\})}{V_{\{2\}}}
+  \config{\varnothing}{\eassign{\outv}{\ttt{decode}(e)}} \redxs
+  \config{\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}}}{\varnothing}
   $$
-  That is, the marginal distribution of client 1's secrets and the output are independent
-  of client 2's views, and vice-versa. The result follows. 
+  where by Lemmas \ref{lemma-gmw-encode} and \ref{lemma-gmw-preservation} we
+  have $\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
+  $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$. 
 \end{proof}
