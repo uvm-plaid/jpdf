@@ -1,15 +1,4 @@
-\section{Component Certification and Composition}
-\label{section-composition}
-
-Using YGC as a case study, in this Section we will discuss
-compositional properties that can be automatically verified on small
-program components using techniques developed in Section
-\ref{section-bruteforce}. These properties compose to yield $\NIMO$
-and scale to arbitrary programs. In our metatheory we will express
-these properties as pre-~and post-conditions on components, so our
-general approach is in a proof assistant style. 
-
-\subsection{A Library for Yao's Garbled Circuits}
+\subsection{Compositional Properties of YGC}
 \label{section-composition-ygc}
 
 \input{ygc}
@@ -96,7 +85,7 @@ But large circuits with thousands of gates would be
 intractable to verify with this method. In the next Section
 we discuss compositional methods to address this issue.
 
-\subsection{Component Certification for $\NIMO$}
+\subsubsection{Component Certification for $\NIMO$}
 \label{section-composition-certification}
 
 We can use the automated verification methods developed in Section
@@ -239,7 +228,7 @@ We have certified each of the YGC components detailed above.
   Each of $\ttt{decode}$, $\ttt{encode}$, and $\ttt{andgg}$ are certified.
 \end{lemma}
 
-\subsection{Correctness of Certified Components}
+\subsubsection{Correctness of Certified Components}
 \label{section-composition-metatheory}
 
 To demonstrate correctness of certification, we need to show that

@@ -102,9 +102,10 @@ from \cite{barthe2019probabilistic} with the same denotations.
 }
 \end{fpfig}
 
-Now we can define GMW gate certification as follows. Intuitively, the
-input wire shares of each client should be independent of the gate output
-shares. This ensures independence of clients' shares (views).
+Now we can define GMW gate certification as follows. Intuitively, we certify
+that GMW gates satisfy a probabilistic noninterference property wrt each output
+share considered individually. This ensures that input dependencies remain
+encrypted from each client's perspective during circuit evaluation.
 \begin{definition}[GMW Gate Certification]
   \label{definition-gmwgate-certification}
   Let $\mathit{gate}$ be a gate function and let $e$ be the following
@@ -121,8 +122,8 @@ shares. This ensures independence of clients' shares (views).
   $.
   Then $\mathit{gate}$ is \emph{certified} iff the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progtt(\prog)}{\ttt{\{flip[1,s11],flip[1,s21]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{flip[2,s12],flip[2,s22]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$
+  \item $\sep{\progtt(\prog)}{\ttt{\{flip[1,s11],flip[1,s21],flip[2,s12],flip[2,s22]\}}}{\ttt{\v[1,gout]\}}}$
+  \item $\sep{\progtt(\prog)}{\ttt{\{flip[1,s11],flip[1,s21],flip[2,s12],flip[2,s22]\}}}{\ttt{\v[2,gout]\}}}$
   % \item $\sep{\progtt(\prog)}{\ttt{\{v[1,gout]\}}}{\ttt{\{v[2,gout]\}}}$
   \item All variables in:$$\vars(\prog) - \{ \ttt{flip[1,s11],flip[1,s21],flip[2,s12],flip[2,s22]}\}$$
     are distinguished by $\ttt{g}$ (i.e., contain $\ttt{g}$ as an identifier substring). 
@@ -176,14 +177,13 @@ We observe the following properties of separation which are borrowed from prior 
   \item $\vc{\pmf}{x}{y}$ if  $\vc{\pmf}{y}{x}$
   \item $\vc{\pmf}{x}{y}$ and $\vc{\pmf}{y}{z}$ imply $\vc{\pmf}{x}{z}$
   \item $\sep{\pmf}{X}{(Y \cup Z)}$ implies $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z})$
-  \item $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z}$ and $\sep{\pmf}{Y}{Z})$ implies $\sep{\pmf}{X}{(Y \cup Z)}$ 
+  \item $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{(X \cup Y)}{Z})$ implies $\sep{\pmf}{X}{(Y \cup Z)}$ 
   %\item If $\prog_1;\prog_2$ is safe and $\vars(\prog_1) \cap \vars(\prog_2) = \varnothing$
   %  then $\sep{\progtt(\prog_1;\prog_2)}{\vars(\prog_1)}{\vars(\prog_2)}$.
   \end{enumerate}
 \end{lemma}
 The following property also follows by results in \cite{barthe2019probabilistic} and will
-be useful to make constructions that demonstrate variable separation (especially in Lemma
-\ref{lemma-gmw-frame}).
+be useful to make constructions that demonstrate variable separation.
 \begin{lemma}
   \label{lemma-sepjoin}
   $\sep{\progtt(\prog)}{X}{Y}$ iff for all 
@@ -192,26 +192,35 @@ be useful to make constructions that demonstrate variable separation (especially
   $\store^1_{X} \cap \store^2_{Y} \subseteq \store$.
 \end{lemma}
 
-The following Lemma allows us to separate variables in programs that may not occur
-in the same subprogram, and hence consider gate certification properties in various
-contexts. It is reminiscent of the \emph{frame} rule of \cite{barthe2019probabilistic}.
-\begin{lemma}
-  \label{lemma-gmw-frame}
-  If $\sep{\progtt(\prog_1;\prog_2)}{Y}{V}$ for $Y = \vars(\prog_1) \cap \vars(\prog_2)$ and
-  $V \in \vdefs(\prog_2)$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
-  $X \not\in \vars(\prog_2)$ then $\sep{\progtt(\prog_1;\prog_2)}{X}{V}$. 
+%The following Lemma allows us to separate variables in programs that may not occur
+%in the same subprogram, and hence consider gate certification properties in various
+%contexts. It is reminiscent of the \emph{frame} rule of \cite{barthe2019probabilistic}.
+%\begin{lemma}
+%  \label{lemma-gmw-frame}
+%  If $\sep{\progtt(\prog_1;\prog_2)}{Y}{V}$ for $Y = \vars(\prog_1) \cap \vars(\prog_2)$ and
+%  $V \in \vdefs(\prog_2)$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
+%  $X \not\in \vars(\prog_2)$ then $\sep{\progtt(\prog_1;\prog_2)}{X}{V}$. 
+%\end{lemma}
+%\begin{proof}
+%  By assumption and Lemma \ref{lemma-sepjoin}, for all
+%  $\store^1,\store^2 \in \runs(\prog_1;\prog_2)$ we have $\store^1_Y
+%  \cap \store^2_V \subseteq \store_a$ for some $\store_a \in
+%  \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_Y \subseteq
+%  \store_b$ for some $\store_b \in \runs(\prog_1;\prog_2)$.  Thus, since
+%  we assume $X \not\in \vars(\prog_2)$ we have $\store_a \cap \store_b
+%  \in \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_V =
+%  \store_a \cap \store_b$, obtaining the result by
+%  \ref{lemma-sepjoin}.
+%\end{proof}
+
+The next ``noninterference'' Lemma is important to prove the desired invariance
+preservation property of GMW gates, given certification.
+\begin{lemma}[Noninterference]
+  \label{lemma-noninterference}
+  Given $\prog_1;\prog_2$ and $X = \iov(\prog_2) - \vdefs(\prog_2)$ and
+  $Y \subseteq \vdefs(\prog_2)$. If $\sep{\progd(\prog_1;\prog_2)}{X}{Y}$
+  then $\sep{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}{Y}$.
 \end{lemma}
-\begin{proof}
-  By assumption and Lemma \ref{lemma-sepjoin}, for all
-  $\store^1,\store^2 \in \runs(\prog_1;\prog_2)$ we have $\store^1_Y
-  \cap \store^2_V \subseteq \store_a$ for some $\store_a \in
-  \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_Y \subseteq
-  \store_b$ for some $\store_b \in \runs(\prog_1;\prog_2)$.  Thus, since
-  we assume $X \not\in \vars(\prog_2)$ we have $\store_a \cap \store_b
-  \in \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_V =
-  \store_a \cap \store_b$, obtaining the result by
-  \ref{lemma-sepjoin}.
-\end{proof}
 
 The next two Lemmas allow us to use the properties of gates established by
 certification and replace the ``dummy'' parameters used there with actual
@@ -305,13 +314,13 @@ evaluation.
   $$x \in \{ \ttt{v[1,g1out]}, \ttt{v[2,g1out]}, \ttt{v[1,g2out]}, \ttt{v[2,g2out]}\}$$
   given condition (iii) of Definition \ref{definition-gmwgate-certification}.
   Thus by Lemma \ref{lemma-substitution} we have:
-  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$$
+  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out],v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout]\}}}$$
   and
-  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$$
-  And by Lemma \ref{lemma-gmw-frame} and condition (iii) of Definition
+  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out],v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[2,gout]\}}}$$
+  Now, by Lemmas \ref{lemma-noninterference} and \ref{lemma-separation} and condition (iii) of Definition
   \ref{definition-gmwgate-certification} we then have:
-  $$\sep{\progtt(\prog_1;\prog_2)}{S_{\{1\}}}{\ttt{\{v[2,gout]\}}} \quad \text{and} \quad
-  \sep{\progtt(\prog_1;\prog_2)}{S_{\{2\}}}{\ttt{\{v[1,gout]\}}}$$
+  $$\sep{\progtt(\prog_1;\prog_2)}{(S_{\{1\}} \cup V_{\{2\}})}{\ttt{\{v[2,gout]\}}} \quad \text{and} \quad
+  \sep{\progtt(\prog_1;\prog_2)}{(S_{\{2\}} \cup V_{\{1\}})}{\ttt{\{v[1,gout]\}}}$$
   so by precondition assumptions and Lemma \ref{lemma-separation} we have:
   $$\sep{\progtt(\prog_1;\prog_2)}{S_{\{1\}}}{V'_{\{2\}}} \quad \text{and} \quad
   \sep{\progtt(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$$
