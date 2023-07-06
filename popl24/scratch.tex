@@ -1,14 +1,76 @@
-\subsection{Compositional Properties of GMW}
+\section{Component Certification and Composition}
+\label{section-composition}
 
 \input{gmw}
-\cnote{Need to define type signatures.}
+
+The Yao's Garbled Circuits (YGC) and GMW protocols are examples of a
+common idiom in MPC protocol design- arbitrarily large \emph{circuits}
+are built up from smaller boolean or arithmetic \emph{gates} that
+operate on encodings of input secrets. These circuits can become quite
+large in practice \cite{kreuter2012billion}, but are built from
+well-defined components. Brute force verification techniques as
+described in Section \ref{section-bruteforce} are not scalable to
+large circuits, but in this Section we will demonstrate that correctly
+designed circuit components enjoy compositional properties
+that can be automatically certification on small program components
+using brute force methods. We prove that these properties preserve
+invariants throughout circuit definition that yield $\NIMO$ and thus
+scale to arbitrary programs. Furthermore, the certifications can be
+used on arbitrary gate definitions, allowing new gate implementations
+to be added soundly to libraries.
+
+In this Section we develop and use implementations of both 2-party GMW
+and YGC to illustrate our approach and demonstrate its generality.
+Main results are in Theorems \ref{theorem-gmw-NIMO} and
+\ref{theorem-ygc-NIMO}.
+
+\subsection{Compositional Properties of GMW}
+
+The GMW protocol uses secret sharing to represent data flowing through
+circuits. In the 2-party case, clients 1 and 2 each share their input
+secrets, and use those shares to represent inputs to gates. Outputs
+are also represented as shares. We refer to the pair of shares
+representing any particular value as a \emph{wire value}, and
+we represent them via records of the form
+$
+\ttt{\{c1 = } v_1\ttt{;c2 = } v_2\ttt{\}} 
+$
+where $v_1$ and $v_2$ are client 1 and 2's shares respectively.
+
+For full details of the GMW protocol the reader is referred to
+\cite{evans2018pragmatic}. Our implementation libary is shown in
+Figure \ref{fig-gmw}, with type signatures for the library functions
+shown in Figure \ref{fig-gmw-types}. We show the And gate since it is
+an interesting component. The Figure includes the
+following top-level functions:
+\begin{itemize}
+\item \ttt{encodegmw}: This function encodes client 1's and client 2's
+  secret bits called $\ttt{s[1,s1]}$ and $\ttt{s[1,s2]}$ into two
+  distinct wire values (pairs of shares).
+\item \ttt{andgmw}: This function defines the gate $\ttt{g}$, the
+  identifier $\ttt{g}$ being used to distinguish randomness used
+  within.  In our version client 1 builds the output table (using
+  \ttt{andtablegmw})and transfers the correct output share to client 2
+  using 1-out-of-4 OT as per standard GMW protocol.
+\item \ttt{decode}: This function decodes and publishes a wire value
+  by $\ttt{xor}$ing the shares. Note that this requires both client 1
+  and 2 to publicize their shares.
+\end{itemize}
+
+\subsubsection{Gate Certification}
 
 Our certification techniques are defined generally wrt implementations
 of input encoding, decoding, and internal gates. In the following we
 will refer to arbitrary decode, encode, and gate functions with the
 restriction that any function in each of these categories has the same
 valid type signature as $\ttt{decodegmw}$, $\ttt{encodegmw}$, and
-$\ttt{andgmw}$ respectively.
+$\ttt{andgmw}$ respectively. When gates are used in ciruits they are
+parameterized by wire values-- in certification we will use carefully
+chosen witness parameters. 
+
+When we consider internal components and hence intensional properties
+of circuits, we will consider behaviors with respect to particular bits
+of randomness. Hence we will consider basic program distributions. 
 \begin{definition}
   We write $\progtt(\prog)$ to denote the \emph{basic distribution} of
   $\prog$ as defined in Definition \ref{def-progd}. For any program $\prog =
@@ -18,6 +80,8 @@ $\ttt{andgmw}$ respectively.
 We also need to formalize notions of probabilistic independence, aka
 \emph{separation}, and correlation. We borrow the symbols $*$ and $\sim$
 from \cite{barthe2019probabilistic} with the same denotations.
+\cnote{I switched here to using $\pmf$ to denote an arbitrary probability mass
+function, will update earlier sections with this notation.}
 \begin{definition}
   We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
   \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
@@ -27,36 +91,22 @@ from \cite{barthe2019probabilistic} with the same denotations.
   \pmf(\store_Y) * \pmf(\store_Z)$$ 
 \end{definition}
 
-\begin{lemma}
-  \label{lemma-separation}
-  The following properties hold:
-  \begin{enumerate}
-  \item $\sep{\pmf}{Y}{Z}$ iff $\sep{\pmf}{Z}{Y}$
-  \item $\vc{\pmf}{x}{y}$ if  $\vc{\pmf}{y}{x}$
-  \item $\vc{\pmf}{x}{y}$ and $\vc{\pmf}{y}{z}$ imply $\vc{\pmf}{x}{z}$
-  \item $\sep{\pmf}{X}{(Y \cup Z)}$ implies $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z})$
-  \item $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z}$ and $\sep{\pmf}{Y}{Z})$ implies $\sep{\pmf}{X}{(Y \cup Z)}$ 
-  %\item If $\prog_1;\prog_2$ is safe and $\vars(\prog_1) \cap \vars(\prog_2) = \varnothing$
-  %  then $\sep{\progtt(\prog_1;\prog_2)}{\vars(\prog_1)}{\vars(\prog_2)}$.
-  \end{enumerate}
-\end{lemma}
+\begin{fpfig}[t]{GMW library type annotations.}{fig-gmw-types}
+{\footnotesize
+  \begin{verbatimtab}
+   encodegmw   : string(gid) * string(gid)
+    
+   andtablegmw : { k = bool[i]; p = bool[i] }
+    
+   andgmw      : string(gid) *  { c1 = bool[1]; c2 = bool[2] } * { c1 = bool[1]; c2 = bool[2] }
+    
+   decodegmw   : { c1 = bool[1]; c2 = bool[2] }  \end{verbatimtab}
+}
+\end{fpfig}
 
-\begin{lemma}
-  \label{lemma-sepjoin}
-  $\sep{\progtt(\prog)}{X}{Y}$ iff for all 
-  $\store^1, \store^2 \in \runs(\prog)$ there exists
-  $\store \in \runs(\prog)$ with
-  $\store^1_{X} \cap \store^2_{Y} \subseteq \store$.
-\end{lemma}
-
-%\begin{lemma}[Wire Framing]
-%  \label{lemma-wire-framing}
-%  If $\sep{\progtt(\prog_2)}{X}{Z}$ and
-%  $\vars(\prog_1) \cap \vars(\prog_2) \subseteq X$ then
-%  $\sep{\progtt(\prog_1;\prog_2)}{Y}{Z}$ for
-%  $Y \subseteq \vars(\prog_1)$.
-%\end{lemma}
-
+Now we can define GMW gate certification as follows. Intuitively, the
+input wire shares of each client should be independent of the gate output
+shares. This ensures independence of clients' shares (views).
 \begin{definition}[GMW Gate Certification]
   \label{definition-gmwgate-certification}
   Let $\mathit{gate}$ be a gate function and let $e$ be the following
@@ -81,6 +131,72 @@ from \cite{barthe2019probabilistic} with the same denotations.
   \end{enumerate}
 \end{definition}
 
+Encoding certification establishes the desired property in the protocol-- that
+input secrets of each client are independent of the other client's views. 
+\begin{definition}[GMW Encode Certification]
+  \label{definition-gmwencode-certification}
+  Let $\mathit{encode}$ be an encoding function, and let:
+  $$
+  \config{\varnothing}{\ttt{encode(s1,s2)}} \redxs
+  \config{\prog}{\ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}}
+  $$
+  where:
+  $$
+  \begin{array}{rcl}
+    v_1 &=& \ttt{\{ c1 = v[1,s1out]; c2 = v[2,s1out] \}}\\
+    v_2 &=& \ttt{\{ c1 = v[1,s2out]; c2 = v[2,s2out] \}}
+  \end{array}
+  $$
+  Then $\mathit{encode}$ is \emph{certified} iff each of the following conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+    %\item $\sep{\progtt(\prog)}{\ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}}}{\ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$
+  \item $\sep{\progtt(\prog)}{\ttt{\{s[1,s1]\}}}{\ttt{\{v[2,s1out],v[2,s2out]\}}}$
+  \item $\sep{\progtt(\prog)}{\ttt{\{s[2,s2]\}}}{\ttt{\{v[1,s1out],v[1,s2out]\}}}$
+  \item All $x \in \vars(\prog)$ are distinguished by $\ttt{in1}$ or $\ttt{in2}$. 
+  \end{enumerate}
+  \end{definition}
+
+We have certified both $\ttt{encodegmw}$ and $\ttt{andgmw}$. Note that
+an Or or Xor gate, for example, could be certified with this same
+method to extend our library.
+
+\subsubsection{Gate Invariants} We can show that composition maintains an
+important invariant in a circuit $\prog$- namely that client 1's
+secrets remain independent of client 2's views, and vice-versa, prior
+to decoding.  That is, where $\iov(\prog) = S \cup V$, we show that
+$\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
+$\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$ are preserved prior to
+decoding.
+
+We observe the following properties of separation which are borrowed from prior work
+\cite{barthe2019probabilistic} and which will be used frequently in proofs. 
+\begin{lemma}
+  \label{lemma-separation}
+  The following properties hold:
+  \begin{enumerate}
+  \item $\sep{\pmf}{Y}{Z}$ iff $\sep{\pmf}{Z}{Y}$
+  \item $\vc{\pmf}{x}{y}$ if  $\vc{\pmf}{y}{x}$
+  \item $\vc{\pmf}{x}{y}$ and $\vc{\pmf}{y}{z}$ imply $\vc{\pmf}{x}{z}$
+  \item $\sep{\pmf}{X}{(Y \cup Z)}$ implies $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z})$
+  \item $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z}$ and $\sep{\pmf}{Y}{Z})$ implies $\sep{\pmf}{X}{(Y \cup Z)}$ 
+  %\item If $\prog_1;\prog_2$ is safe and $\vars(\prog_1) \cap \vars(\prog_2) = \varnothing$
+  %  then $\sep{\progtt(\prog_1;\prog_2)}{\vars(\prog_1)}{\vars(\prog_2)}$.
+  \end{enumerate}
+\end{lemma}
+The following property also follows by results in \cite{barthe2019probabilistic} and will
+be useful to make constructions that demonstrate variable separation (especially in Lemma
+\ref{lemma-gmw-frame}).
+\begin{lemma}
+  \label{lemma-sepjoin}
+  $\sep{\progtt(\prog)}{X}{Y}$ iff for all 
+  $\store^1, \store^2 \in \runs(\prog)$ there exists
+  $\store \in \runs(\prog)$ with
+  $\store^1_{X} \cap \store^2_{Y} \subseteq \store$.
+\end{lemma}
+
+The following Lemma allows us to separate variables in programs that may not occur
+in the same subprogram, and hence consider gate certification properties in various
+contexts. It is reminiscent of the \emph{frame} rule of \cite{barthe2019probabilistic}.
 \begin{lemma}
   \label{lemma-gmw-frame}
   If $\sep{\progtt(\prog_1;\prog_2)}{Y}{V}$ for $V \in \vdefs(\prog_2)$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
@@ -98,6 +214,10 @@ from \cite{barthe2019probabilistic} with the same denotations.
   \ref{lemma-sepjoin}.
 \end{proof}
 
+The next two Lemmas allow us to use the properties of gates established by
+certification and replace the ``dummy'' parameters used there with actual
+wire values in full circuit contexts. Intuitively we show that substitution
+for dummy flips preserves separation.
 \begin{lemma}
   \label{lemma-presub}
   Given $\be_1$, $\be_2$, and $i$ where $\vars(\be_1) \cap
@@ -137,6 +257,10 @@ By straightforward structural induction on $\be$.
   \cap \vars(\prog_2) = \varnothing$, which is a contradiction.
 \end{proof}
 
+Now we can prove that certified gates preserve the desired invariant
+during execution in arbitrary circuit contexts.
+We formulate this in terms of pre-~and post-conditions of gate
+evaluation.
 \begin{lemma}[GMW Gate Invariant]
   \label{lemma-gmw-preservation}
   Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ for certified $\mathit{gate}$ where:
@@ -194,30 +318,10 @@ By straightforward structural induction on $\be$.
   \sep{\progtt(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$$
 \end{proof}
 
-\begin{definition}[GMW Encode Certification]
-  \label{definition-gmwencode-certification}
-  Let $\mathit{encode}$ be an encoding function, and let:
-  $$
-  \config{\varnothing}{\ttt{encode(s1,s2)}} \redxs
-  \config{\prog}{\ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}}
-  $$
-  where:
-  $$
-  \begin{array}{rcl}
-    v_1 &=& \ttt{\{ c1 = v[1,s1out]; c2 = v[2,s1out] \}}\\
-    v_2 &=& \ttt{\{ c1 = v[1,s2out]; c2 = v[2,s2out] \}}
-  \end{array}
-  $$
-  Then $\mathit{encode}$ is \emph{certified} iff each of the following conditions hold:
-  \begin{enumerate}[\hspace{5mm}i.]
-    %\item $\sep{\progtt(\prog)}{\ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}}}{\ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{s[1,s1]\}}}{\ttt{\{v[2,s1out],v[2,s2out]\}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{s[2,s2]\}}}{\ttt{\{v[1,s1out],v[1,s2out]\}}}$
-  \item All $x \in \vars(\prog)$ are distinguished by $\ttt{in1}$ or $\ttt{in2}$. 
-  \end{enumerate}
-  
-\end{definition}
-
+Here we show that encoding also preserves the desired invariant.
+The result here is more straightforward than it is for gates, because
+the variables used during encoding are guaranteed to be distinct from
+the rest of the program.
 \begin{lemma}[GMW Encode Invariant]
   \label{lemma-gmw-encode}
   Given well-typed $\prog_1;E[\mathit{encode}\ttt{(s1,s2)}]$ for certified $\mathit{encode}$, let:
@@ -259,6 +363,9 @@ By straightforward structural induction on $\be$.
   the result follows by preconditions and Lemma \ref{lemma-separation}.
 \end{proof}
 
+On the basis of the preceding we can prove our main result as
+follows. Note that we assume a normal form of programs where the last
+instruction is a decoding and public reveal of the output.
 \begin{theorem}
   \label{theorem-gmw-NIMO}
   If $\eassign{\outv}{\ttt{decode}(e)}$ is a well-typed GMW circuit
@@ -275,5 +382,22 @@ By straightforward structural induction on $\be$.
   $$
   where by Lemmas \ref{lemma-gmw-encode} and \ref{lemma-gmw-preservation} we
   have $\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
-  $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$. 
+  $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$. Since by properties of \ttt{xor} we have:
+  $$
+  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{\{\outv\}}{\{\ttt{v[1,gout]}\}}
+  $$
+  and:
+  $$
+  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{\{\outv\}}{\{\ttt{v2,gout]\}}
+  $$
+  therefore by Lemma \ref{lemma-gmw-frame}}:
+    
+  $$
+  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{(S_{\{1\}} \cup \{ \outv \})}{V_{\{2\}}}
+  $$
+  and:
+  $$
+  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{(S_{\{2\}} \cup \{ \outv \})}{V_{\{1\}}}
+  $$
+  The result follows.
 \end{proof}

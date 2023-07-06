@@ -10,7 +10,7 @@ these properties as pre-~and post-conditions on components, so our
 general approach is in a proof assistant style. 
 
 \subsection{A Library for Yao's Garbled Circuits}
-\label{section-metalang-ygc}
+\label{section-composition-ygc}
 
 \input{ygc}
 
@@ -419,87 +419,3 @@ dependence in our system is able to accurately precisely track
 gate identifiers. This is also reminiscent of the use of linearity
 in other related systems for enforcing obliviousness \cite{darais2019language}. 
 
-\subsection{Compositional Properties of GMW}
-
-\input{gmw}
-
-\begin{definition}[GMW Gate Certification]
-  \label{definition-gmwgate-certification}
-  Let $\mathit{gate}$ be a gate function and let $e$ be the following
-  $\metaprot$ program:
-  $$
-  \begin{array}{l}
-    \ttt{let in1 = \{c1 = flip[1,s11];c2 = flip[2,s12]\} in}\\
-    \ttt{let in2 = \{c1 = flip[1,s21];c2 = flip[2,s22]\} in}\\
-    \mathit{gate}\ttt{(g,in1,in2)}
-  \end{array}
-  $$
-  and let $
-  \config{\varnothing}{e}\redxs\config{\prog}{\ttt{\{c1 = v[1,gout]; c2 = v[2,gout]\}}}
-  $.
-  Then $\mathit{gate}$ is \emph{certified} iff both of the following conditions hold:
-  \begin{enumerate}
-  \item $\sep{\progtt(\prog)}{\ttt{\{flip[1,s11],flip[1,s21]\}}}{\ttt{\{v[2,gout]\}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{flip[2,s12],flip[2,s22]\}}}{\ttt{\{v[1,gout]\}}}$
-  \end{enumerate}
-\end{definition}
-
-\begin{lemma}[GMW Gate Composition]
-  \label{lemma-compose-gmw}
-  Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ and certified $\mathit{gate}$ where:
-  $$
-  \begin{array}{lcr}
-   v_1 &\defeq& \ttt{\{c1 = v[1,g1out]; c2 = v[2,g1out]\}}\\
-   v_2 &\defeq& \ttt{\{c1 = v[1,g2out]; c2 = v[2,g2out]\}}
-  \end{array}
-  $$
-  and:
-  $$
-  \config{\prog_1}{E[\mathit{gate}(\ttt{g},v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{c1 = v[1,gout]; c2 = v[2,gout]\}}]}
-  $$
-  Then the following postconditions hold:
-  \begin{enumerate}
-  \item $\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[2,gout]\}}}$
-  \item $\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout]\}}}$
-  \end{enumerate}
-\end{lemma}
-
-\begin{definition}[GMW Encode Certification]
-  Let $\mathit{encode}$ be an encoding function, and let:
-  $$
-  \config{\varnothing}{\ttt{encode(s1,s2)}} \redxs
-  \config{\prog}{\ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}}
-  $$
-  where:
-  $$
-  \begin{array}{rcl}
-    v_1 &=& \ttt{\{ c1 = v[1,s1out]; c2 = v[2,s1out] \}}\\
-    v_2 &=& \ttt{\{ c1 = v[1,s2out]; c2 = v[2,s2out] \}}
-  \end{array}
-  $$
-  Then $\mathit{encode}$ is \emph{certified} iff each of the following conditions hold:
-  \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progtt(\prog)}{\ttt{\{ s[1,s1] \}}}{\ttt{\{ v[2,s1out], v[2,s2out] \}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{ s[2,s2] \}}}{\ttt{\{ v[1,s1out], v[1,s2out] \}}}$
-  \end{enumerate}
-\end{definition}
-
-\begin{theorem}
-  \label{theorem-gmw-NIMO}
-  If $e$ is a well-typed GMW circuit definition using certified
-  components and $\config{\varnothing}{e} \redxs
-  \config{\prog}{\varnothing}$, then $\NIMO(\prog)$.
-\end{theorem}
-\begin{proof}
-  Let $\iov(\prog) = S \cup (V \cup \outv)$. Noting that any encoding
-  necessarily uses entirely fresh variables by Definition and type
-  safety, by applying Lemmas \ref{lemma-compose-gmw} and
-  \ref{lemma-wire-framing} and the frame rule of
-  \cite{barthe2019probabilistic} we obtain:
-  $$
-  \sep{\progd(\prog)}{(S_{\{2\}}\cup\{\outv\})}{V_{\{1\}}}
-  \quad \text{and} \quad \sep{\progd(\prog)}{(S_{\{1\}}\cup\{\outv\})}{V_{\{2\}}}
-  $$
-  That is, the marginal distribution of client 1's secrets and the output are independent
-  of client 2's views, and vice-versa. The result follows. 
-\end{proof}

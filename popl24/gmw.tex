@@ -1,4 +1,4 @@
-\begin{fpfig}[t]{2-Party GMW functions.}{fig-gmw}
+\begin{fpfig}[t]{2-Party GMW Circuit Library with And gate.}{fig-gmw}
 {\footnotesize
   \begin{verbatimtab}
     encodegmw(in1,in2)
@@ -33,24 +33,7 @@
       { c1 = v[1,g || out]; c2 = v[2,g || out]}
     }
     
-    decodegmw(shares)
-    {
-      v[0,output] := shares.c1 xor shares.c2
-    }
+    decodegmw(shares) { v[0,output] := shares.c1 xor shares.c2 }
   \end{verbatimtab}
 }
 \end{fpfig}
-
-\begin{fpfig}[t]{GMW library type annotations.}{fig-gmw-types}
-{\footnotesize
-\begin{verbatimtab}
-  encodegmw    : string(gid) * string(gid)
-  
-  andtablegmw  : { k = bool[1]; p = bool[1] }
-  
-  evalgate     : string(gid) *  { k = bool[1]; p = bool[1] } * { k = bool[1]; p = bool[1] }
-  
-  andgate      : string(gid) * string(ga) * string(gb) 
-
-  encode       : string(sa) * string(sb)
-\end{verbatimtab}
