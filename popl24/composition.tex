@@ -197,7 +197,8 @@ in the same subprogram, and hence consider gate certification properties in vari
 contexts. It is reminiscent of the \emph{frame} rule of \cite{barthe2019probabilistic}.
 \begin{lemma}
   \label{lemma-gmw-frame}
-  If $\sep{\progtt(\prog_1;\prog_2)}{Y}{V}$ for $V \in \vdefs(\prog_2)$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
+  If $\sep{\progtt(\prog_1;\prog_2)}{Y}{V}$ for $Y = \vars(\prog_1) \cap \vars(\prog_2)$ and
+  $V \in \vdefs(\prog_2)$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
   $X \not\in \vars(\prog_2)$ then $\sep{\progtt(\prog_1;\prog_2)}{X}{V}$. 
 \end{lemma}
 \begin{proof}
