@@ -204,9 +204,9 @@ contexts. It is reminiscent of the \emph{frame} rule of \cite{barthe2019probabil
 \begin{proof}
   By assumption and Lemma \ref{lemma-sepjoin}, for all
   $\store^1,\store^2 \in \runs(\prog_1;\prog_2)$ we have $\store^1_Y
-  \cap \store^2_V \subseteq \store$ for some $\store_a \in
+  \cap \store^2_V \subseteq \store_a$ for some $\store_a \in
   \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_Y \subseteq
-  \store$ for some $\store_b \in \runs(\prog_1;\prog_2)$.  Thus, since
+  \store_b$ for some $\store_b \in \runs(\prog_1;\prog_2)$.  Thus, since
   we assume $X \not\in \vars(\prog_2)$ we have $\store_a \cap \store_b
   \in \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_V =
   \store_a \cap \store_b$, obtaining the result by
