@@ -43,7 +43,7 @@ the votes of parties 2 and 3. This cannot be avoided due to the nature
 of $\idealf$.
 
 Security in the MPC setting thus means that protocols cannot reveal
-any secret information other than what is impicitly declassified by
+any secret information other than what is implicitly declassified by
 the publicized output of the ideal functionality. The security model
 also assumes that some subset of participants can be corrupted and
 collude adversarially to possibly infer more secret information. The
@@ -74,7 +74,7 @@ properties and analysis of MPC protocols. By extensional, we mean
 simulator security itself as well as analysis concerned with the use
 and interaction of complete secure protocols. By intensional, we mean
 analysis and inner workings of protocols themselves. While the
-probabilistic formulations we develop could conceivably used
+probabilistic formulations we develop could conceivably be used
 extensionally, our main focus is on automated and semi-automated
 reasoning about intensional properties of protocols, both through
 whole-program analysis and compositional properties of program
@@ -86,7 +86,7 @@ extensional properties of MPC, in particular the specification and
 enforcement of declassification bounds in programs that use MPC in
 subprograms. This work is explicitly reminiscent of information flow
 approaches such as delimited information release
-\cite{10.1007/978-3-540-37621-7_9} and downgrading policies and
+\cite{10.1007/978-3-540-37621-7_9}, downgrading policies, and
 relaxed noninterference \cite{10.1145/1040305.1040319}. However, their
 program logic assumes correctness of the underlying MPC protocols.
 The Wys$^\star$ language \cite{wysstar}, based on Wysteria
@@ -94,12 +94,12 @@ The Wys$^\star$ language \cite{wysstar}, based on Wysteria
 trace-based semantics for reasoning about the extensional interactions
 of MPC protocols. Their compiler also guarantees that underlying
 multi-threaded protocols enforce the single-threaded source language
-semantics which is an intensional property. All of these systems
+semantics which is an intensional property. \mnote{We need a clearer statement here of the flaws with Wys-star specifically} All of these systems
 leverage type systems to obtain automated security analyses.
 
 In the realm of intensional analysis, previous work has shown how to
 reduce proofs of simulator security to program equivalence assertions,
-which supports applications known techniques in automated verification
+which supports the application of known techniques in automated verification
 \cite{8429300}. However, they focus on noninterference properties,
 which are arguably sound but notably incomplete wrt MPC functionality
 as we discuss above and in Section
@@ -119,7 +119,7 @@ so-called probabilistic trace obliviousness and they show how to use
 their system to implement several variants of oblivious RAM. However,
 obliviousness is related to noninterference and does not address
 allowable information leakage as in MPC, and their use of type
-linearity disallows reuse of sampled probabilistic values which is
+linearity disallows the reuse of sampled probabilistic values which is
 common in the MPC idiom, as our examples will illustrate. Similarly,
 previous work on oblivious data structures \cite{10.1145/3498713},
 while intended for sound integration into MPC protocols, focus on
@@ -132,7 +132,7 @@ In Section \ref{section-minicat} we develop a new probabilistic programming
 language $\minifed$ for defining synchronous distributed protocols
 over the binary field. The syntax and semantics provides a succinct
 account of \emph{views} and (synchronous) messaging between protocol
-\emph{clients}. In this Section we consider small example protocols
+\emph{clients}. In this Section, we consider small example protocols
 including oblivious transfer, communications encryption with one-time
 pads, and additive secret sharing. In Section \ref{section-pmf} we
 formulate \emph{program distributions}, a formalism for expressing
