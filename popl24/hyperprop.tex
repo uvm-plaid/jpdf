@@ -5,11 +5,11 @@ As we've discussed in our section on Related Work
 (\ref{section-related}), previous authors have noted connections
 between the traditional formulation of the MPC security model- aka the
 simulator security model- and hyperproperty-style formulations of
-program trace behavior \cite{XXX} including probabilistic
+program trace behavior \cite{8429300,wysstar} including probabilistic
 noninterference. This formulation of hyperproperties that are at least
 sound with respect to simulator security bridges a conceptual gap
 between foundational approaches to security, and also motivates and
-supports automated analysis \cite{XXX}. 
+supports automated analysis. 
 
 In this section, we formulate a new hyperproperty that we show is sound
 for passive security in the real/ideal model, called
@@ -28,7 +28,7 @@ demonstrates a particular advantage of our hyperproperty formulation.
 \subsection{Passive Security and the Real/Ideal Model}
 \label{section-hyperprop-passive}
 Here we briefly summarize the formal definition of MPC security. For a
-more detailed discussion the reader is referred to \cite{XXX}.
+more detailed discussion the reader is referred to \cite{evans2018pragmatic}.
 In this paper, we will consider the \emph{passive} aka
 semi-honest aka honest-but-curious variant. In this threat
 model, protocol participants can be corrupted, but all clients
@@ -106,8 +106,8 @@ model as follows.
 \label{section-hyperprop-ni}
 Previous work has noted
 relations between probabilistic noninterference and security
-properties such as memory trace obliviousness \cite{XXX} and passive
-security \cite{XXX}. And above (Section \ref{section-pmf-examples}) we
+properties such as memory trace obliviousness \cite{darais2019language} and passive
+security \cite{barthe2019probabilistic}. And above (Section \ref{section-pmf-examples}) we
 have demonstrated that our basic encryption scheme enjoys a noninterference
 property. To formulate probabilistic noninterference in
 our setting we begin by defining low equivalence of memories.
@@ -149,7 +149,7 @@ basic intuition that noninterfering programs do not provide
 the adversary with any clues about honest secrets through corrupt
 views, as in the following Lemma. This is similar to asserting that
 adversarial knowledge is not increased by the execution of a program as in formulations
-of so-called gradual release \cite{XXX}. 
+of so-called gradual release \cite{4223226}. 
 \begin{lemma}
   Given a program $\prog$ with $\iov(\prog) = (S,V)$, 
   $\prog$ satisfies probabilistic noninterference iff for all

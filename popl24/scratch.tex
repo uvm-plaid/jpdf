@@ -1,76 +1,140 @@
 \section{Component Certification and Composition}
 \label{section-composition}
 
-\input{gmw}
+Using YGC as a case study, in this Section we will discuss
+compositional properties that can be automatically verified on small
+program components using techniques developed in Section
+\ref{section-bruteforce}. These properties compose to yield $\NIMO$
+and scale to arbitrary programs. In our metatheory we will express
+these properties as pre-~and post-conditions on components, so our
+general approach is in a proof assistant style. 
 
-The Yao's Garbled Circuits (YGC) and GMW protocols are examples of a
-common idiom in MPC protocol design- arbitrarily large \emph{circuits}
-are built up from smaller boolean or arithmetic \emph{gates} that
-operate on encodings of input secrets. These circuits can become quite
-large in practice \cite{kreuter2012billion}, but are built from
-well-defined components. Brute force verification techniques as
-described in Section \ref{section-bruteforce} are not scalable to
-large circuits, but in this Section we will demonstrate that correctly
-designed circuit components enjoy compositional properties
-that can be automatically certification on small program components
-using brute force methods. We prove that these properties preserve
-invariants throughout circuit definition that yield $\NIMO$ and thus
-scale to arbitrary programs. Furthermore, the certifications can be
-used on arbitrary gate definitions, allowing new gate implementations
-to be added soundly to libraries.
+\subsection{A Library for Yao's Garbled Circuits}
+\label{section-composition-ygc}
 
-In this Section we develop and use implementations of both 2-party GMW
-and YGC to illustrate our approach and demonstrate its generality.
-Main results are in Theorems \ref{theorem-gmw-NIMO} and
-\ref{theorem-ygc-NIMO}.
+\input{ygc}
 
-\subsection{Compositional Properties of GMW}
+In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
+codebase for garbled circuits. This definition follows the
+\emph{point-and-permute} method described in \cite{evans2018pragmatic} and elsewhere,
+to which the reader is referred for more in-depth discussion.
+In this implementation client 2 is the \emph{garbler} and
+client 1 is the \emph{evaluator}. The garbler builds the garbled
+tables and shares them with the evaluator, who then evaluates
+the gate in an oblivious fashion until the final public output is
+generated through decryption. This definition is well-typed,
+with input type annotations for top-level functions listed in
+Figure \ref{fig-ygc-types}. Well-typed programs using these
+libraries are therefore guaranteed to yield safe $\minifed$
+programs. 
 
-The GMW protocol uses secret sharing to represent data flowing through
-circuits. In the 2-party case, clients 1 and 2 each share their input
-secrets, and use those shares to represent inputs to gates. Outputs
-are also represented as shares. We refer to the pair of shares
-representing any particular value as a \emph{wire value}, and
-we represent them via records of the form
-$
-\ttt{\{c1 = } v_1\ttt{;c2 = } v_2\ttt{\}} 
-$
-where $v_1$ and $v_2$ are client 1 and 2's shares respectively.
+\emph{Wire labels} are fundamental to YGC, and essentially represent
+gate output values in an encrypted form. In our definition, wire
+labels are represented by records $\ttt{\{ k = }\beta_1\ttt{; p =
+}\beta_2\ttt{ \}}$, where $\ttt{k}$ is the \emph{key bit} and
+$\ttt{p}$ is the \emph{pointer bit}, and $\beta_1$ and $\beta_2$ are
+flips. Flips in each output wire label are owned by the garbler and
+are unique per gate by definition of their identifying string, and the
+representation of $0$ is the negation of $1$. For example, here is the
+representation of 1 and 0 respectively in the output wire label for a
+hypothetical gate 6:
+\begin{mathpar}
+  \ttt{\{ k = flip[2,gate:6.k]; p =  flip[2,gate:6.p]] \}}
+    
+  \ttt{\{ k = not flip[2,gate:6.k]; p =  not flip[2,gate:6.p]] \}}
+\end{mathpar}
+The pointer bits in wire labels are used to select permuted rows in
+table garblings. The key bits are used to identify a unique key for
+table row in each garbled gate. Intuitively, if $\beta_1$ and
+$\beta_2$ are either key or pointer bits encoding 1 on two input wire
+labels to a binary gate, rows and keys in the gate are enumerated in
+the order:
+$$
+\neg\beta_1\neg\beta_2,\ \neg\beta_1\beta_2,\ \beta_1\neg\beta_2,\ \beta_1\beta_2
+$$
 
-For full details of the GMW protocol the reader is referred to
-\cite{evans2018pragmatic}. Our implementation libary is shown in
-Figure \ref{fig-gmw}, with type signatures for the library functions
-shown in Figure \ref{fig-gmw-types}. We show the And gate since it is
-an interesting component. The Figure includes the
-following top-level functions:
+In our implementation, gates are wired together using gate
+identifiers, which are strings $w$. Top-level functionality in Figures
+\ref{fig-ygc-aux} and \ref{fig-ygc-gates} includes the following:
 \begin{itemize}
-\item \ttt{encodegmw}: This function encodes client 1's and client 2's
-  secret bits called $\ttt{s[1,s1]}$ and $\ttt{s[1,s2]}$ into two
-  distinct wire values (pairs of shares).
-\item \ttt{andgmw}: This function defines the gate $\ttt{g}$, the
-  identifier $\ttt{g}$ being used to distinguish randomness used
-  within.  In our version client 1 builds the output table (using
-  \ttt{andtablegmw})and transfers the correct output share to client 2
-  using 1-out-of-4 OT as per standard GMW protocol.
-\item \ttt{decode}: This function decodes and publishes a wire value
-  by $\ttt{xor}$ing the shares. Note that this requires both client 1
-  and 2 to publicize their shares.
+\item \ttt{andgate}: This defines a subprotocol for the garbler
+  to define a garbled gate $\ttt{gid}$ with input wires from gates
+  $\ttt{ga}$ and $\ttt{gb}$. The garbler generates keys and garbles
+  the rows in YGC fashion, them with client $1$ in
+  views in a standard form. For example, the view for
+  a hypothetical gate 6, row 2 garbled truth table is $\ttt{v[1,gate:6tt2]}$.
+  We note that garbled gates of other binary operators can be obtained with
+  replacement of $\ttt{andtable}$ with appropriate garbled table definitions. 
+\item \ttt{evalgate}: This defines a subprotocol for the evaluator to
+  evaluate gate $\ttt{gid}$ given input wire values $\ttt{wva}$ and
+  $\ttt{wvb}$.
+\item \ttt{garbledecode} and \ttt{evaldecode}: The former function
+  defines the garbler's protocol for encrypting the circuit
+  output from final gate $\ttt{gid}$, and the latter defines
+  the evaluator's output decryption protocol.
+\item \ttt{encode}: This defines the initial phase of the protocol,
+  where the evaluator receives the wire value from their own
+  secret $\sx{1}{sa}$ via $\ttt{OT}$, and the garbler communicates
+  the wire value for their own secret $\sx{2}{sb}$ directly.
 \end{itemize}
+\begin{example}
+  \label{example-andcircuit}
+The following program uses our YGC library to define
+a circuit with a single and gate and input secrets $\ttt{s1}$ and
+$\ttt{s2}$ from client's 1 and 2 respectively. 
+\begin{verbatimtab}
+  andgate(0,s1,s2);
+  garbledecode(0);
+  let secrets = encode(s1,s2) in
+  v[0,output] := decode(evalgate(0, secrets.wv1, secrets.wv2))
+\end{verbatimtab}
+\end{example}
+We have verified passive security of the $\fedprot$ protocol
+generated by this and other small circuits using the
+technique described in Lemma \ref{lemma-bruteforce-nimo}.
+But large circuits with thousands of gates would be
+intractable to verify with this method. In the next Section
+we discuss compositional methods to address this issue.
 
-\subsubsection{Gate Certification}
+\subsection{Component Certification for $\NIMO$}
+\label{section-composition-certification}
+
+We can use the automated verification methods developed in Section
+\ref{section-brute-force} to \emph{certify} YGC
+components. Certification obtains properties that we can then use
+higher-level reasoning-- inspired in part by techniques in
+\cite{barthe2019probabilistic}-- to prove that circuits built with
+certified components satisfy $\NIMO$ (Theorem \ref{theorem-ygc-NIMO})
+and thus are passive secure.
+
+Our method relies on a definition of compositional units comprising
+complete related subprotocols-- i.e., both the garbler's
+construction of the gates and the evaluator's evaluation of them. We
+therefore make the following definitions. However, we note that our
+formal results are applicable to the YGC style where the garbler
+shares the entire circuit prior to evaluation.
+\begin{definition}
+  \label{ygc-modules}
+  We define a composable internal \ttt{and} gate sharing and evaluation function
+  called $\ttt{andgg}$, and an output decoder gate share and evaluation function called
+  $\ttt{decode}$, as follows. 
+\begin{verbatimtab}
+  andgg(g, ga, gb, wva, wvb) { andgate(g, ga, gb); evalgate(g, wva, wvb) }
+  decode(g, v) { garbledecode(g); evaldecode(v) }
+\end{verbatimtab}
+\end{definition}
 
 Our certification techniques are defined generally wrt implementations
 of input encoding, decoding, and internal gates. In the following we
 will refer to arbitrary decode, encode, and gate functions with the
 restriction that any function in each of these categories has the same
-valid type signature as $\ttt{decodegmw}$, $\ttt{encodegmw}$, and
-$\ttt{andgmw}$ respectively. When gates are used in ciruits they are
-parameterized by wire values-- in certification we will use carefully
-chosen witness parameters. 
+valid type signature as $\ttt{decode}$, $\ttt{encode}$, and
+$\ttt{andgg}$ respectively.
 
-When we consider internal components and hence intensional properties
-of circuits, we will consider behaviors with respect to particular bits
-of randomness. Hence we will consider basic program distributions. 
+Certifications will demonstrate probabilistic independence of input
+wire lables and garbled tables in a program's basic distribution, so
+we need to consider dependencies of flips and gate views. Thus we make
+the following definitions:
 \begin{definition}
   We write $\progtt(\prog)$ to denote the \emph{basic distribution} of
   $\prog$ as defined in Definition \ref{def-progd}. For any program $\prog =
@@ -80,324 +144,278 @@ of randomness. Hence we will consider basic program distributions.
 We also need to formalize notions of probabilistic independence, aka
 \emph{separation}, and correlation. We borrow the symbols $*$ and $\sim$
 from \cite{barthe2019probabilistic} with the same denotations.
-\cnote{I switched here to using $\pmf$ to denote an arbitrary probability mass
-function, will update earlier sections with this notation.}
 \begin{definition}
-  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
-  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
-  We write $\sep{\pmf}{Y}{Z}$ iff for all
+  We write $\vc{\pdf{X}}{x}{y}$ iff $\pdf{X}(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
+  \pdf{X}(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
+  We write $\sep{\pdf{X}}{Y}{Z}$ iff for all
     $\store \in \mems(X \cup Y)$:
-  $$(\margd{\pmf}{Y \cup Z})(\store) =
-  \pmf(\store_Y) * \pmf(\store_Z)$$ 
+  $$(\margd{\pdf{X}}{Y \cup Z})(\store) =
+  (\margd{\pdf{X}}{Y})(\store_Y) * (\margd{\pdf{X}}{Z})(\store_Z)$$ 
 \end{definition}
-
-\begin{fpfig}[t]{GMW library type annotations.}{fig-gmw-types}
-{\footnotesize
-  \begin{verbatimtab}
-   encodegmw   : string(gid) * string(gid)
-    
-   andtablegmw : { k = bool[i]; p = bool[i] }
-    
-   andgmw      : string(gid) *  { c1 = bool[1]; c2 = bool[2] } * { c1 = bool[1]; c2 = bool[2] }
-    
-   decodegmw   : { c1 = bool[1]; c2 = bool[2] }  \end{verbatimtab}
-}
-\end{fpfig}
-
-Now we can define GMW gate certification as follows. Intuitively, the
-input wire shares of each client should be independent of the gate output
-shares. This ensures independence of clients' shares (views).
-\begin{definition}[GMW Gate Certification]
-  \label{definition-gmwgate-certification}
-  Let $\mathit{gate}$ be a gate function and let $e$ be the following
-  $\metaprot$ program:
-  $$
-  \begin{array}{l}
-    \ttt{let in1 = \{c1 = flip[1,s11];c2 = flip[2,s12]\} in}\\
-    \ttt{let in2 = \{c1 = flip[1,s21];c2 = flip[2,s22]\} in}\\
-    \mathit{gate}\ttt{(g,in1,in2)}
-  \end{array}
-  $$
-  and let $
-  \config{\varnothing}{e}\redxs\config{\prog}{\ttt{\{c1 = v[1,gout]; c2 = v[2,gout]\}}}
-  $.
-  Then $\mathit{gate}$ is \emph{certified} iff the following conditions hold:
+It is also necessary to define notions of correlation with wire
+labels, since wire values flow into and out of gates in either
+positive of negative correlation with them.
+\begin{definition}
+  We write $\gc{\prog}{\{ \ttt{k = }\be_{k}; \ttt{p = }\be_{p} \}}{g}$ iff one of the
+  following hold:
   \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progtt(\prog)}{\ttt{\{flip[1,s11],flip[1,s21]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{flip[2,s12],flip[2,s22]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$
-  % \item $\sep{\progtt(\prog)}{\ttt{\{v[1,gout]\}}}{\ttt{\{v[2,gout]\}}}$
-  \item All variables in:$$\vars(\prog) - \{ \ttt{flip[1,s11],flip[1,s21],flip[2,s12],flip[2,s22]}\}$$
-    are distinguished by $\ttt{g}$ (i.e., contain $\ttt{g}$ as an identifier substring). 
+  \item $\vc{\progtt(\prog,\be_k)}{\itv}{\ttt{flip[2,gate:}g\ttt{.k]}}\quad \text{and} \quad
+    \vc{\progtt(\prog,\be_p)}{\itv}{\ttt{flip[2,gate:}g\ttt{.p]}}$
+  \item $\vc{\progtt(\prog,\enot\ \be_k)}{\itv}{\ttt{flip[2,gate:}g\ttt{.k]}}\quad \text{and}\quad
+    \vc{\progtt(\prog,\enot\ \be_p)}{\itv}{\ttt{flip[2,gate:}g\ttt{.p]}}$
   \end{enumerate}
 \end{definition}
-
-Encoding certification establishes the desired property in the protocol-- that
-input secrets of each client are independent of the other client's views. 
-\begin{definition}[GMW Encode Certification]
-  \label{definition-gmwencode-certification}
+Thus, if a value is in correlation with a wire label, it is either
+correlated with the wire label or with the inverse of both the key and
+pointer bits. For subsequent discussion we make the following addition
+to the codebase:
+$$
+\ttt{invert(\{ k = bk; p = bp \}) \{ \{ k = not bk; p = not bp \} \}}
+$$
+Gate certification establishes separation of input labels from the
+gate table and output value, and correlation of the output with
+the output wire label under any input wire value combination.
+\begin{definition}[Gate Certification]
+  \label{definition-gate-certification}
+Let $\mathit{gate}$ be a gate function. For $1 \le i \le 4$  let:
+  $$
+  \config{\varnothing}{\ttt{v[0,out] := } e_i}\redxs\config{\prog_i}{\ttt{()}}
+  $$
+  where
+  \begin{enumerate}[\hspace{5mm}$e_1 \defeq$]
+    \item $\mathit{gate}\ttt{(c,a,b,owl(a),owl(b));}$
+    \item $\mathit{gate}\ttt{(c,a,b,owl(a),invert(owl(b)));}$
+    \item $\mathit{gate}\ttt{(c,a,b,invert(owl(a)),owl(b));}$
+    \item $\mathit{gate}\ttt{(c,a,b,invert(owl(a)),invert(owl(b)))}$
+  \end{enumerate}
+  Define:
+  $${\small X \defeq \ttt{\{ flip[2,gate:a.k], flip[2,gate:a.p], flip[2,gate:b.k], flip[2,gate:b.p] \}}}$$
+  Then $\mathit{gate}$ is \emph{certified} iff for all $1 \le i \le 4$:
+  $$
+  \sep{\progtt(\prog_i)}{X}{\vdefs(\prog_i)} 
+  \quad \text{and} \quad \gc{\progd(\prog_i)}{\vx{0}{out}}{\ttt{owl(c)}}
+  $$
+\end{definition}
+Encode certification establishes correlation of the encoded input values with
+the secret wire labels, and separation of client 2's secret from client 1's views. 
+\begin{definition}[Encode Certification]
   Let $\mathit{encode}$ be an encoding function, and let:
   $$
   \config{\varnothing}{\ttt{encode(s1,s2)}} \redxs
-  \config{\prog}{\ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}}
-  $$
-  where:
-  $$
-  \begin{array}{rcl}
-    v_1 &=& \ttt{\{ c1 = v[1,s1out]; c2 = v[2,s1out] \}}\\
-    v_2 &=& \ttt{\{ c1 = v[1,s2out]; c2 = v[2,s2out] \}}
-  \end{array}
+  \config{\prog}{\ttt{\{wv1=}v_1\ttt{;wv2=}v_2\ttt{\}}}
   $$
   Then $\mathit{encode}$ is \emph{certified} iff each of the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-    %\item $\sep{\progtt(\prog)}{\ttt{\{ s[1,s1],  v[1,s1out], v[1,s2out] \}}}{\ttt{\{ s[2,s2], v[2,s1out], v[2,s2out] \}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{s[1,s1]\}}}{\ttt{\{v[2,s1out],v[2,s2out]\}}}$
-  \item $\sep{\progtt(\prog)}{\ttt{\{s[2,s2]\}}}{\ttt{\{v[1,s1out],v[1,s2out]\}}}$
-  \item All $x \in \vars(\prog)$ are distinguished by $\ttt{in1}$ or $\ttt{in2}$. 
+  \item $\gc{\progd(\prog,v_1)}{\itv}{\ttt{owl(s1)}} \quad \text{and} \quad
+    \gc{\progd(\prog,v_2)}{\itv}{\ttt{owl(s2)}}$
+  \item $\sep{\progd(\prog,v_2)}{\{\ttt{s[2,s2]\}}}{(\vdefs(\prog) \cup \itv)}$
   \end{enumerate}
-  \end{definition}
-
-We have certified both $\ttt{encodegmw}$ and $\ttt{andgmw}$. Note that
-an Or or Xor gate, for example, could be certified with this same
-method to extend our library.
-
-\subsubsection{Gate Invariants} We can show that composition maintains an
-important invariant in a circuit $\prog$- namely that client 1's
-secrets remain independent of client 2's views, and vice-versa, prior
-to decoding.  That is, where $\iov(\prog) = S \cup V$, we show that
-$\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
-$\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$ are preserved prior to
-decoding.
-
-We observe the following properties of separation which are borrowed from prior work
-\cite{barthe2019probabilistic} and which will be used frequently in proofs. 
+\end{definition}
+Decode certification establishes separation of the input wire
+label from the decoding tables under any input value condition. 
+\begin{definition}[Decode Certification]
+  Let $\mathit{decode}$ be a decoding function, and let:
+  $$
+  \config{\varnothing}{\mathit{decode}(\ttt{c}, \ttt{owl(c)})}
+  \redxs \config{\prog_1}{\be_1}
+  \quad \text{and} \quad
+  \config{\varnothing}{\mathit{decode}(\ttt{c}, \ttt{invert(owl(c))})}
+  \redxs \config{\prog_0}{\be_0}
+  $$
+  Then $\mathit{decode}$ is certified iff:
+  $$
+  \sep{\progtt(\prog_i)}{\ttt{\{flip[2,gate:c.k],flip[2,gate:c.p]\}}}{\vdefs(\prog_i)}
+  $$
+  %Then $\mathit{decode}$ is certified iff both of the following conditions hold:
+  %\begin{enumerate}[\hspace{5mm}i.]
+  %\item $\progd(\prog_1,\be_1)(\{ \itv \mapsto 1 \}) = 1$ and
+  %  $\progd(\prog_0,\be_0)(\{ \itv \mapsto 0 \}) = 1$
+  %\item $\sep{\progtt(\prog_i)}{\ttt{\{flip[2,gate:c.k],flip[2,gate:c.p]\}}}{\vdefs(\prog_i)}$
+  %\end{enumerate}
+\end{definition}
+We have certified each of the YGC components detailed above. 
 \begin{lemma}
-  \label{lemma-separation}
-  The following properties hold:
-  \begin{enumerate}
-  \item $\sep{\pmf}{Y}{Z}$ iff $\sep{\pmf}{Z}{Y}$
-  \item $\vc{\pmf}{x}{y}$ if  $\vc{\pmf}{y}{x}$
-  \item $\vc{\pmf}{x}{y}$ and $\vc{\pmf}{y}{z}$ imply $\vc{\pmf}{x}{z}$
-  \item $\sep{\pmf}{X}{(Y \cup Z)}$ implies $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z})$
-  \item $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z}$ and $\sep{\pmf}{Y}{Z})$ implies $\sep{\pmf}{X}{(Y \cup Z)}$ 
-  %\item If $\prog_1;\prog_2$ is safe and $\vars(\prog_1) \cap \vars(\prog_2) = \varnothing$
-  %  then $\sep{\progtt(\prog_1;\prog_2)}{\vars(\prog_1)}{\vars(\prog_2)}$.
-  \end{enumerate}
-\end{lemma}
-The following property also follows by results in \cite{barthe2019probabilistic} and will
-be useful to make constructions that demonstrate variable separation (especially in Lemma
-\ref{lemma-gmw-frame}).
-\begin{lemma}
-  \label{lemma-sepjoin}
-  $\sep{\progtt(\prog)}{X}{Y}$ iff for all 
-  $\store^1, \store^2 \in \runs(\prog)$ there exists
-  $\store \in \runs(\prog)$ with
-  $\store^1_{X} \cap \store^2_{Y} \subseteq \store$.
+  \label{lemma-certification}
+  Each of $\ttt{decode}$, $\ttt{encode}$, and $\ttt{andgg}$ are certified.
 \end{lemma}
 
-The following Lemma allows us to separate variables in programs that may not occur
-in the same subprogram, and hence consider gate certification properties in various
-contexts. It is reminiscent of the \emph{frame} rule of \cite{barthe2019probabilistic}.
-\begin{lemma}
-  \label{lemma-gmw-frame}
-  If $\sep{\progtt(\prog_1;\prog_2)}{Y}{V}$ for $V \in \vdefs(\prog_2)$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
-  $X \not\in \vars(\prog_2)$ then $\sep{\progtt(\prog_1;\prog_2)}{X}{V}$. 
-\end{lemma}
-\begin{proof}
-  By assumption and Lemma \ref{lemma-sepjoin}, for all
-  $\store^1,\store^2 \in \runs(\prog_1;\prog_2)$ we have $\store^1_Y
-  \cap \store^2_V \subseteq \store$ for some $\store_a \in
-  \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_Y \subseteq
-  \store$ for some $\store_b \in \runs(\prog_1;\prog_2)$.  Thus, since
-  we assume $X \not\in \vars(\prog_2)$ we have $\store_a \cap \store_b
-  \in \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_V =
-  \store_a \cap \store_b$, obtaining the result by
-  \ref{lemma-sepjoin}.
-\end{proof}
+\subsection{Correctness of Certified Components}
+\label{section-composition-metatheory}
 
-The next two Lemmas allow us to use the properties of gates established by
-certification and replace the ``dummy'' parameters used there with actual
-wire values in full circuit contexts. Intuitively we show that substitution
-for dummy flips preserves separation.
-\begin{lemma}
-  \label{lemma-presub}
-  Given $\be_1$, $\be_2$, and $i$ where $\vars(\be_1) \cap
-  \vars(\be_2) = \varnothing$ and $\lcod{\store_1,\be_1}{i} = \beta$
-  with $\store_1(x) = \lcod{\store_2,\be_2}{i}$ and
-  $\dom(\store_1) = \vars(\be_1)$ and $\dom(\store_2) = \vars(\be_2)$.
-  Then $\lcod{\store_1\cap\store_2,\be_1[\be_2/x]}{i} = \beta$.
+To demonstrate correctness of certification, we need to show that
+isolated component certificates preserve relevant properties
+when integrated into larger programs. This resonates with
+\emph{framing} as developed in \cite{barthe2019probabilistic}.
+In the following we will use $f$ to range over flips.
+First, we show that if a flip $f$ is independent from the views
+in a protocol (as is the case with input labels used to
+encode a garbled table), then separation from views that
+use $f$ (e.g., in an output label) is preserved. 
+\begin{lemma}[Wire Framing]
+  \label{lemma-wire-framing}
+  If $\sep{\progtt(\prog)}{\{f\}}{\vdefs(\prog)}$ for flip $f$ and
+  $\vars(\prog) \cap \vars(\prog') = \{ f \}$ then
+  $\sep{\progtt(\prog';\prog)}{\vdefs(\prog')}{\vdefs(\prog)}$.
 \end{lemma}
-\begin{proof}
-By straightforward structural induction on $\be$.
-\end{proof}
-
+Next, we show that output correlations (e.g., between output wire values and
+labels) are preserved by substitution of correlated values for flips (e.g.,
+between input wire values and labels).
 \begin{lemma}[Substitution]
   \label{lemma-substitution}
-  If $\sep{\progtt(\prog_2)}{\{ f \}}{X}$ and
-  $\prog_1;\prog_2[\be/f]$ is safe with $\vars(\prog_1,\be) \cap
-  X = \varnothing$ then
-  $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vars(\be)}{X}$.
+  If $\vc{\progtt(\prog,\be)}{\itv}{f}$ and $\vc{\progtt(\prog',\be')}{\itv}{f'}$
+  and $\sep{\progtt(\prog';\prog)}{\vdefs(\prog')}{\vdefs(\prog)}$
+  then $\vc{\progtt(\prog';\prog,\be[\be'/f'])}{\itv}{f}$.
+\end{lemma}
+Our wire framing and substitution Lemmas then allow us to generalize
+certification of gates and encoding to arbitrary circuit contexts,
+assuming that outputs are not wired to multiple inputs \cite{tate2003garbled,nieminen2023breaking}.
+\begin{lemma}[Gate Composition]
+  \label{lemma-compose}
+Given well-typed $\prog_1;E[\mathit{gate}(g,g_1,g_2,v_1,v_2)]$ and certified $\mathit{gate}$ where:
+$$
+\config{\prog_1}{E[\mathit{gate}(g,g_1,g_2,v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[v]}
+$$
+If the following preconditions hold:
+\begin{enumerate}
+\item $\{ g_1 \} \cap \{ g_2 \} \cap \wired(\prog_1) = \varnothing$ and $g \not\in \prog_1$
+\item $\gc{\progd(\prog_1)}{v_1}{\owl(g_1)}$ and $\gc{\progd(\prog_1)}{v_2}{\owl(g_2)}$
+\end{enumerate}
+then we have as postconditions:
+\begin{enumerate}
+  \item $\gc{\progd(\prog_1;\prog_2)}{v}{\owl(g_2)}$
+  \item $\sep{\progd(\prog_1;\prog_2,v)}{\vdefs(\prog_1)}{\vdefs(\prog_2) \cup \{\itv\}}$
+\end{enumerate}
 \end{lemma}
 \begin{proof}
-  Suppose on the contrary it was not the case that
-  $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vars(\be)}{X}$.
-  Then by Lemma \ref{lemma-sepjoin} there exists $\store_1,\store_2
-  \in \runs(\prog_1;\prog_2[\be/f])$ with no $\store \in
-  \runs(\prog_1;\prog_2[\be/f])$ such that $\store^1_{\vars(\be)}
-  \cap \store^2_X \subseteq \store$.  But also by
-  assumption and Lemma \ref{lemma-sepjoin} for any $\beta$ there
-  exists $\store' \in \runs(\prog_2)$ with $\{ f \mapsto \beta \} \cap
-  \store^2_X \subseteq \store'$. So in particular, we
-  have $\{ f \mapsto \lcod{\store^1_{\vars(\be)},\be}{i} \} \cap
-  \store^2_X \subseteq \store'$ for any $i$. This, the
-  assumption $\vars(\prog_1,\be) \cap \vars(\prog_2) = \varnothing$,
-  and application of Lemma \ref{lemma-presub} leads to the consequence
-  that there exists $\store \in \runs(\prog_1;\prog_2[\be/f])$ with
-  $\store \supseteq \store^1_{\vars(\be)} \cap
-  \store^2_X$ given the assumption $\vars(\prog_1,\be)
-  \cap \vars(\prog_2) = \varnothing$, which is a contradiction.
+  Given that $g_1$ and $g_2$ are distinct and not wired in $\prog_1$
+  we are assured that $\ttt{owl}(g_1)$ and $\ttt{owl}(g_1)$ are in
+  independent uniform distributions, and given that $g \not\in
+  \prog_1$ we are assured that $\ttt{owl}(g)$ contains entirely fresh
+  flips. Thus, precondition 2, Lemma \ref{lemma-wire-framing}, and
+  Definition \ref{definition-gate-certification} imply postcondition
+  2.  Furthermore, since gate certification guarantees that
+  correlation with $\ttt{owl}(g)$ is guaranteed under all possible gate
+  input wire values, precondition 2 and Lemma \ref{lemma-substitution}
+  guarantee postcondition 2.
 \end{proof}
 
-Now we can prove that certified gates preserve the desired invariant
-during execution in arbitrary circuit contexts.
-We formulate this in terms of pre-~and post-conditions of gate
-evaluation.
-\begin{lemma}[GMW Gate Invariant]
-  \label{lemma-gmw-preservation}
-  Given well-typed $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$ for certified $\mathit{gate}$ where:
-  $$
-  \config{\prog_1}{E[\mathit{gate}(\ttt{g},v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[v]}
-  $$
-  If we have the following preconditions, where $\iov(\prog_1) = S \cup V$:
-  \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$
-  \item $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$
-  \end{enumerate}
-  then we have as a postconditions, where $\iov(\prog_1;\prog_2) = S \cup V'$:
-  \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progd(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$
-  \item $\sep{\progd(\prog_1;\prog_2)}{S_{\{1\}}}{V'_{\{2\}}}$
-  \end{enumerate}
+\begin{lemma}[Decode Composition]
+  \label{lemma-decode}
+Given well-typed $\prog_1;E[\mathit{decode}(g,v)]$ and certified $\mathit{decode}$ where 
+$$
+\config{\prog_1}{E[\ttt{decode}(g,v)]} \redxs \config{\prog_1;\prog_2}{E[\be]}
+$$
+If the following preconditions hold:
+\begin{enumerate}
+\item $g \not\in \cap \wired(\prog_1)$
+\item $\gc{\progd(\prog_1)}{v}{\owl(g)}$
+\end{enumerate}
+then we have as postcondition:
+\begin{enumerate}
+  \item $\sep{\progd(\prog_1;\prog_2)}{\vdefs(\prog_1)}{\vdefs(\prog_2)}$
+\end{enumerate}
 \end{lemma}
-
-\begin{proof}
-  Given well-typedness of $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$, we have for some $\ttt{g1}$ and $\ttt{g2}$:
-  $$
-  \begin{array}{lcl}
-   v_1 &=& \ttt{\{c1 = v[1,g1out]; c2 = v[2,g1out]\}}\\
-   v_2 &=& \ttt{\{c1 = v[1,g2out]; c2 = v[2,g2out]\}}\\
-    v &=& \ttt{\{c1 = v[1,gout]; c2 = v[2,gout]\}}
-  \end{array}
-  $$
-  Let $\prog$ be as defined in Definition \ref{definition-gmwgate-certification}.
-  We observe:
-  $$
-  {\footnotesize
-    \begin{array}{c}
-      \prog_2 = \\
-      \prog[\ttt{v[1,g1out]}/\ttt{flip[1,s11]}][\ttt{v[2,g1out]}/\ttt{flip[2,s12]}][\ttt{v[1,g2out]}/\ttt{flip[1,s21]}][\ttt{v[2,g2out]}/\ttt{flip[2,s22]}]
-    \end{array}
-  }
-  $$
-  Now, the assumption of well-typedness also assures that $\ttt{g}$
-  has not been previously used as a gate identifier in $\prog_1$,
-  since otherwise the views $\ttt{v[1,gout]}$ and $\ttt{v[2,gout]}$
-  would have been previously defined. This ensures $\vars(\prog_1,x)
-  \cap \vars(\prog) = \varnothing$ for:
-  $$x \in \{ \ttt{v[1,g1out]}, \ttt{v[2,g1out]}, \ttt{v[1,g2out]}, \ttt{v[2,g2out]}\}$$
-  given condition (iii) of Definition \ref{definition-gmwgate-certification}.
-  Thus by Lemma \ref{lemma-substitution} we have:
-  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[1,g1out],v[1,g2out]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$$
-  and
-  $$\sep{\progtt(\prog_1;\prog_2)}{\ttt{\{v[2,g1out],v[2,g2out]\}}}{\ttt{\{v[1,gout],v[2,gout]\}}}$$
-  And by Lemma \ref{lemma-gmw-frame} and condition (iii) of Definition
-  \ref{definition-gmwgate-certification} we then have:
-  $$\sep{\progtt(\prog_1;\prog_2)}{S_{\{1\}}}{\ttt{\{v[2,gout]\}}} \quad \text{and} \quad
-  \sep{\progtt(\prog_1;\prog_2)}{S_{\{2\}}}{\ttt{\{v[1,gout]\}}}$$
-  so by precondition assumptions and Lemma \ref{lemma-separation} we have:
-  $$\sep{\progtt(\prog_1;\prog_2)}{S_{\{1\}}}{V'_{\{2\}}} \quad \text{and} \quad
-  \sep{\progtt(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$$
-\end{proof}
-
-Here we show that encoding also preserves the desired invariant.
-The result here is more straightforward than it is for gates, because
-the variables used during encoding are guaranteed to be distinct from
-the rest of the program.
-\begin{lemma}[GMW Encode Invariant]
-  \label{lemma-gmw-encode}
-  Given well-typed $\prog_1;E[\mathit{encode}\ttt{(s1,s2)}]$ for certified $\mathit{encode}$, let:
-  $$
-  \config{\prog_1}{E[\mathit{encode}(\ttt{s1},\ttt{s2})]} \redxs
-  \config{\prog_1;\prog_2}{E[v]}
-  $$
-  If we have the following preconditions, where $\iov(\prog_1) = S' \cup V$:
-  \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$
-  \item $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$
-  \end{enumerate}
-  then we have as a postconditions, where $\iov(\prog_1;\prog_2) = S' \cup V'$: 
-  \begin{enumerate}[\hspace{5mm}i.]
-  \item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{2\}}}{V'_{\{1\}}}$
-  \item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{1\}}}{V'_{\{2\}}}$
-  \end{enumerate}
-\end{lemma}
-
-\begin{proof}
-  By assumptions of well-typedness we have:
-  $$
-  \begin{array}{rcl}
-    v &=&  \ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}\\
-    v_1 &=& \ttt{\{ c1 = v[1,s1out]; c2 = v[2,s1out] \}}\\
-    v_2 &=& \ttt{\{ c1 = v[1,s2out]; c2 = v[2,s2out] \}}
-  \end{array}
-  $$
-  And by Definition \ref{definition-gmwencode-certification} we have:
-  \begin{mathpar}
-    \sep{\progtt(\prog)}{\ttt{\{s[1,s1]\}}}{\ttt{\{v[2,s1out],v[2,s2out]\}}}
-    
-    \sep{\progtt(\prog)}{\ttt{\{s[2,s2]\}}}{\ttt{\{v[1,s1out],v[1,s2out]\}}}
-  \end{mathpar}
-  Since we assume that secrets are in uniform and independent marginal
-  distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
-  \varnothing$ by condition (iii) of Definition 
-  \ref{definition-gmwencode-certification} and assumptions of well-typedness, 
-  the result follows by preconditions and Lemma \ref{lemma-separation}.
-\end{proof}
-
-On the basis of the preceding we can prove our main result as
-follows. Note that we assume a normal form of programs where the last
-instruction is a decoding and public reveal of the output.
+Given the above, we can establish that any circuit built with certified
+components is passive secure. 
 \begin{theorem}
-  \label{theorem-gmw-NIMO}
-  If $\eassign{\outv}{\ttt{decode}(e)}$ is a well-typed GMW circuit
-  definition using certified components and
-  $\config{\varnothing}{\eassign{\outv}{\ttt{decode}(e)}} \redxs
-  \config{\prog}{\varnothing}$, then $\NIMO(\prog)$.
+  \label{theorem-ygc-NIMO}
+  If $e$ is a well-typed YGC circuit definition using certified components
+  where no gate output is wired more than once, and $\config{\varnothing}{e}
+  \redxs \config{\prog}{\varnothing}$, then $\NIMO(\prog)$. 
 \end{theorem}
+
 \begin{proof}
-  Let $\iov(\prog) = S \cup (V \cup \outv)$. By definition of $\ttt{decode}$
-  and assumptions of well-typedness we have for some $\ttt{g}$:
+  Let $\iov(\prog) = S \cup (V \cup \outv)$. Noting that any
+  encoding necessarily uses entirely fresh variables by Definition and
+  type safety, by applying Lemmas \ref{lemma-compose} and
+  \ref{lemma-decode} and the frame rule of
+  \cite{barthe2019probabilistic} we obtain:
   $$
-  \config{\varnothing}{\eassign{\outv}{\ttt{decode}(e)}} \redxs
-  \config{\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}}}{\varnothing}
+  \sep{\progd(\prog)}{(S_{\{2\}}\cup\{\outv\})}{V}
   $$
-  where by Lemmas \ref{lemma-gmw-encode} and \ref{lemma-gmw-preservation} we
-  have $\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
-  $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$. Since by properties of \ttt{xor} we have:
-  $$
-  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{\{\outv\}}{\{\ttt{v[1,gout]}\}}
-  $$
-  and:
-  $$
-  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{\{\outv\}}{\{\ttt{v2,gout]\}}
-  $$
-  therefore by Lemma \ref{lemma-gmw-frame}}:
-    
-  $$
-  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{(S_{\{1\}} \cup \{ \outv \})}{V_{\{2\}}}
-  $$
-  and:
-  $$
-  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{(S_{\{2\}} \cup \{ \outv \})}{V_{\{1\}}}
-  $$
-  The result follows.
+  Noting that the garbler (client 2) has no views, this means that
+  the garbler's secrets are independent of the evaluator's views. The
+  result follows by Definition \ref{definition-NIMO}.
 \end{proof}
+
+
+\begin{fpfig}[t]{YGC copy gate definitions.}{fig-ygc-copy}
+  {\footnotesize
+    \begin{verbatimtab}
+      sharetab2(gid, tid, k, p, b)
+      {
+        let r1 = k xor b in
+        let r0 = (not k) xor (not b) in
+        v[1,gate: || gid || tid || 1] := select(p,r1,r0);
+        v[1,gate: || gid || tid || 2] := select(not p,r1,r0);
+      }
+      
+      copygate(ca,cb,g)
+      {
+        let wl = owl(g) in
+        let owl1 = owl(ca) in
+        let owl2 = owl(cb) in
+        sharetab2(ca,tt,wl.k,wl.p,owl1.k); sharetab2(ca,pt,wl.k,wl.p,owl1.p);
+        sharetab2(cb,tt,wl.k,wl.p,owl2.k); sharetab2(cb,pt,wl.k,wl.p,owl2.p)
+      }
+      
+      evalcopy(ca,cb,wv)
+      {
+        let wv1k = wv.k xor select(wv.p,v[1,gate: || ca || tt1], v[1,gate: || ca || tt2]) in
+        let wv1p = wv.k xor select(wv.p,v[1,gate: || ca || pt1], v[1,gate: || ca || pt1]) in
+        let wv2k = wv.k xor select(wv.p,v[1,gate: || cb || tt1], v[1,gate: || cb || tt2]) in
+        let wv2p = wv.k xor select(wv.p,v[1,gate: || cb || pt1], v[1,gate: || cb || pt1]) in
+        { wv1 = { k = wv1k; p = wv1p }; wv2 = { k = wv2k; p = wv2p } }  
+      }
+
+      copy(ca,cb,g,wv) { copygate(ca,cb,g); evalcopy(ca,cb,wv) } 
+    \end{verbatimtab}
+  }
+\end{fpfig}
+
+\subsection{Building and Extending Automatically Secure Circuits}
+\label{section-composition-copy}
+
+Theorem \ref{theorem-nimo} means that any well-typed program using
+$\ttt{encode}$, $\ttt{andgg}$, and $\ttt{decode}$ will generate a
+circuit that is passive secure, provided that gate outputs are not
+used more than once. To add an $\ttt{or}$ gate to our library, we can
+use $\ttt{andgg}$ as a template, in fact simple modification of
+$\ttt{andtable}$ is all that would be needed. Thus, this library
+embodies a Fairplay-like language where well-typedness of metaprograms
+guarantees safety and security of generated protocols.
+
+The requirements that output wire labels are not used more than once
+reflects a known result, that naive copy gate output is unsound in
+YGC- i.e., passive security fails. In fact, we are unable to
+automatically verify $\gNIMO$ for $\ttt{andgg}$ without the assumption
+that input wire lables are in independent uniform distributions. We
+can capture the necessary fix as in Figure \ref{fig-ygc-copy}. The
+garbler creates a copy gate with two new output wire labels in
+independent uniform distributions (in \ttt{copygate}), and permutes
+them using the input wire label pointer after encrypting with the
+input wire label keys. The evaluator then recovers the encrypted
+output wire values during evaluation (in \ttt{evalcopy}). Given an
+$\ttt{orgg}$ gate defined as outlined abotve, we can then use
+secure $\ttt{copy}$ as follows: 
+\begin{verbatimtab}
+  let s = encode(s1,s2) in
+  let s1c = copy(c1s1,c2s1,s1,s.wv1) in
+  let s2c = copy(c1s2,c2s2,s2,s.wv2) in
+  let wv1 = andgg(1,c1s1,c1s2,s1c.wv1,s2c.wv1) in
+  let wv2 = orgg(2,c2s1,c2s2,s1c.wv2,s2c.wv2) in
+  decode(3,andgg(3,1,2,wv1,wv2))
+\end{verbatimtab}
+These definitions of $\ttt{copy}$ and $\ttt{orgg}$ have been
+automatically verified as in Section \ref{section-pre-post} for
+$\ttt{andgg}$. In general, any new gate form- such as optimized gates
+\cite{XXX}- can be verified automatically in a similar way.
+
+While the copy gate supports secure programming patterns, security
+still relies on programmer discipline, i.e., not wiring a gate more
+than once. However, we can keep track of wired gates in type effects,
+similar to the manner in which we keep track of defined views- type
+dependence in our system is able to accurately precisely track
+gate identifiers. This is also reminiscent of the use of linearity
+in other related systems for enforcing obliviousness \cite{darais2019language}. 
+
