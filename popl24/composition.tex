@@ -390,21 +390,13 @@ instruction is a decoding and public reveal of the output.
   $$
   where by Lemmas \ref{lemma-gmw-encode} and \ref{lemma-gmw-preservation} we
   have $\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
-  $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$. Since by properties of \ttt{xor} we have:
-  $$
-  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{\{\outv\}}{\{\ttt{v[1,gout]}\}}
-  $$
+  $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$. This implies:
+  $$\sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{1\}}}{V_{\{2\}}}$$ and:
+  $$\sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{2\}}}{V_{\{1\}}}$$
+  Thus:
+  $\condd{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{1\}}}{V_{\{2\}} \cup \{ \outv \}}
+  = \condd{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{1\}}}{\{ \outv \}}$
   and:
-  $$
-  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{\{\outv\}}{\{\ttt{v2,gout]\}}
-  $$
-  therefore by Lemma \ref{lemma-gmw-frame}}:    
-  $$
-  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{(S_{\{1\}} \cup \{ \outv \})}{V_{\{2\}}}
-  $$
-  and:
-  $$
-  \sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{(S_{\{2\}} \cup \{ \outv \})}{V_{\{1\}}}
-  $$
-  The result follows.
+  $\condd{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{2\}}}{V_{\{1\}} \cup \{ \outv \}}
+  = \condd{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{2\}}}{\{ \outv \}}$
 \end{proof}
