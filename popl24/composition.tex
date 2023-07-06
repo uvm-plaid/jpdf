@@ -390,13 +390,20 @@ instruction is a decoding and public reveal of the output.
   $$
   where by Lemmas \ref{lemma-gmw-encode} and \ref{lemma-gmw-preservation} we
   have $\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
-  $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$. This implies:
-  $$\sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{1\}}}{V_{\{2\}}}$$ and:
-  $$\sep{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{2\}}}{V_{\{1\}}}$$
-  Thus:
-  $\condd{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{1\}}}{V_{\{2\}} \cup \{ \outv \}}
-  = \condd{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{1\}}}{\{ \outv \}}$
-  and:
-  $\condd{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{2\}}}{V_{\{1\}} \cup \{ \outv \}}
-  = \condd{\progd(\prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}})}{S_{\{2\}}}{\{ \outv \}}$
+  $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$.
+  Let $\prog' \defeq \prog;\eassign{\outv}{\ttt{v[1,gout] xor v[2,gout]}}$. The
+  preceding then implies
+  $\sep{\progd(\prog')}{S_{\{1\}}}{V_{\{2\}}}$ and
+  $\sep{\progd(\prog')}{S_{\{2\}}}{V_{\{1\}}}$,
+  so that for all $\beta$:
+  $$\sep{\condd{\progd(\prog')}{S_{\{1\}} \cup V_{\{2\}}}{\{ \outv \mapsto \beta \}}}{S_{\{1\}}}{V_{\{2\}}}
+  \quad \text{and} \quad
+    \sep{\condd{\progd(\prog')}{S_{\{1\}} \cup V_{\{2\}}}{\{ \outv \mapsto \beta \}}}{S_{\{1\}}}{V_{\{2\}}}$$
+  thus for all $\store \in \mems(V_2 \cup \{ \outv \})$:
+  $$\condd{\progd(\prog')}{S_{\{1\}}}{\store}
+  = \condd{\progd(\prog')}{S_{\{1\}}}{\store_{\{\outv\}}}$$
+  and for all $\store \in \mems(V_1 \cup \{ \outv \})$:
+  $$\condd{\progd(\prog')}{S_{\{2\}}}{\store}
+  = \condd{\progd(\prog')}{S_{\{2\}}}{\store_{\{\outv\}}}$$
+  establishing the result by Lemma \ref{lemma-nimo} and Definition \ref{definition-NIMO}. 
 \end{proof}
