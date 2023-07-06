@@ -244,26 +244,30 @@ probabilistically independent of the secret $\sx{1}{0}$.
 
 \begin{example}[Oblivious Transfer]
   \label{example-OT}
-  In \cite{barthe2019probabilistic} a protocol for $\ttt{OT}$ is defined that we recreate as
-  follows, where client 2 is the receiver and client 1 is the sender. Whereas
-  in \cite{barthe2019probabilistic} a trusted third party provides the sender and receiver with
-  shared randomness, in our version both clients refer to the oracle $\ttt{H}$
-  to obtain shared random values. 
+  In \cite{barthe2019probabilistic} a protocol for $\ttt{OT}$ is
+  defined that we recreate as follows, where client 2 is the receiver
+  and client 1 is the sender, and a trusted third party provides the
+  sender and receiver with shared randomness. The secret \ttt{s[2,c]}
+  is the receiver's choice bit, and \ttt{s[1,m0]} and \ttt{s[1,m1]}
+  are the sender's two message options that the receiver chooses from. 
 \begin{verbatimtab}
-  v[2, rd] := select(flip[2, d], H[r1], H[r0]);
-  v[1, e] := s[2, c] xor flip[2, d];
-  v[2, f0] := s[1, m0] xor select(v[1, e], H[r1], H[r0]);
-  v[2, f1] := s[1, m1] xor select(not v[1, e], H[r1], H[r0]);
-  v[2, mc] := select(s[2, c], v[2, f1], v[2, f0]) xor v[2, rd]
+  v[1,r0] := s[3,r0];
+  v[1,r1] := s[3,r1];
+  v[2,d] := flip[3,d];
+  v[2,rd] := select(flip[3,d], s[3,r1], s[3,r0]);
+  v[1,e] := s[2,c] xor v[2,d];
+  v[2,f0] := s[1,m0] xor select(v[1, e],v[1,r1],v[1,r0]);
+  v[2,f1] := s[1,m1] xor select(not v[1, e],v[1,r1],v[1,r0]);
+  v[2,mc] := select(s[2,c],v[2,f1],v[2,f0]] xor v[2,rd)
 \end{verbatimtab}
 Below we will discuss how to automatically verify security properties
 of this protocol that correspond to the properties proven manually in
-\cite{barthe2019probabilistic}, and additionally how to automatically verify its passive
-security in the simulator model. With respect to our language primitives,
-we note that this protocol is probabilistically equivalent to the
-following:
+\cite{barthe2019probabilistic}, and additionally how to automatically
+verify its passive security in the simulator model. With respect to
+our language primitives, we note that this protocol is equivalent to
+the following:
 \begin{verbatimtab}  
-  v[2, mc] := OT(s[2, c], s[1, m1], s[1, m0])
+  v[2,mc] := OT(s[2,c], s[1,m1], s[1,m0])
 \end{verbatimtab}
 \end{example}
 
