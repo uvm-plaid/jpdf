@@ -40,3 +40,17 @@
   \end{verbatimtab}
 }
 \end{fpfig}
+
+\begin{fpfig}[t]{GMW library type annotations.}{fig-gmw-types}
+{\footnotesize
+\begin{verbatimtab}
+  encodegmw    : string(gid) * string(gid)
+  
+  andtablegmw  : { k = bool[1]; p = bool[1] }
+  
+  evalgate     : string(gid) *  { k = bool[1]; p = bool[1] } * { k = bool[1]; p = bool[1] }
+  
+  andgate      : string(gid) * string(ga) * string(gb) 
+
+  encode       : string(sa) * string(sb)
+\end{verbatimtab}
