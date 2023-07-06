@@ -11,8 +11,8 @@ sound with respect to simulator security bridges a conceptual gap
 between foundational approaches to security, and also motivates and
 supports automated analysis. 
 
-In this section, we formulate a new hyperproperty that we show is sound
-for passive security in the real/ideal model, called
+In this section, we formulate a new hyperproperty that we show is
+sound for passive security in the real/ideal model, called
 \emph{noninterference modulo output ($\NIMO$)}. We do not claim
 completeness with respect to passive security, but soundness
 guarantees that enforcement of $\NIMO$ in our analyses implies passive
@@ -20,10 +20,10 @@ security. In Section \ref{section-bruteforce} we show how $\NIMO$ can
 be automatically enforced in a brute-force manner, and in Section
 \ref{section-composition} we show how $\NIMO$ can be refined to obtain
 compositional properties supporting efficient, scalable enforcement of
-complex protocols that incorporate modular subprotocols, with a
-specific use-case of Yao's Garbled Circuits (YGC) as an example where
-garbled gates are the compositional units.  The latter methodology
-demonstrates a particular advantage of our hyperproperty formulation.
+complex protocols that incorporate modular subprotocols, using
+both YGC and GMW circuits as examples where gates are
+subprotocols. The latter methodology demonstrates a particular
+advantage of our intensional formulation.
 
 \subsection{Passive Security and the Real/Ideal Model}
 \label{section-hyperprop-passive}
@@ -81,10 +81,10 @@ by the simulator as follows:
 \begin{definition}
   Given $C$, $\store$, and $v$, we write $\progd(\SIM_C(\store,v))$ to
   denote the distribution of corrupt views reconstructed by the
-  simulation, which is a distribution $\pdf{V}$ where for
+  simulation, where for
   all $\store' \in \mems(V)$:
   $$
-  \pdf{V}(\store')\ \defeq\ \prob(\SIM_C(\store,v) = \store') 
+  \progd(\SIM_C(\store,v))(\store')\ \defeq\ \prob(\SIM_C(\store,v) = \store') 
   $$
 \end{definition}
 
@@ -98,7 +98,7 @@ model as follows.
   with $|C| < |H|$ and for all $\store \in \mems(S)$ there exists a
   simulation $\SIM_C$ such that:
   $$
-  \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \margd{(\condd{\progd(\prog)}{\store})}{V_C}
+  \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \condd{\progd(\prog)}{V_C}{\store}
   $$
 \end{definition}
 
@@ -124,8 +124,7 @@ same probability}.
   $\prog$ satisfies \emph{probabilistic noninterference} iff for all
   $\store_1, \store_2 \in \mems(S)$:
   $$\store_1 =_C \store_2 \implies
-    \margd{(\condd{\progd(\prog)}{\store_1})}{V_C} =
-    \margd{(\condd{\progd(\prog)}{\store_2})}{V_C}$$
+    \condd{\progd(\prog)}{V_C}{\store_1} = \condd{\progd(\prog)}{V_C}{\store_2}$$
 \end{definition}
 
 Despite the intuitive resonance between noninterference
@@ -154,8 +153,8 @@ of so-called gradual release \cite{4223226}.
   Given a program $\prog$ with $\iov(\prog) = (S,V)$, 
   $\prog$ satisfies probabilistic noninterference iff for all
   $\store \in \mems(S \cup V)$:
-  $$\margd{(\condd{\progd(\prog)}{\store_{S_C}})}{S_H} =
-    \margd{(\condd{\progd(\prog)}{\store_{(S\cup V)_C}})}{S_H} $$
+  $$\condd{\progd(\prog)}{S_H}{\store_{S_C}} =
+    \condd{\progd(\prog)}{S_H}{\store_{(S\cup V)_C}} $$
 \end{lemma}
 
 \subsection{A Sound Hyperproperty for Passive Security}
@@ -171,15 +170,13 @@ same distributions of adversarial views.
   We say that a program  $\prog$ satisfies \emph{noninterference modulo output},
   written $\NIMO(\prog)$, iff for all $H$ and $C$ with $|C|\le|H|$ and 
   $\store_1,\store_2 \in \mems(S)$ we have:
-  \begin{eqnarray*}
-    & \store_1 =_C \store_2 \wedge
-     (\margd{(\condd{\progd(\prog)}{\store_1})}{\{ \outv \}} =
-     \margd{(\condd{\progd(\prog)}{\store_2})}{\{ \outv \}}) \\
-    & \implies \\
-    & \margd{(\condd{\progd(\prog)}{\store_1})}{V_C} =
-    \margd{(\condd{\progd(\prog)}{\store_2})}{V_C}
-  \end{eqnarray*}
-where $\iov(\prog) = (S,V)$.
+  $$
+  (\store_1 =_C \store_2 \ \wedge \ 
+  (\condd{\progd(\prog)}{\{ \outv \}}{\store_1} = \condd{\progd(\prog)}{\{ \outv \}}{\store_2}))
+  \implies 
+  (\condd{\progd(\prog)}{V_C}{\store_1} = \condd{\progd(\prog)}{V_C}{\store_2})
+  $$
+  where $\iov(\prog) = (S,V)$.
 \end{definition}
 
 From an information flow perspective, we can say that a $\NIMO$
@@ -202,15 +199,15 @@ function. Define:
   $$
   \{ \store\ |\ \idealf(\store) = v \}
   $$
-  We say that $\idealf$ is \emph{invertible} iff $\ik(\idealf, v)$ for all
+  We say that $\idealf$ is \emph{pre-imageable} iff $\ik(\idealf, v)$ for all
   $v$ can be computed tractably.
 \end{definition}
 Now we can show our main result, that noninterference modulo output,
-together with the assumption that $\idealf$ is invertible, implies
+together with the assumption that $\idealf$ is pre-imageable, implies
 passive security of a protocol.
 \begin{theorem}
   \label{theorem-nimo}
-  Assume given invertible $\idealf$ and a protocol $\prog$ that
+  Assume given pre-imageable $\idealf$ and a protocol $\prog$ that
   correctly implements $\idealf$.  If $\NIMO(\prog)$
   then $\prog$ is passive secure.
 \end{theorem}
@@ -219,10 +216,10 @@ passive security of a protocol.
   Let $H$ and $C$ be an arbitrary partition of the federation and
   suppose $\prog$ satisfies noninterference modulo output. Let
   $\iov(\prog) = (V,S)$ and $\flips(\prog) = F$ with output view $x
-  \in V$ and let $\store$ be an arbitrary member of $\mems(S \cup
+  \in V$ and let $\store$ be an arbitrary element of $\mems(S \cup
   F)$. Then the distribution of adversarial views in the real world
   is, by definition:
-  $$\margd{(\condd{\progd(\prog)}{\store_S})}{V_C}$$
+  $$\condd{\progd(\prog)}{V_C}{\store_S}$$
 
   The simulator is given both $\store_{S_C}$ and
   $\idealf(\store_S)$.  The simulation $\SIM_C(\store_{S_C},
@@ -238,22 +235,21 @@ passive security of a protocol.
   that we assume for the real world, after selection of $\store'$ the
   probability that any particular $\store^{\SIM}_{V_C}$ is returned is by definition:
   $$
-   (\margd{(\condd{\progd(\prog)}{\store'})}{V_C})(\store^{\SIM}_{V_C})
+  \progd(\prog)(\store^{\SIM}_{V_C} | \store')
   $$
   Furthermore, since we assume that $\prog$ correctly implements $\idealf$, this
   means:
   $$
   \store_S =_C \store' \wedge
-     (\margd{(\condd{\progd(\prog)}{\store_S})}{\{ x \}} =
-      \margd{(\condd{\progd(\prog)}{\store'})}{\{ x \}})
+     \condd{\progd(\prog)}{\{ \outv \}}{\store_S} =
+     \condd{\progd(\prog)}{\{ \outv \}}{\store'}
   $$
-  so by the definition of noninterference modulo output the choice
-  any choice of $\store'$ yields the same distribution, i.e.:
-  $$\margd{(\condd{\progd(\prog)}{\store_S})}{V_C}$$
-  Thus, by definition:
-  $$
-   \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \margd{(\condd{\progd(\prog)}{\store_S})}{V_C}
-  $$
+  so by the definition of noninterference modulo output
+  any choice of $\store'$ yields the same distribution $\condd{\progd(\prog)}{V_C}{\store_S}$.
+  Therefore by definition
+  $
+   \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \condd{\progd(\prog)}{V_C}{\store_S}
+  $.
 \end{proof}
 
 As for noninterference, we can show that $\NIMO$ is equivalent
@@ -261,13 +257,13 @@ to saying that a given program does not change the probability
 of honest secrets conditioned on corrupt secrets and views
 (including the output view), as compared to conditioning on
 just the corrupt secrets and input. In addition to providing
-insights about $\NIMO$, this form is helpful for
+insights about $\NIMO$, this form is convenient for
 verification techniques. 
 \begin{lemma}
   \label{lemma-nimo}
   $\NIMO(\prog)$ iff for all $H$ and $C$ with $|C| \le |H|$ and
   $\store \in \mems(S \cup V)$:
-  $$\margd{(\condd{\progd(\prog)}{\store_{(S \cup \{\outv\})_C}})}{S_H} =
-  \margd{(\condd{\progd(\prog)}{\store_{(S\cup V)_C}})}{S_H} $$
+  $$\condd{\progd(\prog)}{S_H}{\store_{(S \cup \{\outv\})_C}} =
+  \condd{\progd(\prog)}{S_H}{\store_{(S\cup V)_C}} $$
   where  $\iov(\prog) = (S,V)$.
 \end{lemma}

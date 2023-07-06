@@ -119,10 +119,10 @@ these computations as $\cruns$ and $\cprogd$ respectively.
 \begin{lemma}
   \label{lemma-cprogd}
   Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define
-  $\cprogd(\prog)$ as the distribution $\margd{\pdf{S \cup F \cup V}}{S\cup V}$,
-  where:
+  $\cprogd(\prog)$ as the distribution $\pmf$
+  where for all $\store \in \mems(S\cup F \cup V)$:
   $$
-  \pdf{S \cup F \cup V}(\store) = \begin{cases}1/2^{|S \cup F|} & \text{if\ } \store \in
+  \pmf(\store) = \begin{cases}1/2^{|S \cup F|} & \text{if\ } \store \in
     \cruns(\prog) \\ 0 & \text{otherwise} \end{cases} 
   $$
   Then:

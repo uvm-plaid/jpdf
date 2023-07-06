@@ -1,65 +1,65 @@
 \section{Probability Mass Functions and Program Distributions}
 \label{section-pmf}
 
-In order to precisely characterize distributions of secrets and views
-in programs, we define probability mass functions in a standard manner,
-following the formulation in \cite{barthe2019probabilistic}. In this formulation, memories
-denote conjunctions of variable assignments. Intuitively, given a
-program $\prog$ with $\iov(\prog) = S \cup V$ and $\store \in
-\mems(\iov(\prog))$, when considering the execution of $\prog$
-initialized with secrets $\store_S$, we are fundamentally concerned
-with the joint probability of the assignments in $\store_V$
-conditioned by the assignments $\store_S$. This is because
-probabilistic dependence between honest secrets and corrupt views
-\emph{is} information leakage. 
+Given a program $\prog$ with $\iov(\prog) = S \cup V$ and $\store \in
+\mems(\iov(\prog))$, we are fundamentally concerned with the joint
+probability of the assignments in $\store_V$ conditioned by the
+assignments $\store_S$ in any given run, since probabilistic
+dependence between honest secrets and corrupt views is our metric of
+information leakage.
 
-\subsection{Basic Definitions} We begin by defining memory probability distributions as follows.
+\subsection{Basic Definitions} 
+
+We begin by defining joint probability mass functions in the standard
+manner, though following \cite{barthe2019probabilistic} we use
+memories to denote mappings of variables to values (i.e., outcomes),
+so for example given a pmf $\pmf$ we will write $\pmf(\{ \sx{1}{a}
+\mapsto 0, \vx{2}{b} \mapsto 1 \})$ to denote the probability that
+$\sx{1}{a} = 0$ and $\vx{2}{b} = 1$ in the final memory of a
+program containing these variables.
 \begin{definition}
-  A \emph{memory probability distribution} $\pdf{X}$ is a function
-  mapping memories in $\mems(X)$ to values in $[0,1]$, such that:
+  A \emph{probability mass function} $\pmf$ is a function
+  mapping memories in $\mems(X)$ for some $X$ to values in $[0,1]$, such that:
   $$
-  \sum_{\store \in \mems(X)} \pdf{X}(\store) \  = \ 1
+  \sum_{\store \in \mems(X)} \pmf(\store) \  = \ 1
   $$
-  We call $X$ the \emph{domain} of $\pdf{X}$.
 \end{definition}
-To recover succinct and familiar notation, we may omit the domain of a
-distribution when it is clear from an application context-
-i.e., we allow the following sugaring:
-$$
-\pdf{}(\store) \defeq \pdf{\dom(\store)}(\store)
-$$
+%To recover succinct and familiar notation, we may omit the domain of a
+%distribution when it is clear from an application context-
+%i.e., we allow the following sugaring:
+%$$
+%\pdf{}(\store) \defeq \pdf{\dom(\store)}(\store)
+%$$
 Now, we can define a notion of marginal and conditional
 distributions as follows, which are standard for discrete
 probability mass functions. 
 \begin{definition}
-  Given $X$ the \emph{marginal distribution} of $Y \subseteq X$
-  in a distribution $\pdf{X}$, denoted $\margd{\pdf{X}}{Y}$,
-  is a distribution with domain $Y$ where for all
-  $\store \in \mems(Y)$:
+  Given $\pmf$ the \emph{marginal distribution} of variables $X$
+  in $\pmf$, denoted $\margd{\pmf}{X}$, is defined as follows:
   $$
-  (\margd{\pdf{X}}{Y})(\store) =
-  \sum_{\store' \in \mems(X-Y)} \pdf{X}(\store \cap \store')
+  \forall \store \in \mems(X) \quad . \quad \margd{\pmf}{X}(\store) =
+  \sum_{\store' \in \mems(X-\dom(\dom(\pmf)))} \pmf(\store \cap \store')
   $$
 \end{definition}
 
 \begin{definition}
-  Given $\pdf{X}$, its \emph{conditional distribution given
+  Given $\margd{\pmf}{X}$, its \emph{conditional distribution given
   $\stores$} with $\dom(\stores) = Y$ with $Y \subseteq X$, denoted
-  $\condd{\pdf{X}}{\stores}$, is a distribution with domain $X$ where for all
+  $\condd{\pmf}{X}{\stores}$, is a distribution with domain $X$ where for all
   $\store \in \mems(X)$:
   $$
-  (\condd{\pdf{X}}{\stores})(\store) =
-  (\sum_{\store' \in \stores} \pdf{X}(\store \cap \store')) /
-  (\sum_{\store' \in \stores} (\margd{\pdf{X}}{Y})(\store'))
+  \condd{\pmf}{X}{\stores}(\store) =
+  (\sum_{\store' \in \stores} \margd{\pmf}{X}(\store \cap \store')) /
+  (\sum_{\store' \in \stores} \margd{\pmf}{Y}(\store'))
   $$
-  where $\pdf{X}(\store \cap \store')) = 0$ if $\store \cap \store'$ is undefined.
-  we write $\condd{\pdf{X}}{\store}$ as an abbreviation for $\condd{\pdf{X}}{\{ \store \}}$.
+  where $\margd{\pmf}{X}(\store \cap \store')) = 0$ if $\store \cap \store'$ is undefined.
 \end{definition}
 To recover familiar notation we allow the following syntactic
 sugarings:
 \begin{eqnarray*}
-\pdf{X}(\store|\store') &\defeq& (\condd{\pdf{X}}{\store})(\store')\\
-\pdf{X}(\store) &\defeq& (\margd{\pdf{X}}{\dom(\store)})(\store) \qquad \dom(\store) \subset X
+  \condd{\pmf}{X}{\store}  &\defeq& \condd{\pmf}{X}{\{ \store\}}\\
+  \pmf(\store)  &\defeq& \margd{\pmf}{X}(\store)  \qquad \dom(\store) = X\\
+  \pmf(\store|\stores)  &\defeq& \condd{\pmf}{X}{\stores}(\store) \qquad \dom(\store) = X
 \end{eqnarray*}
 
 \subsection{Program Distributions}
@@ -90,10 +90,10 @@ of $S \cup V$ to reason about dependencies between secrets and views.
   \stores \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
   $$
   We note immediately that $|\stores| = 2^{S \cup F}$ given the (deterministic) definition of $\redx$. 
-  Define also $\pdf{S \cup V \cup F}$ as the program's \emph{basic distribution} such that for all
+  Define also $\pmf$ as the program's \emph{basic distribution} such that for all
   $\store \in \mems(S \cup V \cup F)$:
   $$
-  \pdf{S \cup V \cup F}(\store) =
+  \pmf(\store) =
   \begin{cases}
     1 / |\stores| & \text{if}\ \store \in \stores\\
     0 & \text{otherwise}
@@ -102,7 +102,7 @@ of $S \cup V$ to reason about dependencies between secrets and views.
   Then the \emph{program distribution of $\prog$}, denoted $\progd(\prog)$, is the
   marginal distribution of $S \cup V$ in $\prog$'s basic distribution:
   $$
-  \progd(\prog) =  \margd{\pdf{S \cup V \cup F}}{S\cup V}
+  \progd(\prog) =  \margd{\pmf}{S\cup V}
   $$
   In some cases, we will also be concerned with the (joint)
   probabilities of expression interpretation given a preceding program
