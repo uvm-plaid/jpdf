@@ -53,7 +53,7 @@ codebase and a ``main'' program that uses the codebase.
 A \emph{codebase} $\codebase$ is a list of function 
 declarations. We write $ \codebase(f) = x_1,\ldots,x_n,\ e$
 iff $f(x_1,\ldots,x_n) \{ e \} \in \codebase$.
-A \emph{metaprogram}, aka \emph{mataprotocol} \dnote{meta?} is a pair of a 
+A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
 codebase and expression $\codebase, e$. We may omit
 $\codebase$ if it is clear from context.  
 \end{definition}
@@ -127,7 +127,7 @@ reflexive, transitive closure of $\redx$. Reduction is defined on
 where $\prog$ is the $\minifed$ program accumulated during evaluation.
 In this definition we write $e[v/x]$ to denote the substitution of $v$
 for free occurences of $x$ in $e$. The rules are mostly standard,
-except why \dnote{should this be a when?} a concrete $\minifed$ assignment is encountered it is added
+except when a concrete $\minifed$ assignment is encountered it is added
 to the end of $\prog$.
 
 The rules rely on a definition of \emph{evaluation contexts} $E$
