@@ -26,7 +26,9 @@ unfamiliar to most PL theorists. Therefore our exploration will
 make both theoretical and practical contributions by bridging a gap between
 information flow and simulator security methodologies.
 
-\subsection{The Analysis Challenge of MPC} MPC protocols involve communication
+\subsection{The Analysis Challenge of MPC}
+\jnote{On its surface, security for MPC protocols seems similar to probabilistic noninterference. However, MPC security differs from noninterference in a subtle but fundamental way, and approaches for verifying noninterference cannot naturally extend to MPC security.}
+MPC protocols involve communication
 between a group of distributed participants called a \emph{federation}
 that collaboratively compute and publish the result of some known
 \emph{ideal functionality} $\idealf$, while keeping each party's input
