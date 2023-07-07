@@ -4,9 +4,9 @@
 \input{ygc}
 
 In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
-codebase for garbled circuits. This definition follows the
-\emph{point-and-permute} method described in \cite{evans2018pragmatic} and elsewhere,
-to which the reader is referred for more in-depth discussion.
+codebase for Yao's garbled circuits (YGC). This definition follows the
+\emph{point-and-permute} method described in \cite{evans2018pragmatic}
+and elsewhere, to which the reader is referred for more in-depth discussion.
 In this implementation client 2 is the \emph{garbler} and
 client 1 is the \emph{evaluator}. The garbler builds the garbled
 tables and shares them with the evaluator, who then evaluates
@@ -85,18 +85,10 @@ But large circuits with thousands of gates would be
 intractable to verify with this method. In the next Section
 we discuss compositional methods to address this issue.
 
-\subsubsection{Component Certification for $\NIMO$}
-\label{section-composition-certification}
+\subsubsection{Gate Certification}
+\label{section-ygc-certification}
 
-We can use the automated verification methods developed in Section
-\ref{section-brute-force} to \emph{certify} YGC
-components. Certification obtains properties that we can then use
-higher-level reasoning-- inspired in part by techniques in
-\cite{barthe2019probabilistic}-- to prove that circuits built with
-certified components satisfy $\NIMO$ (Theorem \ref{theorem-ygc-NIMO})
-and thus are passive secure.
-
-Our method relies on a definition of compositional units comprising
+Our certification method relies on a definition of compositional units comprising
 complete related subprotocols-- i.e., both the garbler's
 construction of the gates and the evaluator's evaluation of them. We
 therefore make the following definitions. However, we note that our
@@ -120,28 +112,7 @@ restriction that any function in each of these categories has the same
 valid type signature as $\ttt{decode}$, $\ttt{encode}$, and
 $\ttt{andgg}$ respectively.
 
-Certifications will demonstrate probabilistic independence of input
-wire lables and garbled tables in a program's basic distribution, so
-we need to consider dependencies of flips and gate views. Thus we make
-the following definitions:
-\begin{definition}
-  We write $\progtt(\prog)$ to denote the \emph{basic distribution} of
-  $\prog$ as defined in Definition \ref{def-progd}. For any program $\prog =
-  (\eassign{v_1}{\be_1};\ldots;\eassign{v_n}{\be_n})$, define
-  $\vdefs(\prog) \defeq \{ v_1,\ldots,v_n \}$.
-\end{definition}
-We also need to formalize notions of probabilistic independence, aka
-\emph{separation}, and correlation. We borrow the symbols $*$ and $\sim$
-from \cite{barthe2019probabilistic} with the same denotations.
-\begin{definition}
-  We write $\vc{\pdf{X}}{x}{y}$ iff $\pdf{X}(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
-  \pdf{X}(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
-  We write $\sep{\pdf{X}}{Y}{Z}$ iff for all
-    $\store \in \mems(X \cup Y)$:
-  $$(\margd{\pdf{X}}{Y \cup Z})(\store) =
-  (\margd{\pdf{X}}{Y})(\store_Y) * (\margd{\pdf{X}}{Z})(\store_Z)$$ 
-\end{definition}
-It is also necessary to define notions of correlation with wire
+It is necessary to define notions of correlation with wire
 labels, since wire values flow into and out of gates in either
 positive of negative correlation with them.
 \begin{definition}

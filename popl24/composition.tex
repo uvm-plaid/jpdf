@@ -56,6 +56,16 @@ following top-level functions:
   by $\ttt{xor}$ing the shares. Note that this requires both client 1
   and 2 to publicize their shares.
 \end{itemize}
+\begin{example}
+  \label{example-gmw-andcircuit}
+The following program uses our GMW library to define
+a circuit with a single And gate and input secrets $\ttt{s1}$ and
+$\ttt{s2}$ from client's 1 and 2 respectively. 
+\begin{verbatimtab}
+  let ss = encodegmw(s1,s2) in
+  v[0,output] := decode(andgmw(0,ss.shares1,ss.shares2))
+\end{verbatimtab}
+\end{example}
 
 \subsubsection{Gate Certification}
 
