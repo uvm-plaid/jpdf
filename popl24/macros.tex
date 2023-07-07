@@ -57,8 +57,10 @@
 \newcommand{\lab}[1]{\mathrm{#1}}
 \newcommand{\loc}{\ell}
 \newcommand{\Dref}[1]{\mathrm{Ref}\,#1}
-\newcommand{\store}{\mathcal{M}}
-\newcommand{\stores}{\overline{\store}}
+%\newcommand{\store}{\mathcal{M}}
+\newcommand{\store}{m}
+%\newcommand{\stores}{\overline{\store}}
+\newcommand{\stores}{M}
 \newcommand{\config}[2]{\langle #1,#2 \rangle}
 \newcommand{\configf}[2]{\begin{array}[t]{l}\langle #1\\,\\ #2 \rangle \end{array}}
 \newcommand{\extend}[3]{#1\{#2 \mapsto #3\}}
@@ -272,7 +274,8 @@
 \newcommand{\dflowcat}{\mathit{dflowcat}}
 \newcommand{\minicatde}{\mathit{minicat}_{\mathit{de}}}
 \newcommand{\minicatexp}{\mathit{minicat}_{\mathit{taint}}}
-\newcommand{\prog}{\mathcal{P}}
+%\newcommand{\prog}{\mathcal{P}}
+\newcommand{\prog}{\pi}
 \newcommand{\main}{\mathit{main}}
 \renewcommand{\reval}{\redx}
 \renewcommand{\Dite}{\eite}
@@ -410,7 +413,8 @@
 \newcommand{\sep}[3]{#1 \vdash #2 * #3}
 \newcommand{\gtab}{\mathit{table}}
 \newcommand{\vdefs}{\mathit{vdefs}}
-\newcommand{\pmf}{\mathrm{Pr}}
+%\newcommand{\pmf}{\mathrm{Pr}}
+\newcommand{\pmf}{\mathit{P}}
 
 \long\def\cnote#1{{\small\textbf{\textit{\color{brown}(*#1 -- Chris*)}}}}
 \long\def\mnote#1{{\small\textbf{\textit{\color{blue}(*#1 -- Michael*)}}}}
