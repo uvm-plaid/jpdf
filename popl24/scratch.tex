@@ -116,6 +116,7 @@ It is necessary to define notions of correlation with wire
 labels, since wire values flow into and out of gates in either
 positive of negative correlation with them.
 \begin{definition}
+  \label{definition-gc}
   We write $\gc{\prog}{\{ \ttt{k = }\be_{k}; \ttt{p = }\be_{p} \}}{g}$ iff one of the
   following hold:
   \begin{enumerate}[\hspace{5mm}i.]
@@ -135,13 +136,14 @@ $$
 Gate certification establishes separation of input labels from the
 gate table and output value, and correlation of the output with
 the output wire label under any input wire value combination.
-\begin{definition}[Gate Certification]
-  \label{definition-gate-certification}
-Let $\mathit{gate}$ be a gate function. For $1 \le i \le 4$  let:
-  $$
-  \config{\varnothing}{\ttt{v[0,out] := } e_i}\redxs\config{\prog_i}{\ttt{()}}
-  $$
-  where
+\begin{definition}[YGC Gate Certification]
+  \label{definition-ygcgate-certification}
+  Let $\mathit{gate}$ be a gate function.
+  For $1 \le i \le 4$  let
+  $
+  \config{\varnothing}{e_i}\redxs\config{\prog}{v_i}
+  $
+  where:
   \begin{enumerate}[\hspace{5mm}$e_1 \defeq$]
     \item $\mathit{gate}\ttt{(c,a,b,owl(a),owl(b));}$
     \item $\mathit{gate}\ttt{(c,a,b,owl(a),invert(owl(b)));}$
@@ -150,15 +152,16 @@ Let $\mathit{gate}$ be a gate function. For $1 \le i \le 4$  let:
   \end{enumerate}
   Define:
   $${\small X \defeq \ttt{\{ flip[2,gate:a.k], flip[2,gate:a.p], flip[2,gate:b.k], flip[2,gate:b.p] \}}}$$
-  Then $\mathit{gate}$ is \emph{certified} iff for all $1 \le i \le 4$:
-  $$
-  \sep{\progtt(\prog_i)}{X}{\vdefs(\prog_i)} 
-  \quad \text{and} \quad \gc{\progd(\prog_i)}{\vx{0}{out}}{\ttt{owl(c)}}
-  $$
+  Then $\mathit{gate}$ is \emph{certified} iff the following conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item $\sep{\progtt(\prog)}{X}{\vdefs(\prog)}$
+  \item For all $1 \le i \le 4$, $\gc{\prog}{v_i}{\ttt{c}}$
+  \end{enumerate}
 \end{definition}
 Encode certification establishes correlation of the encoded input values with
 the secret wire labels, and separation of client 2's secret from client 1's views. 
-\begin{definition}[Encode Certification]
+\begin{definition}[YGC Encode Certification]
+  \label{definition-ygcencode-certification}
   Let $\mathit{encode}$ be an encoding function, and let:
   $$
   \config{\varnothing}{\ttt{encode(s1,s2)}} \redxs
@@ -166,25 +169,27 @@ the secret wire labels, and separation of client 2's secret from client 1's view
   $$
   Then $\mathit{encode}$ is \emph{certified} iff each of the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-  \item $\gc{\progd(\prog,v_1)}{\itv}{\ttt{owl(s1)}} \quad \text{and} \quad
-    \gc{\progd(\prog,v_2)}{\itv}{\ttt{owl(s2)}}$
-  \item $\sep{\progd(\prog,v_2)}{\{\ttt{s[2,s2]\}}}{(\vdefs(\prog) \cup \itv)}$
+  \item $\gc{\prog}{v_1}{\ttt{s1}} \quad \text{and} \quad \gc{\prog}{v_2}{\ttt{s2}}$
+  \item $\sep{\progd(\prog)}{\{\ttt{s[1,s1]\}}}{\vdefs(\prog)_{\{2\}}}$
+  \item $\sep{\progd(\prog)}{\{\ttt{s[2,s2]\}}}{\vdefs(\prog)_{\{1\}}}$    
+  \item All $x \in \vars(\prog)$ are distinguished by $\ttt{in1}$ or $\ttt{in2}$. 
   \end{enumerate}
 \end{definition}
 Decode certification establishes separation of the input wire
 label from the decoding tables under any input value condition. 
-\begin{definition}[Decode Certification]
+\begin{definition}[YGC Decode Certification]
+  \label{definition-ygdecode-certification}
   Let $\mathit{decode}$ be a decoding function, and let:
   $$
   \config{\varnothing}{\mathit{decode}(\ttt{c}, \ttt{owl(c)})}
-  \redxs \config{\prog_1}{\be_1}
-  \quad \text{and} \quad
-  \config{\varnothing}{\mathit{decode}(\ttt{c}, \ttt{invert(owl(c))})}
-  \redxs \config{\prog_0}{\be_0}
+  \redxs \config{\prog}{\be}
+  %\quad \text{and} \quad
+  %\config{\varnothing}{\mathit{decode}(\ttt{c}, \ttt{invert(owl(c))})}
+  %\redxs \config{\prog}{\be_0}
   $$
   Then $\mathit{decode}$ is certified iff:
   $$
-  \sep{\progtt(\prog_i)}{\ttt{\{flip[2,gate:c.k],flip[2,gate:c.p]\}}}{\vdefs(\prog_i)}
+  \sep{\progtt(\prog)}{\ttt{\{flip[2,gate:c.k],flip[2,gate:c.p]\}}}{\vdefs(\prog)}
   $$
   %Then $\mathit{decode}$ is certified iff both of the following conditions hold:
   %\begin{enumerate}[\hspace{5mm}i.]
@@ -195,107 +200,188 @@ label from the decoding tables under any input value condition.
 \end{definition}
 We have certified each of the YGC components detailed above. 
 \begin{lemma}
-  \label{lemma-certification}
+  \label{lemma-ygc-certification}
   Each of $\ttt{decode}$, $\ttt{encode}$, and $\ttt{andgg}$ are certified.
 \end{lemma}
 
-\subsubsection{Correctness of Certified Components}
+\subsubsection{Gate Invariants and Circuit Security}
 \label{section-composition-metatheory}
 
 To demonstrate correctness of certification, we need to show that
 isolated component certificates preserve relevant properties
-when integrated into larger programs. This resonates with
-\emph{framing} as developed in \cite{barthe2019probabilistic}.
-In the following we will use $f$ to range over flips.
-First, we show that if a flip $f$ is independent from the views
-in a protocol (as is the case with input labels used to
-encode a garbled table), then separation from views that
-use $f$ (e.g., in an output label) is preserved. 
-\begin{lemma}[Wire Framing]
-  \label{lemma-wire-framing}
-  If $\sep{\progtt(\prog)}{\{f\}}{\vdefs(\prog)}$ for flip $f$ and
-  $\vars(\prog) \cap \vars(\prog') = \{ f \}$ then
-  $\sep{\progtt(\prog';\prog)}{\vdefs(\prog')}{\vdefs(\prog)}$.
-\end{lemma}
-Next, we show that output correlations (e.g., between output wire values and
-labels) are preserved by substitution of correlated values for flips (e.g.,
+when integrated into larger programs. 
+%First, we show that if a flip $f$ is independent from the views
+%in a protocol (as is the case with input labels used to
+%encode a garbled table), then separation from views that
+%use $f$ (e.g., in an output label) is preserved. 
+%\begin{lemma}[Wire Framing]
+%  \label{lemma-wire-framing}
+%  If $\sep{\progtt(\prog)}{\{f\}}{\vdefs(\prog)}$ for flip $f$ and
+%  $\vars(\prog) \cap \vars(\prog') = \{ f \}$ then
+%  $\sep{\progtt(\prog';\prog)}{\vdefs(\prog')}{\vdefs(\prog)}$.
+%\end{lemma}
+%Next,
+First we establish another substitution result, showing that
+correlations (e.g., between output wire values and labels) are
+preserved by substitution of correlated values for flips (e.g.,
 between input wire values and labels).
-\begin{lemma}[Substitution]
-  \label{lemma-substitution}
-  If $\vc{\progtt(\prog,\be)}{\itv}{f}$ and $\vc{\progtt(\prog',\be')}{\itv}{f'}$
-  and $\sep{\progtt(\prog';\prog)}{\vdefs(\prog')}{\vdefs(\prog)}$
-  then $\vc{\progtt(\prog';\prog,\be[\be'/f'])}{\itv}{f}$.
+\begin{lemma}[Substitution$\sim$]
+  \label{lemma-substitution-sim}
+  If $\vc{\progtt(\prog_2,\be)}{\itv}{f}$ and $\vc{\progtt(\prog_1,\be')}{\itv}{f'}$
+  and $\vars(\be') \cap (\vars(\be) - \{ f \}) = \varnothing$
+  then $\vc{\progtt(\prog_1;\prog_2,\be[\be'/f'])}{\itv}{f}$.
 \end{lemma}
-Our wire framing and substitution Lemmas then allow us to generalize
-certification of gates and encoding to arbitrary circuit contexts,
-assuming that outputs are not wired to multiple inputs \cite{tate2003garbled,nieminen2023breaking}.
-\begin{lemma}[Gate Composition]
-  \label{lemma-compose}
+Now we can show how to splice gates into arbitrary circuits in an
+invariant-preserving manner, assuming that outputs are not wired to
+multiple inputs \cite{tate2003garbled,nieminen2023breaking}.
+\begin{lemma}[YGC Gate Invariant]
+  \label{lemma-ygc-preservation}
 Given well-typed $\prog_1;E[\mathit{gate}(g,g_1,g_2,v_1,v_2)]$ and certified $\mathit{gate}$ where:
 $$
 \config{\prog_1}{E[\mathit{gate}(g,g_1,g_2,v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[v]}
 $$
-If the following preconditions hold:
+If the following preconditions hold where $\iov(\prog_1) = S \cup V$:
 \begin{enumerate}
 \item $\{ g_1 \} \cap \{ g_2 \} \cap \wired(\prog_1) = \varnothing$ and $g \not\in \prog_1$
-\item $\gc{\progd(\prog_1)}{v_1}{\owl(g_1)}$ and $\gc{\progd(\prog_1)}{v_2}{\owl(g_2)}$
+\item $\gc{\prog_1}{v_1}{g_1}$ and $\gc{\prog_1}{v_2}{g_2}$
+\item $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$
+\item $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$
 \end{enumerate}
-then we have as postconditions:
+then we have as postconditions where $\iov(\prog_1) = S \cup V'$:
 \begin{enumerate}
-  \item $\gc{\progd(\prog_1;\prog_2)}{v}{\owl(g_2)}$
-  \item $\sep{\progd(\prog_1;\prog_2,v)}{\vdefs(\prog_1)}{\vdefs(\prog_2) \cup \{\itv\}}$
+\item $\gc{\prog_1;\prog_2}{v}{g_2}$
+\item $\sep{\progd(\prog_1,\prog_2)}{S_{\{1\}}}{V'_{\{2\}}}$
+\item $\sep{\progd(\prog_1,\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$
 \end{enumerate}
 \end{lemma}
 \begin{proof}
+  Given preconditions we have $v_1 =  \{ \ttt{k = }\be^1_{k}; \ttt{p = }\be^1_{p} \}$ and
+  $v_2 = \{ \ttt{k = }\be^2_{k}; \ttt{p = }\be^2_{p} \}$ for some
+  $\be^1_{k}$,$\be^2_{k}$,$\be^1_{p}$,$\be^2_{p}$ with correlations as per Definition
+  \ref{definition-gc}.
+  %\begin{eqnarray*}
+  %  v_1 &=& \{ \ttt{k = }\be^1_{k}; \ttt{p = }\be^1_{p} \} \\
+  %  v_2 &=& \{ \ttt{k = }\be^2_{k}; \ttt{p = }\be^2_{p} \}
+  %\end{eqnarray*}
+  Let $\prog$ be as defined in Definition \ref{definition-ygcgate-certification}.
+  We observe:
+  \begin{eqnarray*}
+    &\prog_2 = \\
+    &{\small \prog[\be^1_{k}/\ttt{flip[2,gate:a.k]}][\be^1_{p}/\ttt{flip[2,gate:a.p]}][\be^2_{k}/\ttt{flip[2,gate:b.k]}][\be^1_{p}/\ttt{flip[2,gate:b.p]}]}
+  \end{eqnarray*}
   Given that $g_1$ and $g_2$ are distinct and not wired in $\prog_1$
   we are assured that $\ttt{owl}(g_1)$ and $\ttt{owl}(g_1)$ are in
   independent uniform distributions, and given that $g \not\in
   \prog_1$ we are assured that $\ttt{owl}(g)$ contains entirely fresh
-  flips. Thus, precondition 2, Lemma \ref{lemma-wire-framing}, and
-  Definition \ref{definition-gate-certification} imply postcondition
-  2.  Furthermore, since gate certification guarantees that
-  correlation with $\ttt{owl}(g)$ is guaranteed under all possible gate
-  input wire values, precondition 2 and Lemma \ref{lemma-substitution}
-  guarantee postcondition 2.
+  flips. Thus by condition (i) of Definition \ref{definition-ygcgate-certification} and
+  Lemma \ref{lemma-substitution} we have:
+  $$
+  \sep{\prog_1;\prog_2}{\vars(\be^1_{k},\be^2_{k},\be^1_{p},\be^2_{p})}{\vdefs(\prog_2)}
+  $$
+  Thus by Lemmas \ref{lemma-noninterference} and \ref{lemma-separation} we establish
+  postconditions (ii) and (iii).
+
+  Also since $v_1$ and $v_2$ are correlated either positively or negatively with
+  $\ttt{owl}(g_1)$ and $\ttt{owl}(g_2)$ respectively by precondition (ii),
+  by Definition \ref{definition-gc}, precondition (i), and Lemma \ref{lemma-substitution-sim}
+  we establish postcondition (i), since Definition \ref{definition-ygcgate-certification}
+  requires gate output correlation with $\ttt{owl}(g)$ given any input valence conditions.
 \end{proof}
 
-\begin{lemma}[Decode Composition]
-  \label{lemma-decode}
-Given well-typed $\prog_1;E[\mathit{decode}(g,v)]$ and certified $\mathit{decode}$ where 
+\begin{lemma}[YGC Encode Invariant]
+  \label{lemma-ygc-encode}
+Given well-typed $\prog_1;E[\mathit{encode}(s_1,s_2)]$ and certified $\mathit{encode}$ where 
 $$
-\config{\prog_1}{E[\ttt{decode}(g,v)]} \redxs \config{\prog_1;\prog_2}{E[\be]}
+\config{\prog_1}{E[\ttt{encode}(s_1,s_2)]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{wv1=}v_1\ttt{;wv2=}v_2\ttt{\}}]}
 $$
-If the following preconditions hold:
+If the following preconditions hold where $\iov(\prog_1) = S \cup V$:
 \begin{enumerate}
-\item $g \not\in \cap \wired(\prog_1)$
-\item $\gc{\progd(\prog_1)}{v}{\owl(g)}$
+\item $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$
+\item $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$
 \end{enumerate}
-then we have as postcondition:
+then we have as postconditions where $\iov(\prog_1) = S' \cup V'$:
 \begin{enumerate}
-  \item $\sep{\progd(\prog_1;\prog_2)}{\vdefs(\prog_1)}{\vdefs(\prog_2)}$
+\item $\gc{\prog_1;\prog_2}{v_1}{s_1}$ and $\gc{\prog_1}{v_2}{s_2}$
+\item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{1\}}}{V'_{\{2\}}}$
+\item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{2\}}}{V'_{\{1\}}}$
 \end{enumerate}
 \end{lemma}
-Given the above, we can establish that any circuit built with certified
-components is passive secure. 
+\begin{proof}
+  By Definition \ref{definition-ygcencode-certification} we have:
+  \begin{mathpar}
+    \sep{\progtt(\prog_2)}{\ttt{\{s[1,s1]\}}}{\vdefs(\prog_2)_{\{2\}}}
+    
+    \sep{\progtt(\prog_2)}{\ttt{\{s[2,s2]\}}}{\vdefs(\prog_2)_{\{1\}}}
+  \end{mathpar}
+  Since we assume that secrets are in uniform and independent marginal
+  distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
+  \varnothing$ by condition (iv) of Definition
+  \ref{definition-ygcencode-certification} and assumptions of
+  well-typedness, conditions (ii-iii) follow by Lemmas
+  \ref{lemma-noninterference} and \ref{lemma-separation}. Also by
+  Definition \ref{definition-ygcencode-certification} we have
+  $\gc{\prog_2}{v_1}{s_1}$ and $\gc{\prog_2}{v_1}{s_1}$, so also
+  $\gc{\prog_1;\prog_2}{v_1}{s_1}$ and
+  $\gc{\prog_1;\prog_2}{v_1}{s_1}$ by condition (iv) of Definition
+  \ref{definition-ygcencode-certification} and Lemmas
+  \ref{lemma-noninterference} and \ref{lemma-separation}.
+\end{proof}
+
+Given the above, we can now establish that any circuit built with
+certified components is passive secure.  Note that we assume a normal
+form of programs where the last instruction is a decoding and public
+reveal of the output, and we require that no gate is wired more than once.
+\cnote{There is another subtlety here, that gates are wired correctly
+  in the sense that if the garbler generates a table with input wire label
+  $g_1$ then only $g_1$ is wired to that input. I'll modify the
+  typing to enforce this.}
 \begin{theorem}
   \label{theorem-ygc-NIMO}
-  If $e$ is a well-typed YGC circuit definition using certified components
-  where no gate output is wired more than once, and $\config{\varnothing}{e}
-  \redxs \config{\prog}{\varnothing}$, then $\NIMO(\prog)$. 
+  If $\eassign{\outv}{\ttt{decode}(g,e)}$ is a well-typed YGC circuit
+  definition using certified components where no gate output is wired
+  more than once, and
+  $\config{\varnothing}{\eassign{\outv}{\ttt{decode}(g,e)}} \redxs
+  \config{\prog}{\varnothing}$, then $\NIMO(\prog)$.
 \end{theorem}
 
 \begin{proof}
-  Let $\iov(\prog) = S \cup (V \cup \outv)$. Noting that any
-  encoding necessarily uses entirely fresh variables by Definition and
-  type safety, by applying Lemmas \ref{lemma-compose} and
-  \ref{lemma-decode} and the frame rule of
-  \cite{barthe2019probabilistic} we obtain:
+  By assumptions of well-typedness we
+  have for some $\be_k$, $\be_p$, and $\be$:
   $$
-  \sep{\progd(\prog)}{(S_{\{2\}}\cup\{\outv\})}{V}
+  \config{\varnothing}{\eassign{\outv}{\ttt{decode}(g,e)}} \redxs
+  \config{\prog_1}{\eassign{\outv}{\ttt{decode}(g,\{ \ttt{k = }\be_k;  \ttt{p = }\be_p\})}}
+  \redxs \config{\prog_1;\prog_2}{\eassign{\outv}{\be}}
   $$
-  Noting that the garbler (client 2) has no views, this means that
-  the garbler's secrets are independent of the evaluator's views. The
-  result follows by Definition \ref{definition-NIMO}.
+  Let $\iov(\prog_1) = S \cup V$.
+  By Lemmas \ref{lemma-ygc-encode} and \ref{lemma-ygc-preservation} we
+  have $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$ and
+  $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$.
+  Let $\prog$ be as defined in Definition \ref{definition-ygdecode-certification}.
+  We observe:
+  \begin{eqnarray*}
+    & \prog_2 = \\ 
+    & \prog[\be_k/\ttt{\{flip[2,gate:c.k]}][\be_p/\ttt{flip[2,gate:c.p]}]
+  \end{eqnarray*}
+  so also by  Definition \ref{definition-ygdecode-certification} and
+  Lemma \ref{lemma-substitution} we have:
+  $$
+  \sep{\progtt(\prog_1;\prog_2)}{\vars(\be_k,\be_p)}{\vdefs(\prog_2)}
+  $$
+  so, letting $\iov(\prog_1;\prog_2) = S \cup V'$ by
+  Lemmas \ref{lemma-noninterference} \ref{lemma-separation} we have
+  $\sep{\progd(\prog_1;\prog_2)}{S_{\{1\}}}{V'_{\{2\}}}$ and
+  $\sep{\progd(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$.
+  Thus, letting $\prog' \defeq (\prog_1;\prog_2;\eassign{\outv}{\be})$, for all $\beta$:
+  $$\sep{\condd{\progd(\prog')}{S_{\{1\}} \cup V_{\{2\}}}{\{ \outv \mapsto \beta \}}}{S_{\{1\}}}{V_{\{2\}}}
+  \quad \text{and} \quad
+    \sep{\condd{\progd(\prog')}{S_{\{2\}} \cup V_{\{1\}}}{\{ \outv \mapsto \beta \}}}{S_{\{2\}}}{V_{\{1\}}}$$
+  thus for all $\store \in \mems(V_2 \cup \{ \outv \})$:
+  $$\condd{\progd(\prog')}{S_{\{1\}}}{\store}
+  = \condd{\progd(\prog')}{S_{\{1\}}}{\store_{\{\outv\}}}$$
+  and for all $\store \in \mems(V_1 \cup \{ \outv \})$:
+  $$\condd{\progd(\prog')}{S_{\{2\}}}{\store}
+  = \condd{\progd(\prog')}{S_{\{2\}}}{\store_{\{\outv\}}}$$
+  establishing the result by Lemma \ref{lemma-nimo} and Definition \ref{definition-NIMO}.
 \end{proof}
 
 
@@ -336,18 +422,17 @@ components is passive secure.
 \subsection{Building and Extending Automatically Secure Circuits}
 \label{section-composition-copy}
 
-Theorem \ref{theorem-nimo} means that any well-typed program using
-$\ttt{encode}$, $\ttt{andgg}$, and $\ttt{decode}$ will generate a
-circuit that is passive secure, provided that gate outputs are not
-used more than once. To add an $\ttt{or}$ gate to our library, we can
-use $\ttt{andgg}$ as a template, in fact simple modification of
-$\ttt{andtable}$ is all that would be needed. Thus, this library
-embodies a Fairplay-like language where well-typedness of metaprograms
-guarantees safety and security of generated protocols.
+Theorems \ref{theorem-gmw-NIMO} \ref{theorem-ygc-NIMO} means that any
+well-typed program using certified components will generate a circuit
+that is passive secure. To add an $\ttt{or}$ gate to our YGC library,
+for example, we can use $\ttt{andgg}$ as a template, in fact simple
+modification of $\ttt{andtable}$ is all that would be needed. Thus,
+this library embodies a Fairplay-like language where well-typedness of
+metaprograms guarantees safety and security of generated protocols.
 
 The requirements that output wire labels are not used more than once
-reflects a known result, that naive copy gate output is unsound in
-YGC- i.e., passive security fails. In fact, we are unable to
+in YGC reflects a known result, that naive copy gate output is unsound
+in YGC- i.e., passive security fails. In fact, we are unable to
 automatically verify $\gNIMO$ for $\ttt{andgg}$ without the assumption
 that input wire lables are in independent uniform distributions. We
 can capture the necessary fix as in Figure \ref{fig-ygc-copy}. The
@@ -356,8 +441,8 @@ independent uniform distributions (in \ttt{copygate}), and permutes
 them using the input wire label pointer after encrypting with the
 input wire label keys. The evaluator then recovers the encrypted
 output wire values during evaluation (in \ttt{evalcopy}). Given an
-$\ttt{orgg}$ gate defined as outlined abotve, we can then use
-secure $\ttt{copy}$ as follows: 
+$\ttt{orgg}$ gate defined as outlined abotve, we can then use secure
+$\ttt{copy}$ as follows:
 \begin{verbatimtab}
   let s = encode(s1,s2) in
   let s1c = copy(c1s1,c2s1,s1,s.wv1) in
