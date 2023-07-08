@@ -17,7 +17,7 @@ sound for passive security in the real/ideal model, called
 completeness with respect to passive security, but soundness
 guarantees that enforcement of $\NIMO$ in our analyses implies passive
 security. In Section \ref{section-bruteforce} we show how $\NIMO$ can
-be automatically enforced in a brute-force manner, and in Section
+be automatically enforced in a brute-force manner and in Section
 \ref{section-composition} we show how $\NIMO$ can be refined to obtain
 compositional properties supporting efficient, scalable enforcement of
 complex protocols that incorporate modular subprotocols, using
@@ -28,7 +28,7 @@ advantage of our intensional formulation.
 \subsection{Passive Security and the Real/Ideal Model}
 \label{section-hyperprop-passive}
 Here we briefly summarize the formal definition of MPC security. For a
-more detailed discussion the reader is referred to \cite{evans2018pragmatic}.
+more detailed discussion, the reader is referred to \cite{evans2018pragmatic}.
 In this paper, we will consider the \emph{passive} aka
 semi-honest aka honest-but-curious variant. In this threat
 model, protocol participants can be corrupted, but all clients
@@ -66,7 +66,7 @@ additional dependencies on honest input secrets than what is revealed
 by the output and conditionings on corrupt inputs.
 
 The simulator is represented by a probabilistic algorithm $\SIM_C$,
-aka a \emph{simulation}, that is parameterized by a corrupt inputs and
+aka a \emph{simulation}, that is parameterized by corrupt inputs and
 the output of an ideal functionality, and that returns a set of
 adversarial views (as a memory) with some probability. Given
 corrupt inputs $\store$ and ideal functionality output $v$,  
@@ -244,7 +244,7 @@ passive security of a protocol.
      \condd{\progd(\prog)}{\{ \outv \}}{\store_S} =
      \condd{\progd(\prog)}{\{ \outv \}}{\store'}
   $$
-  so by the definition of noninterference modulo output
+  so by the definition of noninterference modulo output,
   any choice of $\store'$ yields the same distribution $\condd{\progd(\prog)}{V_C}{\store_S}$.
   Therefore by definition
   $
