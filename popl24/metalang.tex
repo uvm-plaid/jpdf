@@ -28,7 +28,7 @@ treat gates as compositional units that are wired together by the programmer
 to generate a complete circuit. The $\fedprot$ language is low-level
 and does not include abstractions for defining composable elements. 
 
-In this Section we introduce the $\metaprot$ language which includes
+In this Section, we introduce the $\metaprot$ language which includes
 structured data and function definitions, which are sufficiently
 expressive to define composable protocol elements such as garbled
 gates. The $\metaprot$ language is a \emph{metalanguage}, in the sense
@@ -79,7 +79,7 @@ of splitting a given client's secret into 3 separate shares.
       let s3 = (s1 xor s2) xor s[client, s: || secretid] in
       {s1 = s1;s2 = s2;s3 = s3}
     } \end{verbatimtab}
-  Here is $\metaprot$ program that uses this function definition:
+  Here is a $\metaprot$ program that uses this function definition:
   \begin{verbatimtab}
     let shares = share3(1, mysecret) in
     v[2,s1] := shares.s2;
@@ -152,8 +152,8 @@ generate. Although safety of the latter could be enforced
 post-generation by a direct analysis, for large programs this can be
 much more expensive and it is also better to not waste time on
 resource-intensive compilation of programs with known errors
-\cite{kreuter2012billion}. Some consequences of safety errors, for example accidental
-reuse of one-time pads, can also undermine security.
+\cite{kreuter2012billion}. Some consequences of safety errors, for example, accidental
+reuse of one-time pads can also undermine security.
 
 The type syntax of $\metaprot$ is defined in Figure
 \ref{fig-metaprot-tsyntax}. It includes a weak form of dependency:
@@ -305,7 +305,7 @@ $$
 Top-level type judgements are of the form $\Gamma \vdash \codebase, e
 : \tau, V$, where all the functions in $\codebase$ are well-typed in
 $\Gamma$, the top level view effect $V$ is a set of concrete
-$\fedprot$ views which are constructed by disjoint union of the views
+$\fedprot$ views which are constructed by a disjoint union of the views
 in the effect of $e$- the disjointness requirement guarantees that
 views are uniquely defined. Our $\metaprot$ type safety result is
 formulated as follows. In addition to safe execution of the
