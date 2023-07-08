@@ -10,7 +10,7 @@ operate on encodings of input secrets. These circuits can become quite
 large in practice \cite{kreuter2012billion}, but are built from
 well-defined components. Brute force verification techniques as
 described in Section \ref{section-bruteforce} are not scalable to
-large circuits, but in this Section we will demonstrate that correctly
+large circuits, but in this Section, we will demonstrate that correctly
 designed circuit components enjoy compositional properties
 that can be automatically certification on small program components
 using brute force methods. We prove that these properties preserve
@@ -19,7 +19,7 @@ scale to arbitrary programs. Furthermore, the certifications can be
 used on arbitrary gate definitions, allowing new gate implementations
 to be added soundly to libraries.
 
-In this Section we develop and use implementations of both 2-party GMW
+In this Section, we develop and use implementations of both 2-party GMW
 and YGC to illustrate our approach and demonstrate its generality.
 Main results are in Theorems \ref{theorem-gmw-NIMO} and
 \ref{theorem-ygc-NIMO}.
@@ -37,8 +37,8 @@ $
 $
 where $v_1$ and $v_2$ are client 1 and 2's shares respectively.
 
-For full details of the GMW protocol the reader is referred to
-\cite{evans2018pragmatic}. Our implementation libary is shown in
+For full details of the GMW protocol, the reader is referred to
+\cite{evans2018pragmatic}. Our implementation library is shown in
 Figure \ref{fig-gmw}, with type signatures for the library functions
 shown in Figure \ref{fig-gmw-types}. We show the And gate since it is
 an interesting component. The Figure includes the
@@ -49,7 +49,7 @@ following top-level functions:
   distinct wire values (pairs of shares).
 \item \ttt{andgmw}: This function defines the gate $\ttt{g}$, the
   identifier $\ttt{g}$ being used to distinguish randomness used
-  within.  In our version client 1 builds the output table (using
+  within.  In our version, client 1 builds the output table (using
   \ttt{andtablegmw})and transfers the correct output share to client 2
   using 1-out-of-4 OT as per standard GMW protocol.
 \item \ttt{decode}: This function decodes and publishes a wire value
@@ -60,7 +60,7 @@ following top-level functions:
   \label{example-gmw-andcircuit}
 The following program uses our GMW library to define
 a circuit with a single And gate and input secrets $\ttt{s1}$ and
-$\ttt{s2}$ from client's 1 and 2 respectively. 
+$\ttt{s2}$ from clients 1 and 2 respectively. 
 \begin{verbatimtab}
   let ss = encodegmw(s1,s2) in
   v[0,output] := decode(andgmw(0,ss.shares1,ss.shares2))
@@ -74,7 +74,7 @@ of input encoding, decoding, and internal gates. In the following we
 will refer to arbitrary decode, encode, and gate functions with the
 restriction that any function in each of these categories has the same
 valid type signature as $\ttt{decodegmw}$, $\ttt{encodegmw}$, and
-$\ttt{andgmw}$ respectively. When gates are used in ciruits they are
+$\ttt{andgmw}$ respectively. When gates are used in circuits they are
 parameterized by wire values-- in certification we will use carefully
 chosen witness parameters. 
 
@@ -241,7 +241,7 @@ The next two Lemmas allow us to use the properties of gates established by
 certification and replace the ``dummy'' parameters used there with actual
 wire values in full circuit contexts. Intuitively we show that substitution
 for dummy flips preserves separation. 
-In these results and subsequently we will use $f$ to range over flips.
+In these results and subsequently, we will use $f$ to range over flips.
 \begin{lemma}
   \label{lemma-presub}
   Given $\be_1$, $\be_2$, and $i$ where $\vars(\be_1) \cap
@@ -343,7 +343,7 @@ evaluation.
 \end{proof}
 
 Here we show that encoding also preserves the desired invariant.
-The result here is more straightforward than it is for gates, because
+The result here is more straightforward than it is for gates because
 the variables used during encoding are guaranteed to be distinct from
 the rest of the program.
 \begin{lemma}[GMW Encode Invariant]
@@ -387,7 +387,7 @@ the rest of the program.
   the result follows by preconditions and Lemma \ref{lemma-separation}.
 \end{proof}
 
-On the basis of the preceding we can prove our main result as
+On the basis of the preceding, we can prove our main result as
 follows. Note that we assume a normal form of programs where the last
 instruction is a decoding and public reveal of the output.
 \begin{theorem}
@@ -433,7 +433,7 @@ In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
 codebase for Yao's garbled circuits (YGC). This definition follows the
 \emph{point-and-permute} method described in \cite{evans2018pragmatic}
 and elsewhere, to which the reader is referred for more in-depth discussion.
-In this implementation client 2 is the \emph{garbler} and
+In this implementation, client 2 is the \emph{garbler} and
 client 1 is the \emph{evaluator}. The garbler builds the garbled
 tables and shares them with the evaluator, who then evaluates
 the gate in an oblivious fashion until the final public output is
@@ -443,7 +443,7 @@ Figure \ref{fig-ygc-types}. Well-typed programs using these
 libraries are therefore guaranteed to yield safe $\minifed$
 programs. 
 
-\emph{Wire labels} are fundamental to YGC, and essentially represent
+\emph{Wire labels} are fundamental to YGC and essentially represent
 gate output values in an encrypted form. In our definition, wire
 labels are represented by records $\ttt{\{ k = }\beta_1\ttt{; p =
 }\beta_2\ttt{ \}}$, where $\ttt{k}$ is the \emph{key bit} and
@@ -496,7 +496,7 @@ identifiers, which are strings $w$. Top-level functionality in Figures
   \label{example-andcircuit}
 The following program uses our YGC library to define
 a circuit with a single and gate and input secrets $\ttt{s1}$ and
-$\ttt{s2}$ from client's 1 and 2 respectively. 
+$\ttt{s2}$ from clients 1 and 2 respectively. 
 \begin{verbatimtab}
   andgate(0,s1,s2);
   garbledecode(0);
@@ -540,7 +540,7 @@ $\ttt{andgg}$ respectively.
 
 It is necessary to define notions of correlation with wire
 labels, since wire values flow into and out of gates in either
-positive of negative correlation with them.
+positive or negative correlation with them.
 \begin{definition}
   \label{definition-gc}
   We write $\gc{\prog}{\{ \ttt{k = }\be_{k}; \ttt{p = }\be_{p} \}}{g}$ iff one of the
@@ -554,7 +554,7 @@ positive of negative correlation with them.
 \end{definition}
 Thus, if a value is in correlation with a wire label, it is either
 correlated with the wire label or with the inverse of both the key and
-pointer bits. For subsequent discussion we make the following addition
+pointer bits. For subsequent discussion, we make the following addition
 to the codebase:
 $$
 \ttt{invert(\{ k = bk; p = bp \}) \{ \{ k = not bk; p = not bp \} \}}
@@ -647,7 +647,7 @@ when integrated into larger programs.
 %  $\sep{\progtt(\prog';\prog)}{\vdefs(\prog')}{\vdefs(\prog)}$.
 %\end{lemma}
 %Next,
-First we establish another substitution result, showing that
+First, we establish another substitution result, showing that
 correlations (e.g., between output wire values and labels) are
 preserved by substitution of correlated values for flips (e.g.,
 between input wire values and labels).
@@ -856,18 +856,18 @@ modification of $\ttt{andtable}$ is all that would be needed. Thus,
 this library embodies a Fairplay-like language where well-typedness of
 metaprograms guarantees safety and security of generated protocols.
 
-The requirements that output wire labels are not used more than once
+The requirement that output wire labels are not used more than once
 in YGC reflects a known result, that naive copy gate output is unsound
 in YGC- i.e., passive security fails. In fact, we are unable to
 automatically verify $\gNIMO$ for $\ttt{andgg}$ without the assumption
-that input wire lables are in independent uniform distributions. We
+that input wire labels are in independent uniform distributions. We
 can capture the necessary fix as in Figure \ref{fig-ygc-copy}. The
 garbler creates a copy gate with two new output wire labels in
 independent uniform distributions (in \ttt{copygate}), and permutes
 them using the input wire label pointer after encrypting with the
 input wire label keys. The evaluator then recovers the encrypted
 output wire values during evaluation (in \ttt{evalcopy}). Given an
-$\ttt{orgg}$ gate defined as outlined abotve, we can then use secure
+$\ttt{orgg}$ gate defined as outlined above, we can then use secure
 $\ttt{copy}$ as follows:
 \begin{verbatimtab}
   let s = encode(s1,s2) in
