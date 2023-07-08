@@ -71,7 +71,6 @@
 \newcommand{\Dexn}[2]{\#\!#1\,#2}
 \newcommand{\Dtry}[3]{\mathrm{Try}\,#1\,\mathrm{With}\,#2 \rightarrow #3}
 \newcommand{\xname}{\mathit{exn}}
-\newcommand{\funcVar}{\$}
 \newcommand{\Dboolt}{\mathrm{Bool}}
 \newcommand{\Dreft}[1]{#1\,\mathrm{ref}}
 \newcommand{\reft}[1]{#1\,\mathrm{ref}}
@@ -325,9 +324,9 @@
 \newcommand{\flips}{\mathit{flips}}
 \newcommand{\fedcat}{\minifed}
 
-\newcommand{\sx}[2]{\texttt{s[#1,#2]}}
-\newcommand{\fx}[2]{\texttt{f[#1,#2]}}
-\newcommand{\vx}[2]{\texttt{v[#1,#2]}}
+\newcommand{\sx}[2]{\texttt{s[#1,"#2"]}}
+\newcommand{\fx}[2]{\texttt{f[#1,"#2"]}}
+\newcommand{\vx}[2]{\texttt{v[#1,"#2"]}}
 
 \newcommand{\IF}[1]{#1_{\mathit{i}}}
 \newcommand{\idealf}{\mathcal{F}}
@@ -414,6 +413,7 @@
 \newcommand{\sep}[3]{#1 \vdash #2 * #3}
 \newcommand{\gtab}{\mathit{table}}
 \newcommand{\vdefs}{\mathit{vdefs}}
+\newcommand{\funcVar}{\$}
 %\newcommand{\pmf}{\mathrm{Pr}}
 \newcommand{\pmf}{\mathit{P}}
 
