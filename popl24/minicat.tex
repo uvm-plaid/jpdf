@@ -21,7 +21,7 @@ Figure \ref{fig-minifed-syntax}, includes a standard boolean algebra
 with $\eand$, $\eor$, $\exor$, and $\enot$ as primitives. In addition,
 programs have different kinds of variables including \emph{secrets}
 $\secret{\cid}{w}$, \emph{flips} $\flip{\cid}{w}$, and \emph{views}
-$\view{\cid}{w}$.  Each of these variables are indexed by an ``owner''
+$\view{\cid}{w}$.  Each of these variables is indexed by an ``owner''
 client $\cid$ and distinguishing string $w$. So for example,
 $\secret{\ttt{1}}{\ttt{foo}}$ is client $\ttt{1}$'s secret called
 $\ttt{foo}$. All clients can make reference to the \emph{oracle}
@@ -75,7 +75,7 @@ with semantics similar to $\ttt{select}$ but with important nuances
 related to communication between clients as we discuss more below.
 As we will demonstrate, it is not necessary to include $\ttt{OT}$
 as a primitive since we can implement it in a provably secure
-fashion. However its inclusion simplifies our presentation and is a useful
+fashion. However, its inclusion simplifies our presentation and is a useful
 convenience.
 
 \subsection{Semantics}
@@ -118,7 +118,7 @@ specific memory, and second, we need to ensure that variables are used
 variables used in an expression must belong to the same client.  Thus,
 we denote interpretation of expressions $\be$ possibly containing
 variables as $\lcod{\store,\be}{\cid}$, where $\store$ associates
-variables with values and all variables must be owned by client
+variables with values, and all variables must be owned by client
 $\cid$. This is defined in Figure \ref{fig-minifed-interp}.
 
 \begin{fpfig}[t]{$\minifed$ expression interpretation.}{fig-minifed-interp}
@@ -171,7 +171,7 @@ program as \emph{safe} iff for all $\store \in \mems(S \cup F)$ there
 exists $\store'$ where $\config{\store}{\prog} \redxs
 \config{\store'}{\varnothing}$. Unsafe programs are those where views
 are used before they're defined, or where expressions mix owners of
-variables. As a sanity condition we will only consider safe 
+variables. As a sanity condition, we will only consider safe 
 programs in our presentation of $\fedprot$, though in Section
 \ref{section-metalang} we define a type system that guarantees
 program safety by construction, as demonstrated in Theorem
@@ -199,13 +199,13 @@ program, we assume $H = \{ 1,2 \}$ and $C = \{ 0 \}$. Client 1 first
 shares the randomly generated ``key'' $\fx{1}{0}$ with client 2
 through view $\view{2}{0}$. Then, client 1 encrypts its secret
 $\sx{1}{0}$ and sends it to party 0, which relays the ciphertext in
-$\vx{0}{0}$ to client 2. Finally, client 2 decrypts the the ciphertext
+$\vx{0}{0}$ to client 2. Finally, client 2 decrypts the ciphertext
 and stores the plaintext in $\vx{2}{2}$.
 \begin{verbatimtab}
-v[2,0] := f[1,0];
-v[0,0] := f[1,0] xor s[1,0];
-v[2,1] := v[0,0];
-v[2,2] := v[2,1] xor v[2,0]
+v[2,"0"] := f[1,"0"];
+v[0,"0"] := f[1,"0"] xor s[1,"0"];
+v[2,"1"] := v[0,"0"];
+v[2,"2"] := v[2,"1"] xor v[2,"0"]
 \end{verbatimtab}
 Intuitively, this protocol is \emph{correct} because $\vx{2}{2}$ is
 exactly correlated with the secret $\sx{1}{0}$, and it is
@@ -220,22 +220,22 @@ probabilistically independent of the secret $\sx{1}{0}$.
   $\lambda_{\mathrm{obliv}}$, a language for oblivious memory
   management. We consider their translations here where we
   assume $H = \{ 1 \}$ and $C = \{ 0 \}$. First, the following
-  example shows that the reuse of coin flips can result in release of
+  example shows that the reuse of coin flips can result in the release of
   information, even though flips are chosen from a uniform
   distribution. This is because the adversary can deduce that
   $\secret{1}{s}$ is more likely to be 1 in case their views are the
   same value. We call this subexample $(a)$:
   \begin{verbatimtab}
-    v[0,0] := select(s[1,s], flip[1,sx], flip[1,sy]);
-    v[0,1] := flip[1,sx] \end{verbatimtab}
+    v[0,"0"] := select(s[1,"s"], flip[1,"sx"], flip[1,"sy"]);
+    v[0,"1"] := flip[1,"sx"] \end{verbatimtab}
   In the next example, since the nested select is more likely to evaluate
   to $1$ than $0$, the adversary can deduce that $\secret{1}{s}$ is
   more likely to be 1 in case $\view{0}{0}$ is 1. We call this subexample $(b)$:
   \begin{verbatimtab}
-  v[0,0] := select(s[1,s],select(flip[1,sx], flip[1,sx], flip[1,sy]),flip[1,z]) \end{verbatimtab}
+  v[0,"0"] := select(s[1,"s"],select(flip[1,"sx"], flip[1,"sx"], flip[1,"sy"]),flip[1,"z"]) \end{verbatimtab}
   We note that these examples are considered ``bad'' in \cite{darais2019language} since there
   no information about honest secrets should be revealed to the adversary in
-  their threat model. For this reason they disallow reuse of flips through a
+  their threat model. For this reason, they disallow the reuse of flips through a
   linear type discipline, which is a culprit in both of these examples. However,
   as we have shown in Example \ref{example-otp} the reuse of flips is useful in
   the modeling of symmetric key encryption, and generally we will not enforce
@@ -251,14 +251,14 @@ probabilistically independent of the secret $\sx{1}{0}$.
   is the receiver's choice bit, and \ttt{s[1,m0]} and \ttt{s[1,m1]}
   are the sender's two message options that the receiver chooses from. 
 \begin{verbatimtab}
-  v[1,r0] := s[3,r0];
-  v[1,r1] := s[3,r1];
-  v[2,d] := flip[3,d];
-  v[2,rd] := select(flip[3,d], s[3,r1], s[3,r0]);
-  v[1,e] := s[2,c] xor v[2,d];
-  v[2,f0] := s[1,m0] xor select(v[1, e],v[1,r1],v[1,r0]);
-  v[2,f1] := s[1,m1] xor select(not v[1, e],v[1,r1],v[1,r0]);
-  v[2,mc] := select(s[2,c],v[2,f1],v[2,f0]] xor v[2,rd)
+  v[1,"r0"] := s[3,"r0"];
+  v[1,"r1"] := s[3,"r1"];
+  v[2,"d"] := flip[3,"d"];
+  v[2,"rd"] := select(flip[3,"d"], s[3,"r1"], s[3,"r0"]);
+  v[1,"e"] := s[2,"c"] xor v[2,"d"];
+  v[2,"f0"] := s[1,"m0"] xor select(v[1,"e"],v[1,"r1"],v[1,"r0"]);
+  v[2,"f1"] := s[1,"m1"] xor select(not v[1,"e"],v[1,"r1"],v[1,"r0"]);
+  v[2,"mc"] := select(s[2,"c"],v[2,"f1"],v[2,"f0"]] xor v[2,"rd")
 \end{verbatimtab}
 Below we will discuss how to automatically verify security properties
 of this protocol that correspond to the properties proven manually in
@@ -267,7 +267,7 @@ verify its passive security in the simulator model. With respect to
 our language primitives, we note that this protocol is equivalent to
 the following:
 \begin{verbatimtab}  
-  v[2,mc] := OT(s[2,c], s[1,m1], s[1,m0])
+  v[2,"mc"] := OT(s[2,"c"], s[1,"m1"], s[1,"m0"])
 \end{verbatimtab}
 \end{example}
 
@@ -285,25 +285,25 @@ For example, to generate shares for three-party additive sharing,
 clients 1,2, and 3 can break up and distribute their shares to
 each other as follows:
 \begin{verbatimtab}
-  v[2,s1] := flip[1,1] xor flip[1,s1] xor s[1,1];
-  v[3,s1] := flip[1,1];
+  v[2,"s1"] := flip[1,"1"] xor flip[1,"s1"] xor s[1,"1"];
+  v[3,"s1"] := flip[1,"1"];
 
-  v[1,s2] := flip[2,1] xor flip[2,s2] xor s[2,1];
-  v[3,s2] := flip[2,1];
+  v[1,"s2"] := flip[2,"1"] xor flip[2,"s2"] xor s[2,"1"];
+  v[3,"s2"] := flip[2,"1"];
 
-  v[1,s3] := flip[3,1] xor flip[3,s3] xor s[3,1];
-  v[2,s3] := flip[3,1];
+  v[1,"s3"] := flip[3,"1"] xor flip[3,"s3"] xor s[3,"1"];
+  v[2,"s3"] := flip[3,"1"];
 \end{verbatimtab}
 Then, assuming that party 0 is a ``public'' client, each party sums
-its own shares, and then the sum of sum of shares is revealed
+its own shares, and then the sum of the sum of shares is revealed
 in the output view $\vx{0}{output}$. By additive homomorphism of
 $\ttt{xor}$, this output is the sum of the 3 secrets.
 \begin{verbatimtab}
-  v[0,ss1] := v[1,s2] xor v[1,s3] xor flip[1,s1];
-  v[0,ss2] := v[2,s1] xor v[2,s3] xor flip[2,s2];
-  v[0,ss3] := v[3,s1] xor v[3,s2] xor flip[3,s3];
+  v[0,"ss1"] := v[1,"s2"] xor v[1,"s3"] xor flip[1,"s1"];
+  v[0,"ss2"] := v[2,"s1"] xor v[2,"s3"] xor flip[2,"s2"];
+  v[0,"ss3"] := v[3,"s1"] xor v[3,"s2"] xor flip[3,"s3"];
 
-  v[0,output] := v[0,ss1] xor v[0,ss2] xor v[0,ss3]
+  v[0,"output"] := v[0,"ss1"] xor v[0,"ss2"] xor v[0,"ss3"]
 \end{verbatimtab}
 We note that, as for MPC protocols generally, the notion of
 ``secrecy'' here is subtle and not the same as for encryption as in
