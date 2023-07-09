@@ -1,8 +1,7 @@
 \begin{fpfig}[t]{2-Party GMW Circuit Library with And gate.}{fig-gmw}
 {\footnotesize
   \begin{verbatimtab}
-    encodegmw(in1,in2)
-    {
+    encodegmw(in1,in2) {
       v[1, in1 || out] := s[1,in1] xor flip[1,in1];
       v[2, in1 || out] := flip[1,in1];
       v[1, in2 || out] := s[2,in2] xor flip[2,in2];
@@ -11,8 +10,7 @@
         shares2 = { c1 = v[1, in2 || out]; c2 = v[2, in2 || out]} } 
     }
     
-    andtablegmw(b1, b2)
-    {
+    andtablegmw(b1, b2) {
       let r11 = (b1 xor true) and (b2 xor true) in
       let r10 = (b1 xor true) and (b2 xor false) in
       let r01 = (b1 xor false) and (b2 xor true) in
@@ -20,8 +18,7 @@
       { v1 = r11; v2 = r10; v3 = r01; v4 = r00 }
     }
     
-    andgmw(g, shares1, shares2)
-    {
+    andgmw(g, shares1, shares2) {
       let r = flip[1,g || .r] in
       let table = andtablegmw(shares1.c1, shares2.c1) in
       let r11 =  r xor table.v1 in

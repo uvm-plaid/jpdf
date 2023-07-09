@@ -2,21 +2,23 @@
 \label{section-metalang}
 
 \begin{fpfig}[t]{Syntax of $\metaprot$.}{fig-metaprot-syntax}
-$$
-\begin{array}{rcl@{\hspace{8mm}}r}
-\flab &\in& \mathrm{Field}\\
-x &\in& \mathrm{EVar}\\
-f &\in& \mathrm{FName}\\[2mm]
-e &::=& b \mid \flip{e}{e} \mid \secret{e}{e} \mid \view{e}{e} \mid \oracle{e} \mid \enot\ e \mid e\ \eand\ e \mid e\ \exor\ e \mid & \textit{expressions}\\[0mm]
-& & \select{e}{e}{e} \mid 
-\send{\view{e}{e}}{e} \mid \send{\view{e}{e}}{\OT{e}{e}{e}} \mid e;e \mid \\[0mm]
-& & x \mid \elet{x}{e}{e} \mid f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \}
-\mid e.\flab \mid e\concat e \mid (e) \\[2mm]
-v &::=& w \mid \cid \mid \be \mid \{ \flab = v;\ldots;\flab = v \} 
-\mid \ttt{()} & \textit{values}\\[2mm]
-{fn} &::=& f(x,\ldots,x) \{ e \} & \textit{functions}
-\end{array}
-$$
+  {\small
+    $$
+    \begin{array}{rcl@{\hspace{8mm}}r}
+      \multicolumn{3}{l}{\flab \in \mathrm{Field},\   x \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[2mm]
+      %x &\in& \mathrm{EVar}\\
+      %f &\in& \mathrm{FName}\\[2mm]
+      e &::=& b \mid \flip{e}{e} \mid \secret{e}{e} \mid \view{e}{e} \mid \oracle{e} \mid \enot\ e \mid e\ \eand\ e \mid e\ \exor\ e \mid & \textit{expressions}\\[0mm]
+      & & \select{e}{e}{e} \mid 
+      \send{\view{e}{e}}{e} \mid \send{\view{e}{e}}{\OT{e}{e}{e}} \mid e;e \mid \\[0mm]
+      & & x \mid \elet{x}{e}{e} \mid f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \}
+      \mid e.\flab \mid e\concat e \mid (e) \\[2mm]
+      v &::=& w \mid \cid \mid \be \mid \{ \flab = v;\ldots;\flab = v \} 
+      \mid \ttt{()} & \textit{values}\\[2mm]
+           {fn} &::=& f(x,\ldots,x) \{ e \} & \textit{functions}
+    \end{array}
+    $$
+  }
 \end{fpfig}
 
 Large practical MPC computations are based on much larger protocols
@@ -71,53 +73,60 @@ of splitting a given client's secret into 3 separate shares.
 \begin{example} \label{example-share3} The function $\ttt{share3}$ 
   splits a client's secret into 3 shares returned as a record
   with fields $\ttt{s1-3}$:
+  {\small
   \begin{verbatimtab}
-    share3(client, secretid)
-    {
-      let s1 = flip[client, share1] in
-      let s2 = flip[client, share2] in
-      let s3 = (s1 xor s2) xor s[client, s: || secretid] in
-      {s1 = s1;s2 = s2;s3 = s3}
-    } \end{verbatimtab}
+      share3(client, secretid) {
+        let s1 = flip[client, share1] in
+        let s2 = flip[client, share2] in
+        let s3 = (s1 xor s2) xor s[client, s: || secretid] in
+        {s1 = s1;s2 = s2;s3 = s3}
+      } \end{verbatimtab}
+  }
   Here is a $\metaprot$ program that uses this function definition:
-  \begin{verbatimtab}
-    let shares = share3(1, mysecret) in
-    v[2,s1] := shares.s2;
-    v[3,s1] := shares.s3 \end{verbatimtab}
+  {\small
+    \begin{verbatimtab}
+      let shares = share3(1, mysecret) in
+      v[2,s1] := shares.s2;
+      v[3,s1] := shares.s3 \end{verbatimtab}
+  }
   which generates the following $\minifed$ program, as we formalize in Example \ref{example-share3-eval}
   below:
+  {\small
   \begin{verbatimtab}
-    v[2,s1] := flip[1, share2];
-    v[3,s1] := flip[1, share1] xor flip[1, share2] xor s[1, s:mysecret] \end{verbatimtab}
+      v[2,s1] := flip[1, share2];
+      v[3,s1] := flip[1, share1] xor flip[1, share2] xor s[1, s:mysecret] \end{verbatimtab}
+  }
 \end{example}
 
 \subsection{Semantics}
 
 \begin{fpfig}[t]{Evaluation contexts and operational semantics of $\metaprot$.}{fig-metaprot-semantics}
-$$
-\begin{array}{rcl@{\hspace{3mm}}r}
-E &::=& [\,] \mid \enot\ E \mid E\ \bop\ e \mid v\ \bop\ E \mid  \flip{E}{e} \mid \secret{E}{e} \mid \view{E}{e} \mid \oracle{E} \mid  \\[1mm]
-& & \flip{\cid}{E} \mid \secret{\cid}{E} \mid \view{\cid}{E} \mid \send{E}{e} \mid \send{\view{\cid}{w}}{E} \mid \OT{E}{e}{e} \\[1mm]
-& & \mid \OT{v}{E}{e} \mid \OT{v}{v}{E} \mid \select{E}{e}{e} \mid \select{v}{E}{e} \mid \\[1mm]
-& & \select{v}{v}{E} \mid \elet{x}{E}{e} \mid f(v,\ldots,v,E,e,\ldots,e) \mid \\[1mm]
-& & \{ \flab = v;\ldots;\flab = v;\flab = E;\flab = e;\ldots;\flab = e \} \mid E.\flab \mid E\concat e \mid v \concat E
-\end{array}
-$$
-\medskip
-$$
-\begin{array}{rcl@{\hspace{10mm}}r}
-\config{\prog}{\elet{x}{v}{e}} &\redx& \config{\prog}{e[v/x]}\\
-\config{\prog}{f(v_1,...,v_n)} &\redx&
-\config{\prog}{e[v_1/x_1,\ldots,v_n/x_n]} & 
- \codebase(f) = x_1,\ldots,x_n,\ e\\
-\config{\prog}{\{\ldots; \flab = v; \ldots\}.\flab} &\redx&
- \config{\prog}{v}\\
- \config{\prog}{w_1\concat w_2} &\redx& \config{\prog}{w_1w_2}\\
- \config{\prog}{v;e} &\redx& \config{\prog}{e}\\
-\config{\prog}{\instr} &\redx& \config{\prog;\instr}{()}\\
-\config{\prog}{E[e]} &\redx& \config{\prog'}{E[e']} & \text{if}\ \config{\prog}{e} \redx \config{\prog'}{e'} 
-\end{array}
-$$
+  {\small
+    $$
+    \begin{array}{rcl@{\hspace{3mm}}r}
+      E &::=& [\,] \mid \enot\ E \mid E\ \bop\ e \mid v\ \bop\ E \mid  \flip{E}{e} \mid \secret{E}{e} \mid \view{E}{e} \mid \oracle{E} \mid  \\[1mm]
+      & & \flip{\cid}{E} \mid \secret{\cid}{E} \mid \view{\cid}{E} \mid \send{E}{e} \mid \send{\view{\cid}{w}}{E} \mid \OT{E}{e}{e} \\[1mm]
+      & & \mid \OT{v}{E}{e} \mid \OT{v}{v}{E} \mid \select{E}{e}{e} \mid \select{v}{E}{e} \mid \\[1mm]
+      & & \select{v}{v}{E} \mid \elet{x}{E}{e} \mid f(v,\ldots,v,E,e,\ldots,e) \mid \\[1mm]
+      & & \{ \flab = v;\ldots;\flab = v;\flab = E;\flab = e;\ldots;\flab = e \} \mid E.\flab \mid E\concat e \mid v \concat E
+    \end{array}
+    $$
+    \medskip
+    $$
+    \begin{array}{rcl@{\hspace{10mm}}r}
+      \config{\prog}{\elet{x}{v}{e}} &\redx& \config{\prog}{e[v/x]}\\
+      \config{\prog}{f(v_1,...,v_n)} &\redx&
+      \config{\prog}{e[v_1/x_1,\ldots,v_n/x_n]} & 
+      \codebase(f) = x_1,\ldots,x_n,\ e\\
+      \config{\prog}{\{\ldots; \flab = v; \ldots\}.\flab} &\redx&
+      \config{\prog}{v}\\
+      \config{\prog}{w_1\concat w_2} &\redx& \config{\prog}{w_1w_2}\\
+      \config{\prog}{v;e} &\redx& \config{\prog}{e}\\
+      \config{\prog}{\instr} &\redx& \config{\prog;\instr}{()}\\
+      \config{\prog}{E[e]} &\redx& \config{\prog'}{E[e']} & \text{if}\ \config{\prog}{e} \redx \config{\prog'}{e'} 
+    \end{array}
+    $$
+  }
 \end{fpfig}
 
 We define a small-step evaluation aka reduction relation $\redx$ in
@@ -217,17 +226,20 @@ structure of types and expressions.
 \end{example}
 
 \begin{fpfig}[t]{Type Syntax of $\metaprot$.}{fig-metaprot-tsyntax}
-$$
-\begin{array}{rcl@{\hspace{2mm}}r}
-\srct &::=& \cidty{e} \mid \stringty{e} \mid \bet{e} \mid  & \gdesc{types}\\ 
- &&  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst \\[1mm]
-\viewst  &::=& \view{e}{e};\viewst \mid \varnothing   & \gdesc{view effects}\\[1mm]
-\Gamma &::=& \Gamma; x : \tau \mid \varnothing & \gdesc{type environments}    
-\end{array}
-$$
+  {\small
+    $$
+    \begin{array}{rcl@{\hspace{2mm}}r}
+      \srct &::=& \cidty{e} \mid \stringty{e} \mid \bet{e} \mid  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst & \gdesc{types}\\ [1mm]
+      %&&  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst \\[1mm]
+      \viewst  &::=& \view{e}{e};\viewst \mid \varnothing   & \gdesc{view effects}\\[1mm]
+      \Gamma &::=& \Gamma; x : \tau \mid \varnothing & \gdesc{type environments}    
+    \end{array}
+    $$
+  }
 \end{fpfig}
 
 \begin{fpfig}[t]{Selected $\metaprot$ type judgement rules.}{fig-metaprot-tjudge}
+{\small
 \begin{mathpar}
 \inferrule[\TirName{VarT}]
 {}
@@ -300,6 +312,7 @@ $$
 \Gamma \vdash \codebase,e : \tau,\{\view{\cid_1}{w_1}\} \sqcup \cdots \sqcup \{ \view{\cid_n}{w_n}\}
 }
 \end{mathpar}
+}
 \end{fpfig}
 
 Top-level type judgements are of the form $\Gamma \vdash \codebase, e
@@ -374,10 +387,11 @@ following top-level functions:
 The following program uses our GMW library to define
 a circuit with a single And gate and input secrets $\ttt{s1}$ and
 $\ttt{s2}$ from client's 1 and 2 respectively. 
-\begin{verbatimtab}
-  let ss = encodegmw(s1,s2) in
-  v[0,output] := decode(andgmw(0,ss.shares1,ss.shares2))
-\end{verbatimtab}
+{\small
+  \begin{verbatimtab}
+  let ss = encodegmw(s1,s2) in v[0,output] := decode(andgmw(0,ss.shares1,ss.shares2))
+  \end{verbatimtab}
+}
 \end{example}
 
 \subsection{Example: YGC}
