@@ -12,9 +12,7 @@ We model probabilistic programming via the \emph{random tape}
 approach. That is, we will assume that programs can make reference to
 values chosen from a uniform random distribution- coin ``flips''- via
 values arbitrarily assigned in the initial program memory.  Programs
-execute deterministically given the random tape. The random tape
-formulation supports our automated analysis as we discuss in
-section \dnote{5?}
+execute deterministically given the random tape. 
 
 \subsection{Syntax} The syntax of $\minifed$, defined in
 Figure \ref{fig-minifed-syntax}, includes a standard boolean algebra
@@ -122,27 +120,31 @@ variables with values, and all variables must be owned by client
 $\cid$. This is defined in Figure \ref{fig-minifed-interp}.
 
 \begin{fpfig}[t]{$\minifed$ expression interpretation.}{fig-minifed-interp}
-\begin{eqnarray*}
-\lcod{\store, \etrue}{\cid} &=& 1\\
-\lcod{\store, \efalse}{\cid} &=& 0\\
-\lcod{\store, \flip{\cid}{w}}{\cid} &=& \store(\flip{\cid}{w})\\
-\lcod{\store, \secret{\cid}{w}}{\cid} &=& \store(\secret{\cid}{w})\\
-\lcod{\store, \view{\cid}{w}}{\cid} &=& \store(\view{\cid}{w})\\
-\lcod{\store, \oracle{w}}{\cid} &=& \store(\oracle{w})\\
-\lcod{\store, \enot\ \be}{\cid} &=& \cod{\enot\ \lcod{\store,\be}{\cid}}\\
-\lcod{\store, \be_1\ \mathit{binop}\ \be_2}{\cid} &=&
-    \cod{\lcod{\store,\be_1}{\cid}\ \mathit{binop}\ \lcod{\store,\be_2}{\cid}}\\
-\lcod{\store, \select{\be_1}{\be_2}{\be_3}}{\cid} &=&
-             \begin{cases}
-                \lcod{\store,\be_2}{\cid} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
-                \lcod{\store,\be_3}{\cid} & \text{if\ } \neg\lcod{\store,\be_1}{\cid}
-             \end{cases}%\\
-%\lcod{\store, \OT{\be_1}{\be_2}{\be_3}}{\cid} &=&
-%             \begin{cases}
-%                \lcod{\store,\be_2}{\cid'} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
-%                \lcod{\store,\be_3}{\cid'} & \text{if\ } \neg\lcod{\store,\be_1}{\cid}
-%             \end{cases}
-\end{eqnarray*}
+  \begin{array}{cc}
+    \begin{eqnarray*}
+      \lcod{\store, \etrue}{\cid} &=& 1\\
+      \lcod{\store, \efalse}{\cid} &=& 0\\
+      \lcod{\store, \flip{\cid}{w}}{\cid} &=& \store(\flip{\cid}{w})\\
+      \lcod{\store, \secret{\cid}{w}}{\cid} &=& \store(\secret{\cid}{w})\\
+      \lcod{\store, \view{\cid}{w}}{\cid} &=& \store(\view{\cid}{w})\\
+    \end{eqnarray*} & 
+    \begin{eqnarray*}
+      \lcod{\store, \oracle{w}}{\cid} &=& \store(\oracle{w})\\
+      \lcod{\store, \enot\ \be}{\cid} &=& \cod{\enot\ \lcod{\store,\be}{\cid}}\\
+      \lcod{\store, \be_1\ \mathit{binop}\ \be_2}{\cid} &=&
+      \cod{\lcod{\store,\be_1}{\cid}\ \mathit{binop}\ \lcod{\store,\be_2}{\cid}}\\
+      \lcod{\store, \select{\be_1}{\be_2}{\be_3}}{\cid} &=&
+      \begin{cases}
+        \lcod{\store,\be_2}{\cid} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
+        \lcod{\store,\be_3}{\cid} & \text{if\ } \neg\lcod{\store,\be_1}{\cid}
+      \end{cases}%\\
+      %\lcod{\store, \OT{\be_1}{\be_2}{\be_3}}{\cid} &=&
+      %             \begin{cases}
+      %                \lcod{\store,\be_2}{\cid'} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
+      %                \lcod{\store,\be_3}{\cid'} & \text{if\ } \neg\lcod{\store,\be_1}{\cid}
+      %             \end{cases}
+    \end{eqnarray*}
+  \end{array}
 \end{fpfig}
 
 Evaluation of configurations is then defined via a small-step reduction relation $\redx$.
