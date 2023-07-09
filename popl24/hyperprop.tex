@@ -120,8 +120,10 @@ programs ensuring that low-equivalent initial memories produce
 the same low-observable trace (i.e., corrupt views) \emph{with the
 same probability}. 
 \begin{definition}[Probabilistic Noninterference]
+  \label{definition-PNI}
   Given a program $\prog$ with $\iov(\prog) = (S,V)$, we say that
-  $\prog$ satisfies \emph{probabilistic noninterference} iff for all
+  $\prog$ satisfies \emph{probabilistic noninterference}, and we write
+  $\pni(\prog)$, iff for all
   $\store_1, \store_2 \in \mems(S)$:
   $$\store_1 =_C \store_2 \implies
     \condd{\progd(\prog)}{V_C}{\store_1} = \condd{\progd(\prog)}{V_C}{\store_2}$$
@@ -150,6 +152,7 @@ views, as in the following Lemma. This is similar to asserting that
 adversarial knowledge is not increased by the execution of a program as in formulations
 of so-called gradual release \cite{4223226}. 
 \begin{lemma}
+  \label{lemma-pni)
   Given a program $\prog$ with $\iov(\prog) = (S,V)$, 
   $\prog$ satisfies probabilistic noninterference iff for all
   $\store \in \mems(S \cup V)$:
