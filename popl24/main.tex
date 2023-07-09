@@ -9,6 +9,8 @@
 \usepackage{moreverb}
 \usepackage{stmaryrd}
 \usepackage{enumerate}
+\usepackage{thmtools,thm-restate}
+\usepackage{comment}
 
 \input{macros}
 
@@ -23,33 +25,34 @@
   supports automated and semi-automated verification.
 \end{abstract}
 
-%\maketitle
+\maketitle
 
-%\input{intro}
+\input{intro}
 
-%\input{minicat}
+\input{minicat}
 
-%\input{pmf}
+\input{metalang}
 
-%\input{hyperprop}
+\input{pmf}
 
-%\input{bruteforce}
-
-%\input{metalang}
+\input{hyperprop}
 
 \input{automation}
 
-%\input{composition}
+\input{composition}
 
 %% This is scratch pad to develop ideas before integration.
 %\input{scratch}
 
-%\appendix
-
-%\input{bruteforce}
-
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{logic-bibliography,secure-computation-bibliography}
+
+\appendix
+
+\input{bruteforce}
+
+\input{proofs}
+
 
 \end{document}
 \endinput

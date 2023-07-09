@@ -70,40 +70,48 @@ Section \ref{section-hyperprop} are certifiable.
 \end{proof}
 
 We can thus automatically verify security properties of examples considered
-in previous sections. 
+in previous sections, observing that passive security of $\prog_{\ref{example-OT}}$
+has not been previously demonstrated.
 \begin{lemma}
-  $\prog_{\ref{example-he}}$ is passive secure,
+  $\prog_{\ref{example-he}}$, $\prog_{\ref{example-gmw-andcircuit}}$,
+  $\prog_{\ref{example-ygc-andcircuit}}$ are all passive secure,
   $\prog_{\ref{example-OT}}$ is passive secure assuming client 3 is
   honest, and $\prog_{\ref{example-otp}}$ satisfies probabilistic
   noninterference and hence perfect secrecy as defined in
   \ref{barthe2019probabilistic}.
 \end{lemma}
 \begin{proof}
-  We have certified $\nimo(prog_{\ref{example-he}})$, $\nimo(prog_{\ref{example-OT}})$ assuming
+  We have certified $\nimo(prog_{\ref{example-he}})$, $\nimo(\prog_{\ref{example-gmw-andcircuit}})$,
+  $\nimo(\prog_{\ref{example-ygc-andcircuit}})$, and $\nimo(prog_{\ref{example-OT}})$ assuming
   $3 \in H$, and $\pni(\prog_{\ref{example-otp}})$. The result follows by Lemmas
-  \ref{lemma-pni} and \ref{lemma-ni}.
+  \ref{lemma-pni} and \ref{lemma-nimo}.
 \end{proof}
 
 \subsection{Certification of Composable Intensional Properties}
 
-While the brute force method is feasible for smaller programs, it is
-not feasible for larger programs such as large YGC or GMW circuits
-since the size of $\runs(\prog)$ is exponential in the size of the
-random tape plus the number of input secrets.
+While the brute force method is feasible for smaller programs,
+including small circuits such as Examples
+$\prog_{\ref{example-gmw-andcircuit}}$ and
+$\prog_{\ref{example-ygc-andcircuit}}$, it is not for larger programs
+such as YGC or GMW circuits since the size of $\runs(\prog)$ is
+exponential in the size of the random tape plus the number of input
+secrets, and circuits can be quite large in practice
+\cite{kreuter2012billion}.  However, the YGC and GMW protocols are
+examples of a common idiom in MPC protocol design- arbitrarily large
+circuits are built up from smaller boolean or arithmetic gates that
+operate on encodings of input secrets.
 
-However, circuit abstractions are based on component gates which
-define subprotocols that we can consider in isolation. Out approach to
-verifying circuits strategy is thus to show that any circuit built
-from independently certified gates satisfies $\NIMO$. Intuitively, we
-can consider any gate as a mini-program and certify intensional
-properties of its isolated program distribution. These intensional
-properties are guaranteed secure in circuit compositions, as we
-demonstrate using methods based on probabilistic separation logic
+Our approach is thus to design gate certifications that demonstrably
+guarantee security for circuits built from them. Intuitively, we can
+consider any gate as a mini-program and certify intensional properties
+of its isolated program distribution. These intensional properties are
+guaranteed secure in circuit compositions, as we demonstrate using
+methods based on probabilistic separation logic
 \ref{barthe2019probabilistic}. While this last step is manual, our
 gate certifications are defined generally and can be used to certify
 new gate implementations, and verification applies to a circuit of any
 size. In Section \ref{section-composition} we will demonstrate our
-approach using YGC and GMW as examples. 
+approach using YGC and GMW as examples.
 
 When we consider intensional properties
 of gates in isolation, we will explicitly consider flip conditions in
@@ -149,24 +157,24 @@ noninterference properties- specifically, if we show that gate views
 enjoy a noninterference property wrt their free (input) variables,
 probabilistic independence propagates to other variables in the
 preceding program.
-\begin{lemma}[Noninterference]
+\begin{restatable}[Noninterference]{lemma}{noninterference}
   \label{lemma-noninterference}
   Given $\prog_1;\prog_2$ and $X = \iov(\prog_2) - \vdefs(\prog_2)$ and
   $Y \subseteq \vdefs(\prog_2)$. If $\sep{\progd(\prog_1;\prog_2)}{X}{Y}$
   then $\sep{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}{Y}$.
-\end{lemma}
+\end{restatable}
 
 Also, when we certify gates in isolation with witness inputs, we can
 ``splice'' these properties into larger program contexts using the
 following substitution Lemmas, showing that the substitution of
 wire inputs for witness inputs preserves both separation and correlation.
-\begin{lemma}[Substitution$*$]
+\begin{restatable}[Substitution$*$]{lemma}{substar}
   \label{lemma-substitution}
   If $\sep{\progtt(\prog_2)}{\{ f \}}{X}$ and
   $\prog_1;\prog_2[\be/f]$ is safe with $\vars(\prog_1,\be) \cap
   X = \varnothing$ then
   $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vars(\be)}{X}$.
-\end{lemma}
+\end{restatable}
 
 \begin{lemma}[Substitution$\sim$]
   \label{lemma-substitution-sim}
@@ -178,4 +186,5 @@ wire inputs for witness inputs preserves both separation and correlation.
 We note that while the Frame rule of \cite{barthe2019probabilistic}
 supports local reasoning in larger program contexts, it does not
 support this splicing method, and our Lemmas \ref{lemma-substitution}
-and \ref{lemma-substitution-sim} are both novel.
+and \ref{lemma-substitution-sim} are both novel. Supplementary proofs
+are demonstrated in Appendix \ref{section-proofs}.

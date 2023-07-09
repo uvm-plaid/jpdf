@@ -1,0 +1,63 @@
+\section{Supplementary Proofs}
+\label{section-proofs}
+
+We observe the following properties of separation which are borrowed from prior work
+\cite{barthe2019probabilistic} and which will be used frequently in proofs. 
+\begin{lemma}
+  \label{lemma-separation}
+  The following properties hold:
+  \begin{enumerate}
+  \item $\sep{\pmf}{Y}{Z}$ iff $\sep{\pmf}{Z}{Y}$
+  \item $\vc{\pmf}{x}{y}$ if  $\vc{\pmf}{y}{x}$
+  \item $\vc{\pmf}{x}{y}$ and $\vc{\pmf}{y}{z}$ imply $\vc{\pmf}{x}{z}$
+  \item $\sep{\pmf}{X}{(Y \cup Z)}$ implies $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z})$
+  \item $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{(X \cup Y)}{Z})$ implies $\sep{\pmf}{X}{(Y \cup Z)}$ 
+  %\item If $\prog_1;\prog_2$ is safe and $\vars(\prog_1) \cap \vars(\prog_2) = \varnothing$
+  %  then $\sep{\progtt(\prog_1;\prog_2)}{\vars(\prog_1)}{\vars(\prog_2)}$.
+  \end{enumerate}
+\end{lemma}
+The following property also follows by results in \cite{barthe2019probabilistic} and will
+be useful to make constructions that demonstrate variable separation.
+\begin{lemma}
+  \label{lemma-sepjoin}
+  $\sep{\progtt(\prog)}{X}{Y}$ iff for all 
+  $\store^1, \store^2 \in \runs(\prog)$ there exists
+  $\store \in \runs(\prog)$ with
+  $\store^1_{X} \cap \store^2_{Y} \subseteq \store$.
+\end{lemma}
+
+\begin{lemma}
+  \label{lemma-presub}
+  Given $\be_1$, $\be_2$, and $i$ where $\vars(\be_1) \cap
+  \vars(\be_2) = \varnothing$ and $\lcod{\store_1,\be_1}{i} = \beta$
+  with $\store_1(x) = \lcod{\store_2,\be_2}{i}$ and
+  $\dom(\store_1) = \vars(\be_1)$ and $\dom(\store_2) = \vars(\be_2)$.
+  Then $\lcod{\store_1\cap\store_2,\be_1[\be_2/x]}{i} = \beta$.
+\end{lemma}
+\begin{proof}
+By straightforward structural induction on $\be$.
+\end{proof}
+
+\substar*
+
+\begin{proof}
+  Suppose on the contrary it was not the case that
+  $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vars(\be)}{X}$.
+  Then by Lemma \ref{lemma-sepjoin} there exists $\store_1,\store_2
+  \in \runs(\prog_1;\prog_2[\be/f])$ with no $\store \in
+  \runs(\prog_1;\prog_2[\be/f])$ such that $\store^1_{\vars(\be)}
+  \cap \store^2_X \subseteq \store$.  But also by
+  assumption and Lemma \ref{lemma-sepjoin} for any $\beta$ there
+  exists $\store' \in \runs(\prog_2)$ with $\{ f \mapsto \beta \} \cap
+  \store^2_X \subseteq \store'$. So in particular, we
+  have $\{ f \mapsto \lcod{\store^1_{\vars(\be)},\be}{i} \} \cap
+  \store^2_X \subseteq \store'$ for any $i$. This, the
+  assumption $\vars(\prog_1,\be) \cap \vars(\prog_2) = \varnothing$,
+  and application of Lemma \ref{lemma-presub} leads to the consequence
+  that there exists $\store \in \runs(\prog_1;\prog_2[\be/f])$ with
+  $\store \supseteq \store^1_{\vars(\be)} \cap
+  \store^2_X$ given the assumption $\vars(\prog_1,\be)
+  \cap \vars(\prog_2) = \varnothing$, which is a contradiction.
+\end{proof}
+
+

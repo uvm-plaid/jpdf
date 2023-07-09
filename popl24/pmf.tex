@@ -85,6 +85,7 @@ program. From this, we can immediately derive the marginal distribution
 of $S \cup V$ to reason about dependencies between secrets and views. 
 \begin{definition}
   \label{def-progd}
+  \label{definition-progd}
   Given program $\prog$ with $\iov(\prog) = (S,V)$ and $\flips(\prog) = F$, define $\stores$ as:
   $$
   \stores \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
