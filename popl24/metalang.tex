@@ -425,17 +425,6 @@ $\ttt{s2}$ from client's 1 and 2 respectively.
   let secrets = encode("s1","s2") in v[0,output] := decode(andgg("0", secrets.wv1, secrets.wv2)) \end{verbatimtab}
 }
 
-{\footnotesize
-\begin{verbatimtab}
-  owl    :   string(gid)
-  
-  encode :   string(sa) * string(sb)
-  
-  andgg  :  string(g) * { k : bool[1]; p : bool[1] } *  { k : bool[1]; p : bool[1] }
-
-  decode :  string(g) * { k : bool[1]; p : bool[1] }
-\end{verbatimtab}
-}
 
 
 In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
@@ -506,10 +495,14 @@ identifiers, which are strings $w$. Top-level functionality in Figures
 The following program uses our YGC library to define
 a circuit with a single and gate and input secrets $\ttt{s1}$ and
 $\ttt{s2}$ from client's 1 and 2 respectively. 
+{\footnotesize
 \begin{verbatimtab}
-  andgate(0,s1,s2);
-  garbledecode(0);
-  let secrets = encode(s1,s2) in
-  v[0,output] := decode(evalgate(0, secrets.wv1, secrets.wv2))
-\end{verbatimtab}
+  let secrets = encode("s1","s2") in v[0,output] := decode(andgg("0", secrets.wv1, secrets.wv2)) \end{verbatimtab}
+}
+%\begin{verbatimtab}
+%  andgate(0,s1,s2);
+%  garbledecode(0);
+%  let secrets = encode(s1,s2) in
+%  v[0,output] := decode(evalgate(0, secrets.wv1, secrets.wv2))
+%\end{verbatimtab}
 \end{example}
