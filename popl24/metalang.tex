@@ -177,7 +177,8 @@ sense that expressions in types are a strict subset of
 expression forms- for any $\stringty{e}$ the expression $e$
 is either a variable, a string, or a concatenation form,
 and for any $\cidty{e}$ or $\bet{e}$ the expression $e$
-is either a variable or a client id $\cid$. 
+is either a variable or a client id $\cid$. We define
+the equivalence $w_1 \concat w_2 \equiv w_1w_2$ in typings. 
 
 Type judgements for expressions are of the form
 $\tjudge{\viewst_1}{\gamma}{e}{\viewst_2}$ where the \emph{view
