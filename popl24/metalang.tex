@@ -78,16 +78,16 @@ client's secret into 3 separate shares.
   {\small
   \begin{verbatimtab}
       share3(client, secretid) {
-        let s1 = flip[client, share1] in
-        let s2 = flip[client, share2] in
-        let s3 = (s1 xor s2) xor s[client, s: || secretid] in
+        let s1 = flip[client, "share1"] in
+        let s2 = flip[client, "share2"] in
+        let s3 = (s1 xor s2) xor s[client, "s:" || secretid] in
         {s1 = s1;s2 = s2;s3 = s3}
       } \end{verbatimtab}
   }
   Here is a $\metaprot$ program that uses this function definition:
   {\small
     \begin{verbatimtab}
-      let shares = share3(1, mysecret) in
+      let shares = share3(1, "mysecret") in
       v[2,s1] := shares.s2;
       v[3,s1] := shares.s3 \end{verbatimtab}
   }
@@ -95,8 +95,8 @@ client's secret into 3 separate shares.
   below:
   {\small
   \begin{verbatimtab}
-      v[2,s1] := flip[1, share2];
-      v[3,s1] := flip[1, share1] xor flip[1, share2] xor s[1, s:mysecret] \end{verbatimtab}
+      v[2,s1] := flip[1, "share2"];
+      v[3,s1] := flip[1, "share1"] xor flip[1, "share2"] xor s[1, "s:mysecret"] \end{verbatimtab}
   }
 \end{example}
 
@@ -373,10 +373,10 @@ an interesting component. The Figure includes the
 following top-level functions:
 \begin{itemize}
 \item \ttt{encodegmw}: This function encodes client 1's and client 2's
-  secret bits called $\ttt{s[1,s1]}$ and $\ttt{s[1,s2]}$ into two
+  secret bits called $\ttt{s[1,"s1"]}$ and $\ttt{s[1,"s2"]}$ into two
   distinct wire values (pairs of shares).
-\item \ttt{andgmw}: This function defines the gate $\ttt{g}$, the
-  identifier $\ttt{g}$ being used to distinguish randomness used
+\item \ttt{andgmw}: This function defines the gate $\ttt{"g"}$, the
+  identifier $\ttt{"g"}$ being used to distinguish randomness used
   within.  In our version client 1 builds the output table (using
   \ttt{andtablegmw})and transfers the correct output share to client 2
   using 1-out-of-4 OT as per standard GMW protocol.
@@ -391,7 +391,7 @@ a circuit with a single And gate and input secrets $\ttt{s1}$ and
 $\ttt{s2}$ from client's 1 and 2 respectively. 
 {\small
   \begin{verbatimtab}
-  let ss = encodegmw(s1,s2) in v[0,output] := decode(andgmw(0,ss.shares1,ss.shares2)) \end{verbatimtab}
+  let ss = encodegmw("s1","s2") in v[0,"output"] := decode(andgmw(0,ss.shares1,ss.shares2)) \end{verbatimtab}
 }
 \end{example}
 
@@ -442,9 +442,9 @@ representation of 1 and 0 respectively in the output wire label for a
 hypothetical gate 6:
 {\small
   \begin{mathpar}
-    \ttt{\{ k = flip[2,gate:6.k]; p =  flip[2,gate:6.p]] \}}
+    \ttt{\{ k = flip[2,"gate:6.k"]; p =  flip[2,"gate:6.p"]] \}}
 
-    \ttt{\{ k = not flip[2,gate:6.k]; p =  not flip[2,gate:6.p]] \}}
+    \ttt{\{ k = not flip[2,"gate:6.k"]; p =  not flip[2,"gate:6.p"]] \}}
   \end{mathpar}
 }
 In our implementation, gates are wired together using gate
