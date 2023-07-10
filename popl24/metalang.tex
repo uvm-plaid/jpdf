@@ -441,11 +441,13 @@ are unique per gate by definition of their identifying string, and the
 representation of $0$ is the negation of $1$. For example, here is the
 representation of 1 and 0 respectively in the output wire label for a
 hypothetical gate 6:
-\begin{mathpar}
-  \ttt{\{ k = flip[2,gate:6.k]; p =  flip[2,gate:6.p]] \}}
-    
-  \ttt{\{ k = not flip[2,gate:6.k]; p =  not flip[2,gate:6.p]] \}}
-\end{mathpar}
+{\small
+  \begin{mathpar}
+    \ttt{\{ k = flip[2,gate:6.k]; p =  flip[2,gate:6.p]] \}}
+
+    \ttt{\{ k = not flip[2,gate:6.k]; p =  not flip[2,gate:6.p]] \}}
+  \end{mathpar}
+}
 In our implementation, gates are wired together using gate
 identifiers, which are strings $w$. Top-level functionality
 shown in Figure \ref{fig-ygc-lib} includes:
