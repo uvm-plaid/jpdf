@@ -124,14 +124,18 @@
 In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
 codebase for Yao's garbled circuits (YGC). This definition follows the
 \emph{point-and-permute} method described in \cite{evans2018pragmatic}
-and elsewhere, to which the reader is referred for more in-depth discussion.
-In this implementation client 2 is the \emph{garbler} and
+and elsewhere, to which the reader is referred for more in-depth
+discussion.  In this implementation client 2 is the \emph{garbler} and
 client 1 is the \emph{evaluator}. The garbler builds the garbled
-tables and shares them with the evaluator, who then evaluates
-the gate in an oblivious fashion until the final public output is
-generated through decryption. This definition is well-typed,
-with input type annotations for top-level functions listed in
-Figure \ref{fig-ygc-types}. 
+tables and shares them with the evaluator, who then evaluates the gate
+in an oblivious fashion until the final public output is generated
+through decryption. Our certification method leverages this definition
+of compositional units comprising complete related subprotocols--
+i.e., both the garbler's construction of the gates and the evaluator's
+evaluation of them. However, we note that our formal results are applicable
+to the YGC style where the garbler shares the entire circuit prior to
+evaluation. Our implementation is well-typed, with input type annotations
+for top-level functions listed in Figure \ref{fig-ygc-types}.
 
 The pointer bits in wire labels are used to select permuted rows in
 table garblings. The key bits are used to identify a unique key for

@@ -199,23 +199,6 @@ instruction is a decoding and public reveal of the output.
 \subsection{YGC Component Certification}
 \label{section-ygc-certification}
 
-Our certification method relies on a definition of compositional units comprising
-complete related subprotocols-- i.e., both the garbler's
-construction of the gates and the evaluator's evaluation of them. We
-therefore make the following definitions. However, we note that our
-formal results are applicable to the YGC style where the garbler
-shares the entire circuit prior to evaluation.
-\begin{definition}
-  \label{ygc-modules}
-  We define a composable internal \ttt{and} gate sharing and evaluation function
-  called $\ttt{andgg}$, and an output decoder gate share and evaluation function called
-  $\ttt{decode}$, as follows. 
-\begin{verbatimtab}
-  andgg(g, ga, gb, wva, wvb) { andgate(g, ga, gb); evalgate(g, wva, wvb) }
-  decode(g, v) { garbledecode(g); evaldecode(v) }
-\end{verbatimtab}
-\end{definition}
-
 Our certification techniques are defined generally wrt implementations
 of input encoding, decoding, and internal gates. In the following we
 will refer to arbitrary decode, encode, and gate functions with the
