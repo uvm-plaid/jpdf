@@ -205,10 +205,10 @@ type term substitutions $\sigma$.
 We assume that input type annotations $\tas$ are provided by the
 programmer for all function definitions. This guarantees that
 $\metaprot$ type checking is straightforward and efficient.
-Function types are of the form:
-$$
-\tau_1 * \cdots * \tau_n \rightarrow \tau,\viewst
-$$
+Function types are of the form
+$
+(\tau_1 * \cdots * \tau_n \rightarrow \tau,\viewst)
+$,
 where $\viewst$ denotes the effect of the function on the residual
 program.  The function type can be understood as a dependent $\Pi$
 type, with every term variable bound. When applied, these variables

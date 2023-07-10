@@ -54,13 +54,15 @@ probability mass functions.
   $$
   where $\margd{\pmf}{X}(\store \cap \store')) = 0$ if $\store \cap \store'$ is undefined.
 \end{definition}
-To recover familiar notation we allow the following syntactic
-sugarings:
-\begin{eqnarray*}
-  \condd{\pmf}{X}{\store}  &\defeq& \condd{\pmf}{X}{\{ \store\}}\\
-  \pmf(\store)  &\defeq& \margd{\pmf}{X}(\store)  \qquad \dom(\store) = X\\
-  \pmf(\store|\stores)  &\defeq& \condd{\pmf}{X}{\stores}(\store) \qquad \dom(\store) = X
-\end{eqnarray*}
+To recover familiar notation we allow the syntactic
+sugarings $\condd{\pmf}{X}{\store}  \defeq \condd{\pmf}{X}{\{ \store\}}$, and
+$\pmf(\store)  \defeq \margd{\pmf}{X}(\store)$ and $\pmf(\store|\stores) \defeq
+\condd{\pmf}{X}{\stores}(\store)$ where $\dom(\store) = X$.
+%\begin{eqnarray*}
+%  \condd{\pmf}{X}{\store}  &\defeq& \condd{\pmf}{X}{\{ \store\}}\\
+%  \pmf(\store)  &\defeq& \margd{\pmf}{X}(\store)  \qquad \dom(\store) = X\\
+%  \pmf(\store|\stores)  &\defeq& \condd{\pmf}{X}{\stores}(\store) \qquad \dom(\store) = X
+%\end{eqnarray*}
 
 \subsection{Program Distributions}
 Now we can define the probability distribution of a program $\prog$,
@@ -94,17 +96,17 @@ of $S \cup V$ to reason about dependencies between secrets and views.
   Define also $\pmf$ as the program's \emph{basic distribution} such that for all
   $\store \in \mems(S \cup V \cup F)$:
   $$
-  \pmf(\store) =
-  \begin{cases}
-    1 / |\stores| & \text{if}\ \store \in \stores\\
-    0 & \text{otherwise}
-  \end{cases}
+  \pmf(\store) =  1 / |\stores| \ \text{if}\ \store \in \stores, \text{otherwise}\ 0
+  %\begin{cases}
+  %  1 / |\stores| & \text{if}\ \store \in \stores\\
+  %  0 & \text{otherwise}
+  %\end{cases}
   $$
   Then the \emph{program distribution of $\prog$}, denoted $\progd(\prog)$, is the
-  marginal distribution of $S \cup V$ in $\prog$'s basic distribution:
-  $$
-  \progd(\prog) =  \margd{\pmf}{S\cup V}
-  $$
+  marginal distribution of $S \cup V$ in $\prog$'s basic distribution, i.e., 
+  $
+  \progd(\prog) \defeq  \margd{\pmf}{S\cup V}
+  $.
   In some cases, we will also be concerned with the (joint)
   probabilities of expression interpretation given a preceding program
   execution, and we write $\progd(\prog, \be)$ to denote the program

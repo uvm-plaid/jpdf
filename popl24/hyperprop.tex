@@ -70,10 +70,10 @@ aka a \emph{simulation}, that is parameterized by corrupt inputs and
 the output of an ideal functionality, and that returns a set of
 adversarial views (as a memory) with some probability. Given
 corrupt inputs $\store$ and ideal functionality output $v$,  
-we write:
-$$
+we write
+$
 \prob(\SIM_C(\store,v) = \store')
-$$
+$
 to denote the probability that $\SIM_C(\store,v)$
 returns corrupt views $\store'$ as a result. We can then define the
 probability distribution of corrupt views reconstructed
@@ -155,9 +155,9 @@ of so-called gradual release \cite{4223226}.
   \label{lemma-pni}
   Given a program $\prog$ with $\iov(\prog) = (S,V)$, 
   $\prog$ satisfies probabilistic noninterference iff for all
-  $\store \in \mems(S \cup V)$:
-  $$\condd{\progd(\prog)}{S_H}{\store_{S_C}} =
-    \condd{\progd(\prog)}{S_H}{\store_{(S\cup V)_C}} $$
+  $\store \in \mems(S \cup V)$,
+  $\condd{\progd(\prog)}{S_H}{\store_{S_C}} =
+    \condd{\progd(\prog)}{S_H}{\store_{(S\cup V)_C}}$.
 \end{lemma}
 
 \subsection{A Sound Hyperproperty for Passive Security}
@@ -198,10 +198,10 @@ generally true, in particular, if $\idealf$ is a 1-way
 function. Define:
 \begin{definition}[Ideal Knowledge]
   Given a functionality $\idealf$ and output value $v$, the associated
-  \emph{ideal knowledge}, denoted $\ik(\idealf,v)$ is:
-  $$
+  \emph{ideal knowledge}, denoted $\ik(\idealf,v)$ is
+  $
   \{ \store\ |\ \idealf(\store) = v \}
-  $$
+  $.
   We say that $\idealf$ is \emph{pre-imageable} iff $\ik(\idealf, v)$ for all
   $v$ can be computed tractably.
 \end{definition}
@@ -221,8 +221,8 @@ passive security of a protocol.
   $\iov(\prog) = (V,S)$ and $\flips(\prog) = F$ with output view $x
   \in V$ and let $\store$ be an arbitrary element of $\mems(S \cup
   F)$. Then the distribution of adversarial views in the real world
-  is, by definition:
-  $$\condd{\progd(\prog)}{V_C}{\store_S}$$
+  is, by definition,
+  $\condd{\progd(\prog)}{V_C}{\store_S}$.
 
   The simulator is given both $\store_{S_C}$ and
   $\idealf(\store_S)$.  The simulation $\SIM_C(\store_{S_C},
@@ -236,17 +236,17 @@ passive security of a protocol.
 
   Now, since the random tape is selected in simulation from the same distribution
   that we assume for the real world, after selection of $\store'$ the
-  probability that any particular $\store^{\SIM}_{V_C}$ is returned is by definition:
-  $$
+  probability that any particular $\store^{\SIM}_{V_C}$ is returned is by definition
+  $
   \progd(\prog)(\store^{\SIM}_{V_C} | \store')
-  $$
+  $.
   Furthermore, since we assume that $\prog$ correctly implements $\idealf$, this
-  means:
-  $$
+  means
+  $
   \store_S =_C \store' \wedge
      \condd{\progd(\prog)}{\{ \outv \}}{\store_S} =
      \condd{\progd(\prog)}{\{ \outv \}}{\store'}
-  $$
+  $,
   so by the definition of noninterference modulo output,
   any choice of $\store'$ yields the same distribution $\condd{\progd(\prog)}{V_C}{\store_S}$.
   Therefore by definition
