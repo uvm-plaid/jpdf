@@ -2,31 +2,37 @@
 
 Secure Multi-Party Computation (MPC) protocols support data privacy in
 important modern, distributed applications such as privacy-preserving
-machine learning \cite{li2021privacy, knott2021crypten, koch2020privacy, liu2020privacy} and Zero-Knowledge proofs in blockchains \cite{ishai2009zero, lu2019honeybadgermpc, gao2022symmeproof, tomaz2020preserving}. MPC methods
-have been developed by the cryptography community for many years,
-while receiving the attention of the programming languages community
-only relatively recently. In contrast, information flow security has
-received significant attention in PL theory and practice especially
-since the turn of the century \cite{1159651}, including a menagerie of
-variants, enforcement mechanisms, and programming frameworks. Much of
-this has been enabled by the unified metatheory of
-\emph{hyperproperties} \cite{10.5555/1891823.1891830} that establishes
-a common conceptual framework for reasoning about and implementing
-systems with information flow security.
+machine learning \cite{li2021privacy, knott2021crypten,
+  koch2020privacy, liu2020privacy} and Zero-Knowledge proofs in
+blockchains \cite{ishai2009zero, lu2019honeybadgermpc,
+  gao2022symmeproof, tomaz2020preserving}. MPC methods have been
+developed by the cryptography community for many years, while
+receiving the attention of the programming languages community more
+recently. In contrast, information flow security has received
+significant attention in PL theory and practice especially since the
+turn of the century \cite{1159651}, including a menagerie of variants,
+enforcement mechanisms, and programming frameworks. Much of this has
+been enabled by the unified metatheory of \emph{hyperproperties}
+\cite{10.5555/1891823.1891830}, including noninterference, that
+establishes a common conceptual framework for reasoning about and
+implementing systems with information flow security.
 
-Our goal is to explore and establish connections between the security
+On its surface, security for MPC protocols seems similar to
+probabilistic noninterference. However, MPC security differs from
+noninterference in a subtle but fundamental way, and approaches for
+verifying noninterference cannot naturally extend to MPC security. Our
+goal is to explore and establish connections between the security
 model of MPC-- the \emph{real/ideal} aka \emph{simulator security}
 model -- and trace-based hyperproperties, and to leverage these
 connections to obtain automated enforcement mechanisms for MPC
 protocol development. Currently, proof methods for MPC protocol
-development are well-studied \cite{Lindell2017} but manual and 
-thus tedious and error-prone, and are also non-standardized and
-unfamiliar to most PL theorists. Therefore our exploration will
-make both theoretical and practical contributions by bridging a gap between
+development are well-studied \cite{Lindell2017} but manual and thus
+tedious and error-prone, and are also non-standardized and unfamiliar
+to most PL theorists. Therefore our exploration will make both
+theoretical and practical contributions by bridging a gap between
 information flow and simulator security methodologies.
 
 \subsection{The Analysis Challenge of MPC}
-\jnote{On its surface, security for MPC protocols seems similar to probabilistic noninterference. However, MPC security differs from noninterference in a subtle but fundamental way, and approaches for verifying noninterference cannot naturally extend to MPC security.}
 MPC protocols involve communication
 between a group of distributed participants called a \emph{federation}
 that collaboratively compute and publish the result of some known
@@ -61,7 +67,7 @@ protocols typically rely on cryptographic and probabilistic methods.
 In Section \ref{section-hyperprop-passive} we formalize real/ideal
 security, and we define and discuss simple examples of MPC protocols
 in Section \ref{section-minicat-examples} and more complex ones in
-Section \ref{section-composition}. But an immediate and main point in
+Section \ref{section-metalang}. But an immediate and main point in
 relation to security hyperproperties is that, due to the potential for
 information release in MPC, simulator security is \emph{not} a strict
 probabilistic noninterference or trace obliviousness property, as we
@@ -129,49 +135,39 @@ for allowable information leakage.
 
 \subsection{Overview and Contributions}
 
-In Section \ref{section-minicat} we develop a new probabilistic programming
-language $\minifed$ for defining synchronous distributed protocols
-over the binary field. The syntax and semantics provides a succinct
-account of \emph{views} and (synchronous) messaging between protocol
-\emph{clients}. In this Section, we consider small example protocols
-including oblivious transfer, communications encryption with one-time
-pads, and additive secret sharing. In Section \ref{section-pmf} we
+\paragraph{Language design.} In Section \ref{section-minicat} we
+develop a new probabilistic programming language $\minifed$ for
+defining synchronous distributed protocols over the binary field. The
+syntax and semantics provides a succinct account of \emph{views} and
+(synchronous) messaging between protocol \emph{clients}. In Section
+\ref{section-metalang} we define a new metaprogramming language
+$\metaprot$ that dynamically generates $\minifed$ protocols. It
+includes control and data structures and is able to express logical
+protocol components, and enjoys a type safety result that guarantees
+that generated protocols are semantically well-defined.
+
+\paragraph{Hyperproperty formulation.} In Section \ref{section-pmf} we
 formulate \emph{program distributions}, a formalism for expressing
 dependencies between secrets and views, useful for expressing
 intensional characteristics of protocols and precisely quantifying
 allowable information leakage in terms of protocol outputs. On this
 basis we then formulate a novel hyperproperty of program execution
 traces, called \emph{noninterference modulo output ($\NIMO$)} that we
-demonstrate implies passive simulator security. In Section
-\ref{section-bruteforce} we define a brute force mechanism for
-verifying passive security in $\minifed$ protocols, that is also
-amenable to HPC optimizations via translation of $\minifed$ protocols
-into Datalog.
+demonstrate implies passive simulator security.
 
-In Section \ref{section-metalang} we define a new metaprogramming
-language $\metaprot$ that dynamically generates $\minifed$
-protocols. It includes control and data structures and is able to
-express logical protocol components, and enjoys a type safety result
-that guarantees that generated protocols are semantically
-well-defined. Our key analysis results are presented in Section
-\ref{section-composition}, where we show how intensional,
-automatically certifiable properties of program components can be
-composed to obtain whole-program MPC security. We consider the GMW and
-YGC protocols as examplars, both of which use \emph{circuit}
-abstractions comprising \emph{gates} in arbitrarily large
-configurations, and show how gates can be automatically certified to
-ensure security in circuits that use them in a manner that scales to
-any circuit size. This approach is extensible, in that new gate
-implementations can be automatically certified to guarantee safe
-inclusion in circuit libraries.
-
-In summary, our analysis takes a ``just do it'' approach- rather than
-using, e.g., traditional security type or linear type disciplines to
-prevent ``bad things'' from happening, we base our analysis on precise
-quantification of intensional protocol behavior and especially
-dependencies between secret inputs, public outputs, and adversarial
-views of protocols. We ameliorate scalability issues associated with
-fine-grained analysis by manually establishing compositional
-properties inspired by probabilistic separation logic
-\cite{barthe2019probabilistic}, obtaining a middle-ground, scalable
-``proof assistant style'' approach enabled by MPC circuit paradigms.
+\paragraph{Fully and partially automated verification.} In Section
+\ref{section-automation} we develop an automated technique, aka
+certification, that verifies extensional properties of protocols such
+as $\NIMO$, and also intensional properties of protocol
+components. The latter include properties of protocol components that
+provably guarantee security through composition in large
+circuits. These compositional proofs are based on separation logic but
+include novel results to support our semi-automated method for large
+circuits where we (1) define certification for components, (2) certify
+components, (3) prove $\NIMO$ based on the certifiedness of
+components. We develop novel methods partially based on separation
+logic \cite{barthe2019probabilistic} to enable (3).  In Section
+\ref{section-composition} we illustrate our method to obtain
+semi-automated verification methods for the GMW and Yao's Garbled
+Circuit protocols, where certification can be re-used to validate new
+gate implementations.
