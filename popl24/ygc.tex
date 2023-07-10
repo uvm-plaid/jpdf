@@ -1,4 +1,4 @@
-\begin{fpfig}[t]{Yao's Garbled Circuits, selected auxiliary functions.}{fig-ygc-aux}
+\begin{fpfig}{Yao's Garbled Circuits, selected auxiliary functions.}{fig-ygc-aux}
 {\footnotesize
 \begin{verbatimtab}
   keygen(gid, b1, b2) { select4(b1,b2,H[gid || 1],H[gid || 2],H[gid || 3],H[gid || 4]) }
@@ -34,7 +34,7 @@
 }
 \end{fpfig}
 
-\begin{fpfig}[t]{Yao's Garbled Circuits, garbled gates and evaluation code.}{fig-ygc-gates}
+\begin{fpfig}{Yao's Garbled Circuits, garbled gates and evaluation code.}{fig-ygc-gates}
 {\footnotesize
 \begin{verbatimtab}
   garbledecode(gid)    
@@ -84,7 +84,7 @@
 }
 \end{fpfig}
 
-\begin{fpfig}[t]{Yao's Garbled Circuits, selected gate library type annotations.}{fig-ygc-types}
+\begin{fpfig}{Yao's Garbled Circuits, selected gate library type annotations.}{fig-ygc-types}
 {\footnotesize
 \begin{verbatimtab}
   garbledecode : string(gid)
@@ -117,3 +117,19 @@
 %    { wv1 = { k = OT[s[1,0],wla.k,(not wla.k)]; p = OT[s[1,0],wla.p,(not wla.p)]}; 
 %      wv2 = { k = select[s[2,0],wlb.k,(not wlb.k)]; p = select[s[2,0],wlb.p,(not wlb.p)] } }
 %  }
+
+\section{YGC Code in Detail}
+
+In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
+codebase for Yao's garbled circuits (YGC). This definition follows the
+\emph{point-and-permute} method described in \cite{evans2018pragmatic}
+and elsewhere, to which the reader is referred for more in-depth discussion.
+In this implementation client 2 is the \emph{garbler} and
+client 1 is the \emph{evaluator}. The garbler builds the garbled
+tables and shares them with the evaluator, who then evaluates
+the gate in an oblivious fashion until the final public output is
+generated through decryption. This definition is well-typed,
+with input type annotations for top-level functions listed in
+Figure \ref{fig-ygc-types}. Well-typed programs using these
+libraries are therguaranteed to yield safe $\minifed$
+programs. 

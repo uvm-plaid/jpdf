@@ -23,12 +23,13 @@
 
 Large practical MPC computations are based on much larger protocols
 than the examples we've considered so far. These larger protocols are
-typically based on compositional units. An example of this is Yao's
-Garbled Circuits (YGC), which are composed of so-called garbled gates.
-Languages for defined garbled circuits, beginning with Fairplay \cite{269581},
-treat gates as compositional units that are wired together by the programmer
-to generate a complete circuit. The $\fedprot$ language is low-level
-and does not include abstractions for defining composable elements. 
+typically based on compositional units. Examples include GMW circuits
+and Yao's Garbled Circuits (YGC), which are composed of so-called
+garbled gates.  Languages for defined garbled circuits, beginning with
+Fairplay \cite{269581}, treat gates as compositional units that are
+wired together by the programmer to generate a complete circuit. The
+$\fedprot$ language is low-level and does not include abstractions for
+defining composable elements.
 
 In this Section, we introduce the $\metaprot$ language which includes
 structured data and function definitions, which are sufficiently
@@ -60,7 +61,7 @@ codebase and expression $\codebase, e$. We may omit
 $\codebase$ if it is clear from context.  
 \end{definition}
 
-When we consider the example of YGC in detail below, our focus will be
+When we consider the examples of GMW and YGC in detail below, our focus will be
 on developing a codebase that can be used to define arbitrary
 circuits, i.e., complete and concrete protocols. Since strings and
 identifiers can be constructed manually, and expressions can occur
@@ -397,7 +398,44 @@ $\ttt{s2}$ from client's 1 and 2 respectively.
 \subsection{Example: YGC}
 \label{section-metalang-ygc}
 
-\input{ygc}
+{\footnotesize
+\begin{verbatimtab}
+  owl(gid) { { k = flip[2,"gate:" || gid || ".k"]; p = flip[2,"gate:" || gid || ".p"] } }
+
+  encode(sa, sb) {
+    let owl1 = owl(sa) in
+    let owl2 = owl(sb) in
+    v[1,gate: || sa || 1.k] := OT(s[1,sa],owl1.k,(not owl1.k));
+    v[1,gate: || sa || 1.p] := OT(s[1,sa],owl1.p,(not owl1.p));
+    v[1,gate: || sb || 2.k] := select(s[2,sb],owl2.k,(not owl2.k));
+    v[1,gate: || sb || 2.p] := select(s[2,sb],owl2.p,(not owl2.p));
+    { wv1 = { k = v[1,"gate:" || sa || "1.k"]; p = v[1,"gate:" || sa || "1.p"] };
+      wv2 = { k = v[1,"gate:" || sb || "2.k"]; p = v[1,"gate:" || sb || "2.p"] } }
+  }
+
+  andgg(g, ga, gb, wva, wvb) { andgate(g, ga, gb); evalgate(g, wva, wvb) }
+
+  decode(g, wv) { garbledecode(wv.g); evaldecode(v) }
+\end{verbatimtab}
+}
+
+{\footnotesize
+\begin{verbatimtab}
+  let secrets = encode("s1","s2") in v[0,output] := decode(andgg("0", secrets.wv1, secrets.wv2)) \end{verbatimtab}
+}
+
+{\footnotesize
+\begin{verbatimtab}
+  owl    :   string(gid)
+  
+  encode :   string(sa) * string(sb)
+  
+  andgg  :  string(g) * { k : bool[1]; p : bool[1] } *  { k : bool[1]; p : bool[1] }
+
+  decode :  string(g) * { k : bool[1]; p : bool[1] }
+\end{verbatimtab}
+}
+
 
 In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
 codebase for Yao's garbled circuits (YGC). This definition follows the
@@ -410,7 +448,7 @@ the gate in an oblivious fashion until the final public output is
 generated through decryption. This definition is well-typed,
 with input type annotations for top-level functions listed in
 Figure \ref{fig-ygc-types}. Well-typed programs using these
-libraries are therefore guaranteed to yield safe $\minifed$
+libraries are therguaranteed to yield safe $\minifed$
 programs. 
 
 \emph{Wire labels} are fundamental to YGC, and essentially represent
