@@ -61,16 +61,17 @@ codebase and expression $\codebase, e$. We may omit
 $\codebase$ if it is clear from context.  
 \end{definition}
 
-When we consider the examples of GMW and YGC in detail below, our focus will be
-on developing a codebase that can be used to define arbitrary
-circuits, i.e., complete and concrete protocols. Since strings and
-identifiers can be constructed manually, and expressions can occur
-inside assignments and boolean expression forms, function definitions
-can generalize over $\fedprot$-level patterns to obtain composable
-program units. As a simple example, consider 3 party secret
-sharing as illustrated in Example \ref{example-he}. We can
-define a function $\ttt{share3}$ that abstracts the process
-of splitting a given client's secret into 3 separate shares.
+When we consider the examples of GMW and YGC in detail below, our
+focus will be on developing a codebase that can be used to define
+arbitrary circuits, i.e., complete and concrete protocols. Since
+strings and identifiers can be constructed manually, and expressions
+can occur inside assignments and boolean expression forms, function
+definitions can generalize over $\fedprot$-level patterns to obtain
+composable program units. \cnote{Cur the following example to save
+  space?.}  As a simple example, consider 3 party secret sharing as
+illustrated in Example \ref{example-he}. We can define a function
+$\ttt{share3}$ that abstracts the process of splitting a given
+client's secret into 3 separate shares.
 \begin{example} \label{example-share3} The function $\ttt{share3}$ 
   splits a client's secret into 3 shares returned as a record
   with fields $\ttt{s1-3}$:
