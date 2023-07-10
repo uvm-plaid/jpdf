@@ -18,11 +18,24 @@
 
 \title{Automating Verification of MPC Security: $\metaprot$ to $\minifed$}
 
-\author{Author names withheld for double-blind reviewing.}
+\author{Author names withheld for double-blind reviewing}
 
 \begin{abstract}
-  We formulate a sound hyperproperty of MPC passive security and show how this
-  supports automated and semi-automated verification.
+Secure Multi-Party Computation (MPC) protocols support data privacy in
+important modern distributed applications. Security for MPC protocols
+is superficially similar to probabilistic noninterference, but differs
+in a subtle but fundamental way, and approaches for verifying
+noninterference cannot naturally extend to MPC security.  Currently,
+proof methods for MPC protocols are well-studied but manual
+and thus tedious and error-prone, and are also non-standardized and
+unfamiliar to most PL theorists.  Our goal is to strengthen
+connections between the security model of MPC and trace-based
+hyperproperties, and to leverage them to obtain automated
+enforcement mechanisms for MPC protocol development.  We define a
+novel hyperproperty that is provably sound for MPC security, as a
+foundation for fully and partially automated verification of passive
+MPC security in protocols including arbitrarily large YGC and GMW
+circuits.
 \end{abstract}
 
 \maketitle
