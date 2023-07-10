@@ -120,42 +120,16 @@ In the following, we will refer to program examples defined in
 Section \ref{section-minicat-examples} as $\prog_x$, where $x$
 is the Example number. 
 
-\begin{fpfig}[t]{Truth table visualization of basic distributions for Examples \ref{example-otp} (L) and \ref{example-lambda-obliv}(a) (R).}{fig-basic-distributions}
-{\footnotesize
-  $$
-  \begin{array}{cc}
-    \begin{array}{cccccc}
-      \verb+s[1,0]+ & \verb+f[1,0]+ & \verb+v[2,0]+  & \verb+v[2,1]+ & \verb+v[2,2]+ & \verb+v[0,0]+\\
-      \hline
-      0 & 0 & 0 & 0 & 0 & 0 \\ 
-      0 & 1 & 1 & 1 & 0 & 1 \\ 
-      1 & 0 & 0 & 1 & 1 & 1 \\ 
-      1 & 1 & 1 & 0 & 1 & 0
-    \end{array}
-    & 
-    \begin{array}{ccccc}
-      \verb+s[1,s]+ & \verb+f[1,sx]+ & \verb+f[1,sy]+ & \verb+v[0,0]+ & \verb+v[0,1]+ \\
-      \hline
-      0 & 0 & 0 & 0 & 0 \\ 
-      0 & 0 & 1 & 1 & 0 \\ 
-      0 & 1 & 0 & 0 & 1 \\ 
-      0 & 1 & 1 & 1 & 1 \\
-      1 & 0 & 0 & 0 & 0 \\ 
-      1 & 0 & 1 & 0 & 0 \\ 
-      1 & 1 & 0 & 1 & 1 \\ 
-      1 & 1 & 1 & 1 & 1  
-    \end{array}
-  \end{array}
-  $$
-}
-\end{fpfig}
 
-\paragraph{Example \ref{example-otp} revisited} For small programs it is
-helpful to visualize their basic distributions graphically as their
-truth tables, where each row corresponds to an equally likely final
-memory for the given program. In Figure \ref{fig-basic-distributions}
-we show this for Example \ref{example-otp}. In this truth table we can
-see that $\sx{1}{0}$ and $\vx{2}{2}$ are perfectly correlated. But
+
+\paragraph{Example \ref{example-otp} revisited}
+%For small programs it is
+%helpful to visualize their basic distributions graphically as their
+%truth tables, where each row corresponds to an equally likely final
+%memory for the given program. In Figure \ref{fig-basic-distributions}
+%we show this for Example \ref{example-otp}. In this truth table we can
+%see that $\sx{1}{0}$ and $\vx{2}{2}$ are perfectly correlated.
+In this example, 
 from the adversarial view, $\sx{1}{0}$ is 1 or 0 with equal
 probability given any value of $\vx{0}{0}$. More precisely, for any
 $\beta_1,\beta_2$ we have:
@@ -168,8 +142,10 @@ in \cite{barthe2019probabilistic}.
 \paragraph{Example \ref{example-lambda-obliv}(a) revisited} As demonstrated
 by Example \ref{example-lambda-obliv} taken from \cite{darais2019language}, it is possible
 to leak information probabilistically through observable dependencies
-in views. In the basic distribution for Example \ref{example-lambda-obliv}(a)
-illustrated in Figure \ref{fig-basic-distributions}, we can see that
+in views.
+%In the basic distribution for Example \ref{example-lambda-obliv}(a)
+%illustrated in Figure \ref{fig-basic-distributions},
+We can see that
 the adversarial views $\vx{0}{0}$ and $\vx{0}{1}$ are both 1 in
 three different runs of the protocol, and in 2 out of 3 the
 honest secret $\sx{1}{0}$ is 1. More precisely:
