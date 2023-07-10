@@ -119,6 +119,7 @@
 %  }
 
 \section{YGC Code in Detail}
+\label{section-ygc}
 
 In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
 codebase for Yao's garbled circuits (YGC). This definition follows the
@@ -130,6 +131,14 @@ tables and shares them with the evaluator, who then evaluates
 the gate in an oblivious fashion until the final public output is
 generated through decryption. This definition is well-typed,
 with input type annotations for top-level functions listed in
-Figure \ref{fig-ygc-types}. Well-typed programs using these
-libraries are therguaranteed to yield safe $\minifed$
-programs. 
+Figure \ref{fig-ygc-types}. 
+
+The pointer bits in wire labels are used to select permuted rows in
+table garblings. The key bits are used to identify a unique key for
+table row in each garbled gate. Intuitively, if $\beta_1$ and
+$\beta_2$ are either key or pointer bits encoding 1 on two input wire
+labels to a binary gate, rows and keys in the gate are enumerated in
+the order:
+$$
+\neg\beta_1\neg\beta_2,\ \neg\beta_1\beta_2,\ \beta_1\neg\beta_2,\ \beta_1\beta_2
+$$

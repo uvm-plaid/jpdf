@@ -399,11 +399,12 @@ $\ttt{s2}$ from client's 1 and 2 respectively.
 \subsection{Example: YGC}
 \label{section-metalang-ygc}
 
+\begin{fpfig}{Yao's Garbled Circuit component functions.}{fig-ygc-lib}
 {\footnotesize
 \begin{verbatimtab}
   owl(gid) { { k = flip[2,"gate:" || gid || ".k"]; p = flip[2,"gate:" || gid || ".p"] } }
 
-  encode(sa, sb) {
+  encodeygc(sa, sb) {
     let owl1 = owl(sa) in
     let owl2 = owl(sb) in
     v[1,gate: || sa || 1.k] := OT(s[1,sa],owl1.k,(not owl1.k));
@@ -414,32 +415,21 @@ $\ttt{s2}$ from client's 1 and 2 respectively.
       wv2 = { k = v[1,"gate:" || sb || "2.k"]; p = v[1,"gate:" || sb || "2.p"] } }
   }
 
-  andgg(g, ga, gb, wva, wvb) { andgate(g, ga, gb); evalgate(g, wva, wvb) }
+  andygc(g, ga, gb, wva, wvb) { andgate(g, ga, gb); evalgate(g, wva, wvb) }
 
-  decode(g, wv) { garbledecode(wv.g); evaldecode(v) }
+  decodeygc(g, wv) { garbledecode(g); evaldecode(wv) }
 \end{verbatimtab}
 }
+\end{fpfig}
 
-{\footnotesize
-\begin{verbatimtab}
-  let secrets = encode("s1","s2") in v[0,output] := decode(andgg("0", secrets.wv1, secrets.wv2)) \end{verbatimtab}
-}
-
-
-
-In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
-codebase for Yao's garbled circuits (YGC). This definition follows the
-\emph{point-and-permute} method described in \cite{evans2018pragmatic}
-and elsewhere, to which the reader is referred for more in-depth discussion.
-In this implementation client 2 is the \emph{garbler} and
-client 1 is the \emph{evaluator}. The garbler builds the garbled
-tables and shares them with the evaluator, who then evaluates
-the gate in an oblivious fashion until the final public output is
-generated through decryption. This definition is well-typed,
-with input type annotations for top-level functions listed in
-Figure \ref{fig-ygc-types}. Well-typed programs using these
-libraries are therguaranteed to yield safe $\minifed$
-programs. 
+Our YGC implementation follows the \emph{point-and-permute} method
+described in \cite{evans2018pragmatic} and elsewhere, to which the
+reader is referred for more in-depth discussion.  In this
+implementation client 2 is the \emph{garbler} and client 1 is the
+\emph{evaluator}. The garbler builds the garbled tables and shares
+them with the evaluator, who then evaluates the gate in an oblivious
+fashion until the final public output is generated through
+decryption. 
 
 \emph{Wire labels} are fundamental to YGC, and essentially represent
 gate output values in an encrypted form. In our definition, wire
@@ -456,20 +446,12 @@ hypothetical gate 6:
     
   \ttt{\{ k = not flip[2,gate:6.k]; p =  not flip[2,gate:6.p]] \}}
 \end{mathpar}
-The pointer bits in wire labels are used to select permuted rows in
-table garblings. The key bits are used to identify a unique key for
-table row in each garbled gate. Intuitively, if $\beta_1$ and
-$\beta_2$ are either key or pointer bits encoding 1 on two input wire
-labels to a binary gate, rows and keys in the gate are enumerated in
-the order:
-$$
-\neg\beta_1\neg\beta_2,\ \neg\beta_1\beta_2,\ \beta_1\neg\beta_2,\ \beta_1\beta_2
-$$
-
 In our implementation, gates are wired together using gate
-identifiers, which are strings $w$. Top-level functionality in Figures
-\ref{fig-ygc-aux} and \ref{fig-ygc-gates} includes the following:
+identifiers, which are strings $w$. Top-level functionality
+shown in Figure \ref{fig-ygc-lib} includes:
 \begin{itemize}
+\item \ttt{owl}: This function returns the output wire label for any
+  gate identified by \ttt{gid}.
 \item \ttt{andgate}: This defines a subprotocol for the garbler
   to define a garbled gate $\ttt{gid}$ with input wires from gates
   $\ttt{ga}$ and $\ttt{gb}$. The garbler generates keys and garbles
@@ -481,23 +463,29 @@ identifiers, which are strings $w$. Top-level functionality in Figures
 \item \ttt{evalgate}: This defines a subprotocol for the evaluator to
   evaluate gate $\ttt{gid}$ given input wire values $\ttt{wva}$ and
   $\ttt{wvb}$.
+\item \ttt{andygc}: This composes the garbler and evaluator subprotocols
+  for construction and evaluation of an And gate. 
 \item \ttt{garbledecode} and \ttt{evaldecode}: The former function
   defines the garbler's protocol for encrypting the circuit
   output from final gate $\ttt{gid}$, and the latter defines
-  the evaluator's output decryption protocol.
-\item \ttt{encode}: This defines the initial phase of the protocol,
+  the evaluator's output decryption protocol. These are composed with \ttt{decodeygc}.
+\item \ttt{encodegmw}: This defines the initial phase of the protocol,
   where the evaluator receives the wire value from their own
   secret $\sx{1}{sa}$ via $\ttt{OT}$, and the garbler communicates
   the wire value for their own secret $\sx{2}{sb}$ directly.
 \end{itemize}
+We provide more code details in Appendix \ref{section-ygc}, Figures
+\ref{fig-ygc-aux} and \ref{fig-ygc-gates}, and complete code in our
+online repository.
 \begin{example}
   \label{example-ygc-andcircuit}
 The following program uses our YGC library to define
 a circuit with a single and gate and input secrets $\ttt{s1}$ and
 $\ttt{s2}$ from client's 1 and 2 respectively. 
-{\footnotesize
+{\small
 \begin{verbatimtab}
-  let secrets = encode("s1","s2") in v[0,output] := decode(andgg("0", secrets.wv1, secrets.wv2)) \end{verbatimtab}
+  let secrets = encode("s1","s2") in
+  v[0,output] := decode(andgg("0", secrets.wv1, secrets.wv2)) \end{verbatimtab}
 }
 %\begin{verbatimtab}
 %  andgate(0,s1,s2);

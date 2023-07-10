@@ -75,27 +75,6 @@ $\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
 $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$ are preserved prior to
 decoding.
 
-%The following Lemma allows us to separate variables in programs that may not occur
-%in the same subprogram, and hence consider gate certification properties in various
-%contexts. It is reminiscent of the \emph{frame} rule of \cite{barthe2019probabilistic}.
-%\begin{lemma}
-%  \label{lemma-gmw-frame}
-%  If $\sep{\progtt(\prog_1;\prog_2)}{Y}{V}$ for $Y = \vars(\prog_1) \cap \vars(\prog_2)$ and
-%  $V \in \vdefs(\prog_2)$ and $\sep{\progtt(\prog_1)}{X}{Y}$ for
-%  $X \not\in \vars(\prog_2)$ then $\sep{\progtt(\prog_1;\prog_2)}{X}{V}$. 
-%\end{lemma}
-%\begin{proof}
-%  By assumption and Lemma \ref{lemma-sepjoin}, for all
-%  $\store^1,\store^2 \in \runs(\prog_1;\prog_2)$ we have $\store^1_Y
-%  \cap \store^2_V \subseteq \store_a$ for some $\store_a \in
-%  \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_Y \subseteq
-%  \store_b$ for some $\store_b \in \runs(\prog_1;\prog_2)$.  Thus, since
-%  we assume $X \not\in \vars(\prog_2)$ we have $\store_a \cap \store_b
-%  \in \runs(\prog_1;\prog_2)$ and $\store^1_X \cap \store^2_V =
-%  \store_a \cap \store_b$, obtaining the result by
-%  \ref{lemma-sepjoin}.
-%\end{proof}
-
 Now we can prove that certified gates preserve the desired invariant
 during execution in arbitrary circuit contexts.
 We formulate this in terms of pre-~and post-conditions of gate
@@ -161,7 +140,7 @@ Here we show that encoding also preserves the desired invariant.
 The result here is more straightforward than it is for gates, because
 the variables used during encoding are guaranteed to be distinct from
 the rest of the program.
-\begin{lemma}[GMW Encode Invariant]
+\begin{restatable}[GMW Encode Invariant]{lemma}{gmwencode}
   \label{lemma-gmw-encode}
   Given well-typed $\prog_1;E[\mathit{encode}\ttt{(s1,s2)}]$ for certified $\mathit{encode}$, let:
   $$
@@ -178,29 +157,7 @@ the rest of the program.
   \item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{2\}}}{V'_{\{1\}}}$
   \item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{1\}}}{V'_{\{2\}}}$
   \end{enumerate}
-\end{lemma}
-
-\begin{proof}
-  By assumptions of well-typedness we have:
-  $$
-  \begin{array}{rcl}
-    v &=&  \ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}\\
-    v_1 &=& \ttt{\{ c1 = v[1,s1out]; c2 = v[2,s1out] \}}\\
-    v_2 &=& \ttt{\{ c1 = v[1,s2out]; c2 = v[2,s2out] \}}
-  \end{array}
-  $$
-  And by Definition \ref{definition-gmwencode-certification} we have:
-  \begin{mathpar}
-    \sep{\progtt(\prog)}{\ttt{\{s[1,s1]\}}}{\ttt{\{v[2,s1out],v[2,s2out]\}}}
-    
-    \sep{\progtt(\prog)}{\ttt{\{s[2,s2]\}}}{\ttt{\{v[1,s1out],v[1,s2out]\}}}
-  \end{mathpar}
-  Since we assume that secrets are in uniform and independent marginal
-  distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
-  \varnothing$ by condition (iii) of Definition 
-  \ref{definition-gmwencode-certification} and assumptions of well-typedness, 
-  the result follows by preconditions and Lemma \ref{lemma-separation}.
-\end{proof}
+\end{restatable}
 
 On the basis of the preceding we can prove our main result as
 follows. Note that we assume a normal form of programs where the last
@@ -379,7 +336,7 @@ when integrated into larger programs.
 Now we can show how to splice gates into arbitrary circuits in an
 invariant-preserving manner, assuming that outputs are not wired to
 multiple inputs \cite{tate2003garbled,nieminen2023breaking}.
-\begin{lemma}[YGC Gate Invariant]
+\begin{restatable}[YGC Gate Invariant]{lemma}{ygcgate}
   \label{lemma-ygc-preservation}
 Given well-typed $\prog_1;E[\mathit{gate}(g,g_1,g_2,v_1,v_2)]$ and certified $\mathit{gate}$ where:
 $$
@@ -398,42 +355,9 @@ then we have as postconditions where $\iov(\prog_1) = S \cup V'$:
 \item $\sep{\progd(\prog_1,\prog_2)}{S_{\{1\}}}{V'_{\{2\}}}$
 \item $\sep{\progd(\prog_1,\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$
 \end{enumerate}
-\end{lemma}
-\begin{proof}
-  Given preconditions we have $v_1 =  \{ \ttt{k = }\be^1_{k}; \ttt{p = }\be^1_{p} \}$ and
-  $v_2 = \{ \ttt{k = }\be^2_{k}; \ttt{p = }\be^2_{p} \}$ for some
-  $\be^1_{k}$,$\be^2_{k}$,$\be^1_{p}$,$\be^2_{p}$ with correlations as per Definition
-  \ref{definition-gc}.
-  %\begin{eqnarray*}
-  %  v_1 &=& \{ \ttt{k = }\be^1_{k}; \ttt{p = }\be^1_{p} \} \\
-  %  v_2 &=& \{ \ttt{k = }\be^2_{k}; \ttt{p = }\be^2_{p} \}
-  %\end{eqnarray*}
-  Let $\prog$ be as defined in Definition \ref{definition-ygcgate-certification}.
-  We observe:
-  \begin{eqnarray*}
-    &\prog_2 = \\
-    &{\small \prog[\be^1_{k}/\ttt{flip[2,gate:a.k]}][\be^1_{p}/\ttt{flip[2,gate:a.p]}][\be^2_{k}/\ttt{flip[2,gate:b.k]}][\be^1_{p}/\ttt{flip[2,gate:b.p]}]}
-  \end{eqnarray*}
-  Given that $g_1$ and $g_2$ are distinct and not wired in $\prog_1$
-  we are assured that $\ttt{owl}(g_1)$ and $\ttt{owl}(g_1)$ are in
-  independent uniform distributions, and given that $g \not\in
-  \prog_1$ we are assured that $\ttt{owl}(g)$ contains entirely fresh
-  flips. Thus by condition (i) of Definition \ref{definition-ygcgate-certification} and
-  Lemma \ref{lemma-substitution} we have:
-  $$
-  \sep{\prog_1;\prog_2}{\vars(\be^1_{k},\be^2_{k},\be^1_{p},\be^2_{p})}{\vdefs(\prog_2)}
-  $$
-  Thus by Lemmas \ref{lemma-noninterference} and \ref{lemma-separation} we establish
-  postconditions (ii) and (iii).
+\end{restatable}
 
-  Also since $v_1$ and $v_2$ are correlated either positively or negatively with
-  $\ttt{owl}(g_1)$ and $\ttt{owl}(g_2)$ respectively by precondition (ii),
-  by Definition \ref{definition-gc}, precondition (i), and Lemma \ref{lemma-substitution-sim}
-  we establish postcondition (i), since Definition \ref{definition-ygcgate-certification}
-  requires gate output correlation with $\ttt{owl}(g)$ given any input valence conditions.
-\end{proof}
-
-\begin{lemma}[YGC Encode Invariant]
+\begin{restatable}[YGC Encode Invariant]{lemma}{ygcencode}
   \label{lemma-ygc-encode}
 Given well-typed $\prog_1;E[\mathit{encode}(s_1,s_2)]$ and certified $\mathit{encode}$ where 
 $$
@@ -450,27 +374,7 @@ then we have as postconditions where $\iov(\prog_1) = S' \cup V'$:
 \item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{1\}}}{V'_{\{2\}}}$
 \item $\sep{\progd(\prog_1;\prog_2)}{S'_{\{2\}}}{V'_{\{1\}}}$
 \end{enumerate}
-\end{lemma}
-\begin{proof}
-  By Definition \ref{definition-ygcencode-certification} we have:
-  \begin{mathpar}
-    \sep{\progtt(\prog_2)}{\ttt{\{s[1,s1]\}}}{\vdefs(\prog_2)_{\{2\}}}
-    
-    \sep{\progtt(\prog_2)}{\ttt{\{s[2,s2]\}}}{\vdefs(\prog_2)_{\{1\}}}
-  \end{mathpar}
-  Since we assume that secrets are in uniform and independent marginal
-  distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
-  \varnothing$ by condition (iv) of Definition
-  \ref{definition-ygcencode-certification} and assumptions of
-  well-typedness, conditions (ii-iii) follow by Lemmas
-  \ref{lemma-noninterference} and \ref{lemma-separation}. Also by
-  Definition \ref{definition-ygcencode-certification} we have
-  $\gc{\prog_2}{v_1}{s_1}$ and $\gc{\prog_2}{v_1}{s_1}$, so also
-  $\gc{\prog_1;\prog_2}{v_1}{s_1}$ and
-  $\gc{\prog_1;\prog_2}{v_1}{s_1}$ by condition (iv) of Definition
-  \ref{definition-ygcencode-certification} and Lemmas
-  \ref{lemma-noninterference} and \ref{lemma-separation}.
-\end{proof}
+\end{restatable}
 
 Given the above, we can now establish that any circuit built with
 certified components is passive secure.  Note that we assume a normal
@@ -478,56 +382,16 @@ form of programs where the last instruction is a decoding and public
 reveal of the output, and we require that no gate is wired more than once.
 \cnote{There is another subtlety here, that gates are wired correctly
   in the sense that if the garbler generates a table with input wire label
-  $g_1$ then only $g_1$ is wired to that input. I'll modify the
-  typing to enforce this.}
-\begin{theorem}
+  $g_1$ then only $g_1$ is wired to that input. }
+\begin{restatable}{theorem}{ygcnimo}
   \label{theorem-ygc-NIMO}
   If $\eassign{\outv}{\ttt{decode}(g,e)}$ is a well-typed YGC circuit
   definition using certified components where no gate output is wired
   more than once, and
   $\config{\varnothing}{\eassign{\outv}{\ttt{decode}(g,e)}} \redxs
   \config{\prog}{\varnothing}$, then $\NIMO(\prog)$.
-\end{theorem}
+\end{restatable}
 
-\begin{proof}
-  By assumptions of well-typedness we
-  have for some $\be_k$, $\be_p$, and $\be$:
-  $$
-  \config{\varnothing}{\eassign{\outv}{\ttt{decode}(g,e)}} \redxs
-  \config{\prog_1}{\eassign{\outv}{\ttt{decode}(g,\{ \ttt{k = }\be_k;  \ttt{p = }\be_p\})}}
-  \redxs \config{\prog_1;\prog_2}{\eassign{\outv}{\be}}
-  $$
-  Let $\iov(\prog_1) = S \cup V$.
-  By Lemmas \ref{lemma-ygc-encode} and \ref{lemma-ygc-preservation} we
-  have $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$ and
-  $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$.
-  Let $\prog$ be as defined in Definition \ref{definition-ygdecode-certification}.
-  We observe:
-  \begin{eqnarray*}
-    & \prog_2 = \\ 
-    & \prog[\be_k/\ttt{\{flip[2,gate:c.k]}][\be_p/\ttt{flip[2,gate:c.p]}]
-  \end{eqnarray*}
-  so also by  Definition \ref{definition-ygdecode-certification} and
-  Lemma \ref{lemma-substitution} we have:
-  $$
-  \sep{\progtt(\prog_1;\prog_2)}{\vars(\be_k,\be_p)}{\vdefs(\prog_2)}
-  $$
-  so, letting $\iov(\prog_1;\prog_2) = S \cup V'$ by
-  Lemmas \ref{lemma-noninterference} \ref{lemma-separation} we have
-  $\sep{\progd(\prog_1;\prog_2)}{S_{\{1\}}}{V'_{\{2\}}}$ and
-  $\sep{\progd(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$.
-  Thus, letting $\prog' \defeq (\prog_1;\prog_2;\eassign{\outv}{\be})$, for all $\beta$:
-  $$\sep{\condd{\progd(\prog')}{S_{\{1\}} \cup V_{\{2\}}}{\{ \outv \mapsto \beta \}}}{S_{\{1\}}}{V_{\{2\}}}
-  \quad \text{and} \quad
-    \sep{\condd{\progd(\prog')}{S_{\{2\}} \cup V_{\{1\}}}{\{ \outv \mapsto \beta \}}}{S_{\{2\}}}{V_{\{1\}}}$$
-  thus for all $\store \in \mems(V_2 \cup \{ \outv \})$:
-  $$\condd{\progd(\prog')}{S_{\{1\}}}{\store}
-  = \condd{\progd(\prog')}{S_{\{1\}}}{\store_{\{\outv\}}}$$
-  and for all $\store \in \mems(V_1 \cup \{ \outv \})$:
-  $$\condd{\progd(\prog')}{S_{\{2\}}}{\store}
-  = \condd{\progd(\prog')}{S_{\{2\}}}{\store_{\{\outv\}}}$$
-  establishing the result by Lemma \ref{lemma-nimo} and Definition \ref{definition-NIMO}.
-\end{proof}
 
 \begin{fpfig}[t]{YGC copy gate definitions.}{fig-ygc-copy}
   {\footnotesize

@@ -61,3 +61,128 @@ By straightforward structural induction on $\be$.
 \end{proof}
 
 
+\gmwencode*
+
+\begin{proof}
+  By assumptions of well-typedness we have:
+  $$
+  \begin{array}{rcl}
+    v &=&  \ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}\\
+    v_1 &=& \ttt{\{ c1 = v[1,s1out]; c2 = v[2,s1out] \}}\\
+    v_2 &=& \ttt{\{ c1 = v[1,s2out]; c2 = v[2,s2out] \}}
+  \end{array}
+  $$
+  And by Definition \ref{definition-gmwencode-certification} we have:
+  \begin{mathpar}
+    \sep{\progtt(\prog)}{\ttt{\{s[1,s1]\}}}{\ttt{\{v[2,s1out],v[2,s2out]\}}}
+    
+    \sep{\progtt(\prog)}{\ttt{\{s[2,s2]\}}}{\ttt{\{v[1,s1out],v[1,s2out]\}}}
+  \end{mathpar}
+  Since we assume that secrets are in uniform and independent marginal
+  distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
+  \varnothing$ by condition (iii) of Definition 
+  \ref{definition-gmwencode-certification} and assumptions of well-typedness, 
+  the result follows by preconditions and Lemma \ref{lemma-separation}.
+\end{proof}
+
+\ygcgate*
+
+\begin{proof}
+  Given preconditions we have $v_1 =  \{ \ttt{k = }\be^1_{k}; \ttt{p = }\be^1_{p} \}$ and
+  $v_2 = \{ \ttt{k = }\be^2_{k}; \ttt{p = }\be^2_{p} \}$ for some
+  $\be^1_{k}$,$\be^2_{k}$,$\be^1_{p}$,$\be^2_{p}$ with correlations as per Definition
+  \ref{definition-gc}.
+  %\begin{eqnarray*}
+  %  v_1 &=& \{ \ttt{k = }\be^1_{k}; \ttt{p = }\be^1_{p} \} \\
+  %  v_2 &=& \{ \ttt{k = }\be^2_{k}; \ttt{p = }\be^2_{p} \}
+  %\end{eqnarray*}
+  Let $\prog$ be as defined in Definition \ref{definition-ygcgate-certification}.
+  We observe:
+  \begin{eqnarray*}
+    &\prog_2 = \\
+    &{\small \prog[\be^1_{k}/\ttt{flip[2,gate:a.k]}][\be^1_{p}/\ttt{flip[2,gate:a.p]}][\be^2_{k}/\ttt{flip[2,gate:b.k]}][\be^1_{p}/\ttt{flip[2,gate:b.p]}]}
+  \end{eqnarray*}
+  Given that $g_1$ and $g_2$ are distinct and not wired in $\prog_1$
+  we are assured that $\ttt{owl}(g_1)$ and $\ttt{owl}(g_1)$ are in
+  independent uniform distributions, and given that $g \not\in
+  \prog_1$ we are assured that $\ttt{owl}(g)$ contains entirely fresh
+  flips. Thus by condition (i) of Definition \ref{definition-ygcgate-certification} and
+  Lemma \ref{lemma-substitution} we have:
+  $$
+  \sep{\prog_1;\prog_2}{\vars(\be^1_{k},\be^2_{k},\be^1_{p},\be^2_{p})}{\vdefs(\prog_2)}
+  $$
+  Thus by Lemmas \ref{lemma-noninterference} and \ref{lemma-separation} we establish
+  postconditions (ii) and (iii).
+
+  Also since $v_1$ and $v_2$ are correlated either positively or negatively with
+  $\ttt{owl}(g_1)$ and $\ttt{owl}(g_2)$ respectively by precondition (ii),
+  by Definition \ref{definition-gc}, precondition (i), and Lemma \ref{lemma-substitution-sim}
+  we establish postcondition (i), since Definition \ref{definition-ygcgate-certification}
+  requires gate output correlation with $\ttt{owl}(g)$ given any input valence conditions.
+\end{proof}
+
+\ygcencode*
+
+\begin{proof}
+  By Definition \ref{definition-ygcencode-certification} we have:
+  \begin{mathpar}
+    \sep{\progtt(\prog_2)}{\ttt{\{s[1,s1]\}}}{\vdefs(\prog_2)_{\{2\}}}
+    
+    \sep{\progtt(\prog_2)}{\ttt{\{s[2,s2]\}}}{\vdefs(\prog_2)_{\{1\}}}
+  \end{mathpar}
+  Since we assume that secrets are in uniform and independent marginal
+  distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
+  \varnothing$ by condition (iv) of Definition
+  \ref{definition-ygcencode-certification} and assumptions of
+  well-typedness, conditions (ii-iii) follow by Lemmas
+  \ref{lemma-noninterference} and \ref{lemma-separation}. Also by
+  Definition \ref{definition-ygcencode-certification} we have
+  $\gc{\prog_2}{v_1}{s_1}$ and $\gc{\prog_2}{v_1}{s_1}$, so also
+  $\gc{\prog_1;\prog_2}{v_1}{s_1}$ and
+  $\gc{\prog_1;\prog_2}{v_1}{s_1}$ by condition (iv) of Definition
+  \ref{definition-ygcencode-certification} and Lemmas
+  \ref{lemma-noninterference} and \ref{lemma-separation}.
+\end{proof}
+
+
+\ygcnimo*
+
+\begin{proof}
+  By assumptions of well-typedness we
+  have for some $\be_k$, $\be_p$, and $\be$:
+  $$
+  \config{\varnothing}{\eassign{\outv}{\ttt{decode}(g,e)}} \redxs
+  \config{\prog_1}{\eassign{\outv}{\ttt{decode}(g,\{ \ttt{k = }\be_k;  \ttt{p = }\be_p\})}}
+  \redxs \config{\prog_1;\prog_2}{\eassign{\outv}{\be}}
+  $$
+  Let $\iov(\prog_1) = S \cup V$.
+  By Lemmas \ref{lemma-ygc-encode} and \ref{lemma-ygc-preservation} we
+  have $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$ and
+  $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$.
+  Let $\prog$ be as defined in Definition \ref{definition-ygdecode-certification}.
+  We observe:
+  \begin{eqnarray*}
+    & \prog_2 = \\ 
+    & \prog[\be_k/\ttt{\{flip[2,gate:c.k]}][\be_p/\ttt{flip[2,gate:c.p]}]
+  \end{eqnarray*}
+  so also by  Definition \ref{definition-ygdecode-certification} and
+  Lemma \ref{lemma-substitution} we have:
+  $$
+  \sep{\progtt(\prog_1;\prog_2)}{\vars(\be_k,\be_p)}{\vdefs(\prog_2)}
+  $$
+  so, letting $\iov(\prog_1;\prog_2) = S \cup V'$ by
+  Lemmas \ref{lemma-noninterference} \ref{lemma-separation} we have
+  $\sep{\progd(\prog_1;\prog_2)}{S_{\{1\}}}{V'_{\{2\}}}$ and
+  $\sep{\progd(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$.
+  Thus, letting $\prog' \defeq (\prog_1;\prog_2;\eassign{\outv}{\be})$, for all $\beta$:
+  $$\sep{\condd{\progd(\prog')}{S_{\{1\}} \cup V_{\{2\}}}{\{ \outv \mapsto \beta \}}}{S_{\{1\}}}{V_{\{2\}}}
+  \quad \text{and} \quad
+    \sep{\condd{\progd(\prog')}{S_{\{2\}} \cup V_{\{1\}}}{\{ \outv \mapsto \beta \}}}{S_{\{2\}}}{V_{\{1\}}}$$
+  thus for all $\store \in \mems(V_2 \cup \{ \outv \})$:
+  $$\condd{\progd(\prog')}{S_{\{1\}}}{\store}
+  = \condd{\progd(\prog')}{S_{\{1\}}}{\store_{\{\outv\}}}$$
+  and for all $\store \in \mems(V_1 \cup \{ \outv \})$:
+  $$\condd{\progd(\prog')}{S_{\{2\}}}{\store}
+  = \condd{\progd(\prog')}{S_{\{2\}}}{\store_{\{\outv\}}}$$
+  establishing the result by Lemma \ref{lemma-nimo} and Definition \ref{definition-NIMO}.
+\end{proof}
