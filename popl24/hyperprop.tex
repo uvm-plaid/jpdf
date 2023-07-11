@@ -1,19 +1,19 @@
 \section{Hyperproperties of MPC Passive Security}
 \label{section-hyperprop}
 
-As we've discussed in our section on Related Work
-(\ref{section-related}), previous authors have noted connections
-between the traditional formulation of the MPC security model- aka the
-simulator security model- and hyperproperty-style formulations of
-program trace behavior \cite{8429300,wysstar} including probabilistic
-noninterference. In this Section we show for to formulate extensional
-properties relevant to MPC passive security in our language model by
-direct appeal to program distributions. In particular,
-\emph{noninterference modulo output ($\NIMO$)} is shown to be sound
-for MPC passive security. In Section \ref{section-automation} we will
-show how $\NIMO$ can be automatically enforced directly via
-whole-program analysis, or by automatically verifying composable,
-intensional properties of circuit components.
+As discussed in Section \ref{section-related-work} previous
+authors have noted connections between the traditional formulation of
+the MPC security model- aka the simulator security model- and
+hyperproperty-style formulations of program trace behavior
+\cite{8429300,wysstar} including probabilistic noninterference. In
+this Section we show for to formulate extensional properties relevant
+to MPC passive security in our language model by direct appeal to
+program distributions. In particular, \emph{noninterference modulo
+output ($\NIMO$)} is shown to be sound for MPC passive security. In
+Section \ref{section-automation} we will show how $\NIMO$ can be
+automatically enforced directly via whole-program analysis, or by
+automatically verifying composable, intensional properties of circuit
+components.
 
 \subsection{Passive Security and the Real/Ideal Model}
 \label{section-hyperprop-passive}
@@ -35,13 +35,18 @@ The real/ideal model posits a \emph{simulator} that exists in an ideal
 world, whose goal is to reconstruct observable information in a real
 world run of a protocol $\prog$ that correctly implements an ideal
 functionality $\idealf$- that is, execution of a configuration
-$\config{\store}{\prog}$. We will assume that any protocol $\prog$
-includes a public \emph{output view} $\outv$ where the result is
-published, where $0$ is the ``public'' client and thus $\outv$
-is of the form $\view{0}{w}$ for some $w$, i.e., is owned by 0.
-Note that the protocol is \emph{correct} iff the resulting
-memory contains $\outv \mapsto \idealf(\store_S)$, where $S$ are the
-secret inputs (honest and corrupt) in $\prog$.
+$\config{\store}{\prog}$. We will assume that any $\idealf$ is
+deterministic- while MPC generally allows for probabilistic ideal
+functionalities, this restriction captures a large and important class
+of protocols. We will assume that any protocol $\prog$ includes a
+public \emph{output view} $\outv$ where the result is published, where
+$0$ is the ``public'' client and thus $\outv$ is of the form
+$\view{0}{w}$ for some $w$, i.e., is owned by 0.  Note that the
+protocol is \emph{correct} iff the resulting memory contains $\outv
+\mapsto \idealf(\store_S)$, where $S$ are the secret inputs (honest
+and corrupt) in $\prog$. Note that this implies that a correct
+protocol publicizes the same output on the same secret inputs given
+any choice of random tape.
 
 The simulator is given just the corrupt inputs to the run- that is,
 $\store_{S_C}$- and the output of the protocol- that is,
@@ -92,7 +97,7 @@ model as follows.
   $$
 \end{definition}
 
-\subsection{Probabilistic Noninterference}
+\subsection{Probabilistic Noninterference ($\pni$)} 
 \label{section-hyperprop-ni}
 Previous work has noted
 relations between probabilistic noninterference and security
@@ -119,12 +124,12 @@ same probability}.
     \condd{\progd(\prog)}{V_C}{\store_1} = \condd{\progd(\prog)}{V_C}{\store_2}$$
 \end{definition}
 
-Despite the intuitive resonance between noninterference
-and passive security, since MPC
-protocols implement an ideal functionality, they cannot generally satisfy
-noninterference. We can easily demonstrate this by using
-Example \ref{example-gmw-andcircuit} as a failure witness, where we'll
-assume $C = \{0,2\}$ and $H = \{1\}$:
+Despite the intuitive resonance between noninterference and passive
+security, since MPC protocols implement an ideal functionality, they
+cannot generally satisfy noninterference. Noting that the public
+output is always a corrupt view, we can easily demonstrate this by
+using Example \ref{example-gmw-andcircuit} as a failure witness, where
+we'll assume $C = \{0,2\}$ and $H = \{1\}$:
 $$
 (\progd(\prog_{\ref{example-gmw-andcircuit}}))({\outv \mapsto 1}|\{\{\sx{1}{s1} \mapsto 0, \sx{2}{s2} \mapsto 1 \} \})
 = 0
@@ -150,7 +155,7 @@ of so-called gradual release \cite{4223226}.
     \condd{\progd(\prog)}{S_H}{\store_{(S\cup V)_C}}$.
 \end{lemma}
 
-\subsection{A Sound Hyperproperty for Passive Security}
+\subsection{Noninteference Modulo Output ($\NIMO$)}
 \label{section-nimo}
 The intuition that passive security means that the protocol releases
 no more information than what is released by conditioning on the
