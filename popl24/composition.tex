@@ -31,6 +31,7 @@ circuits as in Theorems \ref{theorem-gmw-NIMO} and
 \ref{theorem-ygc-NIMO}.
 
 \subsection{GMW Component Certification}
+\label{section-gmw-certification}
 
 In keeping with the standard definition of GMW, we can certify that
 GMW gates satisfy a probabilistic noninterference property wrt each
@@ -95,6 +96,7 @@ method to extend our library.
 \end{lemma}
 
 \subsection{GMW Gate Invariants and Circuit Security}
+\label{section-gmw-composition}
 
 Now we demonstrate that certified gates preserve the desired invariant
 during execution in arbitrary circuit contexts.That is, where
@@ -223,25 +225,23 @@ instruction is a decoding and public reveal of the output.
 \subsection{YGC Component Certification}
 \label{section-ygc-certification}
 
-Our certification techniques are defined generally wrt implementations
-of input encoding, decoding, and internal gates. In the following we
-will refer to arbitrary decode, encode, and gate functions with the
-restriction that any function in each of these categories has the same
-valid type signature as $\ttt{decode}$, $\ttt{encode}$, and
-$\ttt{andgg}$ respectively.
-
-It is necessary to define notions of correlation with wire
+In the case of YGC, wires are defined via wire labels as opposed
+to shares as in GMW. It is necessary to define notions of correlation with wire
 labels, since wire values flow into and out of gates in either
-positive of negative correlation with them.
-\begin{definition}
+positive of negative correlation with them, and this correlation is
+integral to both pre-~and post-conditions of certification. We
+write $\gc{\prog}{v}{g}$ to denote this, where $g$
+is the gate with which $v$ has \emph{\bf g}arbled \emph{\bf o}utput
+\emph{\bf c}orrelation.
+\begin{definition} 
   \label{definition-gc}
-  We write $\gc{\prog}{\{ \ttt{k = }\be_{k}; \ttt{p = }\be_{p} \}}{g}$ iff one of the
+  We write $\gc{\prog}{\{ \ttt{k = }\be_{k}; \ttt{p = }\be_{p} \}}{\ttt{"g"}}$ iff one of the
   following hold:
-  \begin{enumerate}[\hspace{5mm}i.]
-  \item $\vc{\progtt(\prog,\be_k)}{\itv}{\ttt{flip[2,gate:}g\ttt{.k]}}\quad \text{and} \quad
-    \vc{\progtt(\prog,\be_p)}{\itv}{\ttt{flip[2,gate:}g\ttt{.p]}}$
-  \item $\vc{\progtt(\prog,\enot\ \be_k)}{\itv}{\ttt{flip[2,gate:}g\ttt{.k]}}\quad \text{and}\quad
-    \vc{\progtt(\prog,\enot\ \be_p)}{\itv}{\ttt{flip[2,gate:}g\ttt{.p]}}$
+  \begin{enumerate}[\hspace{2mm}i.]
+  \item $\vc{\progtt(\prog,\be_k)}{\itv}{\ttt{"flip[2,gate:g.k]"}}\ \, \text{and} \ \,
+    \vc{\progtt(\prog,\be_p)}{\itv}{\ttt{"flip[2,gate:g.p]"}}$
+  \item $\vc{\progtt(\prog,\enot\ \be_k)}{\itv}{\ttt{"flip[2,gate:g.k]"}}\ \, \text{and} \ \,
+    \vc{\progtt(\prog,\enot\ \be_p)}{\itv}{\ttt{"flip[2,gate:g.p]"}}$
   \end{enumerate}
 \end{definition}
 Thus, if a value is in correlation with a wire label, it is either
@@ -254,6 +254,8 @@ $$
 Gate certification establishes separation of input labels from the
 gate table and output value, and correlation of the output with
 the output wire label under any input wire value combination.
+Recall from Figure \ref{fig-ygc-lib} that $\ttt{owl("g")}$ returns
+the output wire label of gate $\ttt{g}$ in a positive valence.
 \begin{definition}[YGC Gate Certification]
   \label{definition-ygcgate-certification}
   Let $\mathit{gate}$ be a gate function.
@@ -263,17 +265,17 @@ the output wire label under any input wire value combination.
   $
   where:
   \begin{enumerate}[\hspace{5mm}$e_1 \defeq$]
-    \item $\mathit{gate}\ttt{(c,a,b,owl(a),owl(b));}$
-    \item $\mathit{gate}\ttt{(c,a,b,owl(a),invert(owl(b)));}$
-    \item $\mathit{gate}\ttt{(c,a,b,invert(owl(a)),owl(b));}$
-    \item $\mathit{gate}\ttt{(c,a,b,invert(owl(a)),invert(owl(b)))}$
+    \item $\mathit{gate}\ttt{("c","a","b",owl("a"),owl("b"));}$
+    \item $\mathit{gate}\ttt{("c","a","b",owl("a"),invert(owl("b")));}$
+    \item $\mathit{gate}\ttt{("c","a","b",invert(owl("a")),owl("b"));}$
+    \item $\mathit{gate}\ttt{("c","a","b",invert(owl("a")),invert(owl("b")))}$
   \end{enumerate}
   Define:
-  $${\small X \defeq \ttt{\{ flip[2,gate:a.k], flip[2,gate:a.p], flip[2,gate:b.k], flip[2,gate:b.p] \}}}$$
+  $${\small X \defeq \ttt{\{ flip[2,"gate:a.k"], flip[2,"gate:a.p"], flip[2,"gate:b.k"], flip[2,"gate:b.p"] \}}}$$
   Then $\mathit{gate}$ is \emph{certified} iff the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
   \item $\sep{\progtt(\prog)}{X}{\vdefs(\prog)}$
-  \item For all $1 \le i \le 4$, $\gc{\prog}{v_i}{\ttt{c}}$
+  \item For all $1 \le i \le 4$, $\gc{\prog}{v_i}{\ttt{"c"}}$
   \end{enumerate}
 \end{definition}
 Encode certification establishes correlation of the encoded input values with
@@ -282,15 +284,15 @@ the secret wire labels, and separation of client 2's secret from client 1's view
   \label{definition-ygcencode-certification}
   Let $\mathit{encode}$ be an encoding function, and let:
   $$
-  \config{\varnothing}{\ttt{encode(s1,s2)}} \redxs
+  \config{\varnothing}{\mathit{encode}\ttt{("s1","s2")}} \redxs
   \config{\prog}{\ttt{\{wv1=}v_1\ttt{;wv2=}v_2\ttt{\}}}
   $$
   Then $\mathit{encode}$ is \emph{certified} iff each of the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-  \item $\gc{\prog}{v_1}{\ttt{s1}} \quad \text{and} \quad \gc{\prog}{v_2}{\ttt{s2}}$
+  \item $\gc{\prog}{v_1}{\ttt{"s1"}} \quad \text{and} \quad \gc{\prog}{v_2}{\ttt{"s2"}}$
   \item $\sep{\progd(\prog)}{\{\ttt{s[1,"s1"]\}}}{\vdefs(\prog)_{\{2\}}}$
   \item $\sep{\progd(\prog)}{\{\ttt{s[2,"s2"]\}}}{\vdefs(\prog)_{\{1\}}}$    
-  \item All $x \in \vars(\prog)$ are distinguished by $\ttt{in1}$ or $\ttt{in2}$. 
+  \item All $x \in \vars(\prog)$ are distinguished by $\ttt{"s1"}$ or $\ttt{"s2"}$. 
   \end{enumerate}
 \end{definition}
 Decode certification establishes separation of the input wire
@@ -299,7 +301,7 @@ label from the decoding tables under any input value condition.
   \label{definition-ygdecode-certification}
   Let $\mathit{decode}$ be a decoding function, and let:
   $$
-  \config{\varnothing}{\mathit{decode}(\ttt{c}, \ttt{owl(c)})}
+  \config{\varnothing}{\mathit{decode}(\ttt{"c"}, \ttt{owl("c")})}
   \redxs \config{\prog}{\be}
   %\quad \text{and} \quad
   %\config{\varnothing}{\mathit{decode}(\ttt{c}, \ttt{invert(owl(c))})}
@@ -307,7 +309,7 @@ label from the decoding tables under any input value condition.
   $$
   Then $\mathit{decode}$ is certified iff:
   $$
-  \sep{\progtt(\prog)}{\ttt{\{flip[2,gate:c.k],flip[2,gate:c.p]\}}}{\vdefs(\prog)}
+  \sep{\progtt(\prog)}{\ttt{\{flip[2,"gate:c.k"],flip[2,"gate:c.p"]\}}}{\vdefs(\prog)}
   $$
   %Then $\mathit{decode}$ is certified iff both of the following conditions hold:
   %\begin{enumerate}[\hspace{5mm}i.]
@@ -323,28 +325,20 @@ We have certified each of the YGC components detailed above.
 \end{lemma}
 
 \subsection{YGC Gate Invariants and Circuit Security}
-\label{section-composition-metatheory}
+\label{section-ygc-composition}
 
-To demonstrate correctness of certification, we need to show that
-isolated component certificates preserve relevant properties
-when integrated into larger programs. 
-%First, we show that if a flip $f$ is independent from the views
-%in a protocol (as is the case with input labels used to
-%encode a garbled table), then separation from views that
-%use $f$ (e.g., in an output label) is preserved. 
-%\begin{lemma}[Wire Framing]
-%  \label{lemma-wire-framing}
-%  If $\sep{\progtt(\prog)}{\{f\}}{\vdefs(\prog)}$ for flip $f$ and
-%  $\vars(\prog) \cap \vars(\prog') = \{ f \}$ then
-%  $\sep{\progtt(\prog';\prog)}{\vdefs(\prog')}{\vdefs(\prog)}$.
-%\end{lemma}
-%Next,
+Now we demonstrate that certified gates preserve the desired invariant
+during execution in arbitrary circuit contexts, assuming that outputs are not wired to
+multiple inputs \cite{tate2003garbled,nieminen2023breaking}. That is, where
+$\iov(\prog) = S \cup V$, we show that
+$\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
+$\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$ are preserved prior to
+decoding.  We formulate this in terms of pre-~and post-conditions of
+gate evaluation. Proofs omitted here are provided in Appendix
+\ref{section-proofs}.
 
-Now we can show how to splice gates into arbitrary circuits in an
-invariant-preserving manner, assuming that outputs are not wired to
-multiple inputs \cite{tate2003garbled,nieminen2023breaking}.
 \begin{restatable}[YGC Gate Invariant]{lemma}{ygcgate}
-  \label{lemma-ygc-preservation}
+\label{lemma-ygc-preservation}
 Given well-typed $\prog_1;E[\mathit{gate}(g,g_1,g_2,v_1,v_2)]$ and certified $\mathit{gate}$ where:
 $$
 \config{\prog_1}{E[\mathit{gate}(g,g_1,g_2,v_1,v_2)]} \redxs \config{\prog_1;\prog_2}{E[v]}
@@ -387,9 +381,6 @@ Given the above, we can now establish that any circuit built with
 certified components is passive secure.  Note that we assume a normal
 form of programs where the last instruction is a decoding and public
 reveal of the output, and we require that no gate is wired more than once.
-\cnote{There is another subtlety here, that gates are wired correctly
-  in the sense that if the garbler generates a table with input wire label
-  $g_1$ then only $g_1$ is wired to that input. }
 \begin{restatable}{theorem}{ygcnimo}
   \label{theorem-ygc-NIMO}
   If $\eassign{\outv}{\ttt{decode}(g,e)}$ is a well-typed YGC circuit
