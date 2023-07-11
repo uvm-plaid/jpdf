@@ -160,7 +160,7 @@ the rest of the program.
   \end{enumerate}
 \end{restatable}
 
-On the basis of the preceding we can prove our main result as
+On the basis of the preceding, we can prove our main result as
 follows. Note that we assume a normal form of programs where the last
 instruction is a decoding and public reveal of the output.
 \begin{theorem}
@@ -223,7 +223,7 @@ positive of negative correlation with them.
 \end{definition}
 Thus, if a value is in correlation with a wire label, it is either
 correlated with the wire label or with the inverse of both the key and
-pointer bits. For subsequent discussion we make the following addition
+pointer bits. For subsequent discussion, we make the following addition
 to the codebase:
 $$
 \ttt{invert(\{ k = bk; p = bp \}) \{ \{ k = not bk; p = not bp \} \}}
@@ -428,14 +428,14 @@ The requirements that output wire labels are not used more than once
 in YGC reflects a known result, that naive copy gate output is unsound
 in YGC- i.e., passive security fails. In fact, we are unable to
 automatically verify $\gNIMO$ for $\ttt{andgg}$ without the assumption
-that input wire lables are in independent uniform distributions. We
+that input wire labels are in independent uniform distributions. We
 can capture the necessary fix as in Figure \ref{fig-ygc-copy}. The
 garbler creates a copy gate with two new output wire labels in
 independent uniform distributions (in \ttt{copygate}), and permutes
 them using the input wire label pointer after encrypting with the
 input wire label keys. The evaluator then recovers the encrypted
 output wire values during evaluation (in \ttt{evalcopy}). Given an
-$\ttt{orgg}$ gate defined as outlined abotve, we can then use secure
+$\ttt{orgg}$ gate defined as outlined above, we can then use secure
 $\ttt{copy}$ as follows:
 \begin{verbatimtab}
   let s = encode(s1,s2) in
