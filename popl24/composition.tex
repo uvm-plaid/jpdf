@@ -95,18 +95,15 @@ method to extend our library.
 \end{lemma}
 
 \subsection{GMW Gate Invariants and Circuit Security}
-We can show that composition maintains an important invariant in a
-circuit $\prog$- namely that client 1's secrets remain independent of
-client 2's views, and vice-versa, prior to decoding.  That is, where
+
+Now we demonstrate that certified gates preserve the desired invariant
+during execution in arbitrary circuit contexts.That is, where
 $\iov(\prog) = S \cup V$, we show that
 $\sep{\progd(\prog)}{S_{\{1\}}}{V_{\{2\}}}$ and
 $\sep{\progd(\prog)}{S_{\{2\}}}{V_{\{1\}}}$ are preserved prior to
-decoding.
-
-Now we can prove that certified gates preserve the desired invariant
-during execution in arbitrary circuit contexts.
-We formulate this in terms of pre-~and post-conditions of gate
-evaluation.
+decoding.  We formulate this in terms of pre-~and post-conditions of
+gate evaluation. Proofs omitted here are provided in Appendix
+\ref{section-proofs}.
 \begin{lemma}[GMW Gate Invariant]
   \label{lemma-gmw-preservation}
   Given well-typed $\prog_1;E[\mathit{gate}(\ttt{"g"},v_1,v_2)]$ for certified $\mathit{gate}$ where:
