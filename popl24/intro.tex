@@ -133,6 +133,17 @@ while intended for sound integration into MPC protocols, focus on
 expression and enforcement of obliviousness and do not account
 for allowable information leakage.
 
+Our work also shares many ideas with probabilistic programming
+languages designed to perform (exact or approximate)
+inference~\cite{holtzen2020scaling, carpenter2017stan, wood2014new,
+  bingham2019pyro, albarghouthi2017fairsquare, de2007problog,
+  pfeffer2009figaro, saad2021sppl}. Our setting, however, requires
+verifying properties beyond inference, including conditional
+independence. Recent work by Li et al.~\cite{li2023lilac} proposes a
+manual approach for proving such properties, but does not provide
+automation.
+
+
 \subsection{Overview and Contributions}
 
 \paragraph{Language design.} In Section \ref{section-minicat} we
