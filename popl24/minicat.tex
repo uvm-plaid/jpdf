@@ -179,9 +179,15 @@ configuration $\config{\store}{\prog}$ where $\store \in \mems(S \cup
 F)$- that is, with secrets and the random tape as inputs- and where
 $\config{\store}{\prog} \redxs \config{\store'}{\varnothing}$ it is
 the case that $\store' \in \mems(S \cup F \cup V)$. We define a
-program as \emph{safe} iff for all $\store \in \mems(S \cup F)$ there
+notion of protocol safety as follows, which is a well-formedness
+property.
+\begin{definition}[Protocol Safety]
+  \label{definition-safety}
+A program is \emph{safe} iff for all $\store \in \mems(S \cup F)$ there
 exists $\store'$ where $\config{\store}{\prog} \redxs
-\config{\store'}{\varnothing}$. Unsafe programs are those where views
+\config{\store'}{\varnothing}$.
+\end{definition}
+Observe that unsafe programs are those where views
 are used before they're defined, or where expressions mix owners of
 variables. As a sanity condition, we will only consider safe 
 programs in our presentation of $\fedprot$, though in Section

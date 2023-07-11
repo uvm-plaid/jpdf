@@ -17,7 +17,11 @@ expressive to define composable protocol elements such as garbled
 gates. The $\metaprot$ language is a \emph{metalanguage}, in the sense
 that it produces $\fedprot$ protocols as a result of computation. That
 is, $\metaprot$ is a high-level language that generates low-level
-protocol code.
+protocol code. We endow $\metaprot$ with a type system that enjoys a
+type safety result guaranteeing safety of generated protocols. We
+consider library implementations for GMW and YGC circuits as
+examples. Additional examples are provided in Appendix
+\ref{section-examples-lang}.
 
 \subsection{Syntax}
 
@@ -185,7 +189,7 @@ implementation, we adapt \emph{synthesis} as defined in Dependent ML \cite{10.11
 to obtain this $\sigma$- essentially this is a match on the syntactic
 structure of types and expressions. 
 
-\begin{fpfig}[t]{Type Syntax of $\metaprot$ (T) and selected type judgement rules.}{fig-metaprot-types}
+\begin{fpfig}[t]{Type syntax of $\metaprot$ (T) and selected type judgement rules (B).}{fig-metaprot-types}
 {\small
   $$
   \begin{array}{rcl@{\hspace{2mm}}r}
@@ -242,9 +246,7 @@ in the effect of $e$- the disjointness requirement guarantees that
 views are uniquely defined. Our $\metaprot$ type safety result is
 formulated as follows. In addition to safe execution of the
 metaprogram, it also guarantees safety of the residual $\fedprot$
-program. Of course, it is important to note that ``safety'' here
-means the usual type safety property that programs do not get stuck,
-it does not imply any security hyperproperties. 
+program (Definition \ref{definition-safety}).
 \begin{theorem}[$\metaprot$ Type Safety]
   \label{theorem-metalang-safety}
   Given $\codebase$, $e$, and $\Gamma$ with $\Gamma \vdash \codebase,e : \unity : V$,
