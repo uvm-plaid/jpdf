@@ -123,7 +123,7 @@ gate evaluation. Proofs omitted here are provided in Appendix
 \end{lemma}
 
 \begin{proof}
-  Given well-typedness of $\prog_1;E[\mathit{gate}(\ttt{g},v_1,v_2)]$, we have for some $\ttt{"g1"}$ and $\ttt{"g2"}$:
+  Given well-typedness of $\prog_1;E[\mathit{gate}(\ttt{"g"},v_1,v_2)]$, we have for some $\ttt{"g1"}$ and $\ttt{"g2"}$:
   $$
   \begin{array}{lcl}
    v_1 &=& \ttt{\{c1 = v[1,"g1out"]; c2 = v[2,"g1out"]\}}\\
@@ -134,12 +134,11 @@ gate evaluation. Proofs omitted here are provided in Appendix
   Let $\prog$ be as defined in Definition \ref{definition-gmwgate-certification}.
   We observe:
   $$
-  {\footnotesize
-    \begin{array}{c}
-      \prog_2 = \\
-      \prog[\ttt{v[1,"g1out"]}/\ttt{flip[1,"s11"]}][\ttt{v[2,"g1out"]}/\ttt{flip[2,"s12"]}][\ttt{v[1,"g2out"]}/\ttt{flip[1,"s21"]}][\ttt{v[2,"g2out"]}/\ttt{flip[2,"s22"]}]
+    \begin{array}{lcl}
+      \prog_2 &=&
+           \prog[\ttt{v[1,"g1out"]}/\ttt{flip[1,"s11"]}][\ttt{v[2,"g1out"]}/\ttt{flip[2,"s12"]}]\\
+      & & \phantom{\prog}[\ttt{v[1,"g2out"]}/\ttt{flip[1,"s21"]}][\ttt{v[2,"g2out"]}/\ttt{flip[2,"s22"]}]
     \end{array}
-  }
   $$
   Now, the assumption of well-typedness also assures that $\ttt{"g"}$
   has not been previously used as a gate identifier in $\prog_1$,
@@ -167,9 +166,9 @@ the variables used during encoding are guaranteed to be distinct from
 the rest of the program.
 \begin{restatable}[GMW Encode Invariant]{lemma}{gmwencode}
   \label{lemma-gmw-encode}
-  Given well-typed $\prog_1;E[\mathit{encode}\ttt{(s1,s2)}]$ for certified $\mathit{encode}$, let:
+  Given well-typed $\prog_1;E[\mathit{encode}\ttt{("s1","s2")}]$ for certified $\mathit{encode}$, let:
   $$
-  \config{\prog_1}{E[\mathit{encode}(\ttt{s1},\ttt{s2})]} \redxs
+  \config{\prog_1}{E[\mathit{encode}(\ttt{"s1"},\ttt{"s2"})]} \redxs
   \config{\prog_1;\prog_2}{E[v]}
   $$
   If we have the following preconditions, where $\iov(\prog_1) = S' \cup V$:
