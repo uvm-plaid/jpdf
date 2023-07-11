@@ -26,16 +26,15 @@ important modern distributed applications. Security for MPC protocols
 is superficially similar to probabilistic noninterference, but differs
 in a subtle but fundamental way, and approaches for verifying
 noninterference cannot naturally extend to MPC security.  Currently,
-proof methods for MPC protocols are well-studied but manual
-and thus tedious and error-prone, and are also non-standardized and
-unfamiliar to most PL theorists.  Our goal is to strengthen
-connections between the security model of MPC and trace-based
-hyperproperties, and to leverage them to obtain automated
-enforcement mechanisms for MPC protocol development.  We define a
-novel hyperproperty that is provably sound for MPC security, as a
-foundation for fully and partially automated verification of passive
-MPC security in protocols including arbitrarily large YGC and GMW
-circuits.
+proof methods for MPC protocols are well-studied but manual and thus
+tedious and error-prone, and are also non-standardized and unfamiliar
+to most PL theorists.  Our goal is to leverage connections between the
+security model of MPC and trace-based hyperproperties to obtain
+automated proof methods for MPC protocol development.  We develop a
+language model with a tightly coupled notion of probabilistic program
+distributions, as a foundation for fully and partially automated
+verification of passive MPC security in protocols including
+arbitrarily large YGC and GMW circuits.
 \end{abstract}
 
 \maketitle
