@@ -1,6 +1,48 @@
 \section{Supplementary Proofs}
 \label{section-proofs}
 
+\nimosecure*
+
+\begin{proof}
+  Let $H$ and $C$ be an arbitrary partition of the federation and
+  suppose $\prog$ satisfies noninterference modulo output. Let
+  $\iov(\prog) = (V,S)$ and $\flips(\prog) = F$ with output view $\outv
+  \in V$ and let $\store$ be an arbitrary element of $\mems(S \cup
+  F)$. Then the distribution of adversarial views in the real world
+  is, by definition,
+  $\condd{\progd(\prog)}{V_C}{\store_S}$.
+
+  The simulator is given both $\store_{S_C}$ and
+  $\idealf(\store_S)$.  The simulation $\SIM_C(\store_{S_C},
+  \idealf(\store_S))$ can be defined as follows. First, some $\store'
+  \in \ik(\idealf,\idealf(\store))$ is randomly chosen such that
+  $\store' =_C \store_S$, as is a random tape $\store'' \in
+  \mems(F)$\footnote{The real/ideal model allows consultation of a
+  ``Random Oracle''.}. Then, the run of $(\store' \cup \store'',
+  \prog)$ is evaluated in simulation, yielding $(\store^{\SIM},\varnothing)$.
+  The simulation returns $\store^{\SIM}_{V_C}$ as a result.
+
+  Now, since the random tape is selected in simulation from the same distribution
+  that we assume for the real world, after selection of $\store'$ the
+  probability that any particular $\store^{\SIM}_{V_C}$ is returned is by definition
+  $
+  \progd(\prog)(\store^{\SIM}_{V_C} | \store')
+  $.
+  Furthermore, since we assume that $\prog$ correctly implements $\idealf$, this
+  means
+  $
+  \store_S =_C \store' \wedge
+     \condd{\progd(\prog)}{\{ \outv \}}{\store_S} =
+     \condd{\progd(\prog)}{\{ \outv \}}{\store'}
+  $,
+  so by the definition of noninterference modulo output,
+  any choice of $\store'$ yields the same distribution $\condd{\progd(\prog)}{V_C}{\store_S}$.
+  Therefore by definition
+  $
+   \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \condd{\progd(\prog)}{V_C}{\store_S}
+  $.
+\end{proof}
+
 We observe the following properties of separation which are borrowed from prior work
 \cite{barthe2019probabilistic} and which will be used frequently in proofs. 
 \begin{lemma}
@@ -186,3 +228,5 @@ By straightforward structural induction on $\be$.
   = \condd{\progd(\prog')}{S_{\{2\}}}{\store_{\{\outv\}}}$$
   establishing the result by Lemma \ref{lemma-nimo} and Definition \ref{definition-NIMO}.
 \end{proof}
+
+

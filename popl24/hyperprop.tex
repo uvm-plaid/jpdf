@@ -6,24 +6,14 @@ As we've discussed in our section on Related Work
 between the traditional formulation of the MPC security model- aka the
 simulator security model- and hyperproperty-style formulations of
 program trace behavior \cite{8429300,wysstar} including probabilistic
-noninterference. This formulation of hyperproperties that are at least
-sound with respect to simulator security bridges a conceptual gap
-between foundational approaches to security, and also motivates and
-supports automated analysis. 
-
-In this section, we formulate a new hyperproperty that we show is
-sound for passive security in the real/ideal model, called
-\emph{noninterference modulo output ($\NIMO$)}. We do not claim
-completeness with respect to passive security, but soundness
-guarantees that enforcement of $\NIMO$ in our analyses implies passive
-security. In Section \ref{section-bruteforce} we show how $\NIMO$ can
-be automatically enforced in a brute-force manner and in Section
-\ref{section-composition} we show how $\NIMO$ can be refined to obtain
-compositional properties supporting efficient, scalable enforcement of
-complex protocols that incorporate modular subprotocols, using
-both YGC and GMW circuits as examples where gates are
-subprotocols. The latter methodology demonstrates a particular
-advantage of our intensional formulation.
+noninterference. In this Section we show for to formulate extensional
+properties relevant to MPC passive security in our language model by
+direct appeal to program distributions. In particular,
+\emph{noninterference modulo output ($\NIMO$)} is shown to be sound
+for MPC passive security. In Section \ref{section-automation} we will
+show how $\NIMO$ can be automatically enforced directly via
+whole-program analysis, or by automatically verifying composable,
+intensional properties of circuit components.
 
 \subsection{Passive Security and the Real/Ideal Model}
 \label{section-hyperprop-passive}
@@ -133,16 +123,16 @@ Despite the intuitive resonance between noninterference
 and passive security, since MPC
 protocols implement an ideal functionality, they cannot generally satisfy
 noninterference. We can easily demonstrate this by using
-Example \ref{example-he} as a failure witness, where we'll
-assume $C = \{0,2\}$ and $H = \{1,3\}$:
+Example \ref{example-gmw-andcircuit} as a failure witness, where we'll
+assume $C = \{0,2\}$ and $H = \{1\}$:
 $$
-(\progd(\prog_{\ref{example-he}}))({\outv \mapsto 1}|\{\{\sx{1}{1} \mapsto 0, \sx{2}{1} \mapsto 1, \sx{3}{1} \mapsto 0 \} \})
-= 1
+(\progd(\prog_{\ref{example-gmw-andcircuit}}))({\outv \mapsto 1}|\{\{\sx{1}{s1} \mapsto 0, \sx{2}{s2} \mapsto 1 \} \})
+= 0
 $$
 whereas:
 $$
-(\progd(\prog_{\ref{example-he}}))({\outv \mapsto 1}|\{\{\sx{1}{1} \mapsto 1, \sx{2}{1} \mapsto 1, \sx{3}{1} \mapsto 0 \} \})
-= 0
+(\progd(\prog_{\ref{example-gmw-andcircuit}}))({\outv \mapsto 1}|\{\{\sx{1}{s1} \mapsto 1, \sx{2}{s2} \mapsto 1 \} \})
+= 1
 $$
 
 Probabilistic noninterference can also be restated to formally capture a
@@ -207,54 +197,16 @@ function. Define:
 \end{definition}
 Now we can show our main result, that noninterference modulo output,
 together with the assumption that $\idealf$ is pre-imageable, implies
-passive security of a protocol.
-\begin{theorem}
+passive security of a protocol. The proof is provided in Appendix
+\ref{section-proofs}, and follows by essentially the same argument as
+for the analogous property of ``perfect passive NI security'' in
+\cite{8429300}.  
+\begin{restatable}{theorem}{nimosecure}
   \label{theorem-nimo}
   Assume given pre-imageable $\idealf$ and a protocol $\prog$ that
   correctly implements $\idealf$.  If $\NIMO(\prog)$
   then $\prog$ is passive secure.
-\end{theorem}
-
-\begin{proof}
-  Let $H$ and $C$ be an arbitrary partition of the federation and
-  suppose $\prog$ satisfies noninterference modulo output. Let
-  $\iov(\prog) = (V,S)$ and $\flips(\prog) = F$ with output view $\outv
-  \in V$ and let $\store$ be an arbitrary element of $\mems(S \cup
-  F)$. Then the distribution of adversarial views in the real world
-  is, by definition,
-  $\condd{\progd(\prog)}{V_C}{\store_S}$.
-
-  The simulator is given both $\store_{S_C}$ and
-  $\idealf(\store_S)$.  The simulation $\SIM_C(\store_{S_C},
-  \idealf(\store_S))$ can be defined as follows. First, some $\store'
-  \in \ik(\idealf,\idealf(\store))$ is randomly chosen such that
-  $\store' =_C \store_S$, as is a random tape $\store'' \in
-  \mems(F)$\footnote{The real/ideal model allows consultation of a
-  ``Random Oracle''.}. Then, the run of $(\store' \cup \store'',
-  \prog)$ is evaluated in simulation, yielding $(\store^{\SIM},\varnothing)$.
-  The simulation returns $\store^{\SIM}_{V_C}$ as a result.
-
-  Now, since the random tape is selected in simulation from the same distribution
-  that we assume for the real world, after selection of $\store'$ the
-  probability that any particular $\store^{\SIM}_{V_C}$ is returned is by definition
-  $
-  \progd(\prog)(\store^{\SIM}_{V_C} | \store')
-  $.
-  Furthermore, since we assume that $\prog$ correctly implements $\idealf$, this
-  means
-  $
-  \store_S =_C \store' \wedge
-     \condd{\progd(\prog)}{\{ \outv \}}{\store_S} =
-     \condd{\progd(\prog)}{\{ \outv \}}{\store'}
-  $,
-  so by the definition of noninterference modulo output,
-  any choice of $\store'$ yields the same distribution $\condd{\progd(\prog)}{V_C}{\store_S}$.
-  Therefore by definition
-  $
-   \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \condd{\progd(\prog)}{V_C}{\store_S}
-  $.
-\end{proof}
-
+\end{restatable}
 As for noninterference, we can show that $\NIMO$ is equivalent
 to saying that a given program does not change the probability
 of honest secrets conditioned on corrupt secrets and views
