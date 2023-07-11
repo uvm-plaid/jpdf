@@ -1,0 +1,76 @@
+\begin{fpfig}[t]{Selected $\metaprot$ type judgement rules.}{fig-metaprot-tjudge}
+{\small
+\begin{mathpar}
+\inferrule[\TirName{VarT}]
+{}
+{\tjudge{\viewst}{\Gamma}{x}{\Gamma(x)}{\viewst}}
+
+\inferrule[\TirName{CidT}]
+{}
+{\tjudge{\viewst}{\Gamma}{\cid}{\cidty{\cid}}{\viewst}}
+
+\inferrule[\TirName{StringT}]
+{}
+{\tjudge{\viewst}{\Gamma}{w}{\stringty{w}}{\viewst}}
+
+\inferrule[\TirName{ConcatT}]
+{\tjudge{\viewst}{\Gamma}{e_1}{\stringty{e_1'}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}
+}
+{\tjudge{\viewst}{\Gamma}{e_1||e_2}{\stringty{e_1' ||e_2'}}{\viewst_2}}
+
+\inferrule[\TirName{BoolT}]
+{}
+{\tjudge{\viewst}{\Gamma}{\etrue}{\bet{\cid}}{\viewst}}
+
+\inferrule[\TirName{OracleT}]
+{\tjudge{\viewst}{\Gamma}{e}{\stringty{e'}}{\viewst'}}
+{\tjudge{\viewst}{\Gamma}{\oracle{e}}{\bet{\cid}}{\viewst'}}
+
+\inferrule[\TirName{SecretT}]
+{\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}}
+{\tjudge{\viewst}{\Gamma}{\secret{e_1}{e_2}}{\bet{e_1'}}{\views_2}}
+
+\inferrule[\TirName{AndT}]
+{
+\tjudge{\viewst}{\Gamma}{e_1}{\bet{e}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\bet{e}}{\viewst_2}
+}
+{\tjudge{\viewst}{\Gamma}{e_1\ \eand\ e_2}{\bet{e}}{\viewst_2}}
+
+\inferrule[\TirName{AssignT}]
+{
+\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}\\
+\tjudge{\viewst_2}{\Gamma}{e_3}{\bet{e_3'}}{\viewst_3}
+}
+{
+\tjudge{\viewst}{\Gamma}{\eassign{\view{e_1}{e_2}}{e_3}}{\unity}{(\viewst_3 ; \view{e_1'}{e_2'} )}
+}
+
+\inferrule[AppT]
+{\Gamma(f) =  
+ \tau_1 * \cdots * \tau_n \rightarrow \tau, \viewst_f \\ 
+ \tjudge{\viewst}{\Gamma}{e_1}{\sigma(\tau_1)}{\viewst_1}
+ \ \cdots\  
+ \tjudge{\viewst_{n-1}}{\Gamma}{e_n}{\sigma(\tau_n)}{\viewst_n}}
+{\tjudge{\viewst}{\Gamma}{f(e_1,\ldots,e_n)}{\sigma(\tau)}{(\viewst_n ; \sigma(\viewst_f))}}
+
+\inferrule[FnT]
+{
+  \codebase(f) = x_1,\ldots,x_n,\ e \\ \tas(f) = \tau_1 * \cdots * \tau_n \\
+  \tjudge{\varnothing}{\Gamma; x_1 : \tau_1; \ldots; x_n : \tau_n}{e}{\tau}{\viewst_f}
+}
+{ \Gamma \vdash f : \tau_1 * \cdots * \tau_n \rightarrow \tau, \viewst_f }
+
+\inferrule[ProgT]
+{
+\forall f \in \dom(\codebase)\ .\ \Gamma \vdash f : \Gamma(f) \\ \Gamma \vdash e : \tau, \view{\cid_1}{w_1};\ldots;\view{\cid_1}{w_1}
+}
+{
+\Gamma \vdash \codebase,e : \tau,\{\view{\cid_1}{w_1}\} \sqcup \cdots \sqcup \{ \view{\cid_n}{w_n}\}
+}
+\end{mathpar}
+}
+\end{fpfig}

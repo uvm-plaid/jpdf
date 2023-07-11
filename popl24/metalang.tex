@@ -131,7 +131,7 @@ resource-intensive compilation of programs with known errors
 reuse of one-time pads can also undermine security.
 
 The type syntax of $\metaprot$ is defined in Figure
-\ref{fig-metaprot-tsyntax}. It includes a weak form of dependency:
+\ref{fig-metaprot-types}. It includes a weak form of dependency:
 string types $\stringty{e}$ and client types $\cidty{e}$
 are parameterized by expressions $e$ that precisely reflect the
 type of the value. Boolean expression forms have the type
@@ -150,14 +150,17 @@ effect} $\viewst_1$ denotes the views that have been defined so far,
 and $\viewst_2$ records new views defined as the effect of the
 expression on the residual $\minifed$ program.  Type judgements are
 syntax-directed- selected rules are shown in Figure
-\ref{fig-metaprot-tjudge}. The $\TirName{AssignT}$ rule
-captures the effect of new view definitions. The
-$\TirName{And}$ rule illustrates how program safety is enforced,
-by ensuring that subexpressions of boolean expressions have the
-same owner.
+\ref{fig-metaprot-types}
+%, with a more complete set provided in
+%Appendix Figure \ref{fig-metaprot-tjudge}
+and a full implementation is available in our online repository \cite{jpdf-github}. The
+$\TirName{AssignT}$ rule captures the effect of new view
+definitions. The $\TirName{And}$ rule illustrates how program safety
+is enforced, by ensuring that subexpressions of boolean expressions
+have the same owner.
 
-The $\TirName{FnT}$ and $\TirName{Appt}$ rules apply to function
-definition and application respectively, and rely on the
+The $\TirName{Appt}$ rule applies to function
+definition and application respectively. Function typings rely on the
 definition of function input type annotations $\tas$ and
 type term substitutions $\sigma$. 
 \begin{definition}
@@ -182,49 +185,22 @@ implementation, we adapt \emph{synthesis} as defined in Dependent ML \cite{10.11
 to obtain this $\sigma$- essentially this is a match on the syntactic
 structure of types and expressions. 
 
+\begin{fpfig}[t]{Type Syntax of $\metaprot$ (T) and selected type judgement rules.}{fig-metaprot-types}
+{\small
+  $$
+  \begin{array}{rcl@{\hspace{2mm}}r}
+    \srct &::=& \cidty{e} \mid \stringty{e} \mid \bet{e} \mid  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst & \gdesc{types}\\ [1mm]
+    %&&  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst \\[1mm]
+    \viewst  &::=& \view{e}{e};\viewst \mid \varnothing   & \gdesc{view effects}\\[1mm]
+    \Gamma &::=& \Gamma; x : \tau \mid \varnothing & \gdesc{type environments}    
+  \end{array}
+  $$
+}
 
-\begin{fpfig}[t]{Type Syntax of $\metaprot$.}{fig-metaprot-tsyntax}
-  {\small
-    $$
-    \begin{array}{rcl@{\hspace{2mm}}r}
-      \srct &::=& \cidty{e} \mid \stringty{e} \mid \bet{e} \mid  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst & \gdesc{types}\\ [1mm]
-      %&&  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst \\[1mm]
-      \viewst  &::=& \view{e}{e};\viewst \mid \varnothing   & \gdesc{view effects}\\[1mm]
-      \Gamma &::=& \Gamma; x : \tau \mid \varnothing & \gdesc{type environments}    
-    \end{array}
-    $$
-  }
-\end{fpfig}
+\rule{130mm}{0.5pt}
 
-\begin{fpfig}[t]{Selected $\metaprot$ type judgement rules.}{fig-metaprot-tjudge}
 {\small
 \begin{mathpar}
-\inferrule[\TirName{VarT}]
-{}
-{\tjudge{\viewst}{\Gamma}{x}{\Gamma(x)}{\viewst}}
-
-\inferrule[\TirName{CidT}]
-{}
-{\tjudge{\viewst}{\Gamma}{\cid}{\cidty{\cid}}{\viewst}}
-
-\inferrule[\TirName{StringT}]
-{}
-{\tjudge{\viewst}{\Gamma}{w}{\stringty{w}}{\viewst}}
-
-\inferrule[\TirName{ConcatT}]
-{\tjudge{\viewst}{\Gamma}{e_1}{\stringty{e_1'}}{\viewst_1}\\
-\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}
-}
-{\tjudge{\viewst}{\Gamma}{e_1||e_2}{\stringty{e_1' ||e_2'}}{\viewst_2}}
-
-\inferrule[\TirName{BoolT}]
-{}
-{\tjudge{\viewst}{\Gamma}{\etrue}{\bet{\cid}}{\viewst}}
-
-\inferrule[\TirName{OracleT}]
-{\tjudge{\viewst}{\Gamma}{e}{\stringty{e'}}{\viewst'}}
-{\tjudge{\viewst}{\Gamma}{\oracle{e}}{\bet{\cid}}{\viewst'}}
-
 \inferrule[\TirName{SecretT}]
 {\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
 \tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}}
@@ -254,21 +230,6 @@ structure of types and expressions.
  \ \cdots\  
  \tjudge{\viewst_{n-1}}{\Gamma}{e_n}{\sigma(\tau_n)}{\viewst_n}}
 {\tjudge{\viewst}{\Gamma}{f(e_1,\ldots,e_n)}{\sigma(\tau)}{(\viewst_n ; \sigma(\viewst_f))}}
-
-\inferrule[FnT]
-{
-  \codebase(f) = x_1,\ldots,x_n,\ e \\ \tas(f) = \tau_1 * \cdots * \tau_n \\
-  \tjudge{\varnothing}{\Gamma; x_1 : \tau_1; \ldots; x_n : \tau_n}{e}{\tau}{\viewst_f}
-}
-{ \Gamma \vdash f : \tau_1 * \cdots * \tau_n \rightarrow \tau, \viewst_f }
-
-\inferrule[ProgT]
-{
-\forall f \in \dom(\codebase)\ .\ \Gamma \vdash f : \Gamma(f) \\ \Gamma \vdash e : \tau, \view{\cid_1}{w_1};\ldots;\view{\cid_1}{w_1}
-}
-{
-\Gamma \vdash \codebase,e : \tau,\{\view{\cid_1}{w_1}\} \sqcup \cdots \sqcup \{ \view{\cid_n}{w_n}\}
-}
 \end{mathpar}
 }
 \end{fpfig}
@@ -354,7 +315,7 @@ $\ttt{s2}$ from client's 1 and 2 respectively.
 \subsection{Example: YGC}
 \label{section-metalang-ygc}
 
-\begin{fpfig}{Yao's Garbled Circuit component functions.}{fig-ygc-lib}
+\begin{fpfig}[t]{Yao's Garbled Circuit component functions.}{fig-ygc-lib}
 {\footnotesize
 \begin{verbatimtab}
   owl(gid) { { k = flip[2,"gate:" || gid || ".k"]; p = flip[2,"gate:" || gid || ".p"] } }
@@ -433,7 +394,7 @@ shown in Figure \ref{fig-ygc-lib} includes:
 \end{itemize}
 We provide more code details in Appendix \ref{section-ygc}, Figures
 \ref{fig-ygc-aux} and \ref{fig-ygc-gates}, and complete code in our
-online repository.
+online repository \cite{jpdf-github}.
 \begin{example}
   \label{example-ygc-andcircuit}
 The following program uses our YGC library to define
