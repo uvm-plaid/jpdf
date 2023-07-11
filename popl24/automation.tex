@@ -158,7 +158,7 @@ We denote this computation as $\cruns(\prog)$.
 The above yields an algorithm for computing basic distributions and
 thus program distributions. 
 \begin{lemma}
-  \label{lemma-cprogd}
+  \label{lemma-cprogtt}
   Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define
   $\cprogtt(\prog)$ as the distribution $\pmf$
   where for all $\store \in \mems(S\cup F \cup V)$:
@@ -194,6 +194,7 @@ matrix optimizations developed in recent work on HPC for Datalog
 \cite{sakama2017linear,aspis2018linear,nguyen2022enhancing,nguyen2021efficient}.
 
 \subsection{Certification of Extensional Properties}
+\label{section-automation-extensional}
 
 We will use \emph{certification} to refer to algorithmic methods of
 verifying properties of $\minifed$ protocols, vs.~manual methods. For
@@ -221,7 +222,7 @@ Section \ref{section-hyperprop} are certifiable.
   \progd(\prog)(\store_{S_H}|\store_{S_C \cup V_C})
   $$
   for all $\store \in \mems(S \cup V)$, and return success $\pni(\prog)$ iff every such
-  check succeeds. The result follows by Lemmas \ref{lemma-cprogd} and \ref{lemma-pni}.
+  check succeeds. The result follows by Lemmas \ref{lemma-cprogtt} and \ref{lemma-pni}.
   To verify $\nimo(\prog)$, we first enumerate all partitions of clients
   into set $H$ and $C$ where $0 \in C$, then enumerate $\runs(\prog)$, and
   then check:
@@ -229,7 +230,7 @@ Section \ref{section-hyperprop} are certifiable.
   \progd(\prog)(\store_{S_H}|\store_{S_C \cup \{\outv\}}) =
   \progd(\prog)(\store_{S_H}|\store_{S_C \cup V_C})
   $$
-  The result follows by Lemma \ref{lemma-cprogd} and Lemma \ref{lemma-nimo}.
+  The result follows by Lemma \ref{lemma-cprogtt} and Lemma \ref{lemma-nimo}.
 \end{proof}
 
 We can thus automatically verify security properties of examples considered
@@ -251,6 +252,7 @@ has not been previously demonstrated.
 \end{proof}
 
 \subsection{Certification of Composable Intensional Properties}
+\label{section-automation-intensional}
 
 While the brute force method is feasible for smaller programs,
 including small circuits such as Examples
@@ -297,6 +299,7 @@ We immediately observe that separation and correlation are certifiable,
 since they are based on marginalization and conditioning of program
 distributions. 
 \begin{lemma}
+  \label{lemma-autosep}
   Both of the following are true:
   \begin{enumerate}
   \item $\sep{\progtt(\prog)}{X}{Y}$ is certifiable for any $X$ and $Y$.
@@ -305,6 +308,7 @@ distributions.
 \end{lemma}
 
 \subsection{Compositional Metatheory}
+\label{section-automation-logic}
 
 Since we certify properties of gates in isolation with witness inputs,
 our metatheory is concerned with the preservation of important invariants
