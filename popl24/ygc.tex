@@ -1,7 +1,7 @@
 \begin{fpfig}{Yao's Garbled Circuits, selected auxiliary functions.}{fig-ygc-aux}
 {\footnotesize
 \begin{verbatimtab}
-  keygen(gid, b1, b2) { select4(b1,b2,H[gid || 1],H[gid || 2],H[gid || 3],H[gid || 4]) }
+  keygen(gid, b1, b2) { select4(b1,b2,H[gid || "1"],H[gid || "2"],H[gid || "3"],H[gid || "4"]) }
   
   keysgen(gid, b1, b2)
   {
@@ -23,10 +23,10 @@
   
   sharetable(gid, tid, table)
   {   
-    v[1, gate: || gid || tid || 1] := table.v1;
-    v[1, gate: || gid || tid || 2] := table.v2;
-    v[1, gate: || gid || tid || 3] := table.v3;
-    v[1, gate: || gid || tid || 4] := table.v4
+    v[1, gate: || gid || tid || "1"] := table.v1;
+    v[1, gate: || gid || tid || "2"] := table.v2;
+    v[1, gate: || gid || tid || "3"] := table.v3;
+    v[1, gate: || gid || tid || "4"] := table.v4
   }
 
   owl(gid) {  { k = flip[2,gate: || gid || .k]; p = flip[2,gate: || gid || .p] }  }
@@ -42,20 +42,20 @@
     let wl = owl(gid) in
     let r1 = wl.k xor true in
     let r0 = (not wl.k) xor false in
-    v[1,OUTtt1] := select(wl.p,r1,r0);
-    v[1,OUTtt2] := select(not wl.p,r1,r0)
+    v[1,"OUTtt1"] := select(wl.p,r1,r0);
+    v[1,"OUTtt2"] := select(not wl.p,r1,r0)
   }
   
-  evaldecode(wv) { wv.k xor select(wv.p,v[1,OUTtt1],v[1,OUTtt2]) }
+  evaldecode(wv) { wv.k xor select(wv.p,v[1,"OUTtt1"],v[1,"OUTtt2"]) }
   
   evalgate(gid, wva, wvb)  
   {
     let k = keygen(gid,wva.k,wvb.k) in
     let g = gate: || gid in
     let ct = select4(wva.p,wvb.p,
-               v[1,g || tt1],v[1,g || tt2],v[1,g || tt3],v[1,g || tt4]) in
+               v[1,g || "tt1"],v[1,g || "tt2"],v[1,g || "tt3"],v[1,g || "tt4"]) in
     let cp = select4(wva.p,wvb.p,
-               v[1,g || pt1],v[1,g || pt2],v[1,g || pt3],v[1,g || pt4]) in
+               v[1,g || "pt1"],v[1,g || "pt2"],v[1,g || "pt3"],v[1,g || "pt4"]) in
     { k = k xor ct; p = k xor cp }
   }
   
