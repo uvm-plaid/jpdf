@@ -1,21 +1,57 @@
 \section{Automating Security Verification}
 \label{section-automation}
 
-\subsection{Brute Force Computation of Program Distributions}
-\label{section-bruteforce}
+%We first explore a brute force approach to automatically verifying
+%program behaviour, the first step of which is to compute the basic
+%distribution of a program $\prog$. The program distribution
+%$\progd(\prog)$ can obviously be automatically derived from that, as
+%can be any of its marginal or conditional distributions. In this
+%Section, we consider two automated mechanisms for deriving
+%$\progd(\prog)$ in this way. The first is through a straightforward
+%computation of all final program memories.  The second approach
+%rewrites $\minifed$ programs to stratified Datalog programs, that are
+%amenable HPC optimizations such as parallelization and GPU matrix
+%computations as shown in recent work
+%\cite{sakama2017linear,aspis2018linear,nguyen2022enhancing,nguyen2021efficient}.
 
-We first explore a brute force approach to automatically verifying
-program behaviour, the first step of which is to compute the basic
-distribution of a program $\prog$. The program distribution
-$\progd(\prog)$ can obviously be automatically derived from that, as
-can be any of its marginal or conditional distributions. In this
-Section, we consider two automated mechanisms for deriving
-$\progd(\prog)$ in this way. The first is through a straightforward
-computation of all final program memories.  The second approach
-rewrites $\minifed$ programs to stratified Datalog programs, that are
-amenable HPC optimizations such as parallelization and GPU matrix
-computations as shown in recent work
-\cite{sakama2017linear,aspis2018linear,nguyen2022enhancing,nguyen2021efficient}.
+%Here we describe a straightforward technique for obtaining program
+%distributions $\progd(\prog)$ through direct computation of
+%$\runs(\prog)$. Although we could obtain $\runs(\prog)$ simply by
+%executing $\prog$ given all random tapes and input secrets, the method
+%we describe here is empirically more efficient (though still
+%exponential in the length of the random tape), and also supports the
+%translation to Datalog described in Section
+%\ref{section-bruteforce-datalog}. An implementation of these
+%techniques along with Examples from Sections
+%\ref{section-minicat-examples} and \ref{section-metalang-ygc} is
+%available online\footnote{URL redacted for double-blind review.}.
+
+Our first step in automating security analysis is to show how to
+compute the basic program distribution. Recall that basic
+distributions are based on the memories resulting from execution of an
+$\minicat$ program, which contain a record of all client views and the
+public output.  Given $\prog$ we denote this as $\runs(\prog)$, and we
+denote the basic distribution of a program as $\progtt(\prog)$.
+\begin{definition}
+  Given $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$:
+  $$
+  \runs(\prog) \defeq \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \redxs \config{\store}{\varnothing} \}
+  $$
+  We write $\progtt(\prog)$ to denote the \emph{basic distribution} of
+  $\prog$, where given $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$
+  we have for all $\store \in \mems(S \cup V \cup F)$:
+  $$
+  \progtt(\prog)(\store) =  1 / 2^{|S\cup F|} \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
+  $$
+\end{definition}
+
+Any marginalization or conditioning of $\progtt(\prog)$ can be easily
+obtained algorithmically, in particular $\progd(\prog) =
+\margd{\progtt(\prog)}{\iov(\prog)}$.  As already discussed in Section
+\ref{section-hyperprop} and as we will discuss more below, extensional
+and intensional security properties are predicated on marginalizations
+and conditionings of basic distributions. So calculating
+$\runs(\prog)$ establishes the foundation for our analysis.
 
 \begin{fpfig}[t]{Truth table visualizations of $\runs(\prog_{\ref{example-otp}})$ (L) and
     $\runs(\prog_{\ref{example-lambda-obliv}(a)})$ (R).}{fig-basic-distributions}
@@ -48,18 +84,32 @@ computations as shown in recent work
 }
 \end{fpfig}
 
-%The basic distribution of a program $\prog$ is based on the
-%final memories resulting from any run of $\prog$, denoted
-%$\runs(\prog)$.
-%\begin{definition}
-%  Given $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$:
-%  $$
-%  \runs(\prog) \defeq \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \redxs \config{\store}{\varnothing} \}
-%  $$
-%\end{definition}
+Intuitively, we can represent $\runs(\prog)$ in tabular form, as
+illustrated in Figure \ref{fig-basic-distributions} for Examples
+\ref{example-otp} and \ref{example-lambda-obliv}(a). So a basic
+strategy is to directly compute this truth table for any given
+program. We first describe an approach where we compute
+$\runs(\instr_1,\ldots,\instr_n)$ iteratively for the subprograms
+$\instr_1,\ldots,\instr_i$ for $1 \le i \le n$, by individually
+computing the truth table of expressions $\be_i$ for each $\instr_i =
+(\eassign{v_i}{\be_i})$, and joining this with
+$\runs(\instr_1,\ldots,\instr_{i-1})$.
 
-As we've observed, $\runs(\prog)$ can be represented in a truth table
-form, as illustrated in Figure \ref{fig-basic-distributions}. 
+In Figure \ref{fig-solve} we define the algorithm
+$\solve{\stores}{\be}$ which filters a given $\stores$ to obtain the
+subset whose elements satisfy $\be$ (make it true). It's correctness
+is characterized as follows.
+\begin{lemma}
+  \label{lemma-solves}
+  For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
+  $(\solve{\stores}{\be}) = \{ \store \in \stores \ \mid\ \lcod{\store,\be}{\cid} = 1 \}$
+  for some $\cid$.
+\end{lemma}
+\begin{proof}
+  Since we assume safety of programs we can assume that all variables in $\be$ have the
+  same owner $\cid$. The result otherwise follows in a straightforward manner by induction
+  on $\be$. 
+\end{proof}
 
 \begin{fpfig}[t]{Filtering memories that satisfy a boolean expression.}{fig-solve}
 {\small
@@ -86,39 +136,10 @@ form, as illustrated in Figure \ref{fig-basic-distributions}.
 }
 \end{fpfig}
 
-Here we describe a straightforward technique for obtaining program
-distributions $\progd(\prog)$ through direct computation of
-$\runs(\prog)$. Although we could obtain $\runs(\prog)$ simply by
-executing $\prog$ given all random tapes and input secrets, the method
-we describe here is empirically more efficient (though still
-exponential in the length of the random tape), and also supports the
-translation to Datalog described in Section
-\ref{section-bruteforce-datalog}. An implementation of these
-techniques along with Examples from Sections
-\ref{section-minicat-examples} and \ref{section-metalang-ygc} is
-available online\footnote{URL redacted for double-blind review.}.
-
-In Figure \ref{fig-solve} we define the algorithm $\solve{\stores}{\be}$
-which filters $\stores$ based on satisfaction of $\be$. This algorithm
-is fundamental to our brute force methods. It's correctness is characterized
-as follows. 
-\begin{lemma}
-  \label{lemma-solves}
-  For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
-  $(\solve{\stores}{\be}) = \{ \store \in \stores \ \mid\ \lcod{\store,\be}{\cid} = 1 \}$
-  for some $\cid$.
-\end{lemma}
-\begin{proof}
-  Since we assume safety of programs we can assume that all variables in $\be$ have the
-  same owner $\cid$. The result otherwise follows in a straightforward manner by induction
-  on $\be$. 
-\end{proof}
-
-In order to automatically obtain $\runs(\prog)$, we can do a left
-folding of $\solve$ across $\prog$, inductively extending memories
-with valid view assignments in the order of their definition.
-We can then use this to compute $\progd(\prog)$. We denote
-these computations as $\cruns$ and $\cprogd$ respectively.
+To obtain $\runs(\prog)$, we can perform a left folding of $\solve$
+across $\prog$ and each view definition, inductively extending
+memories with valid view assignments in the order of their definition.
+We denote this computation as $\cruns(\prog)$.
 \begin{lemma}
   \label{lemma-cruns}
   Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define:
@@ -134,26 +155,45 @@ these computations as $\cruns$ and $\cprogd$ respectively.
 \begin{proof}
   By Lemma \ref{lemma-solves} and induction on the length of $\prog$. 
 \end{proof}
+The above yields an algorithm for computing basic distributions and
+thus program distributions. 
 \begin{lemma}
   \label{lemma-cprogd}
   Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define
-  $\cprogd(\prog)$ as the distribution $\pmf$
+  $\cprogtt(\prog)$ as the distribution $\pmf$
   where for all $\store \in \mems(S\cup F \cup V)$:
   $$
-  \pmf(\store) = \begin{cases}1/2^{|S \cup F|} & \text{if\ } \store \in
-    \cruns(\prog) \\ 0 & \text{otherwise} \end{cases} 
+  \pmf(\store) = 1 / 2^{|S\cup F|} \ \text{if}\ \store \in \cruns(\prog), \text{otherwise}\ 0
+  %\begin{cases}1/2^{|S \cup F|} & \text{if\ } \store \in
+  %  \cruns(\prog) \\ 0 & \text{otherwise} \end{cases} 
   $$
-  Then:
-  $$
-  \cprogd(\prog) = \progd(\prog)
-  $$
+  Then $\cprogtt(\prog) = \progtt(\prog)$ and $\margd{\cprogtt(\prog)}{S\cup V} = \progd(\prog)$.
 \end{lemma}
 \begin{proof}
   Immediately by Lemma \ref{lemma-cruns} and Definition \ref{def-progd}.
 \end{proof}
+A full implementation of these methods is available in our online
+repository\footnote{Link redacted for double-blind reviewing.}. To
+avoid notational confusion we will continue to refer to $\progtt$ and
+$\cruns$ in our subsequent discussion of automated verification but
+with the understanding that both can be computed using the above
+algorithms.
 
+Since $|\runs(\prog)|$ grows exponentially in the size of
+$\flips(\prog)$, scalability to larger programs is a concern.  However
+computation of $\runs$ is amenable to optimizations, especially
+parallelization- rather than computing the truth table
+``horizontally'', it can be computed vertically. We can rewrite
+$\minifed$ programs $\prog$ to stratified Datalog programs, where
+$\runs(\prog)$ is equivalent to set of least Herbrand models obtained
+by representing different random tapes and input secrets as different
+fact bases. Details of this rewrite are provided in Appendix
+\ref{section-bruteforce}. The model for each fact base can be computed
+independently and in parallel, with the potential to apply other
+matrix optimizations developed in recent work on HPC for Datalog
+\cite{sakama2017linear,aspis2018linear,nguyen2022enhancing,nguyen2021efficient}.
 
-\subsection{Protocol Certification}
+\subsection{Certification of Extensional Properties}
 
 We will use \emph{certification} to refer to algorithmic methods of
 verifying properties of $\minifed$ protocols, vs.~manual methods. For
@@ -164,38 +204,6 @@ the sake of clarity we make the following definition:
   and a safe protocol $\prog$ is \emph{certified for $\phi$} iff
   $A(\prog)$ holds.
 \end{definition}
-
-We base certification of protocols $\prog$ on a calculation of its
-program distribution. Recall from Definition \ref{definition-progd} that
-program distributions are calculated from runs of a protocol given
-any random tape and input secrets. That is:
-\begin{definition}
-  Given $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$, define:
-  $$
-  \runs(\prog) \defeq \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \redxs \config{\store}{\varnothing} \}
-  $$
-\end{definition}
-
-Given any $\prog$, the set $\runs(\prog)$ can be computed via brute
-force methods. One is to fold a standard interpretation of logical
-formulas across $\prog$, obtaining a truth table representation of
-$\runs(\prog)$. We can also interpret $\prog$ as a stratified Datalog
-program, with $\runs(\prog)$ being the set of least Herbrand models
-obtained by representing different random tapes and input secrets as
-different fact bases. This representation is amenable HPC
-optimizations such as parallelization and GPU matrix computations as
-shown in recent work
-\cite{sakama2017linear,aspis2018linear,nguyen2022enhancing,nguyen2021efficient}.
-We provide more details of brute force computation of $\runs(\prog)$ in
-Appendix \ref{section-bruteforce} and an implementation of
-the tabular method is available in our online repository\footnote{Link
-redacted for double-blind reviewing.}.
-
-Given a calculation of $\runs(\prog)$, we can easily calculate its
-basic distribution as in Definition \ref{definition-progd)}, as well
-as any marginalization (such as $\progd(\prog)$) or conditioning of it.
-
-\subsection{Certification of Extensional Properties}
 
 Given computation of $\prog(\prog)$ for programs $\prog$, we can
 immediately observe that the extensional hyperproperties discussed in
@@ -232,8 +240,8 @@ has not been previously demonstrated.
   $\prog_{\ref{example-ygc-andcircuit}}$ are all passive secure,
   $\prog_{\ref{example-OT}}$ is passive secure assuming client 3 is
   honest, and $\prog_{\ref{example-otp}}$ satisfies probabilistic
-  noninterference and hence perfect secrecy as defined in
-  \ref{barthe2019probabilistic}.
+  noninterference and hence perfect secrecy (as defined in
+  \cite{barthe2019probabilistic}).
 \end{lemma}
 \begin{proof}
   We have certified $\nimo(prog_{\ref{example-he}})$, $\nimo(\prog_{\ref{example-gmw-andcircuit}})$,
@@ -256,7 +264,7 @@ examples of a common idiom in MPC protocol design- arbitrarily large
 circuits are built up from smaller boolean or arithmetic gates that
 operate on encodings of input secrets.
 
-Our approach is thus to design gate certifications that demonstrably
+Our solution is to design gate certifications that demonstrably
 guarantee security for circuits built from them. Intuitively, we can
 consider any gate as a mini-program and certify intensional properties
 of its isolated program distribution. These intensional properties are
@@ -273,12 +281,6 @@ of gates in isolation, we will explicitly consider flip conditions in
 distributions. Thus we will be directly concerned with basic distributions,
 which we denote $\progtt(\prog)$, and we will often focus on views
 defined in subprotocols. 
-\begin{definition}
-  We write $\progtt(\prog)$ to denote the \emph{basic distribution} of
-  $\prog$ as defined in Definition \ref{def-progd}. For any program $\prog =
-  (\eassign{v_1}{\be_1};\ldots;\eassign{v_n}{\be_n})$, define
-  $\vdefs(\prog) \defeq \{ v_1,\ldots,v_n \}$.
-\end{definition}
 Notions of probabilistic independence, aka \emph{separation}, as well
 as correlation, are important to certify. We borrow the symbols $*$
 and $\sim$ from \cite{barthe2019probabilistic} with the same
@@ -307,9 +309,17 @@ distributions.
 Since we certify properties of gates in isolation with witness inputs,
 our metatheory is concerned with preservation of important invariants
 when certified components are ``spliced'' into larger program
-contexts.  One important reasoning principle is related to
-noninterference properties- specifically, if we show that gate views
-enjoy a noninterference property wrt their free (input) variables,
+contexts. This technique often requires us to focus on views defined
+in subprograms, so we define the following.
+\begin{definition}
+For any program $\prog =
+  (\eassign{v_1}{\be_1};\ldots;\eassign{v_n}{\be_n})$, define
+$\vdefs(\prog) \defeq \{ v_1,\ldots,v_n \}$.
+\end{definition}
+
+An important reasoning principle is related to component
+noninterference- specifically, if we show that gate views enjoy a
+noninterference property wrt their free (input) variables,
 probabilistic independence propagates to other variables in the
 preceding program.
 \begin{restatable}[Noninterference]{lemma}{noninterference}
