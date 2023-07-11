@@ -110,15 +110,15 @@ By straightforward structural induction on $\be$.
   $$
   \begin{array}{rcl}
     v &=&  \ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}\\
-    v_1 &=& \ttt{\{ c1 = v[1,s1out]; c2 = v[2,s1out] \}}\\
-    v_2 &=& \ttt{\{ c1 = v[1,s2out]; c2 = v[2,s2out] \}}
+    v_1 &=& \ttt{\{ c1 = v[1,"s1out"]; c2 = v[2,"s1out"] \}}\\
+    v_2 &=& \ttt{\{ c1 = v[1,"s2out"]; c2 = v[2,"s2out"] \}}
   \end{array}
   $$
   And by Definition \ref{definition-gmwencode-certification} we have:
   \begin{mathpar}
-    \sep{\progtt(\prog)}{\ttt{\{s[1,s1]\}}}{\ttt{\{v[2,s1out],v[2,s2out]\}}}
+    \sep{\progtt(\prog)}{\ttt{\{s[1,"s1"]\}}}{\ttt{\{v[2,"s1out"],v[2,"s2out"]\}}}
     
-    \sep{\progtt(\prog)}{\ttt{\{s[2,s2]\}}}{\ttt{\{v[1,s1out],v[1,s2out]\}}}
+    \sep{\progtt(\prog)}{\ttt{\{s[2,"s2"]\}}}{\ttt{\{v[1,"s1out"],v[1,"s2out"]\}}}
   \end{mathpar}
   Since we assume that secrets are in uniform and independent marginal
   distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
@@ -168,9 +168,9 @@ By straightforward structural induction on $\be$.
 \begin{proof}
   By Definition \ref{definition-ygcencode-certification} we have:
   \begin{mathpar}
-    \sep{\progtt(\prog_2)}{\ttt{\{s[1,s1]\}}}{\vdefs(\prog_2)_{\{2\}}}
+    \sep{\progtt(\prog_2)}{\ttt{\{s[1,"s1"]\}}}{\vdefs(\prog_2)_{\{2\}}}
     
-    \sep{\progtt(\prog_2)}{\ttt{\{s[2,s2]\}}}{\vdefs(\prog_2)_{\{1\}}}
+    \sep{\progtt(\prog_2)}{\ttt{\{s[2,"s2"]\}}}{\vdefs(\prog_2)_{\{1\}}}
   \end{mathpar}
   Since we assume that secrets are in uniform and independent marginal
   distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
@@ -228,5 +228,3 @@ By straightforward structural induction on $\be$.
   = \condd{\progd(\prog')}{S_{\{2\}}}{\store_{\{\outv\}}}$$
   establishing the result by Lemma \ref{lemma-nimo} and Definition \ref{definition-NIMO}.
 \end{proof}
-
-
