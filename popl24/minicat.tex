@@ -15,7 +15,7 @@ values arbitrarily assigned in the initial program memory.  Programs
 execute deterministically given the random tape. 
 
 \subsection{Syntax} The syntax of $\minifed$, defined in
-Figure \ref{fig-minifed-syntax}, includes a standard boolean algebra
+Figure \ref{fig-minifed}, includes a standard boolean algebra
 with $\eand$, $\eor$, $\exor$, and $\enot$ as primitives. In addition,
 programs have different kinds of variables including \emph{secrets}
 $\secret{\cid}{w}$, \emph{flips} $\flip{\cid}{w}$, and \emph{views}
@@ -33,22 +33,6 @@ $\varnothing$ from example code, writing $\instr_1;\ldots;\instr_n$
 instead of $\instr_1;\ldots;\instr_n;\varnothing$, and abusing notation we will
 write $\prog_1;\prog_2$ to denote the concatenation of $\prog_1$
 and $\prog_2$.
-
-
-
-\begin{fpfig}[t]{$\minifed$ source code syntax.}{fig-minifed-syntax}
-  {\small
-    $$
-    \begin{array}{rcl@{\hspace{8mm}}r}
-      \multicolumn{4}{c}{b \in \{ \etrue, \efalse \},\  w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N},\ \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
-      \be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
-      & &  \enot\ \be \mid \be\ \bop\ \be \mid \select{\be}{\be}{\be} \mid \OT{\be}{\be}{\be} \\[2mm]
-      \instr &::=& \eassign{\view{\cid}{w}}{\be} & \textit{view assignments} \\[2mm]
-      \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
-    \end{array}
-    $$
-  }
-\end{fpfig}
 
 We let $X$ range over sets of variables and $S,V,F$ to range over sets
 of secrets, views, and flips (including invocations of the oracle)
@@ -116,9 +100,23 @@ variables used in an expression must belong to the same client.  Thus,
 we denote interpretation of expressions $\be$ possibly containing
 variables as $\lcod{\store,\be}{\cid}$, where $\store$ associates
 variables with values, and all variables must be owned by client
-$\cid$. This is defined in Figure \ref{fig-minifed-interp}.
+$\cid$. This is defined in Figure \ref{fig-minifed}.
 
-\begin{fpfig}[t]{$\minifed$ expression interpretation (T) and reduction (B) rules.}{fig-minifed-interp}
+\begin{fpfig}[t]{$\minifed$ syntax (T), expression interpretation (M),  and reduction (B) rules.}{fig-minifed}
+  {\small
+    $$
+    \begin{array}{rcl@{\hspace{8mm}}r}
+      \multicolumn{4}{c}{b \in \{ \etrue, \efalse \},\  w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N},\ \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
+      & &  \enot\ \be \mid \be\ \bop\ \be \mid \select{\be}{\be}{\be} \mid \OT{\be}{\be}{\be} \\[2mm]
+      \instr &::=& \eassign{\view{\cid}{w}}{\be} & \textit{view assignments} \\[2mm]
+      \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
+    \end{array}
+    $$
+  }
+
+  \rule{130mm}{0.5pt}
+  
   {\small
   $$
   \begin{array}{cc}
@@ -164,7 +162,7 @@ $\cid$. This is defined in Figure \ref{fig-minifed-interp}.
 \end{fpfig} 
 
 Evaluation of configurations is then defined via a small-step reduction relation $\redx$,
-also shown in Figure \ref{fig-minifed-interp}.
+also shown in Figure \ref{fig-minifed}.
 This is defined in the obvious manner for view assignments other than through
 $\ttt{OT}$- however note that reduction requires that views are never reassigned. 
 For view assignments through $\ttt{OT}$, we define a different reduction rule that
@@ -290,45 +288,5 @@ the following:
 }
 \end{example}
 
-\begin{example}[Additive Secret Sharing]
-    \label{example-he}
-Additive secret sharing is an MPC protocol where $k$ parties split up
-their secrets into \emph{shares}, with the property that all $k$
-shares are required to reconstruct the secret and any fewer reveals
-nothing. Additionally, this sharing enjoys additive homomorphism. In
-the binary field it is well-known that we can extend our use
-of $\ttt{xor}$ and flips to generate an arbitrary number of shares
-with additive homomorphism. 
 
-For example, to generate shares for three-party additive sharing,
-clients 1,2, and 3 can break up and distribute their shares to
-each other as follows:
-{\small
-\begin{verbatimtab}
-     v[2,"s1"] := flip[1,"1"] xor flip[1,"s1"] xor s[1,"1"];
-     v[3,"s1"] := flip[1,"1"];
-     v[1,"s2"] := flip[2,"1"] xor flip[2,"s2"] xor s[2,"1"];
-     v[3,"s2"] := flip[2,"1"];
-     v[1,"s3"] := flip[3,"1"] xor flip[3,"s3"] xor s[3,"1"];
-     v[2,"s3"] := flip[3,"1"] \end{verbatimtab}
-}
-Then, assuming that party 0 is a ``public'' client, each party sums
-its own shares, and then the sum of the sum of shares is revealed
-in the output view $\vx{0}{output}$. By additive homomorphism of
-$\ttt{xor}$, this output is the sum of the 3 secrets.
-{\small
-\begin{verbatimtab}
-     v[0,"ss1"] := v[1,"s2"] xor v[1,"s3"] xor flip[1,"s1"];
-     v[0,"ss2"] := v[2,"s1"] xor v[2,"s3"] xor flip[2,"s2"];
-     v[0,"ss3"] := v[3,"s1"] xor v[3,"s2"] xor flip[3,"s3"];
-     v[0,"output"] := v[0,"ss1"] xor v[0,"ss2"] xor v[0,"ss3"] \end{verbatimtab}
-}
-We note that, as for MPC protocols generally, the notion of
-``secrecy'' here is subtle and not the same as for encryption as in
-Example \ref{example-otp}, particularly when the threat model allows
-protocol participants to be corrupt. For example, suppose that $1 \in C$, and
-$\sx{1}{1}$ is $1$, and after running the protocol suppose that
-$\vx{0}{output}$ is 0. Then the adversary knows that 2 and 3's secrets
-are either 1 and 0, or 0 and 1, with 50/50 probability, and definitely
-neither 0 and 0, nor 1 and 1. 
-\end{example}
+

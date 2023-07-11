@@ -1,0 +1,182 @@
+\section{Supplemental Examples}
+
+\subsection{$\metaprot$ and $\minicat$ Protocol Examples}
+
+\begin{example}[Additive Secret Sharing]
+    \label{example-he}
+Additive secret sharing is an MPC protocol where $k$ parties split up
+their secrets into \emph{shares}, with the property that all $k$
+shares are required to reconstruct the secret and any fewer reveals
+nothing. Additionally, this sharing enjoys additive homomorphism. In
+the binary field it is well-known that we can extend our use
+of $\ttt{xor}$ and flips to generate an arbitrary number of shares
+with additive homomorphism. 
+
+For example, to generate shares for three-party additive sharing,
+clients 1,2, and 3 can break up and distribute their shares to
+each other as follows:
+{\small
+\begin{verbatimtab}
+     v[2,"s1"] := flip[1,"1"] xor flip[1,"s1"] xor s[1,"1"];
+     v[3,"s1"] := flip[1,"1"];
+     v[1,"s2"] := flip[2,"1"] xor flip[2,"s2"] xor s[2,"1"];
+     v[3,"s2"] := flip[2,"1"];
+     v[1,"s3"] := flip[3,"1"] xor flip[3,"s3"] xor s[3,"1"];
+     v[2,"s3"] := flip[3,"1"] \end{verbatimtab}
+}
+Then, assuming that party 0 is a ``public'' client, each party sums
+its own shares, and then the sum of the sum of shares is revealed
+in the output view $\vx{0}{output}$. By additive homomorphism of
+$\ttt{xor}$, this output is the sum of the 3 secrets.
+{\small
+\begin{verbatimtab}
+     v[0,"ss1"] := v[1,"s2"] xor v[1,"s3"] xor flip[1,"s1"];
+     v[0,"ss2"] := v[2,"s1"] xor v[2,"s3"] xor flip[2,"s2"];
+     v[0,"ss3"] := v[3,"s1"] xor v[3,"s2"] xor flip[3,"s3"];
+     v[0,"output"] := v[0,"ss1"] xor v[0,"ss2"] xor v[0,"ss3"] \end{verbatimtab}
+}
+We note that, as for MPC protocols generally, the notion of
+``secrecy'' here is subtle and not the same as for encryption as in
+Example \ref{example-otp}, particularly when the threat model allows
+protocol participants to be corrupt. For example, suppose that $1 \in C$, and
+$\sx{1}{1}$ is $1$, and after running the protocol suppose that
+$\vx{0}{output}$ is 0. Then the adversary knows that 2 and 3's secrets
+are either 1 and 0, or 0 and 1, with 50/50 probability, and definitely
+neither 0 and 0, nor 1 and 1. 
+\end{example}
+
+Buliding on Example \ref{example-he}, we can define a function
+$\ttt{share3}$ that abstracts the process of splitting a given
+client's secret into 3 separate shares.
+\begin{example} \label{example-share3} The function $\ttt{share3}$ 
+  splits a client's secret into 3 shares returned as a record
+  with fields $\ttt{s1-3}$:
+  {\small
+  \begin{verbatimtab}
+      share3(client, secretid) {
+        let s1 = flip[client, "share1"] in
+        let s2 = flip[client, "share2"] in
+        let s3 = (s1 xor s2) xor s[client, "s:" || secretid] in
+        {s1 = s1;s2 = s2;s3 = s3}
+      } \end{verbatimtab}
+  }
+  Here is a $\metaprot$ program that uses this function definition:
+  {\small
+    \begin{verbatimtab}
+      let shares = share3(1, "mysecret") in
+      v[2,s1] := shares.s2;
+      v[3,s1] := shares.s3 \end{verbatimtab}
+  }
+  which generates the following $\minifed$ program, as we formalize in Example \ref{example-share3-eval}
+  below:
+  {\small
+  \begin{verbatimtab}
+      v[2,s1] := flip[1, "share2"];
+      v[3,s1] := flip[1, "share1"] xor flip[1, "share2"] xor s[1, "s:mysecret"] \end{verbatimtab}
+  }
+\end{example}
+
+\begin{example}
+  \label{example-share3-eval}
+  Let $\codebase,e_{\ref{example-share3}}$ be the $\metaprot$ program and let 
+  $\prog_{\ref{example-share3}}$ be the  $\minifed$ program defined
+  in Example \ref{example-share3}. We refer to the latter as ``accumulated''
+  by evaluation of the former in the sense that $\config{\varnothing}{e_{\ref{example-share3}}}
+  \redxs \config{\prog_{\ref{example-share3}}}{\ttt{()}}$.
+\end{example}
+
+\begin{example}
+  Given $\ttt{share3}$ as defined in Example \ref{example-share3} and
+  annotation:
+  $$\tas(\ttt{share3}) =  \ttt{cid(client)}\ *\ \ttt{string(sid)}$$
+  the type of $\ttt{share3}$ is $\tas(\ttt{share3}) \rightarrow \tau,\varnothing$
+  where $\tau$ is:
+  $$
+  \ttt{\{ s1 : bool[client]; s2 : bool[client]; s3 : bool[client] \}}
+  $$
+\end{example}
+
+\subsection{Program Distribution Examples}
+\label{section-pmf-examples}
+
+In the following, we will refer to program examples defined in
+Section \ref{section-minicat-examples} as $\prog_x$, where $x$
+is the Example number. 
+
+
+
+\paragraph{Example \ref{example-otp} revisited}
+%For small programs it is
+%helpful to visualize their basic distributions graphically as their
+%truth tables, where each row corresponds to an equally likely final
+%memory for the given program. In Figure \ref{fig-basic-distributions}
+%we show this for Example \ref{example-otp}. In this truth table we can
+%see that $\sx{1}{0}$ and $\vx{2}{2}$ are perfectly correlated.
+In this example, 
+from the adversarial view, $\sx{1}{0}$ is 1 or 0 with equal
+probability given any value of $\vx{0}{0}$. More precisely, for any
+$\beta_1,\beta_2$ we have:
+\begin{mathpar}
+(\progd(\prog_{\ref{example-otp}}))(\{\sx{1}{0} \mapsto \beta_1 \}|\{ \vx{0}{0} \mapsto \beta_2 \}) = .5
+\end{mathpar}
+Note that this corresponds to \emph{perfect secrecy} as described
+in \cite{barthe2019probabilistic}.
+
+\paragraph{Example \ref{example-lambda-obliv}(a) revisited} As demonstrated
+by Example \ref{example-lambda-obliv} taken from \cite{darais2019language}, it is possible
+to leak information probabilistically through observable dependencies
+in views.
+%In the basic distribution for Example \ref{example-lambda-obliv}(a)
+%illustrated in Figure \ref{fig-basic-distributions},
+We can see that
+the adversarial views $\vx{0}{0}$ and $\vx{0}{1}$ are both 1 in
+three different runs of the protocol, and in 2 out of 3 the
+honest secret $\sx{1}{0}$ is 1. More precisely:
+$$
+(\progd(\prog_{\ref{example-lambda-obliv}(a)}))(\{\sx{1}{0} \mapsto 1 \}|\{ \vx{0}{0} \mapsto 1, \vx{0}{1} \mapsto 1 \}) = 2/3
+$$
+An important point illustrated by this example is that the
+probability of values in views, and not just the values themselves,
+can release information to the adversary.
+
+\paragraph{Example \ref{example-he} revisited} This standard example
+of an MPC secure protocol illustrates how a functionality- in this
+case addition (in the binary field)- can be implemented securely. As
+mentioned previously, it is \emph{not} the case that \emph{no}
+information about input secrets can be revealed to the adversary in
+the MPC threat model, since the result of the functionality can itself
+reveal information. For example, if the result of addition is $0$,
+the adversary knows that two of the clients' secrets must be 0
+and the third's must be 1, though not whose is whose- so we can
+observe:
+\begin{mathpar}
+  (\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0, \sx{2}{1} \mapsto 1, \sx{3}{1} \mapsto 0 \}|\{ \vx{0}{output} \mapsto 0 \}) = .33
+\end{mathpar}
+Further, since the standard MPC threat model allows participating
+clients to be corrupted we can formally consider the impacts on
+information released to the adversary by conditioning the program
+distribution on corrupt secrets.  So if we assume client 2
+with input secret 1 is corrupted, and we assume the output is 0, then
+the adversary knows with certainty that clients 1 and 3 both have input
+secrets 0. We can express this as:
+$$
+\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0, \sx{3}{1} \mapsto 0 \}|\{ \sx{2}{1} \mapsto 1, \vx{0}{output} \mapsto 0 \})
+= 1
+$$ A critical point to note is that this information revealed to the
+adversary does not violate MPC security- under the assumption of
+public release of the functionality result, and under the assumption
+of the possible corruption of clients, this is the cost of doing
+business. Rather, the concern is that the protocol does not release
+any additional information through information communicated to views
+of corrupted parties. Additive secret sharing as realized in
+$\prog_{\ref{example-he}}$ is MPC secure in this sense- so for
+example, for any $\beta_1$ and $\beta_2$ we have:
+$$
+\begin{array}{c}
+\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0 \}|\{ \sx{2}{1} \mapsto 0, \vx{0}{output} \mapsto 0 \})
+= \\
+\progd(\prog_{\ref{example-he}}))(\{\sx{1}{1} \mapsto 0 \}|\{ \vx{2}{s1} \mapsto \beta_1, \vx{2}{s3} \mapsto \beta_2, \sx{2}{1} \mapsto 0, \vx{0}{output} \mapsto 0 \})
+= \\
+.5
+\end{array}
+$$
