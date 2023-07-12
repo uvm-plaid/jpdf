@@ -362,9 +362,9 @@ then we have as postconditions where $\iov(\prog_1) = S \cup V'$:
 
 \begin{restatable}[YGC Encode Invariant]{lemma}{ygcencode}
   \label{lemma-ygc-encode}
-Given well-typed $\prog_1;E[\mathit{encode}(s_1,s_2)]$ and certified $\mathit{encode}$ where 
+Given well-typed $\prog_1;E[\mathit{encode}("s_1","s_2")]$ and certified $\mathit{encode}$ where 
 $$
-\config{\prog_1}{E[\ttt{encode}(s_1,s_2)]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{wv1=}v_1\ttt{;wv2=}v_2\ttt{\}}]}
+\config{\prog_1}{E[\ttt{encode}("s_1","s_2")]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{wv1=}v_1\ttt{;wv2=}v_2\ttt{\}}]}
 $$
 If the following preconditions hold where $\iov(\prog_1) = S \cup V$:
 \begin{enumerate}
