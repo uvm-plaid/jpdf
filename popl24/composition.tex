@@ -240,10 +240,10 @@ is the gate with which $v$ has \emph{\bf g}arbled \emph{\bf o}utput
   We write $\gc{\prog}{\{ \ttt{k = }\be_{k}; \ttt{p = }\be_{p} \}}{\ttt{"g"}}$ iff one of the
   following hold:
   \begin{enumerate}[\hspace{2mm}i.]
-  \item $\vc{\progtt(\prog,\be_k)}{\itv}{\ttt{"flip[2,gate:g.k]"}}\ \, \text{and} \ \,
-    \vc{\progtt(\prog,\be_p)}{\itv}{\ttt{"flip[2,gate:g.p]"}}$
-  \item $\vc{\progtt(\prog,\enot\ \be_k)}{\itv}{\ttt{"flip[2,gate:g.k]"}}\ \, \text{and} \ \,
-    \vc{\progtt(\prog,\enot\ \be_p)}{\itv}{\ttt{"flip[2,gate:g.p]"}}$
+  \item $\vc{\progtt(\prog,\be_k)}{\itv}{\ttt{flip[2,"gate:g.k"]}}\ \, \text{and} \ \,
+    \vc{\progtt(\prog,\be_p)}{\itv}{\ttt{flip[2,"gate:g.p"]}}$
+  \item $\vc{\progtt(\prog,\enot\ \be_k)}{\itv}{\ttt{flip[2,"gate:g.k"]}}\ \, \text{and} \ \,
+    \vc{\progtt(\prog,\enot\ \be_p)}{\itv}{\ttt{flip[2,"gate:g.p"]}}$
   \end{enumerate}
 \end{definition}
 Thus, if a value is in correlation with a wire label, it is either
@@ -362,10 +362,10 @@ then we have as postconditions where $\iov(\prog_1) = S \cup V'$:
 
 \begin{restatable}[YGC Encode Invariant]{lemma}{ygcencode}
   \label{lemma-ygc-encode}
-Given well-typed $\prog_1;E[\mathit{encode}("s_1","s_2")]$ and certified $\mathit{encode}$ where 
-$$
-\config{\prog_1}{E[\ttt{encode}("s_1","s_2")]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{wv1=}v_1\ttt{;wv2=}v_2\ttt{\}}]}
-$$
+Given well-typed $\prog_1;E[\mathit{encode}(s1,s_2)]$ and certified $\mathit{encode}$ where 
+%$$
+%\config{\prog_1}{E[\mathit{encode}(s_1,s_2)]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{wv1=}v_1\ttt{;wv2=}v_2\ttt{\}}]}
+%$$
 If the following preconditions hold where $\iov(\prog_1) = S \cup V$:
 \begin{enumerate}
 \item $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$
