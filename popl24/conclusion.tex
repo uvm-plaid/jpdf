@@ -1,0 +1,33 @@
+\section{Conclusion and Future Work}
+\label{section-conclusion}
+
+We have developed a new probabilistic programming language called
+$\minifed$ for defining synchronous distributed MPC protocols, and a new
+metaprogramming language $\metaprot$ that is able to express logical
+protocol components such as circuit gates and that dynamically
+generates $\minifed$ protocols. We have developed \emph{program
+distributions}, a formalism for expressing dependencies between
+secrets and views in protocols and precisely quantifying allowable
+information leakage in terms of protocol outputs. 
+A hyperproperty called $\NIMO$, predicated on program distributions,
+was shown to guarantee MPC passive security. 
+
+In the $\metaprot$-to-$\minicat$ model we've developed an automated
+technique, aka \emph{certification} method, for automatically
+verifying MPC security properties such as $\NIMO$ and other supporting
+properties of protocol components.  While certification has high
+complexity, a compositional approach allows certification of program
+components in isolation.  This enables a semi-automated method for
+large circuits where we (1) define certification for components, (2)
+certify components, (3) prove $\NIMO$ based on the certifiedness of
+components. We developed novel methods partially based on separation
+to enable (3), and we've illustrated our approach by certifying GMW
+and Yao's Garbled Circuit libraries in a manner that guarantees
+security in arbitrarily large circuits. Certification tests can also
+be re-used to validate circuit extensions.
+
+We believe this line of research is promising for future work,
+including extensions to malicious security, and to larger fields and
+arithmetic circuits. HPC optimizations of program distribution
+calculations, to support analysis of larger circuit components, is
+another interesting direction for future work.
