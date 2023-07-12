@@ -48,8 +48,8 @@ denote the basic distribution of a program as $\progtt(\prog)$.
 Any marginalization or conditioning of $\progtt(\prog)$ can be easily
 obtained algorithmically, in particular $\progd(\prog) =
 \margd{\progtt(\prog)}{\iov(\prog)}$.  As already discussed in Section
-\ref{section-hyperprop} and as we will discuss more below, extensional
-and intensional security properties are predicated on marginalizations
+\ref{section-hyperprop} and as we will discuss more below,
+crucial properties are predicated on marginalizations
 and conditionings of basic distributions. So calculating
 $\runs(\prog)$ establishes the foundation for our analysis.
 
@@ -207,7 +207,7 @@ the sake of clarity we make the following definition:
 \end{definition}
 
 Given computation of $\prog(\prog)$ for programs $\prog$, we can
-immediately observe that the extensional hyperproperties discussed in
+immediately observe that the security hyperproperties discussed in
 Section \ref{section-hyperprop} are certifiable.
 \begin{lemma}
   Both $\pni$ (Definition \ref{definition-PNI}) and $\NIMO$ (Definition \ref{definition-NIMO}) are certifiable. 
@@ -251,7 +251,7 @@ has not been previously demonstrated.
   \ref{lemma-pni} and \ref{lemma-nimo}.
 \end{proof}
 
-\subsection{Certification of Composable Intensional Properties}
+\subsection{Certification of Composable Properties}
 \label{section-automation-intensional}
 
 While the brute force method is feasible for smaller programs,
@@ -268,8 +268,8 @@ operate on encodings of input secrets.
 
 Our solution is to design gate certifications that demonstrably
 guarantee security for circuits built from them. Intuitively, we can
-consider any gate as a mini-program and certify intensional properties
-of its isolated program distribution. These intensional properties are
+consider any gate as a mini-program and certify properties
+of its isolated program distribution. These component properties are
 guaranteed secure in circuit compositions, as we demonstrate using
 methods based on probabilistic separation logic
 \ref{barthe2019probabilistic}. While this last step is manual, our
@@ -278,7 +278,7 @@ new gate implementations, and verification applies to a circuit of any
 size. In Section \ref{section-composition} we will demonstrate our
 approach using YGC and GMW as examples.
 
-When we consider intensional properties
+When we consider properties
 of gates in isolation, we will explicitly consider flip conditions in
 distributions. Thus we will be directly concerned with basic distributions,
 which we denote $\progtt(\prog)$, and we will often focus on views
