@@ -170,9 +170,9 @@ the variables used during encoding are guaranteed to be distinct from
 the rest of the program.
 \begin{restatable}[GMW Encode Invariant]{lemma}{gmwencode}
   \label{lemma-gmw-encode}
-  Given well-typed $\prog_1;E[\mathit{encode}\ttt{("s1","s2")}]$ for certified $\mathit{encode}$, let:
+  Given well-typed $\prog_1;E[\mathit{encode}(s_1,s_2)]$ for certified $\mathit{encode}$, let:
   $$
-  \config{\prog_1}{E[\mathit{encode}(\ttt{"s1"},\ttt{"s2"})]} \redxs
+  \config{\prog_1}{E[\mathit{encode}(s_1,s_2)]} \redxs
   \config{\prog_1;\prog_2}{E[v]}
   $$
   If we have the following preconditions, where $\iov(\prog_1) = S' \cup V$:
@@ -362,7 +362,7 @@ then we have as postconditions where $\iov(\prog_1) = S \cup V'$:
 
 \begin{restatable}[YGC Encode Invariant]{lemma}{ygcencode}
   \label{lemma-ygc-encode}
-Given well-typed $\prog_1;E[\mathit{encode}(s1,s_2)]$ and certified $\mathit{encode}$ where 
+Given well-typed $\prog_1;E[\mathit{encode}(s_1,s_2)]$ and certified $\mathit{encode}$ where 
 %$$
 %\config{\prog_1}{E[\mathit{encode}(s_1,s_2)]} \redxs \config{\prog_1;\prog_2}{E[\ttt{\{wv1=}v_1\ttt{;wv2=}v_2\ttt{\}}]}
 %$$
@@ -379,7 +379,7 @@ then we have as postconditions where $\iov(\prog_1) = S' \cup V'$:
 \end{enumerate}
 \end{restatable}
 
-Given the above, we can now establish that any circuit built with
+Given the above, we can establish that any circuit built with
 certified components is passive secure.  Note that we assume a normal
 form of programs where the last instruction is a decoding and public
 reveal of the output, and we require that no gate is wired more than once.
