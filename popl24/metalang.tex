@@ -254,23 +254,11 @@ program (Definition \ref{definition-safety}).
   $\prog$ is safe with $\iov(\prog) = S \cup V$ for some $S$.
 \end{theorem}
 
-\subsection{Example: GMW}
+\subsection{Example: 2-Party GMW}
 \label{section-metalang-gmw}
 
 \input{gmw}
 
-\begin{fpfig}[t]{GMW library type annotations.}{fig-gmw-types}
-{\footnotesize
-  \begin{verbatimtab}
-   encodegmw   : string(gid) * string(gid)
-    
-   andtablegmw : { k = bool[i]; p = bool[i] }
-    
-   andgmw      : string(gid) *  { c1 = bool[1]; c2 = bool[2] } * { c1 = bool[1]; c2 = bool[2] }
-    
-   decodegmw   : { c1 = bool[1]; c2 = bool[2] }  \end{verbatimtab}
-}
-\end{fpfig}
 
 
 The GMW protocol uses secret sharing to represent data flowing through
@@ -287,7 +275,7 @@ where $v_1$ and $v_2$ are client 1 and 2's shares respectively.
 For full details of the GMW protocol the reader is referred to
 \cite{evans2018pragmatic}. Our implementation libary is shown in
 Figure \ref{fig-gmw}, with type signatures for the library functions
-shown in Figure \ref{fig-gmw-types}. We show the And gate since it is
+also shown. We present the And gate since it is
 an interesting component. The Figure includes the
 following top-level functions:
 \begin{itemize}
@@ -298,7 +286,8 @@ following top-level functions:
   identifier $\ttt{"g"}$ being used to distinguish randomness used
   within.  In our version client 1 builds the output table (using
   \ttt{andtablegmw})and transfers the correct output share to client 2
-  using 1-out-of-4 OT as per standard GMW protocol.
+  using 1-out-of-4 OT ($\ttt{OT4}$), definable using $\ttt{OT}$, as
+  per standard GMW protocol.
 \item \ttt{decode}: This function decodes and publishes a wire value
   by $\ttt{xor}$ing the shares. Note that this requires both client 1
   and 2 to publicize their shares.
@@ -325,10 +314,10 @@ $\ttt{s2}$ from client's 1 and 2 respectively.
   encodeygc(sa, sb) {
     let owl1 = owl(sa) in
     let owl2 = owl(sb) in
-    v[1,"gate:" || sa || "1.k"] := OT(s[1,sa],owl1.k,(not owl1.k));
-    v[1,"gate:" || sa || "1.p"] := OT(s[1,sa],owl1.p,(not owl1.p));
-    v[1,"gate:" || sb || "2.k"] := select(s[2,sb],owl2.k,(not owl2.k));
-    v[1,"gate:" || sb || "2.p"] := select(s[2,sb],owl2.p,(not owl2.p));
+    v[1,gate: || sa || 1.k] := OT(s[1,sa],owl1.k,(not owl1.k));
+    v[1,gate: || sa || 1.p] := OT(s[1,sa],owl1.p,(not owl1.p));
+    v[1,gate: || sb || 2.k] := select(s[2,sb],owl2.k,(not owl2.k));
+    v[1,gate: || sb || 2.p] := select(s[2,sb],owl2.p,(not owl2.p));
     { wv1 = { k = v[1,"gate:" || sa || "1.k"]; p = v[1,"gate:" || sa || "1.p"] };
       wv2 = { k = v[1,"gate:" || sb || "2.k"]; p = v[1,"gate:" || sb || "2.p"] } }
   }
@@ -377,7 +366,7 @@ shown in Figure \ref{fig-ygc-lib} includes:
   $\ttt{ga}$ and $\ttt{gb}$. The garbler generates keys and garbles
   the rows in YGC fashion, them with client $1$ in
   views in a standard form. For example, the view for
-  a hypothetical gate 6, row 2 garbled truth table is $\ttt{v[1,"gate:6tt2"]}$.
+  a hypothetical gate 6, row 2 garbled truth table is $\ttt{v[1,gate:6tt2]}$.
   We note that garbled gates of other binary operators can be obtained with
   replacement of $\ttt{andtable}$ with appropriate garbled table definitions. 
 \item \ttt{evalgate}: This defines a subprotocol for the evaluator to
