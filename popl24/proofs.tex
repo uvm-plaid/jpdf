@@ -142,7 +142,8 @@ By straightforward structural induction on $\be$.
   We observe:
   \begin{eqnarray*}
     &\prog_2 = \\
-    &{\small \prog[\be^1_{k}/\ttt{flip[2,"gate:a.k"]}][\be^1_{p}/\ttt{flip[2,"gate:a.p"]}][\be^2_{k}/\ttt{flip[2,"gate:b.k"]}][\be^1_{p}/\ttt{flip[2,"gate:b.p"]}]}
+    &\begin{array}{l}\prog[\be^1_{k}/\ttt{flip[2,"gate:a.k"]}][\be^1_{p}/\ttt{flip[2,"gate:a.p"]}]\\
+       \phantom{\prog}[\be^2_{k}/\ttt{flip[2,"gate:b.k"]}][\be^1_{p}/\ttt{flip[2,"gate:b.p"]}]\end{array}
   \end{eqnarray*}
   Given that $g_1$ and $g_2$ are distinct and not wired in $\prog_1$
   we are assured that $\ttt{owl}(g_1)$ and $\ttt{owl}(g_1)$ are in
