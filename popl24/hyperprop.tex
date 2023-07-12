@@ -1,19 +1,18 @@
 \section{Hyperproperties of MPC Passive Security}
 \label{section-hyperprop}
 
-As discussed in Section \ref{section-related-work} previous
-authors have noted connections between the traditional formulation of
-the MPC security model- aka the simulator security model- and
+As discussed in Section \ref{section-related-work} previous authors
+have noted connections between the traditional formulation of the MPC
+security model- aka the simulator security model- and
 hyperproperty-style formulations of program trace behavior
 \cite{8429300,wysstar} including probabilistic noninterference. In
-this Section we show for to formulate extensional properties relevant
-to MPC passive security in our language model by direct appeal to
-program distributions. In particular, \emph{noninterference modulo
-output ($\NIMO$)} is shown to be sound for MPC passive security. In
-Section \ref{section-automation} we will show how $\NIMO$ can be
-automatically enforced directly via whole-program analysis, or by
-automatically verifying composable, intensional properties of circuit
-components.
+this Section we show how to formulate security properties in our
+language model by direct appeal to program distributions. In
+particular, \emph{noninterference modulo output ($\NIMO$)} is shown to
+be sound for MPC passive security. In Section \ref{section-automation}
+we will show how $\NIMO$ can be automatically enforced directly via
+whole-program analysis, or by automatically verifying composable
+properties of circuit components.
 
 \subsection{Passive Security and the Real/Ideal Model}
 \label{section-hyperprop-passive}
