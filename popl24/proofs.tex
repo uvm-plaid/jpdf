@@ -142,7 +142,7 @@ By straightforward structural induction on $\be$.
   We observe:
   \begin{eqnarray*}
     &\prog_2 = \\
-    &{\small \prog[\be^1_{k}/\ttt{flip[2,gate:a.k]}][\be^1_{p}/\ttt{flip[2,gate:a.p]}][\be^2_{k}/\ttt{flip[2,gate:b.k]}][\be^1_{p}/\ttt{flip[2,gate:b.p]}]}
+    &{\small \prog[\be^1_{k}/\ttt{flip[2,"gate:a.k"]}][\be^1_{p}/\ttt{flip[2,"gate:a.p"]}][\be^2_{k}/\ttt{flip[2,"gate:b.k"]}][\be^1_{p}/\ttt{flip[2,"gate:b.p"]}]}
   \end{eqnarray*}
   Given that $g_1$ and $g_2$ are distinct and not wired in $\prog_1$
   we are assured that $\ttt{owl}(g_1)$ and $\ttt{owl}(g_1)$ are in
@@ -205,7 +205,7 @@ By straightforward structural induction on $\be$.
   We observe:
   \begin{eqnarray*}
     & \prog_2 = \\ 
-    & \prog[\be_k/\ttt{\{flip[2,gate:c.k]}][\be_p/\ttt{flip[2,gate:c.p]}]
+    & \prog[\be_k/\ttt{\{flip[2,"gate:c.k"]}][\be_p/\ttt{flip[2,"gate:c.p"]}]
   \end{eqnarray*}
   so also by  Definition \ref{definition-ygdecode-certification} and
   Lemma \ref{lemma-substitution} we have:
@@ -228,3 +228,4 @@ By straightforward structural induction on $\be$.
   = \condd{\progd(\prog')}{S_{\{2\}}}{\store_{\{\outv\}}}$$
   establishing the result by Lemma \ref{lemma-nimo} and Definition \ref{definition-NIMO}.
 \end{proof}
+
