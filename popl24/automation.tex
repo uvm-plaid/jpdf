@@ -28,7 +28,7 @@
 
 Our first step in automating security analysis is to show how to
 compute the basic program distribution. Recall that basic
-distributions are based on the memories resulting from execution of an
+distributions are based on the memories resulting from the execution of an
 $\minicat$ program, which contain a record of all client views and the
 public output.  Given $\prog$ we denote this as $\runs(\prog)$, and we
 denote the basic distribution of a program as $\progtt(\prog)$.
@@ -185,7 +185,7 @@ computation of $\runs$ is amenable to optimizations, especially
 parallelization- rather than computing the truth table
 ``horizontally'', it can be computed ``vertically''. We can rewrite
 $\minifed$ programs $\prog$ to stratified Datalog programs, where
-$\runs(\prog)$ is equivalent to set of least Herbrand models obtained
+$\runs(\prog)$ is equivalent to the set of least Herbrand models obtained
 by representing different random tapes and input secrets as different
 fact bases. Details of this rewrite are provided in Appendix
 \ref{section-bruteforce}. The model for each fact base can be computed
@@ -198,7 +198,7 @@ matrix optimizations developed in recent work on HPC for Datalog
 
 We will use \emph{certification} to refer to algorithmic methods of
 verifying properties of $\minifed$ protocols, vs.~manual methods. For
-the sake of clarity we make the following definition:
+the sake of clarity, we make the following definition:
 \begin{definition}
   A predicate $\phi$ on $\minifed$ protocols is \emph{certifiable} iff
   there exists an algorithm $A$ such that $A(\prog)$ iff $\phi(\prog)$,
