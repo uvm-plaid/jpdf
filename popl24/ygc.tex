@@ -23,13 +23,13 @@
   
   sharetable(gid, tid, table)
   {   
-    v[1, gate: || gid || tid || "1"] := table.v1;
-    v[1, gate: || gid || tid || "2"] := table.v2;
-    v[1, gate: || gid || tid || "3"] := table.v3;
-    v[1, gate: || gid || tid || "4"] := table.v4
+    v[1, "gate:" || gid || tid || "1"] := table.v1;
+    v[1, "gate:" || gid || tid || "2"] := table.v2;
+    v[1, "gate:" || gid || tid || "3"] := table.v3;
+    v[1, "gate:" || gid || tid || "4"] := table.v4
   }
 
-  owl(gid) {  { k = flip[2,gate: || gid || .k]; p = flip[2,gate: || gid || .p] }  }
+  owl(gid) {  { k = flip[2,"gate:" || gid || ".k"]; p = flip[2,"gate:" || gid || ".p"] }  }
 \end{verbatimtab}
 }
 \end{fpfig}
@@ -51,7 +51,7 @@
   evalgate(gid, wva, wvb)  
   {
     let k = keygen(gid,wva.k,wvb.k) in
-    let g = gate: || gid in
+    let g = "gate:" || gid in
     let ct = select4(wva.p,wvb.p,
                v[1,g || "tt1"],v[1,g || "tt2"],v[1,g || "tt3"],v[1,g || "tt4"]) in
     let cp = select4(wva.p,wvb.p,
@@ -73,12 +73,12 @@
   {
     let owl1 = owl(sa) in
     let owl2 = owl(sb) in
-    v[1,gate: || sa || 1.k] := OT(s[1,sa],owl1.k,(not owl1.k));
-    v[1,gate: || sa || 1.p] := OT(s[1,sa],owl1.p,(not owl1.p));
-    v[1,gate: || sb || 2.k] := select(s[2,sb],owl2.k,(not owl2.k));
-    v[1,gate: || sb || 2.p] := select(s[2,sb],owl2.p,(not owl2.p));
-    { wv1 = { k = v[1,gate: || sa || 1.k]; p = v[1,gate: || sa || 1.p] };
-      wv2 = { k = v[1,gate: || sb || 2.k]; p = v[1,gate: || sb || 2.p] } }
+    v[1,"gate:" || sa || "1.k"] := OT(s[1,sa],owl1.k,(not owl1.k));
+    v[1,"gate:" || sa || "1.p"] := OT(s[1,sa],owl1.p,(not owl1.p));
+    v[1,"gate:" || sb || "2.k"] := select(s[2,sb],owl2.k,(not owl2.k));
+    v[1,"gate:" || sb || "2.p"] := select(s[2,sb],owl2.p,(not owl2.p));
+    { wv1 = { k = v[1,"gate:" || sa || "1.k"]; p = v[1,"gate:" || sa || "1.p"] };
+      wv2 = { k = v[1,"gate:" || sb || "2.k"]; p = v[1,"gate:" || sb || "2.p"] } }
   }
 \end{verbatimtab}
 }
@@ -146,3 +146,4 @@ the order:
 $$
 \neg\beta_1\neg\beta_2,\ \neg\beta_1\beta_2,\ \beta_1\neg\beta_2,\ \beta_1\beta_2
 $$
+
