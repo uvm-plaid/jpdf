@@ -1,0 +1,359 @@
+\section{Automating Security Verification}
+\label{section-automation}
+
+%We first explore a brute force approach to automatically verifying
+%program behaviour, the first step of which is to compute the basic
+%distribution of a program $\prog$. The program distribution
+%$\progd(\prog)$ can obviously be automatically derived from that, as
+%can be any of its marginal or conditional distributions. In this
+%Section, we consider two automated mechanisms for deriving
+%$\progd(\prog)$ in this way. The first is through a straightforward
+%computation of all final program memories.  The second approach
+%rewrites $\minifed$ programs to stratified Datalog programs, that are
+%amenable HPC optimizations such as parallelization and GPU matrix
+%computations as shown in recent work
+%\cite{sakama2017linear,aspis2018linear,nguyen2022enhancing,nguyen2021efficient}.
+
+%Here we describe a straightforward technique for obtaining program
+%distributions $\progd(\prog)$ through direct computation of
+%$\runs(\prog)$. Although we could obtain $\runs(\prog)$ simply by
+%executing $\prog$ given all random tapes and input secrets, the method
+%we describe here is empirically more efficient (though still
+%exponential in the length of the random tape), and also supports the
+%translation to Datalog described in Section
+%\ref{section-bruteforce-datalog}. An implementation of these
+%techniques along with Examples from Sections
+%\ref{section-minicat-examples} and \ref{section-metalang-ygc} is
+%available online\footnote{URL redacted for double-blind review.}.
+
+Our first step in automating security analysis is to show how to
+compute the basic program distribution. Recall that basic
+distributions are based on the memories resulting from the execution of an
+$\minicat$ program, which contain a record of all client views and the
+public output.  Given $\prog$ we denote this as $\runs(\prog)$, and we
+denote the basic distribution of a program as $\progtt(\prog)$.
+\begin{definition}
+  Given $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$:
+  $$
+  \runs(\prog) \defeq \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \redxs \config{\store}{\varnothing} \}
+  $$
+  We write $\progtt(\prog)$ to denote the \emph{basic distribution} of
+  $\prog$, where given $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$
+  we have for all $\store \in \mems(S \cup V \cup F)$:
+  $$
+  \progtt(\prog)(\store) =  1 / 2^{|S\cup F|} \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
+  $$
+\end{definition}
+
+Any marginalization or conditioning of $\progtt(\prog)$ can be easily
+obtained algorithmically, in particular $\progd(\prog) =
+\margd{\progtt(\prog)}{\iov(\prog)}$.  As already discussed in Section
+\ref{section-hyperprop} and as we will discuss more below,
+crucial properties are predicated on marginalizations
+and conditionings of basic distributions. So calculating
+$\runs(\prog)$ establishes the foundation for our analysis.
+
+\begin{fpfig}[t]{Truth table visualizations of $\runs(\prog_{\ref{example-otp}})$ (L) and
+    $\runs(\prog_{\ref{example-lambda-obliv}(a)})$ (R).}{fig-basic-distributions}
+{\footnotesize
+  $$
+  \begin{array}{cc}
+    \begin{array}{cccccc}
+      \verb+s[1,0]+ & \verb+f[1,0]+ & \verb+v[2,0]+  & \verb+v[2,1]+ & \verb+v[2,2]+ & \verb+v[0,0]+\\
+      \hline
+      0 & 0 & 0 & 0 & 0 & 0 \\ 
+      0 & 1 & 1 & 1 & 0 & 1 \\ 
+      1 & 0 & 0 & 1 & 1 & 1 \\ 
+      1 & 1 & 1 & 0 & 1 & 0
+    \end{array}
+    & 
+    \begin{array}{ccccc}
+      \verb+s[1,s]+ & \verb+f[1,sx]+ & \verb+f[1,sy]+ & \verb+v[0,0]+ & \verb+v[0,1]+ \\
+      \hline
+      0 & 0 & 0 & 0 & 0 \\ 
+      0 & 0 & 1 & 1 & 0 \\ 
+      0 & 1 & 0 & 0 & 1 \\ 
+      0 & 1 & 1 & 1 & 1 \\
+      1 & 0 & 0 & 0 & 0 \\ 
+      1 & 0 & 1 & 0 & 0 \\ 
+      1 & 1 & 0 & 1 & 1 \\ 
+      1 & 1 & 1 & 1 & 1  
+    \end{array}
+  \end{array}
+  $$
+}
+\end{fpfig}
+
+Intuitively, we can represent $\runs(\prog)$ in tabular form, as
+illustrated in Figure \ref{fig-basic-distributions} for Examples
+\ref{example-otp} and \ref{example-lambda-obliv}(a). So a basic
+strategy is to directly compute this truth table for any given
+program. We first describe an approach where we compute
+$\runs(\instr_1,\ldots,\instr_n)$ iteratively for the subprograms
+$\instr_1,\ldots,\instr_i$ for $1 \le i \le n$, by individually
+computing the truth table of expressions $\be_i$ for each $\instr_i =
+(\eassign{v_i}{\be_i})$, and joining this with
+$\runs(\instr_1,\ldots,\instr_{i-1})$.
+
+In Figure \ref{fig-solve} we define the algorithm
+$\solve{\stores}{\be}$ which filters a given $\stores$ to obtain the
+subset whose elements satisfy $\be$ (make it true). It's correctness
+is characterized as follows.
+\begin{lemma}
+  \label{lemma-solves}
+  For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
+  $(\solve{\stores}{\be}) = \{ \store \in \stores \ \mid\ \lcod{\store,\be}{\cid} = 1 \}$
+  for some $\cid$.
+\end{lemma}
+\begin{proof}
+  Since we assume safety of programs we can assume that all variables in $\be$ have the
+  same owner $\cid$. The result otherwise follows in a straightforward manner by induction
+  on $\be$. 
+\end{proof}
+
+\begin{fpfig}[t]{Filtering memories that satisfy a boolean expression.}{fig-solve}
+{\small
+\begin{eqnarray*}
+\solve{\stores}{\etrue} &=& \stores\\
+\solve{\stores}{\efalse} &=& \varnothing\\
+\solve{\stores}{\flip{\cid}{w}} &=& \{ \store \in \stores \mid \store(\flip{\cid}{w}) \} \\
+\solve{\stores}{\secret{\cid}{w}} &=& \{ \store \in \stores \mid \store(\secret{\cid}{w}) \} \\
+\solve{\stores}{\view{\cid}{w}} &=& \{ \store \in \stores \mid \store(\view{\cid}{w}) \} \\
+\solve{\stores}{\oracle{w}} &=& \{ \store \in \stores \mid \store(\oracle{w}) \} \\
+\solve{\stores}{(\enot\ \be)} &=& \stores - (\solve{\stores}{\be})\\
+\solve{\stores}{(\be_1\ \eand\ \be_2)} &=& (\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2}) \\
+\solve{\stores}{(\be_1\ \eor\ \be_2)} &=& (\solve{\stores}{\be_1}) \cup (\solve{\stores}{\be_2}) \\
+\solve{\stores}{(\be_1\ \exor\ \be_2)} &=&
+ ((\solve{\stores}{\be_1}) \cap (\stores - \solve{\stores}{\be_2})) \cup\\
+ && ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \\
+\solve{\stores}{\select{\be_1}{\be_2}{\be_3}} &=&
+ ((\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \cup \\
+ && ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_3})) \\
+\solve{\stores}{\OT{\be_1}{\be_2}{\be_3}} &=&
+ ((\solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_2})) \cup\\
+ && ((\stores - \solve{\stores}{\be_1}) \cap (\solve{\stores}{\be_3}))
+\end{eqnarray*}
+}
+\end{fpfig}
+
+To obtain $\runs(\prog)$, we can perform a standard left folding of $\solve{\!}{\!}$
+across $\prog$ as a list of view definitions, inductively extending
+memories with valid view assignments in the order of their definition.
+We denote this computation as $\cruns(\prog)$.
+\begin{lemma}
+  \label{lemma-cruns}
+  Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define:
+  \begin{eqnarray*}
+    {tt}\ \ \stores\ (\eassign{\view{\cid}{w}}{\be}) &\defeq& \begin{array}{l}
+      \mathrm{let}\ \stores' = \solve{\stores}{\be} \ \mathrm{in}\\
+      \ \ \{\extend{\store}{\view{\cid}{w}}{1} \mid \store \in \stores' \}\ \cup\\
+      \ \ \{\extend{\store}{\view{\cid}{w}}{0} \mid \store \in \stores - \stores' \}\end{array}\\[2mm]
+    \cruns(\prog) &\defeq& \mathit{foldl}\ {tt}\ \mems(S \cup F)\ \prog
+  \end{eqnarray*}
+  Then $\cruns(\prog) = \runs(\prog)$.
+\end{lemma}
+\begin{proof}
+  By Lemma \ref{lemma-solves} and induction on the length of $\prog$. 
+\end{proof}
+The above yields an algorithm for computing basic distributions and
+thus program distributions. 
+\begin{lemma}
+  \label{lemma-cprogtt}
+  Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Define
+  $\cprogtt(\prog)$ as the distribution $\pmf$
+  where for all $\store \in \mems(S\cup F \cup V)$:
+  $$
+  \pmf(\store) = 1 / 2^{|S\cup F|} \ \text{if}\ \store \in \cruns(\prog), \text{otherwise}\ 0
+  %\begin{cases}1/2^{|S \cup F|} & \text{if\ } \store \in
+  %  \cruns(\prog) \\ 0 & \text{otherwise} \end{cases} 
+  $$
+  Then $\cprogtt(\prog) = \progtt(\prog)$ and $\margd{\cprogtt(\prog)}{S\cup V} = \progd(\prog)$.
+\end{lemma}
+\begin{proof}
+  Immediately by Lemma \ref{lemma-cruns} and Definition \ref{def-progd}.
+\end{proof}
+A full implementation of these methods is available in our online
+repository \cite{jpdf-github}. To
+avoid notational confusion we will continue to refer to $\progtt$ and
+$\cruns$ in our subsequent discussion of automated verification but
+with the understanding that both can be computed using the above
+algorithms.
+
+Since $|\runs(\prog)|$ grows exponentially in the size of
+$\flips(\prog)$, scalability to larger programs is a concern.  However
+computation of $\runs$ is amenable to optimizations, especially
+parallelization- rather than computing the truth table
+``horizontally'', it can be computed ``vertically''. We can rewrite
+$\minifed$ programs $\prog$ to stratified Datalog programs, where
+$\runs(\prog)$ is equivalent to the set of least Herbrand models obtained
+by representing different random tapes and input secrets as different
+fact bases. Details of this rewrite are provided in Appendix
+\ref{section-bruteforce}. The model for each fact base can be computed
+independently and in parallel, with the potential to apply other
+matrix optimizations developed in recent work on HPC for Datalog
+\cite{sakama2017linear,aspis2018linear,nguyen2022enhancing,nguyen2021efficient}.
+
+\subsection{Certification of Whole-Program Security Properties}
+\label{section-automation-extensional}
+
+We will use \emph{certification} to refer to algorithmic methods of
+verifying properties of $\minifed$ protocols, vs.~manual methods. For
+the sake of clarity, we make the following definition:
+\begin{definition}
+  A predicate $\phi$ on $\minifed$ protocols is \emph{certifiable} iff
+  there exists an algorithm $A$ such that $A(\prog)$ iff $\phi(\prog)$,
+  and a safe protocol $\prog$ is \emph{certified for $\phi$} iff
+  $A(\prog)$ holds.
+\end{definition}
+
+Given computation of $\prog(\prog)$ for programs $\prog$, we can
+immediately observe that the security hyperproperties discussed in
+Section \ref{section-hyperprop} are certifiable.
+\begin{lemma}
+  Both $\pni$ (Definition \ref{definition-PNI}) and $\NIMO$ (Definition \ref{definition-NIMO}) are certifiable. 
+\end{lemma}
+
+\begin{proof}
+  Let $\progd(\prog)$ be computed as described above, and let $\iov(\prog) = S
+  \cup V$. To verify $\pni(\prog)$ for
+  some given $H$ and $C$, we enumerate $\runs(\prog)$ and check:
+  $$
+  \progd(\prog)(\store_{S_H}|\store_{S_C}) =
+  \progd(\prog)(\store_{S_H}|\store_{S_C \cup V_C})
+  $$
+  for all $\store \in \mems(S \cup V)$, and return success $\pni(\prog)$ iff every such
+  check succeeds. The result follows by Lemmas \ref{lemma-cprogtt} and \ref{lemma-pni}.
+  To verify $\nimo(\prog)$, we first enumerate all partitions of clients
+  into set $H$ and $C$ where $0 \in C$, then enumerate $\runs(\prog)$, and
+  then check:
+  $$
+  \progd(\prog)(\store_{S_H}|\store_{S_C \cup \{\outv\}}) =
+  \progd(\prog)(\store_{S_H}|\store_{S_C \cup V_C})
+  $$
+  The result follows by Lemma \ref{lemma-cprogtt} and Lemma \ref{lemma-nimo}.
+\end{proof}
+
+We can thus automatically verify security properties of examples considered
+in previous sections, observing that passive security of $\prog_{\ref{example-OT}}$
+has not been previously demonstrated.
+\begin{lemma}
+  $\prog_{\ref{example-he}}$, $\prog_{\ref{example-gmw-andcircuit}}$,
+  $\prog_{\ref{example-ygc-andcircuit}}$ are all passive secure,
+  $\prog_{\ref{example-OT}}$ is passive secure assuming client 3 is
+  honest, and $\prog_{\ref{example-otp}}$ satisfies probabilistic
+  noninterference and hence perfect secrecy (as defined in
+  \cite{barthe2019probabilistic}).
+\end{lemma}
+\begin{proof}
+  We have certified $\nimo(prog_{\ref{example-he}})$, $\nimo(\prog_{\ref{example-gmw-andcircuit}})$,
+  $\nimo(\prog_{\ref{example-ygc-andcircuit}})$, and $\nimo(prog_{\ref{example-OT}})$ assuming
+  $3 \in H$, and $\pni(\prog_{\ref{example-otp}})$. The result follows by Lemmas
+  \ref{lemma-pni} and \ref{lemma-nimo}.
+\end{proof}
+
+\subsection{Certification of Composable Properties}
+\label{section-automation-intensional}
+
+While the brute force method is feasible for smaller programs,
+including small circuits such as Examples
+$\prog_{\ref{example-gmw-andcircuit}}$ and
+$\prog_{\ref{example-ygc-andcircuit}}$, it is not for larger programs
+such as YGC or GMW circuits since the size of $\runs(\prog)$ is
+exponential in the size of the random tape plus the number of input
+secrets, and circuits can be quite large in practice
+\cite{kreuter2012billion}.  However, the YGC and GMW protocols are
+examples of a common idiom in MPC protocol design- arbitrarily large
+circuits are built up from smaller boolean or arithmetic gates that
+operate on encodings of input secrets.
+
+Our solution is to design gate certifications that demonstrably
+guarantee security for circuits built from them. Intuitively, we can
+consider any gate as a mini-program and certify properties
+of its isolated program distribution. These component properties are
+guaranteed secure in circuit compositions, as we demonstrate using
+methods based on probabilistic separation logic
+\cite{barthe2019probabilistic}. While this last step is manual, our
+gate certifications are defined generally and can be used to certify
+new gate implementations, and verification applies to a circuit of any
+size. In Section \ref{section-composition} we will demonstrate our
+approach using YGC and GMW as examples.
+
+When we consider properties
+of gates in isolation, we will explicitly consider flip conditions in
+distributions. Thus we will be directly concerned with basic distributions,
+which we denote $\progtt(\prog)$, and we will often focus on views
+defined in subprotocols. 
+Notions of probabilistic independence, aka \emph{separation}, as well
+as correlation, are important to certify. We borrow the symbols $*$
+and $\sim$ from \cite{barthe2019probabilistic} with the same
+denotations.
+\begin{definition}
+  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
+  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
+  We write $\sep{\pmf}{X}{Y}$ iff for all
+    $\store \in \mems(X \cup Y)$ we have
+  $\margd{\pmf}{X \cup Y}(\store) =
+  \pmf(\store_X) * \pmf(\store_Y)$
+\end{definition}
+We immediately observe that separation and correlation are certifiable,
+since they are based on marginalization and conditioning of program
+distributions. 
+\begin{lemma}
+  \label{lemma-autosep}
+  Both of the following are true:
+  \begin{enumerate}
+  \item $\sep{\progtt(\prog)}{X}{Y}$ is certifiable for any $X$ and $Y$.
+  \item $\vc{\progtt(\prog)}{x}{y}$ is certifiable for any $x$ and $y$.
+  \end{enumerate}
+\end{lemma}
+
+\subsection{Compositional Metatheory}
+\label{section-automation-logic}
+
+Since we certify properties of gates in isolation with witness inputs,
+our metatheory is concerned with the preservation of important invariants
+when certified components are ``spliced'' into larger program
+contexts. This technique often requires us to focus on views defined
+in subprograms, so we define the following.
+\begin{definition}
+For any program $\prog =
+  (\eassign{v_1}{\be_1};\ldots;\eassign{v_n}{\be_n})$, define
+$\vdefs(\prog) \defeq \{ v_1,\ldots,v_n \}$.
+\end{definition}
+
+An important reasoning principle is related to component
+noninterference- specifically, if we show that gate views enjoy a
+noninterference property wrt their free (input) variables,
+probabilistic independence propagates to other variables in the
+preceding program.
+\begin{restatable}[Noninterference]{lemma}{noninterference}
+  \label{lemma-noninterference}
+  Given $\prog_1;\prog_2$ and $X = \iov(\prog_2) - \vdefs(\prog_2)$ and
+  $Y \subseteq \vdefs(\prog_2)$. If $\sep{\progd(\prog_1;\prog_2)}{X}{Y}$
+  then $\sep{\progd(\prog_1;\prog_2)}{\iov(\prog_1)}{Y}$.
+\end{restatable}
+
+Also, when we certify gates in isolation with witness inputs, we can
+``splice'' these properties into larger program contexts using the
+following substitution Lemmas, showing that the substitution of
+wire inputs for witness inputs preserves both separation and correlation.
+\begin{restatable}[Substitution$*$]{lemma}{substar}
+  \label{lemma-substitution}
+  If $\sep{\progtt(\prog_2)}{\{ f \}}{X}$ and
+  $\prog_1;\prog_2[\be/f]$ is safe with $\vars(\prog_1,\be) \cap
+  X = \varnothing$ then
+  $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vars(\be)}{X}$.
+\end{restatable}
+
+\begin{lemma}[Substitution$\sim$]
+  \label{lemma-substitution-sim}
+  If $\vc{\progtt(\prog_2,\be)}{\itv}{f}$ and $\vc{\progtt(\prog_1,\be')}{\itv}{f'}$
+  and $\vars(\be') \cap (\vars(\be) - \{ f \}) = \varnothing$
+  then $\vc{\progtt(\prog_1;\prog_2,\be[\be'/f'])}{\itv}{f}$.
+\end{lemma}
+
+We note that while the Frame rule of \cite{barthe2019probabilistic}
+supports local reasoning in larger program contexts, it does not
+support this splicing method, and our Lemmas \ref{lemma-substitution}
+and \ref{lemma-substitution-sim} are both novel. Supplementary proofs
+are demonstrated in Appendix \ref{section-proofs}.

@@ -1,0 +1,96 @@
+\section{Rewriting $\minicat$ to Stratified Datalog}
+\label{section-bruteforce}
+
+Here we show how to rewrite any $\prog$ to an equivalent Datalog
+program, which supports application of recent work in linear algebraic
+interpretation of Datalog and optimizations of model computation on
+high performance computers \cite{sakama2017linear}. The method here also enumerates
+$\runs(\prog)$ memory-by-memory, rather than in a ``batched'' manner
+as in our first method, allowing parallelization of model
+computation. The rewriting we describe here is to Datalog with
+negation, with a negation-as-failure model, though we can also
+use techniques in \cite{sakama2017linear} to eliminate negation from
+resulting programs. \emph{Atoms} are $\minifed$ variables, \emph{literals}
+are atoms or negated atoms, and clause bodies are conjunctions of literals.
+A \emph{Datalog program} is a list of clauses.
+$$
+\begin{array}{rclr}
+  \alpha &::=& \view{\cid}{w} \mid  \secret{\cid}{w} \mid \flip{\cid}{w} \mid \oracle{w} & \qquad \textit{(atoms)}\\
+  \mathit{body} &::=&  \alpha \mid \neg \alpha \mid \alpha \wedge \mathit{body} \mid \neg\alpha \wedge \mathit{body} \mid \varnothing \\
+  \mathit{clause} &::=& \alpha \gets \mathit{body}
+\end{array}
+$$
+
+The first step in converting a protocol $\prot$ to a Datalog
+program is to apply $\solve$ ``locally'' to each view definition
+in $\prog$, obtaining constraints on memories that satisfy each
+view in isolation.  
+\begin{lemma} Let $\vars(\be)$ be the variables in $\be$, and define:
+$$
+{vtt}(\eassign{\view{\cid}{w}}{\be}) \defeq (\view{\cid}{w}, (\solve{(\mems(\vars\ \be))}{\be}))
+$$
+Then ${vtt}(\eassign{\view{\cid}{w}}{\be}) = (\view{\cid}{w},\stores)$ where $\stores
+  = \{ \store \in \mems(\vars\ \be) \mid \lcod{\store,\be}{\cid} = 1 \}$ for some $\cid$.
+\end{lemma}
+Given this definition, the mapping of ${vtt}$ across a program
+$\prog$- i.e., $(\mathit{map}\ {vtt}\ \prog)$- essentially defines the
+logic program for ``view atoms'' modulo syntactic conversion. We can
+accomplish the latter as follows, where $\datalog(\prog)$ defines the
+full conversion.
+\begin{definition} We define the conversion from memories to
+  literals and clause bodies as follows:
+\begin{mathpar}
+  \logit{\alpha \mapsto 1} = \alpha
+
+  \logit{\alpha \mapsto 0} = \neg \alpha
+
+  \logit{\{ \alpha_1 \mapsto \beta_1, \ldots, \alpha_n \mapsto \beta_n\}} =
+  \logit{\alpha_1 \mapsto \beta_1} \wedge \cdots \wedge \logit{\alpha_n \mapsto \beta_n}
+\end{mathpar}
+Given pairs $(\alpha,\stores)$ in the range of ${vtt}$, we define the conversion
+to clauses as follows:
+\begin{mathpar}
+  \mathit{clauses}(\alpha,\{ \store_1,...,\store_n \}) = \alpha \gets \logit{\store_1} \vee \cdots \vee \alpha \gets \logit{\store_n}
+\end{mathpar}
+The $\minifed$-to-Datalog conversion is then defined as:
+$$
+\datalog(\prog) \defeq  \mathit{map}\ \mathit{clauses}\ (\mathit{map}\ {vtt}\ \prog)
+$$
+\end{definition}
+
+In addition to converting view definitions to logic clauses, we also need to convert
+secrets and random tapes. Since we assume given values for these in an arbitrary run of
+the program, we can capture these as a ``fact base'' in our program, where
+a fact is a clause of the form $\alpha \gets \varnothing$ and means that $\alpha$
+is true in any model of the program. 
+\begin{definition}
+  Given $\store$, let $\{\alpha_1,\ldots,\alpha_n \} =
+  \{ \alpha \in \dom(\store) \mid \store(\alpha) = 1 \}$.
+  Then define:
+  $$
+  \mathit{facts}(\store) = \alpha_1 \gets \varnothing, \ldots, \alpha_n \gets \varnothing
+  $$
+\end{definition}
+
+For any safe $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$, and
+$\store \in \mems(S \cup F)$, it is the case
+that $(\mathit{facts}(\store),\datalog(\prog))$ is a \emph{normal}, \emph{stratified}
+(in fact, non-recursive) Datalog program, and so has a unique Least Herbrand Model
+and is thus amenable to HPC optimization techniques \cite{aspis2018linear}. 
+To compute $\runs(\prog)$, and thus $\progd(\prog)$, we compute
+the Least Herbrand Model $\store$ of $(\mathit{facts}(\store'),\datalog(\prog))$
+for all $\store' \in \mems(S \cup F)$, observing that model computation for
+each $\store'$ can be done in parallel. The following establishes
+correctness of this approach.
+\begin{lemma}
+  For all $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$,
+  $\datalog(\prog)$ is a \emph{normal}, \emph{stratified}
+  program \cite{aspis2018linear}, and $\store$ is the unique Least Herbrand
+  Model of $(\mathit{facts}(\store_{S \cup F}),\datalog(\prog))$
+  iff $\store \in \runs(\prog)$.
+\end{lemma}
+A full empirical exploration of the application of HPC optimizations
+is beyond the scope of this paper but is a compelling topic for future
+work. The reader is referred to \cite{nguyen2022enhancing} for
+empirical results of HPC optimizations in other logic programming
+contexts.

@@ -1,0 +1,228 @@
+\section{Hyperproperties of MPC Passive Security}
+\label{section-hyperprop}
+
+As discussed in Section \ref{section-related-work} previous authors
+have noted connections between the traditional formulation of the MPC
+security model- aka the simulator security model- and
+hyperproperty-style formulations of program trace behavior
+\cite{8429300,wysstar} including probabilistic noninterference. In
+this Section we show how to formulate security properties in our
+language model by direct appeal to program distributions. In
+particular, \emph{noninterference modulo output ($\NIMO$)} is shown to
+be sound for MPC passive security. In Section \ref{section-automation}
+we will show how $\NIMO$ can be automatically enforced directly via
+whole-program analysis, or by automatically verifying composable
+properties of circuit components.
+
+\subsection{Passive Security and the Real/Ideal Model}
+\label{section-hyperprop-passive}
+Here we briefly summarize the formal definition of MPC security. For a
+more detailed discussion, the reader is referred to \cite{evans2018pragmatic}.
+In this paper, we will consider the \emph{passive} aka
+semi-honest aka honest-but-curious variant. In this threat
+model, protocol participants can be corrupted, but all clients
+follow the rules of the protocol- as opposed to the
+\emph{active} aka malicious variant where participants
+are allowed to break these rules. In the passive model, the
+vulnerability is through information leaked to the adversary
+through the views of corrupted participants. While the passive
+model also assumes that any clients can potentially be
+corrupted, it assumes that no more than half will be-
+i.e., it assumes an \emph{honest majority}. 
+
+The real/ideal model posits a \emph{simulator} that exists in an ideal
+world, whose goal is to reconstruct observable information in a real
+world run of a protocol $\prog$ that correctly implements an ideal
+functionality $\idealf$- that is, execution of a configuration
+$\config{\store}{\prog}$. We will assume that any $\idealf$ is
+deterministic- while MPC generally allows for probabilistic ideal
+functionalities, this restriction captures a large and important class
+of protocols. We will assume that any protocol $\prog$ includes a
+public \emph{output view} $\outv$ where the result is published, where
+$0$ is the ``public'' client and thus $\outv$ is of the form
+$\view{0}{w}$ for some $w$, i.e., is owned by 0.  Note that the
+protocol is \emph{correct} iff the resulting memory contains $\outv
+\mapsto \idealf(\store_S)$, where $S$ are the secret inputs (honest
+and corrupt) in $\prog$. Note that this implies that a correct
+protocol publicizes the same output on the same secret inputs given
+any choice of random tape.
+
+The simulator is given just the corrupt inputs to the run- that is,
+$\store_{S_C}$- and the output of the protocol- that is,
+$\idealf(\store)$- and aims to reconstruct the distribution of
+adversarial views observed in the real world. The intuition here is
+that the simulator is given the information that is necessarily
+available to the adversary by observing a run of the protocol, and if
+the simulator can reconstruct whatever information appears in the real
+world adversarial views, by reconstructing their distributions, then
+those views leak no additional information, i.e., they have no
+additional dependencies on honest input secrets than what is revealed
+by the output and conditionings on corrupt inputs.
+
+The simulator is represented by a probabilistic algorithm $\SIM_C$,
+aka a \emph{simulation}, that is parameterized by corrupt inputs and
+the output of an ideal functionality, and that returns a set of
+adversarial views (as a memory) with some probability. Given
+corrupt inputs $\store$ and ideal functionality output $v$,  
+we write
+$
+\prob(\SIM_C(\store,v) = \store')
+$
+to denote the probability that $\SIM_C(\store,v)$
+returns corrupt views $\store'$ as a result. We can then define the
+probability distribution of corrupt views reconstructed
+by the simulator as follows:
+\begin{definition}
+  Given $C$, $\store$, and $v$, we write $\progd(\SIM_C(\store,v))$ to
+  denote the distribution of corrupt views reconstructed by the
+  simulation, where for
+  all $\store' \in \mems(V)$:
+  $$
+  \progd(\SIM_C(\store,v))(\store')\ \defeq\ \prob(\SIM_C(\store,v) = \store') 
+  $$
+\end{definition}
+
+Then we can define passive security in the real/ideal
+model as follows. 
+\begin{definition}[Passive Security]
+  Assume given a program $\prog$ that correctly implements an ideal
+  functionality $\idealf$, with $\iov(\prog) = (S,V)$.  Then $\prog$
+  is \emph{passive secure in the simulator model} iff for all
+  partitions of the federation into honest and corrupt sets $H$ and $C$
+  with $|C| < |H|$ and for all $\store \in \mems(S)$ there exists a
+  simulation $\SIM_C$ such that:
+  $$
+  \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \condd{\progd(\prog)}{V_C}{\store}
+  $$
+\end{definition}
+
+\subsection{Probabilistic Noninterference ($\pni$)} 
+\label{section-hyperprop-ni}
+Previous work has noted
+relations between probabilistic noninterference and security
+properties such as memory trace obliviousness \cite{darais2019language} and passive
+security \cite{barthe2019probabilistic}. And above (Section \ref{section-pmf-examples}) we
+have demonstrated that our basic encryption scheme enjoys a noninterference
+property. To formulate probabilistic noninterference in
+our setting we begin by defining low equivalence of memories.
+\begin{definition}[Memory Low Equivalence]
+  Given $\store^1$ and $\store^2$ with $\dom(\store^1) = \dom(\store^2) = X$,
+  we write $\store^1 =_C \store^2$ iff $\store^1_{X_C} = \store^2_{X_C}$.
+\end{definition}
+Now, we can define probabilistic noninterference as a property of
+programs ensuring that low-equivalent initial memories produce
+the same low-observable trace (i.e., corrupt views) \emph{with the
+same probability}. 
+\begin{definition}[Probabilistic Noninterference]
+  \label{definition-PNI}
+  Given a program $\prog$ with $\iov(\prog) = (S,V)$, we say that
+  $\prog$ satisfies \emph{probabilistic noninterference}, and we write
+  $\pni(\prog)$, iff for all
+  $\store_1, \store_2 \in \mems(S)$:
+  $$\store_1 =_C \store_2 \implies
+    \condd{\progd(\prog)}{V_C}{\store_1} = \condd{\progd(\prog)}{V_C}{\store_2}$$
+\end{definition}
+
+Despite the intuitive resonance between noninterference and passive
+security, since MPC protocols implement an ideal functionality, they
+cannot generally satisfy noninterference. Noting that the public
+output is always a corrupt view, we can easily demonstrate this by
+using Example \ref{example-gmw-andcircuit} as a failure witness, where
+we'll assume $C = \{0,2\}$ and $H = \{1\}$:
+$$
+(\progd(\prog_{\ref{example-gmw-andcircuit}}))({\outv \mapsto 1}|\{\{\sx{1}{s1} \mapsto 0, \sx{2}{s2} \mapsto 1 \} \})
+= 0
+$$
+whereas:
+$$
+(\progd(\prog_{\ref{example-gmw-andcircuit}}))({\outv \mapsto 1}|\{\{\sx{1}{s1} \mapsto 1, \sx{2}{s2} \mapsto 1 \} \})
+= 1
+$$
+
+Probabilistic noninterference can also be restated to formally capture a
+basic intuition that noninterfering programs do not provide
+the adversary with any clues about honest secrets through corrupt
+views, as in the following Lemma. This is similar to asserting that
+adversarial knowledge is not increased by the execution of a program as in formulations
+of so-called gradual release \cite{4223226}. 
+\begin{lemma}
+  \label{lemma-pni}
+  Given a program $\prog$ with $\iov(\prog) = (S,V)$, 
+  $\prog$ satisfies probabilistic noninterference iff for all
+  $\store \in \mems(S \cup V)$,
+  $\condd{\progd(\prog)}{S_H}{\store_{S_C}} =
+    \condd{\progd(\prog)}{S_H}{\store_{(S\cup V)_C}}$.
+\end{lemma}
+
+\subsection{Noninteference Modulo Output ($\NIMO$)}
+\label{section-nimo}
+The intuition that passive security means that the protocol releases
+no more information than what is released by conditioning on the
+public output and corrupt inputs suggests a
+refinement of noninterference. That is, the set of low equivalent
+initial memories \emph{that can produce the same output} should generate the
+same distributions of adversarial views.
+\begin{definition}[Noninterference Modulo Output]
+  \label{definition-NIMO}
+  We say that a program  $\prog$ satisfies \emph{noninterference modulo output},
+  written $\NIMO(\prog)$, iff for all $H$ and $C$ with $|C|\le|H|$ and 
+  $\store_1,\store_2 \in \mems(S)$ we have:
+  $$
+  (\store_1 =_C \store_2 \ \wedge \ 
+  (\condd{\progd(\prog)}{\{ \outv \}}{\store_1} = \condd{\progd(\prog)}{\{ \outv \}}{\store_2}))
+  \implies 
+  (\condd{\progd(\prog)}{V_C}{\store_1} = \condd{\progd(\prog)}{V_C}{\store_2})
+  $$
+  where $\iov(\prog) = (S,V)$.
+\end{definition}
+
+From an information flow perspective, we can say that a $\NIMO$
+protocol does not release information beyond what is declassified
+via the public output. From a real/ideal perspective, we can
+observe that $\NIMO$ implies that the simulator can use
+the protocol itself to reconstruct the distribution of adversarial
+views. That is, given the output of the ideal functionality
+$\idealf(\store_S)$, the simulator can randomly choose any
+$\store'$ such that $\store' =_C \store$ and $\idealf(\store'_S) =
+\idealf(\store_S)$ and run the protocol with initial memory $\store'$-
+$\NIMO$ guarantees ideal reconstruction of the real-world corrupt views. 
+ However, there is a subtlety here in that the adversary
+must be able to tractably reconstruct this knowledge. This is not
+generally true, in particular, if $\idealf$ is a 1-way
+function. Define:
+\begin{definition}[Ideal Knowledge]
+  Given a functionality $\idealf$ and output value $v$, the associated
+  \emph{ideal knowledge}, denoted $\ik(\idealf,v)$ is
+  $
+  \{ \store\ |\ \idealf(\store) = v \}
+  $.
+  We say that $\idealf$ is \emph{pre-imageable} iff $\ik(\idealf, v)$ for all
+  $v$ can be computed tractably.
+\end{definition}
+Now we can show our main result, that noninterference modulo output,
+together with the assumption that $\idealf$ is pre-imageable, implies
+passive security of a protocol. The proof is provided in Appendix
+\ref{section-proofs}, and follows by essentially the same argument as
+for the analogous property of ``perfect passive NI security'' in
+\cite{8429300}.  
+\begin{restatable}{theorem}{nimosecure}
+  \label{theorem-nimo}
+  Assume given pre-imageable $\idealf$ and a protocol $\prog$ that
+  correctly implements $\idealf$.  If $\NIMO(\prog)$
+  then $\prog$ is passive secure.
+\end{restatable}
+As for noninterference, we can show that $\NIMO$ is equivalent
+to saying that a given program does not change the probability
+of honest secrets conditioned on corrupt secrets and views
+(including the output view), as compared to conditioning on
+just the corrupt secrets and input. In addition to providing
+insights about $\NIMO$, this form is convenient for
+verification techniques. 
+\begin{lemma}
+  \label{lemma-nimo}
+  $\NIMO(\prog)$ iff for all $H$ and $C$ with $|C| \le |H|$ and
+  $\store \in \mems(S \cup V)$:
+  $$\condd{\progd(\prog)}{S_H}{\store_{(S \cup \{\outv\})_C}} =
+  \condd{\progd(\prog)}{S_H}{\store_{(S\cup V)_C}} $$
+  where  $\iov(\prog) = (S,V)$.
+\end{lemma}

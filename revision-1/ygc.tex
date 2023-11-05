@@ -1,0 +1,149 @@
+\begin{fpfig}{Yao's Garbled Circuits, selected auxiliary functions.}{fig-ygc-aux}
+{\footnotesize
+\begin{verbatimtab}
+  keygen(gid, b1, b2) { select4(b1,b2,H[gid || "1"],H[gid || "2"],H[gid || "3"],H[gid || "4"]) }
+  
+  keysgen(gid, b1, b2)
+  {
+    let k11 = keygen(gid,b1,b2) in
+    let k10 = keygen(gid,b1,not b2) in
+    let k01 = keygen(gid,not b1,b2) in
+    let k00 = keygen(gid,not b1,not b2) in
+    {k11 = k11; k10 = k10; k01 = k01; k00 = k00}
+  }
+  
+  andtable(keys, bt, ap, bp)
+  {
+    let r11 = (keys.k11 xor bt) in 
+    let r10 = (keys.k10 xor (not bt)) in
+    let r01 = (keys.k01 xor (not bt)) in
+    let r00 = (keys.k00 xor (not bt)) in
+    permute4(ap,bp,r11,r10,r01,r00)
+  }
+  
+  sharetable(gid, tid, table)
+  {   
+    v[1, "gate:" || gid || tid || "1"] := table.v1;
+    v[1, "gate:" || gid || tid || "2"] := table.v2;
+    v[1, "gate:" || gid || tid || "3"] := table.v3;
+    v[1, "gate:" || gid || tid || "4"] := table.v4
+  }
+
+  owl(gid) {  { k = flip[2,"gate:" || gid || ".k"]; p = flip[2,"gate:" || gid || ".p"] }  }
+\end{verbatimtab}
+}
+\end{fpfig}
+
+\begin{fpfig}{Yao's Garbled Circuits, garbled gates and evaluation code.}{fig-ygc-gates}
+{\footnotesize
+\begin{verbatimtab}
+  garbledecode(gid)    
+  {
+    let wl = owl(gid) in
+    let r1 = wl.k xor true in
+    let r0 = (not wl.k) xor false in
+    v[1,"OUTtt1"] := select(wl.p,r1,r0);
+    v[1,"OUTtt2"] := select(not wl.p,r1,r0)
+  }
+  
+  evaldecode(wv) { wv.k xor select(wv.p,v[1,"OUTtt1"],v[1,"OUTtt2"]) }
+  
+  evalgate(gid, wva, wvb)  
+  {
+    let k = keygen(gid,wva.k,wvb.k) in
+    let g = "gate:" || gid in
+    let ct = select4(wva.p,wvb.p,
+               v[1,g || "tt1"],v[1,g || "tt2"],v[1,g || "tt3"],v[1,g || "tt4"]) in
+    let cp = select4(wva.p,wvb.p,
+               v[1,g || "pt1"],v[1,g || "pt2"],v[1,g || "pt3"],v[1,g || "pt4"]) in
+    { k = k xor ct; p = k xor cp }
+  }
+  
+  andgate(gid, ga, gb) 
+  {
+    let wla = owl(ga) in
+    let wlb = owl(gb) in
+    let wlc = owl(gid) in
+    let keys = keysgen(gid,wla.k,wlb.k) in
+    sharetable(gid,tt,andtable(keys,wlc.k,wla.p,wlb.p));
+    sharetable(gid,pt,andtable(keys,wlc.p,wla.p,wlb.p))
+  }
+
+  encode(sa, sb)
+  {
+    let owl1 = owl(sa) in
+    let owl2 = owl(sb) in
+    v[1,"gate:" || sa || "1.k"] := OT(s[1,sa],owl1.k,(not owl1.k));
+    v[1,"gate:" || sa || "1.p"] := OT(s[1,sa],owl1.p,(not owl1.p));
+    v[1,"gate:" || sb || "2.k"] := select(s[2,sb],owl2.k,(not owl2.k));
+    v[1,"gate:" || sb || "2.p"] := select(s[2,sb],owl2.p,(not owl2.p));
+    { wv1 = { k = v[1,"gate:" || sa || "1.k"]; p = v[1,"gate:" || sa || "1.p"] };
+      wv2 = { k = v[1,"gate:" || sb || "2.k"]; p = v[1,"gate:" || sb || "2.p"] } }
+  }
+\end{verbatimtab}
+}
+\end{fpfig}
+
+\begin{fpfig}{Yao's Garbled Circuits, selected gate library type annotations.}{fig-ygc-types}
+{\footnotesize
+\begin{verbatimtab}
+  garbledecode : string(gid)
+  
+  evaldecode   : { k = bool[1]; p = bool[1] }
+  
+  evalgate     : string(gid) *  { k = bool[1]; p = bool[1] } * { k = bool[1]; p = bool[1] }
+  
+  andgate      : string(gid) * string(ga) * string(gb) 
+
+  encode       : string(sa) * string(sb)
+\end{verbatimtab}
+}
+\end{fpfig}
+%  andtable(keys, bt, ap, bp)
+%  {
+%    let r11 = (keys.k11 xor bt) in 
+%    let r10 = (keys.k10 xor (not bt)) in
+%    let r01 = (keys.k01 xor (not bt)) in
+%    let r00 = (keys.k00 xor (not bt)) in
+%    permute4(ap,bp,r11,r10,r01,r00)
+%  }
+
+  
+%  encode(gid, wla,wlb)
+%  {
+%    let wla = { k = flip[2,fwl1]; p = flip[2,pwl1] } in
+%    let wlb = { k = flip[2,fwl2]; p = flip[2,pwl2] } in
+%    
+%    { wv1 = { k = OT[s[1,0],wla.k,(not wla.k)]; p = OT[s[1,0],wla.p,(not wla.p)]}; 
+%      wv2 = { k = select[s[2,0],wlb.k,(not wlb.k)]; p = select[s[2,0],wlb.p,(not wlb.p)] } }
+%  }
+
+\section{YGC Code in Detail}
+\label{section-ygc}
+
+In Figures \ref{fig-ygc-aux} and \ref{fig-ygc-gates} we define a
+codebase for Yao's garbled circuits (YGC). This definition follows the
+\emph{point-and-permute} method described in \cite{evans2018pragmatic}
+and elsewhere, to which the reader is referred for more in-depth
+discussion.  In this implementation client 2 is the \emph{garbler} and
+client 1 is the \emph{evaluator}. The garbler builds the garbled
+tables and shares them with the evaluator, who then evaluates the gate
+in an oblivious fashion until the final public output is generated
+through decryption. Our certification method leverages this definition
+of compositional units comprising complete related subprotocols--
+i.e., both the garbler's construction of the gates and the evaluator's
+evaluation of them. However, we note that our formal results are applicable
+to the YGC style where the garbler shares the entire circuit prior to
+evaluation. Our implementation is well-typed, with input type annotations
+for top-level functions listed in Figure \ref{fig-ygc-types}.
+
+The pointer bits in wire labels are used to select permuted rows in
+table garblings. The key bits are used to identify a unique key for
+table row in each garbled gate. Intuitively, if $\beta_1$ and
+$\beta_2$ are either key or pointer bits encoding 1 on two input wire
+labels to a binary gate, rows and keys in the gate are enumerated in
+the order:
+$$
+\neg\beta_1\neg\beta_2,\ \neg\beta_1\beta_2,\ \beta_1\neg\beta_2,\ \beta_1\beta_2
+$$
+

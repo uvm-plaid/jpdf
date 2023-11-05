@@ -1,0 +1,233 @@
+\section{Supplementary Proofs}
+\label{section-proofs}
+
+\nimosecure*
+
+\begin{proof}
+  Let $H$ and $C$ be an arbitrary partition of the federation and
+  suppose $\prog$ satisfies noninterference modulo output. Let
+  $\iov(\prog) = (V,S)$ and $\flips(\prog) = F$ with output view $\outv
+  \in V$ and let $\store$ be an arbitrary element of $\mems(S \cup
+  F)$. Then the distribution of adversarial views in the real world
+  is, by definition,
+  $\condd{\progd(\prog)}{V_C}{\store_S}$.
+
+  The simulator is given both $\store_{S_C}$ and
+  $\idealf(\store_S)$.  The simulation $\SIM_C(\store_{S_C},
+  \idealf(\store_S))$ can be defined as follows. First, some $\store'
+  \in \ik(\idealf,\idealf(\store))$ is randomly chosen such that
+  $\store' =_C \store_S$, as is a random tape $\store'' \in
+  \mems(F)$\footnote{The real/ideal model allows consultation of a
+  ``Random Oracle''.}. Then, the run of $(\store' \cup \store'',
+  \prog)$ is evaluated in simulation, yielding $(\store^{\SIM},\varnothing)$.
+  The simulation returns $\store^{\SIM}_{V_C}$ as a result.
+
+  Now, since the random tape is selected in simulation from the same distribution
+  that we assume for the real world, after selection of $\store'$ the
+  probability that any particular $\store^{\SIM}_{V_C}$ is returned is by definition
+  $
+  \progd(\prog)(\store^{\SIM}_{V_C} | \store')
+  $.
+  Furthermore, since we assume that $\prog$ correctly implements $\idealf$, this
+  means
+  $
+  \store_S =_C \store' \wedge
+     \condd{\progd(\prog)}{\{ \outv \}}{\store_S} =
+     \condd{\progd(\prog)}{\{ \outv \}}{\store'}
+  $,
+  so by the definition of noninterference modulo output,
+  any choice of $\store'$ yields the same distribution $\condd{\progd(\prog)}{V_C}{\store_S}$.
+  Therefore by definition
+  $
+   \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \condd{\progd(\prog)}{V_C}{\store_S}
+  $.
+\end{proof}
+
+We observe the following properties of separation which are borrowed from prior work
+\cite{barthe2019probabilistic} and which will be used frequently in proofs. 
+\begin{lemma}
+  \label{lemma-separation}
+  The following properties hold:
+  \begin{enumerate}
+  \item $\sep{\pmf}{Y}{Z}$ iff $\sep{\pmf}{Z}{Y}$
+  \item $\vc{\pmf}{x}{y}$ if  $\vc{\pmf}{y}{x}$
+  \item $\vc{\pmf}{x}{y}$ and $\vc{\pmf}{y}{z}$ imply $\vc{\pmf}{x}{z}$
+  \item $\sep{\pmf}{X}{(Y \cup Z)}$ implies $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{X}{Z})$
+  \item $(\sep{\pmf}{X}{Y}$ and $\sep{\pmf}{(X \cup Y)}{Z})$ implies $\sep{\pmf}{X}{(Y \cup Z)}$ 
+  %\item If $\prog_1;\prog_2$ is safe and $\vars(\prog_1) \cap \vars(\prog_2) = \varnothing$
+  %  then $\sep{\progtt(\prog_1;\prog_2)}{\vars(\prog_1)}{\vars(\prog_2)}$.
+  \end{enumerate}
+\end{lemma}
+The following property also follows by results in \cite{barthe2019probabilistic} and will
+be useful to make constructions that demonstrate variable separation.
+\begin{lemma}
+  \label{lemma-sepjoin}
+  $\sep{\progtt(\prog)}{X}{Y}$ iff for all 
+  $\store^1, \store^2 \in \runs(\prog)$ there exists
+  $\store \in \runs(\prog)$ with
+  $\store^1_{X} \cap \store^2_{Y} \subseteq \store$.
+\end{lemma}
+
+\begin{lemma}
+  \label{lemma-presub}
+  Given $\be_1$, $\be_2$, and $i$ where $\vars(\be_1) \cap
+  \vars(\be_2) = \varnothing$ and $\lcod{\store_1,\be_1}{i} = \beta$
+  with $\store_1(x) = \lcod{\store_2,\be_2}{i}$ and
+  $\dom(\store_1) = \vars(\be_1)$ and $\dom(\store_2) = \vars(\be_2)$.
+  Then $\lcod{\store_1\cap\store_2,\be_1[\be_2/x]}{i} = \beta$.
+\end{lemma}
+\begin{proof}
+By straightforward structural induction on $\be$.
+\end{proof}
+
+\substar*
+
+\begin{proof}
+  Suppose on the contrary it was not the case that
+  $\sep{\progtt(\prog_1;\prog_2[\be/f])}{\vars(\be)}{X}$.
+  Then by Lemma \ref{lemma-sepjoin} there exists $\store_1,\store_2
+  \in \runs(\prog_1;\prog_2[\be/f])$ with no $\store \in
+  \runs(\prog_1;\prog_2[\be/f])$ such that $\store^1_{\vars(\be)}
+  \cap \store^2_X \subseteq \store$.  But also by
+  assumption and Lemma \ref{lemma-sepjoin} for any $\beta$ there
+  exists $\store' \in \runs(\prog_2)$ with $\{ f \mapsto \beta \} \cap
+  \store^2_X \subseteq \store'$. So in particular, we
+  have $\{ f \mapsto \lcod{\store^1_{\vars(\be)},\be}{i} \} \cap
+  \store^2_X \subseteq \store'$ for any $i$. This, the
+  assumption $\vars(\prog_1,\be) \cap \vars(\prog_2) = \varnothing$,
+  and application of Lemma \ref{lemma-presub} leads to the consequence
+  that there exists $\store \in \runs(\prog_1;\prog_2[\be/f])$ with
+  $\store \supseteq \store^1_{\vars(\be)} \cap
+  \store^2_X$ given the assumption $\vars(\prog_1,\be)
+  \cap \vars(\prog_2) = \varnothing$, which is a contradiction.
+\end{proof}
+
+
+\gmwencode*
+
+\begin{proof}
+  By assumptions of well-typedness we have for some $\ttt{"s1"}$ and $\ttt{"s2"}$:
+  $$
+  \begin{array}{rcl}
+    v &=&  \ttt{\{shares1 = }v_1\ttt{; shares2 = }v_2\ttt{\}}\\
+    v_1 &=& \ttt{\{ c1 = v[1,"s1out"]; c2 = v[2,"s1out"] \}}\\
+    v_2 &=& \ttt{\{ c1 = v[1,"s2out"]; c2 = v[2,"s2out"] \}}
+  \end{array}
+  $$
+  And by Definition \ref{definition-gmwencode-certification} we have:
+  \begin{mathpar}
+    \sep{\progtt(\prog)}{\ttt{\{s[1,"s1"]\}}}{\ttt{\{v[2,"s1out"],v[2,"s2out"]\}}}
+    
+    \sep{\progtt(\prog)}{\ttt{\{s[2,"s2"]\}}}{\ttt{\{v[1,"s1out"],v[1,"s2out"]\}}}
+  \end{mathpar}
+  Since we assume that secrets are in uniform and independent marginal
+  distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
+  \varnothing$ by condition (iii) of Definition 
+  \ref{definition-gmwencode-certification} and assumptions of well-typedness, 
+  the result follows by preconditions and Lemma \ref{lemma-separation}.
+\end{proof}
+
+\ygcgate*
+
+\begin{proof}
+  Given preconditions we have $v_1 =  \{ \ttt{k = }\be^1_{k}; \ttt{p = }\be^1_{p} \}$ and
+  $v_2 = \{ \ttt{k = }\be^2_{k}; \ttt{p = }\be^2_{p} \}$ for some
+  $\be^1_{k}$,$\be^2_{k}$,$\be^1_{p}$,$\be^2_{p}$ with correlations as per Definition
+  \ref{definition-gc}.
+  %\begin{eqnarray*}
+  %  v_1 &=& \{ \ttt{k = }\be^1_{k}; \ttt{p = }\be^1_{p} \} \\
+  %  v_2 &=& \{ \ttt{k = }\be^2_{k}; \ttt{p = }\be^2_{p} \}
+  %\end{eqnarray*}
+  Let $\prog$ be as defined in Definition \ref{definition-ygcgate-certification}.
+  We observe:
+  \begin{eqnarray*}
+    &\prog_2 = \\
+    &\begin{array}{l}\prog[\be^1_{k}/\ttt{flip[2,"gate:a.k"]}][\be^1_{p}/\ttt{flip[2,"gate:a.p"]}]\\
+       \phantom{\prog}[\be^2_{k}/\ttt{flip[2,"gate:b.k"]}][\be^1_{p}/\ttt{flip[2,"gate:b.p"]}]\end{array}
+  \end{eqnarray*}
+  Given that $g_1$ and $g_2$ are distinct and not wired in $\prog_1$
+  we are assured that $\ttt{owl}(g_1)$ and $\ttt{owl}(g_1)$ are in
+  independent uniform distributions, and given that $g \not\in
+  \prog_1$ we are assured that $\ttt{owl}(g)$ contains entirely fresh
+  flips. Thus by condition (i) of Definition \ref{definition-ygcgate-certification} and
+  Lemma \ref{lemma-substitution} we have:
+  $$
+  \sep{\prog_1;\prog_2}{\vars(\be^1_{k},\be^2_{k},\be^1_{p},\be^2_{p})}{\vdefs(\prog_2)}
+  $$
+  Thus by Lemmas \ref{lemma-noninterference} and \ref{lemma-separation} we establish
+  postconditions (ii) and (iii).
+
+  Also since $v_1$ and $v_2$ are correlated either positively or negatively with
+  $\ttt{owl}(g_1)$ and $\ttt{owl}(g_2)$ respectively by precondition (ii),
+  by Definition \ref{definition-gc}, precondition (i), and Lemma \ref{lemma-substitution-sim}
+  we establish postcondition (i), since Definition \ref{definition-ygcgate-certification}
+  requires gate output correlation with $\ttt{owl}(g)$ given any input valence conditions.
+\end{proof}
+
+\ygcencode*
+
+\begin{proof}
+  By Definition \ref{definition-ygcencode-certification} we have for some
+  $\ttt{"s1"}$ and $\ttt{"s2"}$: 
+  \begin{mathpar}
+    \sep{\progtt(\prog_2)}{\ttt{\{s[1,"s1"]\}}}{\vdefs(\prog_2)_{\{2\}}}
+    
+    \sep{\progtt(\prog_2)}{\ttt{\{s[2,"s2"]\}}}{\vdefs(\prog_2)_{\{1\}}}
+  \end{mathpar}
+  Since we assume that secrets are in uniform and independent marginal
+  distributions a priori, and $\vars(\prog_1) \cap \vars(\prog_2) =
+  \varnothing$ by condition (iv) of Definition
+  \ref{definition-ygcencode-certification} and assumptions of
+  well-typedness, conditions (ii-iii) follow by Lemmas
+  \ref{lemma-noninterference} and \ref{lemma-separation}. Also by
+  Definition \ref{definition-ygcencode-certification} we have
+  $\gc{\prog_2}{v_1}{s_1}$ and $\gc{\prog_2}{v_1}{s_1}$, so also
+  $\gc{\prog_1;\prog_2}{v_1}{s_1}$ and
+  $\gc{\prog_1;\prog_2}{v_1}{s_1}$ by condition (iv) of Definition
+  \ref{definition-ygcencode-certification} and Lemmas
+  \ref{lemma-noninterference} and \ref{lemma-separation}.
+\end{proof}
+
+
+\ygcnimo*
+
+\begin{proof}
+  By assumptions of well-typedness we
+  have for some $\be_k$, $\be_p$, and $\be$:
+  $$
+  \config{\varnothing}{\eassign{\outv}{\ttt{decode}(g,e)}} \redxs
+  \config{\prog_1}{\eassign{\outv}{\ttt{decode}(g,\{ \ttt{k = }\be_k;  \ttt{p = }\be_p\})}}
+  \redxs \config{\prog_1;\prog_2}{\eassign{\outv}{\be}}
+  $$
+  Let $\iov(\prog_1) = S \cup V$.
+  By Lemmas \ref{lemma-ygc-encode} and \ref{lemma-ygc-preservation} we
+  have $\sep{\progd(\prog_1)}{S_{\{1\}}}{V_{\{2\}}}$ and
+  $\sep{\progd(\prog_1)}{S_{\{2\}}}{V_{\{1\}}}$.
+  Let $\prog$ be as defined in Definition \ref{definition-ygdecode-certification}.
+  We observe:
+  \begin{eqnarray*}
+    & \prog_2 = \\ 
+    & \prog[\be_k/\ttt{\{flip[2,"gate:c.k"]}][\be_p/\ttt{flip[2,"gate:c.p"]}]
+  \end{eqnarray*}
+  so also by  Definition \ref{definition-ygdecode-certification} and
+  Lemma \ref{lemma-substitution} we have:
+  $$
+  \sep{\progtt(\prog_1;\prog_2)}{\vars(\be_k,\be_p)}{\vdefs(\prog_2)}
+  $$
+  so, letting $\iov(\prog_1;\prog_2) = S \cup V'$ by
+  Lemmas \ref{lemma-noninterference} \ref{lemma-separation} we have
+  $\sep{\progd(\prog_1;\prog_2)}{S_{\{1\}}}{V'_{\{2\}}}$ and
+  $\sep{\progd(\prog_1;\prog_2)}{S_{\{2\}}}{V'_{\{1\}}}$.
+  Thus, letting $\prog' \defeq (\prog_1;\prog_2;\eassign{\outv}{\be})$, for all $\beta$:
+  $$\sep{\condd{\progd(\prog')}{S_{\{1\}} \cup V_{\{2\}}}{\{ \outv \mapsto \beta \}}}{S_{\{1\}}}{V_{\{2\}}}
+  \quad \text{and} \quad
+    \sep{\condd{\progd(\prog')}{S_{\{2\}} \cup V_{\{1\}}}{\{ \outv \mapsto \beta \}}}{S_{\{2\}}}{V_{\{1\}}}$$
+  thus for all $\store \in \mems(V_2 \cup \{ \outv \})$:
+  $$\condd{\progd(\prog')}{S_{\{1\}}}{\store}
+  = \condd{\progd(\prog')}{S_{\{1\}}}{\store_{\{\outv\}}}$$
+  and for all $\store \in \mems(V_1 \cup \{ \outv \})$:
+  $$\condd{\progd(\prog')}{S_{\{2\}}}{\store}
+  = \condd{\progd(\prog')}{S_{\{2\}}}{\store_{\{\outv\}}}$$
+  establishing the result by Lemma \ref{lemma-nimo} and Definition \ref{definition-NIMO}.
+\end{proof}
+

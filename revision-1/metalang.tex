@@ -1,0 +1,405 @@
+\section{The $\metaprot$ Metalanguage}
+\label{section-metalang}
+
+Large practical MPC computations are based on much larger protocols
+than the examples we've considered so far. These larger protocols are
+typically based on compositional units. Examples include GMW circuits
+and Yao's Garbled Circuits (YGC), which are composed of so-called
+garbled gates.  Languages for defined garbled circuits, beginning with
+Fairplay \cite{269581}, treat gates as compositional units that are
+wired together by the programmer to generate a complete circuit. The
+$\fedprot$ language is low-level and does not include abstractions for
+defining composable elements.
+
+In this Section, we introduce the $\metaprot$ language which includes
+structured data and function definitions, which are sufficiently
+expressive to define composable protocol elements such as garbled
+gates. The $\metaprot$ language is a \emph{metalanguage}, in the sense
+that it produces $\fedprot$ protocols as a result of computation. That
+is, $\metaprot$ is a high-level language that generates low-level
+protocol code. We endow $\metaprot$ with a type system that enjoys a
+type safety result guaranteeing safety of generated protocols. We
+consider library implementations for GMW and YGC circuits as
+examples. Additional examples are provided in Appendix
+\ref{section-examples-lang}.
+
+\subsection{Syntax}
+
+The syntax of $\metaprot$ is defined in Figure
+\ref{fig-metaprot}.  It includes a syntax of function
+definitions and records, and values include client ids, identifier
+strings, and boolean expressions. Expression forms allow dynamic
+construction of boolean expression forms and view assignments. When
+$\metaprot$ programs construct an $\fedprot$ assignment, a side effect
+occurs whereby the assignment is added to the end of the $\fedprot$
+program accumulated during evaluation.
+
+Formally, we consider a complete metaprogram to include both a
+codebase and a ``main'' program that uses the codebase. 
+\begin{definition}
+A \emph{codebase} $\codebase$ is a list of function 
+declarations. We write $ \codebase(f) = x_1,\ldots,x_n,\ e$
+iff $f(x_1,\ldots,x_n) \{ e \} \in \codebase$.
+A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
+codebase and expression $\codebase, e$. We may omit
+$\codebase$ if it is clear from context.  
+\end{definition}
+
+When we consider the examples of GMW and YGC in detail below, our
+focus will be on developing a codebase that can be used to define
+arbitrary circuits, i.e., complete and concrete protocols. Since
+strings and identifiers can be constructed manually, and expressions
+can occur inside assignments and boolean expression forms, function
+definitions can generalize over $\fedprot$-level patterns to obtain
+composable program units.
+
+\subsection{Semantics}
+
+\begin{fpfig}[t]{$\metaprot$ syntax (T), evaluation contexts (M), and operational semantics (B).}{fig-metaprot}
+    {\small
+    $$
+    \begin{array}{rcl@{\hspace{8mm}}r}
+      \multicolumn{3}{l}{\flab \in \mathrm{Field},\   x \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[2mm]
+      %x &\in& \mathrm{EVar}\\
+      %f &\in& \mathrm{FName}\\[2mm]
+      e &::=& b \mid \flip{e}{e} \mid \secret{e}{e} \mid \view{e}{e} \mid \oracle{e} \mid \enot\ e \mid e\ \eand\ e \mid e\ \exor\ e \mid & \textit{expressions}\\[0mm]
+      & & \select{e}{e}{e} \mid 
+      \send{\view{e}{e}}{e} \mid \send{\view{e}{e}}{\OT{e}{e}{e}} \mid e;e \mid \\[0mm]
+      & & x \mid \elet{x}{e}{e} \mid f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \}
+      \mid e.\flab \mid e\concat e \mid (e) \\[2mm]
+      v &::=& w \mid \cid \mid \be \mid \{ \flab = v;\ldots;\flab = v \} 
+      \mid \ttt{()} & \textit{values}\\[2mm]
+           {fn} &::=& f(x,\ldots,x) \{ e \} & \textit{functions}
+    \end{array}
+    $$
+    }
+
+    \rule{130mm}{0.5pt}
+
+    {\small
+    $$
+    \begin{array}{rcl@{\hspace{3mm}}r}
+      E &::=& [\,] \mid \enot\ E \mid E\ \bop\ e \mid v\ \bop\ E \mid  \flip{E}{e} \mid \secret{E}{e} \mid \view{E}{e} \mid \oracle{E} \mid  \\[1mm]
+      & & \flip{\cid}{E} \mid \secret{\cid}{E} \mid \view{\cid}{E} \mid \send{E}{e} \mid \send{\view{\cid}{w}}{E} \mid \OT{E}{e}{e} \\[1mm]
+      & & \mid \OT{v}{E}{e} \mid \OT{v}{v}{E} \mid \select{E}{e}{e} \mid \select{v}{E}{e} \mid \\[1mm]
+      & & \select{v}{v}{E} \mid \elet{x}{E}{e} \mid f(v,\ldots,v,E,e,\ldots,e) \mid \\[1mm]
+      & & \{ \flab = v;\ldots;\flab = v;\flab = E;\flab = e;\ldots;\flab = e \} \mid E.\flab \mid E\concat e \mid v \concat E
+    \end{array}
+    $$
+    \vspace{.5mm}
+    
+    \rule{130mm}{0.5pt}
+    
+    $$
+    \begin{array}{rcl@{\hspace{10mm}}r}
+      \config{\prog}{\elet{x}{v}{e}} &\redx& \config{\prog}{e[v/x]}\\
+      \config{\prog}{f(v_1,...,v_n)} &\redx&
+      \config{\prog}{e[v_1/x_1,\ldots,v_n/x_n]} & 
+      \codebase(f) = x_1,\ldots,x_n,\ e\\
+      \config{\prog}{\{\ldots; \flab = v; \ldots\}.\flab} &\redx&
+      \config{\prog}{v}\\
+      \config{\prog}{w_1\concat w_2} &\redx& \config{\prog}{w_1w_2}\\
+      \config{\prog}{v;e} &\redx& \config{\prog}{e}\\
+      \config{\prog}{\instr} &\redx& \config{\prog;\instr}{()}\\
+      \config{\prog}{E[e]} &\redx& \config{\prog'}{E[e']} & \text{if}\ \config{\prog}{e} \redx \config{\prog'}{e'} 
+    \end{array}
+    $$
+  }
+\end{fpfig}
+
+We define a small-step evaluation aka reduction relation $\redx$ in
+Figure \ref{fig-metaprot}.  We write $\redxs$ to denote the
+reflexive, transitive closure of $\redx$. Reduction is defined on
+\emph{configurations} which are pairs of the form $\config{\prog}{e}$,
+where $\prog$ is the $\minifed$ program accumulated during evaluation.
+In this definition we write $e[v/x]$ to denote the substitution of $v$
+for free occurences of $x$ in $e$. The rules are mostly standard,
+except when a concrete $\minifed$ assignment is encountered it is added
+to the end of $\prog$.
+
+The rules rely on a definition of \emph{evaluation contexts} $E$
+allowing computation within a larger program context, where $E[e]$
+denotes an expression with $e$ in the hole $[]$ of $E$. Evaluation
+contexts include boolean expression forms, allowing generalization
+and instantiation of compositional program elements.
+
+\subsection{Type Theory and Static Type Safety}
+
+It is desirable to statically enforce safety of both $\metaprot$
+programs and the safety of the $\fedprot$ programs they
+generate. Although safety of the latter could be enforced
+post-generation by a direct analysis, for large programs this can be
+much more expensive and it is also better to not waste time on
+resource-intensive compilation of programs with known errors
+\cite{kreuter2012billion}. Some consequences of safety errors, for example, accidental
+reuse of one-time pads can also undermine security.
+
+The type syntax of $\metaprot$ is defined in Figure
+\ref{fig-metaprot-types}. It includes a weak form of dependency:
+string types $\stringty{e}$ and client types $\cidty{e}$
+are parameterized by expressions $e$ that precisely reflect the
+type of the value. Boolean expression forms have the type
+$\bet{e}$ indexed by expressions $e$ indicating the client
+id type of the expression. The dependency is weak in the
+sense that expressions in types are a strict subset of
+expression forms- for any $\stringty{e}$ the expression $e$
+is either a variable, a string, or a concatenation form,
+and for any $\cidty{e}$ or $\bet{e}$ the expression $e$
+is either a variable or a client id $\cid$. We define
+the equivalence $w_1 \concat w_2 \equiv w_1w_2$ in typings. 
+
+Type judgements for expressions are of the form
+$\tjudge{\viewst_1}{\gamma}{e}{\viewst_2}$ where the \emph{view
+effect} $\viewst_1$ denotes the views that have been defined so far,
+and $\viewst_2$ records new views defined as the effect of the
+expression on the residual $\minifed$ program.  Type judgements are
+syntax-directed- selected rules are shown in Figure
+\ref{fig-metaprot-types}
+%, with a more complete set provided in
+%Appendix Figure \ref{fig-metaprot-tjudge}
+and a full implementation is available in our online repository \cite{jpdf-github}. The
+$\TirName{AssignT}$ rule captures the effect of new view
+definitions. The $\TirName{And}$ rule illustrates how program safety
+is enforced, by ensuring that subexpressions of boolean expressions
+have the same owner.
+
+The $\TirName{Appt}$ rule applies to function
+definition and application respectively. Function typings rely on the
+definition of function input type annotations $\tas$ and
+type term substitutions $\sigma$. 
+\begin{definition}
+  A \emph{function input type annotation} $\tas$ is a mapping from
+  function names $f$ to type products $\tau_1 * \cdots * \tau_n$.
+  A \emph{type term substitution} $\sigma$ is a mapping from
+  $\minifed$ variables $x$ to values, where $\sigma(\tau)$ denotes
+  the replacement of occurences of $x$ in $\tau$ with $\sigma(x)$. 
+\end{definition}
+We assume that input type annotations $\tas$ are provided by the
+programmer for all function definitions. This guarantees that
+$\metaprot$ type checking is straightforward and efficient.
+Function types are of the form
+$
+(\tau_1 * \cdots * \tau_n \rightarrow \tau,\viewst)
+$,
+where $\viewst$ denotes the effect of the function on the residual
+program.  The function type can be understood as a dependent $\Pi$
+type, with every term variable bound. When applied, these variables
+are instantiated with a type term substitution $\sigma$. In our
+implementation, we adapt \emph{synthesis} as defined in Dependent ML \cite{10.1145/292540.292560}
+to obtain this $\sigma$- essentially this is a match on the syntactic
+structure of types and expressions. 
+
+\begin{fpfig}[t]{Type syntax of $\metaprot$ (T) and selected type judgement rules (B).}{fig-metaprot-types}
+{\small
+  $$
+  \begin{array}{rcl@{\hspace{2mm}}r}
+    \srct &::=& \cidty{e} \mid \stringty{e} \mid \bet{e} \mid  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst & \gdesc{types}\\ [1mm]
+    %&&  \{ \flab : \srct;\ldots;\flab : \srct \} \mid \tau * \cdots * \tau \rightarrow \tau,\viewst \\[1mm]
+    \viewst  &::=& \view{e}{e};\viewst \mid \varnothing   & \gdesc{view effects}\\[1mm]
+    \Gamma &::=& \Gamma; x : \tau \mid \varnothing & \gdesc{type environments}    
+  \end{array}
+  $$
+}
+
+\rule{130mm}{0.5pt}
+
+{\small
+\begin{mathpar}
+\inferrule[\TirName{SecretT}]
+{\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}}
+{\tjudge{\viewst}{\Gamma}{\secret{e_1}{e_2}}{\bet{e_1'}}{\views_2}}
+
+\inferrule[\TirName{AndT}]
+{
+\tjudge{\viewst}{\Gamma}{e_1}{\bet{e}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\bet{e}}{\viewst_2}
+}
+{\tjudge{\viewst}{\Gamma}{e_1\ \eand\ e_2}{\bet{e}}{\viewst_2}}
+
+\inferrule[\TirName{AssignT}]
+{
+\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
+\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}\\
+\tjudge{\viewst_2}{\Gamma}{e_3}{\bet{e_3'}}{\viewst_3}
+}
+{
+\tjudge{\viewst}{\Gamma}{\eassign{\view{e_1}{e_2}}{e_3}}{\unity}{(\viewst_3 ; \view{e_1'}{e_2'} )}
+}
+
+\inferrule[AppT]
+{\Gamma(f) =  
+ \tau_1 * \cdots * \tau_n \rightarrow \tau, \viewst_f \\ 
+ \tjudge{\viewst}{\Gamma}{e_1}{\sigma(\tau_1)}{\viewst_1}
+ \ \cdots\  
+ \tjudge{\viewst_{n-1}}{\Gamma}{e_n}{\sigma(\tau_n)}{\viewst_n}}
+{\tjudge{\viewst}{\Gamma}{f(e_1,\ldots,e_n)}{\sigma(\tau)}{(\viewst_n ; \sigma(\viewst_f))}}
+\end{mathpar}
+}
+\end{fpfig}
+
+Top-level type judgements are of the form $\Gamma \vdash \codebase, e
+: \tau, V$, where all the functions in $\codebase$ are well-typed in
+$\Gamma$, the top level view effect $V$ is a set of concrete
+$\fedprot$ views which are constructed by a disjoint union of the views
+in the effect of $e$- the disjointness requirement guarantees that
+views are uniquely defined. Our $\metaprot$ type safety result is
+formulated as follows. In addition to safe execution of the
+metaprogram, it also guarantees safety of the residual $\fedprot$
+program (Definition \ref{definition-safety}).
+\begin{theorem}[$\metaprot$ Type Safety]
+  \label{theorem-metalang-safety}
+  Given $\codebase$, $e$, and $\Gamma$ with $\Gamma \vdash \codebase,e : \unity : V$,
+  then $\config{\varnothing}{e} \redxs \config{\prog}{\ttt{()}}$ where
+  $\prog$ is safe with $\iov(\prog) = S \cup V$ for some $S$.
+\end{theorem}
+
+\subsection{Example: 2-Party GMW}
+\label{section-metalang-gmw}
+
+\input{gmw}
+
+
+
+The GMW protocol uses secret sharing to represent data flowing through
+circuits. In the 2-party case, clients 1 and 2 each share their input
+secrets, and use those shares to represent inputs to gates. Outputs
+are also represented as shares. We refer to the pair of shares
+representing any particular value as a \emph{wire value}, and
+we represent them via records of the form
+$
+\ttt{\{c1 = } v_1\ttt{;c2 = } v_2\ttt{\}} 
+$
+where $v_1$ and $v_2$ are client 1 and 2's shares respectively.
+
+For full details of the GMW protocol the reader is referred to
+\cite{evans2018pragmatic}. Our implementation libary is shown in
+Figure \ref{fig-gmw}, with type signatures for the library functions
+also shown. We present the And gate since it is
+an interesting component. The Figure includes the
+following top-level functions:
+\begin{itemize}
+\item \ttt{encodegmw}: This function encodes client 1's and client 2's
+  secret bits called $\ttt{s[1,"s1"]}$ and $\ttt{s[1,"s2"]}$ into two
+  distinct wire values (pairs of shares).
+\item \ttt{andgmw}: This function defines the gate $\ttt{"g"}$, the
+  identifier $\ttt{"g"}$ being used to distinguish randomness used
+  within.  In our version client 1 builds the output table (using
+  \ttt{andtablegmw})and transfers the correct output share to client 2
+  using 1-out-of-4 OT ($\ttt{OT4}$), definable using $\ttt{OT}$, as
+  per standard GMW protocol.
+\item \ttt{decode}: This function decodes and publishes a wire value
+  by $\ttt{xor}$ing the shares. Note that this requires both client 1
+  and 2 to publicize their shares.
+\end{itemize}
+\begin{example}
+  \label{example-gmw-andcircuit}
+The following program uses our GMW library to define
+a circuit with a single And gate and input secrets $\ttt{s1}$ and
+$\ttt{s2}$ from client's 1 and 2 respectively. 
+{\small
+  \begin{verbatimtab}
+  let ss = encodegmw("s1","s2") in v[0,"output"] := decode(andgmw(0,ss.shares1,ss.shares2)) \end{verbatimtab}
+}
+\end{example}
+
+\subsection{Example: YGC}
+\label{section-metalang-ygc}
+
+\begin{fpfig}[t]{Yao's Garbled Circuit component functions.}{fig-ygc-lib}
+{\footnotesize
+\begin{verbatimtab}
+  owl(gid) { { k = flip[2,"gate:" || gid || ".k"]; p = flip[2,"gate:" || gid || ".p"] } }
+
+  encodeygc(sa, sb) {
+    let owl1 = owl(sa) in
+    let owl2 = owl(sb) in
+    v[1,"gate:" || sa || "1.k"] := OT(s[1,sa],owl1.k,(not owl1.k));
+    v[1,"gate:" || sa || "1.p"] := OT(s[1,sa],owl1.p,(not owl1.p));
+    v[1,"gate:" || sb || "2.k"] := select(s[2,sb],owl2.k,(not owl2.k));
+    v[1,"gate:" || sb || "2.p"] := select(s[2,sb],owl2.p,(not owl2.p));
+    { wv1 = { k = v[1,"gate:" || sa || "1.k"]; p = v[1,"gate:" || sa || "1.p"] };
+      wv2 = { k = v[1,"gate:" || sb || "2.k"]; p = v[1,"gate:" || sb || "2.p"] } }
+  }
+
+  andygc(g, ga, gb, wva, wvb) { andgate(g, ga, gb); evalgate(g, wva, wvb) }
+
+  decodeygc(g, wv) { garbledecode(g); evaldecode(wv) }
+\end{verbatimtab}
+}
+\end{fpfig}
+
+Our YGC implementation follows the \emph{point-and-permute} method
+described in \cite{evans2018pragmatic} and elsewhere, to which the
+reader is referred for more in-depth discussion.  In this
+implementation client 2 is the \emph{garbler} and client 1 is the
+\emph{evaluator}. The garbler builds the garbled tables and shares
+them with the evaluator, who then evaluates the gate in an oblivious
+fashion until the final public output is generated through
+decryption. 
+
+\emph{Wire labels} are fundamental to YGC, and essentially represent
+gate output values in an encrypted form. In our definition, wire
+labels are represented by records $\ttt{\{ k = }\beta_1\ttt{; p =
+}\beta_2\ttt{ \}}$, where $\ttt{k}$ is the \emph{key bit} and
+$\ttt{p}$ is the \emph{pointer bit}, and $\beta_1$ and $\beta_2$ are
+flips. Flips in each output wire label are owned by the garbler and
+are unique per gate by definition of their identifying string, and the
+representation of $0$ is the negation of $1$. For example, here is the
+representation of 1 and 0 respectively in the output wire label for a
+hypothetical gate 6:
+{\small
+  \begin{mathpar}
+    \ttt{\{ k = flip[2,"gate:6.k"]; p =  flip[2,"gate:6.p"]] \}}
+
+    \ttt{\{ k = not flip[2,"gate:6.k"]; p =  not flip[2,"gate:6.p"]] \}}
+  \end{mathpar}
+}
+In our implementation, gates are wired together using gate
+identifiers, which are strings $w$. Top-level functionality
+shown in Figure \ref{fig-ygc-lib} includes:
+\begin{itemize}
+\item \ttt{owl}: This function returns the output wire label for any
+  gate identified by \ttt{gid}.
+\item \ttt{andgate}: This defines a subprotocol for the garbler
+  to define a garbled gate $\ttt{gid}$ with input wires from gates
+  $\ttt{ga}$ and $\ttt{gb}$. The garbler generates keys and garbles
+  the rows in YGC fashion, them with client $1$ in
+  views in a standard form. For example, the view for
+  a hypothetical gate 6, row 2 garbled truth table is $\ttt{v[1,"gate:6tt2"]}$.
+  We note that garbled gates of other binary operators can be obtained with
+  replacement of $\ttt{andtable}$ with appropriate garbled table definitions. 
+\item \ttt{evalgate}: This defines a subprotocol for the evaluator to
+  evaluate gate $\ttt{gid}$ given input wire values $\ttt{wva}$ and
+  $\ttt{wvb}$.
+\item \ttt{andygc}: This composes the garbler and evaluator subprotocols
+  for construction and evaluation of an And gate. 
+\item \ttt{garbledecode} and \ttt{evaldecode}: The former function
+  defines the garbler's protocol for encrypting the circuit
+  output from final gate $\ttt{gid}$, and the latter defines
+  the evaluator's output decryption protocol. These are composed with \ttt{decodeygc}.
+\item \ttt{encodegmw}: This defines the initial phase of the protocol,
+  where the evaluator receives the wire value from their own
+  secret $\sx{1}{sa}$ via $\ttt{OT}$, and the garbler communicates
+  the wire value for their own secret $\sx{2}{sb}$ directly.
+\end{itemize}
+We provide more code details in Appendix \ref{section-ygc}, Figures
+\ref{fig-ygc-aux} and \ref{fig-ygc-gates}, and complete code in our
+online repository \cite{jpdf-github}.
+\begin{example}
+  \label{example-ygc-andcircuit}
+The following program uses our YGC library to define
+a circuit with a single and gate and input secrets $\ttt{s1}$ and
+$\ttt{s2}$ from client's 1 and 2 respectively. 
+{\small
+\begin{verbatimtab}
+  let secrets = encode("s1","s2") in
+  v[0,"output"] := decode(andgg("0", secrets.wv1, secrets.wv2)) \end{verbatimtab}
+}
+%\begin{verbatimtab}
+%  andgate(0,s1,s2);
+%  garbledecode(0);
+%  let secrets = encode(s1,s2) in
+%  v[0,output] := decode(evalgate(0, secrets.wv1, secrets.wv2))
+%\end{verbatimtab}
+\end{example}

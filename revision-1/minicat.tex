@@ -1,0 +1,303 @@
+\section{The $\minifed$ Language}
+\label{section-minicat}
+
+The $\minifed$ language provides a simple model of synchronous
+protocols between a federation of \emph{clients} exchanging values in
+the binary field. We will identify clients by natural numbers, and
+federations- finite sets of clients- are always given statically.
+As we will see, our threat model assumes a partition of the federation
+into \emph{honest} $H$ and \emph{corrupt} $C$ subsets.
+
+We model probabilistic programming via the \emph{random tape}
+approach. That is, we will assume that programs can make reference to
+values chosen from a uniform random distribution- coin ``flips''- via
+values arbitrarily assigned in the initial program memory.  Programs
+execute deterministically given the random tape. 
+
+\subsection{Syntax} The syntax of $\minifed$, defined in
+Figure \ref{fig-minifed}, includes a standard boolean algebra
+with $\eand$, $\eor$, $\exor$, and $\enot$ as primitives. In addition,
+programs have different kinds of variables including \emph{secrets}
+$\secret{\cid}{w}$, \emph{flips} $\flip{\cid}{w}$, and \emph{views}
+$\view{\cid}{w}$.  Each of these variables is indexed by an ``owner''
+client $\cid$ and distinguishing string $w$. So for example,
+$\secret{\ttt{1}}{\ttt{"foo"}}$ is client $\ttt{1}$'s secret 
+$\ttt{"foo"}$. All clients can make reference to the \emph{oracle}
+through variables $\oracle{w}$- this is a form of shared randomness
+that is standard in the MPC setting \cite{evans2018pragmatic}.  Each client can only
+compute on their own variables in \emph{expressions} $\be$, and share
+values with other clients by assignment to their views as in
+$\eassign{\view{\cid}{w}}{\be}$.  A \emph{protocol} $\prog$ is a
+possibly empty sequence of view assignments. We will generally omit
+$\varnothing$ from example code, writing $\instr_1;\ldots;\instr_n$
+instead of $\instr_1;\ldots;\instr_n;\varnothing$, and abusing notation we will
+write $\prog_1;\prog_2$ to denote the concatenation of $\prog_1$
+and $\prog_2$.
+
+We let $x$ range over variables, and will use $s$, $v$, and $f$ to
+range over individual secrets, views, and flips respectively. We let
+$X$ range over sets of variables and $S,V,F$ to range over sets of
+secrets, views, and flips (including invocations of the oracle)
+respectively. Given a program $\prog$, we write $\iov(\prog)$ to
+denote $S \cup V$ where $S$ is the set of secret variables in $\prog$
+and $V$ is the set of views in $\prog$, we write $\flips(\prog)$ to
+denote the set $F$ of flip variables in $\prog$, and we write
+$\vars(\prog)$ to denote $\iov(\prog) \cup \flips(\prog)$. For any set
+of variables $X$ and parties $P$, we write $X_P$ to denote the subset
+of $X$ owned by any party in $P$, and we write $X_H$ and $X_C$ to
+denote the subsets belonging to honest and corrupt parties,
+respectively.
+
+Expression forms include the convenience
+$\select{\be_1}{\be_2}{\be_3}$, which is essentially a conditional
+expression with
+$
+\select{\be_1}{\be_2}{\be_3} \equiv (\be_1\ \eand\ \be_2)\ \eor\ (\enot\ \be_1\ \eand\ \be_3)
+$.
+We also include \emph{oblivious transfer} $\OT{\be_1}{\be_2}{\be_3}$ as a primitive,
+with semantics similar to $\ttt{select}$ but with important nuances
+related to communication between clients as we discuss more below.
+As we will demonstrate, it is not necessary to include $\ttt{OT}$
+as a primitive since we can implement it in a provably secure
+fashion. However, its inclusion simplifies our presentation and is a useful
+convenience.
+
+\subsection{Semantics}
+
+\emph{Memories} are fundamental to the semantics of $\fedcat$ and
+provide the random tape and secret inputs to protocols, and record
+view assignments. Memories $\store$ are finite (partial) mapping from
+variables to binary values $\beta \in \{0,1\}$. The \emph{domain} of a
+memory is written $\dom(\store)$ and is the finite set of variables on
+which the memory is defined. We write $\store\{ x \mapsto \beta\}$ for
+$x\not\in\dom(\store)$ to denote the memory $\store'$ such that
+$\store'(x) = \beta$ and otherwise $\store'(y) = \store(y)$ for all $y
+\in \dom(\store)$. We write $\store_1 \subseteq \store_2$ iff
+$\dom(\store_1) \subseteq \dom(\store_2)$ and $\store_1(x) =
+\store_2(x)$ for all $x \in \dom(\store_1)$. We write $\store_1 \cap
+\store_2$ to denote the combination of $\store_1$ and $\store_2$
+assuming $\store_1(x) = \store_2(x)$ for all $x \in \dom(\store_1)
+\cap \dom(\store_2)$, otherwise $\store_1 \cap \store_2$ is undefined.
+We write $\store_1 \subseteq \store_2$ iff $\store_1 \cap \store_2
+= \store_1$.
+
+Given a set of variables $X$, we write $\store_X$ to denote the
+memory $\store$ restricted to the domain $X$, and we define
+$\mems(X)$ as the set of all memories with domain $X$:
+$$
+\mems(X) \defeq \{ \store \mid \dom(\store) = X \}
+$$
+Thus, given a protocol $\prog$, the set of all random tapes for
+$\prog$ is $\mems(\flips(\prog))$. We let $\stores$ range
+over sets of memories with the same domain, and abusing notation
+we write $\dom(\stores)$ to denote the common domain,
+and $\stores_X \defeq \{ \store_X | \store \in \stores \}$.
+
+Given a variable-free boolean expression $\be$, we write $\cod{\be}$
+to denote the standard interpretation of $\be$ in the binary field.
+With the introduction of variables to expressions, we have two
+concerns. First, we need to interpret variables with respect to a
+specific memory, and second, we need to ensure that variables are used
+``legally''. That is, since expressions define local computation, all
+variables used in an expression must belong to the same client.  Thus,
+we denote interpretation of expressions $\be$ possibly containing
+variables as $\lcod{\store,\be}{\cid}$, where $\store$ associates
+variables with values, and all variables must be owned by client
+$\cid$. This is defined in Figure \ref{fig-minifed}.
+
+\begin{fpfig}[t]{$\minifed$ syntax (T), expression interpretation (M),  and reduction (B) rules.}{fig-minifed}
+  {\small
+    $$
+    \begin{array}{rcl@{\hspace{8mm}}r}
+      \multicolumn{4}{c}{b \in \{ \etrue, \efalse \},\  w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N},\ \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& b \mid \flip{\cid}{w} \mid \secret{\cid}{w} \mid \view{\cid}{w} \mid \oracle{w} \mid & \textit{boolean expressions}\\
+      & &  \enot\ \be \mid \be\ \bop\ \be \mid \select{\be}{\be}{\be} \mid \OT{\be}{\be}{\be} \\[2mm]
+      \instr &::=& \eassign{\view{\cid}{w}}{\be} & \textit{view assignments} \\[2mm]
+      \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
+    \end{array}
+    $$
+  }
+
+  \rule{130mm}{0.5pt}
+  
+  {\small
+  $$
+  \begin{array}{cc}
+    \begin{array}{rcl}
+      \lcod{\store, \etrue}{\cid} &=& 1\\
+      \lcod{\store, \efalse}{\cid} &=& 0\\
+      \lcod{\store, \flip{\cid}{w}}{\cid} &=& \store(\flip{\cid}{w})\\
+      \lcod{\store, \secret{\cid}{w}}{\cid} &=& \store(\secret{\cid}{w})
+    \end{array} & 
+    \begin{array}{rcl}
+      \lcod{\store, \view{\cid}{w}}{\cid} &=& \store(\view{\cid}{w})\\
+      \lcod{\store, \oracle{w}}{\cid} &=& \store(\oracle{w})\\
+      \lcod{\store, \enot\ \be}{\cid} &=& \cod{\enot\ \lcod{\store,\be}{\cid}}\\
+      \lcod{\store, \be_1\ \mathit{binop}\ \be_2}{\cid} &=&
+      \cod{\lcod{\store,\be_1}{\cid}\ \mathit{binop}\ \lcod{\store,\be_2}{\cid}}
+    \end{array}
+  \end{array}
+  $$
+  $$
+  \lcod{\store, \select{\be_1}{\be_2}{\be_3}}{\cid} =
+  \begin{cases}
+    \lcod{\store,\be_2}{\cid} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
+    \lcod{\store,\be_3}{\cid} & \text{if\ } \neg\lcod{\store,\be_1}{\cid}
+  \end{cases}%\\
+      %\lcod{\store, \OT{\be_1}{\be_2}{\be_3}}{\cid} &=&
+      %             \begin{cases}
+      %                \lcod{\store,\be_2}{\cid'} & \text{if\ } \lcod{\store,\be_1}{\cid}\\
+      %                \lcod{\store,\be_3}{\cid'} & \text{if\ } \neg\lcod{\store,\be_1}{\cid}
+      %             \end{cases}
+  $$
+  \vspace{1mm}
+  
+  \rule{130mm}{0.5pt}
+
+  \begin{mathpar}
+    (\store, \eassign{\view{\cid}{w}}{\be};\prog) \redx (\extend{\store}{\view{\cid}{w}}{\lcod{\store,\be}{\cid'}}, \prog)
+
+      \inferrule
+  {\beta = \text{if\ } \lcod{\store,\be_1}{\cid}  \text{\ then\ } \lcod{\store,\be_2}{\cid'} \text{\ else\ } \lcod{\store,\be_3}{\cid'}}
+      {(\store, \eassign{\view{\cid}{w}}{\OT{\be_1}{\be_2}{\be_3}};\prog) \redx (\extend{\store}{\view{\cid}{w}}{\beta}, \prog)}    
+\end{mathpar}
+  }
+\end{fpfig} 
+
+Evaluation of configurations is then defined via a small-step reduction relation $\redx$,
+also shown in Figure \ref{fig-minifed}.
+This is defined in the obvious manner for view assignments other than through
+$\ttt{OT}$- however note that reduction requires that views are never reassigned. 
+For view assignments through $\ttt{OT}$, we define a different reduction rule that
+captures the appropriate semantics- that is, the selection bit is \emph{not} communicated
+to the sender (through a view assignment), and only the selected bit is sent to the receiver:
+We define $\redxs$ as the reflexive, transitive closure of $\redx$.
+
+Given $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$,
+any execution of $\prog$ is assumed to be an evaluation of a
+configuration $\config{\store}{\prog}$ where $\store \in \mems(S \cup
+F)$- that is, with secrets and the random tape as inputs- and where
+$\config{\store}{\prog} \redxs \config{\store'}{\varnothing}$ it is
+the case that $\store' \in \mems(S \cup F \cup V)$. We define a
+notion of protocol safety as follows, which is a well-formedness
+property.
+\begin{definition}[Protocol Safety]
+  \label{definition-safety}
+A program is \emph{safe} iff for all $\store \in \mems(S \cup F)$ there
+exists $\store'$ where $\config{\store}{\prog} \redxs
+\config{\store'}{\varnothing}$.
+\end{definition}
+Observe that unsafe programs are those where views
+are used before they're defined, or where expressions mix owners of
+variables. As a sanity condition, we will only consider safe 
+programs in our presentation of $\fedprot$, though in Section
+\ref{section-metalang} we define a type system that guarantees
+program safety by construction, as demonstrated in Theorem
+\ref{theorem-metalang-safety}.
+
+\subsection{Examples}
+\label{section-minicat-examples}
+
+Here we introduce some examples to illustrate $\minifed$ and how it
+can be used to model secure communication protocols for values in the
+binary field. Most of these are translations (into $\minifed$) of
+object examples in previous related work
+\cite{barthe2019probabilistic,darais2019language}.  We will return to
+these as running examples throughout the paper to illustrate various
+concepts and advantages of our methods. In Section
+\ref{section-metalang} we will formulate a larger example
+implementation of Yao's Garbled Circuits. Additional examples
+are provided in Appendix \ref{section-examples-lang} including 3-party
+additive secret sharing.
+\begin{example}[One-Time Pad]
+  \label{example-otp}
+As observed in \cite{barthe2019probabilistic} and elsewhere, coin flips with $\exor$ can
+be used to model one-time pad encryption in the binary field. On the
+basis of this we can model secure communication between over an
+insecure channel using symmetric key encryption. In the following
+program, we assume $H = \{ 1,2 \}$ and $C = \{ 0 \}$. Client 1 first
+shares the randomly generated ``key'' $\fx{1}{0}$ with client 2
+through view $\vx{2}{0}$. Then, client 1 encrypts its secret
+$\sx{1}{0}$ and sends it to party 0, which relays the ciphertext in
+$\vx{0}{0}$ to client 2. Finally, client 2 decrypts the ciphertext
+and stores the plaintext in $\vx{2}{2}$.
+{\small
+  \begin{verbatimtab}
+    v[2,"0"] := f[1,"0"];
+    v[0,"0"] := f[1,"0"] xor s[1,"0"];
+    v[2,"1"] := v[0,"0"];
+    v[2,"2"] := v[2,"1"] xor v[2,"0"]  \end{verbatimtab}
+}
+Intuitively, this protocol is \emph{correct} because $\vx{2}{2}$ is
+exactly correlated with the secret $\sx{1}{0}$, and it is
+\emph{secure} because the corrupt view $\vx{0}{0}$ in isolation is
+probabilistically independent of the secret $\sx{1}{0}$.
+\end{example}
+
+\begin{example}[$\lambda_{\mathrm{obliv}}$]
+  \label{example-lambda-obliv}
+  In \cite{darais2019language}, Figure 3, two examples are introduced that illustrate
+  subtleties of probabilistic programming in
+  $\lambda_{\mathrm{obliv}}$, a language for oblivious memory
+  management. We consider their translations here where we
+  assume $H = \{ 1 \}$ and $C = \{ 0 \}$. First, the following
+  example shows that the reuse of coin flips can result in the release of
+  information, even though flips are chosen from a uniform
+  distribution. This is because the adversary can deduce that
+  $\sx{1}{s}$ is more likely to be 1 in case their views are the
+  same value. We call this subexample $(a)$:
+  {\small
+    \begin{verbatimtab}
+    v[0,"0"] := select(s[1,"s"], flip[1,"sx"], flip[1,"sy"]);
+    v[0,"1"] := flip[1,"sx"] \end{verbatimtab}
+  }
+  In the next example, since the nested select is more likely to evaluate
+  to $1$ than $0$, the adversary can deduce that $\sx{1}{s}$ is
+  more likely to be 1 in case $\vx{0}{0}$ is 1. We call this subexample $(b)$:
+  {\small
+    \begin{verbatimtab}
+  v[0,"0"] := select(s[1,"s"], 
+  select(flip[1,"sx"], flip[1,"sx"], flip[1,"sy"]),flip[1,"z"]) \end{verbatimtab}
+  }
+  We note that these examples are considered ``bad'' in \cite{darais2019language} since there
+  no information about honest secrets should be revealed to the adversary in
+  their threat model. For this reason, they disallow the reuse of flips through a
+  linear type discipline, which is a culprit in both of these examples. However,
+  as we have shown in Example \ref{example-otp} the reuse of flips is useful in
+  the modeling of symmetric key encryption, and generally we will not enforce
+  the same linear type discipline on the use of flips.
+\end{example}
+
+\begin{example}[Oblivious Transfer]
+  \label{example-OT}
+  In \cite{barthe2019probabilistic} a protocol for $\ttt{OT}$ is
+  defined that we recreate as follows, where client 2 is the receiver
+  and client 1 is the sender, and a trusted third party provides the
+  sender and receiver with shared randomness. The secret $\sx{2}{c}$
+  is the receiver's choice bit, and $\sx{1}{m0}$ and $\sx{1}{m1}$
+  are the sender's two message options that the receiver chooses from. 
+  {\small
+    \begin{verbatimtab}
+      v[1,"r0"] := s[3,"r0"];
+      v[1,"r1"] := s[3,"r1"];
+      v[2,"d"] := flip[3,"d"];
+      v[2,"rd"] := select(flip[3,"d"], s[3,"r1"], s[3,"r0"]);
+      v[1,"e"] := s[2,"c"] xor v[2,"d"];
+      v[2,"f0"] := s[1,"m0"] xor select(v[1,"e"],v[1,"r1"],v[1,"r0"]);
+      v[2,"f1"] := s[1,"m1"] xor select(not v[1,"e"],v[1,"r1"],v[1,"r0"]);
+      v[2,"mc"] := select(s[2,"c"],v[2,"f1"],v[2,"f0"]] xor v[2,"rd") \end{verbatimtab}
+  }
+Below we will discuss how to automatically verify security properties
+of this protocol that correspond to the properties proven manually in
+\cite{barthe2019probabilistic}, and additionally how to automatically
+verify its passive security in the simulator model. With respect to
+our language primitives, we note that this protocol is equivalent to
+the following:
+{\small
+\begin{verbatimtab}  
+      v[2,"mc"] := OT(s[2,"c"], s[1,"m1"], s[1,"m0"]) \end{verbatimtab}
+}
+\end{example}
+
+
+
