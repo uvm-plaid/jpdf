@@ -759,7 +759,7 @@ month = {jul}
   journal={Journal of Computer Security},
   volume={17},
   number={5},
-  pages={517--548},
+  pages={517-548},
   year={2009},
   publisher={IOS Press}
 }
@@ -775,7 +775,121 @@ month = {jul}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% https://www.cs.ucdavis.edu/~rogaway/papers/equiv.pdf
+
+@InProceedings{10.1007/3-540-44929-9_1,
+author="Abadi, Martin and Rogaway, Phillip",
+editor="van Leeuwen, Jan
+and Watanabe, Osamu
+and Hagiya, Masami
+and Mosses, Peter D.
+and Ito, Takayasu",
+title="Reconciling Two Views of Cryptography",
+booktitle="Theoretical Computer Science: Exploring New Frontiers of Theoretical Informatics",
+year="2000",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="3--22",
+abstract="Two distinct, rigorous views of cryptography have developed over the years, in two mostly separate communities. One of the views relies on a simple but effective formal approach; the other, on a detailed computational model that considers issues of complexity and probability. There is an uncomfortable and interesting gap between these two approaches to cryptography. This paper starts to bridge the gap, by providing a computational justification for a formal treatment of encryption.",
+isbn="978-3-540-44929-4"
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% https://theory.stanford.edu/people/jcm/papers/ppc-2004-long.pdf
+
+@article{MITCHELL2006118,
+title = {A probabilistic polynomial-time process calculus for the analysis of cryptographic protocols},
+journal = {Theoretical Computer Science},
+volume = {353},
+number = {1},
+pages = {118-164},
+year = {2006},
+issn = {0304-3975},
+doi = {https://doi.org/10.1016/j.tcs.2005.10.044},
+url = {https://www.sciencedirect.com/science/article/pii/S030439750500770X},
+author = {John C. Mitchell and Ajith Ramanathan and Andre Scedrov and Vanessa Teague},
+keywords = {Process Algebra, Observational equivalence, Probabilistic bisimulation, Security protocol analysis},
+abstract = {We prove properties of a process calculus that is designed for analysing security protocols. Our long-term goal is to develop a form of protocol analysis, consistent with standard cryptographic assumptions, that provides a language for expressing probabilistic polynomial-time protocol steps, a specification method based on a compositional form of equivalence, and a logical basis for reasoning about equivalence. The process calculus is a variant of CCS, with bounded replication and probabilistic polynomial-time expressions allowed in messages and boolean tests. To avoid inconsistency between security and nondeterminism, messages are scheduled probabilistically instead of nondeterministically. We prove that evaluation of any process expression halts in probabilistic polynomial time and define a form of asymptotic protocol equivalence that allows security properties to be expressed using observational equivalence, a standard relation from programming language theory that involves quantifying over all possible environments that might interact with the protocol. We develop a form of probabilistic bisimulation and use it to establish the soundness of an equational proof system based on observational equivalences. The proof system is illustrated by a formation derivation of the assertion, well-known in cryptography, that El Gamal encryption's semantic security is equivalent to the (computational) Decision Diffie–Hellman assumption. This example demonstrates the power of probabilistic bisimulation and equational reasoning for protocol security.}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% https://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=FB6C44FEEE76BD347DB37CA1B83401E9?doi=10.1.1.60.3688&rep=rep1&type=pdf
+
+@article{10.5555/1662658.1662659,
+author = {Sabelfeld, Andrei and Sands, David},
+title = {Declassification: Dimensions and Principles},
+year = {2009},
+issue_date = {October 2009},
+publisher = {IOS Press},
+address = {NLD},
+volume = {17},
+number = {5},
+issn = {0926-227X},
+abstract = {Computing systems often deliberately release (or declassify) sensitive information. A principal security concern for systems permitting information release is whether this release is safe: is it possible that the attacker compromises the information release mechanism and extracts more secret information than intended? While the security community has recognised the importance of the problem, the state-of-the-art in information release is, unfortunately, a number of approaches with somewhat unconnected semantic goals. We provide a road map of the main directions of current research, by classifying the basic goals according to what information is released, who releases information, where in the system information is released and when information can be released. With a general declassification framework as a long-term goal, we identify some prudent principles of declassification. These principles shed light on existing definitions and may also serve as useful “sanity checks” for emerging models.},
+journal = {J. Comput. Secur.},
+month = {oct},
+pages = {517-548},
+numpages = {32},
+keywords = {declassification, Information flow}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% https://dl.acm.org/doi/pdf/10.1145/3453483.3454074
+
+@inproceedings{10.1145/3453483.3454074,
+author = {Acay, Co\c{s}ku and Recto, Rolph and Gancher, Joshua and Myers, Andrew C. and Shi, Elaine},
+title = {Viaduct: An Extensible, Optimizing Compiler for Secure Distributed Programs},
+year = {2021},
+isbn = {9781450383912},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3453483.3454074},
+doi = {10.1145/3453483.3454074},
+abstract = {Modern distributed systems involve interactions between principals with limited trust, so cryptographic mechanisms are needed to protect confidentiality and integrity. At the same time, most developers lack the training to securely employ cryptography. We present Viaduct, a compiler that transforms high-level programs into secure, efficient distributed realizations. Viaduct's source language allows developers to declaratively specify security policies by annotating their programs with information flow labels. The compiler uses these labels to synthesize distributed programs that use cryptography efficiently while still defending the source-level security policy. The Viaduct approach is general, and can be easily extended with new security mechanisms. Our implementation of the Viaduct compiler comes with an extensible runtime system that includes plug-in support for multiparty computation, commitments, and zero-knowledge proofs. We have evaluated the system on a set of benchmarks, and the results indicate that our approach is feasible and can use cryptography in efficient, nontrivial ways.},
+booktitle = {Proceedings of the 42nd ACM SIGPLAN International Conference on Programming Language Design and Implementation},
+pages = {740-755},
+numpages = {16},
+keywords = {multiparty computation, information flow, zero knowledge},
+location = {Virtual, Canada},
+series = {PLDI 2021}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% https://www.cs.cornell.edu/andru/papers/csfw01.pdf
+
+@INPROCEEDINGS{930133,
+  author={Zdancewic, S. and Myers, A.C.},
+  booktitle={Proceedings. 14th IEEE Computer Security Foundations Workshop, 2001.}, 
+  title={Robust declassification}, 
+  year={2001},
+  volume={},
+  number={},
+  pages={15-23},
+  doi={10.1109/CSFW.2001.930133}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{10.1145/3133956.3134054,
+author = {Cecchetti, Ethan and Myers, Andrew C. and Arden, Owen},
+title = {Nonmalleable Information Flow Control},
+year = {2017},
+isbn = {9781450349468},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3133956.3134054},
+doi = {10.1145/3133956.3134054},
+abstract = {Noninterference is a popular semantic security condition because it offers strong end-to-end guarantees, it is inherently compositional, and it can be enforced using a simple security type system. Unfortunately, it is too restrictive for real systems. Mechanisms for downgrading information are needed to capture real-world security requirements, but downgrading eliminates the strong compositional security guarantees of noninterference.We introduce nonmalleable information flow, a new formal security condition that generalizes noninterference to permit controlled downgrading of both confidentiality and integrity. While previous work on robust declassification prevents adversaries from exploiting the downgrading of confidentiality, our key insight is transparent endorsement, a mechanism for downgrading integrity while defending against adversarial exploitation. Robust declassification appeared to break the duality of confidentiality and integrity by making confidentiality depend on integrity, but transparent endorsement makes integrity depend on confidentiality, restoring this duality. We show how to extend a security-typed programming language with transparent endorsement and prove that this static type system enforces nonmalleable information flow, a new security property that subsumes robust declassification and transparent endorsement. Finally, we describe an implementation of this type system in the context of Flame, a flow-limited authorization plugin for the Glasgow Haskell Compiler.},
+booktitle = {Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security},
+pages = {1875-1891},
+numpages = {17},
+keywords = {information security, information flow control, downgrading, security types},
+location = {Dallas, Texas, USA},
+series = {CCS '17}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 @Misc{jpdf-github,
   title = 	 {URL redacted for double-blind review.}}
+
 

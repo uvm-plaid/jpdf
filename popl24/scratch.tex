@@ -1,37 +1,202 @@
-{\footnotesize
-\begin{verbatimtab}
-  owl(gid) { { k = flip[2,"gate:" || gid || ".k"]; p = flip[2,"gate:" || gid || ".p"] } }
+\documentclass[acmsmall,screen,review]{acmart}
 
-  encode(sa, sb) {
-    let owl1 = owl(sa) in
-    let owl2 = owl(sb) in
-    v[1,gate: || sa || 1.k] := OT(s[1,sa],owl1.k,(not owl1.k));
-    v[1,gate: || sa || 1.p] := OT(s[1,sa],owl1.p,(not owl1.p));
-    v[1,gate: || sb || 2.k] := select(s[2,sb],owl2.k,(not owl2.k));
-    v[1,gate: || sb || 2.p] := select(s[2,sb],owl2.p,(not owl2.p));
-    { wv1 = { k = v[1,"gate:" || sa || "1.k"]; p = v[1,"gate:" || sa || "1.p"] };
-      wv2 = { k = v[1,"gate:" || sb || "2.k"]; p = v[1,"gate:" || sb || "2.p"] } }
-  }
+\usepackage{amsmath}
+\usepackage{amstext}
+\usepackage{fp-frame}
+\usepackage[latin1]{inputenc}
+\usepackage{mathpartir}
+\usepackage{fancyvrb}
+\usepackage{moreverb}
+\usepackage{stmaryrd}
+\usepackage{enumerate}
+\usepackage{thmtools,thm-restate}
+\usepackage{comment}
 
-  andgg(g, ga, gb, wva, wvb) { andgate(g, ga, gb); evalgate(g, wva, wvb) }
+\input{macros}
 
-  decode(g, wv) { garbledecode(wv.g); evaldecode(v) }
-\end{verbatimtab}
-}
+\begin{document}
 
-{\footnotesize
-\begin{verbatimtab}
-  let secrets = encode("s1","s2") in v[0,output] := decode(andgg("0", secrets.wv1, secrets.wv2)) \end{verbatimtab}
-}
+\title{Response to Ian's comments on $\metaprot$ to $\minifed$}
 
-{\footnotesize
-\begin{verbatimtab}
-  owl    :   string(gid)
-  
-  encode :   string(sa) * string(sb)
-  
-  andgg  :  string(g) * { k : bool[1]; p : bool[1] } *  { k : bool[1]; p : bool[1] }
+\maketitle
 
-  decode :  string(g) * { k : bool[1]; p : bool[1] }
-\end{verbatimtab}
-}
+\section{Model (Over)simplifications}
+
+Ian comments that reviewers may push back on (1) our definition of OT
+(actually borrowed from \cite{barthe2019probabilistic}) relies on a
+trusted 3rd party for shared randomness, and (2) reviewers may push
+back on our linear program and reasoning models that don't capture
+concurrency that is a common element of MPC settings.
+
+In fact, these were both strong criticisms of the POPL reviewers.
+They are definitely valid criticisms, but I think we'd need to enrich
+our framework to add them. For example, we could add a notion of
+public key encryption as a language primitive and encode semi-honest
+OT using the protocol described in \cite{evans2018pragmatic}, unless
+there's a way to express public key cryptography in the binary field
+(as we encode OTP symmetric key encryption) that I'm not immediately
+seeing. Concurrency would be a much bigger lift- though this could
+perhaps be addressed using techniques in \cite{MITCHELL2006118}.  I
+note that \cite{barthe2019probabilistic} also provides no support for
+concurrent reasoning, and they were the source for the OT protocol we
+used, and honestly I sort of hoping that we would get the same
+indulgences from reviewers on these points, especially since we were
+avoiding any claims about UC. But I guess Barthe et al.~were targeting
+probabilistic reasoning generally, rather than MPC specifically where
+these issues are more central.
+
+\section{Bridging Formal and Computational Views}
+
+Ian cites \cite{10.1007/3-540-44929-9_1,MITCHELL2006118} as examples
+of ``proving cryptographic security using PL techniques for
+traditional cryptography''. I believe the main point here is about
+the relation of our work to previous work on bridging the gap between
+formal and computational views of security. Since we have similar
+aims the relation is clear at a high level.
+
+Technically speaking there are probably some strong contrasts with
+these citations explicitly. For example,
+in \cite{10.1007/3-540-44929-9_1} the formal view is characterized by
+an equivalence relations on expressions that axiomitizes $\{
+0 \}_K \simeq \{ 1 \}_{K'}$ based on primitize assumptions of PK
+encryption. However, our goal is a lower level analysis that could
+conceivably establish these primitive properties of underlying
+protocols.
+
+The methods developed in \cite{10.1007/3-540-44929-9_1} are very
+sophisticated and perhaps more powerful than needed for the context
+we've been working in. For example, they develop a contextual
+congruence relation that looks as if it could support reasoning
+about UC properties of protocols. But we have definitely been
+considering UC to be out of scope (at least initially). On the
+other hand, their machinery for concurrent reasoning could be
+extremely helpful as disussed above.
+
+\section{Dimensions of Declassification}
+
+I agree it would be interesting to do a ``who what were when''
+analysis for MPC. Another very interesting feature of this work
+is the partial equivalence relation (PER) model.  Our notion of
+``ideal knowledge'' is adapted from the notion of knowledge as defined
+in \cite{10.1007/978-3-540-37621-7_9}, and the PER model is clearly
+related to this. More generally, any ideal functionality $F$ induces a
+PER (an extensional PER, more precisely) I'll call $\mathit{IdealDeclass}$
+that characterizes the downgrading/declassification/delimitation policy,
+where $=_C$ is low equivalence (up to equivalence of inputs from corrupt
+parties C):
+$$
+\forall \bar{x}_1,\bar{x}_2\ .\ F(\bar{x}_1) =_C F(\bar{x}_1) \iff \bar{x}_1
+\ \mathit{IdealDeclass}\ \bar{x}_2  
+$$
+
+However, I'll note that our use of joint probability distributions
+provides more subtle machinery that could be more useful, perhaps
+when integrating subroutines (OT) that enjoy computational hardness
+(vs.~purely formal) correctness properties. For example, if an
+MPC output $y$ is known, then any $\bar{x}$ with $F(\bar{x}) = y$
+is equally likely according to the ``Sabelfeld style'' formulation
+of knowledge, whereas we can assign different $\bar{x}$ different
+probabilities in a joint probability distribution.
+
+\section{Comparison with Downgrading Policies}
+
+Ian mentions Viaduct \cite{10.1145/3453483.3454074} which arguably
+represents the current state-of-the-art in information flow frameworks
+with declassition and endorsement. This was missed related work on our
+part, but I would argue that it is really not directly related to our
+work, for two critical reasons that we are having trouble explaining.
+
+\emph{First}, one general comment about this body of work is that
+downgrading policies as such are defined by the declassifications and
+endorsements themselves. For example, gradual release \cite{4223226}
+is the policy that says only explicitly declassified information is
+released, and robust declassification \cite{930133} is a policy that
+guarantees that an active adversary can't learn any more information
+through declassifications than a passive adversary. Some work shows
+how ``intentional'' release policies are derived syntactically from
+program declassifications as reviewed in
+\cite{10.5555/1662658.1662659}, but these policy expressions are sort
+of awkward and course-grained.
+
+In contrast, MPC establishes an ``upper bound'' on knowledge
+(specifically the PER $\mathit{IdealDeclass}$ defined above if we are
+thinking that way), and our goal is to ensure that declassification
+does not overstep that bound. In fact, we have no explicit
+``declassify'' construct (though perhaps view assignments aka message
+passing are arguably declassifications). Rather, we argue that the
+probability mass function (pmf) is an easily understood ``knowledge
+metric'', and we aim to compute the actual mass function associated
+with the protocol, for a direct comparison of the (ideal) upper bound
+and actual (real) bound.
+
+Going back to Viaduct, my understanding is that this system in the robust
+declassification school of thought, where labeling and explicit
+downgrading and endorsement establish the policy. They also include
+``nonmalleability'' as the dual of robust declassification
+\cite{10.1145/3133956.3134054}. A main result is that their compiler
+can exploit MPC and other protocols in the back end to support the
+policy defined by the security annotations in programs. But they never
+aim to compare this ``syntactic'' policy against an extensional policy
+(as we do). Another point is that they don't need to consider multiple
+partitionings of corrupt and honest parties as is needed in MPC.
+
+\emph{Second}, another general difference is that Viaduct for example
+assumes correctness of the MPC protocols they compile to. In this way
+Viaduct is similar to Wysteria, for example
+\cite{rastogi2014wysteria}. Our goal is to establish a general
+frameword for (semi)-automated verification of the MPC protocols
+themselves.  This is why our mass function formulation, and methods
+for iterating through corrupt/honest partitions, for example, are
+important technical details of our system.
+
+Unfortunately, I think we were not able to persuade reviewers on this
+point because the automated component of the analysis is exponential
+and the manual component looks a lot like probabilistic separation
+logic, and is manual. Not sure how to remedy that- though formulating
+this within some mechanized metatheory, as a reviewer suggested, would
+be an obvious way.
+
+\section{Integrity}
+
+This is a bit speculative but since we are working in a space where
+ideal functionalities $F$ are deterministic, we can formulate
+integrity via the PER $\mathit{IdealEndorse}$ that characterizes the
+following endorsement policy, where $=_H$ is high equivalence (up to
+equivalence of inputs from corrupt parties H):
+$$
+\forall \bar{x}_1,\bar{x}_2\ .\ F(\bar{x}_1) =_H F(\bar{x}_1) \iff \bar{x}_1
+\ \mathit{IdealEndorse}\ \bar{x}_2  
+$$
+
+However, to capture either nonmalleability or robust declassification
+we would need to extend our threat model to capture ``attacks'' as
+defined in \cite{930133}. Our model is essentially passive. This is
+non-trivial but I think can clearly be accomplished.
+
+The potential application to verifiable computing is an interesting
+suggestion.  I frankly need to better understand the relevant security
+properties, but in any case, I do think it's possible to formulate notions
+of both robust declassification and nonmalleability in our
+(probabilistic) language setting. And I suspect there are relations to
+security for verifiable computing and nonmalleability, as well as
+malicious security and robust declassification. In particular I
+speculate that NIMO + robust declassification implies malicious
+security.
+
+\section{Generalizations to Realistic Settings}
+
+I need to spend some time understanding the implementation of SPDZ
+with SHE that Ian cites. However as a general comment I think our
+approach is modular- for example if we replaced our OT primitive where
+we can express its information-leakage characteristics as a pmf, we
+can drop that directly into our framework. Anyway we need to reflect
+on this more, especially related to the main critiques of
+oversimplification especially wrt OT.
+
+
+\bibliographystyle{ACM-Reference-Format}
+%\bibliographystyle{alpha}
+\bibliography{logic-bibliography,secure-computation-bibliography}
+
+
+\end{document}
