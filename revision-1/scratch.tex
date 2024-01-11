@@ -1,0 +1,179 @@
+\section{Passive Security}
+\label{section-nimo}
+The intuition that passive security means that the protocol releases
+no more information than what is released by conditioning on the
+public output and corrupt inputs suggests a
+refinement of noninterference. That is, the set of low equivalent
+initial memories \emph{that can produce the same output} should generate the
+same distributions of adversarial views.
+\begin{definition}[Noninterference Modulo Output]
+  \label{definition-NIMO}
+  We say that a program  $\prog$ satisfies \emph{noninterference modulo output},
+  written $\NIMO(\prog)$, iff for all $H$ and $C$ with $|C|\le|H|$ and 
+  $\store_1,\store_2 \in \mems(S)$ we have:
+  $$
+  (\store_1 =_C \store_2 \ \wedge \ 
+  (\condd{\progd(\prog)}{\{ \outv \}}{\store_1} = \condd{\progd(\prog)}{\{ \outv \}}{\store_2}))
+  \implies 
+  (\condd{\progd(\prog)}{V_C}{\store_1} = \condd{\progd(\prog)}{V_C}{\store_2})
+  $$
+  where $\iov(\prog) = (S,V)$.
+\end{definition}
+
+From an information flow perspective, we can say that a $\NIMO$
+protocol does not release information beyond what is declassified
+via the public output. From a real/ideal perspective, we can
+observe that $\NIMO$ implies that the simulator can use
+the protocol itself to reconstruct the distribution of adversarial
+views. That is, given the output of the ideal functionality
+$\idealf(\store_S)$, the simulator can randomly choose any
+$\store'$ such that $\store' =_C \store$ and $\idealf(\store'_S) =
+\idealf(\store_S)$ and run the protocol with initial memory $\store'$-
+$\NIMO$ guarantees ideal reconstruction of the real-world corrupt views. 
+ However, there is a subtlety here in that the adversary
+must be able to tractably reconstruct this knowledge. This is not
+generally true, in particular, if $\idealf$ is a 1-way
+function. Define:
+\begin{definition}[Ideal Knowledge]
+  Given a functionality $\idealf$ and output value $v$, the associated
+  \emph{ideal knowledge}, denoted $\ik(\idealf,v)$ is
+  $
+  \{ \store\ |\ \idealf(\store) = v \}
+  $.
+  We say that $\idealf$ is \emph{pre-imageable} iff $\ik(\idealf, v)$ for all
+  $v$ can be computed tractably.
+\end{definition}
+Now we can show our main result, that noninterference modulo output,
+together with the assumption that $\idealf$ is pre-imageable, implies
+passive security of a protocol. The proof is provided in Appendix
+\ref{section-proofs}, and follows by essentially the same argument as
+for the analogous property of ``perfect passive NI security'' in
+\cite{8429300}.  
+\begin{restatable}{theorem}{nimosecure}
+  \label{theorem-nimo}
+  Assume given pre-imageable $\idealf$ and a protocol $\prog$ that
+  correctly implements $\idealf$.  If $\NIMO(\prog)$
+  then $\prog$ is passive secure.
+\end{restatable}
+As for noninterference, we can show that $\NIMO$ is equivalent
+to saying that a given program does not change the probability
+of honest secrets conditioned on corrupt secrets and views
+(including the output view), as compared to conditioning on
+just the corrupt secrets and input. In addition to providing
+insights about $\NIMO$, this form is convenient for
+verification techniques. 
+\begin{lemma}
+  \label{lemma-nimo}
+  $\NIMO(\prog)$ iff for all $H$ and $C$ with $|C| \le |H|$ and
+  $\store \in \mems(S \cup V)$:
+  $$\condd{\progd(\prog)}{S_H}{\store_{(S \cup \{\outv\})_C}} =
+  \condd{\progd(\prog)}{S_H}{\store_{(S\cup V)_C}} $$
+  where  $\iov(\prog) = (S,V)$.
+\end{lemma}
+
+
+\section{Malicious Security}
+
+\newcommand{\adversary}{\mathcal{A}}
+\newcommand{\aredx}{\redx_{\adversary}}
+\newcommand{\aredxs}{\redxs_{\adversary}}
+\newcommand{\arewrite}{\mathit{rewrite}_{\adversary}}
+\newcommand{\cinputs}{V_{C \rhd H}}
+\newcommand{\aruns}{\mathit{runs}_\adversary}
+\newcommand{\att}{\mathrm{AD}}
+\newcommand{\support}{\mathit{support}}
+
+$$
+\begin{array}{rclr}
+  (\store, \eassign{\view{\cid}{w}}{\be};\prog) &\aredx&
+    (\extend{\store}{\view{\cid}{w}}{\lcod{\store,\be}{\cid'}}, \prog) &\cid' \in H\\[2mm]
+  (\store, \eassign{\view{\cid}{w}}{\be};\prog) &\aredx&
+    (\extend{\store}{\view{\cid}{w}}{\lcod{\arewrite(\store,\be)}{\cid'}}, \prog) &\cid' \in C
+\end{array}
+$$
+
+\begin{definition}
+  Given $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$:
+  $$
+  \aruns(\prog) \defeq \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \aredxs \config{\store}{\varnothing} \}
+  $$
+  We write $\att(\prog)$ to denote the \emph{adversarial distribution} of
+  $\prog$, where given $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$
+  we have for all $\store \in \mems(S \cup V \cup F)$:
+  $$
+  \att(\prog)(\store) =  1 / 2^{|(S\cup F)_H \cup \cinputs|} \ \text{if}\ \exists \adversary\ .\ \store \in \aruns(\prog), \text{otherwise}\ 0
+  $$
+\end{definition}
+
+\begin{definition}
+  We say that a protocol $\prog$ satisfies \emph{robust confidentiality} if the following conditions hold:
+  \begin{enumerate}
+  \item $\ \,\forall \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|m)) = \support(\att(\prog)(\{ \outv \}|m))$
+  \item $\begin{array}[t]{l}\forall m_1, m_2 \in \mems(S_H), m \in \mems(\cinputs)\ . \\
+    \quad \att(\prog)(\{ \outv \} |m_1 \cup m) = \att(\prog)(\{ \outv \}|m_2 \cup m) \\
+    \qquad \implies\\
+    \quad \att(\prog)(V_C|m_1 \cup m) = \att(\prog)(V_C|m_2 \cup m)\end{array}$
+  \end{enumerate}
+\end{definition}
+
+
+\begin{theorem}
+  If $\prog$ satisfies robust confidentiality then it is malicious secure.
+\end{theorem}
+
+\begin{lemma}
+  \label{lemma-aruns}
+  Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Then:
+  $$
+  \mathit{foldl}\ {tt}\ \mems((S \cup F)_H \cup \cinputs)\ (\mathit{afilter}\ \prog\ \cinputs) = \bigcup_\adversary  \aruns(\prog)
+  $$
+\end{lemma}
+
+
+\begin{comment}
+\section{Robust Declassification}
+
+\begin{definition}[Confidentiality Modulo Output]
+  \label{definition-CMO}
+  We say that a program  $\prog$ satisfies \emph{confidentiality modulo output}
+  iff for all $H$ and $C$ with $|C|\le|H|$ and 
+  $\store_1,\store_2 \in \mems(S)$ we have:
+  $$
+  (\store_1 =_C \store_2 \ \wedge \ 
+  (\condd{\progtt(\prog)}{\{ \outv \}}{\store_1} = \condd{\progtt(\prog)}{\{ \outv \}}{\store_2}))
+  \implies 
+  (\condd{\progtt(\prog)}{V_C}{\store_1} = \condd{\progtt(\prog)}{V_C}{\store_2})
+  $$
+  where $\iov(\prog) = (S,V)$.% and $\flips(\prog) = F$.
+\end{definition}
+
+%$$
+%\condd{\progtt(\prog)}{(S \cup F)_H}{\store_{S_C  \cup \{\outv\}}} =
+%\condd{\progtt(\prog)}{(S \cup F)_H}{\store_{(S\cup F \cup V)_C  \cup \{\outv\}}}
+%$$
+\begin{definition}[Robust Declassification]
+  \label{definition-RD}
+  We say that a program  $\prog$ satisfies \emph{robust declassification}
+  iff for all $H$ and $C$ with $|C|\le|H|$ and 
+  $\store_1,\store_2 \in \mems(S)$ we have:
+  $$
+  (\store_1 =_H \store_2 \ \wedge \ 
+  (\condd{\progtt(\prog)}{\{ \outv \}}{\store_1} = \condd{\progtt(\prog)}{\{ \outv \}}{\store_2}))
+  \implies 
+  (\condd{\progtt(\prog)}{V_C}{\store_1} = \condd{\progtt(\prog)}{V_C}{\store_2})
+  $$
+  where $\iov(\prog) = (S,V)$.% and $\flips(\prog) = F$.
+\end{definition}
+
+
+\begin{theorem}
+  If $\prog$ satisfies robust declassification, then
+  $\prog_{\adversary}$ satisfies confidentiality
+  modulo output for all $\adversary$. 
+\end{theorem}
+
+\begin{theorem}
+  If $\prog$ satisfies robust declassification then it is malicious secure.
+\end{theorem}
+\end{comment}
+
