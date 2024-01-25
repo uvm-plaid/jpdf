@@ -25,6 +25,7 @@
 \renewcommand{\flips}{\mathit{rands}}
 \newcommand{\kmat}{\kappa}
 \renewcommand{\Oracle}{\mathbb{O}}
+\newcommand{\afilter}{\mathit{afilter}}
 
 \begin{fpfig}[t]{Top-to-bottom: $\minifed$ expression interpretation, source code restrictions on keys, and reduction rules.}{fig-minifed}
   {\small
@@ -220,6 +221,8 @@ $$
   \cinputs = \{\ \elab{\mesg{x}}{\cid}\ \mid\  \elab{\mesg{x}}{\cid} \in M \wedge \eassign{\mesg{x}}{\cid}{\be}{\cid'} \in \prog
   \wedge \cid \in H \wedge \cid' \in C \ \} 
   $$
+  Define also $\afilter\ \prog$ as $\prog$ with all instructions of the form $\eassign{\mesg{x}}{\cid}{\be}{\cid'}$ removed
+  where $\cid \in H \wedge \cid' \in C$.
 \end{definition}
 
 \begin{definition}
