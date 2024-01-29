@@ -26,6 +26,7 @@
 \newcommand{\kmat}{\kappa}
 \renewcommand{\Oracle}{\mathbb{O}}
 \newcommand{\afilter}{\mathit{afilter}}
+\renewcommand{\select}[3]{\mathtt{if}\ #1\ \mathtt{then}\ #2\ \mathtt{else}\ #3}
 
 \begin{fpfig}[t]{Top-to-bottom: $\minifed$ expression interpretation, source code restrictions on keys, and reduction rules.}{fig-minifed}
   {\small
@@ -88,10 +89,10 @@
 \begin{example}[Passive-Secure Oblivous Transfer]
   \label{exampl-ot}
   Assume that $p = 2$, i.e., that we are working in the binary field, with operators $\enot$,
-  $\exor$, and $\eand$ under the usual interpretation. We define the following syntactic sugar:
-  $$
-  \select{\be_1}{\be_2}{\be_3} \defeq (\be_1\ \eand\ \be_2)\ \exor\ (\enot\ \be_1\ \eand\ \be_2)
-  $$
+  $\exor$, and $\eand$ under the usual interpretation. %We define the following syntactic sugar:
+  %$$
+  %\select{\be_1}{\be_2}{\be_3} \defeq (\be_1\ \eand\ \be_2)\ \exor\ (\enot\ \be_1\ \eand\ \be_2)
+  %$$
   Here is an oblivious tranfer protocol with a sender $s$, receiver $r$, and a public client
   $\cpub$ to which the receiver outputs the transfered value. 
   $$
@@ -102,7 +103,7 @@
     \elab{\select{\enot\ \secret{choice}}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}}}{r};\\
     \elab{\mesg{c_1}}{r} &:=& \elab{(\mesg{k_1}(\secret{secret_1}))}{s};\\
     \elab{\mesg{c_0}}{r} &:=& \elab{(\mesg{k_2}(\secret{secret_0}))}{s};\\
-    \elab{\outv}{\cpub} &:=& \elab{\select{\secret{choice}}{\sk{\key{x}(\mesg{c_1})}}{\sk{\key{x}(\mesg{c_0})}}}{r}
+    \elab{\outv}{r} &:=& \elab{\select{\secret{choice}}{\sk{\key{x}}(\mesg{c_1})}{\sk{\key{x}}(\mesg{c_0})}}{r}
   \end{array}
   $$
 \end{example}
@@ -123,8 +124,8 @@
   $$
   \keys_{\cid}(\store \cup \kmat) =
   \begin{cases}
-    \{ k \mid \exists \key{x} \in \dom(\kmat_\cid) .  \kmat_\cid(\key{x}) = k\} \qquad\qquad \text{if} \ \cid \in H \\
-    \{ k \mid \exists \elab{\key{x}}{\cid'} \in \cup_{\cid' \in C} . \dom(\kmat_\cid') .  \kmat_\cid'(\key{x}) = k \} \quad \text{if}\ \cid \in C
+    \{ \kmat_\cid(\key{x}) \mid \key{x} \in \dom(\kmat_\cid) \} \qquad \text{if} \ \cid \in H \\
+    \{ \kmat_\cid'(\key{x}) \mid \elab{\key{x}}{\cid'} \in \dom(\kmat_C)  \} \quad\ \text{if}\ \cid \in C
   \end{cases}
   $$
   \begin{eqnarray*}
@@ -173,9 +174,9 @@
 
 \section{Passive Security}
 
-\begin{definition}[Noninterference Modulo Output]
+\begin{definition}[Passive Confidentiality]
   \label{definition-NIMO}
-  We say that a program  $\prog$ satisfies \emph{confidentiality modulo output},
+  We say that a program  $\prog$ satisfies \emph{passive confidentiality}
   iff for all $H$ and $C$ with $|C|\le|H|$ and 
   $\store_1,\store_2 \in \mems(S)$ we have:
   $$
@@ -221,43 +222,54 @@ $$
   \cinputs = \{\ \elab{\mesg{x}}{\cid}\ \mid\  \elab{\mesg{x}}{\cid} \in M \wedge \eassign{\mesg{x}}{\cid}{\be}{\cid'} \in \prog
   \wedge \cid \in H \wedge \cid' \in C \ \} 
   $$
-  Define also $\afilter\ \prog$ as $\prog$ with all instructions of the form $\eassign{\mesg{x}}{\cid}{\be}{\cid'}$ removed
-  where $\cid \in H \wedge \cid' \in C$.
+  %Define also $(\afilter\ \prog)$ as $\prog$ with all instructions of the form $\eassign{\mesg{x}}{\cid}{\be}{\cid'}$ removed
+  %where $\cid \in H \wedge \cid' \in C$.
 \end{definition}
 
 \begin{definition}
-  Given $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$:
-  $$
-  \aruns(\prog) \defeq \{ \store \in \mems(S\cup F \cup V) \mid \config{\store_{S \cup F}}{\prog} \aredxs \config{\store}{\varnothing} \}
-  $$
-  We write $\att(\prog)$ to denote the \emph{adversarial distribution} of
-  $\prog$, where given $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$
-  we have for all $\store \in \mems(S \cup V \cup F)$:
-  $$
-  \att(\prog)(\store) =  1 / 2^{|(S\cup F)_H \cup \cinputs|} \ \text{if}\ \exists \adversary\ .\ \store \in \aruns(\prog), \text{otherwise}\ 0
-  $$
-\end{definition}
-
-\begin{definition}
-  We say that a protocol $\prog$ satisfies \emph{robust confidentiality} if the following conditions hold:
+  We say that a protocol $\prog$ satisfies \emph{active confidentiality} iff the following conditions hold
+  for all adversaries $\adversary$:
   \begin{enumerate}
-  \item $\ \,\forall \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|m)) = \support(\att(\prog)(\{ \outv \}|m))$
-  \item $\begin{array}[t]{l}\forall m_1, m_2 \in \mems(S_H), m \in \mems(\cinputs)\ . \\
-    \quad \att(\prog)(\{ \outv \} |m_1 \cup m) = \att(\prog)(\{ \outv \}|m_2 \cup m) \\
+  \item $\ \,\forall \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|\store)) =
+    \support(\progtt(\prog,\adversary)(\{ \outv \}|\store))$
+  \item $\begin{array}[t]{l}\forall \store_1, \store_2 \in \mems(S_H), \store \in \mems(\cinputs)\ . \\
+    \quad \progtt(\prog,\adversary)(\{ \outv \} |\store_1 \cup \store) = \progtt(\prog,\adversary)(\{ \outv \}|\store_2 \cup \store) \\
     \qquad \implies\\
-    \quad \att(\prog)(V_C|m_1 \cup m) = \att(\prog)(V_C|m_2 \cup m)\end{array}$
+    \quad \progtt(\prog,\adversary)(M_C|\store_1 \cup \store) = \progtt(\prog,\adversary)(M_C|\store_2 \cup \store)\end{array}$
   \end{enumerate}
 \end{definition}
 
-
 \begin{theorem}
-  If $\prog$ satisfies robust confidentiality for all $C$ then it is malicious secure.
+  If $\prog$ satisfies active confidentiality for all $H,C$ then it is malicious secure.
 \end{theorem}
 
-\begin{lemma}
-  \label{lemma-aruns}
-  Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Then:
+\begin{definition}
+  We say that a protocol $\prog$ satisfies \emph{robust declassification} iff for all $\adversary_1,\adversary_2$ and
+  for all $\store \in \mems(S_H)$ with: %and $\store_1,\store_2 \in \cinputs$ with:
   $$
-  \mathit{foldl}\ {tt}\ \mems((S \cup F)_H \cup \cinputs)\ (\mathit{afilter}\ \prog\ \cinputs) = \bigcup_\adversary  \aruns(\prog)
+  \progtt(\prog,\adversary_1)(\{ \outv \} | \store) = \progtt(\prog,\adversary_2)(\{ \outv \}| \store)
   $$
-\end{lemma}
+  we have:
+  $$
+   \progtt(\prog,\adversary_1)(M_C|\store) = \progtt(\prog,\adversary_2)(M_C|\store)
+  $$
+\end{definition}
+
+\begin{theorem}
+  Protocol $\prog$ satisfies active confidentiality if the following conditions hold:
+  \begin{enumerate}
+  \item $\ \,\forall \adversary, \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|\store)) =
+    \support(\progtt(\prog,\adversary)(\{ \outv \}|\store))$
+  \item $\prog$ satisfies passive confidentiality.
+  \item $\prog$ satisfies robust declassification.
+  \end{enumerate}
+\end{theorem}
+
+
+%\begin{lemma}
+%  \label{lemma-aruns}
+%  Given $\prog$ where $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$. Then:
+%  $$
+%  \mathit{foldl}\ {tt}\ \mems((S \cup F)_H \cup \cinputs)\ (\mathit{afilter}\ \prog\ \cinputs) = \bigcup_\adversary  \aruns(\prog)
+%  $$
+%\end{lemma}
