@@ -27,15 +27,16 @@
 \renewcommand{\Oracle}{\mathbb{O}}
 \newcommand{\afilter}{\mathit{afilter}}
 \renewcommand{\select}[3]{\mathtt{if}\ #1\ \mathtt{then}\ #2\ \mathtt{else}\ #3}
+\newcommand{\fp}{\mathit{P}}
 
 \begin{fpfig}[t]{Top-to-bottom: $\minifed$ expression interpretation, source code restrictions on keys, and reduction rules.}{fig-minifed}
   {\small
     $$
     \begin{array}{rcl@{\hspace{8mm}}r}
       \multicolumn{4}{l}{v \in \mathbb{Z}_p,\ k \in \mathrm{Key},\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
-      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \elab{\be}{\Oracle} \mid \ominus \be \mid \be \oplus \be \mid \be \otimes \be \mid & \textit{expressions}\\[1mm]
+      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \key{w} \mid \mesg{w} \mid \elab{\be}{\Oracle} \mid \ominus \be \mid \be \oplus \be \mid \be \otimes \be \mid & \textit{expressions}\\[1mm]
       %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
-      & &  \ctxt{v,\be}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      & &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} & \textit{message send} \\[2mm]
       \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
     \end{array}
@@ -48,7 +49,13 @@
     \lcod{\store, v}{\cid} &=& v\\
     \lcod{\store, \ominus \be}{\cid} & = &  \fcod{\ominus \lcod{\store, \be}{\cid}}\\ 
     \lcod{\store, \be_1 \oplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \oplus \lcod{\store, \be_2}{\cid}}\\ 
-    \lcod{\store, \be_1 \otimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \otimes \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \otimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \otimes \lcod{\store, \be_2}{\cid}}\\
+    \lcod{\store, \eite{\fp(v)}{\be_2}{\be_3}}{\cid} &=&
+    %\begin{cases}
+      \lcod{\store, \be_2}{\cid}\ \text{if}\ \fcod{\fp(v)}\ \text{valid}, 
+      \lcod{\store, \be_3}{\cid}\ \text{ow}\\
+    %\end{cases}
+    \lcod{\store, \eite{\fp(\be_1)}{\be_2}{\be_3}}{\cid} &=& \lcod{\store, \eite{\fp(\lcod{\be_1}{\cid})}{\be_2}{\be_3}}{\cid}\\
     \lcod{\store, \flip{w}}{\cid} &=& \store_\cid(\flip{w})\\
     \lcod{\store, \secret{w}}{\cid} &=& \store_\cid(\secret{w})\\
     \lcod{\store, \mesg{w}}{\cid} &=& \store_\cid(\mesg{w})\\
@@ -98,12 +105,12 @@
   $$
   \begin{array}{rcl}
     \elab{\mesg{k_1}}{s} &:=&
-    \elab{\select{\secret{choice}}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}}}{r};\\
+    \elab{\select{\secret{choice} = 1}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}}}{r};\\
     \elab{\mesg{k_2}}{s} &:=&
-    \elab{\select{\enot\ \secret{choice}}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}}}{r};\\
+    \elab{\select{\secret{choice} = 0}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}}}{r};\\
     \elab{\mesg{c_1}}{r} &:=& \elab{(\mesg{k_1}(\secret{secret_1}))}{s};\\
     \elab{\mesg{c_0}}{r} &:=& \elab{(\mesg{k_2}(\secret{secret_0}))}{s};\\
-    \elab{\outv}{r} &:=& \elab{\select{\secret{choice}}{\sk{\key{x}}(\mesg{c_1})}{\sk{\key{x}}(\mesg{c_0})}}{r}
+    \elab{\outv}{r} &:=& \elab{\select{\secret{choice} = 1}{\sk{\key{x}}(\mesg{c_1})}{\sk{\key{x}}(\mesg{c_0})}}{r}
   \end{array}
   $$
 \end{example}
