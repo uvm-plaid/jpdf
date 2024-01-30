@@ -19,7 +19,7 @@
 \renewcommand{\store}{\sigma}
 \newcommand{\ctxt}[2]{\{ #1 \}_{#2}}
 \newcommand{\cpub}{\mathit{pub}}
-\renewcommand{\views}{\mathcal{V}}
+\renewcommand{\runs}{\mathit{runs}}
 \newcommand{\pattern}[1]{\lfloor #1 \rfloor}
 \newcommand{\fcod}[1]{\lcod{#1}{}}
 \renewcommand{\flips}{\mathit{rands}}
@@ -53,7 +53,7 @@
     \lcod{\store, \eite{\fp(v)}{\be_2}{\be_3}}{\cid} &=&
     %\begin{cases}
       \lcod{\store, \be_2}{\cid}\ \text{if}\ \fcod{\fp(v)}\ \text{valid}, 
-      \lcod{\store, \be_3}{\cid}\ \text{ow}\\
+      \text{otherwise}\ \lcod{\store, \be_3}{\cid}\\
     %\end{cases}
     \lcod{\store, \eite{\fp(\be_1)}{\be_2}{\be_3}}{\cid} &=& \lcod{\store, \eite{\fp(\lcod{\be_1}{\cid})}{\be_2}{\be_3}}{\cid}\\
     \lcod{\store, \flip{w}}{\cid} &=& \store_\cid(\flip{w})\\
@@ -93,24 +93,23 @@
 
 \section{$\minicat$ Protocol Language}
 
-\begin{example}[Passive-Secure Oblivous Transfer]
+\begin{example}[Passive Secure Oblivous Transfer]
   \label{exampl-ot}
   Assume that $p = 2$, i.e., that we are working in the binary field, with operators $\enot$,
   $\exor$, and $\eand$ under the usual interpretation. %We define the following syntactic sugar:
   %$$
   %\select{\be_1}{\be_2}{\be_3} \defeq (\be_1\ \eand\ \be_2)\ \exor\ (\enot\ \be_1\ \eand\ \be_2)
   %$$
-  Here is an oblivious tranfer protocol with a sender $s$, receiver $r$, and a public client
-  $\cpub$ to which the receiver outputs the transfered value. 
+  Here is an oblivious tranfer protocol with a sender $s$ and receiver $r$.
   $$
   \begin{array}{rcl}
     \elab{\mesg{k_1}}{s} &:=&
-    \elab{\select{\secret{choice} = 1}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}}}{r};\\
+    \elab{(\select{\secret{choice} = 1}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}})}{r};\\
     \elab{\mesg{k_2}}{s} &:=&
-    \elab{\select{\secret{choice} = 0}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}}}{r};\\
+    \elab{(\select{\secret{choice} = 0}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}})}{r};\\
     \elab{\mesg{c_1}}{r} &:=& \elab{(\mesg{k_1}(\secret{secret_1}))}{s};\\
     \elab{\mesg{c_0}}{r} &:=& \elab{(\mesg{k_2}(\secret{secret_0}))}{s};\\
-    \elab{\outv}{r} &:=& \elab{\select{\secret{choice} = 1}{\sk{\key{x}}(\mesg{c_1})}{\sk{\key{x}}(\mesg{c_0})}}{r}
+    \elab{\mesg{\mathit{recv}}}{r} &:=& \elab{(\select{\secret{choice} = 1}{\sk{\key{x}}(\mesg{c_1})}{\sk{\key{x}}(\mesg{c_0})})}{r}
   \end{array}
   $$
 \end{example}
@@ -151,19 +150,19 @@
   \label{def-progtt}
   \label{definition-progtt}
   Given fairly distributed key material $\kmat$ and program $\prog$ with $\iov(\prog) = (S,M)$ and $\flips(\prog) = R$,
-  define $\views$ as:
+  define $\runs$ as:
   $$
-  \views \defeq \{ \store \cup \kmat \cup \pattern{\store'} \mid (\dom(\store) = S \cup R) \wedge (\store \cup \kmat,\prog) \redxs
+  \runs \defeq \{ \store \cup \kmat \cup \pattern{\store'} \mid (\dom(\store) = S \cup R) \wedge (\store \cup \kmat,\prog) \redxs
   (\store \cup \kmat \cup \store',\varnothing) \}
   $$
-  %We note immediately that $|\views| = 2^{S \cup F}$ given the (deterministic) definition of $\redx$. 
+  %We note immediately that $|\runs| = 2^{S \cup F}$ given the (deterministic) definition of $\redx$. 
   Define $\progtt(\prog)$ as the program's \emph{basic distribution} such that for all
   $\store \in \mems(S \cup M \cup R)$:
   $$
-  \progtt(\prog)(\store \cup \kmat) =  1 / |\views| \ \text{if}\ \store \cup \kmat \in \views, \text{otherwise}\ 0
+  \progtt(\prog)(\store \cup \kmat) =  1 / |\runs| \ \text{if}\ \store \cup \kmat \in \runs, \text{otherwise}\ 0
   $$
   %\begin{cases}
-  %  1 / |\views| & \text{if}\ \store \in \views\\
+  %  1 / |\runs| & \text{if}\ \store \in \runs\\
   %  0 & \text{otherwise}
   %\end{cases}
   %$$
@@ -210,16 +209,16 @@ $$
   \label{def-progtt}
   \label{definition-progtt}
   Given fairly distributed key material $\kmat$, program $\prog$ with $\iov(\prog) = (S,M)$ and $\flips(\prog) = R$,
-  and adversary $\adversary$, define $\views$ as:
+  and adversary $\adversary$, define $\runs_\adversary$ as:
   $$
-  \views \defeq \{ \store \cup \kmat \cup \pattern{\store'} \mid (\dom(\store) = S \cup R) \wedge (\store \cup \kmat,\prog) \aredxs
+  \runs_\adversary \defeq \{ \store \cup \kmat \cup \pattern{\store'} \mid (\dom(\store) = S \cup R) \wedge (\store \cup \kmat,\prog) \aredxs
   (\store \cup \kmat \cup \store',\varnothing) \}
   $$
-  %We note immediately that $|\views| = 2^{S \cup F}$ given the (deterministic) definition of $\redx$. 
+  %We note immediately that $|\runs| = 2^{S \cup F}$ given the (deterministic) definition of $\redx$. 
   Define $\progtt(\prog, \adversary)$ as the distribution such that for all
   $\store \in \mems(S \cup M \cup R)$:
   $$
-  \progtt(\prog,\adversary)(\store \cup \kmat) =  1 / |\views| \ \text{if}\ \store \cup \kmat \in \views, \text{otherwise}\ 0
+  \progtt(\prog,\adversary)(\store \cup \kmat) =  1 / |\runs| \ \text{if}\ \store \cup \kmat \in \runs_\adversary, \text{otherwise}\ 0
   $$
 \end{definition}
 
@@ -272,6 +271,20 @@ $$
   \end{enumerate}
 \end{theorem}
 
+\begin{lemma}
+  For all $\adversary_1,\adversary_2$ and $\store \in \mems(S_H)$ we have:
+  $$
+  %\begin{array}{c}
+  \progtt(\prog,\adversary_1)(M_C|\store) = \progtt(\prog,\adversary_2)(M_C|\store) \\
+  $$
+  iff:
+  $$
+  \forall \store^1 \in \runs_{\adversary_1},\store^2 \in \runs_{\adversary_2} . 
+  \progtt(\prog,\adversary_1)(M_C|\store \cup \store^1_{\cinputs}) =
+  \progtt(\prog,\adversary_2)(M_C|\store \cup \store^2_{\cinputs})
+  %\end{array}
+  $$
+\end{lemma}
 
 %\begin{lemma}
 %  \label{lemma-aruns}
