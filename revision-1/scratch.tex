@@ -281,21 +281,30 @@ $$
 \end{theorem}
 
 \begin{lemma}
-  For all $\prog$ with $\iov(\prog) = (S,M)$, $\adversary_1$, $\adversary_2$, and
-  $\store \in \mems(S_H)$ we have:
+  A protocol $\prog$ with $\iov(\prog) = (S,M)$ satisfies robust declassification iff for all $\adversary$
+  and $\store \in \runs_\adversary(\prog)$:
   $$
-  %\begin{array}{c}
-  \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store} =
-  \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store} \\
-  $$
-  iff:
-  $$
-  \forall \store^1 \in \runs_{\adversary_1},\store^2 \in \runs_{\adversary_2} . 
-  \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store \cup \store^1_{\cinputs}} =
-  \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store \cup \store^2_{\cinputs}}
-  %\end{array}
+  \condd{\progtt(\prog,\adversary)}{\houtputs}{\outv} =
+  \condd{\progtt(\prog,\adversary)}{\houtputs}{\outv \cup \store_{\cinputs}}
   $$
 \end{lemma}
+
+%\begin{lemma}
+%  For all $\prog$ with $\iov(\prog) = (S,M)$, $\adversary_1$, $\adversary_2$, and
+%  $\store \in \mems(S_H)$ we have:
+%  $$
+%  %\begin{array}{c}
+%  \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store} =
+%  \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store} \\
+%  $$
+%  iff:
+%  $$
+%  \forall \store^1 \in \runs_{\adversary_1},\store^2 \in \runs_{\adversary_2} . 
+%  \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store \cup \store^1_{\cinputs}} =
+%  \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store \cup \store^2_{\cinputs}}
+%  %\end{array}
+%  $$
+%\end{lemma}
 
 %\begin{lemma}
 %  \label{lemma-aruns}
