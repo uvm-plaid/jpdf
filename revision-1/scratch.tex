@@ -183,7 +183,7 @@
 
 \begin{definition}[Passive Confidentiality]
   \label{definition-NIMO}
-  We say that a program  $\prog$ satisfies \emph{passive confidentiality}
+  We say that a program $\prog$ satisfies \emph{passive confidentiality}
   iff for all $H$ and $C$ with $|C|\le|H|$ and 
   $\store_1,\store_2 \in \mems(S)$ we have:
   $$
@@ -223,26 +223,32 @@ $$
   $$
 \end{definition}
 
-\begin{definition}[Corrupt Inputs]
-  Given a program $\prog$, define:
+\begin{definition}[Corrupt Inputs, Honest Outputs]
+  Given a program $\prog$ with $\iov(\prog) = (S,M)$ , define $\cinputs$ as the
+  messages in $M$ sent from corrupt to honest parties:
   $$
   \cinputs = \{\ \elab{\mesg{x}}{\cid}\ \mid\  \elab{\mesg{x}}{\cid} \in M \wedge \eassign{\mesg{x}}{\cid}{\be}{\cid'} \in \prog
   \wedge \cid \in H \wedge \cid' \in C \ \} 
   $$
+  and similarly define $\houtputs$ as the messages in $M$ sent from honest to corrupt parties.
   %Define also $(\afilter\ \prog)$ as $\prog$ with all instructions of the form $\eassign{\mesg{x}}{\cid}{\be}{\cid'}$ removed
   %where $\cid \in H \wedge \cid' \in C$.
 \end{definition}
 
 \begin{definition}
-  We say that a protocol $\prog$ satisfies \emph{active confidentiality} iff the following conditions hold
+  We say that a protocol $\prog$ with $\iov(\prog) = (S,M)$ satisfies \emph{active confidentiality} iff the following conditions hold
   for all adversaries $\adversary$:
   \begin{enumerate}
   \item $\ \,\forall \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|\store)) =
     \support(\progtt(\prog,\adversary)(\{ \outv \}|\store))$
   \item $\begin{array}[t]{l}\forall \store_1, \store_2 \in \mems(S_H), \store \in \mems(\cinputs)\ . \\
-    \quad \progtt(\prog,\adversary)(\{ \outv \} |\store_1 \cup \store) = \progtt(\prog,\adversary)(\{ \outv \}|\store_2 \cup \store) \\
+    \quad
+    \condd{\progtt(\prog,\adversary)}{\{ \outv \}}{\store_1 \cup \store} =
+    \condd{\progtt(\prog,\adversary)}{\{ \outv \}}{\store_2 \cup \store} \\
     \qquad \implies\\
-    \quad \progtt(\prog,\adversary)(\houtputs|\store_1 \cup \store) = \progtt(\prog,\adversary)(\houtputs|\store_2 \cup \store)\end{array}$
+    \quad
+    \condd{\progtt(\prog,\adversary)}{\houtputs}{\store_1 \cup \store} =
+    \condd{\progtt(\prog,\adversary)}{\houtputs}{\store_2 \cup \store}\end{array}$
   \end{enumerate}
 \end{definition}
 
@@ -251,19 +257,21 @@ $$
 \end{theorem}
 
 \begin{definition}
-  We say that a protocol $\prog$ satisfies \emph{robust declassification} iff for all $\adversary_1,\adversary_2$ and
+  We say that a protocol $\prog$ with $\iov(\prog) = (S,M)$ satisfies \emph{robust declassification} iff for all $\adversary_1,\adversary_2$ and
   for all $\store \in \mems(S_H)$ with: %and $\store_1,\store_2 \in \cinputs$ with:
   $$
-  \progtt(\prog,\adversary_1)(\{ \outv \} | \store) = \progtt(\prog,\adversary_2)(\{ \outv \}| \store)
+  \condd{\progtt(\prog,\adversary_1)}{\{ \outv \}}{\store} =
+  \condd{\progtt(\prog,\adversary_2)}{\{ \outv \}}{\store}
   $$
   we have:
   $$
-   \progtt(\prog,\adversary_1)(\houtputs|\store) = \progtt(\prog,\adversary_2)(\houtputs|\store)
+  \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store} =
+  \condd{\progtt(\prog,\adversary_2)}{(\houtputs}{\store}
   $$
 \end{definition}
 
 \begin{theorem}
-  Protocol $\prog$ satisfies active confidentiality if the following conditions hold:
+  Protocol $\prog$ with $\iov(\prog) = (S,M)$ satisfies active confidentiality if the following conditions hold:
   \begin{enumerate}
   \item $\ \,\forall \adversary, \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|\store)) =
     \support(\progtt(\prog,\adversary)(\{ \outv \}|\store))$
@@ -273,16 +281,18 @@ $$
 \end{theorem}
 
 \begin{lemma}
-  For all $\adversary_1,\adversary_2$ and $\store \in \mems(S_H)$ we have:
+  For all $\prog$ with $\iov(\prog) = (S,M)$, $\adversary_1$, $\adversary_2$, and
+  $\store \in \mems(S_H)$ we have:
   $$
   %\begin{array}{c}
-  \progtt(\prog,\adversary_1)(\houtputs|\store) = \progtt(\prog,\adversary_2)(\houtputs|\store) \\
+  \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store} =
+  \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store} \\
   $$
   iff:
   $$
   \forall \store^1 \in \runs_{\adversary_1},\store^2 \in \runs_{\adversary_2} . 
-  \progtt(\prog,\adversary_1)(\houtputs|\store \cup \store^1_{\cinputs}) =
-  \progtt(\prog,\adversary_2)(\houtputs|\store \cup \store^2_{\cinputs})
+  \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store \cup \store^1_{\cinputs}} =
+  \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store \cup \store^2_{\cinputs}}
   %\end{array}
   $$
 \end{lemma}
