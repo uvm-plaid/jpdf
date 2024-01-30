@@ -13,6 +13,7 @@
 \newcommand{\aredxs}{\redxs_{\adversary}}
 \newcommand{\arewrite}{\mathit{rewrite}_{\adversary}}
 \newcommand{\cinputs}{M_{C \rhd H}}
+\newcommand{\houtputs}{M_{H \rhd C}}
 \newcommand{\aruns}{\mathit{runs}_\adversary}
 \newcommand{\att}{\mathrm{AD}}
 \newcommand{\support}{\mathit{support}}
@@ -189,7 +190,7 @@
   (\store_1 =_C \store_2 \ \wedge \ 
   (\condd{\progtt(\prog)}{\{ \outv \}}{\store_1} = \condd{\progtt(\prog)}{\{ \outv \}}{\store_2}))
   \implies 
-  (\condd{\progtt(\prog)}{M_C}{\store_1} = \condd{\progtt(\prog)}{M_C}{\store_2})
+  (\condd{\progtt(\prog)}{\houtputs}{\store_1} = \condd{\progtt(\prog)}{\houtputs}{\store_2})
   $$
   where $\iov(\prog) = (S,M)$.
 \end{definition}
@@ -241,7 +242,7 @@ $$
   \item $\begin{array}[t]{l}\forall \store_1, \store_2 \in \mems(S_H), \store \in \mems(\cinputs)\ . \\
     \quad \progtt(\prog,\adversary)(\{ \outv \} |\store_1 \cup \store) = \progtt(\prog,\adversary)(\{ \outv \}|\store_2 \cup \store) \\
     \qquad \implies\\
-    \quad \progtt(\prog,\adversary)(M_C|\store_1 \cup \store) = \progtt(\prog,\adversary)(M_C|\store_2 \cup \store)\end{array}$
+    \quad \progtt(\prog,\adversary)(\houtputs|\store_1 \cup \store) = \progtt(\prog,\adversary)(\houtputs|\store_2 \cup \store)\end{array}$
   \end{enumerate}
 \end{definition}
 
@@ -257,7 +258,7 @@ $$
   $$
   we have:
   $$
-   \progtt(\prog,\adversary_1)(M_C|\store) = \progtt(\prog,\adversary_2)(M_C|\store)
+   \progtt(\prog,\adversary_1)(\houtputs|\store) = \progtt(\prog,\adversary_2)(\houtputs|\store)
   $$
 \end{definition}
 
@@ -275,13 +276,13 @@ $$
   For all $\adversary_1,\adversary_2$ and $\store \in \mems(S_H)$ we have:
   $$
   %\begin{array}{c}
-  \progtt(\prog,\adversary_1)(M_C|\store) = \progtt(\prog,\adversary_2)(M_C|\store) \\
+  \progtt(\prog,\adversary_1)(\houtputs|\store) = \progtt(\prog,\adversary_2)(\houtputs|\store) \\
   $$
   iff:
   $$
   \forall \store^1 \in \runs_{\adversary_1},\store^2 \in \runs_{\adversary_2} . 
-  \progtt(\prog,\adversary_1)(M_C|\store \cup \store^1_{\cinputs}) =
-  \progtt(\prog,\adversary_2)(M_C|\store \cup \store^2_{\cinputs})
+  \progtt(\prog,\adversary_1)(\houtputs|\store \cup \store^1_{\cinputs}) =
+  \progtt(\prog,\adversary_2)(\houtputs|\store \cup \store^2_{\cinputs})
   %\end{array}
   $$
 \end{lemma}
