@@ -2,6 +2,7 @@
 \renewcommand{\secret}[1]{\ttt{s[}#1\ttt{]}}
 \newcommand{\key}[1]{\ttt{k[}#1\ttt{]}}
 \newcommand{\mesg}[1]{\ttt{m[}#1\ttt{]}}
+\newcommand{\out}[1]{\ttt{out[}#1\ttt{]}}
 \renewcommand{\oracle}[1]{\ttt{H[}#1\ttt{]}}
 \newcommand{\elab}[2]{#1_{#2}}
 \renewcommand{\eassign}[4]{\elab{#1}{#2} := \elab{#3}{#4}}
@@ -29,13 +30,23 @@
 \newcommand{\afilter}{\mathit{afilter}}
 \renewcommand{\select}[3]{\mathtt{if}\ #1\ \mathtt{then}\ #2\ \mathtt{else}\ #3}
 \newcommand{\fp}{\mathit{P}}
+\newcommand{\ftimes}{*}
+\newcommand{\fplus}{+}
+\newcommand{\fminus}{-}
+\newcommand{\mactimes}{\otimes}
+\newcommand{\macplus}{\oplus}
+\newcommand{\macminus}{\ominus}
+\newcommand{\macv}[1]{\langle #1 \rangle}
+\newcommand{\mack}[2]{\langle #1 \rangle.\ttt{k}_{#2}}
+\newcommand{\macshare}[1]{\langle #1 \rangle.\ttt{share}}
+\newcommand{\macauth}{\mathrm{auth}}
 
 \begin{fpfig}[t]{Top-to-bottom: $\minifed$ expression interpretation, source code restrictions on keys, and reduction rules.}{fig-minifed}
   {\small
     $$
     \begin{array}{rcl@{\hspace{8mm}}r}
       \multicolumn{4}{l}{v \in \mathbb{Z}_p,\ k \in \mathrm{Key},\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
-      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \key{w} \mid \mesg{w} \mid \elab{\be}{\Oracle} \mid \ominus \be \mid \be \oplus \be \mid \be \otimes \be \mid & \textit{expressions}\\[1mm]
+      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \key{w} \mid \mesg{w} \mid \elab{\be}{\Oracle} \mid \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid & \textit{expressions}\\[1mm]
       %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       & &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} & \textit{message send} \\[2mm]
@@ -48,15 +59,15 @@
   $$
   \begin{array}{rcl}
     \lcod{\store, v}{\cid} &=& v\\
-    \lcod{\store, \ominus \be}{\cid} & = &  \fcod{\ominus \lcod{\store, \be}{\cid}}\\ 
-    \lcod{\store, \be_1 \oplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \oplus \lcod{\store, \be_2}{\cid}}\\ 
-    \lcod{\store, \be_1 \otimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \otimes \lcod{\store, \be_2}{\cid}}\\
-    \lcod{\store, \eite{\fp(v)}{\be_2}{\be_3}}{\cid} &=&
+    \lcod{\store, \fminus \be}{\cid} & = &  \fcod{\fminus \lcod{\store, \be}{\cid}}\\ 
+    \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
+    \lcod{\store, \select{\fp(v)}{\be_2}{\be_3}}{\cid} &=&
     %\begin{cases}
       \lcod{\store, \be_2}{\cid}\ \text{if}\ \fcod{\fp(v)}\ \text{valid}, 
       \text{otherwise}\ \lcod{\store, \be_3}{\cid}\\
     %\end{cases}
-    \lcod{\store, \eite{\fp(\be_1)}{\be_2}{\be_3}}{\cid} &=& \lcod{\store, \eite{\fp(\lcod{\be_1}{\cid})}{\be_2}{\be_3}}{\cid}\\
+    \lcod{\store, \select{\fp(\be_1)}{\be_2}{\be_3}}{\cid} &=& \lcod{\store, \select{\fp(\lcod{\be_1}{\cid})}{\be_2}{\be_3}}{\cid}\\
     \lcod{\store, \flip{w}}{\cid} &=& \store_\cid(\flip{w})\\
     \lcod{\store, \secret{w}}{\cid} &=& \store_\cid(\secret{w})\\
     \lcod{\store, \mesg{w}}{\cid} &=& \store_\cid(\mesg{w})\\
@@ -105,12 +116,12 @@
   $$
   \begin{array}{rcl}
     \elab{\mesg{k_1}}{s} &:=&
-    \elab{(\select{\secret{choice} = 1}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}})}{r};\\
+    \elab{(\select{\secret{choice} = 1}{\pk{\elab{\flip{z}}{\Oracle}}{\key{z}}}{\pk{\elab{\flip{z}}{\Oracle}}{\elab{\key{z}}{\Oracle}}})}{r};\\
     \elab{\mesg{k_2}}{s} &:=&
-    \elab{(\select{\secret{choice} = 0}{\pk{\elab{\flip{x}}{\Oracle}}{\key{x}}}{\pk{\elab{\flip{x}}{\Oracle}}{\elab{\key{x}}{\Oracle}}})}{r};\\
+    \elab{(\select{\secret{choice} = 0}{\pk{\elab{\flip{z}}{\Oracle}}{\key{z}}}{\pk{\elab{\flip{z}}{\Oracle}}{\elab{\key{z}}{\Oracle}}})}{r};\\
     \elab{\mesg{c_1}}{r} &:=& \elab{(\mesg{k_1}(\secret{secret_1}))}{s};\\
     \elab{\mesg{c_0}}{r} &:=& \elab{(\mesg{k_2}(\secret{secret_0}))}{s};\\
-    \elab{\mesg{\mathit{recv}}}{r} &:=& \elab{(\select{\secret{choice} = 1}{\sk{\key{x}}(\mesg{c_1})}{\sk{\key{x}}(\mesg{c_0})})}{r}
+    \elab{\mesg{\mathit{recv}}}{r} &:=& \elab{(\select{\secret{choice} = 1}{\sk{\key{z}}(\mesg{c_1})}{\sk{\key{z}}(\mesg{c_0})})}{r}
   \end{array}
   $$
 \end{example}
@@ -131,8 +142,8 @@
   $$
   \keys_{\cid}(\store \cup \kmat) =
   \begin{cases}
-    \{ \kmat_\cid(\key{x}) \mid \key{x} \in \dom(\kmat_\cid) \} \qquad \text{if} \ \cid \in H \\
-    \{ \kmat_\cid'(\key{x}) \mid \elab{\key{x}}{\cid'} \in \dom(\kmat_C)  \} \quad\ \text{if}\ \cid \in C
+    \{ \kmat_\cid(\key{w}) \mid \key{w} \in \dom(\kmat_\cid) \} \qquad \text{if} \ \cid \in H \\
+    \{ \kmat_\cid'(\key{w}) \mid \elab{\key{w}}{\cid'} \in \dom(\kmat_C)  \} \quad\ \text{if}\ \cid \in C
   \end{cases}
   $$
   \begin{eqnarray*}
@@ -219,7 +230,7 @@ $$
   Define $\progtt(\prog, \adversary)$ as the distribution such that for all
   $\store \in \mems(S \cup M \cup R)$:
   $$
-  \progtt(\prog,\adversary)(\store \cup \kmat) =  1 / |\runs| \ \text{if}\ \store \cup \kmat \in \runs_\adversary, \text{otherwise}\ 0
+  \progtt(\prog,\adversary)(\store \cup \kmat) =  1 / |\aruns| \ \text{if}\ \store \cup \kmat \in \runs_\adversary, \text{otherwise}\ 0
   $$
 \end{definition}
 
@@ -227,11 +238,11 @@ $$
   Given a program $\prog$ with $\iov(\prog) = (S,M)$ , define $\cinputs$ as the
   messages in $M$ sent from corrupt to honest parties:
   $$
-  \cinputs = \{\ \elab{\mesg{x}}{\cid}\ \mid\  \elab{\mesg{x}}{\cid} \in M \wedge \eassign{\mesg{x}}{\cid}{\be}{\cid'} \in \prog
+  \cinputs = \{\ \elab{\mesg{w}}{\cid}\ \mid\  \elab{\mesg{w}}{\cid} \in M \wedge \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in \prog
   \wedge \cid \in H \wedge \cid' \in C \ \} 
   $$
   and similarly define $\houtputs$ as the messages in $M$ sent from honest to corrupt parties.
-  %Define also $(\afilter\ \prog)$ as $\prog$ with all instructions of the form $\eassign{\mesg{x}}{\cid}{\be}{\cid'}$ removed
+  %Define also $(\afilter\ \prog)$ as $\prog$ with all instructions of the form $\eassign{\mesg{w}}{\cid}{\be}{\cid'}$ removed
   %where $\cid \in H \wedge \cid' \in C$.
 \end{definition}
 
@@ -270,14 +281,41 @@ $$
   $$
 \end{definition}
 
+\begin{definition}
+  We say that a protocol $\prog$ with $\iov(\prog) = (S,M)$ satisfies \emph{transparent endorsement} iff for all $\adversary$ and $\store_1, \store_2 \in \mems(S_H)$ with:
+  $$
+  %\begin{array}[t]{l}
+    \condd{\progtt(\prog,\adversary)}{\{ \outv \}}{\store_1} =
+    \condd{\progtt(\prog,\adversary)}{\{ \outv \}}{\store_2}
+  $$
+  we have:  
+  %  \qquad \implies\\
+  $$
+  \condd{\progtt(\prog,\adversary)}{\cinputs}{\store_1} =
+    \condd{\progtt(\prog,\adversary)}{\cinputs}{\store_2}
+  $$
+\end{definition}
+
+\begin{definition}
+  A protocol $\prog$ with $\iov(\prog) = (S,M)$ is \emph{malicious correct} iff:
+  $$
+  \forall \adversary, \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|\store)) =
+    \support(\progtt(\prog,\adversary)(\{ \outv \}|\store))
+  $$
+\end{definition}
+
 \begin{theorem}
-  Protocol $\prog$ with $\iov(\prog) = (S,M)$ satisfies active confidentiality if the following conditions hold:
-  \begin{enumerate}
-  \item $\ \,\forall \adversary, \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|\store)) =
-    \support(\progtt(\prog,\adversary)(\{ \outv \}|\store))$
-  \item $\prog$ satisfies passive confidentiality.
-  \item $\prog$ satisfies robust declassification.
-  \end{enumerate}
+  If a protocol satisfies robust confidentiality and transparent endorsement, then it is
+  malicious correct.
+\end{theorem}
+\begin{proof}
+  This is a lazy Sunday morning conjecture that I believe is true, but need to think
+  about.
+\end{proof}
+
+\begin{theorem}
+  If a protocol is passive secure with robust confidentiality and
+  transparent endorsement, then it is malicious secure.
 \end{theorem}
 
 \begin{lemma}
@@ -288,6 +326,7 @@ $$
   \condd{\progtt(\prog,\adversary)}{\houtputs}{\outv \cup \store_{\cinputs}}
   $$
 \end{lemma}
+
 
 %\begin{lemma}
 %  For all $\prog$ with $\iov(\prog) = (S,M)$, $\adversary_1$, $\adversary_2$, and
@@ -313,3 +352,55 @@ $$
 %  \mathit{foldl}\ {tt}\ \mems((S \cup F)_H \cup \cinputs)\ (\mathit{afilter}\ \prog\ \cinputs) = \bigcup_\adversary  \aruns(\prog)
 %  $$
 %\end{lemma}
+
+
+$$
+\begin{array}{lll}
+  \elab{\mesg{s1}}{2} &:=&
+  \elab{(\macv{\elab{\secret{x}}{1}}\macplus\macv{\elab{\secret{y}}{2}}
+    \macplus\macv{\elab{\secret{z}}{3}})}{1}\\
+  \elab{\mesg{s1}}{3} &:=&
+  \elab{(\macv{\elab{\secret{x}}{1}}\macplus\macv{\elab{\secret{y}}{2}}
+    \macplus\macv{\elab{\secret{z}}{3}})}{1}\\[1mm]
+  \elab{\mesg{s2}}{1} &:=&
+  \elab{(\macv{\elab{\secret{x}}{1}}\macplus\macv{\elab{\secret{y}}{2}}
+    \macplus\macv{\elab{\secret{z}}{3}})}{2}\\
+  \elab{\mesg{s2}}{3} &:=&
+  \elab{(\macv{\elab{\secret{x}}{1}}\macplus\macv{\elab{\secret{y}}{2}}
+    \macplus\macv{\elab{\secret{z}}{3}})}{2}\\[1mm]
+  \elab{\mesg{s3}}{1} &:=&
+  \elab{(\macv{\elab{\secret{x}}{1}}\macplus\macv{\elab{\secret{y}}{2}}
+    \macplus\macv{\elab{\secret{z}}{3}})}{3}\\
+  \elab{\mesg{s3}}{2} &:=&
+  \elab{(\macv{\elab{\secret{x}}{1}}\macplus\macv{\elab{\secret{y}}{2}}
+    \macplus\macv{\elab{\secret{z}}{3}})}{3}\\[1mm]
+  \out{1} &:=&(
+  \begin{array}[t]{l}
+  \macshare{\macauth(\mesg{s2},\mack{\elab{\secret{x}}{1}}{2}\fplus\mack{\elab{\secret{y}}{2}}{2}
+    \fplus\mack{\elab{\secret{z}}{3}}{2})}\ \fplus\\
+  \macshare{\macauth(\mesg{s3},\mack{\elab{\secret{x}}{1}}{3}\fplus\mack{\elab{\secret{y}}{2}}{3}
+    \fplus\mack{\elab{\secret{z}}{3}}{3})}\ \fplus\\
+  \macshare{\elab{\secret{x}}{1}}\fplus \macshare{\elab{\secret{y}}{2}}
+    \fplus \macshare{\elab{\secret{z}}{3}}\qquad )_1
+  \end{array}\\
+  \out{2} &:=&(
+  \begin{array}[t]{l}
+  \macshare{\macauth(\mesg{s1},\mack{\elab{\secret{x}}{1}}{1}\fplus\mack{\elab{\secret{y}}{2}}{1}
+    \fplus\mack{\elab{\secret{z}}{3}}{1})}\ \fplus\\
+  \macshare{\macauth(\mesg{s3},\mack{\elab{\secret{x}}{1}}{3}\fplus\mack{\elab{\secret{y}}{2}}{3}
+    \fplus\mack{\elab{\secret{z}}{3}}{3})}\ \fplus\\
+  \macshare{\elab{\secret{x}}{1}}\fplus \macshare{\elab{\secret{y}}{2}}
+    \fplus \macshare{\elab{\secret{z}}{3}}\qquad )_2
+  \end{array}\\
+  \out{3} &:=&(
+  \begin{array}[t]{l}
+  \macshare{\macauth(\mesg{s1},\mack{\elab{\secret{x}}{1}}{1}\fplus\mack{\elab{\secret{y}}{2}}{1}
+    \fplus\mack{\elab{\secret{z}}{3}}{1})}\ \fplus\\
+  \macshare{\macauth(\mesg{s2},\mack{\elab{\secret{x}}{1}}{2}\fplus\mack{\elab{\secret{y}}{2}}{2}
+    \fplus\mack{\elab{\secret{z}}{3}}{2})}\ \fplus\\
+  \macshare{\elab{\secret{x}}{1}}\fplus \macshare{\elab{\secret{y}}{2}}
+    \fplus \macshare{\elab{\secret{z}}{3}}\qquad )_3
+  \end{array}\\
+\end{array}
+$$
+
