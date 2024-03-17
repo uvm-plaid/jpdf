@@ -404,15 +404,13 @@ $$
 \end{array}
 $$
 
-%\newcommand{\latel}{\ell}
-%\newcommand{\hilab}
-%\newcommand{\lolab}
 \newcommand{\fieldty}{F}
 \newcommand{\cipherty}{\mathit{c}}
 \newcommand{\macty}{{\fieldty_{\mathit{mac}}}}
 \renewcommand{\unity}[1]{\mathit{U}(#1)}
 \renewcommand{\labty}[3]{#1^{#2}_{#3}}
 \newcommand{\Cenv}{\mathcal{C}}
+\newcommand{\tensor}{\multimap}
 
 \begin{mathpar}
   \inferrule
@@ -422,4 +420,13 @@ $$
   \inferrule
       {\cid \ne \cid'}
       {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\hilab}{\hilab}, \Cenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\lolab}{\hilab}}
+  
+  \inferrule
+      {\cid \ne \cid'}
+      {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\hilab}{\hilab}, \Cenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\lolab}{\hilab}}
 \end{mathpar}
+
+$$
+\macauth : \labty{\macty}{\lolab}{\lolab} * \labty{\unity{\fieldty}}{\hilab}{\hilab} \tensor
+\labty{\macty}{\lolab}{\hilab}
+$$
