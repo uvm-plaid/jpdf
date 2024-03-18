@@ -40,6 +40,17 @@
 \newcommand{\mack}[2]{\langle #1 \rangle.\ttt{k}_{#2}}
 \newcommand{\macshare}[1]{\langle #1 \rangle.\ttt{share}}
 \newcommand{\macauth}{\mathrm{auth}}
+\newcommand{\fieldty}{\mathrm{F}}
+\newcommand{\cipherty}{\mathit{c}}
+\newcommand{\macty}{\hat{\fieldty}}%_{\mathit{mac}}}}
+\renewcommand{\unity}[1]{\mathit{U}(#1)}
+\renewcommand{\labty}[3]{#1^{#2}_{#3}}
+\newcommand{\Cenv}{\mathcal{C}}
+\newcommand{\tensor}{\multimap}
+\newcommand{\lib}{\mathcal{L}}
+\newcommand{\okt}{\mathit{OK}}
+\newcommand{\vty}{t}
+\newcommand{\disty}{\dot{\vty}}
 
 \begin{fpfig}[t]{Top-to-bottom: $\minifed$ expression interpretation, source code restrictions on keys, and reduction rules.}{fig-minifed}
   {\small
@@ -404,29 +415,79 @@ $$
 \end{array}
 $$
 
-\newcommand{\fieldty}{F}
-\newcommand{\cipherty}{\mathit{c}}
-\newcommand{\macty}{{\fieldty_{\mathit{mac}}}}
-\renewcommand{\unity}[1]{\mathit{U}(#1)}
-\renewcommand{\labty}[3]{#1^{#2}_{#3}}
-\newcommand{\Cenv}{\mathcal{C}}
-\newcommand{\tensor}{\multimap}
-
 \begin{mathpar}
   \inferrule
       {}
+      {\Gamma, \Cenv \vdash_{\cid} f : \lib(f)}
+
+  \inferrule
+      {\Gamma, \Cenv \vdash_{\cid} e : \tau' \\ \tau' \le \tau}
+      {\Gamma, \Cenv \vdash_{\cid} e : \tau}
+      
+  \inferrule
+      {}
       {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\hilab}{\hilab}, \Cenv \vdash_\cid \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\hilab}{\hilab}}
-  
+      
   \inferrule
       {\cid \ne \cid'}
       {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\hilab}{\hilab}, \Cenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\lolab}{\hilab}}
-  
+
   \inferrule
-      {\cid \ne \cid'}
-      {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\hilab}{\hilab}, \Cenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\lolab}{\hilab}}
+      { \Gamma_1, \Cenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\lolab}{\latel_1} \\
+        \Gamma_2, \Cenv \vdash_{\cid} \be_2 : \labty{\unity{\macty}}{\hilab}{\latel_2} }
+      {\Gamma_1;\Gamma_2, \Cenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
+
+  \inferrule
+      { \Gamma_1, \Cenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\hilab}{\latel_1} \\
+        \Gamma_2, \Cenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\hilab}{\latel_2} }
+      {\Gamma_1;\Gamma_2, \Cenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
+
+  \inferrule
+      { \Gamma_1, \Cenv \vdash_{\cid} \be_1 : \labty{\macty}{\,\latel_1^c}{\latel^i_1} \\
+        \Gamma_2, \Cenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\latel_2^c}{\latel^i_2} }
+      {\Gamma_1;\Gamma_2, \Cenv \vdash_{\cid} \be_1 \macplus \be_2 :
+        \labty{\macty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {\Gamma_1, \Cenv \vdash_{\cid_2} e : \tau \\ \Gamma_2, \Cenv; \elab{\mesg{w}}{\cid_1} : \tau \vdash \prog : \okt \\ \cid_1,\cid_2 \not\in C}
+      {\Gamma_1;\Gamma_2, \Cenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{e}{\cid_2}; \prog : \okt}
+      
+  \inferrule
+      {\Gamma_1, \Cenv \vdash_{\cid_2} e : \labty{\vty}{\lolab}{\latel} \\
+        \Gamma_2, \Cenv \vdash \prog : \okt \\ \cid_1 \in C \\ \cid_2 \not\in C }
+      {\Gamma_1;\Gamma_2, \Cenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{e}{\cid_2}; \prog : \okt}
+
+  \inferrule
+      {\Gamma, \Cenv; \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\lolab}{\lolab} \vdash \prog : \okt \\ \cid_1 \not\in C \\ \cid_2 \in C}
+      {\Gamma, \Cenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{e}{\cid_2}; \prog : \okt}
+
+  \inferrule
+      {\Gamma, \Cenv \vdash \prog : \okt \\ \cid_1,\cid_2 \in C}
+      {\Gamma, \Cenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{e}{\cid_2}; \prog : \okt}
+
+  \inferrule
+      {\Gamma_1, \Cenv \vdash_{\cid} e : \labty{\vty}{\hilab}{\hilab} \\
+        \Gamma_2, \Cenv \vdash \prog : \okt \\ \cid \not\in C}
+      {\Gamma_1;\Gamma_2, \Cenv \vdash \out{w} := \elab{e}{\cid}; \prog : \okt}
+
+  \inferrule
+      {\Gamma, \Cenv \vdash \prog : \okt \\ \cid \in C}
+      {\Gamma, \Cenv \vdash \out{w} := \elab{e}{\cid}; \prog : \okt}
+\end{mathpar}
+
+\begin{mathpar}
+  \labty{\unity{\macty}}{\latel_1}{\latel_2} <  \labty{\macty}{\,\latel_1}{\latel_2}
+  
+  \labty{\unity{\fieldty}}{\latel_1}{\latel_2} <  \labty{\fieldty}{\,\latel_1}{\latel_2} 
+  
+  \labty{\vty}{\lolab}{\latel} <  \labty{\vty}{\hilab}{\latel} 
+  
+  \labty{\vty}{\latel}{\hilab} <  \labty{\vty}{\latel}{\lolab} 
 \end{mathpar}
 
 $$
-\macauth : \labty{\macty}{\lolab}{\lolab} * \labty{\unity{\fieldty}}{\hilab}{\hilab} \tensor
+\macauth : (\labty{\macty}{\lolab}{\lolab} * \labty{\unity{\fieldty}}{\hilab}{\hilab})\ \tensor\ 
 \labty{\macty}{\lolab}{\hilab}
 $$
