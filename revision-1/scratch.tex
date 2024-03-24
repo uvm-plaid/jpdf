@@ -434,8 +434,14 @@ $$
       {R, \memenv \vdash_{\cid} e : \tau}
 
   \inferrule
-      {R_1, \memenv \vdash{\cid} \be_1 : \tau' \tensor \tau \\ R_2, \memenv \vdash{\cid} \be_2 : \tau' }
-      {R_1;R_2 \vdash{\cid} \be_1\ \be_2 : \tau}
+      {R_1, \memenv \vdash_{\cid} \be_1 : \tau' \tensor \tau \\ R_2, \memenv \vdash_{\cid} \be_2 : \tau' }
+      {R_1;R_2 \vdash_{\cid} \be_1\ \be_2 : \tau}
+
+  \inferrule
+      {R_1, \memenv \vdash_{\cid} \mesg{w} : \tau_1 \oplus \tau_2 \\
+        R_2, \memenv;\mesg{w} : \tau_1 \vdash_{\cid} \be : \tau \\
+        R_2, \memenv;\mesg{w} : \tau_2 \vdash_{\cid} \be : \tau}
+      {R_1;R_2 \vdash_{\cid} \be : \tau}
       
   \inferrule
       {}
@@ -564,6 +570,6 @@ $$
 \end{mathpar}
 
 $$
-\macauth : \labty{\macty}{\lolab}{\lolab}\ \tensor\ \labty{\unity{\fieldty}}{\hilab}{\hilab})\ \tensor\ 
+\macauth : \labty{\macty}{\lolab}{\lolab}\ \tensor\ \labty{\unity{\fieldty}}{\hilab}{\hilab}\ \tensor\ 
 \labty{\macty}{\lolab}{\hilab}
 $$
