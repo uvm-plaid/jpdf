@@ -434,6 +434,10 @@ $$
       {R, \memenv \vdash_{\cid} e : \tau}
 
   \inferrule
+      {R_1, \memenv \vdash{\cid} \be_1 : \tau' \tensor \tau \\ R_2, \memenv \vdash{\cid} \be_2 : \tau' }
+      {R_1;R_2 \vdash{\cid} \be_1\ \be_2 : \tau}
+      
+  \inferrule
       {}
       {\varnothing, \memenv \vdash_{\cid} f : \lib(f)}
 
@@ -491,35 +495,6 @@ $$
         \labty{\fieldty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
 \end{mathpar}
 
-\begin{mathpar}
-  \inferrule
-      {}
-      {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\tlev{\cid}}{\tlev{\cid}}, \memenv \vdash_\cid \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\tlev{\cid}}{\tlev{\cid}}}
-      
-  \inferrule
-      {}
-      {\varnothing, \memenv \vdash_\cid \macv{\elab{\secret{w}}{\cid}} : \labty{\macty}{\tlev{\cid}}{\tlev{\cid}}}
-      
-  \inferrule
-      {\cid \ne \cid'}
-      {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\hilab}{\hilab}, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\lolab}{\hilab}}
-
-  \inferrule
-      { \Gamma_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\lolab}{\latel_1} \\
-        \Gamma_2, \memenv \vdash_{\cid} \be_2 : \labty{\unity{\macty}}{\hilab}{\latel_2} }
-      {\Gamma_1;\Gamma_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
-
-  \inferrule
-      { \Gamma_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\hilab}{\latel_1} \\
-        \Gamma_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\hilab}{\latel_2} }
-      {\Gamma_1;\Gamma_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
-
-  \inferrule
-      { \Gamma_1, \memenv \vdash_{\cid} \be_1 : \labty{\macty}{\,\latel_1^c}{\latel^i_1} \\
-        \Gamma_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\latel_2^c}{\latel^i_2} }
-      {\Gamma_1;\Gamma_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 :
-        \labty{\macty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
-\end{mathpar}
 
 \begin{mathpar}
   \inferrule
@@ -557,7 +532,38 @@ $$
       {\Gamma, \memenv \vdash \out{w} := \elab{e}{\cid}; \prog : \okt}
 \end{mathpar}
 
+
+\begin{mathpar}
+  \inferrule
+      {}
+      {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\tlev{\cid}}{\tlev{\cid}}, \memenv \vdash_\cid \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\tlev{\cid}}{\tlev{\cid}}}
+      
+  \inferrule
+      {}
+      {\varnothing, \memenv \vdash_\cid \macv{\elab{\secret{w}}{\cid}} : \labty{\macty}{\tlev{\cid}}{\tlev{\cid}}}
+      
+  \inferrule
+      {\cid \ne \cid'}
+      {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\hilab}{\hilab}, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\lolab}{\hilab}}
+
+  \inferrule
+      { \Gamma_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\lolab}{\latel_1} \\
+        \Gamma_2, \memenv \vdash_{\cid} \be_2 : \labty{\unity{\macty}}{\hilab}{\latel_2} }
+      {\Gamma_1;\Gamma_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
+
+  \inferrule
+      { \Gamma_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\hilab}{\latel_1} \\
+        \Gamma_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\hilab}{\latel_2} }
+      {\Gamma_1;\Gamma_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
+
+  \inferrule
+      { \Gamma_1, \memenv \vdash_{\cid} \be_1 : \labty{\macty}{\,\latel_1^c}{\latel^i_1} \\
+        \Gamma_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\latel_2^c}{\latel^i_2} }
+      {\Gamma_1;\Gamma_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 :
+        \labty{\macty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
+\end{mathpar}
+
 $$
-\macauth : (\labty{\macty}{\lolab}{\lolab} * \labty{\unity{\fieldty}}{\hilab}{\hilab})\ \tensor\ 
+\macauth : \labty{\macty}{\lolab}{\lolab}\ \tensor\ \labty{\unity{\fieldty}}{\hilab}{\hilab})\ \tensor\ 
 \labty{\macty}{\lolab}{\hilab}
 $$
