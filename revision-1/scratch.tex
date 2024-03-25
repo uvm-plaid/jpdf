@@ -437,11 +437,11 @@ $$
       {R_1, \memenv \vdash_{\cid} \be_1 : \tau' \tensor \tau \\ R_2, \memenv \vdash_{\cid} \be_2 : \tau' }
       {R_1;R_2 \vdash_{\cid} \be_1\ \be_2 : \tau}
 
-  \inferrule
-      {R_1, \memenv \vdash_{\cid} \mesg{w} : \tau_1 \oplus \tau_2 \\
-        R_2, \memenv;\mesg{w} : \tau_1 \vdash_{\cid} \be : \tau \\
-        R_2, \memenv;\mesg{w} : \tau_2 \vdash_{\cid} \be : \tau}
-      {R_1;R_2 \vdash_{\cid} \be : \tau}
+%  \inferrule
+%      {R_1, \memenv \vdash_{\cid} \mesg{w} : \tau_1 \oplus \tau_2 \\
+%        R_2, \memenv;\mesg{w} : \tau_1 \vdash_{\cid} \be : \tau \\
+%        R_2, \memenv;\mesg{w} : \tau_2 \vdash_{\cid} \be : \tau}
+%      {R_1;R_2 \vdash_{\cid} \be : \tau}
       
   \inferrule
       {}
@@ -473,7 +473,7 @@ $$
 
   \inferrule
       { R_1, \memenv \vdash_{\cid} \locflip : \labty{\unity{\fieldty}}{\hilab}{\latel_1} \\
-        R_2, \memenv \vdash_{\cid} \be : \labty{\unity{\fieldty}}{\hilab}{\latel_2} }
+        R_2, \memenv \vdash_{\cid} \be : \labty{\fieldty}{\hilab}{\latel_2} }
       {R_1;R_2, \memenv \vdash_{\cid} \locflip \fplus \be : \labty{\unity{\fieldty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
 
   \inferrule
@@ -504,72 +504,66 @@ $$
 
 \begin{mathpar}
   \inferrule
-      {\Gamma_1,C \vdash_{\cid_1} e_1 : \labty{\fieldty}{\latel^c}{\latel^i} \\
-      \Gamma_2,C \vdash_{\cid_2} e_3 : \tau_2 \\ \Gamma_3,C \vdash_{\cid_2} e_3 : \tau_3 }
-      {\Gamma_1;\Gamma_2;\Gamma_3, C \vdash
-        \elab{\mesg{w}}{\cid_1} :=
-        \elab{\OT{\be_1}{\be_2}{\be_3}}{\cid_2}\quad  \{ \elab{\mesg{w}}{\cid_1} :
-        \tau_2 \oplus \tau_3\} }
+      {R, \memenv \vdash_{\cid_2} \be : \labty{\disty}{\latel^c}{\latel^i} \\
+        \latel^c \le_c \tlev{\cid_1} \\
+        \color{red}{\tlev{\cid_2} \le_i \latel^i}}
+      {R, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{\be}{\cid_2} \quad
+        \{ \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\latel^c}{\latel^i} \}}
       
   \inferrule
-      {\Gamma_1, \memenv \vdash_{\cid_2} e : \tau \\ \Gamma_2, \memenv; \elab{\mesg{w}}{\cid_1} : \tau \vdash \prog : \okt \\ \cid_1,\cid_2 \not\in C}
-      {\Gamma_1;\Gamma_2, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{e}{\cid_2}; \prog : \okt}
-      
+      {R', \memenv \vdash_{\cid_1} \be : \labty{\disty'}{{\latel^c}'}{{\latel^i}'} \\
+       R, \memenv \vdash_{\cid_2} \be_1,\be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
+       %R_2, \memenv \vdash_{\cid_2} \be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
+        \latel^c \le_c \tlev{\cid_1} \\
+        \color{red}{\tlev{\cid_2} \le_i \latel^i}}
+      {R';R, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{\OT{\be}{\be_1}{\be_2}}{\cid_2} \quad
+        \{ \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\latel^c}{\latel^i} \}}
+  
   \inferrule
-      {\Gamma_1, \memenv \vdash_{\cid_2} e : \labty{\vty}{\lolab}{\latel} \\
-        \Gamma_2, \memenv \vdash \prog : \okt \\ \cid_1 \in C \\ \cid_2 \not\in C }
-      {\Gamma_1;\Gamma_2, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{e}{\cid_2}; \prog : \okt}
+      {R, \memenv \vdash_{\cid} \be : \labty{\disty}{\latel^c}{\latel^i} \\
+        \color{red}{\tlev{\cid} \le_i \latel^i}}
+      {R, \memenv \vdash \out{w} := \elab{\be}{\cid} \quad
+        \{ \out{w} : \labty{\disty}{\latel^c}{\latel^i} \}}
 
   \inferrule
-      {\Gamma, \memenv; \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\lolab}{\lolab} \vdash \prog : \okt \\ \cid_1 \not\in C \\ \cid_2 \in C}
-      {\Gamma, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{e}{\cid_2}; \prog : \okt}
-
-  \inferrule
-      {\Gamma, \memenv \vdash \prog : \okt \\ \cid_1,\cid_2 \in C}
-      {\Gamma, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{e}{\cid_2}; \prog : \okt}
-
-  \inferrule
-      {\Gamma_1, \memenv \vdash_{\cid} e : \labty{\vty}{\hilab}{\hilab} \\
-        \Gamma_2, \memenv \vdash \prog : \okt \\ \cid \not\in C}
-      {\Gamma_1;\Gamma_2, \memenv \vdash \out{w} := \elab{e}{\cid}; \prog : \okt}
-
-  \inferrule
-      {\Gamma, \memenv \vdash \prog : \okt \\ \cid \in C}
-      {\Gamma, \memenv \vdash \out{w} := \elab{e}{\cid}; \prog : \okt}
+      {R_1;\memenv \vdash \instr : \memenv' \\ R_2,\memenv;\memenv' \vdash \prog : \okt}
+      {R_1;R_2,\memenv \vdash \instr;\prog : \okt}
 \end{mathpar}
+
 
 
 \begin{mathpar}
   \inferrule
       {}
-      {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\tlev{\cid}}{\tlev{\cid}}, \memenv \vdash_\cid \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\tlev{\cid}}{\tlev{\cid}}}
+      {\macv{\elab{\secret{w}}{\cid}}, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\tlev{\cid}}{\tlev{\cid}}}
       
   \inferrule
       {}
-      {\varnothing, \memenv \vdash_\cid \macv{\elab{\secret{w}}{\cid}} : \labty{\macty}{\tlev{\cid}}{\tlev{\cid}}}
+      {\varnothing, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\macty}{\tlev{\cid}}{\tlev{\cid}}}
       
+%  \inferrule
+%      {\cid \neq \cid'}
+%      {\macv{\elab{\secret{w}}{\cid}}, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\lolab}{\hilab}}
+%      
+%  \inferrule
+%      {\cid \neq \cid'}
+%      {\varnothing, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\macty}{\lolab}{\hilab}}%
   \inferrule
-      {\cid \ne \cid'}
-      {\macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\hilab}{\hilab}, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\lolab}{\hilab}}
+      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\hilab}{\latel_1} \\
+        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\hilab}{\latel_2} }
+      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
 
   \inferrule
-      { \Gamma_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\lolab}{\latel_1} \\
-        \Gamma_2, \memenv \vdash_{\cid} \be_2 : \labty{\unity{\macty}}{\hilab}{\latel_2} }
-      {\Gamma_1;\Gamma_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
-
-  \inferrule
-      { \Gamma_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\hilab}{\latel_1} \\
-        \Gamma_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\hilab}{\latel_2} }
-      {\Gamma_1;\Gamma_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
-
-  \inferrule
-      { \Gamma_1, \memenv \vdash_{\cid} \be_1 : \labty{\macty}{\,\latel_1^c}{\latel^i_1} \\
-        \Gamma_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\latel_2^c}{\latel^i_2} }
-      {\Gamma_1;\Gamma_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 :
-        \labty{\macty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
-\end{mathpar}
+      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\macty}{\,\latel_1^c}{\latel^i_1} \\
+        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\latel_2^c}{\latel^i_2} }
+      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 :
+        \labty{\macty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}\end{mathpar}
 
 $$
 \macauth : \labty{\macty}{\lolab}{\lolab}\ \tensor\ \labty{\unity{\fieldty}}{\hilab}{\hilab}\ \tensor\ 
 \labty{\macty}{\lolab}{\hilab}
 $$
+
+
+
+
