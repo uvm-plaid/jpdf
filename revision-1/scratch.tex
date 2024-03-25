@@ -454,6 +454,10 @@ $$
   \inferrule
       {}
       {\varnothing,\memenv \vdash_{\cid} \secret{w} : \labty{\fieldty}{\tlev{\cid}}{\tlev{\cid}}}
+
+  \inferrule
+      {}
+      {\varnothing,\memenv \vdash_{\cid} \mesg{w} : \memenv(\mesg{w}_{\cid})}
       
   \inferrule
       {}
