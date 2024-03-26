@@ -510,7 +510,7 @@ $$
   \inferrule
       {R, \memenv \vdash_{\cid_2} \be : \labty{\disty}{\latel^c}{\latel^i} \\
         \latel^c \le_c \tlev{\cid_1} \\
-        \color{red}{\tlev{\cid_2} \le_i \latel^i}}
+        \color{red}{\tlev{\cid_2} = \latel^i}}
       {R, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{\be}{\cid_2} \quad
         \{ \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\latel^c}{\latel^i} \}}
       
@@ -519,13 +519,13 @@ $$
        R, \memenv \vdash_{\cid_2} \be_1,\be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
        %R_2, \memenv \vdash_{\cid_2} \be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
         \latel^c \le_c \tlev{\cid_1} \\
-        \color{red}{\tlev{\cid_2} \le_i \latel^i}}
+        \color{red}{\tlev{\cid_2} = \latel^i}}
       {R';R, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{\OT{\be}{\be_1}{\be_2}}{\cid_2} \quad
         \{ \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\latel^c}{\latel^i} \}}
   
   \inferrule
       {R, \memenv \vdash_{\cid} \be : \labty{\disty}{\latel^c}{\latel^i} \\
-        \color{red}{\tlev{\cid} \le_i \latel^i}}
+        \color{red}{\tlev{\cid} = \latel^i}}
       {R, \memenv \vdash \out{w} := \elab{\be}{\cid} \quad
         \{ \out{w} : \labty{\disty}{\latel^c}{\latel^i} \}}
 
