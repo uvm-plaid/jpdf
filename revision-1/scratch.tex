@@ -530,7 +530,7 @@ $$
         \{ \out{w} : \labty{\disty}{\latel^c}{\latel^i} \}}
 
   \inferrule
-      {R_1;\memenv \vdash \instr : \memenv' \\ R_2,\memenv;\memenv' \vdash \prog : \okt}
+      {R_1,\memenv \vdash \instr : \memenv' \\ R_2,\memenv;\memenv' \vdash \prog : \okt}
       {R_1;R_2,\memenv \vdash \instr;\prog : \okt}
 \end{mathpar}
 
