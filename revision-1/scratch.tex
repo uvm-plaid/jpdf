@@ -53,6 +53,7 @@
 \newcommand{\vty}{t}
 \newcommand{\disty}{\dot{\vty}}
 \newcommand{\tlev}[1]{\mathcal{T}(#1)}
+\newcommand{\otp}{\mathrm{OTP}}
 
 \begin{fpfig}[t]{Top-to-bottom: $\minifed$ expression interpretation, source code restrictions on keys, and reduction rules.}{fig-minifed}
   {\small
@@ -442,7 +443,7 @@ $$
 %        R_2, \memenv;\mesg{w} : \tau_1 \vdash_{\cid} \be : \tau \\
 %        R_2, \memenv;\mesg{w} : \tau_2 \vdash_{\cid} \be : \tau}
 %      {R_1;R_2 \vdash_{\cid} \be : \tau}
-      
+%     
   \inferrule
       {}
       {\varnothing, \memenv \vdash_{\cid} f : \lib(f)}
@@ -459,10 +460,10 @@ $$
       {}
       {\varnothing,\memenv \vdash_{\cid} \mesg{w} : \memenv(\mesg{w}_{\cid})}
       
-  \inferrule
-      {}
-      {\{ \flip{w} \},\memenv \vdash_{\cid} \flip{w} : \labty{\unity{\fieldty}}{\lolab}{\tlev{\cid}}}
-
+%  \inferrule
+%      {}
+%      {\{ \flip{w} \},\memenv \vdash_{\cid} \flip{w} : \labty{\unity{\fieldty}}{\lolab}{\tlev{\cid}}}
+%
   \inferrule
       {}
       {\varnothing,\memenv \vdash_{\cid} \flip{w} : \labty{\fieldty}{\lolab}{\tlev{\cid}}}
@@ -475,16 +476,16 @@ $$
       {}
       {\varnothing,\memenv \vdash_{\cid} \locflip : \labty{\fieldty}{\tlev{\cid}}{\tlev{\cid}}}
 
-  \inferrule
-      { R_1, \memenv \vdash_{\cid} \locflip : \labty{\unity{\fieldty}}{\hilab}{\latel_1} \\
-        R_2, \memenv \vdash_{\cid} \be : \labty{\fieldty}{\hilab}{\latel_2} }
-      {R_1;R_2, \memenv \vdash_{\cid} \locflip \fplus \be : \labty{\unity{\fieldty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
-
-  \inferrule
-      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\fieldty}}{\,\latel_1^c}{\latel^i_1} \\
-        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\fieldty}{\,\latel_2^c}{\latel^i_2} }
-      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \fplus \be_2 :
-        \labty{\unity{\fieldty}}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
+%  \inferrule
+%      { R_1, \memenv \vdash_{\cid} \locflip : \labty{\unity{\fieldty}}{\hilab}{\latel_1} \\
+%        R_2, \memenv \vdash_{\cid} \be : \labty{\fieldty}{\hilab}{\latel_2} }
+%      {R_1;R_2, \memenv \vdash_{\cid} \locflip \fplus \be : \labty{\unity{\fieldty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
+%
+% \inferrule
+%      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\fieldty}}{\,\latel_1^c}{\latel^i_1} \\
+%        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\fieldty}{\,\latel_2^c}{\latel^i_2} }
+%      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \fplus \be_2 :
+%        \labty{\unity{\fieldty}}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
 
   \inferrule
       { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\fieldty}{\,\latel_1^c}{\latel^i_1} \\
@@ -505,6 +506,36 @@ $$
         \labty{\fieldty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
 \end{mathpar}
 
+$$
+\otp : \labty{\fieldty}{\hilab}{\hilab}\ \tensor\ \labty{\unity{\fieldty}}{\hilab}{\hilab}\ \tensor\ 
+\labty{\fieldty}{\lolab}{\hilab}
+$$
+
+\begin{definition}
+  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
+  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
+  We write $\sep{\pmf}{X}{Y}$ iff for all
+    $\store \in \mems(X \cup Y)$ we have
+  $\margd{\pmf}{X \cup Y}(\store) =
+  \pmf(\store_X) * \pmf(\store_Y)$
+\end{definition}
+
+
+\begin{lemma}
+  Given $\prog$ and $e$, with $\iov(\prog) = S,M,\varnothing$ and $\randos(\prog) = R$, where
+  all of the following hold:
+  \begin{itemize}
+  \item $R_1, \varnothing \vdash \prog : \memenv$
+  \item $R_2, \memenv \vdash_\cid e :  \labty{\tau}{\lolab}{\latel^i}$
+  \item $\sep{\progtt(\prog)}{M_C \cup (R_H - R_1)}{S_H}$
+  \end{itemize}
+  Then the following holds, where $\iov(\prog,e) = S',M',\varnothing$ and $\randos(\prog,e) = R'$:
+  $$\sep{\progtt(\prog,e)}{M'_C \cup (R'_H - (R_1 \cup R_2))\cup \{\itv \} }{S'_H}$$
+\end{lemma}
+
+\begin{theorem}
+   Given $\prog$ with $\iov(\prog) = S,M,\varnothing$, if 
+\end{theorem}
 
 \begin{mathpar}
   \inferrule
@@ -514,15 +545,15 @@ $$
       {R, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{\be}{\cid_2} \quad
         \{ \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\latel^c}{\latel^i} \}}
       
-  \inferrule
-      {R', \memenv \vdash_{\cid_1} \be : \labty{\disty'}{{\latel^c}'}{{\latel^i}'} \\
-       R, \memenv \vdash_{\cid_2} \be_1,\be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
-       %R_2, \memenv \vdash_{\cid_2} \be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
-        \latel^c \le_c \tlev{\cid_1} \\
-        \color{red}{\tlev{\cid_2} = \latel^i}}
-      {R';R, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{\OT{\be}{\be_1}{\be_2}}{\cid_2} \quad
-        \{ \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\latel^c}{\latel^i} \}}
-  
+%  \inferrule
+%      {R', \memenv \vdash_{\cid_1} \be : \labty{\disty'}{{\latel^c}'}{{\latel^i}'} \\
+%       R, \memenv \vdash_{\cid_2} \be_1,\be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
+%       %R_2, \memenv \vdash_{\cid_2} \be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
+%        \latel^c \le_c \tlev{\cid_1} \\
+%        \color{red}{\tlev{\cid_2} = \latel^i}}
+%      {R';R, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{\OT{\be}{\be_1}{\be_2}}{\cid_2} \quad
+%        \{ \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\latel^c}{\latel^i} \}}
+%  
   \inferrule
       {R, \memenv \vdash_{\cid} \be : \labty{\disty}{\latel^c}{\latel^i} \\
         \color{red}{\tlev{\cid} = \latel^i}}
@@ -530,9 +561,10 @@ $$
         \{ \out{w} : \labty{\disty}{\latel^c}{\latel^i} \}}
 
   \inferrule
-      {R_1,\memenv \vdash \instr : \memenv' \\ R_2,\memenv;\memenv' \vdash \prog : \okt}
-      {R_1;R_2,\memenv \vdash \instr;\prog : \okt}
+      {R_1,\memenv \vdash \instr : \memenv_1 \\ R_2,\memenv;\memenv_1 \vdash \prog : \memenv_2}
+      {R_1;R_2,\memenv \vdash \instr;\prog : \memenv_1;\memenv_2}
 \end{mathpar}
+
 
 
 
@@ -564,10 +596,8 @@ $$
         \labty{\macty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}\end{mathpar}
 
 $$
-\macauth : \labty{\macty}{\lolab}{\lolab}\ \tensor\ \labty{\unity{\fieldty}}{\hilab}{\hilab}\ \tensor\ 
+\macauth : \labty{\macty}{\lolab}{\lolab}\ \tensor\ \labty{\fieldty}{\hilab}{\hilab}\ \tensor\ 
 \labty{\macty}{\lolab}{\hilab}
 $$
-
-
 
 
