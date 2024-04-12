@@ -522,20 +522,20 @@ $$
 
 
 \begin{lemma}
-  Given $\prog$ and $e$, with $\iov(\prog) = S,M,\varnothing$ and $\randos(\prog) = R$, where
+  Given $\prog$ and $\be$, with $\iov(\prog) = S,M,\varnothing$ and $\randos(\prog) = R$, where
   all of the following hold:
   \begin{itemize}
   \item $R_1, \varnothing \vdash \prog : \memenv$
-  \item $R_2, \memenv \vdash_\cid e :  \labty{\tau}{\lolab}{\latel^i}$
+  \item $R_2, \memenv \vdash_\cid \be :  \labty{\tau}{\,\lolab}{\latel^i}$
   \item $\sep{\progtt(\prog)}{M_C \cup (R_H - R_1)}{S_H}$
   \end{itemize}
-  Then the following holds, where $\iov(\prog,e) = S',M',\varnothing$ and $\randos(\prog,e) = R'$:
-  $$\sep{\progtt(\prog,e)}{M'_C \cup (R'_H - (R_1 \cup R_2))\cup \{\itv \} }{S'_H}$$
+  Then the following holds, where $\iov(\prog,\be) = S',M',\varnothing$ and $\randos(\prog,\be) = R'$:
+  $$\sep{\progtt(\prog,\be)}{(M'_C \cup (R'_H - (R_1 \cup R_2))\cup \{\itv \} )}{S'_H}$$
 \end{lemma}
 
 \begin{theorem}
   Given $\prog$ with $\iov(\prog) = S,M,\varnothing$, if $R,\varnothing \vdash \prog : \memenv$
-  for some $R$ and $\memenv$ then $\sep{\progtt}{M_C}{S_H}$.
+  for some $R$ and $\memenv$ then $\sep{\progtt(\prog)}{M_C}{S_H}$.
 \end{theorem}
 
 \begin{mathpar}
@@ -602,3 +602,24 @@ $$
 $$
 
 
+\begin{lemma}
+  Given $\prog$ and $\be$ where all of the following hold:
+  \begin{mathpar}
+  R_1, \varnothing \vdash \prog : \memenv
+
+  R_2, \memenv \vdash_\cid \be :  \labty{\tau}{\latel^c}{\hilab}
+
+  \forall \adversary . \runs_\adversary(\prog) \subseteq \runs(\prog)
+  \end{mathpar}
+  Then $\forall \adversary . \runs_\adversary(\prog,\be) \subseteq \runs(\prog,\be)$. 
+\end{lemma}
+
+\begin{theorem}
+  If $R_1, \varnothing \vdash \prog : \memenv$ then $\prog$ satisfies robust
+  declassification and transparent endorsement.
+\end{theorem}
+
+\begin{theorem}
+  If $\prog$ is passive secure and $R_1, \varnothing \vdash \prog : \memenv$, then
+  $\prog$ is malicious secure.
+\end{theorem}
