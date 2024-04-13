@@ -282,6 +282,13 @@ $$
 \end{theorem}
 
 \begin{definition}
+  A protocol $\prog$ with $\iov(\prog) = (S,M)$ has \emph{integrity} iff 
+  $\forall \adversary . \runs_\adversary(\prog) \subseteq \runs(\prog)$.
+\end{definition}
+
+
+
+\begin{definition}
   We say that a protocol $\prog$ with $\iov(\prog) = (S,M)$ satisfies \emph{robust declassification} iff for all $\adversary_1,\adversary_2$ and
   for all $\store \in \mems(S_H)$ with: %and $\store_1,\store_2 \in \cinputs$ with:
   $$
