@@ -1,0 +1,62 @@
+\section{The $\minicat$ Protocol Language}
+
+\begin{fpfig}[t]{Top-to-bottom: $\minifed$ expression interpretation, source code restrictions on keys, and reduction rules.}{fig-minifed}
+  {\small
+    $$
+    \begin{array}{rcl@{\hspace{8mm}}r}
+      \multicolumn{4}{l}{v \in \mathbb{Z}_p,\ k \in \mathrm{Key},\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \key{w} \mid \mesg{w} \mid \elab{\be}{\Oracle} \mid \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid & \textit{expressions}\\[1mm]
+      %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      & &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} & \textit{message send} \\[2mm]
+      \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
+    \end{array}
+    $$
+  
+  \rule{130mm}{0.5pt}
+
+  $$
+  \begin{array}{rcl}
+    \lcod{\store, v}{\cid} &=& v\\
+    \lcod{\store, \fminus \be}{\cid} & = &  \fcod{\fminus \lcod{\store, \be}{\cid}}\\ 
+    \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
+    \lcod{\store, \select{\fp(v)}{\be_2}{\be_3}}{\cid} &=&
+    %\begin{cases}
+      \lcod{\store, \be_2}{\cid}\ \text{if}\ \fcod{\fp(v)}\ \text{valid}, 
+      \text{otherwise}\ \lcod{\store, \be_3}{\cid}\\
+    %\end{cases}
+    \lcod{\store, \select{\fp(\be_1)}{\be_2}{\be_3}}{\cid} &=& \lcod{\store, \select{\fp(\lcod{\be_1}{\cid})}{\be_2}{\be_3}}{\cid}\\
+    \lcod{\store, \flip{w}}{\cid} &=& \store_\cid(\flip{w})\\
+    \lcod{\store, \secret{w}}{\cid} &=& \store_\cid(\secret{w})\\
+    \lcod{\store, \mesg{w}}{\cid} &=& \store_\cid(\mesg{w})\\
+    \lcod{\store, \key{w}}{\cid}  &=&  \store_\cid(\key{w})\\
+    \lcod{\store, \elab{\flip{w}}{\Oracle}}{\cid} &=& \store_\Oracle(\flip{w})\\
+    \lcod{\store, \elab{\key{w}}{\Oracle}}{\cid} &=& \store_\Oracle(\key{w})\\
+    \lcod{\store, \sk{k}(\ctxt{v,\_}{k})}{\cid} &=& v\\
+    \lcod{\store, \sk{\be_1}(\be_2)}{\cid} &=& \lcod{\store, \sk{\lcod{\store,\be_1}{\cid}}(\lcod{\store, \be_2}{\cid})}{\cid}\\
+    \lcod{\store, \pk{k}{\_}(v)}{\cid} &=& \ctxt{v,\elab{\flip{\mathit{fresh}}}{\Oracle}}{k}\\
+    \lcod{\store, \pk{\be_1}{\be_2}(\be_3)}{\cid} &=&  
+       \lcod{\store, \pk{\lcod{\store,\be_1}{\cid}}{\lcod{\store, \be_2}{\cid}}(\lcod{\store, \be_3}{\cid})}{\cid}\\
+    \lcod{\store, \pk{k}{v}}{\cid} &=& \pk{k}{v}\\
+    \lcod{\store, \pk{\be_1}{\be_2}}{\cid} &=& \lcod{\store, \pk{\lcod{\store,\be_1}{\cid}}{\lcod{\store, \be_2}{\cid}}}{\cid}
+  \end{array} 
+  $$
+
+  \vspace{4mm}
+  
+  \rule{130mm}{0.5pt}
+  \begin{mathpar}
+    \sk{\key{w}}
+
+    \pk{\key{w}}{\elab{\flip{w}}{\Oracle}}
+
+    \pk{\elab{\key{w}}{\Oracle}}{\elab{\flip{w}}{\Oracle}}
+  \end{mathpar}  
+  \rule{130mm}{0.5pt}
+
+  \begin{mathpar}
+    (\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)
+  \end{mathpar}
+  }
+\end{fpfig} 

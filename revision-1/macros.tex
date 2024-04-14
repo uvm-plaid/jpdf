@@ -420,7 +420,65 @@
 %\newcommand{\pmf}{\mathrm{Pr}}
 \newcommand{\pmf}{\mathit{P}}
 
-\long\def\cnote#1{{\small\textbf{\textit{\color{brown}(*#1 -- Chris*)}}}}
-\long\def\mnote#1{{\small\textbf{\textit{\color{blue}(*#1 -- Michael*)}}}}
-\long\def\dnote#1{{\small\textbf{\textit{\color{violet}(*#1 -- David*)}}}}
+%%%% REVISION DEFS
+
+\renewcommand{\flip}[1]{\ttt{r[}#1\ttt{]}}
+\newcommand{\locflip}{\ttt{r[}\mathit{local}\ttt{]}}
+\renewcommand{\secret}[1]{\ttt{s[}#1\ttt{]}}
+\newcommand{\key}[1]{\ttt{k[}#1\ttt{]}}
+\newcommand{\mesg}[1]{\ttt{m[}#1\ttt{]}}
+\newcommand{\out}[1]{\ttt{out[}#1\ttt{]}}
+\renewcommand{\oracle}[1]{\ttt{H[}#1\ttt{]}}
+\newcommand{\elab}[2]{#1_{#2}}
+\renewcommand{\eassign}[4]{\elab{#1}{#2} := \elab{#3}{#4}}
+\newcommand{\sk}[1]{\mathrm{sk}[#1]}
+\newcommand{\pk}[2]{\mathrm{pk}[#1,#2]}
+\newcommand{\kgen}[1]{\mathit{kgen}(#1)}
+\newcommand{\adversary}{\mathcal{A}}
+\newcommand{\aredx}{\redx_{\adversary}}
+\newcommand{\aredxs}{\redxs_{\adversary}}
+\newcommand{\arewrite}{\mathit{rewrite}_{\adversary}}
+\newcommand{\cinputs}{M_{C \rhd H}}
+\newcommand{\houtputs}{M_{H \rhd C}}
+\newcommand{\aruns}{\mathit{runs}_\adversary}
+\newcommand{\att}{\mathrm{AD}}
+\newcommand{\support}{\mathit{support}}
+\renewcommand{\store}{\sigma}
+\newcommand{\ctxt}[2]{\{ #1 \}_{#2}}
+\newcommand{\cpub}{\mathit{pub}}
+\renewcommand{\runs}{\mathit{runs}}
+\newcommand{\pattern}[1]{\lfloor #1 \rfloor}
+\newcommand{\fcod}[1]{\lcod{#1}{}}
+\renewcommand{\flips}{\mathit{rands}}
+\newcommand{\kmat}{\kappa}
+\renewcommand{\Oracle}{\mathbb{O}}
+\newcommand{\afilter}{\mathit{afilter}}
+\renewcommand{\select}[3]{\mathtt{if}\ #1\ \mathtt{then}\ #2\ \mathtt{else}\ #3}
+\newcommand{\fp}{\mathit{P}}
+\newcommand{\ftimes}{*}
+\newcommand{\fplus}{+}
+\newcommand{\fminus}{-}
+\newcommand{\mactimes}{\hat{\ftimes}}%{\otimes}
+\newcommand{\macplus}{\hat{\fplus}}%\oplus}
+\newcommand{\macminus}{\hat{\fminus}}%{\ominus}
+\newcommand{\macv}[1]{\langle #1 \rangle}
+\newcommand{\mack}[2]{\langle #1 \rangle.\ttt{k}_{#2}}
+\newcommand{\macshare}[1]{\langle #1 \rangle.\ttt{share}}
+\newcommand{\macauth}{\mathrm{auth}}
+\newcommand{\fieldty}{\mathrm{F}}
+\newcommand{\cipherty}{\mathit{c}}
+\newcommand{\macty}{\hat{\fieldty}}%_{\mathit{mac}}}}
+\renewcommand{\unity}[1]{\mathit{U}(#1)}
+\renewcommand{\labty}[3]{#1^{#2}_{#3}}
+\newcommand{\memenv}{\mathcal{M}}
+\newcommand{\tensor}{\multimap}
+\newcommand{\lib}{\mathcal{L}}
+\newcommand{\okt}{\mathit{OK}}
+\newcommand{\vty}{t}
+\newcommand{\disty}{\dot{\vty}}
+\newcommand{\tlev}[1]{\mathcal{T}(#1)}
+\newcommand{\otp}{\mathrm{OTP}}
+
+\long\def\cnote#1{{\small\textbf{\textit{\color{violet}(*#1 -- Chris*)}}}}
 \long\def\jnote#1{{\small\textbf{\textit{\color{brown}(*#1 -- Joe*)}}}}
+
