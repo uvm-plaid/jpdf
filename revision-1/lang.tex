@@ -1,14 +1,14 @@
 \section{The $\minicat$ Protocol Language}
 
-\begin{fpfig}[t]{Top-to-bottom: $\minifed$ expression interpretation, source code restrictions on keys, and reduction rules.}{fig-minifed}
-  {\small
+\begin{fpfig}[t]{Top-to-bottom: $\minifed$ syntax, expression interpretation, and reduction rules.}{fig-minifed}
+  {
     $$
     \begin{array}{rcl@{\hspace{8mm}}r}
-      \multicolumn{4}{l}{v \in \mathbb{Z}_p,\ k \in \mathrm{Key},\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
-      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \key{w} \mid \mesg{w} \mid \elab{\be}{\Oracle} \mid \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid & \textit{expressions}\\[1mm]
+      \multicolumn{4}{l}{v \in \mathbb{Z}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \out{w} \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid f \mid \be\,\be & \textit{expressions}\\[2mm]
       %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
-      & &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
-      \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} & \textit{message send} \\[2mm]
+      %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \pubout{w}{\be}{\cid} & \textit{commands} \\[2mm]
       \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
     \end{array}
     $$
@@ -16,47 +16,119 @@
   \rule{130mm}{0.5pt}
 
   $$
+  \begin{array}{c@{\hspace{5mm}}c}
   \begin{array}{rcl}
     \lcod{\store, v}{\cid} &=& v\\
-    \lcod{\store, \fminus \be}{\cid} & = &  \fcod{\fminus \lcod{\store, \be}{\cid}}\\ 
     \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
-    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
-    \lcod{\store, \select{\fp(v)}{\be_2}{\be_3}}{\cid} &=&
-    %\begin{cases}
-      \lcod{\store, \be_2}{\cid}\ \text{if}\ \fcod{\fp(v)}\ \text{valid}, 
-      \text{otherwise}\ \lcod{\store, \be_3}{\cid}\\
-    %\end{cases}
-    \lcod{\store, \select{\fp(\be_1)}{\be_2}{\be_3}}{\cid} &=& \lcod{\store, \select{\fp(\lcod{\be_1}{\cid})}{\be_2}{\be_3}}{\cid}\\
-    \lcod{\store, \flip{w}}{\cid} &=& \store_\cid(\flip{w})\\
-    \lcod{\store, \secret{w}}{\cid} &=& \store_\cid(\secret{w})\\
-    \lcod{\store, \mesg{w}}{\cid} &=& \store_\cid(\mesg{w})\\
-    \lcod{\store, \key{w}}{\cid}  &=&  \store_\cid(\key{w})\\
-    \lcod{\store, \elab{\flip{w}}{\Oracle}}{\cid} &=& \store_\Oracle(\flip{w})\\
-    \lcod{\store, \elab{\key{w}}{\Oracle}}{\cid} &=& \store_\Oracle(\key{w})\\
-    \lcod{\store, \sk{k}(\ctxt{v,\_}{k})}{\cid} &=& v\\
-    \lcod{\store, \sk{\be_1}(\be_2)}{\cid} &=& \lcod{\store, \sk{\lcod{\store,\be_1}{\cid}}(\lcod{\store, \be_2}{\cid})}{\cid}\\
-    \lcod{\store, \pk{k}{\_}(v)}{\cid} &=& \ctxt{v,\elab{\flip{\mathit{fresh}}}{\Oracle}}{k}\\
-    \lcod{\store, \pk{\be_1}{\be_2}(\be_3)}{\cid} &=&  
-       \lcod{\store, \pk{\lcod{\store,\be_1}{\cid}}{\lcod{\store, \be_2}{\cid}}(\lcod{\store, \be_3}{\cid})}{\cid}\\
-    \lcod{\store, \pk{k}{v}}{\cid} &=& \pk{k}{v}\\
-    \lcod{\store, \pk{\be_1}{\be_2}}{\cid} &=& \lcod{\store, \pk{\lcod{\store,\be_1}{\cid}}{\lcod{\store, \be_2}{\cid}}}{\cid}
-  \end{array} 
+    \lcod{\store, \be_1 \fminus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fminus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}
+  \end{array} & 
+  \begin{array}{rcl}
+    \lcod{\store, \flip{w}}{\cid} &=& \store(\elab{\flip{w}}{\cid})\\
+    \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
+    \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
+    \lcod{\store, \out{w}}{\cid} &=& \store(\out{w})\\
+    \lcod{\store, f\,e_1\,\cdots\, e_n}{\cid} &=& \delta(f,\lcod{\store, e_1}{\cid},\ldots,\lcod{\store,e_n}{\cid})
+  \end{array}
+  \end{array}
   $$
 
   \vspace{4mm}
   
   \rule{130mm}{0.5pt}
-  \begin{mathpar}
-    \sk{\key{w}}
-
-    \pk{\key{w}}{\elab{\flip{w}}{\Oracle}}
-
-    \pk{\elab{\key{w}}{\Oracle}}{\elab{\flip{w}}{\Oracle}}
-  \end{mathpar}  
-  \rule{130mm}{0.5pt}
 
   \begin{mathpar}
     (\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)
+    
+    (\store, \pubout{w}{\be}{\cid};\prog) \redx (\extend{\store}{\out{w}}{\lcod{\store,\be}{\cid}}, \prog)
   \end{mathpar}
   }
 \end{fpfig} 
+
+
+$$
+\delta(\otp,v_1,v_2) \defeq v_1 \fplus v_2
+$$
+
+$$
+\begin{array}{lll}
+  \elab{\mesg{s1}}{2} &:=& \elab{(\otp\ \locflip\ (\flip{x} \fplus \secret{1})}{1} \\ 
+  \elab{\mesg{s1}}{3} &:=& \elab{\flip{x}}{1} \\ 
+  \elab{\mesg{s2}}{1} &:=& \elab{(\otp\ \locflip\ (\flip{x} \fplus \secret{2})}{2} \\ 
+  \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
+  \elab{\mesg{s3}}{1} &:=& \elab{(\otp\ \locflip\ (\flip{x} \fplus \secret{3})}{3} \\ 
+  \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3} \\ 
+  \out{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  \out{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
+  \out{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\ 
+  \out{sum1} &:=& \elab{(\out{1} \fplus \out{2} + \out{3})}{1}\\
+  \out{sum2} &:=& \elab{(\out{1} \fplus \out{2} + \out{3})}{2}\\
+  \out{sum3} &:=& \elab{(\out{1} \fplus \out{2} + \out{3})}{3}
+  %\elab{\mesg{o1}}{2} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  %\elab{\mesg{o1}}{3} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  %\elab{\mesg{o2}}{1} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
+  %\elab{\mesg{o2}}{3} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\ 
+  %\elab{\mesg{o3}}{1} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\ 
+  %\elab{\mesg{o3}}{2} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3}\\ 
+  %\pubout{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3} + \mesg{o2} + \mesg{o3})}{1}
+\end{array}
+$$
+
+$$
+(v, [m_1,\ldots,m_n])
+$$
+$$
+k_1,\ldots,k_n
+$$
+$$
+m_\cid = k_\cid + (k_\Delta * v)
+$$
+
+$$
+\delta(\macplus,(v^1, [m_1^1,\ldots,m^1_n]),(v^2, [m_1^2,\ldots,m^2_n]))
+\defeq
+(v^1 \fplus v^2, [m_1^1 \fplus m_1^2 ,\ldots,m^1_n \fplus m_n^2])
+$$
+
+$$
+\elab{\macv{\elab{v}{\cid}}}{1} \macplus \cdots \macplus \elab{\macv{\elab{v}{\cid}}}{n} =
+(v,\ldots)
+$$
+
+$$
+\delta(\macotp,v_1,v_2) \defeq v_1 \macplus v_2
+$$
+
+$$
+\delta(\macauth, (v, [\ldots,m_\cid,\ldots]), k_\cid) \defeq
+     (v, [\ldots,m_\cid,\ldots]) \text{\ if\ } m_i = k_i + (k_\Delta * v)
+$$
+
+$$
+\begin{array}{lcl}
+  \elab{\mesg{a}}{2} &:=&
+  \elab{(\macotp\ \macv{\elab{\secret{x}}{1}}\ \macv{\elab{\flip{a}}{\Oracle}})}{1}\\
+  \elab{\mesg{a}}{1} &:=&
+  \elab{(\macotp\ \macv{\elab{\secret{x}}{1}}\ \macv{\elab{\flip{a}}{\Oracle}})}{2}\\
+  \elab{\mesg{b}}{2} &:=&
+  \elab{(\macotp\ \macv{\elab{\secret{y}}{2}}\ \macv{\elab{\flip{b}}{\Oracle}})}{1}\\
+  \elab{\mesg{b}}{1} &:=&
+  \elab{(\macotp\ \macv{\elab{\secret{y}}{2}}\ \macv{\elab{\flip{b}}{\Oracle}})}{2}\\
+  \elab{\mesg{d}}{1} &:=&
+  \elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{2} \fminus \mack{\elab{\flip{a}}{\Oracle}}{2}) \macplus (\macv{\elab{\secret{x}}{1}}\macminus\macv{\elab{\flip{a}}{\Oracle}}))}{1}\\
+  \elab{\mesg{e}}{1} &:=&
+  \elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{2} \fminus \mack{\elab{\flip{b}}{\Oracle}}{2}) \macplus (\macv{\elab{\secret{y}}{2}}\macminus\macv{\elab{\flip{b}}{\Oracle}}))}{1}\\
+  %\elab{\mesg{d}}{2} &:=&
+  %\elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{1} \fminus \mack{\elab{\flip{a}}{\Oracle}}{1}) \macplus (\macv{\elab{\secret{x}}{1}}\macminus\macv{\elab{\flip{a}}{\Oracle}}))}{2}\\
+  %\elab{\mesg{e}}{2} &:=&
+  %\elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{1} \fminus \mack{\elab{\flip{b}}{\Oracle}}{1}) \macplus (\macv{\elab{\secret{y}}{2}}\macminus\macv{\elab{\flip{b}}{\Oracle}}))}{2}\\
+  \out{1} &:=&
+  \elab{( (\mesg{d} \mactimes \mesg{e}) \macplus
+          (\mesg{d} \mactimes \macv{\elab{\flip{b}}{\Oracle}}) \macplus
+          (\mesg{e} \mactimes \macv{\elab{\flip{a}}{\Oracle}}) \macplus \macv{\elab{\secret{c}}{\Oracle}}
+    )}{1}\\
+  & \vdots & 
+\end{array}
+$$
+
+

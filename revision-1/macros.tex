@@ -431,6 +431,7 @@
 \renewcommand{\oracle}[1]{\ttt{H[}#1\ttt{]}}
 \newcommand{\elab}[2]{#1_{#2}}
 \renewcommand{\eassign}[4]{\elab{#1}{#2} := \elab{#3}{#4}}
+\newcommand{\pubout}[3]{\out{#1} := \elab{#2}{#3}}
 \newcommand{\sk}[1]{\mathrm{sk}[#1]}
 \newcommand{\pk}[2]{\mathrm{pk}[#1,#2]}
 \newcommand{\kgen}[1]{\mathit{kgen}(#1)}
@@ -458,9 +459,9 @@
 \newcommand{\ftimes}{*}
 \newcommand{\fplus}{+}
 \newcommand{\fminus}{-}
-\newcommand{\mactimes}{\hat{\ftimes}}%{\otimes}
-\newcommand{\macplus}{\hat{\fplus}}%\oplus}
-\newcommand{\macminus}{\hat{\fminus}}%{\ominus}
+\newcommand{\mactimes}{\,\hat{\ftimes}\,}%{\otimes}
+\newcommand{\macplus}{\,\hat{\fplus}\,}%\oplus}
+\newcommand{\macminus}{\,\hat{\fminus}\,}%{\ominus}
 \newcommand{\macv}[1]{\langle #1 \rangle}
 \newcommand{\mack}[2]{\langle #1 \rangle.\ttt{k}_{#2}}
 \newcommand{\macshare}[1]{\langle #1 \rangle.\ttt{share}}
@@ -477,7 +478,8 @@
 \newcommand{\vty}{t}
 \newcommand{\disty}{\dot{\vty}}
 \newcommand{\tlev}[1]{\mathcal{T}(#1)}
-\newcommand{\otp}{\mathrm{OTP}}
+\newcommand{\otp}{\mathrm{sum}}
+\newcommand{\macotp}{\hat{\otp}}
 
 \long\def\cnote#1{{\small\textbf{\textit{\color{violet}(*#1 -- Chris*)}}}}
 \long\def\jnote#1{{\small\textbf{\textit{\color{brown}(*#1 -- Joe*)}}}}
