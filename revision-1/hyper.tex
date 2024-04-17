@@ -1,6 +1,8 @@
 \section{Security Hyperproperties}
 
-\subsection{Passive Security}
+\subsection{Passive Security and Noninterference}
+
+\cnote{Fix the $O$ output variable things, and scoping of $H,C$.}
 
 \begin{definition}[Passive Confidentiality]
   \label{definition-NIMO}
@@ -16,7 +18,18 @@
   where $\iov(\prog) = (S,M)$.
 \end{definition}
 
-\subsection{Malicious Security}
+\subsection{Gradual Release as a Design Pattern}
+
+\begin{definition}
+  Given $H,C$, a protocol $\prog$ with $\iov(\prog) = (S,M,O)$ satisfies \emph{gradual release} iff
+  $\sep{\progtt(\prog)}{M_C}{S_H}$.
+\end{definition}
+
+\begin{theorem}
+  Gradual release implies passive security.
+\end{theorem}
+
+\subsection{Malicious Security and Robust Declassification}
 
 \begin{definition}
   We say that a protocol $\prog$ with $\iov(\prog) = (S,M)$ satisfies \emph{active confidentiality} iff the following conditions hold
@@ -40,15 +53,15 @@
 \end{theorem}
 
 \begin{definition}
-  A protocol $\prog$ with $\iov(\prog) = (S,M)$ has \emph{integrity} iff 
+  A protocol $\prog$ with has \emph{integrity} iff 
   $\forall \adversary . \runs_\adversary(\prog) \subseteq \runs(\prog)$.
 \end{definition}
 
 \begin{definition}
-  A protocol $\prog$ with $\iov(\prog) = (S,M)$ is \emph{malicious correct} iff:
+  A protocol $\prog$ with $\iov(\prog) = (S,M,O)$ is \emph{malicious correct} iff:
   $$
-  \forall \adversary, \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|\store)) =
-    \support(\progtt(\prog,\adversary)(\{ \outv \}|\store))
+  \forall \adversary, \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(O_H|\store)) =
+    \support(\progtt(\prog,\adversary)(O_H|\store))
   $$
 \end{definition}
 
@@ -60,7 +73,15 @@
   If a protocol is passive secure with integrity, then it satisfies active confidentiality.
 \end{theorem}
 
-
 \begin{theorem}
   If a protocol is passive secure with integrity, then it is malicious secure.
+\end{theorem}
+
+\begin{definition}[Robust Declassification]
+  A protocol satisfies \emph{robust declassification} iff it has integrity and
+  satisfies gradual release. 
+\end{definition}
+
+\begin{theorem}
+  Robust declassification implies malicious security.
 \end{theorem}

@@ -1,5 +1,14 @@
 \section{Security Model}
 
+\begin{definition}
+  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
+  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
+  We write $\sep{\pmf}{X}{Y}$ iff for all
+    $\store \in \mems(X \cup Y)$ we have
+  $\margd{\pmf}{X \cup Y}(\store) =
+  \pmf(\store_X) * \pmf(\store_Y)$
+\end{definition}
+
 \subsection{Passive Security}
 
 The simulator is represented by a probabilistic algorithm $\SIM_C$,
