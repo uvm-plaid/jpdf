@@ -1,76 +1,205 @@
-\begin{fpfig}[t]{Selected $\metaprot$ type judgement rules.}{fig-metaprot-tjudge}
-{\small
+\section{Static Type Analysis}
+
 \begin{mathpar}
-\inferrule[\TirName{VarT}]
-{}
-{\tjudge{\viewst}{\Gamma}{x}{\Gamma(x)}{\viewst}}
-
-\inferrule[\TirName{CidT}]
-{}
-{\tjudge{\viewst}{\Gamma}{\cid}{\cidty{\cid}}{\viewst}}
-
-\inferrule[\TirName{StringT}]
-{}
-{\tjudge{\viewst}{\Gamma}{w}{\stringty{w}}{\viewst}}
-
-\inferrule[\TirName{ConcatT}]
-{\tjudge{\viewst}{\Gamma}{e_1}{\stringty{e_1'}}{\viewst_1}\\
-\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}
-}
-{\tjudge{\viewst}{\Gamma}{e_1||e_2}{\stringty{e_1' ||e_2'}}{\viewst_2}}
-
-\inferrule[\TirName{BoolT}]
-{}
-{\tjudge{\viewst}{\Gamma}{\etrue}{\bet{\cid}}{\viewst}}
-
-\inferrule[\TirName{OracleT}]
-{\tjudge{\viewst}{\Gamma}{e}{\stringty{e'}}{\viewst'}}
-{\tjudge{\viewst}{\Gamma}{\oracle{e}}{\bet{\cid}}{\viewst'}}
-
-\inferrule[\TirName{SecretT}]
-{\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
-\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}}
-{\tjudge{\viewst}{\Gamma}{\secret{e_1}{e_2}}{\bet{e_1'}}{\views_2}}
-
-\inferrule[\TirName{AndT}]
-{
-\tjudge{\viewst}{\Gamma}{e_1}{\bet{e}}{\viewst_1}\\
-\tjudge{\viewst_1}{\Gamma}{e_2}{\bet{e}}{\viewst_2}
-}
-{\tjudge{\viewst}{\Gamma}{e_1\ \eand\ e_2}{\bet{e}}{\viewst_2}}
-
-\inferrule[\TirName{AssignT}]
-{
-\tjudge{\viewst}{\Gamma}{e_1}{\cidty{e_1'}}{\viewst_1}\\
-\tjudge{\viewst_1}{\Gamma}{e_2}{\stringty{e_2'}}{\viewst_2}\\
-\tjudge{\viewst_2}{\Gamma}{e_3}{\bet{e_3'}}{\viewst_3}
-}
-{
-\tjudge{\viewst}{\Gamma}{\eassign{\view{e_1}{e_2}}{e_3}}{\unity}{(\viewst_3 ; \view{e_1'}{e_2'} )}
-}
-
-\inferrule[AppT]
-{\Gamma(f) =  
- \tau_1 * \cdots * \tau_n \rightarrow \tau, \viewst_f \\ 
- \tjudge{\viewst}{\Gamma}{e_1}{\sigma(\tau_1)}{\viewst_1}
- \ \cdots\  
- \tjudge{\viewst_{n-1}}{\Gamma}{e_n}{\sigma(\tau_n)}{\viewst_n}}
-{\tjudge{\viewst}{\Gamma}{f(e_1,\ldots,e_n)}{\sigma(\tau)}{(\viewst_n ; \sigma(\viewst_f))}}
-
-\inferrule[FnT]
-{
-  \codebase(f) = x_1,\ldots,x_n,\ e \\ \tas(f) = \tau_1 * \cdots * \tau_n \\
-  \tjudge{\varnothing}{\Gamma; x_1 : \tau_1; \ldots; x_n : \tau_n}{e}{\tau}{\viewst_f}
-}
-{ \Gamma \vdash f : \tau_1 * \cdots * \tau_n \rightarrow \tau, \viewst_f }
-
-\inferrule[ProgT]
-{
-\forall f \in \dom(\codebase)\ .\ \Gamma \vdash f : \Gamma(f) \\ \Gamma \vdash e : \tau, \view{\cid_1}{w_1};\ldots;\view{\cid_1}{w_1}
-}
-{
-\Gamma \vdash \codebase,e : \tau,\{\view{\cid_1}{w_1}\} \sqcup \cdots \sqcup \{ \view{\cid_n}{w_n}\}
-}
+  \labty{\unity{\macty}}{\latel_1}{\latel_2} <  \labty{\macty}{\,\latel_1}{\latel_2}
+  
+  \labty{\unity{\fieldty}}{\latel_1}{\latel_2} <  \labty{\fieldty}{\,\latel_1}{\latel_2} 
+  
+  \labty{\vty}{\lolab}{\latel} <  \labty{\vty}{\hilab}{\latel} 
+  
+  \labty{\vty}{\latel}{\hilab} <  \labty{\vty}{\latel}{\lolab} 
 \end{mathpar}
-}
-\end{fpfig}
+
+\begin{mathpar}
+  \inferrule
+      {R, \memenv \vdash_{\cid} e : \tau' \\ \tau' \le \tau}
+      {R, \memenv \vdash_{\cid} e : \tau}
+
+  \inferrule
+      {R_1, \memenv \vdash_{\cid} \be_1 : \tau' \tensor \tau \\ R_2, \memenv \vdash_{\cid} \be_2 : \tau' }
+      {R_1;R_2 \vdash_{\cid} \be_1\ \be_2 : \tau}
+
+%  \inferrule
+%      {R_1, \memenv \vdash_{\cid} \mesg{w} : \tau_1 \oplus \tau_2 \\
+%        R_2, \memenv;\mesg{w} : \tau_1 \vdash_{\cid} \be : \tau \\
+%        R_2, \memenv;\mesg{w} : \tau_2 \vdash_{\cid} \be : \tau}
+%      {R_1;R_2 \vdash_{\cid} \be : \tau}
+%     
+  \inferrule
+      {}
+      {\varnothing, \memenv \vdash_{\cid} f : \lib(f)}
+
+  \inferrule   
+      {}
+      {\varnothing, \memenv \vdash_{\cid} v : \labty{\fieldty}{\lolab}{\tlev{\cid}}}
+
+  \inferrule
+      {}
+      {\varnothing,\memenv \vdash_{\cid} \secret{w} : \labty{\fieldty}{\tlev{\cid}}{\tlev{\cid}}}
+
+  \inferrule
+      {}
+      {\varnothing,\memenv \vdash_{\cid} \mesg{w} : \memenv(\mesg{w}_{\cid})}
+      
+%  \inferrule
+%      {}
+%      {\{ \flip{w} \},\memenv \vdash_{\cid} \flip{w} : \labty{\unity{\fieldty}}{\lolab}{\tlev{\cid}}}
+%
+  \inferrule
+      {}
+      {\varnothing,\memenv \vdash_{\cid} \flip{w} : \labty{\fieldty}{\lolab}{\tlev{\cid}}}
+      
+  \inferrule
+      {}
+      {\{ \locflip \},\memenv \vdash_{\cid} \locflip : \labty{\unity{\fieldty}}{\tlev{\cid}}{\tlev{\cid}}}
+
+  \inferrule
+      {}
+      {\varnothing,\memenv \vdash_{\cid} \locflip : \labty{\fieldty}{\tlev{\cid}}{\tlev{\cid}}}
+
+%  \inferrule
+%      { R_1, \memenv \vdash_{\cid} \locflip : \labty{\unity{\fieldty}}{\hilab}{\latel_1} \\
+%        R_2, \memenv \vdash_{\cid} \be : \labty{\fieldty}{\hilab}{\latel_2} }
+%      {R_1;R_2, \memenv \vdash_{\cid} \locflip \fplus \be : \labty{\unity{\fieldty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
+%
+% \inferrule
+%      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\fieldty}}{\,\latel_1^c}{\latel^i_1} \\
+%        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\fieldty}{\,\latel_2^c}{\latel^i_2} }
+%      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \fplus \be_2 :
+%        \labty{\unity{\fieldty}}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
+
+  \inferrule
+      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\fieldty}{\,\latel_1^c}{\latel^i_1} \\
+        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\fieldty}{\,\latel_2^c}{\latel^i_2} }
+      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \fplus \be_2 :
+        \labty{\fieldty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
+
+  \inferrule
+      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\fieldty}{\,\latel_1^c}{\latel^i_1} \\
+        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\fieldty}{\,\latel_2^c}{\latel^i_2} }
+      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \ftimes \be_2 :
+        \labty{\fieldty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
+
+  \inferrule
+      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\fieldty}{\,\latel_1^c}{\latel^i_1} \\
+        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\fieldty}{\,\latel_2^c}{\latel^i_2} }
+      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \fminus \be_2 :
+        \labty{\fieldty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}
+\end{mathpar}
+
+$$
+\otp : \labty{\fieldty}{\hilab}{\hilab}\ \tensor\ \labty{\unity{\fieldty}}{\hilab}{\hilab}\ \tensor\ 
+\labty{\fieldty}{\lolab}{\hilab}
+$$
+
+\begin{definition}
+  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
+  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
+  We write $\sep{\pmf}{X}{Y}$ iff for all
+    $\store \in \mems(X \cup Y)$ we have
+  $\margd{\pmf}{X \cup Y}(\store) =
+  \pmf(\store_X) * \pmf(\store_Y)$
+\end{definition}
+
+
+\begin{lemma}
+  Given $\prog$ and $\be$, with $\iov(\prog) = S,M,\varnothing$ and $\randos(\prog) = R$, where
+  all of the following hold:
+  \begin{itemize}
+  \item $R_1, \varnothing \vdash \prog : \memenv$
+  \item $R_2, \memenv \vdash_\cid \be :  \labty{\tau}{\,\lolab}{\latel^i}$
+  \item $\sep{\progtt(\prog)}{M_C \cup (R_H - R_1)}{S_H}$
+  \end{itemize}
+  Then the following holds, where $\iov(\prog,\be) = S',M',\varnothing$ and $\randos(\prog,\be) = R'$:
+  $$\sep{\progtt(\prog,\be)}{(M'_C \cup (R'_H - (R_1 \cup R_2))\cup \{\itv \} )}{S'_H}$$
+\end{lemma}
+
+\begin{theorem}
+  Given $\prog$ with $\iov(\prog) = S,M,\varnothing$, if $R,\varnothing \vdash \prog : \memenv$
+  for some $R$ and $\memenv$ then $\sep{\progtt(\prog)}{M_C}{S_H}$.
+\end{theorem}
+
+\begin{mathpar}
+  \inferrule
+      {R, \memenv \vdash_{\cid_2} \be : \labty{\disty}{\latel^c}{\latel^i} \\
+        \latel^c \le_c \tlev{\cid_1} \\
+        \color{red}{\tlev{\cid_2} = \latel^i}}
+      {R, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{\be}{\cid_2} \quad
+        \{ \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\latel^c}{\latel^i} \}}
+      
+%  \inferrule
+%      {R', \memenv \vdash_{\cid_1} \be : \labty{\disty'}{{\latel^c}'}{{\latel^i}'} \\
+%       R, \memenv \vdash_{\cid_2} \be_1,\be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
+%       %R_2, \memenv \vdash_{\cid_2} \be_2 : \labty{\disty}{\latel^c}{\latel^i} \\
+%        \latel^c \le_c \tlev{\cid_1} \\
+%        \color{red}{\tlev{\cid_2} = \latel^i}}
+%      {R';R, \memenv \vdash \elab{\mesg{w}}{\cid_1} := \elab{\OT{\be}{\be_1}{\be_2}}{\cid_2} \quad
+%        \{ \elab{\mesg{w}}{\cid_1} : \labty{\disty}{\latel^c}{\latel^i} \}}
+%  
+  \inferrule
+      {R, \memenv \vdash_{\cid} \be : \labty{\disty}{\latel^c}{\latel^i} \\
+        \color{red}{\tlev{\cid} = \latel^i}}
+      {R, \memenv \vdash \out{w} := \elab{\be}{\cid} \quad
+        \{ \out{w} : \labty{\disty}{\latel^c}{\latel^i} \}}
+
+  \inferrule
+      {R_1,\memenv \vdash \instr : \memenv_1 \\ R_2,\memenv;\memenv_1 \vdash \prog : \memenv_2}
+      {R_1;R_2,\memenv \vdash \instr;\prog : \memenv_1;\memenv_2}
+\end{mathpar}
+
+
+
+
+\begin{mathpar}
+  \inferrule
+      {}
+      {\macv{\elab{\secret{w}}{\cid}}, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\tlev{\cid}}{\tlev{\cid}}}
+      
+  \inferrule
+      {}
+      {\varnothing, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\macty}{\tlev{\cid}}{\tlev{\cid}}}
+      
+%  \inferrule
+%      {\cid \neq \cid'}
+%      {\macv{\elab{\secret{w}}{\cid}}, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\unity{\macty}}{\lolab}{\hilab}}
+%      
+%  \inferrule
+%      {\cid \neq \cid'}
+%      {\varnothing, \memenv \vdash_{\cid'} \macv{\elab{\secret{w}}{\cid}} : \labty{\macty}{\lolab}{\hilab}}%
+  \inferrule
+      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\unity{\macty}}{\hilab}{\latel_1} \\
+        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\hilab}{\latel_2} }
+      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 : \labty{\unity{\macty}}{\lolab}{\latel_1 \wedge_i \latel_2}}
+
+  \inferrule
+      { R_1, \memenv \vdash_{\cid} \be_1 : \labty{\macty}{\,\latel_1^c}{\latel^i_1} \\
+        R_2, \memenv \vdash_{\cid} \be_2 : \labty{\macty}{\,\latel_2^c}{\latel^i_2} }
+      {R_1;R_2, \memenv \vdash_{\cid} \be_1 \macplus \be_2 :
+        \labty{\macty}{\,\latel^c_1 \wedge_c \latel^c_2}{\latel^i_1 \wedge_i \latel^i_2}}\end{mathpar}
+
+$$
+\macauth : \labty{\macty}{\lolab}{\lolab}\ \tensor\ \labty{\fieldty}{\hilab}{\hilab}\ \tensor\ 
+\labty{\macty}{\lolab}{\hilab}
+$$
+
+
+\begin{lemma}
+  Given $\prog$ and $\be$ where all of the following hold:
+  \begin{mathpar}
+  R_1, \varnothing \vdash \prog : \memenv
+
+  R_2, \memenv \vdash_\cid \be :  \labty{\tau}{\latel^c}{\hilab}
+
+  \forall \adversary . \runs_\adversary(\prog) \subseteq \runs(\prog)
+  \end{mathpar}
+  Then $\forall \adversary . \runs_\adversary(\prog,\be) \subseteq \runs(\prog,\be)$. 
+\end{lemma}
+
+\begin{theorem}
+  Validity of $R, \varnothing \vdash \prog : \memenv$ implies integrity of $\prog$.
+\end{theorem}
+
+\begin{theorem}
+  If $\prog$ is passive secure and $R, \varnothing \vdash \prog : \memenv$, then
+  $\prog$ is malicious secure.
+\end{theorem}

@@ -1,0 +1,67 @@
+\section{Security Model}
+
+\subsection{Passive Security}
+
+The simulator is represented by a probabilistic algorithm $\SIM_C$,
+aka a \emph{simulation}, that is parameterized by corrupt inputs and
+the output of an ideal functionality, and that returns a set of
+adversarial views (as a memory) with some probability. Given
+corrupt inputs $\store$ and ideal functionality output $v$,  
+we write
+$
+\prob(\SIM(\store,v) = \store')
+$
+to denote the probability that $\SIM(\store,v)$
+returns corrupt views $\store'$ as a result. We can then define the
+probability distribution of corrupt views reconstructed
+by the simulator as follows:
+\begin{definition}
+  Given $C$, $\store$, and $v$, we write $\dist(\SIM(\store,v))$ to
+  denote the distribution of corrupt views reconstructed by the
+  simulation, where for
+  all $\store' \in \mems(V)$:
+  $$
+  \dist(\SIM(\store,v))(\store')\ \defeq\ \prob(\SIM(\store,v) = \store') 
+  $$
+\end{definition}
+
+Then we can define passive security in the real/ideal
+model as follows. 
+\begin{definition}[Passive Security]
+  Assume given a program $\prog$ that correctly implements an ideal
+  functionality $\idealf$, with $\iov(\prog) = (S,M,O)$.  Then $\prog$
+  is \emph{passive secure in the simulator model} iff for all
+  partitions of the federation into honest and corrupt sets $H$ and $C$
+  with $|C| < |H|$ and for all $\store \in \mems(S)$ there exists a
+  simulation $\SIM$ such that:
+  $$
+  \dist(\SIM(\store_{S_C},\idealf(\store))) = \condd{\progtt(\prog)}{M_C}{\store}
+  $$
+\end{definition}
+
+\subsection{Malicious Security}
+
+$$
+\begin{array}{rclr}
+  (\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) &\aredx&
+  (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog) & \cid_2 \in H\\
+  (\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) &\aredx&
+  (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\arewrite(\store_C,\be)}{\cid_2}}, \prog) & \cid_2 \in C
+\end{array}
+$$
+
+\begin{definition}[Corrupt Inputs, Honest Outputs]
+  Given a program $\prog$ with $\iov(\prog) = (S,M,O)$ , define $\cinputs$ as the
+  messages in $M$ sent from corrupt to honest parties:
+  $$
+  \cinputs = \{\ \elab{\mesg{w}}{\cid}\ \mid\  \elab{\mesg{w}}{\cid} \in M \wedge \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in \prog
+  \wedge \cid \in H \wedge \cid' \in C \ \} 
+  $$
+  and similarly define $\houtputs$ as the messages in $M$ sent from honest to corrupt parties.
+  %Define also $(\afilter\ \prog)$ as $\prog$ with all instructions of the form $\eassign{\mesg{w}}{\cid}{\be}{\cid'}$ removed
+  %where $\cid \in H \wedge \cid' \in C$.
+\end{definition}
+
+$$
+\dist(\SIM(\store_{S_H})) = \condd{\progtt(\prog)}{\houtputs \cup O_H}{\store_{S_H}}
+$$
