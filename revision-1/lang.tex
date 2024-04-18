@@ -84,25 +84,20 @@ commands of three different forms:
   by client $\cid$ and reported as its output.
 \end{itemize}
 Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be
-referenced in expressions, once they've been assigned. 
+referenced in expressions, once they've been assigned.
 
-We let $x$ range over \emph{variables} which are
-identifiers 
-\begin{itemize}
-  \item $S$ ranges over sets of 
-\end{itemize}
-We let $x$ range over variables.%, and will use $s$, $v$, and $f$ to
-%range over individual secrets, views, and flips respectively.
-We let $X$ range over sets of variables,
-and $S,R,M,P,O$$ to range over sets of
-secrets, views, and flips (including invocations of the oracle)
-respectively. Given a program $\prog$, we write $\iov(\prog)$ to
-denote $S \cup V$ where $S$ is the set of secret variables in $\prog$
-and $V$ is the set of views in $\prog$, we write $\flips(\prog)$ to
-denote the set $F$ of flip variables in $\prog$, and we write
+We let $x$ range over \emph{variables}  which are identifiers
+where client ownership is specified- e.g., $\elab{\mesg{\mathit{foo}}}{\cid}$
+is a message $\mathit{foo}$ that was sent to $\cid$. We let $X$
+range over sets of variables, and more specifically, $S$ ranges over sets of secret variables $\elab{\secret{w}}{\cid}$, $R$ ranges over sets of random variables $\elab{\flip{w}}{\cid}$, $M$ ranges over sets of message variables $\elab{\mesg{w}}{\cid}$, $P$ ranges over sets of public variables $\rvl{w}$, and $O$ ranges over sets of output variabels $\out{\cid}$.
+Given a program $\prog$, we write $\iov(\prog)$ to
+denote the set of $S \cup M \cup P \cup O$ of variables in $\prog$
+with ownership made explicit, and we write $\flips(\prog)$ to
+denote the set $R$ of random samplings in $\prog$ with ownership
+made explicit. We write
 $\vars(\prog)$ to denote $\iov(\prog) \cup \flips(\prog)$. For any set
 of variables $X$ and parties $P$, we write $X_P$ to denote the subset
-of $X$ owned by any party in $P$, and we write $X_H$ and $X_C$ to
+of $X$ owned by any party in $P$, in particular we write $X_H$ and $X_C$ to
 denote the subsets belonging to honest and corrupt parties,
 respectively.
 
@@ -111,11 +106,11 @@ respectively.
 \emph{Memories} are fundamental to the semantics of $\fedcat$ and
 provide the random tape and secret inputs to protocols, and record
 view assignments. Memories $\store$ are finite (partial) mapping from
-variables to binary values $\beta \in \{0,1\}$. The \emph{domain} of a
+variables to values $v \in \mathbb{Z}_p$. The \emph{domain} of a
 memory is written $\dom(\store)$ and is the finite set of variables on
-which the memory is defined. We write $\store\{ x \mapsto \beta\}$ for
+which the memory is defined. We write $\store\{ x \mapsto v\}$ for
 $x\not\in\dom(\store)$ to denote the memory $\store'$ such that
-$\store'(x) = \beta$ and otherwise $\store'(y) = \store(y)$ for all $y
+$\store'(x) = v$ and otherwise $\store'(y) = \store(y)$ for all $y
 \in \dom(\store)$. We write $\store_1 \subseteq \store_2$ iff
 $\dom(\store_1) \subseteq \dom(\store_2)$ and $\store_1(x) =
 \store_2(x)$ for all $x \in \dom(\store_1)$. We write $\store_1 \cap
@@ -132,22 +127,22 @@ $$
 \mems(X) \defeq \{ \store \mid \dom(\store) = X \}
 $$
 Thus, given a protocol $\prog$, the set of all random tapes for
-$\prog$ is $\mems(\flips(\prog))$. We let $\stores$ range
-over sets of memories with the same domain, and abusing notation
-we write $\dom(\stores)$ to denote the common domain,
-and $\stores_X \defeq \{ \store_X | \store \in \stores \}$.
+$\prog$ is $\mems(\flips(\prog))$.
+%We let $\stores$ range
+%over sets of memories with the same domain, and abusing notation
+%we write $\dom(\stores)$ to denote the common domain,
+%and $\stores_X \defeq \{ \store_X | \store \in \stores \}$.
 
 Given a variable-free boolean expression $\be$, we write $\cod{\be}$
-to denote the standard interpretation of $\be$ in the binary field.
-With the introduction of variables to expressions, we have two
-concerns. First, we need to interpret variables with respect to a
-specific memory, and second, we need to ensure that variables are used
-``legally''. That is, since expressions define local computation, all
-variables used in an expression must belong to the same client.  Thus,
+to denote the standard interpretation of $\be$ in the arithmetic field
+$\mathbb{Z}{p}$.
+With the introduction of variables to expressions, we need to interpret
+variables with respect to a specific memory, and all
+variables used in an expression must belong to a specified client.  Thus,
 we denote interpretation of expressions $\be$ possibly containing
 variables as $\lcod{\store,\be}{\cid}$, where $\store$ associates
 variables with values, and all variables must be owned by client
-$\cid$. This is defined in Figure \ref{fig-minifed}.
+$\cid$. This is interpretation is defined in Figure \ref{fig-minifed}.
 
 
 $$
