@@ -101,12 +101,14 @@ of $X$ owned by any party in $P$, in particular we write $X_H$ and $X_C$ to
 denote the subsets belonging to honest and corrupt parties,
 respectively.
 
+\subsubsection{Library Functions} 
+
 \subsection{Semantics}
 
 \emph{Memories} are fundamental to the semantics of $\fedcat$ and
-provide the random tape and secret inputs to protocols, and record
-view assignments. Memories $\store$ are finite (partial) mapping from
-variables to values $v \in \mathbb{Z}_p$. The \emph{domain} of a
+provide random tape and secret inputs to protocols, and also record
+message sends, public broadcast, and client outputs. Memories $\store$ are finite
+(partial) mapping from variables $x$ to values $v \in \mathbb{Z}_p$. The \emph{domain} of a
 memory is written $\dom(\store)$ and is the finite set of variables on
 which the memory is defined. We write $\store\{ x \mapsto v\}$ for
 $x\not\in\dom(\store)$ to denote the memory $\store'$ such that
