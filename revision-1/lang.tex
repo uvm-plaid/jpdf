@@ -6,6 +6,7 @@
     \begin{array}{rcl@{\hspace{8mm}}r}
       \multicolumn{4}{l}{v \in \mathbb{Z}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
       \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid f \mid \be\,\be & \textit{expressions}\\[2mm]
+      x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid \rvl{w} \mid \out{\cid} & \textit{protocl variables} \\[2mm]
       %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid
@@ -77,7 +78,7 @@ commands of three different forms:
   $\mesg{w}$.
 \item $\reveal{w}{\be}{\cid}$: This
   is a \emph{public reveal} where expression $\be$ is computed
-  by client $\cid$ and publicly shared with (broadcast to) the federation.
+  by client $\cid$ and broadcast to the federation.
 \item $\pubout{\cid}{\be}{\cid}$: This
   is an \emph{output} where expression $\be$ is computed
   by client $\cid$ and reported as its output.
@@ -85,10 +86,15 @@ commands of three different forms:
 Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be
 referenced in expressions, once they've been assigned. 
 
-
-We let $x$ range over variables, and will use $s$, $v$, and $f$ to
-range over individual secrets, views, and flips respectively. We let
-$X$ range over sets of variables and $S,V,F$ to range over sets of
+We let $x$ range over \emph{variables} which are
+identifiers 
+\begin{itemize}
+  \item $S$ ranges over sets of 
+\end{itemize}
+We let $x$ range over variables.%, and will use $s$, $v$, and $f$ to
+%range over individual secrets, views, and flips respectively.
+We let $X$ range over sets of variables,
+and $S,R,M,P,O$$ to range over sets of
 secrets, views, and flips (including invocations of the oracle)
 respectively. Given a program $\prog$, we write $\iov(\prog)$ to
 denote $S \cup V$ where $S$ is the set of secret variables in $\prog$
