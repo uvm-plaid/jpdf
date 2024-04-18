@@ -1,14 +1,15 @@
 \section{The $\minicat$ Protocol Language}
 
-\begin{fpfig}[t]{Top-to-bottom: $\minifed$ syntax, expression interpretation, and reduction rules.}{fig-minifed}
+\begin{fpfig}[t]{Top-to-bottom: Basic $\minifed$ syntax, expression interpretation, and reduction rules.}{fig-minifed}
   {
     $$
     \begin{array}{rcl@{\hspace{8mm}}r}
       \multicolumn{4}{l}{v \in \mathbb{Z}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
-      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \out{w} \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid f \mid \be\,\be & \textit{expressions}\\[2mm]
+      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid f \mid \be\,\be & \textit{expressions}\\[2mm]
       %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
-      \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \pubout{w}{\be}{\cid} & \textit{commands} \\[2mm]
+      \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid
+      \reveal{w}{e}{\cid} \mid \pubout{\cid}{\be}{\cid} & \textit{commands} \\[2mm]
       \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
     \end{array}
     $$
@@ -27,7 +28,7 @@
     \lcod{\store, \flip{w}}{\cid} &=& \store(\elab{\flip{w}}{\cid})\\
     \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
     \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
-    \lcod{\store, \out{w}}{\cid} &=& \store(\out{w})\\
+    \lcod{\store, \rvl{w}}{\cid} &=& \store(\rvl{w})\\
     \lcod{\store, f\,e_1\,\cdots\, e_n}{\cid} &=& \delta(f,\lcod{\store, e_1}{\cid},\ldots,\lcod{\store,e_n}{\cid})
   \end{array}
   \end{array}
@@ -40,10 +41,107 @@
   \begin{mathpar}
     (\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)
     
-    (\store, \pubout{w}{\be}{\cid};\prog) \redx (\extend{\store}{\out{w}}{\lcod{\store,\be}{\cid}}, \prog)
+    (\store, \reveal{w}{\be}{\cid};\prog) \redx (\extend{\store}{\rvl{w}}{\lcod{\store,\be}{\cid}}, \prog)
+    
+    (\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
   \end{mathpar}
   }
-\end{fpfig} 
+\end{fpfig}
+
+The $\minifed$ language provides a simple model of synchronous
+protocols between a federation of \emph{clients} exchanging values in
+the binary field. We will identify clients by natural numbers, and
+federations- finite sets of clients- are always given statically.
+As we will see, our threat model assumes a partition of the federation
+into \emph{honest} $H$ and \emph{corrupt} $C$ subsets.
+
+We model probabilistic programming via a \emph{random tape}
+semantics. That is, we will assume that programs can make reference to
+values chosen from a uniform random distributions defined in the
+initial program memory.  Programs aka protocols execute
+deterministically given the random tape.
+
+\subsection{Syntax} The syntax of $\minifed$, defined in
+Figure \ref{fig-minifed}, includes values $v$ and standard
+operations of addition, subtraction, and multiplication in
+a finite field $\mathbb{Z}_p$ with $p$ prime. 
+Protocols are given input secret values $\secret{w}$
+as well as random samples $\flip{w}$ on the input
+tape, both of which are distinguished by
+strings $w$. Protocols are sequences of assignment
+commands of three different forms:
+\begin{itemize}
+\item $\eassign{\mesg{w}}{\cid_2}{\be}{\cid_1}$: This
+  is a \emph{message send} where expression $\be$ is computed
+  by client $\cid_1$ and sent to client $\cid_2$ as message
+  $\mesg{w}$.
+\item $\reveal{w}{\be}{\cid}$: This
+  is a \emph{public reveal} where expression $\be$ is computed
+  by client $\cid$ and publicly shared with (broadcast to) the federation.
+\item $\pubout{\cid}{\be}{\cid}$: This
+  is an \emph{output} where expression $\be$ is computed
+  by client $\cid$ and reported as its output.
+\end{itemize}
+Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be
+referenced in expressions, once they've been assigned. 
+
+
+We let $x$ range over variables, and will use $s$, $v$, and $f$ to
+range over individual secrets, views, and flips respectively. We let
+$X$ range over sets of variables and $S,V,F$ to range over sets of
+secrets, views, and flips (including invocations of the oracle)
+respectively. Given a program $\prog$, we write $\iov(\prog)$ to
+denote $S \cup V$ where $S$ is the set of secret variables in $\prog$
+and $V$ is the set of views in $\prog$, we write $\flips(\prog)$ to
+denote the set $F$ of flip variables in $\prog$, and we write
+$\vars(\prog)$ to denote $\iov(\prog) \cup \flips(\prog)$. For any set
+of variables $X$ and parties $P$, we write $X_P$ to denote the subset
+of $X$ owned by any party in $P$, and we write $X_H$ and $X_C$ to
+denote the subsets belonging to honest and corrupt parties,
+respectively.
+
+\subsection{Semantics}
+
+\emph{Memories} are fundamental to the semantics of $\fedcat$ and
+provide the random tape and secret inputs to protocols, and record
+view assignments. Memories $\store$ are finite (partial) mapping from
+variables to binary values $\beta \in \{0,1\}$. The \emph{domain} of a
+memory is written $\dom(\store)$ and is the finite set of variables on
+which the memory is defined. We write $\store\{ x \mapsto \beta\}$ for
+$x\not\in\dom(\store)$ to denote the memory $\store'$ such that
+$\store'(x) = \beta$ and otherwise $\store'(y) = \store(y)$ for all $y
+\in \dom(\store)$. We write $\store_1 \subseteq \store_2$ iff
+$\dom(\store_1) \subseteq \dom(\store_2)$ and $\store_1(x) =
+\store_2(x)$ for all $x \in \dom(\store_1)$. We write $\store_1 \cap
+\store_2$ to denote the combination of $\store_1$ and $\store_2$
+assuming $\store_1(x) = \store_2(x)$ for all $x \in \dom(\store_1)
+\cap \dom(\store_2)$, otherwise $\store_1 \cap \store_2$ is undefined.
+We write $\store_1 \subseteq \store_2$ iff $\store_1 \cap \store_2
+= \store_1$.
+
+Given a set of variables $X$, we write $\store_X$ to denote the
+memory $\store$ restricted to the domain $X$, and we define
+$\mems(X)$ as the set of all memories with domain $X$:
+$$
+\mems(X) \defeq \{ \store \mid \dom(\store) = X \}
+$$
+Thus, given a protocol $\prog$, the set of all random tapes for
+$\prog$ is $\mems(\flips(\prog))$. We let $\stores$ range
+over sets of memories with the same domain, and abusing notation
+we write $\dom(\stores)$ to denote the common domain,
+and $\stores_X \defeq \{ \store_X | \store \in \stores \}$.
+
+Given a variable-free boolean expression $\be$, we write $\cod{\be}$
+to denote the standard interpretation of $\be$ in the binary field.
+With the introduction of variables to expressions, we have two
+concerns. First, we need to interpret variables with respect to a
+specific memory, and second, we need to ensure that variables are used
+``legally''. That is, since expressions define local computation, all
+variables used in an expression must belong to the same client.  Thus,
+we denote interpretation of expressions $\be$ possibly containing
+variables as $\lcod{\store,\be}{\cid}$, where $\store$ associates
+variables with values, and all variables must be owned by client
+$\cid$. This is defined in Figure \ref{fig-minifed}.
 
 
 $$
@@ -58,12 +156,12 @@ $$
   \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
   \elab{\mesg{s3}}{1} &:=& \elab{(\otp\ \locflip\ (\flip{x} \fplus \secret{3})}{3} \\ 
   \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3} \\ 
-  \out{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
-  \out{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
-  \out{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\ 
-  \out{sum1} &:=& \elab{(\out{1} \fplus \out{2} + \out{3})}{1}\\
-  \out{sum2} &:=& \elab{(\out{1} \fplus \out{2} + \out{3})}{2}\\
-  \out{sum3} &:=& \elab{(\out{1} \fplus \out{2} + \out{3})}{3}
+  \rvl{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  \rvl{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
+  \rvl{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\ 
+  \out{1} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{1}\\
+  \out{2} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{2}\\
+  \out{3} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{3}
   %\elab{\mesg{o1}}{2} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
   %\elab{\mesg{o1}}{3} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
   %\elab{\mesg{o2}}{1} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
@@ -116,18 +214,24 @@ $$
   \elab{(\macotp\ \macv{\elab{\secret{y}}{2}}\ \macv{\elab{\flip{b}}{\Oracle}})}{2}\\
   \elab{\mesg{d}}{1} &:=&
   \elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{2} \fminus \mack{\elab{\flip{a}}{\Oracle}}{2}) \macplus (\macv{\elab{\secret{x}}{1}}\macminus\macv{\elab{\flip{a}}{\Oracle}}))}{1}\\
-  \elab{\mesg{e}}{1} &:=&
+  \elab{\mesg{e}}{1}&:=&
   \elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{2} \fminus \mack{\elab{\flip{b}}{\Oracle}}{2}) \macplus (\macv{\elab{\secret{y}}{2}}\macminus\macv{\elab{\flip{b}}{\Oracle}}))}{1}\\
-  %\elab{\mesg{d}}{2} &:=&
-  %\elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{1} \fminus \mack{\elab{\flip{a}}{\Oracle}}{1}) \macplus (\macv{\elab{\secret{x}}{1}}\macminus\macv{\elab{\flip{a}}{\Oracle}}))}{2}\\
-  %\elab{\mesg{e}}{2} &:=&
-  %\elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{1} \fminus \mack{\elab{\flip{b}}{\Oracle}}{1}) \macplus (\macv{\elab{\secret{y}}{2}}\macminus\macv{\elab{\flip{b}}{\Oracle}}))}{2}\\
-  \out{1} &:=&
+  \rvl{1} &:=&
   \elab{( (\mesg{d} \mactimes \mesg{e}) \macplus
           (\mesg{d} \mactimes \macv{\elab{\flip{b}}{\Oracle}}) \macplus
           (\mesg{e} \mactimes \macv{\elab{\flip{a}}{\Oracle}}) \macplus \macv{\elab{\secret{c}}{\Oracle}}
     )}{1}\\
-  & \vdots & 
+  \elab{\mesg{d}}{2} &:=&
+  \elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{1} \fminus \mack{\elab{\flip{a}}{\Oracle}}{1}) \macplus (\macv{\elab{\secret{x}}{1}}\macminus\macv{\elab{\flip{a}}{\Oracle}}))}{2}\\
+  \elab{\mesg{e}}{2}&:=&
+  \elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{1} \fminus \mack{\elab{\flip{b}}{\Oracle}}{1}) \macplus (\macv{\elab{\secret{y}}{2}}\macminus\macv{\elab{\flip{b}}{\Oracle}}))}{2}\\
+  \rvl{2} &:=&
+  \elab{( (\mesg{d} \mactimes \mesg{e}) \macplus
+          (\mesg{d} \mactimes \macv{\elab{\flip{b}}{\Oracle}}) \macplus
+          (\mesg{e} \mactimes \macv{\elab{\flip{a}}{\Oracle}}) \macplus \macv{\elab{\secret{c}}{\Oracle}}
+    )}{2}\\
+  \out{1} &:=& \elab{(\rvl{1} \macplus \macauth(\rvl{2},\ldots))}{1} \\
+  \out{2} &:=& \elab{(\macauth(\rvl{1},\ldots) \macplus \rvl{2})}{2}
 \end{array}
 $$
 

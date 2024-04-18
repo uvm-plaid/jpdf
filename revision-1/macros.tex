@@ -428,11 +428,13 @@
 \renewcommand{\secret}[1]{\ttt{s[}#1\ttt{]}}
 \newcommand{\key}[1]{\ttt{k[}#1\ttt{]}}
 \newcommand{\mesg}[1]{\ttt{m[}#1\ttt{]}}
-\newcommand{\out}[1]{\ttt{out[}#1\ttt{]}}
+\newcommand{\out}[1]{\elab{\ttt{out}}{#1}}
+\newcommand{\rvl}[1]{\ttt{p[}#1\ttt{]}}
 \renewcommand{\oracle}[1]{\ttt{H[}#1\ttt{]}}
 \newcommand{\elab}[2]{#1_{#2}}
 \renewcommand{\eassign}[4]{\elab{#1}{#2} := \elab{#3}{#4}}
 \newcommand{\pubout}[3]{\out{#1} := \elab{#2}{#3}}
+\newcommand{\reveal}[3]{\rvl{#1} := \elab{#2}{#3}}
 \newcommand{\sk}[1]{\mathrm{sk}[#1]}
 \newcommand{\pk}[2]{\mathrm{pk}[#1,#2]}
 \newcommand{\kgen}[1]{\mathit{kgen}(#1)}
@@ -440,8 +442,8 @@
 \newcommand{\aredx}{\redx_{\adversary}}
 \newcommand{\aredxs}{\redxs_{\adversary}}
 \newcommand{\arewrite}{\mathit{rewrite}_{\adversary}}
-\newcommand{\cinputs}{M_{C \rhd H}}
-\newcommand{\houtputs}{M_{H \rhd C}}
+\newcommand{\cinputs}{V_{C \rhd H}}
+\newcommand{\houtputs}{V_{H \rhd C}}
 \newcommand{\aruns}{\mathit{runs}_\adversary}
 \newcommand{\att}{\mathrm{AD}}
 \newcommand{\support}{\mathit{support}}
