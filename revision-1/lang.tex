@@ -159,7 +159,7 @@ message send, broadcast, and output- are implemented as updates to the
 memory $\store$. We write $\redxs$ to denote the reflexive, transitive
 closure of\ $\redx$. 
 
-\subsection{Example: Passive-Secure Addition}
+\subsection{Example: Passive Secure Addition}
 
 Shamir addition leverages homomorphic properties of addition in
 arithmetic fields to implement secret addition. If a field value $v_1$
@@ -236,33 +236,36 @@ protocol by injecting ``fake'' sums of shares in their public reveals.
 
 $$
 \begin{array}{rcl@{\hspace{8mm}}r}
-  \multicolumn{3}{l}{m,k \in \mathbb{Z}_p} \qquad \macv ::= (v,[m_1,\ldots,m_n]) &
-  \textit{MACed\ values}\\[2mm]
-  \be &::=& \cdots \macv{v} \mid \be \macplus \be \mid \be \mactimes \be \mid \be \macminus \be\\[2mm]
-  x &::=& \macx{\secret{w}}{\cid} \mid \macx{\flip{w}}{\cid} \mid \mack{x}{\cid}
+  \multicolumn{3}{l}{m,k \in \mathbb{Z}_p \qquad \macv ::= (v,[m_1,\ldots,m_n])} &\\[2mm]
+  %\textit{MACed\ values}\\[2mm]
+  \be &::=& \cdots \mid \macv \mid \be \macplus \be \mid \be \mactimes \be \mid \be \macminus \be\\[2mm]
+  x &::=& \cdots \mid \macx{\secret{w}}{\cid} \mid \macx{\flip{w}}{\cid} \mid \mack{x}{\cid}
 \end{array}
-  
+$$
 
-    
-$$
-(v, [m_1,\ldots,m_n])
-$$
-$$
-k_1,\ldots,k_n
-$$
+\begin{mathpar}
+  \fcod{(v^1, [m_1^1,\ldots,m^1_n]) \macplus (v^2, [m_1^2,\ldots,m^2_n])} =
+  (v^1 \fplus v^2, [m_1^1 \fplus m_1^2 ,\ldots,m^1_n \fplus m_n^2])
+
+  \lcod{\store, \be_1 \macplus \be_2}{\cid} =
+  \fcod{\lcod{\store,\be_1}{\cid} \macplus \lcod{\store,\be_2}{\cid}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {\store(x) = v \\ \store(\macx{x}{\cid_1}) = (v_1,\ldots)\  \cdots\ 
+        \store(\macx{x}{\cid_n}) = (v_n,\ldots)}
+      {v = \fcod{v_1 \fplus \cdots \fplus v_n}}
+      
+  \inferrule
+      {\store(\macx{x}{\cid'}) = (v,[m_1,\ldots,m_n]) \\  \cid \in [1..n]}
+      {m_i = \fcod{\store(\mack{x}{\cid}) \fplus (\store(\elab{\flip{\ttt{delta}}}{\cid'}) \ftimes v)}}
+
+  \store(\elab{\secret{c}}{\Oracle}) = \lcod{\store,\flip{a} \ftimes \flip{b}}{\Oracle}
+\end{mathpar}
+
 $$
 m_\cid = k_\cid + (k_\Delta * v)
-$$
-
-$$
-\delta(\macplus,(v^1, [m_1^1,\ldots,m^1_n]),(v^2, [m_1^2,\ldots,m^2_n]))
-\defeq
-(v^1 \fplus v^2, [m_1^1 \fplus m_1^2 ,\ldots,m^1_n \fplus m_n^2])
-$$
-
-$$
-\elab{\macgv{\elab{v}{\cid}}}{1} \macplus \cdots \macplus \elab{\macgv{\elab{v}{\cid}}}{n} =
-(v,\ldots)
 $$
 
 $$
@@ -285,18 +288,18 @@ $$
   \elab{\mesg{b}}{1} &:=&
   \elab{(\macotp\ \macgv{\elab{\secret{y}}{2}}\ \macgv{\elab{\flip{b}}{\Oracle}})}{2}\\
   \elab{\mesg{d}}{1} &:=&
-  \elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{2} \fminus \mack{\elab{\flip{a}}{\Oracle}}{2}) \macplus (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{1}\\
+  \elab{(\macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{2} \fminus \mack{\macx{\flip{a}}{\Oracle}}{2}) \macplus (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{1}\\
   \elab{\mesg{e}}{1}&:=&
-  \elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{2} \fminus \mack{\elab{\flip{b}}{\Oracle}}{2}) \macplus (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{1}\\
+  \elab{(\macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{2} \fminus \mack{\macx{\flip{b}}{\Oracle}}{2}) \macplus (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{1}\\
   \rvl{1} &:=&
   \elab{( (\mesg{d} \mactimes \mesg{e}) \macplus
           (\mesg{d} \mactimes \macgv{\elab{\flip{b}}{\Oracle}}) \macplus
           (\mesg{e} \mactimes \macgv{\elab{\flip{a}}{\Oracle}}) \macplus \macgv{\elab{\secret{c}}{\Oracle}}
     )}{1}\\
   \elab{\mesg{d}}{2} &:=&
-  \elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{1} \fminus \mack{\elab{\flip{a}}{\Oracle}}{1}) \macplus (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{2}\\
+  \elab{(\macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{1} \fminus \mack{\macx{\flip{a}}{\Oracle}}{1}) \macplus (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{2}\\
   \elab{\mesg{e}}{2}&:=&
-  \elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{1} \fminus \mack{\elab{\flip{b}}{\Oracle}}{1}) \macplus (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{2}\\
+  \elab{(\macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{1} \fminus \mack{\macx{\flip{b}}{\Oracle}}{1}) \macplus (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{2}\\
   \rvl{2} &:=&
   \elab{( (\mesg{d} \mactimes \mesg{e}) \macplus
           (\mesg{d} \mactimes \macgv{\elab{\flip{b}}{\Oracle}}) \macplus
