@@ -175,9 +175,10 @@ $$
 \delta(\otp,v_1,v_2) \defeq v_1 \fplus v_2
 $$
 Although the semantics are the same as addition, the use of $\otp$
-makes a declarative distinction, but more importantly we will be
+makes a declarative distinction. But more importantly we will be
 able to assign a type to $\otp$ that enforces the one-time discipline
-on its first argument via type linearity as will be discussed in Section
+on its first argument via type linearity, and reflects hiding of
+its second argument via security type labels, as will be discussed in Section
 \ref{section-types}.
 
 To sum their secret values $\secret{\cid}$, each client $\cid$ in
@@ -234,6 +235,9 @@ protocol by injecting ``fake'' sums of shares in their public reveals.
 
 \subsection{Example: Malicious Secure Product}
 
+\begin{fpfig}[t]{Top-to-bottom: Extended $\minifed$ syntax with BDOZ-style shares,
+    interpretation of operations, and pre-processing properties of memories.}{fig-bdoz}
+  {
 $$
 \begin{array}{rcl@{\hspace{8mm}}r}
   \multicolumn{3}{l}{m,k \in \mathbb{Z}_p \qquad \macv ::= (v,[m_1,\ldots,m_n])} &\\[2mm]
@@ -243,13 +247,26 @@ $$
 \end{array}
 $$
 
-\begin{mathpar}
-  \fcod{(v^1, [m_1^1,\ldots,m^1_n]) \macplus (v^2, [m_1^2,\ldots,m^2_n])} =
-  (v^1 \fplus v^2, [m_1^1 \fplus m_1^2 ,\ldots,m^1_n \fplus m_n^2])
+\rule{130mm}{0.5pt}
 
-  \lcod{\store, \be_1 \macplus \be_2}{\cid} =
-  \fcod{\lcod{\store,\be_1}{\cid} \macplus \lcod{\store,\be_2}{\cid}}
-\end{mathpar}
+$$
+\begin{array}{rcl}
+  \fcod{(v^1, [m_1^1,\ldots,m^1_n]) \macplus (v^2, [m_1^2,\ldots,m^2_n])} &=&
+  (v^1 \fplus v^2, [m_1^1 \fplus m_1^2 ,\ldots,m^1_n \fplus m_n^2])\\[2mm]
+  \fcod{(v^1, [m_1^1,\ldots,m^1_n]) \mactimes v} &=&
+   (v^1 \ftimes v, [m_1^1 \ftimes v ,\ldots,m^1_n \ftimes v])
+\end{array}
+$$
+$$
+\begin{array}{rcl}
+  \lcod{\store, \be_1 \macplus \be_2}{\cid} &=&
+  \fcod{\lcod{\store,\be_1}{\cid} \macplus \lcod{\store,\be_2}{\cid}}\\[2mm]  
+  \lcod{\store, \be_1 \mactimes \be_2}{\cid} &=&
+  \fcod{\lcod{\store,\be_1}{\cid} \mactimes \lcod{\store,\be_2}{\cid}}
+\end{array}
+$$
+
+\rule{130mm}{0.5pt}
 
 \begin{mathpar}
   \inferrule
@@ -263,6 +280,8 @@ $$
 
   \store(\elab{\secret{c}}{\Oracle}) = \lcod{\store,\flip{a} \ftimes \flip{b}}{\Oracle}
 \end{mathpar}
+}
+\end{fpfig}
 
 $$
 m_\cid = k_\cid + (k_\Delta * v)
@@ -274,7 +293,7 @@ $$
 
 $$
 \delta(\macauth, (v, [\ldots,m_\cid,\ldots]), k_\cid) \defeq
-     (v, [\ldots,m_\cid,\ldots]) \text{\ if\ } m_i = k_i + (k_\Delta * v)
+     (v, [\ldots,m_\cid,\ldots]) \text{\ if\ } m_\cid = k_\cid + (k_\Delta * v)
 $$
 
 $$
