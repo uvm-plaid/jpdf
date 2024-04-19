@@ -102,7 +102,8 @@ denote the subsets belonging to honest and corrupt parties,
 respectively.
 
 \subsubsection{Library Functions} $\minifed$ expression syntax also supports
-calls to library functions $f$. This allows encapsulation and separate
+calls to library functions $f$ which can be applied to muliple arguments in a
+curried style. This allows encapsulation and separate
 definition of primitive operations such as one-time-pads and message
 authentication, as we will illustrate with examples. This approach is
 useful since it parameterizes these definitions, and 
@@ -179,7 +180,12 @@ able to assign a type to $\otp$ that enforces the one-time discipline
 on its first argument via type linearity as will be discussed in Section
 \ref{section-types}.
 
-
+To sum their secret values $\secret{\cid}$, each client $\cid$ in
+the federation $\{ 1, 2, 3 \}$  samples a value $\locflip$
+that can be used as a one-time pad in summation with another
+random sample $\flip{x}$ and $\secret{\cid}$. This yields
+two secret shares communicated as messages to the other clients,
+while each client keeps $\locflip$ as its own share.
 $$
 \begin{array}{lll}
   \elab{\mesg{s1}}{2} &:=& \elab{(\otp\ \locflip\ (\flip{x} \fplus \secret{1})}{1} \\ 
@@ -187,7 +193,13 @@ $$
   \elab{\mesg{s2}}{1} &:=& \elab{(\otp\ \locflip\ (\flip{x} \fplus \secret{2})}{2} \\ 
   \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
   \elab{\mesg{s3}}{1} &:=& \elab{(\otp\ \locflip\ (\flip{x} \fplus \secret{3})}{3} \\ 
-  \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3} \\ 
+  \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3}
+\end{array}
+$$
+Due to field properties of $\fplus$ this scheme guarantees that messages
+are viewed as random noise by any adversary \cite{barthe2019probabilistic}.
+$$
+\begin{array}{lll}
   \rvl{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
   \rvl{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
   \rvl{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\ 
