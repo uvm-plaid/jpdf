@@ -120,14 +120,14 @@ memory is written $\dom(\store)$ and is the finite set of variables on
 which the memory is defined. We write $\store\{ x \mapsto v\}$ for
 $x\not\in\dom(\store)$ to denote the memory $\store'$ such that
 $\store'(x) = v$ and otherwise $\store'(y) = \store(y)$ for all $y
-\in \dom(\store)$. We write $\store_1 \subseteq \store_2$ iff
-$\dom(\store_1) \subseteq \dom(\store_2)$ and $\store_1(x) =
-\store_2(x)$ for all $x \in \dom(\store_1)$. We write $\store_1 \cap
-\store_2$ to denote the combination of $\store_1$ and $\store_2$
-assuming $\store_1(x) = \store_2(x)$ for all $x \in \dom(\store_1)
-\cap \dom(\store_2)$, otherwise $\store_1 \cap \store_2$ is undefined.
-We write $\store_1 \subseteq \store_2$ iff $\store_1 \cap \store_2
-= \store_1$.
+\in \dom(\store)$. We write $\store \subseteq \store'$ iff
+$\dom(\store) \subseteq \dom(\store')$ and $\store(x) =
+\store'(x)$ for all $x \in \dom(\store)$. We write $\store \cap
+\store'$ to denote the combination of $\store$ and $\store'$
+assuming $\store(x) = \store'(x)$ for all $x \in \dom(\store)
+\cap \dom(\store')$, otherwise $\store \cap \store'$ is undefined.
+We write $\store \subseteq \store'$ iff $\store \cap \store'
+= \store$.
 
 Given a set of variables $X$, we write $\store_X$ to denote the
 memory $\store$ restricted to the domain $X$, and we define
@@ -197,24 +197,42 @@ $$
 \end{array}
 $$
 Due to field properties of $\fplus$ this scheme guarantees that messages
-are viewed as random noise by any adversary \cite{barthe2019probabilistic}.
+are viewed as random noise by any observer 
+besides $\cid$ \cite{barthe2019probabilistic}. Next, each client
+publicly reveals the sum of all of its shares, including its local
+share. This does reveal information about secrets. Further there
+is no one-time-pad to use in this summation.
 $$
 \begin{array}{lll}
   \rvl{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
   \rvl{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
-  \rvl{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\ 
-  \out{1} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{1}\\
-  \out{2} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{2}\\
-  \out{3} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{3}
-  %\elab{\mesg{o1}}{2} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  \rvl{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} 
+\end{array}
+$$
+Finally, each client outputs the sum of each sum of shares, yielding
+the sum of secrets. Note that this stage exposes no more information
+than the previous public reveals. 
+$$
+%\elab{\mesg{o1}}{2} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
   %\elab{\mesg{o1}}{3} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
   %\elab{\mesg{o2}}{1} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
   %\elab{\mesg{o2}}{3} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\ 
   %\elab{\mesg{o3}}{1} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\ 
   %\elab{\mesg{o3}}{2} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3}\\ 
   %\pubout{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3} + \mesg{o2} + \mesg{o3})}{1}
+\begin{array}{lll}
+  \out{1} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{1}\\
+  \out{2} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{2}\\
+  \out{3} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{3}
 \end{array}
 $$
+It is well-known that additive secret sharing is passive
+secure. That is, any adversarial observer can gain no more information
+from the messages exchanged in the protocol than what is exposed by
+the output alone. However, malicious adversaries can corrupt this
+protocol by injecting ``fake'' sums of shares in their public reveals.
+
+\subsection{Example: Malicious Secure Product}
 
 $$
 (v, [m_1,\ldots,m_n])
