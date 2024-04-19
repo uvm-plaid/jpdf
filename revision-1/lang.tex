@@ -259,7 +259,7 @@ $$
       
   \inferrule
       {\store(\macx{x}{\cid'}) = (v,[m_1,\ldots,m_n]) \\  \cid \in [1..n]}
-      {m_i = \fcod{\store(\mack{x}{\cid}) \fplus (\store(\elab{\flip{\ttt{delta}}}{\cid'}) \ftimes v)}}
+      {m_\cid = \fcod{\store(\mack{x}{\cid}) \fplus (\store(\elab{\flip{\ttt{delta}}}{\cid'}) \ftimes v)}}
 
   \store(\elab{\secret{c}}{\Oracle}) = \lcod{\store,\flip{a} \ftimes \flip{b}}{\Oracle}
 \end{mathpar}
