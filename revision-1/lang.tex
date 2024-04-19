@@ -101,7 +101,13 @@ of $X$ owned by any party in $P$, in particular we write $X_H$ and $X_C$ to
 denote the subsets belonging to honest and corrupt parties,
 respectively.
 
-\subsubsection{Library Functions} 
+\subsubsection{Library Functions} $\minifed$ expression syntax also supports
+calls to library functions $f$. This allows encapsulation and separate
+definition of primitive operations such as one-time-pads and message
+authentication, as we will illustrate with examples. This approach is
+useful since it parameterizes these definitions, and 
+supports verification of behavior specified with types, as we
+discuss in Section \ref{section-types}.
 
 \subsection{Semantics}
 
@@ -135,21 +141,44 @@ $\prog$ is $\mems(\flips(\prog))$.
 %we write $\dom(\stores)$ to denote the common domain,
 %and $\stores_X \defeq \{ \store_X | \store \in \stores \}$.
 
-Given a variable-free boolean expression $\be$, we write $\cod{\be}$
-to denote the standard interpretation of $\be$ in the arithmetic field
-$\mathbb{Z}{p}$.
-With the introduction of variables to expressions, we need to interpret
-variables with respect to a specific memory, and all
-variables used in an expression must belong to a specified client.  Thus,
-we denote interpretation of expressions $\be$ possibly containing
-variables as $\lcod{\store,\be}{\cid}$, where $\store$ associates
-variables with values, and all variables must be owned by client
-$\cid$. This is interpretation is defined in Figure \ref{fig-minifed}.
+Given a variable-free expression $\be$, we write $\cod{\be}$ to denote
+the standard interpretation of $\be$ in the arithmetic field
+$\mathbb{Z}_{p}$. With the introduction of variables to expressions,
+we need to interpret variables with respect to a specific memory, and
+all variables used in an expression must belong to a specified client.
+Thus, we denote interpretation of expressions $\be$ computed on a
+client $\cid$ as $\lcod{\store,\be}{\cid}$. This interpretation is
+defined in Figure \ref{fig-minifed}. It is also parameterized by
+$\delta$ which defines the semantics of library functions $f$.
 
+The small-step reduction relation $\redx$ is then defined in Figure
+\ref{fig-minifed} to evaluate commands. Reduction is a relation on
+\emph{configurations} $(\store, \prog)$ where all three command forms-
+message send, broadcast, and output- are implemented as updates to the
+memory $\store$. We write $\redxs$ to denote the reflexive, transitive
+closure of\ $\redx$. 
 
+\subsection{Example: Passive-Secure Addition}
+
+Shamir addition leverages homomorphic properties of addition in
+arithmetic fields to implement secret addition. If a field value $v_1$
+is in a uniform random distribution with other variables in a program,
+then $v_1 \fplus v_2$ is an encryption of $v_2$ where $v_1$ is an
+information theoretically secure one-time-pad, which is exploited for
+secret sharing. Of course, $\fplus$ is also a meaningful operation
+over any two field values regardless of their distributions.
+
+To capture this distinction we introduce a function $\otp$
+with the following specification:
 $$
 \delta(\otp,v_1,v_2) \defeq v_1 \fplus v_2
 $$
+Although the semantics are the same as addition, the use of $\otp$
+makes a declarative distinction, but more importantly we will be
+able to assign a type to $\otp$ that enforces the one-time discipline
+on its first argument via type linearity as will be discussed in Section
+\ref{section-types}.
+
 
 $$
 \begin{array}{lll}
