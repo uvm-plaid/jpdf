@@ -235,6 +235,16 @@ protocol by injecting ``fake'' sums of shares in their public reveals.
 \subsection{Example: Malicious Secure Product}
 
 $$
+\begin{array}{rcl@{\hspace{8mm}}r}
+  \multicolumn{3}{l}{m,k \in \mathbb{Z}_p} \qquad \macv ::= (v,[m_1,\ldots,m_n]) &
+  \textit{MACed\ values}\\[2mm]
+  \be &::=& \cdots \macv{v} \mid \be \macplus \be \mid \be \mactimes \be \mid \be \macminus \be\\[2mm]
+  x &::=& \macx{\secret{w}}{\cid} \mid \macx{\flip{w}}{\cid} \mid \mack{x}{\cid}
+\end{array}
+  
+
+    
+$$
 (v, [m_1,\ldots,m_n])
 $$
 $$
@@ -251,7 +261,7 @@ $$
 $$
 
 $$
-\elab{\macv{\elab{v}{\cid}}}{1} \macplus \cdots \macplus \elab{\macv{\elab{v}{\cid}}}{n} =
+\elab{\macgv{\elab{v}{\cid}}}{1} \macplus \cdots \macplus \elab{\macgv{\elab{v}{\cid}}}{n} =
 (v,\ldots)
 $$
 
@@ -267,30 +277,30 @@ $$
 $$
 \begin{array}{lcl}
   \elab{\mesg{a}}{2} &:=&
-  \elab{(\macotp\ \macv{\elab{\secret{x}}{1}}\ \macv{\elab{\flip{a}}{\Oracle}})}{1}\\
+  \elab{(\macotp\ \macgv{\elab{\secret{x}}{1}}\ \macgv{\elab{\flip{a}}{\Oracle}})}{1}\\
   \elab{\mesg{a}}{1} &:=&
-  \elab{(\macotp\ \macv{\elab{\secret{x}}{1}}\ \macv{\elab{\flip{a}}{\Oracle}})}{2}\\
+  \elab{(\macotp\ \macgv{\elab{\secret{x}}{1}}\ \macgv{\elab{\flip{a}}{\Oracle}})}{2}\\
   \elab{\mesg{b}}{2} &:=&
-  \elab{(\macotp\ \macv{\elab{\secret{y}}{2}}\ \macv{\elab{\flip{b}}{\Oracle}})}{1}\\
+  \elab{(\macotp\ \macgv{\elab{\secret{y}}{2}}\ \macgv{\elab{\flip{b}}{\Oracle}})}{1}\\
   \elab{\mesg{b}}{1} &:=&
-  \elab{(\macotp\ \macv{\elab{\secret{y}}{2}}\ \macv{\elab{\flip{b}}{\Oracle}})}{2}\\
+  \elab{(\macotp\ \macgv{\elab{\secret{y}}{2}}\ \macgv{\elab{\flip{b}}{\Oracle}})}{2}\\
   \elab{\mesg{d}}{1} &:=&
-  \elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{2} \fminus \mack{\elab{\flip{a}}{\Oracle}}{2}) \macplus (\macv{\elab{\secret{x}}{1}}\macminus\macv{\elab{\flip{a}}{\Oracle}}))}{1}\\
+  \elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{2} \fminus \mack{\elab{\flip{a}}{\Oracle}}{2}) \macplus (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{1}\\
   \elab{\mesg{e}}{1}&:=&
-  \elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{2} \fminus \mack{\elab{\flip{b}}{\Oracle}}{2}) \macplus (\macv{\elab{\secret{y}}{2}}\macminus\macv{\elab{\flip{b}}{\Oracle}}))}{1}\\
+  \elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{2} \fminus \mack{\elab{\flip{b}}{\Oracle}}{2}) \macplus (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{1}\\
   \rvl{1} &:=&
   \elab{( (\mesg{d} \mactimes \mesg{e}) \macplus
-          (\mesg{d} \mactimes \macv{\elab{\flip{b}}{\Oracle}}) \macplus
-          (\mesg{e} \mactimes \macv{\elab{\flip{a}}{\Oracle}}) \macplus \macv{\elab{\secret{c}}{\Oracle}}
+          (\mesg{d} \mactimes \macgv{\elab{\flip{b}}{\Oracle}}) \macplus
+          (\mesg{e} \mactimes \macgv{\elab{\flip{a}}{\Oracle}}) \macplus \macgv{\elab{\secret{c}}{\Oracle}}
     )}{1}\\
   \elab{\mesg{d}}{2} &:=&
-  \elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{1} \fminus \mack{\elab{\flip{a}}{\Oracle}}{1}) \macplus (\macv{\elab{\secret{x}}{1}}\macminus\macv{\elab{\flip{a}}{\Oracle}}))}{2}\\
+  \elab{(\macauth(\mesg{a}, \mack{\elab{\secret{x}}{1}}{1} \fminus \mack{\elab{\flip{a}}{\Oracle}}{1}) \macplus (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{2}\\
   \elab{\mesg{e}}{2}&:=&
-  \elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{1} \fminus \mack{\elab{\flip{b}}{\Oracle}}{1}) \macplus (\macv{\elab{\secret{y}}{2}}\macminus\macv{\elab{\flip{b}}{\Oracle}}))}{2}\\
+  \elab{(\macauth(\mesg{b}, \mack{\elab{\secret{y}}{2}}{1} \fminus \mack{\elab{\flip{b}}{\Oracle}}{1}) \macplus (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{2}\\
   \rvl{2} &:=&
   \elab{( (\mesg{d} \mactimes \mesg{e}) \macplus
-          (\mesg{d} \mactimes \macv{\elab{\flip{b}}{\Oracle}}) \macplus
-          (\mesg{e} \mactimes \macv{\elab{\flip{a}}{\Oracle}}) \macplus \macv{\elab{\secret{c}}{\Oracle}}
+          (\mesg{d} \mactimes \macgv{\elab{\flip{b}}{\Oracle}}) \macplus
+          (\mesg{e} \mactimes \macgv{\elab{\flip{a}}{\Oracle}}) \macplus \macgv{\elab{\secret{c}}{\Oracle}}
     )}{2}\\
   \out{1} &:=& \elab{(\rvl{1} \macplus \macauth(\rvl{2},\ldots))}{1} \\
   \out{2} &:=& \elab{(\macauth(\rvl{1},\ldots) \macplus \rvl{2})}{2}
