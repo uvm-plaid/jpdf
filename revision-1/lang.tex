@@ -30,7 +30,7 @@
     \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
     \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
     \lcod{\store, \rvl{w}}{\cid} &=& \store(\rvl{w})\\
-    \lcod{\store, f\,e_1\,\cdots\, e_n}{\cid} &=& \delta(f,\lcod{\store, e_1}{\cid},\ldots,\lcod{\store,e_n}{\cid})
+    \lcod{\store, f\,\be_1\,\cdots\, \be_n}{\cid} &=& \delta(f,\lcod{\store, \be_1}{\cid},\ldots,\lcod{\store,\be_n}{\cid})
   \end{array}
   \end{array}
   $$
@@ -240,21 +240,19 @@ protocol by injecting ``fake'' sums of shares in their public reveals.
   {
 $$
 \begin{array}{rcl@{\hspace{8mm}}r}
-  \multicolumn{3}{l}{m,k \in \mathbb{Z}_p \qquad \macv ::= (v,[m_1,\ldots,m_n])} &\\[2mm]
+  \multicolumn{3}{l}{m,k \in \mathbb{Z}_p \qquad \macv ::= (v,m)} &\\[2mm]
   %\textit{MACed\ values}\\[2mm]
   \be &::=& \cdots \mid \macv \mid \be \macplus \be \mid \be \mactimes \be \mid \be \macminus \be\\[2mm]
-  x &::=& \cdots \mid \macx{\secret{w}}{\cid} \mid \macx{\flip{w}}{\cid} \mid \mack{x}{\cid}
+  x &::=& \cdots \mid \macx{\secret{w}}{\cid} \mid \macx{\flip{w}}{\cid} \mid \mack{x}{}
 \end{array}
 $$
 
 \rule{130mm}{0.5pt}
-
+\smallskip
 $$
 \begin{array}{rcl}
-  \fcod{(v^1, [m_1^1,\ldots,m^1_n]) \macplus (v^2, [m_1^2,\ldots,m^2_n])} &=&
-  (v^1 \fplus v^2, [m_1^1 \fplus m_1^2 ,\ldots,m^1_n \fplus m_n^2])\\[2mm]
-  \fcod{(v^1, [m_1^1,\ldots,m^1_n]) \mactimes v} &=&
-   (v^1 \ftimes v, [m_1^1 \ftimes v ,\ldots,m^1_n \ftimes v])
+  \fcod{(v_1, m_1) \macplus (v_2, m_2)} &=& (v_1 \fplus v_2, m_1 \fplus m_2)\\[2mm]
+  \fcod{(v, m) \mactimes v'} &=& (v \ftimes v', m \ftimes v')
 \end{array}
 $$
 $$
@@ -266,59 +264,63 @@ $$
 \end{array}
 $$
 
+\medskip
+
 \rule{130mm}{0.5pt}
 
 \begin{mathpar}
   \inferrule
-      {\store(x) = v \\ \store(\macx{x}{\cid_1}) = (v_1,\ldots)\  \cdots\ 
-        \store(\macx{x}{\cid_n}) = (v_n,\ldots)}
-      {v = \fcod{v_1 \fplus \cdots \fplus v_n}}
+      {\store(\macx{x}{\cid_1}) = (v_1,m_1) \\
+        \store(\macx{x}{\cid_2}) = (v_2,m_2)}
+      {\store(x) = \fcod{v_1 \fplus v_2}}
       
   \inferrule
-      {\store(\macx{x}{\cid'}) = (v,[m_1,\ldots,m_n]) \\  \cid \in [1..n]}
-      {m_\cid = \fcod{\store(\mack{x}{\cid}) \fplus (\store(\elab{\flip{\ttt{delta}}}{\cid'}) \ftimes v)}}
+      {\store(\elab{x}{\cid'}) = (v,m) \\ \cid \ne \cid'}
+      {m = \lcod{\store, \mack{x}{} \fplus \flip{\ttt{delta}} \ftimes v}{\cid}}
 
   \store(\elab{\secret{c}}{\Oracle}) = \lcod{\store,\flip{a} \ftimes \flip{b}}{\Oracle}
 \end{mathpar}
 }
 \end{fpfig}
 
-Eliminating cheating by adding information theoretically secure MAC
-codes to shares is a fundamental approach accomplished by protocols
-including BDOZ \cite{XXX} and SPDZ \cite{XXX}.  These protocols assume
-pre-processing that distributes shares with MAC codes to all clients.
-This integrates well with pre-processed Beaver Triples to implement
-malicious secure and relatively efficient multiplication \cite{XXX}.
-Here we show how to implement malicious secure two party multiplication
-in the BDOZ style via some extensions of $\minifed$.
+Eliminating cheating by adding information theoretic secure MAC codes
+to shares is a fundamental approach realized by protocols such as BDOZ
+\cite{XXX} and SPDZ \cite{XXX}.  These protocols assume a
+pre-processing phase that distributes shares with MAC codes to
+clients.  This integrates well with pre-processed Beaver Triples to
+implement malicious secure, and relatively efficient, multiplication
+\cite{XXX}.  Here we show how to implement malicious secure two party
+multiplication in the BDOZ style via some extensions of $\minifed$.
 
-A field value $v$ is secret shared among $n$ clientz in BDOZ as follows.
-Each client $\cid$ in a federation of size $n$ gets a value of the form
-$(v_\cid,[m_1,\ldots,m_n])$, where $v_\cid$ is a secret
-share of $v$, i.e., $v = \fcod{v_1 \fplus \cdots \fplus v_n}$. Further, 
-values $[m_1,\ldots,m_n]$ are MACs of $v_\cid$, such that
-$m_{\cid'} = k_{\cid'} + (k_\Delta * v_\cid)$ for each $\cid'\in [1..n]$,
-where keys $k_{\cid'}$ and $k_\Delta$ are known only to $\cid$
-and $k_\Delta$ is common to all MACs used by $\cid$. By
-extending certain field operations to these forms, denoted $\macv$,
-a form of semi-homorphic encryption is obtained that is adequate to compute
-Beaver Triples. For example, if keys $k_1$ and $k_2$ authenticate
-$\macv_1$ and $\macv_2$, then $k_1 \fplus k_2$ authenticates
-$\macv_1 \macplus \macv_2$,  where $\macplus$ is addition
-extended to MACed values. Relevant semantic rules for this, as
-well as multiplication of MACed and field values, are given in
-Figure \ref{fig-bdoz}- for more details the reader is referred to
-\cite{XXX}.
+A field value $v$ is secret shared among 2 clientz in BDOZ as follows.
+Each client $\cid$ gets a pair of the form $(v_\cid,m_\cid)$, where
+$v_\cid$ is a secret share of $v$, i.e., $v = \fcod{v_1 \fplus v_2}$.
+Further, field values $m_\cid$ are MACs of $v_\cid$ that are authenticated
+by the other client's key. In particular, $m_\cid = k + (k_\Delta *
+v_\cid)$ where \emph{keys} $k$ and $k_\Delta$ are known only to $\cid'
+\ne \cid$ and $k_\Delta$. Further, there is a unique \emph{local key}
+$k$ for each shared value, while the \emph{global key} $k_\Delta$ is
+common to all MACs authenticated by $\cid'$. By extending certain
+field operations to these MACed values, a semi-homorphic encryption
+scheme is obtained that is adequate to compute Beaver Triples. For
+example, if local keys $k_1$ and $k_2$ authenticate $\macv_1$ and
+$\macv_2$, then $k_1 \fplus k_2$ authenticates $\macv_1 \macplus
+\macv_2$, where $\macplus$ is addition extended to MACed
+values. Semantics for summation of MACed shares, and multipication of
+shares and plain field values, are given in Figure \ref{fig-bdoz}.
+For more details the reader is referred to \cite{XXX}. We note
+that while we restrict values $v$, $m$, and $k$ to the same
+field in this presentation for simplicity, in general $m$ and
+$k$ can be in extensions of $\mathbb{Z}_p$. 
 
 We define variable forms $\macx{\secret{w}}{\cid}$ and
-$\macx{\flip{w}}{\cid}$ range over local MACed shares of a secret and
-random sample owned by client $\cid$, respectively. We let
-$\mack{\macx{x}{\cid_1}}{\cid_2}$ denote the key that
-authenticates $\cid_n$'s share of $\cid_1$'s value $x$.
-We also assume a key $\flip{\ttt{delta}}$ on each client
-$\cid$, which is that client's $k_\Delta$, 
-In Figure \ref{fig-bdoz} we define the relevant properties
-of pre-processed stores.
+$\macx{\flip{w}}{\cid}$ to range over local MACed shares of a secret
+and random sample owned by client $\cid$, respectively. We let
+$\mack{x}{}$ denote the local key for authenticating shares of $x$.
+We also assume a global key $\flip{\ttt{delta}}$ on each client.
+Pre-processing is modeled by assuming that shares are provided on
+input random tapes (memories) with the required properties, as defined
+on the bottom of Figure \ref{fig-bdoz}.
 
 Similarly to field values, we can use MACed shares in
 uniform independent distributions as one-time-pads for
@@ -328,15 +330,19 @@ declaratively.
 $$
 \delta(\macotp,v_1,v_2) \defeq \fcod{v_1 \macminus v_2}
 $$
-Also, we can define a $\macauth$ function that authenticates
-a client $\cid$'s share, and an $\macopen$ function
-that extracts a field value from its shares.
+
+Another key idea in BDOZ is \emph{secure opening}, where distributed
+shares of a value $v$ are communicated and combined to ``open'' the
+same $v$ on each client. This relies on authentication to detect
+cheating in the malicious setting. To implement secure opening we
+define a $\macauth$ function that authenticates shares, and a
+$\macopen$ function that extracts a field value from its shares.
 \begin{mathpar}
-\delta(\macauth, (v, [\ldots,m_\cid,\ldots]), k_\cid) \defeq
-     (v, [\ldots,m_\cid,\ldots]) \text{\ if\ } m_\cid = \fcod{k_\cid \fplus (k_\Delta \ftimes v)}
+\delta(\macauth, (v, m), k) \defeq
+     (v, m) \text{\ if\ } m = k \fplus (\flip{\ttt{delta}} \ftimes v)
  
-\delta(\macopen, (v_1, [\ldots]), \ldots, (v_n, [\ldots]),) \defeq
-\fcod{v_1 \fplus \cdots \fplus v_n}
+\delta(\macopen, (v_1, m_1), (v_2,m_2)) \defeq
+\fcod{v_1 \fplus v_2}
 \end{mathpar}
 This authentication eliminates cheating and guarantees protocol
 integrity. As we will show in Section \ref{section-types}, this
@@ -348,13 +354,20 @@ $(a,b,c)$ such that $c = \fcod{b \ftimes a}$- we implement them here
 as a secret $\secret{c}$ and samples $\flip{a}$ and $\flip{b}$ owned
 by an \emph{oracle} $\Oracle$ that we always assume is honest but is
 otherwise not involved in the protocol. We define pre-processing
-properties of Beaver Triples in Figure \ref{figure-bdoz}. First,
-clients 1 and 2 compute (aka \emph{open}) $\secret{x} \fplus \flip{a}$ and
-$\secret{y} \fplus \flip{b}$ where
-$\secret{x}$ and $\secret{y}$ are 1 and 2's secrets respectively.
-Note that both perform a \emph{secure opening} by authenticating
-each others' shares and record $\secret{x} \fplus \flip{a}$ and
-$\secret{y} \fplus \flip{b}$ as $\mesg{d}$ and $\mesg{e}$ respectively.
+properties of Beaver Triples in Figure \ref{fig-bdoz}. Only one
+Beaver triple can be used per multiplication to ensure secure
+openings, but our scheme can be extended with more Beaver triples
+and reuse of them will be rule out by type linearity as we will
+discuss in Section \ref{section-types}.
+
+First, clients 1 and 2 compute (aka \emph{open}) $\secret{x} \fplus
+\flip{a}$ and $\secret{y} \fplus \flip{b}$ where $\secret{x}$ and
+$\secret{y}$ are 1 and 2's secrets respectively.  Then they both
+perform a secure opening of $\secret{x} \fplus \flip{a}$ and
+$\secret{y} \fplus \flip{b}$, by authenticating each others' shares,
+and record them as $\mesg{d}$ and $\mesg{e}$ respectively. Note
+that the secrets remain hidden since $\flip{a}$ and $\flip{b}$
+are random values.
 $$
 \begin{array}{lcl}
   \elab{\mesg{a}}{2} &:=&

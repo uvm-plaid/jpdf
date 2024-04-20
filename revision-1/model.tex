@@ -1,5 +1,122 @@
 \section{Security Model}
 
+\subsection{Probability Mass Functions and Program Distributions}
+\label{section-pmf}
+
+Given a program $\prog$ with $\iov(\prog) = S \cup V$ and $\store \in
+\mems(\iov(\prog))$, we are fundamentally concerned with the joint
+probability of the assignments in $\store_V$ conditioned by the
+assignments $\store_S$ in any given run, since probabilistic
+dependence between honest secrets and corrupt views is our metric of
+information leakage.
+
+\subsection{Basic Definitions} 
+
+We begin by defining joint probability mass functions in the standard
+manner, though following \cite{barthe2019probabilistic} we use
+memories to denote mappings of variables to values (i.e., outcomes),
+so for example given a pmf $\pmf$ we will write $\pmf(\{ \sx{1}{a}
+\mapsto 0, \vx{2}{b} \mapsto 1 \})$ to denote the probability that
+$\sx{1}{a} = 0$ and $\vx{2}{b} = 1$ in the final memory of a
+program containing these variables.
+\begin{definition}
+  A \emph{probability mass function} $\pmf$ is a function
+  mapping memories in $\mems(X)$ for some $X$ to values in $[0,1]$, such that:
+  $$
+  \sum_{\store \in \mems(X)} \pmf(\store) \  = \ 1
+  $$
+\end{definition}
+%To recover succinct and familiar notation, we may omit the domain of a
+%distribution when it is clear from an application context-
+%i.e., we allow the following sugaring:
+%$$
+%\pdf{}(\store) \defeq \pdf{\dom(\store)}(\store)
+%$$
+Now, we can define a notion of marginal and conditional
+distributions as follows, which are standard for discrete
+probability mass functions. 
+\begin{definition}
+  Given $\pmf$ the \emph{marginal distribution} of variables $X$
+  in $\pmf$, denoted $\margd{\pmf}{X}$, is defined as follows:
+  $$
+  \forall \store \in \mems(X) \quad . \quad \margd{\pmf}{X}(\store) =
+  \sum_{\store' \in \mems(X-\dom(\dom(\pmf)))} \pmf(\store \cap \store')
+  $$
+\end{definition}
+
+\begin{definition}
+  Given $\margd{\pmf}{X}$, its \emph{conditional distribution given
+  $\stores$} with $\dom(\stores) = Y$ with $Y \subseteq X$, denoted
+  $\condd{\pmf}{X}{\stores}$, is a distribution with domain $X$ where for all
+  $\store \in \mems(X)$:
+  $$
+  \condd{\pmf}{X}{\stores}(\store) =
+  (\sum_{\store' \in \stores} \margd{\pmf}{X}(\store \cap \store')) /
+  (\sum_{\store' \in \stores} \margd{\pmf}{Y}(\store'))
+  $$
+  where $\margd{\pmf}{X}(\store \cap \store')) = 0$ if $\store \cap \store'$ is undefined.
+\end{definition}
+To recover familiar notation we allow the syntactic
+sugarings $\condd{\pmf}{X}{\store}  \defeq \condd{\pmf}{X}{\{ \store\}}$, and
+$\pmf(\store)  \defeq \margd{\pmf}{X}(\store)$ and $\pmf(\store|\stores) \defeq
+\condd{\pmf}{X}{\stores}(\store)$ where $\dom(\store) = X$.
+%\begin{eqnarray*}
+%  \condd{\pmf}{X}{\store}  &\defeq& \condd{\pmf}{X}{\{ \store\}}\\
+%  \pmf(\store)  &\defeq& \margd{\pmf}{X}(\store)  \qquad \dom(\store) = X\\
+%  \pmf(\store|\stores)  &\defeq& \condd{\pmf}{X}{\stores}(\store) \qquad \dom(\store) = X
+%\end{eqnarray*}
+
+\subsection{Program Distributions}
+Now we can define the probability distribution of a program $\prog$,
+that we denote $\progd(\prog)$. Since $\fedcat$ is deterministic the
+results (view assignments) of any run are determined by the input
+secrets together with the random tape. And since we constrain programs
+to not overwrite views, we are assured that \emph{final} memories
+contain both a complete record of all initial secrets as well as views
+resulting from communicated information.
+
+We consider random tapes to be selected from a uniform distribution.
+In our threat model, we will also assume that any possible initial
+secrets are equally likely when formulating the program distribution.
+In this setting, given a program $\prog$ with $\iov(\prog) = S \cup
+V$ and $\flips(\prog) = F$ we will consider all $\store
+\in \mems(S \cup V \cup F)$ such that
+$
+\config{\store_{S \cup F}}{\prog} \redxs \config{\store_}{\varnothing}
+$
+to be equally probable, establishing the basic distribution of the
+program. From this, we can immediately derive the marginal distribution
+of $S \cup V$ to reason about dependencies between secrets and views. 
+\begin{definition}
+  \label{def-progd}
+  \label{definition-progd}
+  Given program $\prog$ with $\iov(\prog) = (S,V)$ and $\flips(\prog) = F$, define $\stores$ as:
+  $$
+  \stores \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
+  $$
+  We note immediately that $|\stores| = 2^{S \cup F}$ given the (deterministic) definition of $\redx$. 
+  Define also $\pmf$ as the program's \emph{basic distribution} such that for all
+  $\store \in \mems(S \cup V \cup F)$:
+  $$
+  \pmf(\store) =  1 / |\stores| \ \text{if}\ \store \in \stores, \text{otherwise}\ 0
+  %\begin{cases}
+  %  1 / |\stores| & \text{if}\ \store \in \stores\\
+  %  0 & \text{otherwise}
+  %\end{cases}
+  $$
+  Then the \emph{program distribution of $\prog$}, denoted $\progd(\prog)$, is the
+  marginal distribution of $S \cup V$ in $\prog$'s basic distribution, i.e., 
+  $
+  \progd(\prog) \defeq  \margd{\pmf}{S\cup V}
+  $.
+  In some cases, we will also be concerned with the (joint)
+  probabilities of expression interpretation given a preceding program
+  execution, and we write $\progd(\prog, \be)$ to denote the program
+  distribution $\progd(\prog;\itv := \be)$ where $\itv$ is a
+  special variable that is never used in programs.
+\end{definition}
+
+
 \begin{definition}
   We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
   \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
