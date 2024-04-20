@@ -86,20 +86,24 @@ commands of three different forms:
 Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be
 referenced in expressions, once they've been assigned.
 
-We let $x$ range over \emph{variables}  which are identifiers
-where client ownership is specified- e.g., $\elab{\mesg{\mathit{foo}}}{\cid}$
-is a message $\mathit{foo}$ that was sent to $\cid$. We let $X$
-range over sets of variables, and more specifically, $S$ ranges over sets of secret variables $\elab{\secret{w}}{\cid}$, $R$ ranges over sets of random variables $\elab{\flip{w}}{\cid}$, $M$ ranges over sets of message variables $\elab{\mesg{w}}{\cid}$, $P$ ranges over sets of public variables $\rvl{w}$, and $O$ ranges over sets of output variabels $\out{\cid}$.
-Given a program $\prog$, we write $\iov(\prog)$ to
-denote the set of $S \cup M \cup P \cup O$ of variables in $\prog$
-with ownership made explicit, and we write $\flips(\prog)$ to
-denote the set $R$ of random samplings in $\prog$ with ownership
-made explicit. We write
-$\vars(\prog)$ to denote $\iov(\prog) \cup \flips(\prog)$. For any set
-of variables $X$ and parties $P$, we write $X_P$ to denote the subset
-of $X$ owned by any party in $P$, in particular we write $X_H$ and $X_C$ to
-denote the subsets belonging to honest and corrupt parties,
-respectively.
+We let $x$ range over \emph{variables} which are identifiers where
+client ownership is specified- e.g.,
+$\elab{\mesg{\mathit{foo}}}{\cid}$ is a message $\mathit{foo}$ that
+was sent to $\cid$. We let $X$ range over sets of variables, and more
+specifically, $S$ ranges over sets of secret variables
+$\elab{\secret{w}}{\cid}$, $R$ ranges over sets of random variables
+$\elab{\flip{w}}{\cid}$, $M$ ranges over sets of message variables
+$\elab{\mesg{w}}{\cid}$, $P$ ranges over sets of public variables
+$\rvl{w}$, and $O$ ranges over sets of output variables $\out{\cid}$.
+Given a program $\prog$, we write $\iov(\prog)$ to denote the set $S
+\cup M \cup P \cup O$ of variables in $\prog$ with ownership made
+explicit and $\secrets(\prog)$ to denote $S$, and we write
+$\flips(\prog)$ to denote the set $R$ of random samplings in $\prog$
+with ownership made explicit. We write $\vars(\prog)$ to denote
+$\iov(\prog) \cup \flips(\prog)$. For any set of variables $X$ and
+parties $P$, we write $X_P$ to denote the subset of $X$ owned by any
+party in $P$, in particular we write $X_H$ and $X_C$ to denote the
+subsets belonging to honest and corrupt parties, respectively.
 
 \subsubsection{Library Functions} $\minifed$ expression syntax also supports
 calls to library functions $f$ which can be applied to muliple arguments in a

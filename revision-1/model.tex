@@ -1,18 +1,18 @@
 \section{Security Model}
-
-\subsection{Probability Mass Functions and Program Distributions}
 \label{section-pmf}
 
-Given a program $\prog$ with $\iov(\prog) = S \cup V$ and $\store \in
-\mems(\iov(\prog))$, we are fundamentally concerned with the joint
-probability of the assignments in $\store_V$ conditioned by the
-assignments $\store_S$ in any given run, since probabilistic
-dependence between honest secrets and corrupt views is our metric of
-information leakage.
+\emph{Simulator security} in the MPC setting means that protocols do
+not reveal any secret information other than what is implicitly
+declassified by the output of the ideal functionality that the
+protocol implements. Characterization of both real world protocol
+execution and simulation is defined probabilistically. Following
+previous work \cite{barthe2019probabilistic} we use probability mass
+functions to express joint dependencies between input and output
+variables, as a metric of information leakage.
 
-\subsection{Basic Definitions} 
+\subsection{Probability Mass Functions} 
 
-We begin by defining joint probability mass functions in the standard
+We define joint probability mass functions (pmfs) in the standard
 manner, though following \cite{barthe2019probabilistic} we use
 memories to denote mappings of variables to values (i.e., outcomes),
 so for example given a pmf $\pmf$ we will write $\pmf(\{ \sx{1}{a}
@@ -21,7 +21,7 @@ $\sx{1}{a} = 0$ and $\vx{2}{b} = 1$ in the final memory of a
 program containing these variables.
 \begin{definition}
   A \emph{probability mass function} $\pmf$ is a function
-  mapping memories in $\mems(X)$ for some $X$ to values in $[0,1]$, such that:
+  mapping memories in $\mems(X)$ for some $X$ to values in $\mathbb{F}_p$, such that:
   $$
   \sum_{\store \in \mems(X)} \pmf(\store) \  = \ 1
   $$
@@ -45,9 +45,10 @@ probability mass functions.
 \end{definition}
 
 \begin{definition}
-  Given $\margd{\pmf}{X}$, its \emph{conditional distribution given
-  $\stores$} with $\dom(\stores) = Y$ with $Y \subseteq X$, denoted
-  $\condd{\pmf}{X}{\stores}$, is a distribution with domain $X$ where for all
+  Given $\margd{\pmf}{X}$, let $\stores$ be a set of memories with the
+  same domain $Y \subseteq X$. Then the \emph{conditional distribution given
+  $\stores$}  denoted
+  $\condd{\pmf}{X}{\stores}$ is a distribution with domain $X$ where for all
   $\store \in \mems(X)$:
   $$
   \condd{\pmf}{X}{\stores}(\store) =
@@ -66,81 +67,97 @@ $\pmf(\store)  \defeq \margd{\pmf}{X}(\store)$ and $\pmf(\store|\stores) \defeq
 %  \pmf(\store|\stores)  &\defeq& \condd{\pmf}{X}{\stores}(\store) \qquad \dom(\store) = X
 %\end{eqnarray*}
 
-\subsection{Program Distributions}
+\subsection{Basic Distribution of a Protocol}
 Now we can define the probability distribution of a program $\prog$,
-that we denote $\progd(\prog)$. Since $\fedcat$ is deterministic the
-results (view assignments) of any run are determined by the input
-secrets together with the random tape. And since we constrain programs
-to not overwrite views, we are assured that \emph{final} memories
-contain both a complete record of all initial secrets as well as views
-resulting from communicated information.
+that we denote $\progtt(\prog)$. Since $\fedcat$ is deterministic the
+results of any run are determined by the input secrets together with
+the random tape. And since we constrain programs to not overwrite
+views, we are assured that \emph{final} memories contain both a
+complete record of all initial secrets as well as views resulting from
+communicated information. 
 
-We consider random tapes to be selected from a uniform distribution.
-In our threat model, we will also assume that any possible initial
-secrets are equally likely when formulating the program distribution.
-In this setting, given a program $\prog$ with $\iov(\prog) = S \cup
-V$ and $\flips(\prog) = F$ we will consider all $\store
-\in \mems(S \cup V \cup F)$ such that
-$
-\config{\store_{S \cup F}}{\prog} \redxs \config{\store_}{\varnothing}
-$
-to be equally probable, establishing the basic distribution of the
-program. From this, we can immediately derive the marginal distribution
-of $S \cup V$ to reason about dependencies between secrets and views. 
+We consider random tapes to be selected from a uniform distribution
+modulo relevant pre-processing, e.g., Beaver triples and MACed share
+distributions.  We will also assume that any possible initial secrets
+are equally likely when formulating the program distribution.
+We define $\runs(\prog)$ as the set of final memories resulting
+from execution of $\prog$ given any initial memory, and
+treat all elements of $\runs(\prog)$ as equally likely.
+This establishes the basic program distribution that can be
+marginalized and conditioned to quantify input/output
+information dependencies. 
+%In this
+%setting, given a program $\prog$ with $\iov(\prog) = S \cup V$ and
+%$\flips(\prog) = F$ we will consider all $\store \in \mems(S \cup V
+%\cup F)$ such that $ \config{\store_{S \cup F}}{\prog} \redxs
+%\config{\store_}{\varnothing} $ to be equally probable, establishing
+%the basic distribution of the program. %From this, we can immediately
+%derive the marginal distribution of $S \cup V$ to reason about
+%dependencies between secrets and views.
 \begin{definition}
   \label{def-progd}
   \label{definition-progd}
-  Given program $\prog$ with $\iov(\prog) = (S,V)$ and $\flips(\prog) = F$, define $\stores$ as:
+  Given program $\prog$ with $\secrets(\prog) = S$ and $\flips(\prog) = R$, and
+  any assumed pre-processing predicate $\preproc$ on memories, define:
   $$
-  \stores \defeq \{ \store \mid (\dom(\store) = S \cup V \cup F) \wedge (\store_{S \cup F},\prog) \redxs (\store,\varnothing) \}
+  \runs(\prog) \defeq \{ \store \mid \preproc(\store) \wedge
+  (\dom(\store) = \iov(\prog) \cup R) \wedge (\store_{S \cup R},\prog) \redxs (\store,\varnothing) \}
   $$
-  We note immediately that $|\stores| = 2^{S \cup F}$ given the (deterministic) definition of $\redx$. 
-  Define also $\pmf$ as the program's \emph{basic distribution} such that for all
-  $\store \in \mems(S \cup V \cup F)$:
+  Then the \emph{basic distribution of $\prog$}, written $\progtt(\prog)$, is
+  defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
   $$
-  \pmf(\store) =  1 / |\stores| \ \text{if}\ \store \in \stores, \text{otherwise}\ 0
-  %\begin{cases}
-  %  1 / |\stores| & \text{if}\ \store \in \stores\\
-  %  0 & \text{otherwise}
-  %\end{cases}
+  \progtt(\store) =  1 / |\runs(\prog)| \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
   $$
-  Then the \emph{program distribution of $\prog$}, denoted $\progd(\prog)$, is the
-  marginal distribution of $S \cup V$ in $\prog$'s basic distribution, i.e., 
-  $
-  \progd(\prog) \defeq  \margd{\pmf}{S\cup V}
-  $.
   In some cases, we will also be concerned with the (joint)
   probabilities of expression interpretation given a preceding program
-  execution, and we write $\progd(\prog, \be)$ to denote the program
-  distribution $\progd(\prog;\itv := \be)$ where $\itv$ is a
+  execution, and we write $\progtt(\prog, \be)$ to denote the program
+  distribution $\progtt(\prog;\itv := \be)$ where $\itv$ is a
   special variable that is never used in programs.
-\end{definition}
-
-
-\begin{definition}
-  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
-  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
-  We write $\sep{\pmf}{X}{Y}$ iff for all
-    $\store \in \mems(X \cup Y)$ we have
-  $\margd{\pmf}{X \cup Y}(\store) =
-  \pmf(\store_X) * \pmf(\store_Y)$
 \end{definition}
 
 \subsection{Passive Security}
 
-The simulator is represented by a probabilistic algorithm $\SIM_C$,
-aka a \emph{simulation}, that is parameterized by corrupt inputs and
-the output of an ideal functionality, and that returns a set of
-adversarial views (as a memory) with some probability. Given
-corrupt inputs $\store$ and ideal functionality output $v$,  
-we write
-$
-\prob(\SIM(\store,v) = \store')
-$
-to denote the probability that $\SIM(\store,v)$
-returns corrupt views $\store'$ as a result. We can then define the
-probability distribution of corrupt views reconstructed
-by the simulator as follows:
+Information about honest secrets can be revealed to corrupt clients
+through messages sent from honest to corrupt clients, and through
+publicly broadcast information from honest clients. Dually,
+corrupt clients can impact protocol integrity through the messages
+sent from corrupt to honest clients, and through publicly broadcast information
+from corrupt clients. We call the former \emph{corrupt views}, and
+the latter \emph{honest views}. Generally we let $V$ range over sets
+of views.
+\begin{definition}[Corrupt and Honest Views]
+  Given a program $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$,
+  define $\views(\prog) \defeq M \cup P$, and define $\houtputs$ as the messages in
+  $V = \views(\prog)$ sent from honest
+  to corrupt parties, called \emph{corrupt views}:
+  $$
+  \houtputs = \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog
+  \wedge \cid \in H \ \} 
+  \cup \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in \prog
+  \wedge \cid \in C \wedge \cid' \in H \ \} 
+  $$
+  and similarly define $\cinputs$ as the messages in $V$ sent from corrupt to honest
+  parties, called \emph{honest views}:
+  $$
+  \cinputs = \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog
+  \wedge \cid \in C \ \} 
+  \cup \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in \prog
+  \wedge \cid \in H \wedge \cid' \in C \ \} 
+  $$
+\end{definition}
+
+In the passive setting the simulator must construct a probabilistic
+algorithm $\SIM$, aka a \emph{simulation}, that is parameterized by
+corrupt inputs and the output of an ideal functionality, and that
+returns a distribution of corrupt views that is indistinguishable
+from the distribution of corrupt views in the real world
+protocol execution.
+
+Given inputs $\store$ and ideal
+functionality output $v$, we write $ \prob(\SIM(\store,v) = \store') $
+to denote the probability that $\SIM(\store,v)$ returns corrupt views
+$\store'$ as a result. We can then define the probability distribution
+of corrupt views reconstructed by the simulator as follows:
 \begin{definition}
   Given $C$, $\store$, and $v$, we write $\dist(\SIM(\store,v))$ to
   denote the distribution of corrupt views reconstructed by the
@@ -150,18 +167,17 @@ by the simulator as follows:
   \dist(\SIM(\store,v))(\store')\ \defeq\ \prob(\SIM(\store,v) = \store') 
   $$
 \end{definition}
-
 Then we can define passive security in the real/ideal
 model as follows. 
 \begin{definition}[Passive Security]
   Assume given a program $\prog$ that correctly implements an ideal
-  functionality $\idealf$, with $\iov(\prog) = (S,M,O)$.  Then $\prog$
+  functionality $\idealf$, with $\views(\prog) = V$.  Then $\prog$
   is \emph{passive secure in the simulator model} iff for all
   partitions of the federation into honest and corrupt sets $H$ and $C$
-  with $|C| < |H|$ and for all $\store \in \mems(S)$ there exists a
+  and for all $\store \in \mems(S)$ there exists a
   simulation $\SIM$ such that:
   $$
-  \dist(\SIM(\store_{S_C},\idealf(\store))) = \condd{\progtt(\prog)}{M_C}{\store}
+  \dist(\SIM(\store_{C},\idealf(\store))) = \condd{\progtt(\prog)}{\houtputs}{\store}
   $$
 \end{definition}
 
@@ -176,17 +192,6 @@ $$
 \end{array}
 $$
 
-\begin{definition}[Corrupt Inputs, Honest Outputs]
-  Given a program $\prog$ with $\iov(\prog) = (S,M,O)$ , define $\cinputs$ as the
-  messages in $M$ sent from corrupt to honest parties:
-  $$
-  \cinputs = \{\ \elab{\mesg{w}}{\cid}\ \mid\  \elab{\mesg{w}}{\cid} \in M \wedge \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in \prog
-  \wedge \cid \in H \wedge \cid' \in C \ \} 
-  $$
-  and similarly define $\houtputs$ as the messages in $M$ sent from honest to corrupt parties.
-  %Define also $(\afilter\ \prog)$ as $\prog$ with all instructions of the form $\eassign{\mesg{w}}{\cid}{\be}{\cid'}$ removed
-  %where $\cid \in H \wedge \cid' \in C$.
-\end{definition}
 
 $$
 \dist(\SIM(\store_{S_H})) = \condd{\progtt(\prog)}{\houtputs \cup O_H}{\store_{S_H}}
