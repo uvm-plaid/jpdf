@@ -172,7 +172,7 @@ over any two field values regardless of their distributions.
 To capture this distinction we introduce a function $\otp$
 with the following specification:
 $$
-\delta(\otp,v_1,v_2) \defeq v_1 \fplus v_2
+\delta(\otp,v_1,v_2) \defeq \fcod{v_1 \fplus v_2}
 $$
 Although the semantics are the same as addition, the use of $\otp$
 makes a declarative distinction. But more importantly we will be
@@ -292,51 +292,110 @@ malicious secure and relatively efficient multiplication \cite{XXX}.
 Here we show how to implement malicious secure two party multiplication
 in the BDOZ style via some extensions of $\minifed$.
 
+A field value $v$ is secret shared among $n$ clientz in BDOZ as follows.
+Each client $\cid$ in a federation of size $n$ gets a value of the form
+$(v_\cid,[m_1,\ldots,m_n])$, where $v_\cid$ is a secret
+share of $v$, i.e., $v = \fcod{v_1 \fplus \cdots \fplus v_n}$. Further, 
+values $[m_1,\ldots,m_n]$ are MACs of $v_\cid$, such that
+$m_{\cid'} = k_{\cid'} + (k_\Delta * v_\cid)$ for each $\cid'\in [1..n]$,
+where keys $k_{\cid'}$ and $k_\Delta$ are known only to $\cid$
+and $k_\Delta$ is common to all MACs used by $\cid$. By
+extending certain field operations to these forms, denoted $\macv$,
+a form of semi-homorphic encryption is obtained that is adequate to compute
+Beaver Triples. For example, if keys $k_1$ and $k_2$ authenticate
+$\macv_1$ and $\macv_2$, then $k_1 \fplus k_2$ authenticates
+$\macv_1 \macplus \macv_2$,  where $\macplus$ is addition
+extended to MACed values. Relevant semantic rules for this, as
+well as multiplication of MACed and field values, are given in
+Figure \ref{fig-bdoz}- for more details the reader is referred to
+\cite{XXX}.
 
-$$
-m_\cid = k_\cid + (k_\Delta * v)
-$$
+We define variable forms $\macx{\secret{w}}{\cid}$ and
+$\macx{\flip{w}}{\cid}$ range over local MACed shares of a secret and
+random sample owned by client $\cid$, respectively. We let
+$\mack{\macx{x}{\cid_1}}{\cid_2}$ denote the key that
+authenticates $\cid_n$'s share of $\cid_1$'s value $x$.
+We also assume a key $\flip{\ttt{delta}}$ on each client
+$\cid$, which is that client's $k_\Delta$, 
+In Figure \ref{fig-bdoz} we define the relevant properties
+of pre-processed stores.
 
+Similarly to field values, we can use MACed shares in
+uniform independent distributions as one-time-pads for
+hiding other values, using subtraction over MACed shares.
+So we introduce a function $\macotp$ to do this
+declaratively.
 $$
-\delta(\macotp,v_1,v_2) \defeq v_1 \macplus v_2
+\delta(\macotp,v_1,v_2) \defeq \fcod{v_1 \macminus v_2}
 $$
-
-$$
+Also, we can define a $\macauth$ function that authenticates
+a client $\cid$'s share, and an $\macopen$ function
+that extracts a field value from its shares.
+\begin{mathpar}
 \delta(\macauth, (v, [\ldots,m_\cid,\ldots]), k_\cid) \defeq
-     (v, [\ldots,m_\cid,\ldots]) \text{\ if\ } m_\cid = k_\cid + (k_\Delta * v)
-$$
+     (v, [\ldots,m_\cid,\ldots]) \text{\ if\ } m_\cid = \fcod{k_\cid \fplus (k_\Delta \ftimes v)}
+ 
+\delta(\macopen, (v_1, [\ldots]), \ldots, (v_n, [\ldots]),) \defeq
+\fcod{v_1 \fplus \cdots \fplus v_n}
+\end{mathpar}
+This authentication eliminates cheating and guarantees protocol
+integrity. As we will show in Section \ref{section-types}, this
+can be reflected in a security type for $\macauth$.
 
+Putting these pieces together, we can implement 2-party multiplication with
+Beaver Triples as follows. Recall that Beaver Triples are values
+$(a,b,c)$ such that $c = \fcod{b \ftimes a}$- we implement them here
+as a secret $\secret{c}$ and samples $\flip{a}$ and $\flip{b}$ owned
+by an \emph{oracle} $\Oracle$ that we always assume is honest but is
+otherwise not involved in the protocol. We define pre-processing
+properties of Beaver Triples in Figure \ref{figure-bdoz}. First,
+clients 1 and 2 compute (aka \emph{open}) $\secret{x} \fplus \flip{a}$ and
+$\secret{y} \fplus \flip{b}$ where
+$\secret{x}$ and $\secret{y}$ are 1 and 2's secrets respectively.
+Note that both perform a \emph{secure opening} by authenticating
+each others' shares and record $\secret{x} \fplus \flip{a}$ and
+$\secret{y} \fplus \flip{b}$ as $\mesg{d}$ and $\mesg{e}$ respectively.
 $$
 \begin{array}{lcl}
   \elab{\mesg{a}}{2} &:=&
-  \elab{(\macotp\ \macgv{\elab{\secret{x}}{1}}\ \macgv{\elab{\flip{a}}{\Oracle}})}{1}\\
+  \elab{(\macotp\ \macgv{\elab{\flip{a}}{\Oracle}}\ \macgv{\elab{\secret{x}}{1}})}{1}\\
   \elab{\mesg{a}}{1} &:=&
-  \elab{(\macotp\ \macgv{\elab{\secret{x}}{1}}\ \macgv{\elab{\flip{a}}{\Oracle}})}{2}\\
+  \elab{(\macotp\ \macgv{\elab{\flip{a}}{\Oracle}}\ \macgv{\elab{\secret{x}}{1}})}{2}\\
   \elab{\mesg{b}}{2} &:=&
-  \elab{(\macotp\ \macgv{\elab{\secret{y}}{2}}\ \macgv{\elab{\flip{b}}{\Oracle}})}{1}\\
+  \elab{(\macotp\ \macgv{\elab{\flip{b}}{\Oracle}}\ \macgv{\elab{\secret{y}}{2}})}{1}\\
   \elab{\mesg{b}}{1} &:=&
-  \elab{(\macotp\ \macgv{\elab{\secret{y}}{2}}\ \macgv{\elab{\flip{b}}{\Oracle}})}{2}\\
+  \elab{(\macotp\ \macgv{\elab{\flip{b}}{\Oracle}}\ \macgv{\elab{\secret{y}}{2}})}{2}\\
   \elab{\mesg{d}}{1} &:=&
-  \elab{(\macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{2} \fminus \mack{\macx{\flip{a}}{\Oracle}}{2}) \macplus (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{1}\\
+  \elab{(\macopen\ \macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{2} \fminus \mack{\macx{\flip{a}}{\Oracle}}{2}) \ (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{1}\\
   \elab{\mesg{e}}{1}&:=&
-  \elab{(\macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{2} \fminus \mack{\macx{\flip{b}}{\Oracle}}{2}) \macplus (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{1}\\
+  \elab{(\macopen\ \macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{2} \fminus \mack{\macx{\flip{b}}{\Oracle}}{2}) \ (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{1}\\
+  \elab{\mesg{d}}{2} &:=&
+  \elab{(\macopen\ \macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{1} \fminus \mack{\macx{\flip{a}}{\Oracle}}{1}) \ (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{2}\\
+  \elab{\mesg{e}}{2}&:=&
+  \elab{(\macopen\ \macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{1} \fminus \mack{\macx{\flip{b}}{\Oracle}}{1}) \ (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{2}
+\end{array}
+$$
+Now, each client uses their share of $\secret{c}$ to generate their
+share of the final output, which is again reported via a secure opening.
+Homomorphic key calculations are elided for brevity.
+$$
+\begin{array}{lcl}
   \rvl{1} &:=&
-  \elab{( (\mesg{d} \mactimes \mesg{e}) \macplus
+  \elab{( (\mesg{d} \ftimes \mesg{e}) \macplus
           (\mesg{d} \mactimes \macgv{\elab{\flip{b}}{\Oracle}}) \macplus
           (\mesg{e} \mactimes \macgv{\elab{\flip{a}}{\Oracle}}) \macplus \macgv{\elab{\secret{c}}{\Oracle}}
     )}{1}\\
-  \elab{\mesg{d}}{2} &:=&
-  \elab{(\macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{1} \fminus \mack{\macx{\flip{a}}{\Oracle}}{1}) \macplus (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{2}\\
-  \elab{\mesg{e}}{2}&:=&
-  \elab{(\macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{1} \fminus \mack{\macx{\flip{b}}{\Oracle}}{1}) \macplus (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{2}\\
   \rvl{2} &:=&
-  \elab{( (\mesg{d} \mactimes \mesg{e}) \macplus
+  \elab{( (\mesg{d} \ftimes \mesg{e}) \macplus
           (\mesg{d} \mactimes \macgv{\elab{\flip{b}}{\Oracle}}) \macplus
           (\mesg{e} \mactimes \macgv{\elab{\flip{a}}{\Oracle}}) \macplus \macgv{\elab{\secret{c}}{\Oracle}}
     )}{2}\\
-  \out{1} &:=& \elab{(\rvl{1} \macplus \macauth(\rvl{2},\ldots))}{1} \\
-  \out{2} &:=& \elab{(\macauth(\rvl{1},\ldots) \macplus \rvl{2})}{2}
+  \out{1} &:=& \elab{(\macopen\ \rvl{1} \ \macauth(\rvl{2},\ldots))}{1} \\
+  \out{2} &:=& \elab{(\macopen\ \macauth(\rvl{1},\ldots) \ \macauth(\rvl{2},\ldots))}{2} 
 \end{array}
 $$
+Some information about input secrets is revealed by the product, but
+secure opening ensures high integrity and hence robustness to
+corruption, aka robust declassification.
 
 
