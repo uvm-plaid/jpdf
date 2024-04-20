@@ -194,7 +194,10 @@ we can define as follows.
 
 In the malicious model we assume that corrupt clients are in the thrall of an
 adversary $\adversary$ who does not necessarily follow the rules of the protocol.
-
+We model this by positing a $\arewrite$ function which is given a corrupt memory
+$\store_C$ and expression $\be$, and returns a rewritten expression that can
+be interpreted to yield a corrupt input. Then we define an evaluation
+relation that incorporates the adversary:
 $$
 \begin{array}{rclr}
   (\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) &\aredx&
@@ -203,8 +206,38 @@ $$
   (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\arewrite(\store_C,\be)}{\cid_2}}, \prog) & \cid_2 \in C
 \end{array}
 $$
+Given this we define the $\adversary$ distribution of $\prog$. 
+\begin{definition}
+  \label{def-progd}
+  \label{definition-progd}
+  Given program $\prog$ with $\secrets(\prog) = S$ and $\flips(\prog) = R$, and
+  any assumed pre-processing predicate $\preproc$ on memories, define:
+  $$
+  \aruns(\prog) \defeq \{ \store \mid \preproc(\store) \wedge
+  (\dom(\store) = \iov(\prog) \cup R) \wedge (\store_{S \cup R},\prog) \aredx^* (\store,\varnothing) \}
+  $$
+  Then the \emph{$\adversary$ distribution of $\prog$}, written $\progtt(\prog,\adversary)$, is
+  defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
+  $$
+  \progtt(\store) =  1 / |\runs(\prog)| \ \text{if}\ \store \in \aruns(\prog), \text{otherwise}\ 0
+  $$
+\end{definition}
 
-
-$$
-\dist(\SIM(\store_{S_H})) = \condd{\progtt(\prog)}{\houtputs \cup O_H}{\store_{S_H}}
-$$
+\begin{definition}[Malicious Security]
+  Let $\prog$ be a protocol with $\iov(\prog) = S \cup V \cup O$. We say that
+  $\prog$ is \emph{malicious secure} iff for all
+  partitions of the federation into honest and corrupt sets $H$ and $C$,
+  adversaries $\adversary$, 
+  and all $\store \in \mems(S_H)$ there exists a
+  simulation $\SIM$ which is given $\store$ and has two phases:
+  \begin{enumerate}
+  \item In the first phase (aka input extraction), $\adversary$ gives the
+    simulator some $\store' \in \mems(S_C)$, and the simulator consults an
+    oracle to compute $\idealf(\store \cup \store')$.
+  \item In the second phase, $\SIM$ reconstructs corrupt views $\houtputs$,
+    which it returns along with the honest outputs in $\idealf(\store \cup \store')$, such that:
+    $$
+    \dist(\SIM(\store)) = \condd{\progtt(\prog,\adversary)}{\houtputs \cup O_H}{\store}
+    $$
+  \end{enumerate}
+\end{definition}
