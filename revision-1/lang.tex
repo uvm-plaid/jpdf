@@ -391,7 +391,7 @@ $$
           (\mesg{e} \mactimes \macgv{\elab{\flip{a}}{\Oracle}}) \macplus \macgv{\elab{\secret{c}}{\Oracle}}
     )}{2}\\
   \out{1} &:=& \elab{(\macopen\ \rvl{1} \ \macauth(\rvl{2},\ldots))}{1} \\
-  \out{2} &:=& \elab{(\macopen\ \macauth(\rvl{1},\ldots) \ \macauth(\rvl{2},\ldots))}{2} 
+  \out{2} &:=& \elab{(\macopen\ \macauth(\rvl{1},\ldots) \ \rvl{2})}{2} 
 \end{array}
 $$
 Some information about input secrets is revealed by the product, but
