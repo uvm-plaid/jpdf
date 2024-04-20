@@ -180,6 +180,15 @@ model as follows.
   \dist(\SIM(\store_{C},\idealf(\store))) = \condd{\progtt(\prog)}{\houtputs}{\store}
   $$
 \end{definition}
+Observe that this definition relies on protocol correctness, which
+we can define as follows.
+\begin{definition}[Passive Correctness]
+  Given $\prog$ with output variables $\out{1},\ldots,\out{n}$ and ideal
+  functionality $\idealf$, we say that $\prog$ is \emph{passive correct}
+  for $\idealf$ iff for all $\store \in \mems(\secrets(\prog))$
+  with $\idealf(\store) = v_1,\ldots,v_n$ we have
+  $\progtt(\prog)(\out{1} \mapsto v_1,\ldots,\out{n} \mapsto v_n \mid \store) = 1$.
+\end{definition}
 
 \subsection{Malicious Security}
 
