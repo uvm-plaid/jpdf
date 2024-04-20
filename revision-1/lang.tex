@@ -379,13 +379,13 @@ $$
   \elab{\mesg{b}}{1} &:=&
   \elab{(\macotp\ \macgv{\elab{\flip{b}}{\Oracle}}\ \macgv{\elab{\secret{y}}{2}})}{2}\\
   \elab{\mesg{d}}{1} &:=&
-  \elab{(\macopen\ \macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{2} \fminus \mack{\macx{\flip{a}}{\Oracle}}{2}) \ (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{1}\\
+  \elab{(\macopen\ \macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{} \fminus \mack{\macx{\flip{a}}{\Oracle}}{}) \ (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{1}\\
   \elab{\mesg{e}}{1}&:=&
-  \elab{(\macopen\ \macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{2} \fminus \mack{\macx{\flip{b}}{\Oracle}}{2}) \ (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{1}\\
+  \elab{(\macopen\ \macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{} \fminus \mack{\macx{\flip{b}}{\Oracle}}{}) \ (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{1}\\
   \elab{\mesg{d}}{2} &:=&
-  \elab{(\macopen\ \macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{1} \fminus \mack{\macx{\flip{a}}{\Oracle}}{1}) \ (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{2}\\
+  \elab{(\macopen\ \macauth(\mesg{a}, \mack{\macx{\secret{x}}{1}}{} \fminus \mack{\macx{\flip{a}}{\Oracle}}{}) \ (\macgv{\elab{\secret{x}}{1}}\macminus\macgv{\elab{\flip{a}}{\Oracle}}))}{2}\\
   \elab{\mesg{e}}{2}&:=&
-  \elab{(\macopen\ \macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{1} \fminus \mack{\macx{\flip{b}}{\Oracle}}{1}) \ (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{2}
+  \elab{(\macopen\ \macauth(\mesg{b}, \mack{\macx{\secret{y}}{2}}{} \fminus \mack{\macx{\flip{b}}{\Oracle}}{}) \ (\macgv{\elab{\secret{y}}{2}}\macminus\macgv{\elab{\flip{b}}{\Oracle}}))}{2}
 \end{array}
 $$
 Now, each client uses their share of $\secret{c}$ to generate their
