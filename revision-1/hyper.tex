@@ -93,8 +93,6 @@ releasing information about honest secrets.
 
 \subsection{Malicious Security and Robust Declassification}
 
-
-
 \begin{definition}[Malicious Correctness]
   A protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is \emph{malicious correct} iff
   $
@@ -103,47 +101,55 @@ releasing information about honest secrets.
   $.
 \end{definition}
 
-\begin{definition}
-  We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ satisfies
-  \emph{active confidentiality} iff
-  it is malicious correct, and for all adversaries $\adversary$:
-  %\begin{enumerate}
-  %\item $\ \,\forall \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(\{ \outv \}|\store)) =
-    %\support(\progtt(\prog,\adversary)(\{ \outv \}|\store))$
-    %\item
-    $$\begin{array}[t]{l}\forall \store_1, \store_2 \in \mems(S_H), \store \in \mems(\cinputs)\ . \\
-    \quad
-    \condd{\progtt(\prog,\adversary)}{O_H}{\store_1 \cup \store} =
-    \condd{\progtt(\prog,\adversary)}{O_H}{\store_2 \cup \store} 
-    %\qquad
-    \implies
-    %\quad
-    \condd{\progtt(\prog,\adversary)}{\houtputs}{\store_1 \cup \store} =
-    \condd{\progtt(\prog,\adversary)}{\houtputs}{\store_2 \cup \store}
-    \end{array}$$
-  %\end{enumerate}
+\begin{definition}[Integrity]
+  We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
+  \emph{integrity} iff for all $H$ and $C$ 
+  it is malicious correct and for all adversaries $\adversary_1,\adversary_2$
+  and memories $\store \in \mems((S \cup O)_H)$:
+    $$
+    \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store} =
+    \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store}
+    $$
 \end{definition}
 
+\begin{lemma}
+  \label{lemma-integrity}
+  If a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
+  integrity, then for all adversaries $\adversary$
+  and memories $\store \in \mems((S \cup O)_H)$:
+  $$
+  \condd{\progtt(\prog,\adversary)}{\houtputs}{\store} =
+  \condd{\progtt(\prog)}{\houtputs}{\store}
+  $$
+\end{lemma}
+
 \begin{theorem}
-  If $\prog$ satisfies active confidentiality for all $H,C$ then it is malicious secure.
+  If a protocol satisfies noninterference modulo output with
+  integrity, then it is malicious secure.
 \end{theorem}
+
+\begin{proof}
+  Let $\prog$ be some protocol with passive security and integrity
+  where $\iov(\prog) = S \cup V \cup O$, and let $\adversary$ be some
+  adversary.  Given some $\store\in S_H$, by definition of malicious
+  correctness the simulator can extract inputs $\store' \in (S_C)$
+  from $\adversary$ where $\idealf(\store \cup \store')$ is equivalent
+  to the real world outputs. These can then be used in a simulated run
+  of $\prog$ along with $\store \in S_H$ to generate a distribution
+  of corrupt views of $\margd{\progtt(\prog)}{\houtputs}$.
+  By assumption of integrity and Lemma \ref{lemma-integrity},
+  this is the same as the real-world distribution of corrupt views
+  in the presence of $\adversary$. 
+\end{proof}
 
 \begin{definition}
-  A protocol $\prog$ with has \emph{integrity} iff 
-  $\forall \adversary . \runs_\adversary(\prog) \subseteq \runs(\prog)$.
+  An adversary $\adversary$ is \emph{passive} if it runs $\prog$ honestly,
+  except for possible substitution of corrupt input secrets.
 \end{definition}
 
-\begin{theorem}
-  If a protocol has integrity it is malicious correct.
-\end{theorem}
-
-\begin{theorem}
-  If a protocol is passive secure with integrity, then it satisfies active confidentiality.
-\end{theorem}
-
-\begin{theorem}
-  If a protocol is passive secure with integrity, then it is malicious secure.
-\end{theorem}
+\begin{lemma}
+  Protocols with only passive adversaries have integrity.
+\end{lemma}
 
 \begin{definition}[Robust Declassification]
   A protocol satisfies \emph{robust declassification} iff it has integrity and
