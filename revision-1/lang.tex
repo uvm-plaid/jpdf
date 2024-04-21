@@ -79,13 +79,18 @@ commands of three different forms:
   $\mesg{w}$.
 \item $\reveal{w}{\be}{\cid}$: This
   is a \emph{public reveal} where expression $\be$ is computed
-  by client $\cid$ and broadcast to the federation.
+  by client $\cid$ and broadcast to the federation, typically
+  to communicate intermediate results for use in final output
+  computations.
 \item $\pubout{\cid}{\be}{\cid}$: This
   is an \emph{output} where expression $\be$ is computed
   by client $\cid$ and reported as its output.
 \end{itemize}
 Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be
 referenced in expressions, once they've been assigned.
+This distinction between messages and broadcast public
+reveal is consistent with previous formulations, e.g.,
+\cite{6266151}.
 
 We let $x$ range over \emph{variables} which are identifiers where
 client ownership is specified- e.g.,
