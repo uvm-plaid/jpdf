@@ -67,6 +67,14 @@ $\pmf(\store)  \defeq \margd{\pmf}{X}(\store)$ and $\pmf(\store|\stores) \defeq
 %  \pmf(\store|\stores)  &\defeq& \condd{\pmf}{X}{\stores}(\store) \qquad \dom(\store) = X
 %\end{eqnarray*}
 
+We also define the \emph{support} of a distribution in the usual manner-
+it is the set of values a set of variables can take on with non-zero
+probability.
+\begin{definition}[Support]
+  \support(\pmf) = \{ (v_1,\ldots,v_n) \mid
+  \pmf(x_1 \mapsto v_1, \ldots, x_n \mapsto v_n) > 0 \} 
+\end{definition}
+
 \subsection{Basic Distribution of a Protocol}
 Now we can define the probability distribution of a program $\prog$,
 that we denote $\progtt(\prog)$. Since $\fedcat$ is deterministic the
