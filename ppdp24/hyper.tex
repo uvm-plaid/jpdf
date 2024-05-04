@@ -1,0 +1,178 @@
+\section{Security Hyperproperties}
+
+In this Section we formulate probabilistic versions of well-studied
+hyperproperties of confidentiality and integrity, including noninterference,
+gradual release, declassification, and robust declassification.
+We demonstrate a soundness relation between noninterference and
+passive security, and between robust declassification and malicious
+security. We subsequently leverage this relation to enforce
+malicious security using ``traditional'' security type methods
+in Section \ref{section-types}. Previous work has explored
+a similar approach to security type enforcement
+\cite{6266151,almeida2018enforcing} but mainly
+for aspects of passive security.
+
+\subsection{Passive Security and Noninterference}
+
+Since MPC protocols release some information about secrets through
+outputs of $\idealf$, they do not enjoy strict noninterference.  As
+discussed in Section \ref{section-lang}, public reveals and protocol
+outputs are fundamentally forms of declassification.  But consistent
+with other work \cite{8429300}, we can formulate a version of
+probabilistic noninterence conditioned on output that is sound
+for passive security. It says that if two low-equivalent secret
+inputs generate the same output, then the distributions of corrupt
+views are the same. 
+\begin{definition}[Noninterference modulo output]
+  \label{definition-NIMO}
+  We say that a program $\prog$ satisfies \emph{noninterference modulo output}
+  iff for all $H$ and $C$ and 
+  $\store_1,\store_2 \in \mems(S)$ we have:
+  $$
+  (\store_1 =_C \store_2 \ \wedge \ 
+  (\condd{\progtt(\prog)}{O}{\store_1} = \condd{\progtt(\prog)}{O}{\store_2}))
+  \implies 
+  (\condd{\progtt(\prog)}{\houtputs}{\store_1} = \condd{\progtt(\prog)}{\houtputs}{\store_2})
+  $$
+  where $\iov(\prog) = S \cup V \cup O$.
+\end{definition}
+Intuitively, this conditional noninterference property implies that
+the simulator can just run the protocol in simulation to
+reconstruct real world corrupt view distributions. But it requires
+that the simulator can tractably ``pre-image'' a given output of
+a functionality $\idealf$, to determine the inputs that
+could have produced it. This pre-image is called a
+\emph{kernel} in recent work \cite{XXX}.
+\begin{definition}
+  Given a functionality $\idealf$ and output value $v$, its
+  \emph{kernel}, denoted $\ik(\idealf,v)$ is
+  $
+  \{ \store\ |\ \idealf(\store) = v \}
+  $.
+  We say that $\idealf$ is \emph{pre-imageable} iff $\ik(\idealf, v)$ for all
+  $v$ can be computed tractably.
+\end{definition}
+A soundness result for passive security can then be stated as follows.
+We prove this in a separate manuscript \cite{XXX}, and it is also
+essentially the same as ``perfect passive NI security'' which
+has a similar soundness property \cite{8429300}.  
+\begin{restatable}{theorem}{nimosecure}
+  \label{theorem-nimo}
+  Assume given pre-imageable $\idealf$ and a protocol $\prog$ that
+  correctly implements $\idealf$.  If $\prog$ satisfies noninference modulo output
+  then $\prog$ is passive secure.
+\end{restatable}
+
+\subsection{Delimited Release}
+
+Previous work has discussed how MPC security is not noninterference,
+but rather how ideal functional sets an upper bound on
+declassification \cite{6266151,almeida2018enforcing}. Nevertheless,
+probabilistic noninterference is preserved by components of
+cryptographic protocols generally, and can be expressed using
+\emph{probabilistic independence} \cite{darais2019language,barthe2019probabilistic}
+We introduce important notation to express independence:
+\begin{definition}
+%  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
+%  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
+  We write $\sep{\pmf}{X}{Y}$ iff for all
+    $\store \in \mems(X \cup Y)$ we have
+  $\margd{\pmf}{X \cup Y}(\store) =
+  \pmf(\store_X) * \pmf(\store_Y)$
+\end{definition}
+
+In fact, MPC protocols typically satisfy a \emph{delimited release}
+property\cite{XXX}, where messages exchanged remain probabilistically separable
+from secrets, with only declassification events (reveals and outputs)
+releasing information about honest secrets. A key difference is that while
+these declassification events essentially define the policy in delimited
+release, the ideal functionality sets the release policy for MPC
+passive security, so its necessary to show that declassification events respect
+these bounds.
+\begin{definition}
+  Given $H,C$, a protocol $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
+  satisfies \emph{delimited release} iff
+  $\sep{\progtt(\prog)}{M_C}{S_H}$.
+\end{definition}
+
+\subsection{Malicious Security and Robust Declassification}
+
+\begin{definition}[Malicious Correctness]
+  A protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is \emph{malicious correct} iff
+  $
+  \forall \adversary, \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(O_H|\store)) \supseteq
+    \support(\progtt(\prog,\adversary)(O_H|\store))
+  $.
+\end{definition}
+
+\begin{definition}[Integrity]
+  We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
+  \emph{integrity} iff for all $H$ and $C$ 
+  it is malicious correct and for all adversaries $\adversary$,
+  if $\store \in \aruns(\prog)$ 
+  then there exists $\store' \in \mems(S)$ with $\store_{S_H} = \store'_{S_H} $ and:
+    $$
+    \condd{\progtt(\prog,\adversary)}{X}{\store_{S_H \cup \cinputs}} =
+    \condd{\progtt(\prog)}{X}{\store'}
+    $$ 
+  where $X \defeq (\houtputs \cup O_H) \cap \dom(\store)$. 
+\end{definition}
+
+\begin{definition}[Integrity]
+  We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
+  \emph{integrity} iff for all $H$ and $C$ 
+  it is malicious correct and for all adversaries $\adversary_1,\adversary_2$
+  and memories $\store \in \mems((S \cup O)_H)$:
+    $$
+    \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store} =
+    \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store}
+    $$
+\end{definition}
+
+\begin{lemma}
+  \label{lemma-integrity}
+  If a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
+  integrity, then for all adversaries $\adversary$
+  and memories $\store \in \mems((S \cup O)_H)$:
+  $$
+  \condd{\progtt(\prog,\adversary)}{\houtputs}{\store} =
+  \condd{\progtt(\prog)}{\houtputs}{\store}
+  $$
+\end{lemma}
+
+\begin{theorem}
+  If a protocol satisfies noninterference modulo output with
+  integrity, then it is malicious secure.
+\end{theorem}
+
+\begin{proof}
+  Let $\prog$ be some protocol with passive security and integrity
+  where $\iov(\prog) = S \cup V \cup O$, and let $\adversary$ be some
+  adversary.  Given some $\store\in S_H$, by definition of malicious
+  correctness the simulator can extract inputs $\store' \in (S_C)$
+  from $\adversary$ where $\idealf(\store \cup \store')$ is equivalent
+  to the real world outputs. These can then be used in a simulated run
+  of $\prog$ along with $\store \in S_H$ to generate a distribution
+  of corrupt views of $\margd{\progtt(\prog)}{\houtputs}$.
+  By assumption of integrity and Lemma \ref{lemma-integrity},
+  this is the same as the real-world distribution of corrupt views
+  in the presence of $\adversary$. 
+\end{proof}
+
+\begin{definition}
+  An adversary $\adversary$ is \emph{passive} if it runs $\prog$ honestly,
+  except for possible substitution of corrupt input secrets.
+\end{definition}
+
+\begin{lemma}
+  Protocols with only passive adversaries have integrity.
+\end{lemma}
+
+\begin{definition}[Robust Declassification]
+  A protocol satisfies \emph{robust declassification} iff it has integrity and
+  satisfies gradual release. 
+\end{definition}
+
+\begin{theorem}
+  Passive security with robust declassification implies malicious security.
+\end{theorem}
