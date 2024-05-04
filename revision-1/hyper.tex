@@ -118,30 +118,8 @@ these bounds.
   where $X \defeq (\houtputs \cup O_H) \cap \dom(\store)$. 
 \end{definition}
 
-\begin{definition}[Integrity]
-  We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
-  \emph{integrity} iff for all $H$ and $C$ 
-  it is malicious correct and for all adversaries $\adversary_1,\adversary_2$
-  and memories $\store \in \mems((S \cup O)_H)$:
-    $$
-    \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store} =
-    \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store}
-    $$
-\end{definition}
-
-\begin{lemma}
-  \label{lemma-integrity}
-  If a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
-  integrity, then for all adversaries $\adversary$
-  and memories $\store \in \mems((S \cup O)_H)$:
-  $$
-  \condd{\progtt(\prog,\adversary)}{\houtputs}{\store} =
-  \condd{\progtt(\prog)}{\houtputs}{\store}
-  $$
-\end{lemma}
-
 \begin{theorem}
-  If a protocol satisfies noninterference modulo output with
+  If a protocol satisfies noninterference modulo output and has 
   integrity, then it is malicious secure.
 \end{theorem}
 
@@ -158,15 +136,6 @@ these bounds.
   this is the same as the real-world distribution of corrupt views
   in the presence of $\adversary$. 
 \end{proof}
-
-\begin{definition}
-  An adversary $\adversary$ is \emph{passive} if it runs $\prog$ honestly,
-  except for possible substitution of corrupt input secrets.
-\end{definition}
-
-\begin{lemma}
-  Protocols with only passive adversaries have integrity.
-\end{lemma}
 
 \begin{definition}[Robust Declassification]
   A protocol satisfies \emph{robust declassification} iff it has integrity and
