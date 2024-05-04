@@ -1,7 +1,7 @@
-% $Header: /home/repository/fpottier/javastacks/fp-frame.sty,v 1.1.1.1 2000/09/01 12:16:58 fpottier Exp $
+% $Header: /users/rtfm/pllab/cvsroot/ACC/fp-frame.sty,v 1.5 2004/01/27 01:07:39 ces Exp $
 % Macros to put a frame around an arbitrary amount of vertical material.
 % The frame width is the current page width, even when in two-column mode.
-% Author: FranÃ§ois Pottier (re-using code by Xavier Leroy and Didier RÃ©my)
+% Author: François Pottier (re-using code by Xavier Leroy and Didier Rémy)
 % Creation: August 29th, 1997
 
 % ---------------------------------------------------------------------------------------------------------------------
@@ -15,7 +15,28 @@
 }
 
 \def\endfpframe{%
+  \egroup\noindent\framebox[\columnwidth]{\box0}}
+
+\def\fpframe*{%
+  \setbox0=\vbox\bgroup
+  \advance\hsize by -2\fboxsep
+  \advance\hsize by -2\fboxrule
+  \linewidth\hsize
+}
+
+\def\endfpframe*{%
 \egroup\noindent\framebox[\textwidth]{\box0}}
+
+\def\narrowframe{%
+  \setbox0=\vbox\bgroup
+  \advance\hsize by -2\fboxsep
+  \advance\hsize by -2\fboxrule
+  \linewidth\hsize
+}
+
+\def\endnarrowframe{%
+\egroup\noindent\framebox[\columnwidth]{\box0}}
+
 
 % ---------------------------------------------------------------------------------------------------------------------
 % Usage: \begin{fpfig}[htbp]{Caption}{label} ... \end{fpfig}
@@ -27,12 +48,12 @@
 \newenvironment{fpfig}[3][htbp]
   {%
     \begin{figure}[#1]% The first argument is the placement parameter.
-    \fpframe
     \gdef\fpcaption{#2}% Save the second argument (the caption) for later.
     \gdef\fplabel{#3}%   Save the third argument (the label) as well.
+    %\begin{fpframe}
   }
   {%
-    \endfpframe
+    %\end{fpframe}
     \ifx\fpcaption\empty
     \else
       \caption{\fpcaption}
@@ -42,3 +63,38 @@
     \aftergroup\ignorespaces
   }
 
+\newenvironment{fpfig*}[3][htbp]
+  {%
+    \begin{figure*}[#1]% The first argument is the placement parameter.
+    \fpframe*
+    \gdef\fpcaption{#2}% Save the second argument (the caption) for later.
+    \gdef\fplabel{#3}%   Save the third argument (the label) as well.
+  }
+  {%
+    \endfpframe*
+    \ifx\fpcaption\empty
+    \else
+      \caption{\fpcaption}
+    \fi
+    \label{\fplabel}
+    \end{figure*}%
+    \aftergroup\ignorespaces
+  }
+
+\newenvironment{narrowfig}[3][htbp]
+  {%
+    \begin{figure}[#1]% The first argument is the placement parameter.
+    %\narrowframe
+    \gdef\fpcaption{#2}% Save the second argument (the caption) for later.
+    \gdef\fplabel{#3}%   Save the third argument (the label) as well.
+  }
+  {%
+    %\endnarrowframe
+    \ifx\fpcaption\empty
+    \else
+      \caption{\fpcaption}
+    \fi
+    \label{\fplabel}
+    \end{figure}%
+    \aftergroup\ignorespaces
+  }

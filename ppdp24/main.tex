@@ -1,4 +1,4 @@
-\documentclass[acmsmall,screen,review]{acmart}
+\documentclass[sigconf]{acmart}
 
 \usepackage{amsmath}
 \usepackage{amstext}
@@ -14,12 +14,31 @@
 \usepackage{booktabs,array}
 
 \input{macros}
+\input{figures}
 
 \begin{document}
 
-\title{Automating Verification of MPC Security: $\metaprot$ to $\minifed$}
+\title{Language-Based Low-Level MPC Security: $\metaprot$ to $\minifed$}
 
-\author{Author names withheld for double-blind reviewing}
+\author{Christian Skalka}
+\affiliation{
+  \institution{University of Vermont}
+  \city{}
+  \country{}
+%  \city{Burlington}
+%  \country{USA}
+}
+\email{ceskalka@uvm.edu}
+
+\author{Joseph Near}
+\affiliation{
+  \institution{University of Vermont}
+  \city{}
+  \country{}
+%  \city{Burlington}
+%  \country{USA}
+}
+\email{jnear@uvm.edu}
 
 \begin{abstract}
 Secure Multi-Party Computation (MPC) protocols support data privacy in
@@ -72,17 +91,13 @@ arbitrarily large YGC and GMW circuits.
 %% the work being presented. Separate the keywords with commas.
 \keywords{Secure multiparty computation, security verification, probabilistic programming, static analysis.}
 
-%\maketitle
+\maketitle
 
 \input{lang}
 
 \input{model}
 
 \input{hyper}
-
-%\input{types}
-
-%\input{scratch}
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{logic-bibliography,secure-computation-bibliography}
