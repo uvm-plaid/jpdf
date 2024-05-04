@@ -7,7 +7,7 @@
     \begin{array}{rcl@{\hspace{8mm}}r}
       \multicolumn{4}{l}{v \in \mathbb{Z}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
       \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid f \mid \be\,\be & \textit{expressions}\\[2mm]
-      x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid \rvl{w} \mid \out{\cid} & \textit{protocl variables} \\[2mm]
+      x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid \rvl{w} \mid \out{\cid} & \textit{protocol variables} \\[2mm]
       %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid

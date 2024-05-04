@@ -1,9 +1,20 @@
 \section{Static Type Analysis}
 \label{section-types}
 
+$$
+\begin{array}{rcl@{\hspace{8mm}}r}
+  \latel &\in& \{ \hilab, \lolab \} & \textit{security labels} \\[2mm]
+  \alpha,\beta &\in& \mathcal{V}  & \textit{security label variables} \\[2mm]
+  \disty &::=& \fieldty \mid \macty & \textit{value types} \\[2mm]
+  t &::=& \disty \mid \unity{\disty} & \textit{distribution types} \\[2mm]
+  \tau &::=& \labty{t}{\latel}{\latel} \mid \tau \tensor \tau & \textit{types} \\[2mm]
+  \sigma &::=& \forall \bar{} . \tau & \textit{type schemes} 
+\end{array}
+$$
+
 \begin{mathpar}
-  \labty{\unity{\macty}}{\latel_1}{\latel_2} <  \labty{\macty}{\,\latel_1}{\latel_2}
-  
+%  \labty{\unity{\macty}}{\latel_1}{\latel_2} <  \labty{\macty}{\,\latel_1}{\latel_2}
+%  
   \labty{\unity{\fieldty}}{\latel_1}{\latel_2} <  \labty{\fieldty}{\,\latel_1}{\latel_2} 
   
   \labty{\vty}{\lolab}{\latel} <  \labty{\vty}{\hilab}{\latel} 
