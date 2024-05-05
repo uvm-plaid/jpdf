@@ -16,7 +16,7 @@ probabilistic one.
 %\cite{6266151,almeida2018enforcing} and has considered similar relationships
 %but mainly for aspects of passive security.
 
-\subsection{Passive Security and Noninterference}
+\subsection{Conditional Noninterference}
 
 Since MPC protocols release some information about secrets through
 outputs of $\idealf$, they do not enjoy strict noninterference.  As
@@ -61,13 +61,13 @@ a functionality $\idealf$, to determine the inputs that
 could have produced it. This pre-image is called a
 \emph{kernel} in recent work \cite{XXX}.
 \begin{definition}
-  Given a functionality $\idealf$ and output value $v$, its
-  \emph{kernel}, denoted $\ik(\idealf,v)$ is
+  Given a functionality $\idealf$ and outputs $\store_{\mathit{out}}$, their 
+  \emph{kernel}, denoted $\ik(\idealf,\store_{\mathit{out}})$ is
   $
-  \{ \store\ |\ \idealf(\store) = v \}
+  \{ \store\ |\ \idealf(\store) = \store_{\mathit{out}} \}
   $.
-  We say that $\idealf$ is \emph{pre-imageable} iff $\ik(\idealf, v)$ for all
-  $v$ can be computed tractably.
+  We say that $\idealf$ is \emph{pre-imageable} iff $\ik(\idealf, \store_{\mathit{out}})$ for all
+  $\store_{\mathit{out}}$ can be computed tractably.
 \end{definition}
 A soundness result for passive security can then be given as follows.
 It is essentially the same as ``perfect passive NI security'' explored
@@ -112,7 +112,7 @@ these bounds.
   $\sep{\progtt(\prog)}{M_C}{S_H}$.
 \end{definition}
 
-\subsection{Malicious Security and Robust Declassification}
+\subsection{Integrity and Robust Declassification}
 
 %\begin{definition}[Malicious Correctness]
 %  A protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is \emph{malicious correct} iff
@@ -135,6 +135,7 @@ these bounds.
 \end{definition}
 
 \begin{lemma}
+  \label{lemma-malicious-correct}
   If a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is passive correct for
   $\idealf$ and
   has integrity, then for all $H$, $C$, and $\adversary$ and $\store_1 \in \mems(S_H)$,
@@ -153,15 +154,27 @@ these bounds.
 \begin{proof}
   Let $\prog$ be some protocol with passive security and integrity
   where $\iov(\prog) = S \cup V \cup O$, and let $\adversary$ be some
-  adversary.  Given some $\store\in S_H$, by definition of malicious
-  correctness the simulator can extract inputs $\store' \in (S_C)$
-  from $\adversary$ where $\idealf(\store \cup \store')$ is equivalent
-  to the real world outputs. These can then be used in a simulated run
-  of $\prog$ along with $\store \in S_H$ to generate a distribution
-  of corrupt views of $\margd{\progtt(\prog)}{\houtputs}$.
-  By assumption of integrity and Lemma \ref{lemma-integrity},
-  this is the same as the real-world distribution of corrupt views
-  in the presence of $\adversary$. 
+  adversary. Suppose $\store \in \aruns(\prog,\adversary)$.
+  As integrity requires, and as Lemma \ref{lemma-malicious-correct}
+  demonstrates with respect to outputs, the most the adversary can do
+  in the presence of integrity is to elicit the same responses from
+  the honest parties-- via the strategy $\store_{\cinputs}$-- as
+  are elicited from some passive run of the protocol using
+  some $\store' \in \mems(S)$ where $\store'_H = \store_{S_H}$,
+  and perhaps to force an abort after some number of message
+  exchanges.
+
+  Therefore, in simulation, $\adversary$ can provide the simulator
+  with some $\store'_C$ in $\SIM_1$ which its strategy is ``impersonating'',
+  allowing $\idealf(\store')$ to
+  be communicated to $\adversary$ in $\SIM_2$ who can then
+  decide whether or not to abort. In the case of abort, the
+  subset of $\houtputs$ to be defined can be communicated to
+  $\SIM_3$, along with $\idealf(\store')$, via $\Sigma$. 
+  In $\SIM_3$, the simulator can then run $\prog$ in simulation
+  with inputs $\store'_C$ and arbitrary $\store'' \in \mems(S_H)$
+  such that $\store'_C \cap \store'' \in \ik(\idealf,\idealf(\store'))$.
+  The assumption of passive security of $\prog$ implies the result.
 \end{proof}
 
 
