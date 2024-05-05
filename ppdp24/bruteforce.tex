@@ -5,7 +5,7 @@ $\progtt(\prog)$ for any $\prog$ is to directly compute
 $\runs(\prog)$. By querying $\progtt{\prog}$ we can verify any of the
 hyperproperties discussed previously, or other properties such as
 perfect secrecy \cite{XXX}.  Since $\runs(\prog)$ is exponential in
-the size of $\secrets(\prog) \cup \randos(\prog)$, this strategy is
+the size of $\secrets(\prog) \cup \flips(\prog)$, this strategy is
 feasible only for smaller protocols. However, we can efficiently
 convert protocols in the passive setting (without $\ttt{assert}$) to
 stratified Datalog programs, and then extract $\runs(\prog)$ by
@@ -90,32 +90,25 @@ $$
 
 In addition to converting view definitions to logic clauses, we also need to convert
 secrets and random tapes. Since we assume given values for these in an arbitrary run of
-the program, we can capture these as a ``fact base'' in our program, where
-a fact is a clause of the form $x \gets \varnothing$ and means that $x$
-is true in any model of the program. 
+the program, we can capture these as a particular fact base.
 \begin{definition}
   Given $\store$, let $\{x_1,\ldots,x_n \} =
   \{ x \in \dom(\store) \mid \store(x) = 1 \}$.
   Then define:
   $$
-  \mathit{facts}(\store) = x_1 \gets \varnothing, \ldots, x_n \gets \varnothing
+  \mathit{facts}(\store) = x_1 \gets, \ldots, x_n \gets
   $$
 \end{definition}
-
-For any safe $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$, and
-$\store \in \mems(S \cup F)$, it is the case
-that $(\mathit{facts}(\store),\datalog(\prog))$ is a \emph{normal}, \emph{stratified}
-(in fact, non-recursive) Datalog program, and so has a unique Least Herbrand Model
-and is thus amenable to HPC optimization techniques \cite{aspis2018linear}. 
-To compute $\runs(\prog)$, and thus $\progd(\prog)$, we compute
-the Least Herbrand Model $\store$ of $(\mathit{facts}(\store'),\datalog(\prog))$
-for all $\store' \in \mems(S \cup F)$, observing that model computation for
-each $\store'$ can be done in parallel. The following establishes
+The following result ties these pieces together and establishes
 correctness of this approach.
 \begin{lemma}
-  For all $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$,
+  For all $\prog$, 
   $\datalog(\prog)$ is a \emph{normal}, \emph{stratified}
   program \cite{aspis2018linear}, and $\store$ is the unique Least Herbrand
-  Model of $(\mathit{facts}(\store_{S \cup F}),\datalog(\prog))$
+  Model of: $$(\mathit{facts}(\store_{\secrets(\prog) \cup \flips(\prog)}),\datalog(\prog))$$
   iff $\store \in \runs(\prog)$.
 \end{lemma}
+Finally, to compute $\runs(\prog)$, and thus $\progtt(\prog)$, we compute
+the Least Herbrand Model $\store$ of $(\mathit{facts}(\store'),\datalog(\prog))$
+for all $\store' \in \mems(\secrets(\prog) \cup \flips(\prog))$, observing
+that model computation for distinct fact bases can be done in parallel. 
