@@ -218,12 +218,27 @@ model as follows.
 
 \subsection{Malicious Security}
 
-In the malicious model we assume that corrupt clients are in the thrall of an
-adversary $\adversary$ who does not necessarily follow the rules of the protocol.
-We model this by positing a $\arewrite$ function which is given a corrupt memory
-$\store_C$ and expression $\be$, and returns a rewritten expression that can
-be interpreted to yield a corrupt input. Then we define an evaluation
-relation that incorporates the adversary.
+In the malicious model we assume that corrupt clients are in the
+thrall of an adversary $\adversary$ who does not necessarily follow
+the rules of the protocol.  We model this by positing a $\arewrite$
+function which is given a corrupt memory $\store_C$ and expression
+$\be$, and returns a rewritten expression that can be interpreted to
+yield a corrupt input. We define the evaluation relation that
+incorporates the adversary in Figure \ref{fig-adversary}.
+
+Another important distinction of the malicious setting is that it
+typically incorporates \emph{abort}. Honest parties implement
+strategies to detect rule-breaking-- aka \emph{cheating}-- by
+using, e.g., message authentication codes with semi-homomorphic
+properties as in BDOZ and SPDZ \cite{XXX}. If cheating is
+detected, the protocol is aborted. To model this, we extend
+$\minifed$ with abort $\bot$ and an \emph{assert} command.
+\begin{definition}
+  We add $\bot$ to our syntax of programs and add the form
+  $\elab{\assert(\phi(\be))}{\cid}$ to the command syntax of $\minifed$,
+  with semantics given in Figure \ref{fig-adversary}. We also extend the
+  domain of memories $\store$ to $\mathbb{F}_p \cup \{ \bot \}$.
+\end{definition}
 
 \adversaryfig
 
