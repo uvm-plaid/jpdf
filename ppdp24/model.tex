@@ -226,36 +226,48 @@ $\be$, and returns a rewritten expression that can be interpreted to
 yield a corrupt input. We define the evaluation relation that
 incorporates the adversary in Figure \ref{fig-adversary}.
 
+\adversaryfig
+
 Another important distinction of the malicious setting is that it
 typically incorporates \emph{abort}. Honest parties implement
 strategies to detect rule-breaking-- aka \emph{cheating}-- by
 using, e.g., message authentication codes with semi-homomorphic
 properties as in BDOZ and SPDZ \cite{XXX}. If cheating is
 detected, the protocol is aborted. To model this, we extend
-$\minifed$ with abort $\bot$ and an \emph{assert} command.
+$\minifed$ with an \ttt{assert} command and extend the
+range of memories with $\bot$. Note that the adversary is
+free to ignore their own assertions.
 \begin{definition}
-  We add $\bot$ to our syntax of programs and add the form
-  $\elab{\assert(\phi(\be))}{\cid}$ to the command syntax of $\minifed$,
-  with semantics given in Figure \ref{fig-adversary}. We also extend the
-  domain of memories $\store$ to $\mathbb{F}_p \cup \{ \bot \}$.
+  We add assertions of the form $\elab{\assert{\phi(\be)}}{\cid}$ to the command
+  syntax of $\minifed$, where $\phi$ is a decidable predicate on
+  $\mathbb{F}_p$ and with operational semantics given in Figure
+  \ref{fig-adversary}. We also extend the range of memories $\store$
+  to $\mathbb{F}_p \cup \{ \bot \}$.
 \end{definition}
 
-\adversaryfig
-
-Given this we define the $\adversary$ distribution of $\prog$. 
+It is necessary to add $\bot$ to the range of memories since
+the possibility of abort needs to be reflected in adversrarial
+runs of a protocol. We can define $\aruns(\prog,\adversary)$
+as the ``prefix'' memories that result from possibly-aborting
+protocols, but we also need to ``pad out'' the memories
+of partial runs with $\bot$, as we defin in $\botruns(\prog,\adversary)$,
+to properly reflect the contents of views and outputs even in case of abort. 
 \begin{definition}
   \label{def-progd}
   \label{definition-progd}
   Given program $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$, and
   any assumed pre-processing predicate $\preproc$ on memories, define:
   $$
-  \aruns(\prog) \defeq \{ \store \mid \preproc(\store)  \wedge
-  ((\store_{S\cup R},\prog) \aredx^* (\store,\varnothing) \vee (\store_{S \cup R},\prog) \aredx^* (\store,\bot)) \}
+    \aruns(\prog) \defeq 
+    \{ \store \mid \preproc(\store)  \wedge ((\store_{S\cup R},\prog) \aredx^* (\store,\varnothing)\}% \vee (\store_{S \cup R},\prog) \aredx^* (\store,\bot)) \}
   $$
-  and also define:
+  and also define the following which pads out undefined views and outputs with $\bot$:
   $$
-  \botruns(\prog) \defeq \{ \store\{ x_1 \mapsto \bot, \ldots, x_n \mapsto \bot \} \mid
-  \store \in \aruns(\prog) \wedge \{ x_1,\ldots,x_n\} = (V \cup O) - \dom(\store) \}
+  \begin{array}{l}
+    \botruns(\prog) \defeq \\
+    \qquad \{ \store\{ x_1 \mapsto \bot, \ldots, x_n \mapsto \bot \} \mid \\
+    \qquad \phantom{\{} \store \in \aruns(\prog) \wedge \{ x_1,\ldots,x_n\} = (V \cup O) - \dom(\store) \}
+  \end{array}
   $$
   Then the \emph{$\adversary$ distribution of $\prog$}, written $\progtt(\prog,\adversary)$, is
   defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
@@ -264,6 +276,8 @@ Given this we define the $\adversary$ distribution of $\prog$.
   $$
 \end{definition}
 
+Given this preamble, we can define malicious simulation and malicious security
+in a standard manner \cite{evans2018pragmatic}, as follows.
 \begin{definition}[Malicious Simulation]
   Given a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$, honest and corrupt 
   clients $H$ and $C$, adversary $\adversary$, and honest inputs
