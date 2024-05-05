@@ -27,16 +27,21 @@ is characterized as follows.
 
 \solvefig
 
-As per standard nomenclature, \emph{atoms} are $\minifed$ variables $x$, \emph{literals}
-are atoms or negated atoms, and clause bodies are conjunctions of literals.
-A \emph{fact} is a clause with no body. A \emph{Datalog program} is a list of clauses.
+
+We define the syntax of Datalog as follows. As per standard
+nomenclature, \emph{atoms} are $\minifed$ variables $x$,
+\emph{literals} are atoms or negated atoms, and clause bodies are
+conjunctions of literals.  A \emph{fact} is a clause with no body. A
+\emph{Datalog program} is a list of clauses.
 $$
 \begin{array}{rclr}
   \mathit{body} &::=&  x \mid \neg x \mid x \wedge \mathit{body} \mid \neg x \wedge \mathit{body} \mid \varnothing \\
   \mathit{clause} &::=& x \gets \mathit{body} \mid x \gets
 \end{array}
 $$
-
+When translating protocols, we need to extract the variables
+that occur in expressions $\be$ computed by a client $\cid$,
+written $\vars\ \be\ \cid$ where:
 \begin{mathpar}
   \vars\ \secret{w} \cid \defeq \{ \elab{\secret{w}}{\cid} \}
   
@@ -48,17 +53,16 @@ $$
 
   \vars\ (\be_1 \exor \be_2)\ \cid \defeq (\vars\ \be_1\ \cid) \cup (\vars\ \be_2\ \cid)
 \end{mathpar}
-
-The first step in converting a protocol $\prot$ to a Datalog
-program is to apply $\solve$ locally to each command
-in $\prog$, obtaining constraints on memories that satisfy each
-view in isolation.  
+... and so on. Then, to begin converting a protocol $\prot$ to a Datalog
+we define the function ${vtt}$ that applies $\solve$ locally to each command
+in $\prog$, obtaining the subset of memories that result
+in a variable assignment of $1$.  
 \begin{definition} Define:
 $$
 {vtt}(\xassign{x}{\be}{\cid}) \defeq (x, (\solve{(\mems(\vars\ \be\ \cid))}{\be}{\cid}))
 $$
 \end{definition}
-Given this definition, the mapping of ${vtt}$ across a program
+The mapping of ${vtt}$ across a program
 $\prog$- i.e., $(\mathit{map}\ {vtt}\ \prog)$-  essentially defines the
 logic program, modulo some syntactic conversion. We can
 accomplish the latter as follows, where $\datalog(\prog)$ defines the
