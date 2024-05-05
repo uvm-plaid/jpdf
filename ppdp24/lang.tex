@@ -39,7 +39,9 @@ commands of three different forms:
   computations.
 \item $\pubout{\cid}{\be}{\cid}$: This
   is an \emph{output} where expression $\be$ is computed
-  by client $\cid$ and reported as its output.
+  by client $\cid$ and reported as its output. As a
+  sanity condition we disallow commands
+  $\pubout{\cid_1}{\be}{\cid_2}$ where $\cid_1\ne\cid_2$.
 \end{itemize}
 
 

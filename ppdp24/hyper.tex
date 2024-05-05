@@ -114,13 +114,13 @@ these bounds.
 
 \subsection{Malicious Security and Robust Declassification}
 
-\begin{definition}[Malicious Correctness]
-  A protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is \emph{malicious correct} iff
-  $
-  \forall \adversary, \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(O_H|\store)) \supseteq
-    \support(\progtt(\prog,\adversary)(O_H|\store))
-  $.
-\end{definition}
+%\begin{definition}[Malicious Correctness]
+%  A protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is \emph{malicious correct} iff
+%  $
+%  \forall \adversary, \store \in \mems(S_H) \ .\ \support(\progtt(\prog)(O_H|\store)) \supseteq
+%    \support(\progtt(\prog,\adversary)(O_H|\store))
+%  $.
+%\end{definition}
 
 \begin{definition}[Integrity]
   We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
@@ -135,9 +135,20 @@ these bounds.
   where $X \defeq (\houtputs \cup O_H) \cap \dom(\store)$. 
 \end{definition}
 
+\begin{lemma}
+  If a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is passive correct for
+  $\idealf$ and
+  has integrity, then for all $H$, $C$, and $\adversary$ and $\store_1 \in \mems(S_H)$,
+  there exists $\store_2 \in \mems(S_C)$ such that:
+  $$
+  \idealf(\store_1 \cap \store_2)_H \cup \{ \bot \} \supseteq
+    \support(\progtt(\prog,\adversary)(O_H|\store_1))
+  $$
+\end{lemma}
+
 \begin{theorem}
-  If a protocol satisfies noninterference modulo output and has
-  integrity, then it is malicious secure.
+  If a protocol satisfies noninterference modulo output
+  and has integrity, then it is malicious secure.
 \end{theorem}
 
 \begin{proof}
@@ -157,10 +168,10 @@ these bounds.
 
 \begin{definition}[Robust Declassification]
   A protocol satisfies \emph{robust declassification} iff it has integrity and
-  satisfies gradual release. 
+  satisfies delimited release. 
 \end{definition}
 
 \begin{theorem}
   Robust declassification does not imply malicious security, but
-  passive security with robust declassification implies malicious security.
+  security with robust declassification implies malicious security.
 \end{theorem}
