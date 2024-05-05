@@ -52,16 +52,55 @@ could have produced it. This pre-image is called a
   We say that $\idealf$ is \emph{pre-imageable} iff $\ik(\idealf, v)$ for all
   $v$ can be computed tractably.
 \end{definition}
-A soundness result for passive security can then be stated as follows.
-We prove this in a separate manuscript \cite{XXX}, and it is also
-essentially the same as ``perfect passive NI security'' which
-has a similar soundness property \cite{8429300}.  
+A soundness result for passive security can then be given as follows.
+It is essentially the same as ``perfect passive NI security'' explored
+in previous work \cite{8429300}.  
 \begin{restatable}{theorem}{nimosecure}
   \label{theorem-nimo}
   Assume given pre-imageable $\idealf$ and a protocol $\prog$ that
   correctly implements $\idealf$.  If $\prog$ satisfies noninference modulo output
   then $\prog$ is passive secure.
 \end{restatable}
+
+\begin{proof}
+  Let $H$ and $C$ be an arbitrary partition of the federation and
+  suppose $\prog$ satisfies noninterference modulo output. Let
+  $\iov(\prog) = (V,S)$ and $\flips(\prog) = F$ with output view $\outv
+  \in V$ and let $\store$ be an arbitrary element of $\mems(S \cup
+  F)$. Then the distribution of adversarial views in the real world
+  is, by definition,
+  $\condd{\progd(\prog)}{V_C}{\store_S}$.
+
+  The simulator is given both $\store_{S_C}$ and
+  $\idealf(\store_S)$.  The simulation $\SIM_C(\store_{S_C},
+  \idealf(\store_S))$ can be defined as follows. First, some $\store'
+  \in \ik(\idealf,\idealf(\store))$ is randomly chosen such that
+  $\store' =_C \store_S$, as is a random tape $\store'' \in
+  \mems(F)$\footnote{The real/ideal model allows consultation of a
+  ``Random Oracle''.}. Then, the run of $(\store' \cup \store'',
+  \prog)$ is evaluated in simulation, yielding $(\store^{\SIM},\varnothing)$.
+  The simulation returns $\store^{\SIM}_{V_C}$ as a result.
+
+  Now, since the random tape is selected in simulation from the same distribution
+  that we assume for the real world, after selection of $\store'$ the
+  probability that any particular $\store^{\SIM}_{V_C}$ is returned is by definition
+  $
+  \progd(\prog)(\store^{\SIM}_{V_C} | \store')
+  $.
+  Furthermore, since we assume that $\prog$ correctly implements $\idealf$, this
+  means
+  $
+  \store_S =_C \store' \wedge
+     \condd{\progd(\prog)}{\{ \outv \}}{\store_S} =
+     \condd{\progd(\prog)}{\{ \outv \}}{\store'}
+  $,
+  so by the definition of noninterference modulo output,
+  any choice of $\store'$ yields the same distribution $\condd{\progd(\prog)}{V_C}{\store_S}$.
+  Therefore by definition
+  $
+   \progd(\SIM_C(\store_{S_C},\idealf(\store))) = \condd{\progd(\prog)}{V_C}{\store_S}
+  $.
+\end{proof}
 
 \subsection{Delimited Release}
 
@@ -118,30 +157,8 @@ these bounds.
   where $X \defeq (\houtputs \cup O_H) \cap \dom(\store)$. 
 \end{definition}
 
-\begin{definition}[Integrity]
-  We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
-  \emph{integrity} iff for all $H$ and $C$ 
-  it is malicious correct and for all adversaries $\adversary_1,\adversary_2$
-  and memories $\store \in \mems((S \cup O)_H)$:
-    $$
-    \condd{\progtt(\prog,\adversary_1)}{\houtputs}{\store} =
-    \condd{\progtt(\prog,\adversary_2)}{\houtputs}{\store}
-    $$
-\end{definition}
-
-\begin{lemma}
-  \label{lemma-integrity}
-  If a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
-  integrity, then for all adversaries $\adversary$
-  and memories $\store \in \mems((S \cup O)_H)$:
-  $$
-  \condd{\progtt(\prog,\adversary)}{\houtputs}{\store} =
-  \condd{\progtt(\prog)}{\houtputs}{\store}
-  $$
-\end{lemma}
-
 \begin{theorem}
-  If a protocol satisfies noninterference modulo output with
+  If a protocol satisfies noninterference modulo output and has
   integrity, then it is malicious secure.
 \end{theorem}
 
@@ -159,14 +176,6 @@ these bounds.
   in the presence of $\adversary$. 
 \end{proof}
 
-\begin{definition}
-  An adversary $\adversary$ is \emph{passive} if it runs $\prog$ honestly,
-  except for possible substitution of corrupt input secrets.
-\end{definition}
-
-\begin{lemma}
-  Protocols with only passive adversaries have integrity.
-\end{lemma}
 
 \begin{definition}[Robust Declassification]
   A protocol satisfies \emph{robust declassification} iff it has integrity and
@@ -174,5 +183,6 @@ these bounds.
 \end{definition}
 
 \begin{theorem}
-  Passive security with robust declassification implies malicious security.
+  Robust declassification does not imply malicious security, but
+  passive security with robust declassification implies malicious security.
 \end{theorem}

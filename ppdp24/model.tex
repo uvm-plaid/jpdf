@@ -1,23 +1,32 @@
 \section{Security Model}
 \label{section-pmf}
 
-\emph{Simulator security} in the MPC setting means that protocols do
-not reveal any secret information other than what is implicitly
-declassified by the output of the ideal functionality that the
-protocol implements. Characterization of both real world protocol
-execution and simulation is defined probabilistically. Following
-previous work \cite{barthe2019probabilistic} we use probability mass
-functions to express joint dependencies between input and output
-variables, as a metric of information leakage.
+MPC protocols are intended to implement some \emph{ideal
+functionality} $\idealf$. Given a protocol $\prog$ that implements
+$\idealf$, with $\iov(\prog) = S \cup V \cup O$, we will assume
+that the domain of $\idealf$ is $\mems(S)$ and its range is
+$\mems(O)$. Recall the assumption of a partitioning of a federation
+into honest and corrupt subsets $H$ and $C$.  \emph{Simulator
+security} in the MPC setting means that, given $\store \in \mems(S)$,
+a secure protocol $\prog$ does not reveal any more information about
+honest secrets $\store_H$ to parties in $C$ beyond what is
+implicitly declassified by $\idealf(\sigma)$. Security comes in
+\emph{passive} and \emph{malicious} flavors, wherein the adversary
+either follows the rules or not, respectively. Characterization of
+both real world protocol execution and simulation is defined
+probabilistically. Following previous work
+\cite{barthe2019probabilistic} we use probability mass functions to
+express joint dependencies between input and output variables, as a
+metric of information leakage.
 
 \subsection{Probability Mass Functions} 
 
 We define joint probability mass functions (pmfs) in the standard
 manner, though following \cite{barthe2019probabilistic} we use
 memories to denote mappings of variables to values (i.e., outcomes),
-so for example given a pmf $\pmf$ we will write $\pmf(\{ \sx{1}{a}
-\mapsto 0, \vx{2}{b} \mapsto 1 \})$ to denote the probability that
-$\sx{1}{a} = 0$ and $\vx{2}{b} = 1$ in the final memory of a
+so for example given a pmf $\pmf$ we will write $\pmf(\{ \elab{\secret{x}}{1}
+\mapsto 0, \elab{\mesg{y}}{2} \mapsto 1 \})$ to denote the (joint) probability that
+$\elab{\secret{x}}{1} = 0 \wedge \elab{\mesg{y}}{2} = 1$ in the final memory of a
 program containing these variables.
 \begin{definition}
   A \emph{probability mass function} $\pmf$ is a function
@@ -85,8 +94,9 @@ complete record of all initial secrets as well as views resulting from
 communicated information. 
 
 We consider random tapes to be selected from a uniform distribution
-modulo relevant pre-processing, e.g., Beaver triples and MACed share
-distributions.  We will also assume that any possible initial secrets
+modulo relevant pre-processing, e.g., Beaver triples for efficient
+multiplication, and/or MACed share distributions as in SPDZ \cite{XXX}.
+We will also assume that any possible initial secrets
 are equally likely when formulating the program distribution.
 We define $\runs(\prog)$ as the set of final memories resulting
 from execution of $\prog$ given any initial memory, and
@@ -105,11 +115,12 @@ information dependencies.
 \begin{definition}
   \label{def-progd}
   \label{definition-progd}
-  Given program $\prog$ with $\secrets(\prog) = S$ and $\flips(\prog) = R$, and
-  any assumed pre-processing predicate $\preproc$ on memories, define:
+  Given $\prog$ with $\secrets(\prog) = S$ and $\flips(\prog) = R$ and
+  pre-processing predicate $\preproc$ on memories, define:
   $$
   \runs(\prog) \defeq \{ \store \mid \preproc(\store) \wedge
-  (\dom(\store) = \iov(\prog) \cup R) \wedge (\store_{S \cup R},\prog) \redxs (\store,\varnothing) \}
+  %(\dom(\store) = \iov(\prog) \cup R) \wedge
+  (\store_{S \cup R},\prog) \redxs (\store,\varnothing) \}
   $$
   Then the \emph{basic distribution of $\prog$}, written $\progtt(\prog)$, is
   defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
@@ -123,7 +134,8 @@ information dependencies.
   special variable that is never used in programs.
 \end{definition}
 
-\subsection{Passive Security}
+
+\subsection{Honest and Corrupt Views}
 
 Information about honest secrets can be revealed to corrupt clients
 through messages sent from honest to corrupt clients, and through
@@ -139,20 +151,28 @@ of views.
   $V = \views(\prog)$ sent from honest
   to corrupt parties, called \emph{corrupt views}:
   $$
-  \houtputs = \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog
-  \wedge \cid \in H \ \} 
-  \cup \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in \prog
-  \wedge \cid \in C \wedge \cid' \in H \ \} 
+  \begin{array}{lcl}
+    \houtputs & \defeq
+        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in H \ \}\ \cup \\
+      & & \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
+           \prog \wedge \cid \in C \wedge \cid' \in H \ \} 
+  \end{array}
   $$
   and similarly define $\cinputs$ as the messages in $V$ sent from corrupt to honest
   parties, called \emph{honest views}:
   $$
-  \cinputs = \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog
-  \wedge \cid \in C \ \} 
-  \cup \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in \prog
-  \wedge \cid \in H \wedge \cid' \in C \ \} 
+  \begin{array}{lcl}
+    \cinputs &  \defeq
+        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in C \ \} \ \cup\\
+      & & \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
+              \prog \wedge \cid \in H \wedge \cid' \in C \ \}
+  \end{array}
   $$
 \end{definition}
+
+\subsection{Passive Security}
+
+
 
 In the passive setting the simulator must construct a probabilistic
 algorithm $\SIM$, aka a \emph{simulation}, that is parameterized by
@@ -199,6 +219,8 @@ we can define as follows.
 \end{definition}
 
 \subsection{Malicious Security}
+
+\adversaryfig
 
 In the malicious model we assume that corrupt clients are in the thrall of an
 adversary $\adversary$ who does not necessarily follow the rules of the protocol.
