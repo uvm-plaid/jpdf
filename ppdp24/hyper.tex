@@ -124,8 +124,7 @@ these bounds.
 
 \begin{definition}[Integrity]
   We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
-  \emph{integrity} iff for all $H$ and $C$ 
-  it is malicious correct and for all adversaries $\adversary$,
+  \emph{integrity} iff for all $H$, $C$, and $\adversary$,
   if $\store \in \aruns(\prog)$ 
   then there exists $\store' \in \mems(S)$ with $\store_{S_H} = \store'_{S_H} $ and:
     $$
