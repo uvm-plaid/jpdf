@@ -74,3 +74,24 @@
   }
 \end{fpfig}
 }
+
+
+\newcommand{\solvefig}
+{
+  \begin{fpfig}[h]{Filtering memories that satisfy a boolean expression.}{fig-solve}
+    {\small \begin{eqnarray*}
+        \solve{\stores}{1}{\cid} &=& \stores\\
+        \solve{\stores}{0}{\cid} &=& \varnothing\\
+        \solve{\stores}{\mesg{w}}{\cid} &=& \{ \store \in \stores \mid \store(\elab{\mesg{w}}{\cid}) = 1 \} \\
+        \solve{\stores}{\flip{w}}{\cid} &=& \{ \store \in \stores \mid \store(\elab{\flip{w}}{\cid}) = 1 \} \\
+        \solve{\stores}{\secret{w}}{\cid} &=& \{ \store \in \stores \mid \store(\elab{\secret{w}}{\cid}) = 1 \} \\
+        \solve{\stores}{\rvl{w}}{\cid} &=& \{ \store \in \stores \mid \store(\rvl{w}) = 1 \} \\
+        \solve{\stores}{(\enot\ \be)}{\cid} &=& \stores - (\solve{\stores}{\be}{\cid})\\
+        \solve{\stores}{(\be_1\ \eand\ \be_2)}{\cid} &=& (\solve{\stores}{\be_1}{\cid}) \cap (\solve{\stores}{\be_2}{\cid}) \\
+        \solve{\stores}{(\be_1\ \eor\ \be_2)}{\cid} &=& (\solve{\stores}{\be_1}{\cid}) \cup (\solve{\stores}{\be_2}{\cid}) \\
+        \solve{\stores}{(\be_1\ \exor\ \be_2)}{\cid} &=&
+        ((\solve{\stores}{\be_1}{\cid}) \cap (\stores - \solve{\stores}{\be_2}{\cid})) \cup\\
+        && ((\stores - \solve{\stores}{\be_1}{\cid}) \cap (\solve{\stores}{\be_2}{\cid})) 
+      \end{eqnarray*} }
+  \end{fpfig}
+}

@@ -1,0 +1,117 @@
+\section{Verification of Protocols in $\mathbb{F}_2$}
+
+In $\mathbb{F}_2$ a brute force strategy for computing
+$\progtt(\prog)$ for any $\prog$ is to directly compute
+$\runs(\prog)$. By querying $\progtt{\prog}$ we can verify any of the
+hyperproperties discussed previously, or other properties such as
+perfect secrecy \cite{XXX}.  Since $\runs(\prog)$ is exponential in
+the size of $\secrets(\prog) \cup \randos(\prog)$, this strategy is
+feasible only for smaller protocols. However, we can efficiently
+convert protocols in the passive setting (without $\ttt{assert}$) to
+stratified Datalog programs, and then extract $\runs(\prog)$ by
+calculating Least Herbrand models by parallelization and/or other HPC
+acceleration techniques for logic programs \cite{aspis2018linear}.
+The rewriting we describe here is to Datalog with negation, with a
+negation-as-failure model, though we can also use techniques in
+\cite{sakama2017linear} to eliminate negation from resulting programs.
+
+In Figure \ref{fig-solve} we define the algorithm
+$\solve{\stores}{\be}{\cid}$ which filters a given $\stores$ to obtain the
+subset whose elements satisfy $\be$ (make it true). It's correctness
+is characterized as follows.
+\begin{lemma}
+  \label{lemma-solves}
+  %For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
+  $(\solve{\stores}{\be}{\cid}) = \{ \store \in \stores \ \mid\ \lcod{\store,\be}{\cid} = 1 \}$.
+\end{lemma}
+
+\solvefig
+
+As per standard nomenclature, \emph{atoms} are $\minifed$ variables $x$, \emph{literals}
+are atoms or negated atoms, and clause bodies are conjunctions of literals.
+A \emph{fact} is a clause with no body. A \emph{Datalog program} is a list of clauses.
+$$
+\begin{array}{rclr}
+  \mathit{body} &::=&  x \mid \neg x \mid x \wedge \mathit{body} \mid \neg x \wedge \mathit{body} \mid \varnothing \\
+  \mathit{clause} &::=& x \gets \mathit{body} \mid x \gets
+\end{array}
+$$
+
+\begin{mathpar}
+  \vars\ \secret{w} \cid \defeq \{ \elab{\secret{w}}{\cid} \}
+  
+  \vars\ \mesg{w} \cid \defeq \{ \elab{\mesg{w}}{\cid} \}
+
+  \vars\ \rvl{w} \cid \defeq \{ \elab{\rvl{w}}{\cid} \}
+
+  \vars\ \flip{w} \cid \defeq \{ \elab{\flip{w}}{\cid} \}
+
+  \vars\ (\be_1 \exor \be_2)\ \cid \defeq (\vars\ \be_1\ \cid) \cup (\vars\ \be_2\ \cid)
+\end{mathpar}
+
+The first step in converting a protocol $\prot$ to a Datalog
+program is to apply $\solve$ locally to each command
+in $\prog$, obtaining constraints on memories that satisfy each
+view in isolation.  
+\begin{definition} Define:
+$$
+{vtt}(\xassign{x}{\be}{\cid}) \defeq (x, (\solve{(\mems(\vars\ \be\ \cid))}{\be}{\cid}))
+$$
+\end{definition}
+Given this definition, the mapping of ${vtt}$ across a program
+$\prog$- i.e., $(\mathit{map}\ {vtt}\ \prog)$-  essentially defines the
+logic program, modulo some syntactic conversion. We can
+accomplish the latter as follows, where $\datalog(\prog)$ defines the
+full conversion.
+\begin{definition} We define the conversion from memories to
+  literals and clause bodies as follows:
+\begin{mathpar}
+  \logit{x \mapsto 1} = x
+
+  \logit{x \mapsto 0} = \neg x
+
+  \logit{\{ x_1 \mapsto \beta_1, \ldots, x_n \mapsto \beta_n\}} =
+  \logit{x_1 \mapsto \beta_1} \wedge \cdots \wedge \logit{x_n \mapsto \beta_n}
+\end{mathpar}
+Given pairs $(x,\stores)$ in the range of ${vtt}$, we define the conversion
+to clauses as follows:
+\begin{mathpar}
+  \mathit{clauses}(x,\{ \store_1,...,\store_n \}) = x \gets \logit{\store_1} \vee \cdots \vee x \gets \logit{\store_n}
+\end{mathpar}
+The $\minifed$-to-Datalog conversion is then defined as:
+$$
+\datalog(\prog) \defeq  \mathit{map}\ \mathit{clauses}\ (\mathit{map}\ {vtt}\ \prog)
+$$
+\end{definition}
+
+In addition to converting view definitions to logic clauses, we also need to convert
+secrets and random tapes. Since we assume given values for these in an arbitrary run of
+the program, we can capture these as a ``fact base'' in our program, where
+a fact is a clause of the form $x \gets \varnothing$ and means that $x$
+is true in any model of the program. 
+\begin{definition}
+  Given $\store$, let $\{x_1,\ldots,x_n \} =
+  \{ x \in \dom(\store) \mid \store(x) = 1 \}$.
+  Then define:
+  $$
+  \mathit{facts}(\store) = x_1 \gets \varnothing, \ldots, x_n \gets \varnothing
+  $$
+\end{definition}
+
+For any safe $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$, and
+$\store \in \mems(S \cup F)$, it is the case
+that $(\mathit{facts}(\store),\datalog(\prog))$ is a \emph{normal}, \emph{stratified}
+(in fact, non-recursive) Datalog program, and so has a unique Least Herbrand Model
+and is thus amenable to HPC optimization techniques \cite{aspis2018linear}. 
+To compute $\runs(\prog)$, and thus $\progd(\prog)$, we compute
+the Least Herbrand Model $\store$ of $(\mathit{facts}(\store'),\datalog(\prog))$
+for all $\store' \in \mems(S \cup F)$, observing that model computation for
+each $\store'$ can be done in parallel. The following establishes
+correctness of this approach.
+\begin{lemma}
+  For all $\prog$ with $\iov(\prog) = S \cup V$ and $\flips(\prog) = F$,
+  $\datalog(\prog)$ is a \emph{normal}, \emph{stratified}
+  program \cite{aspis2018linear}, and $\store$ is the unique Least Herbrand
+  Model of $(\mathit{facts}(\store_{S \cup F}),\datalog(\prog))$
+  iff $\store \in \runs(\prog)$.
+\end{lemma}
