@@ -1,0 +1,76 @@
+\newcommand{\minifedfig}
+{
+\begin{fpfig}[t]{Top-to-bottom: Basic $\minifed$ syntax, expression interpretation, and command evaluation.}{fig-minifed}
+  {
+    $$
+    \begin{array}{rcl@{\hspace{2mm}}r}
+      \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid & \textit{expressions}\\
+      & & v \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \\[2mm]
+      x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid \rvl{w} \mid \out{\cid} & \textit{variables} \\[2mm]
+      %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid
+      \reveal{w}{e}{\cid} \mid \pubout{\cid}{\be}{\cid} & \textit{commands} \\[2mm]
+      \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
+    \end{array}
+    $$
+
+    \smallskip
+  
+  \rule{50mm}{0.5pt}
+    
+  $$
+  %\begin{array}{c@{\hspace{5mm}}c}
+  \begin{array}{rcl}
+    \lcod{\store, v}{\cid} &=& v\\
+    \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \fminus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fminus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
+  %\end{array} 
+  %\begin{array}{rcl}
+    \lcod{\store, \flip{w}}{\cid} &=& \store(\elab{\flip{w}}{\cid})\\
+    \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
+    \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
+    \lcod{\store, \rvl{w}}{\cid} &=& \store(\rvl{w})\\
+    %\lcod{\store, f\,\be_1\,\cdots\, \be_n}{\cid} &=& \delta(f,\lcod{\store, \be_1}{\cid},\ldots,\lcod{\store,\be_n}{\cid})
+  \end{array}
+  %\end{array}
+  $$
+
+  \vspace{4mm}
+  
+  \rule{50mm}{0.5pt}
+
+  \begin{mathpar}
+    (\store, \xassign{x}{\be}{\cid};\prog) \redx (\extend{\store}{x}{\lcod{\store,\be}{\cid}}, \prog)
+    %(\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)    
+    %(\store, \reveal{w}{\be}{\cid};\prog) \redx (\extend{\store}{\rvl{w}}{\lcod{\store,\be}{\cid}}, \prog)   
+    %(\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
+  \end{mathpar}
+  }
+\end{fpfig}
+}
+
+\newcommand{\adversaryfig}
+{
+\begin{fpfig}[h]{Adversarial semantics, and semantics of $\ttt{assert}$.}{fig-adversary}
+  {
+    $$
+    \begin{array}{rclr}
+      (\store, \xassign{x}{\be}{\cid};\prog) &\aredx&
+      (\extend{\store}{x}{\lcod{\store,\be}{\cid}}, \prog) & \cid \in H\\
+      (\store, \xassign{x}{\be}{\cid};\prog) &\aredx&
+      (\extend{\store}{x}{\lcod{\arewrite(\store_C,\be)}{\cid}}, \prog) & \cid \in C
+    \end{array}
+    $$
+    
+    $$
+    \begin{array}{rcl@{\qquad}r}
+      (\store,\elab{\assert{\phi(\be)}}{\cid};\prog) &\aredx& (\store,\prog) & \text{if\ } \phi(\lcod{\store,\be}{\cid}) \text{\ or\ } \cid \in C\\
+      (\store,\elab{\assert{\phi(\be)}}{\cid};\prog) &\aredx& (\store,\varnothing)  & \text{if\ } \neg\phi(\store,\lcod{\store,\be}{\cid})
+    \end{array}
+    $$
+  }
+\end{fpfig}
+}
