@@ -170,9 +170,20 @@ of views.
   $$
 \end{definition}
 
-\subsection{Passive Security}
+\subsection{Passive Correctness and Security}
 
-
+In the passive setting we assume that $H$ and $C$ follow the
+rules of protocols and share messages as expected. A first
+consideration is whether a given protocol is \emph{correct}
+with respect to an ideal functionality. 
+\begin{definition}[Passive Correctness]
+  %Given $\prog$ with output variables $\out{1},\ldots,\out{n}$ and ideal
+  We say that a protocol $\prog$ is \emph{passive correct} for a functionality
+  $\idealf$ iff for all $\store \in \mems(\secrets(\prog))$
+  we have $\progtt(\prog)(\idealf(\store) \mid \store) = 1$.
+  %with $\idealf(\store) = v_1,\ldots,v_n$ we have
+  %$\progtt(\prog)(\out{1} \mapsto v_1,\ldots,\out{n} \mapsto v_n \mid \store) = 1$.
+\end{definition}
 
 In the passive setting the simulator must construct a probabilistic
 algorithm $\SIM$, aka a \emph{simulation}, that is parameterized by
@@ -180,14 +191,10 @@ corrupt inputs and the output of an ideal functionality, and that
 returns a distribution of corrupt views that is indistinguishable
 from the distribution of corrupt views in the real world
 protocol execution.
-
-Given inputs $\store$ and ideal
-functionality output $v$, we write $ \prob(\SIM(\store,v) = \store') $
-to denote the probability that $\SIM(\store,v)$ returns corrupt views
-$\store'$ as a result. We can then define the probability distribution
-of corrupt views reconstructed by the simulator as follows:
 \begin{definition}
-  Given $\store$, and $v$, we write $\dist(\SIM(\store,v))$ to
+  Given $\store$, and $v$,we write $ \prob(\SIM(\store,v) = \store') $
+  to denote the probability that $\SIM(\store,v)$ returns corrupt views
+  $\store'$ as a result  we write $\dist(\SIM(\store,v))$ to
   denote the distribution of corrupt views reconstructed by the
   simulation, where for
   all $\store' \in \mems(V)$:
@@ -208,41 +215,17 @@ model as follows.
   \dist(\SIM(\store_{C},\idealf(\store))) = \condd{\progtt(\prog)}{\houtputs}{\store}
   $$
 \end{definition}
-Observe that this definition relies on protocol correctness, which
-we can define as follows.
-\begin{definition}[Passive Correctness]
-  Given $\prog$ with output variables $\out{1},\ldots,\out{n}$ and ideal
-  functionality $\idealf$, we say that $\prog$ is \emph{passive correct}
-  for $\idealf$ iff for all $\store \in \mems(\secrets(\prog))$
-  with $\idealf(\store) = v_1,\ldots,v_n$ we have
-  $\progtt(\prog)(\out{1} \mapsto v_1,\ldots,\out{n} \mapsto v_n \mid \store) = 1$.
-\end{definition}
 
 \subsection{Malicious Security}
-
-\adversaryfig
 
 In the malicious model we assume that corrupt clients are in the thrall of an
 adversary $\adversary$ who does not necessarily follow the rules of the protocol.
 We model this by positing a $\arewrite$ function which is given a corrupt memory
 $\store_C$ and expression $\be$, and returns a rewritten expression that can
 be interpreted to yield a corrupt input. Then we define an evaluation
-relation that incorporates the adversary:
-$$
-\begin{array}{rclr}
-  (\store, \xassign{x}{\be}{\cid};\prog) &\aredx&
-  (\extend{\store}{x}{\lcod{\store,\be}{\cid}}, \prog) & \cid \in H\\
-  (\store, \xassign{x}{\be}{\cid};\prog) &\aredx&
-  (\extend{\store}{x}{\lcod{\arewrite(\store_C,\be)}{\cid}}, \prog) & \cid \in C
-\end{array}
-$$
+relation that incorporates the adversary.
 
-$$
-\begin{array}{rcl@{\qquad}r}
-  (\store,\elab{\assert{\phi(\be)}}{\cid};\prog) &\redx& (\store,\prog) & \text{if\ } \phi(\lcod{\store,\be}{\cid}) \text{\ or\ } \cid \in C\\
-  (\store,\elab{\assert{\phi(\be)}}{\cid};\prog) &\redx& (\store,\bot)  & \text{if\ } \neg\phi(\store,\lcod{\store,\be}{\cid})
-\end{array}
-$$
+\adversaryfig
 
 Given this we define the $\adversary$ distribution of $\prog$. 
 \begin{definition}

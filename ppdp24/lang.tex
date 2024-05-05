@@ -1,8 +1,6 @@
 \section{The $\minicat$ Protocol Language}
 \label{section-lang}
 
-\minifedfig
-
 The $\minifed$ language provides a simple model of synchronous
 protocols between a federation of \emph{clients} exchanging values in
 the binary field. We will identify clients by natural numbers, and
@@ -16,7 +14,11 @@ values chosen from a uniform random distributions defined in the
 initial program memory.  Programs aka protocols execute
 deterministically given the random tape.
 
-\subsection{Syntax} The syntax of $\minifed$, defined in
+\subsection{Syntax}
+
+\minifedfig
+
+The syntax of $\minifed$, defined in
 Figure \ref{fig-minifed}, includes values $v$ and standard
 operations of addition, subtraction, and multiplication in
 a finite field $\mathbb{F}_p$ where $p$ is some prime. 
@@ -39,6 +41,8 @@ commands of three different forms:
   is an \emph{output} where expression $\be$ is computed
   by client $\cid$ and reported as its output.
 \end{itemize}
+
+
 Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be
 referenced in expressions, once they've been assigned.
 This distinction between messages and broadcast public
