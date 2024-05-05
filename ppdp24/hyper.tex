@@ -98,8 +98,8 @@ We introduce important notation to express independence:
   \pmf(\store_X) * \pmf(\store_Y)$
 \end{definition}
 
-In fact, MPC protocols typically satisfy a \emph{delimited release}
-property\cite{sabelfeld2009declassification}, where messages exchanged remain probabilistically separable
+In practice, MPC protocols typically satisfy a \emph{delimited release}
+property \cite{sabelfeld2009declassification}, where messages exchanged remain probabilistically separable
 from secrets, with only declassification events (reveals and outputs)
 releasing information about honest secrets. A key difference is that while
 these declassification events essentially define the policy in delimited
