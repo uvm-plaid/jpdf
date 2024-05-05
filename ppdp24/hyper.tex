@@ -122,6 +122,13 @@ these bounds.
 %  $.
 %\end{definition}
 
+\emph{Integrity} is an important hyperproperty in security models that admit
+malicious adversaries. Consistent with formulations in deterministic settings,
+we have already defined protocol confidentiality as the preservation of low equivalence
+(of secrets and views), and now we define protocol integrity as the preservation
+of high equivalence (of secrets and views). Intuitively, this property says
+that any adversarial strategy either ``mimics'' a passive strategy with some
+choice of inputs or causes an abort.
 \begin{definition}[Integrity]
   We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
   \emph{integrity} iff for all $H$, $C$, and $\adversary$,
@@ -133,7 +140,8 @@ these bounds.
     $$ 
   where $X \defeq (\houtputs \cup O_H) \cap \dom(\store)$. 
 \end{definition}
-
+A first important observation is that integrity preserves protocol correctness
+for honest outputs, except for the possibility of abort. 
 \begin{lemma}
   \label{lemma-malicious-correct}
   If a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is passive correct for
@@ -145,10 +153,12 @@ these bounds.
     \support(\progtt(\prog,\adversary)(O_H|\store_1))
   $$
 \end{lemma}
-
+The following result establishes that integrity implies malicious
+security for protocols that are passive secure (which also subsumes
+correctness). 
 \begin{theorem}
-  If a protocol satisfies noninterference modulo output
-  and has integrity, then it is malicious secure.
+  If a protocol is passive secure and has integrity, then it
+  is malicious secure.
 \end{theorem}
 
 \begin{proof}
@@ -177,12 +187,20 @@ these bounds.
   The assumption of passive security of $\prog$ implies the result.
 \end{proof}
 
-
+The hyperproperty of robust declassification \cite{930133} similarly
+combines a confidentiality property with integrity to establish that
+malicious actors cannot declassify more information than is intended
+by policy. But in this prior work, this policy is established
+by the declassifications themselves, as in delimited release.
+Thus, we can define a robust declassification property as follows. 
 \begin{definition}[Robust Declassification]
   A protocol satisfies \emph{robust declassification} iff it has integrity and
   satisfies delimited release. 
 \end{definition}
-
+However, it is important to note that delimited release, and
+hence robust declassification, are not sufficient to establish
+passive or malicious simulator security, where the declassification
+policy is established by the ideal functionality $\idealf$. 
 \begin{theorem}
   Robust declassification does not imply malicious security, but
   security with robust declassification implies malicious security.
