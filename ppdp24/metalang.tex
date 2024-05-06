@@ -1,0 +1,74 @@
+\section{The $\metaprot$ Metalanguage}
+\label{section-metalang}
+
+Large practical MPC computations are based on much larger protocols
+than the examples we've considered so far. These larger protocols are
+typically based on compositional units. Examples include GMW circuits
+and Yao's Garbled Circuits (YGC), which are composed of so-called
+garbled gates.  Languages for defined garbled circuits, beginning with
+Fairplay \cite{269581}, treat gates as compositional units that are
+wired together by the programmer to generate a complete circuit. The
+$\fedprot$ language is low-level and does not include abstractions for
+defining composable elements.
+
+In this Section, we introduce the $\metaprot$ language which includes
+structured data and function definitions, which are sufficiently
+expressive to define composable protocol elements such as garbled
+gates. The $\metaprot$ language is a \emph{metalanguage}, in the sense
+that it produces $\fedprot$ protocols as a result of computation. That
+is, $\metaprot$ is a high-level language that generates low-level
+protocol code. We endow $\metaprot$ with a type system that enjoys a
+type safety result guaranteeing safety of generated protocols. We
+consider library implementations for GMW and YGC circuits as
+examples. Additional examples are provided in Appendix
+\ref{section-examples-lang}.
+
+\subsection{Syntax}
+
+The syntax of $\metaprot$ is defined in Figure
+\ref{fig-metaprot}.  It includes a syntax of function
+definitions and records, and values include client ids, identifier
+strings, and boolean expressions. Expression forms allow dynamic
+construction of boolean expression forms and view assignments. When
+$\metaprot$ programs construct an $\fedprot$ assignment, a side effect
+occurs whereby the assignment is added to the end of the $\fedprot$
+program accumulated during evaluation.
+
+Formally, we consider a complete metaprogram to include both a
+codebase and a ``main'' program that uses the codebase. 
+\begin{definition}
+A \emph{codebase} $\codebase$ is a list of function 
+declarations. We write $ \codebase(f) = x_1,\ldots,x_n,\ e$
+iff $f(x_1,\ldots,x_n) \{ e \} \in \codebase$.
+A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
+codebase and expression $\codebase, e$. We may omit
+$\codebase$ if it is clear from context.  
+\end{definition}
+
+When we consider the examples of GMW and YGC in detail below, our
+focus will be on developing a codebase that can be used to define
+arbitrary circuits, i.e., complete and concrete protocols. Since
+strings and identifiers can be constructed manually, and expressions
+can occur inside assignments and boolean expression forms, function
+definitions can generalize over $\fedprot$-level patterns to obtain
+composable program units.
+
+\metaprotfig
+
+\subsection{Semantics}
+
+We define a small-step evaluation aka reduction relation $\redx$ in
+Figure \ref{fig-metaprot}.  We write $\redxs$ to denote the
+reflexive, transitive closure of $\redx$. Reduction is defined on
+\emph{configurations} which are pairs of the form $\config{\prog}{e}$,
+where $\prog$ is the $\minifed$ program accumulated during evaluation.
+In this definition we write $e[v/x]$ to denote the substitution of $v$
+for free occurences of $x$ in $e$. The rules are mostly standard,
+except when a concrete $\minifed$ assignment is encountered it is added
+to the end of $\prog$.
+
+The rules rely on a definition of \emph{evaluation contexts} $E$
+allowing computation within a larger program context, where $E[e]$
+denotes an expression with $e$ in the hole $[]$ of $E$. Evaluation
+contexts include boolean expression forms, allowing generalization
+and instantiation of compositional program elements.
