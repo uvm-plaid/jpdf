@@ -1,3 +1,29 @@
+\newcommand{\compfig}
+{
+  \begin{fpfig}[t]{Comparison of systems for verification of MPC security in PLs.}{fig-comp}
+    \begin{tabular}{lccccccc}
+      & 
+      \begin{sideways} probabilistic language \end{sideways} &
+      \begin{sideways} probabilistic conditioning \end{sideways} & 
+      \begin{sideways} low-level protocols \end{sideways} & 
+      \begin{sideways} passive security \end{sideways} & 
+      \begin{sideways} malicious security \end{sideways}& 
+      \begin{sideways} hyperproperties \end{sideways}& 
+      \begin{sideways} automation \end{sideways}\\\hline\hline
+      Haskell EDSL \cite{XXX} & \checkmark & \checkmark & \checkmark  & \checkmark & & \checkmark & \checkmark \\\hline
+      MPC in SecreC \cite{XXX} & \checkmark & \checkmark & \checkmark  & \checkmark & & \checkmark & \checkmark \\\hline
+      $\lambda_{\text{obliv}}$ & \checkmark & & & & & \checkmark & \checkmark \\\hline
+      PSL \cite{XXX} & \checkmark & & & & & & \\\hline
+      Lilac \cite{XXX} & \checkmark & \checkmark & & & & & \\\hline
+      Viaduct \cite{XXX} & & & & \checkmark & \checkmark & \checkmark & \checkmark\\\hline
+      EasyCrypt \cite{XXX} &  \checkmark &  \checkmark &  \checkmark & \checkmark & \checkmark & \checkmark & \\\hline
+      $\metaprot$/$\minifed$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark\\
+      \hline
+    \end{tabular}
+  \end{fpfig}
+}
+
+
 \newcommand{\minifedfig}
 {
 \begin{fpfig}[t]{Top-to-bottom: Basic $\minifed$ syntax, expression interpretation, and command evaluation.}{fig-minifed}
