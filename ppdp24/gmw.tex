@@ -2,12 +2,12 @@
 {\footnotesize
   \begin{verbatimtab}
     encodegmw(in1,in2) {
-      v[1, in1 || "out"] := s[1,in1] xor flip[1,in1];
-      v[2, in1 || "out"] := flip[1,in1];
-      v[1, in2 || "out"] := s[2,in2] xor flip[2,in2];
-      v[2, in2 || "out"] := flip[2,in2]
-      { shares1 = { c1 = v[1, in1 || "out"]; c2 = v[2, in1 || "out"] };
-        shares2 = { c1 = v[1, in2 || "out"]; c2 = v[2, in2 || "out"]} } 
+      v[1, in1++"out"] := s[1,in1] xor flip[1,in1];
+      v[2, in1++"out"] := flip[1,in1];
+      v[1, in2++"out"] := s[2,in2] xor flip[2,in2];
+      v[2, in2++"out"] := flip[2,in2]
+      { shares1 = { c1 = v[1, in1++"out"]; c2 = v[2, in1++"out"] };
+        shares2 = { c1 = v[1, in2++"out"]; c2 = v[2, in2++"out"]} } 
     }
     
     andtablegmw(b1, b2) {
@@ -19,15 +19,15 @@
     }
     
     andgmw(g, shares1, shares2) {
-      let r = flip[1,g || ".r"] in
+      let r = flip[1,g++".r"] in
       let table = andtablegmw(shares1.c1, shares2.c1) in
       let r11 =  r xor table.v1 in
       let r10 =  r xor table.v2 in
       let r01 =  r xor table.v3 in
       let r00 =  r xor table.v4 in
-      v[2,g || "out"] := OT4(shares1.c2, shares2.c2, r11, r10, r01, r00);
-      v[1,g || "out"] := r;
-      { c1 = v[1,g || "out"]; c2 = v[2,g || "out"]}
+        v[2,g++"out"] := OT4(shares1.c2, shares2.c2, r11, r10, r01, r00);
+      v[1,g++"out"] := r;
+      { c1 = v[1,g++"out"]; c2 = v[2,g++"out"]}
     }
     
     decodegmw(shares) { v[0,"output"] := shares.c1 xor shares.c2 }   \end{verbatimtab}
