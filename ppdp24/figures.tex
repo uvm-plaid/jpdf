@@ -141,13 +141,13 @@
     %$$
     %\begin{array}{rcl@{\hspace{2mm}}r}
     \begin{mathpar}
-      \config{\prog}{\elet{x}{v}{e}} \redx \config{\prog}{e[v/x]}
+      \config{\prog}{\elet{y}{\mv}{e}} \redx \config{\prog}{e[\mv/y]}
        
       \inferrule
-          {\codebase(f) = x_1,\ldots,x_n,\ e}
-          {\config{\prog}{f(v_1,...,v_n)} \redx \config{\prog}{e[v_1/x_1,\ldots,v_n/x_n]}} 
+          {\codebase(f) = y_1,\ldots,y_n,\ e}
+          {\config{\prog}{f(\mv_1,...,\mv_n)} \redx \config{\prog}{e[\mv_1/y_1,\ldots,\mv_n/y_n]}} 
       
-      \config{\prog}{\{\ldots; \flab = v; \ldots\}.\flab} \redx \config{\prog}{v}
+      \config{\prog}{\{\ldots; \flab = \mv; \ldots\}.\flab} \redx \config{\prog}{\mv}
       
       \config{\prog}{w_1\concat w_2} \redx \config{\prog}{w_1w_2}
       
