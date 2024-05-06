@@ -129,7 +129,7 @@
           \reveal{E}{e}{e} \mid \reveal{\mv}{E}{e} \mid \reveal{\mv}{\mv}{E} \mid\\
           \pubout{E}{e}{e} \mid \pubout{\mv}{E}{e} \mid \pubout{\mv}{\mv}{E} \mid\\
           \elab{\assert{\phi(E)}}{e} \mid \elab{\assert{\phi(\mv)}}{E} \mid\\
-          \elet{y}{E}{e} \mid f(\mv,\ldots,\mv,E,e,\ldots,e) \mid \\
+          \elet{y}{E}{e} \mid f(\mv,\ldots,\mv,E,e,\ldots,e) \mid E;e \\
           \{ \flab = \mv;\ldots;\flab = \mv;\flab = E;\flab = e;\ldots;\flab = e \} \mid E.\flab 
         \end{array}
       \end{array}
@@ -151,7 +151,7 @@
       
       \config{\prog}{w_1\concat w_2} \redx \config{\prog}{w_1w_2}
       
-      \config{\prog}{v;e} \redx \config{\prog}{e}
+      \config{\prog}{\mv;e} \redx \config{\prog}{e}
       
       \config{\prog}{\instr} \redx \config{\prog;\instr}{()}
       

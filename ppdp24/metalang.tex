@@ -26,18 +26,15 @@ of properties of compositional units, as we discuss in Section
 
 The syntax of $\metaprot$ is defined in Figure
 \ref{fig-metaprot}.  It includes a syntax of function
-definitions and records, and values include client ids, identifier
-strings, and boolean expressions. Expression forms allow dynamic
-construction of boolean expression forms and view assignments. When
-$\metaprot$ programs construct an $\fedprot$ assignment, a side effect
-occurs whereby the assignment is added to the end of the $\fedprot$
-program accumulated during evaluation.
-
-Formally, we consider a complete metaprogram to include both a
+definitions and records, and values $\mv$ include client ids $\cid$, identifier
+strings $w$, and expressions $\be$ in field $\mathbb{F}_p$. Expression
+forms allow dynamic construction of field expressions and $\minifed$ commands.
+The construction of a command has the side-effect of adding to the residual
+$\minifed$ protocol. Formally, we consider a complete metaprogram to include both a
 codebase and a ``main'' program that uses the codebase. 
 \begin{definition}
 A \emph{codebase} $\codebase$ is a list of function 
-declarations. We write $ \codebase(f) = x_1,\ldots,x_n,\ e$
+declarations. We write $ \codebase(f) = y_1,\ldots,y_n,\ e$
 iff $f(x_1,\ldots,x_n) \{ e \} \in \codebase$.
 A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
 codebase and expression $\codebase, e$. We may omit
@@ -68,6 +65,6 @@ to the end of $\prog$.
 
 The rules rely on a definition of \emph{evaluation contexts} $E$
 allowing computation within a larger program context, where $E[e]$
-denotes an expression with $e$ in the hole $[]$ of $E$. Evaluation
-contexts include boolean expression forms, allowing generalization
-and instantiation of compositional program elements.
+denotes an expression with $e$ in the hole $[]$ of $E$. The syntax
+of $E$ imposes a left-to-right order of evaluation of subexpressions
+for all forms.
