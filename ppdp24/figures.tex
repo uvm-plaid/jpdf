@@ -16,9 +16,9 @@
     \end{array}
     $$
 
-    \smallskip
+    \medskip
   
-  \rule{50mm}{0.5pt}
+  \rule{80mm}{0.5pt}
     
   $$
   %\begin{array}{c@{\hspace{5mm}}c}
@@ -40,7 +40,7 @@
 
   \vspace{4mm}
   
-  \rule{50mm}{0.5pt}
+  \rule{80mm}{0.5pt}
 
   \begin{mathpar}
     (\store, \xassign{x}{\be}{\cid};\prog) \redx (\extend{\store}{x}{\lcod{\store,\be}{\cid}}, \prog)
@@ -94,4 +94,73 @@
         && ((\stores - \solve{\stores}{\be_1}{\cid}) \cap (\solve{\stores}{\be_2}{\cid})) 
       \end{eqnarray*} }
   \end{fpfig}
+}
+
+\newcommand{\metaprotfig}
+{
+  \begin{fpfig}[t]{$\metaprot$ syntax (T), evaluation contexts (M), and operational semantics (B).}{fig-metaprot}
+    {\small
+    $$
+    \begin{array}{rcl}
+      \multicolumn{3}{l}{\flab \in \mathrm{Field},\   y \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[1mm]
+      %x &\in& \mathrm{EVar}\\
+      %f &\in& \mathrm{FName}\\[2mm]
+      e &::=& \mv \mid \flip{e} \mid \secret{e} \mid \mesg{e} \mid \rvl{e} \mid e \bop e \mid \\%  & \textit{expressions}\\
+      & & \msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid \\
+      & &  \elab{\assert{\phi(e)}}{e} \mid y \mid \elet{y}{e}{e} \mid \\
+      & & f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \mid e.\flab \mid e;e \\[1mm]
+      \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
+      \mv &::=& w \mid \cid \mid \be \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
+      \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
+           \mathit{fn} &::=& f(y,\ldots,y) \{ e \} %& \textit{functions}
+    \end{array}
+    $$
+    }
+
+    \rule{80mm}{0.5pt}
+
+    {\small
+    $$
+      \begin{array}{c}
+        E \ ::= \\
+        \begin{array}{l}
+          [\,] \mid E\ \bop\ e \mid \mv\ \bop\ E \mid \flip{E} \mid \secret{E} \mid \mesg{E} \mid \rvl{E} \mid \\
+          \msend{E}{e}{e}{e} \mid \msend{\mv}{E}{e}{e} \mid \msend{\mv}{\mv}{E}{e} \mid \msend{\mv}{\mv}{\mv}{E} \mid\\
+          \reveal{E}{e}{e} \mid \reveal{\mv}{E}{e} \mid \reveal{\mv}{\mv}{E} \mid\\
+          \pubout{E}{e}{e} \mid \pubout{\mv}{E}{e} \mid \pubout{\mv}{\mv}{E} \mid\\
+          \elab{\assert{\phi(E)}}{e} \mid \elab{\assert{\phi(\mv)}}{E} \mid\\
+          \elet{y}{E}{e} \mid f(\mv,\ldots,\mv,E,e,\ldots,e) \mid \\
+          \{ \flab = \mv;\ldots;\flab = \mv;\flab = E;\flab = e;\ldots;\flab = e \} \mid E.\flab 
+        \end{array}
+      \end{array}
+    $$
+    \vspace{.5mm}
+    
+    \rule{80mm}{0.5pt}
+    
+    %$$
+    %\begin{array}{rcl@{\hspace{2mm}}r}
+    \begin{mathpar}
+      \config{\prog}{\elet{x}{v}{e}} \redx \config{\prog}{e[v/x]}
+       
+      \inferrule
+          {\codebase(f) = x_1,\ldots,x_n,\ e}
+          {\config{\prog}{f(v_1,...,v_n)} \redx \config{\prog}{e[v_1/x_1,\ldots,v_n/x_n]}} 
+      
+      \config{\prog}{\{\ldots; \flab = v; \ldots\}.\flab} \redx \config{\prog}{v}
+      
+      \config{\prog}{w_1\concat w_2} \redx \config{\prog}{w_1w_2}
+      
+      \config{\prog}{v;e} \redx \config{\prog}{e}
+      
+      \config{\prog}{\instr} \redx \config{\prog;\instr}{()}
+      
+      \inferrule
+          {\config{\prog}{e} \redx \config{\prog'}{e'}}
+          {\config{\prog}{E[e]} \redx \config{\prog'}{E[e']}}
+    \end{mathpar}
+    %\end{array}
+    %$$
+  }
+\end{fpfig}
 }
