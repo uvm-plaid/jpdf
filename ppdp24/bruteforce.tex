@@ -2,7 +2,7 @@
 
 In $\mathbb{F}_2$ a brute force strategy for computing
 $\progtt(\prog)$ for any $\prog$ is to directly compute
-$\runs(\prog)$. By querying $\progtt{\prog}$ we can verify any of the
+$\runs(\prog)$. By querying $\progtt(\prog)$ we can verify any of the
 hyperproperties discussed previously, or other properties such as
 perfect secrecy \cite{XXX}.  Since $\runs(\prog)$ is exponential in
 the size of $\secrets(\prog) \cup \flips(\prog)$, this strategy is
@@ -13,12 +13,15 @@ calculating Least Herbrand models by parallelization and/or other HPC
 acceleration techniques for logic programs \cite{aspis2018linear}.
 The rewriting we describe here is to Datalog with negation, with a
 negation-as-failure model, though we can also use techniques in
-\cite{sakama2017linear} to eliminate negation from resulting programs.
+\cite{sakama2017linear} to eliminate negation from resulting programs
 
 In Figure \ref{fig-solve} we define the algorithm
 $\solve{\stores}{\be}{\cid}$ which filters a given $\stores$ to obtain the
-subset whose elements satisfy $\be$ (make it true). It's correctness
-is characterized as follows.
+subset whose elements satisfy $\be$. In this figure and elsewhere for
+$\mathbb{F}_2$ we use standard names of logical connectives
+for field operations ($\eand$ and $\exor$ for $*$ and $+$ respectively) and
+add $\enot$ and $\eor$ as trivial but convenient extensions. The correctness
+of this operation is characterized as follows.
 \begin{lemma}
   \label{lemma-solves}
   %For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
@@ -54,7 +57,7 @@ written $\vars\ \be\ \cid$ where:
   \vars\ (\be_1 \exor \be_2)\ \cid \defeq (\vars\ \be_1\ \cid) \cup (\vars\ \be_2\ \cid)
 \end{mathpar}
 ... and so on. Then, to begin converting a protocol $\prot$ to a Datalog
-we define the function ${vtt}$ that applies $\solve{}{}{}$ locally to each command
+we define the function ${vtt}$ that applies $\solve{\!}{\!}{\!\!}$ locally to each command
 in $\prog$, obtaining the subset of memories that result
 in a variable assignment of $1$.  
 \begin{definition} Define:
@@ -63,25 +66,22 @@ $$
 $$
 \end{definition}
 The mapping of ${vtt}$ across a program
-$\prog$- i.e., $(\mathit{map}\ {vtt}\ \prog)$-  essentially defines the
+$\prog$-- i.e., $(\mathit{map}\ {vtt}\ \prog)$--  essentially defines the
 logic program, modulo some syntactic conversion. We can
 accomplish the latter as follows, where $\datalog(\prog)$ defines the
 full conversion.
 \begin{definition} We define the conversion from memories to
   literals and clause bodies as follows:
 \begin{mathpar}
-  \logit{x \mapsto 1} = x
+  \logit{x \mapsto 1} \defeq x
 
-  \logit{x \mapsto 0} = \neg x
+  \logit{x \mapsto 0} \defeq \neg x
 
-  \logit{\{ x_1 \mapsto \beta_1, \ldots, x_n \mapsto \beta_n\}} =
+  \logit{\{ x_1 \mapsto \beta_1, \ldots, x_n \mapsto \beta_n\}} \defeq
   \logit{x_1 \mapsto \beta_1} \wedge \cdots \wedge \logit{x_n \mapsto \beta_n}
 \end{mathpar}
 Given pairs $(x,\stores)$ in the range of ${vtt}$, we define the conversion
-to clauses as follows:
-\begin{mathpar}
-  \mathit{clauses}(x,\{ \store_1,...,\store_n \}) = x \gets \logit{\store_1} \vee \cdots \vee x \gets \logit{\store_n}
-\end{mathpar}
+to clauses as  $\mathit{clauses}(x,\{ \store_1,...,\store_n \}) \defeq x \gets \logit{\store_1} \vee \cdots \vee x \gets \logit{\store_n}$.
 The $\minifed$-to-Datalog conversion is then defined as:
 $$
 \datalog(\prog) \defeq  \mathit{map}\ \mathit{clauses}\ (\mathit{map}\ {vtt}\ \prog)
@@ -94,10 +94,7 @@ the program, we can capture these as a particular fact base.
 \begin{definition}
   Given $\store$, let $\{x_1,\ldots,x_n \} =
   \{ x \in \dom(\store) \mid \store(x) = 1 \}$.
-  Then define:
-  $$
-  \mathit{facts}(\store) = x_1 \gets, \ldots, x_n \gets
-  $$
+  Then define $\mathit{facts}(\store) \defeq x_1 \gets, \ldots, x_n \gets$.
 \end{definition}
 The following result ties these pieces together and establishes
 correctness of this approach.
