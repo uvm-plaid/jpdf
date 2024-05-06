@@ -32,17 +32,4 @@
     
     decodegmw(shares) { v[0,"output"] := shares.c1 xor shares.c2 }   \end{verbatimtab}
 }
-
-\rule{130mm}{0.5pt}
-
-{\footnotesize
-  \begin{verbatimtab}
-   encodegmw   : string(gid) * string(gid)
-    
-   andtablegmw : { k = bool[i]; p = bool[i] }
-    
-   andgmw      : string(gid) *  { c1 = bool[1]; c2 = bool[2] } * { c1 = bool[1]; c2 = bool[2] }
-    
-   decodegmw   : { c1 = bool[1]; c2 = bool[2] }  \end{verbatimtab}
-}
 \end{fpfig}
