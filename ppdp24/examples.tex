@@ -52,6 +52,13 @@ $\ttt{s2}$ from client's 1 and 2 respectively.
 
 \input{bdoz}
 
+\begin{definition}
+  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$,
+  let $X_H \subseteq \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$.
+  Then the \emph{adversarial inputs to $X_H$} is the least set
+  $X_C \subseteq \cinputs$ such that $\progtt(\prog) \not\vdash X_C * X_H$.
+\end{definition}
+
 \begin{definition}[Cheating Detection]
   Given $\store \in \aruns(\prog)$ with $\iov(\prog) = S \cup V \cup O$,
   let $X_H = \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$,
