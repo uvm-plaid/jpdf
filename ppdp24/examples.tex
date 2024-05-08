@@ -1,6 +1,6 @@
 \section{Examples}
 
-\subsection{Example: 2-Party GMW}
+\subsection{2-Party GMW}
 \label{section-metalang-gmw}
 
 \input{gmw}
@@ -46,3 +46,20 @@ $\ttt{s2}$ from client's 1 and 2 respectively.
   let ss = encodegmw("s1","s2") in v[0,"output"] := decode(andgmw(0,ss.shares1,ss.shares2)) \end{verbatimtab}
 }
 \end{example}
+
+
+\subsection{2-Party BDOZ}
+
+\input{bdoz}
+
+\begin{definition}[Cheating Detection]
+  Given $\store \in \aruns(\prog)$ with $\iov(\prog) = S \cup V \cup O$,
+  let $X_H = \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$,
+  and let $X_C$ be the adversarial inputs to $X_H$.
+  Then \emph{cheating is detected} in $\prog$ iff there exists $\sigma'\in \runs(\prog)$
+  with $\store_{X_C} = \store'_{X_C}$.  
+\end{definition}
+
+\begin{lemma}
+  If cheating is detected in $\prog$, then $\prog$ has integrity.
+\end{lemma}

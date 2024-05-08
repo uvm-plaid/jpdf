@@ -1,0 +1,29 @@
+\begin{fpfig}[t]{2-Party BDOZ secure opening.}{fig-bdoz}
+{\footnotesize
+  \begin{verbatimtab}
+    macsum(s1,s2)
+    { { share = s1.share + s2.share; mac = s1.mac + s2.mac } }
+    
+    macshare(w) { {  share = r[w++"s"]; mac = r[w++"m"] } }
+
+    mack(w) { r[++"k"] }
+    
+    auth(s,m,k,i) { assert(m = k + r[delta] * s)@i }
+    
+    secopen(w1,w2,w3,i1,i2)
+    {
+      let locsum =  macsum(macshare(w1), macshare(w2)) in
+      m[w1++w2++"s"]@i1 := (locsum.share)@i2;
+      m[w1++w2++"m"]@i1 := (locsum.mac)@i2;
+      auth(m[w1++w2++"s"],m[w1++w2++"m"],mack(w1) + mack(w2),i1);
+      m[w3++"s"]@i1 := (m[w1++w2++"s"] + (locsum.share))@i1
+    }
+
+    secopen("a","x","d",1,2);
+    secopen("a","x","d",2,1);
+    secopen("b","y","e",1,2);
+    secopen("b","y","e",2,1) \end{verbatimtab}
+}
+\end{fpfig}
+
+    
