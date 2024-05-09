@@ -1,4 +1,5 @@
 \section{Examples}
+\label{section-examples}
 
 \subsection{2-Party GMW}
 \label{section-metalang-gmw}
@@ -58,12 +59,12 @@ $\ttt{s2}$ from client's 1 and 2 respectively.
   Then the \emph{adversarial inputs to $X_H$} is the least set
   $X_C \subseteq \cinputs$ such that $\progtt(\prog) \not\vdash X_C * X_H$.
 \end{definition}
-
 \begin{definition}[Cheating Detection]
-  Given $\store \in \aruns(\prog)$ with $\iov(\prog) = S \cup V \cup O$,
-  let $X_H = \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$,
-  and let $X_C$ be the adversarial inputs to $X_H$.
-  Then \emph{cheating is detected} in $\prog$ iff there exists $\sigma'\in \runs(\prog)$
+  \emph{Cheating is detected} in $\prog$ with $\iov(\prog) = S \cup V \cup O$ iff
+  for all  $\store \in \aruns(\prog)$,
+  letting $X_H = \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$,
+  and letting $X_C$ be the adversarial inputs to $X_H$,
+  there exists $\sigma'\in \runs(\prog)$
   with $\store_{X_C} = \store'_{X_C}$.  
 \end{definition}
 

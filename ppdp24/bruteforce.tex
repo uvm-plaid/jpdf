@@ -31,6 +31,22 @@ of this operation is characterized as follows.
 
 \solvefig
 
+\begin{comment}
+We immediately note that $\runs(\prog)$ can be obtained by a left-folding
+of $\solvealg$ across $\prog$. 
+\begin{lemma}
+  \label{lemma-cruns}
+  Given $\prog$ where $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$. Define:
+  \begin{eqnarray*}
+    {tt}\ \ \stores\ (\xassign{x}{\be}{\cid}) &\defeq& \begin{array}{l}
+      \mathrm{let}\ \stores' = \solve{\stores}{\be} \ \mathrm{in}\\
+      \ \ \{\extend{\store}{\view{\cid}{w}}{1} \mid \store \in \stores' \}\ \cup\\
+      \ \ \{\extend{\store}{\view{\cid}{w}}{0} \mid \store \in \stores - \stores' \}\end{array}\\[2mm]
+    \cruns(\prog) &\defeq& \mathit{foldl}\ {tt}\ \mems(S \cup F)\ \prog
+  \end{eqnarray*}
+  Then $\cruns(\prog) = \runs(\prog)$.
+\end{lemma}
+\end{comment}
 
 We define the syntax of Datalog as follows. As per standard
 nomenclature, \emph{atoms} are $\minifed$ variables $x$,
@@ -39,7 +55,7 @@ conjunctions of literals.  A \emph{fact} is a clause with no body. A
 \emph{Datalog program} is a list of clauses.
 $$
 \begin{array}{rclr}
-  \mathit{body} &::=&  x \mid \neg x \mid x \wedge \mathit{body} \mid \neg x \wedge \mathit{body} \mid \varnothing \\
+  \mathit{body} &::=&  x \mid \neg x \mid x \wedge \mathit{body} \mid \neg x \wedge \mathit{body} \\
   \mathit{clause} &::=& x \gets \mathit{body} \mid x \gets
 \end{array}
 $$
@@ -110,6 +126,17 @@ Finally, to compute $\runs(\prog)$, and thus $\progtt(\prog)$, we compute
 the Least Herbrand Model $\store$ of $(\mathit{facts}(\store'),\datalog(\prog))$
 for all $\store' \in \mems(\secrets(\prog) \cup \flips(\prog))$, observing
 that model computation for distinct fact bases can be done in parallel. 
-We have used this method to verify the one-time-pad encryption and Shamir
-addition protocols in Section \ref{section-lang-example}, as well as
-larger protocol components as we discuss in Section \ref{section-verification}.
+
+We can then query representations of $\runs(\prog)$ with
+implementations of conditioning and marginalization to automatically
+verify the passive model hyperproperties described in Section
+\ref{section-hyper}-- in particular correctness and noninterference
+modulo output, which imply passive security.  We have used this method
+to verify security in $\mathbb{F}_2$ of Shamir addition as defined in Section
+\ref{section-lang-example}, and single-gate $\eand$ and $\exor$ circuits with GMW
+Beaver triples. We have also
+verified properties compositional properties of gates themselves that establish
+circuit invariants that imply passive security in larger circuits.
+We discuss these examples and proof methods in Section \ref{section-examples}.
+
+

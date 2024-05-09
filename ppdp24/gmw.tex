@@ -2,10 +2,10 @@
 {\footnotesize
   \begin{verbatimtab}
     encodegmw(in1,in2) {
-      v[1, in1++"out"] := s[1,in1] xor flip[1,in1];
-      v[2, in1++"out"] := flip[1,in1];
-      v[1, in2++"out"] := s[2,in2] xor flip[2,in2];
-      v[2, in2++"out"] := flip[2,in2]
+      m[in1++"out"]@1 := (s[in1] xor r[in1])@1;
+      m[in1++"out"]@2 := r[in1]@1;
+      m[in2++"out"]@1 := (s[in2] xor flip[in2])@2;
+      m[in2++"out"]@2 := r[in2]@2
       { shares1 = { c1 = v[1, in1++"out"]; c2 = v[2, in1++"out"] };
         shares2 = { c1 = v[1, in2++"out"]; c2 = v[2, in2++"out"]} } 
     }

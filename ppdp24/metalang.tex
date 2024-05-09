@@ -13,14 +13,13 @@ defining composable elements. So in this Section we introduce the $\metaprot$
 language which that includes structured data and function definitions
 for defining composable protocol elements at a higher level of abstraction. 
 The $\metaprot$ language is a \emph{metalanguage}, where 
-$\fedprot$ protocols are the residuum of computation.
+$\fedprot$ protocols are the residuum of computation. In addition to these
+declarative benefits of $\metaprot$, component
+definitions support compositional verification of larger programs as we will
+discuss with examples in Section
+\ref{section-examples}.
 
-In addition to these declarative benefits of $\metaprot$, component
-definitions support compositional verification of larger programs.
-The techniques in Section \ref{section-bruteforce} are not feasible
-for large boolean circuits, for example, but they are for verification
-of properties of compositional units, as we discuss in Section
-\ref{section-verification}.
+\metaprotfig
 
 \subsection{Syntax}
 
@@ -48,9 +47,6 @@ strings and identifiers can be constructed manually, and expressions
 can occur inside assignments and field expression forms, function
 definitions can generalize over $\fedprot$-level patterns to obtain
 composable program units.
-
-\metaprotfig
-
 \subsection{Semantics}
 
 We define a small-step evaluation aka reduction relation $\redx$ in
