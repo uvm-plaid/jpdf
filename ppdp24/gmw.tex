@@ -1,35 +1,33 @@
 \begin{fpfig}[t]{2-Party GMW circuit library with And gate.}{fig-gmw}
 {\footnotesize
   \begin{verbatimtab}
-    encodegmw(in1,in2) {
-      m[in1++"out"]@1 := (s[in1] xor r[in1])@1;
-      m[in1++"out"]@2 := r[in1]@1;
-      m[in2++"out"]@1 := (s[in2] xor flip[in2])@2;
-      m[in2++"out"]@2 := r[in2]@2
-      { shares1 = { c1 = v[1, in1++"out"]; c2 = v[2, in1++"out"] };
-        shares2 = { c1 = v[1, in2++"out"]; c2 = v[2, in2++"out"]} } 
+    encodegmw(in, i1, i2) {
+      m[in]@i2 := (s[in] xor r[in])@i2;
+      m[in]@i1 := r[in1]@2;
+      m[in]
     }
     
-    andtablegmw(b1, b2) {
-      let r11 = (b1 xor true) and (b2 xor true) in
-      let r10 = (b1 xor true) and (b2 xor false) in
-      let r01 = (b1 xor false) and (b2 xor true) in
-      let r00 = (bl xor false) and (b2 xor false) in
+    andtablegmw(b1, b2, r) {
+      let r11 = r xor (b1 xor true) and (b2 xor true) in
+      let r10 = r xor (b1 xor true) and (b2 xor false) in
+      let r01 = r xor (b1 xor false) and (b2 xor true) in
+      let r00 = r xor (bl xor false) and (b2 xor false) in
       { v1 = r11; v2 = r10; v3 = r01; v4 = r00 }
     }
     
-    andgmw(g, shares1, shares2) {
-      let r = flip[1,g++".r"] in
-      let table = andtablegmw(shares1.c1, shares2.c1) in
-      let r11 =  r xor table.v1 in
-      let r10 =  r xor table.v2 in
-      let r01 =  r xor table.v3 in
-      let r00 =  r xor table.v4 in
-        v[2,g++"out"] := OT4(shares1.c2, shares2.c2, r11, r10, r01, r00);
-      v[1,g++"out"] := r;
-      { c1 = v[1,g++"out"]; c2 = v[2,g++"out"]}
+    andgmw(g, v1, v2) {
+      let r = r[g] in
+      let table = andtablegmw(v1,v2,r) in
+      m[g]@2 := OT4(v1,v2,table,2,1);
+      m[g]@1 := r;
+      m[g]
     }
     
-    decodegmw(shares) { v[0,"output"] := shares.c1 xor shares.c2 }   \end{verbatimtab}
+    decodegmw(v) {
+      p[1] := v@1; p[2] := v@2;
+      out@1 := (p[1] + [2])@1;
+      out@2 :=(p[1] + [2])@2
+    }
+  \end{verbatimtab}
 }
 \end{fpfig}
