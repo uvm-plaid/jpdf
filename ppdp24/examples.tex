@@ -41,11 +41,10 @@ following top-level functions:
   \label{example-gmw-andcircuit}
 The following program uses our GMW library to define
 a circuit with a single And gate and input secrets $\ttt{s1}$ and
-$\ttt{s2}$ from client's 1 and 2 respectively. 
-{\small
-  \begin{verbatimtab}
-  let ss = encodegmw("s1","s2") in v[0,"output"] := decode(andgmw(0,ss.shares1,ss.shares2)) \end{verbatimtab}
-}
+$\ttt{s2}$ from client's 1 and 2 respectively:
+$$
+\mathtt{decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))}
+$$
 \end{example}
 
 

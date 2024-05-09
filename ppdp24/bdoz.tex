@@ -36,15 +36,18 @@
     secopen("a","x","d",2,1);
     secopen("b","y","e",1,2);
     secopen("b","y","e",2,1);
+    let xyshare = 
     let xys =
-      macsum(maccsum(macctimes(macshare("b"), m["d"]), m["d"] * m["e"]),
-            macsum(macctimes(macshare("a"), m["e"])), macshare("c")) 
-    in 
-    let xyk =
-       m["d"] * m["e"] + mack("b") * m["d"] + mack("d") * m["d"] + mack("c")
+      macsum(macctimes(macshare("b"), m["d"]),
+             macsum(macctimes(macshare("a"), m["e"]),
+                    macshare("c")))
+    in
+    let xyk = mack("b") * m["d"] + mack("d") * m["d"] + mack("c")               
     in
     secreveal(xys,xyk,"1",1,2);
-    secreveal(xys,xyk,"2",2,1);
+    secreveal(maccsum(xys,m["d"] * m["e"]),
+              xyk - m["d"] * m["e"],
+              "2",2,1);
     out@1 = (p[1++"s"] + p[2++"s"])@1;
     out@2 = (p[1++"s"] + p[2++"s"])@2;
   \end{verbatimtab}
