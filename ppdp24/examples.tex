@@ -42,10 +42,34 @@ following top-level functions:
 The following program uses our GMW library to define
 a circuit with a single And gate and input secrets $\ttt{s1}$ and
 $\ttt{s2}$ from client's 1 and 2 respectively:
-$$
-\mathtt{decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))}
-$$
+\begin{verbatimtab}
+decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
+\end{verbatimtab}
 \end{example}
+
+\begin{lemma}
+  Given:
+  $$
+  (\varnothing,\andgmw(xy,\mesg{x},\mesg{y}) \redx (\prog,\mesg{xy})
+  $$
+  Then for all
+  $$
+  \store \in \mems(\{ \elab{\secret{y}}{2}, \out{1} \} \cup \iov(\prog))
+  $$
+  such that
+  \begin{mathpar}
+    %\store(\elab{\secret{x}}{1}) = \elab{\mesg{x}}{1} + \elab{\mesg{x}}{2}
+    %
+    \store(\elab{\secret{y}}{2}) = \cod{\store, \elab{\mesg{y}}{1} + \elab{\mesg{y}}{2}}
+
+    \store(\out{1}) = \cod{\store, \elab{\mesg{xy}}{1} + \elab{\mesg{xy}}{2}}
+  \end{mathpar}
+  we have:
+  $$
+  \progtt(\prog)(\elab{\mesg{x}}{1} + \elab{\mesg{x}}{2}|\store_{\{ \secret{y}{2}, \out{1} \}}) =
+  \progtt(\prog)(\elab{\mesg{x}}{1} + \elab{\mesg{x}}{2}|\store)
+  $$
+\end{lemma}
 
 
 \subsection{2-Party BDOZ}

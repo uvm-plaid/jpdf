@@ -127,7 +127,8 @@ the Least Herbrand Model $\store$ of $(\mathit{facts}(\store'),\datalog(\prog))$
 for all $\store' \in \mems(\secrets(\prog) \cup \flips(\prog))$, observing
 that model computation for distinct fact bases can be done in parallel. 
 
-We can then query representations of $\runs(\prog)$ with
+\paragraph{Verifying Security Properties} We can
+query correct representations of $\runs(\prog)$ by using
 implementations of conditioning and marginalization to automatically
 verify the passive model hyperproperties described in Section
 \ref{section-hyper}-- in particular correctness and noninterference
@@ -137,6 +138,7 @@ to verify security in $\mathbb{F}_2$ of Shamir addition as defined in Section
 Beaver triples. We have also
 verified properties compositional properties of gates themselves that establish
 circuit invariants that imply passive security in larger circuits.
-We discuss these examples and proof methods in Section \ref{section-examples}.
+We discuss these examples and proof methods in Section
+\ref{section-examples}.
 
 

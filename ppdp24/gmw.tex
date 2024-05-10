@@ -3,7 +3,7 @@
   \begin{verbatimtab}
     encodegmw(in, i1, i2) {
       m[in]@i2 := (s[in] xor r[in])@i2;
-      m[in]@i1 := r[in1]@2;
+      m[in]@i1 := r[in]@2;
       m[in]
     }
     
@@ -12,21 +12,21 @@
       let r10 = r xor (b1 xor true) and (b2 xor false) in
       let r01 = r xor (b1 xor false) and (b2 xor true) in
       let r00 = r xor (bl xor false) and (b2 xor false) in
-      { v1 = r11; v2 = r10; v3 = r01; v4 = r00 }
+      { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
     }
     
     andgmw(g, v1, v2) {
       let r = r[g] in
       let table = andtablegmw(v1,v2,r) in
       m[g]@2 := OT4(v1,v2,table,2,1);
-      m[g]@1 := r;
+      m[g]@1 := r@1;
       m[g]
     }
     
     decodegmw(v) {
-      p[1] := v@1; p[2] := v@2;
-      out@1 := (p[1] + p[2])@1;
-      out@2 :=(p[1] + p[2])@2
+      p["1"] := v@1; p["2"] := v@2;
+      out@1 := (p["1"] + p["2"])@1;
+      out@2 := (p["1"] + p["2"])@2
     }
   \end{verbatimtab}
 }
