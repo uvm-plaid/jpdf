@@ -47,28 +47,91 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
 \end{verbatimtab}
 \end{example}
 
+\begin{comment}
 \begin{lemma}
   Given:
   $$
-  (\varnothing,\andgmw(xy,\mesg{x},\mesg{y}) \redx (\prog,\mesg{xy})
+  \begin{array}{c}
+  (\varnothing,\decodegmw(\andgmw(z,\flip{x},\flip{y})) \redxs \\
+  (\prog_1,\decodegmw(\mesg{z})) \redxs (\prog_2,())
+  \end{array}
   $$
-  Then for all
-  $$
-  \store \in \mems(\{ \elab{\secret{y}}{2}, \out{1} \} \cup \iov(\prog))
-  $$
-  such that
+  Define:
   \begin{mathpar}
-    %\store(\elab{\secret{x}}{1}) = \elab{\mesg{x}}{1} + \elab{\mesg{x}}{2}
-    %
-    \store(\elab{\secret{y}}{2}) = \cod{\store, \elab{\mesg{y}}{1} + \elab{\mesg{y}}{2}}
+    X \defeq
+    \{ \elab{\flip{x}}{2}, \elab{\flip{y}}{1}, \elab{\flip{y}}{2}, \rvl{1}, \rvl{2} \}
 
-    \store(\out{1}) = \cod{\store, \elab{\mesg{xy}}{1} + \elab{\mesg{xy}}{2}}
+    O \defeq  \{ \out{1}, \out{2} \}
   \end{mathpar}
-  we have:
+  Then:
   $$
-  \progtt(\prog)(\elab{\mesg{x}}{1} + \elab{\mesg{x}}{2}|\store_{\{ \secret{y}{2}, \out{1} \}}) =
-  \progtt(\prog)(\elab{\mesg{x}}{1} + \elab{\mesg{x}}{2}|\store)
+  \sep{\progtt(\prog_1)}{\{ \elab{\mesg{z}}{2} \}}{\{ \elab{\flip{x}}{1}, \elab{\flip{y}}{1}\}}
   $$
+  and:
+  $$
+  \margd{\progtt(\prog_2)}{(\{ \elab{\flip{x}}{1} \}|\store_{X \cup O})} =
+    \margd{\progtt(\prog_2)}{(\{ \elab{\flip{x}}{1} \}|\store_O)}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  Given:
+  $$
+  \begin{array}{c}
+  (\varnothing,\decodegmw(\andgmw(z,\flip{x},\flip{y})) \redxs \\
+  (\prog_1,\decodegmw(\mesg{z})) \redxs (\prog_2,())
+  \end{array}
+  $$
+  Define:
+  \begin{mathpar}
+    X \defeq
+    \{ \elab{\flip{x}}{2}, \elab{\flip{y}}{1}, \elab{\flip{y}}{2}, \rvl{1}, \rvl{2} \}
+
+    O \defeq  \{ \out{1}, \out{2} \}
+  \end{mathpar}
+  Then:
+  %$$
+  %\sep{\progtt(\prog_1)}{\{ \elab{\mesg{z}}{2} \}}{\{ \elab{\flip{x}}{1}, \elab{\flip{y}}{1}\}}
+  %$$
+  %and:
+  $$
+  \begin{array}{c}
+    \margd{\progtt(\prog_2)}{(\cod{\store(\elab{\flip{x}}{1})\ \exor\ \store(\elab{\flip{x}}{2})}|\store_{X \cup O})} =\\
+    \margd{\progtt(\prog_2)}{(\cod{\store(\elab{\flip{x}}{1})\ \exor\ \store(\elab{\flip{x}}{2})}|\store_O)}
+  \end{array}
+  $$
+  $$
+  \sep{\progtt(\prog_2)}{(\cod{\store(\elab{\flip{x}}{1})\ \exor\ \store(\elab{\flip{x}}{2})}) \cup O}{X}
+  $$
+  $$
+  \sep{\progtt(\prog_2)}{\{ \macgv{x} \} \cup O}{X}
+  $$
+\end{lemma}
+\end{comment}
+
+\begin{lemma}
+  Given:
+  $$
+  \begin{array}{c}
+  (\varnothing,\andgmw(z,\mesg{x},\mesg{y}) \redxs %\\
+  (\prog,\mesg{z})
+  \end{array}
+  $$
+  Define:
+  \begin{mathpar}
+    X \defeq
+    \{ \elab{\mesg{x}}{2}, \macgv{\mesg{y}}, \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \}
+  \end{mathpar}
+  Then:
+  $$
+  \sep{\progtt(\prog)}{\{ \macgv{\mesg{x}}, \macgv{\mesg{z}} \}}{X}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{x}])) $$
+  $$\iov(\prog) = S \cup M$$
+  $$\sep{\progtt(\prog)}{(S_H \cup \{ \macgv{\mesg{x}} \})}{(M_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{y}}{2} \})}$$
 \end{lemma}
 
 
