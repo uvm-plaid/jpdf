@@ -117,21 +117,20 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
   (\prog,\mesg{z})
   \end{array}
   $$
-  Define:
-  \begin{mathpar}
-    X \defeq
-    \{ \elab{\mesg{x}}{2}, \macgv{\mesg{y}}, \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \}
-  \end{mathpar}
   Then:
   $$
-  \sep{\progtt(\prog)}{\{ \macgv{\mesg{x}}, \macgv{\mesg{z}} \}}{X}
+  \condsep
+      {\progtt(\prog)}
+      {\{ \macgv{\mesg{z}} \}}
+      {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
+      {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}
   $$
 \end{lemma}
 
 \begin{lemma}
   $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{x}])) $$
   $$\iov(\prog) = S \cup M$$
-  $$\sep{\progtt(\prog)}{(S_H \cup \{ \macgv{\mesg{x}} \})}{(M_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}$$
+  $$\condsep{\progtt(\prog)}{\{ \macgv{\mesg{x}} \}}{S}{(M_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}$$
 \end{lemma}
 
 
