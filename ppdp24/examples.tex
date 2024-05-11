@@ -47,67 +47,10 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
 \end{verbatimtab}
 \end{example}
 
-\begin{comment}
 \begin{lemma}
-  Given:
-  $$
-  \begin{array}{c}
-  (\varnothing,\decodegmw(\andgmw(z,\flip{x},\flip{y})) \redxs \\
-  (\prog_1,\decodegmw(\mesg{z})) \redxs (\prog_2,())
-  \end{array}
-  $$
-  Define:
-  \begin{mathpar}
-    X \defeq
-    \{ \elab{\flip{x}}{2}, \elab{\flip{y}}{1}, \elab{\flip{y}}{2}, \rvl{1}, \rvl{2} \}
-
-    O \defeq  \{ \out{1}, \out{2} \}
-  \end{mathpar}
-  Then:
-  $$
-  \sep{\progtt(\prog_1)}{\{ \elab{\mesg{z}}{2} \}}{\{ \elab{\flip{x}}{1}, \elab{\flip{y}}{1}\}}
-  $$
-  and:
-  $$
-  \margd{\progtt(\prog_2)}{(\{ \elab{\flip{x}}{1} \}|\store_{X \cup O})} =
-    \margd{\progtt(\prog_2)}{(\{ \elab{\flip{x}}{1} \}|\store_O)}
-  $$
+  If $\condp{\pmf}{X_1}{\detx{X_2}}$ and
+  $\condp{\pmf}{X_2}{\detx{X_3}}$ then $\condp{\pmf}{X_1}{\detx{X_3}}$.
 \end{lemma}
-
-\begin{lemma}
-  Given:
-  $$
-  \begin{array}{c}
-  (\varnothing,\decodegmw(\andgmw(z,\flip{x},\flip{y})) \redxs \\
-  (\prog_1,\decodegmw(\mesg{z})) \redxs (\prog_2,())
-  \end{array}
-  $$
-  Define:
-  \begin{mathpar}
-    X \defeq
-    \{ \elab{\flip{x}}{2}, \elab{\flip{y}}{1}, \elab{\flip{y}}{2}, \rvl{1}, \rvl{2} \}
-
-    O \defeq  \{ \out{1}, \out{2} \}
-  \end{mathpar}
-  Then:
-  %$$
-  %\sep{\progtt(\prog_1)}{\{ \elab{\mesg{z}}{2} \}}{\{ \elab{\flip{x}}{1}, \elab{\flip{y}}{1}\}}
-  %$$
-  %and:
-  $$
-  \begin{array}{c}
-    \margd{\progtt(\prog_2)}{(\cod{\store(\elab{\flip{x}}{1})\ \exor\ \store(\elab{\flip{x}}{2})}|\store_{X \cup O})} =\\
-    \margd{\progtt(\prog_2)}{(\cod{\store(\elab{\flip{x}}{1})\ \exor\ \store(\elab{\flip{x}}{2})}|\store_O)}
-  \end{array}
-  $$
-  $$
-  \sep{\progtt(\prog_2)}{(\cod{\store(\elab{\flip{x}}{1})\ \exor\ \store(\elab{\flip{x}}{2})}) \cup O}{X}
-  $$
-  $$
-  \sep{\progtt(\prog_2)}{\{ \macgv{x} \} \cup O}{X}
-  $$
-\end{lemma}
-\end{comment}
 
 \begin{lemma}
   Given:
@@ -121,18 +64,29 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
   $$
   \condsep
       {\progtt(\prog)}
-      {\{ \macgv{\mesg{z}} \}}
       {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
+      {\{ \macgv{\mesg{z}} \}}
       {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}
+  $$
+  $$
+  \conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}    
   $$
 \end{lemma}
 
 \begin{lemma}
-  $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{x}])) $$
+  $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}])) $$
   $$\iov(\prog) = S \cup M$$
-  $$\condsep{\progtt(\prog)}{\{ \macgv{\mesg{x}} \}}{S}{(M_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}$$
+  $$\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$$
+  $$\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$$
 \end{lemma}
 
+\begin{mathpar}
+  \condsep{\progtt(\prog_1)}{S^1}{\{ \macgv{\mesg{x}} \}}{(M^1_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}
+  
+  \condsep{\progtt(\prog_2)}{S^2}{\{ \macgv{\mesg{y}} \}}{(M^2_C \cup \{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}
+  
+  \condsep{\progtt(\prog_3)}{S^1 \cup S^2}{\{ \macgv{\mesg{z}} \}}{(M^1_C \cup M^2_C \cup \{ \elab{\mesg{x}}{2}, \elab{\mesg{y}}{2}, \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
+\end{mathpar}
 
 \subsection{2-Party BDOZ}
 
