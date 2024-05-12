@@ -47,9 +47,20 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
 \end{verbatimtab}
 \end{example}
 
+\begin{definition}
+  For all $\alpha \in \{ \mesg{w}, \flip{w} \}$:
+  $$\pmf(\macgv{\alpha} = v) \defeq \sum_{(v_1,v_2) \in A} \pmf(\elab{\alpha}{1} = v_1, \elab{\alpha}{1} = v_2)$$
+  where $A = \{ (v_1,v_2) \mid \cod{v_1 + v_2} = v \}$.
+\end{definition}
+
 \begin{lemma}
   If $\condp{\pmf}{X_1}{\detx{X_2}}$ and
   $\condp{\pmf}{X_2}{\detx{X_3}}$ then $\condp{\pmf}{X_1}{\detx{X_3}}$.
+\end{lemma}
+
+\begin{lemma}
+  If $\condsep{\pmf}{X_1}{X_2}{X_3}$ and
+  $\condp{\pmf}{X_2}{\detx{X_4}}$ then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
 \end{lemma}
 
 \begin{lemma}
@@ -66,7 +77,7 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
       {\progtt(\prog)}
       {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
       {\{ \macgv{\mesg{z}} \}}
-      {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}
+      {\{ \elab{\mesg{x}}{2},\elab{\mesg{y}}{2},\elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}
   $$
   $$
   \conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}    
@@ -91,6 +102,7 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
 \subsection{2-Party BDOZ}
 
 \input{bdoz}
+
 
 \begin{definition}
   Given $\prog$ with $\iov(\prog) = S \cup V \cup O$,
