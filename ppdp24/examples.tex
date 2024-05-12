@@ -51,7 +51,7 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
   For all $\alpha \in \{ \mesg{w}, \flip{w} \}$ define:
   $$\pmf(\macgv{\alpha} = v) \defeq \sum_{\sigma) \in A} \pmf(\sigma')$$
   and define:
-  $$\condd{\pmf}{X}{\macgv{\alpha} = v}(\sigma) \defeq  \sum_{\sigma' \in A} \pmf(\sigma \cap \sigma')/\pmf(\sigma')$$
+  $$\condd{\pmf}{X}{\macgv{\alpha} = v}(\sigma) \defeq  \sum_{\sigma' \in A} \condd{\pmf}{X}{\sigma'}(\sigma)$$
   where $A = \{ \store \in \mems(\{ \elab{\alpha}{1},\elab{\alpha}{2} \} ) \mid
       \cod{\store(\elab{\alpha}{1}) + \store(\elab{\alpha}{2})} = v \}$.
 \end{definition}
