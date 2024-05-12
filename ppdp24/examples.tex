@@ -48,9 +48,12 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
 \end{example}
 
 \begin{definition}
-  For all $\alpha \in \{ \mesg{w}, \flip{w} \}$:
-  $$\pmf(\macgv{\alpha} = v) \defeq \sum_{(v_1,v_2) \in A} \pmf(\elab{\alpha}{1} = v_1, \elab{\alpha}{1} = v_2)$$
-  where $A = \{ (v_1,v_2) \mid \cod{v_1 + v_2} = v \}$.
+  For all $\alpha \in \{ \mesg{w}, \flip{w} \}$ define:
+  $$\pmf(\macgv{\alpha} = v) \defeq \sum_{\sigma) \in A} \pmf(\sigma')$$
+  and define:
+  $$\condd{\pmf}{X}{\macgv{\alpha} = v}(\sigma) \defeq  \sum_{\sigma' \in A} \pmf(\sigma \cap \sigma')/\pmf(\sigma')$$
+  where $A = \{ \store \in \mems(\{ \elab{\alpha}{1},\elab{\alpha}{2} \} ) \mid
+      \cod{\store(\elab{\alpha}{1}) + \store(\elab{\alpha}{2})} = v \}$.
 \end{definition}
 
 \begin{lemma}
