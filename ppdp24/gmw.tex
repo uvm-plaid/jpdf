@@ -1,4 +1,4 @@
-\begin{fpfig}[t]{2-Party GMW circuit library with And gate.}{fig-gmw}
+\begin{fpfig}[t]{2-Party GMW circuit library.}{fig-gmw}
 {\footnotesize
   \begin{verbatimtab}
     encodegmw(in, i1, i2) {
@@ -15,18 +15,20 @@
       { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
     }
     
-    andgmw(g, v1, v2) {
-      let r = r[g] in
-      let table = andtablegmw(v1,v2,r) in
-      m[g]@2 := OT4(v1,v2,table,2,1);
-      m[g]@1 := r@1;
-      m[g]
+    andgmw(z, x, y) {
+      let r = r[z] in
+      let table = andtablegmw(x,y,r) in
+      m[z]@2 := OT4(x,y,table,2,1);
+      m[z]@1 := r@1;
+      m[z]
     }
     
-    decodegmw(v) {
-      p["1"] := v@1; p["2"] := v@2;
-      out@1 := (p["1"] + p["2"])@1;
-      out@2 := (p["1"] + p["2"])@2
+    xorgmw(z, x, y) { m[z]@1 := (x+y)@1; m[z]@2 := (x+y)@2; m[z] }
+    
+    decodegmw(z) {
+      p["1"] := z@1; p["2"] := z@2;
+      out@1 := (p["1"] xor p["2"])@1;
+      out@2 := (p["1"] xor p["2"])@2
     }
   \end{verbatimtab}
 }

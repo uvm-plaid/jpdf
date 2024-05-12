@@ -6,55 +6,93 @@
 
 \input{gmw}
 
-The GMW protocol uses secret sharing to represent data flowing through
-circuits. In the 2-party case, clients 1 and 2 each share their input
-secrets, and use those shares to represent inputs to gates. Outputs
-are also represented as shares. We refer to the pair of shares
-representing any particular value as a \emph{wire value}, and
-we represent them via records of the form
-$
-\ttt{\{c1 = } v_1\ttt{;c2 = } v_2\ttt{\}} 
-$
-where $v_1$ and $v_2$ are client 1 and 2's shares respectively.
+The GMW protocol is a garbled binary circuit protocol. In this section
+we will assume the 2-party version, though it generalizes to $n$
+parties\cite{XXX}. GMW uses a common technique in MPC, which is to
+represent values $v$ as distributed shares $v_1$ and $v_2$ with
+$v = v_1 \fplus v_2$. This trick maintains secrecy of $v$
+from both parties, and in GMW it is used to maintain the intermediate
+values of internal gate outputs in circuits. In related literature
+the notation $\macgv{x}$ is used to represent the ``true''
+value of $x$ and $[x]$ is often used to represent the share of
+given party.
+
+To capture this convention, which is used in many other protocols, we
+introduce a new naming convention for ``global view'' elements
+$\macgv{\mesg{w}}$, which denote the summed value of
+$\elab{\mesg{w}}{1}$ and $\elab{\mesg{w}}{2}$ in a protocol
+run. This concept integrates program distributions in the
+usual manner, as the probability of the outcome of summation
+of two variables in the distribution.
+\begin{definition}
+  For all $\mesg{w}$ define:
+  $$\pmf(\macgv{\mesg{w}} = v) \defeq \sum_{\sigma \in A} \pmf(\sigma)$$
+  and define:
+  $$\condd{\pmf}{X}{\macgv{\mesg{w}} = v}(\sigma) \defeq  \sum_{\sigma' \in A} \condd{\pmf}{X}{\sigma'}(\sigma)$$
+  where $A = \{ \store \in \mems(\{ \elab{\alpha}{1},\elab{\alpha}{2} \} ) \mid
+      \cod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})} = v \}$.
+\end{definition}
 
 For full details of the GMW protocol the reader is referred to
 \cite{evans2018pragmatic}. Our implementation libary is shown in
-Figure \ref{fig-gmw}, with type signatures for the library functions
-also shown. We present the And gate since it is
-an interesting component. The Figure includes the
-following top-level functions:
-\begin{itemize}
-\item \ttt{encodegmw}: This function encodes client 1's and client 2's
-  secret bits called $\ttt{s[1,"s1"]}$ and $\ttt{s[1,"s2"]}$ into two
-  distinct wire values (pairs of shares).
-\item \ttt{andgmw}: This function defines the gate $\ttt{"g"}$, the
-  identifier $\ttt{"g"}$ being used to distinguish randomness used
-  within.  In our version client 1 builds the output table (using
-  \ttt{andtablegmw})and transfers the correct output share to client 2
-  using 1-out-of-4 OT ($\ttt{OT4}$), definable using $\ttt{OT}$, as
-  per standard GMW protocol.
-\item \ttt{decode}: This function decodes and publishes a wire value
-  by $\ttt{xor}$ing the shares. Note that this requires both client 1
-  and 2 to publicize their shares.
-\end{itemize}
-\begin{example}
-  \label{example-gmw-andcircuit}
-The following program uses our GMW library to define
-a circuit with a single And gate and input secrets $\ttt{s1}$ and
+Figure \ref{fig-gmw}, and includes encoding functions, where
+input secrets are split into shares, $\eand$ and $\exor$ gate
+functions, and a decoding function. Note that $\exor$ requires
+no interaction between parties, while $\eand$ necessitates and
+1-of-4 oblivious transfer. The gate computation is
+done entirely in secrect, and the decoding function
+is where the declassification occurs-- both parties reveal
+their shares of the final gate output $\macgv{z}$.
+
+For example, the following program uses our GMW library to define
+a circuit with a single \eand gate and input secrets $\ttt{s1}$ and
 $\ttt{s2}$ from client's 1 and 2 respectively:
 \begin{verbatimtab}
-decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
+         let s1 = encodegmw("s1") in
+         let s2 = encodegmw("s2") in
+         decodegmw(andgmw("z",s1,s2))
 \end{verbatimtab}
-\end{example}
+By convention we will assume that all gates are assigned unique output
+identifiers $\ttt{"z"}$, and that all programs are in the form
+of a sequence of let-bindings followed by a call to $\decodegmw$
+wrapping a circuit.
 
-\begin{definition}
-  For all $\alpha \in \{ \mesg{w}, \flip{w} \}$ define:
-  $$\pmf(\macgv{\alpha} = v) \defeq \sum_{\sigma \in A} \pmf(\sigma')$$
-  and define:
-  $$\condd{\pmf}{X}{\macgv{\alpha} = v}(\sigma) \defeq  \sum_{\sigma' \in A} \condd{\pmf}{X}{\sigma'}(\sigma)$$
-  where $A = \{ \store \in \mems(\{ \elab{\alpha}{1},\elab{\alpha}{2} \} ) \mid
-      \cod{\store(\elab{\alpha}{1}) + \store(\elab{\alpha}{2})} = v \}$.
-\end{definition}
+\paragraph{Oblivious Transfer} \cnote{Here is where we
+  wave hands about OT.}
+
+\subsubsection{Correctness Proof with Verification Tactics}
+
+
+\begin{lemma}
+  Define:
+  $$
+  \begin{array}{c}
+    \prog_{i} \defeq \\
+    \eassign{\mesg{x}}{1}{\flip{x}}{1}; \eassign{\mesg{x}}{2}{\flip{x}}{2}; \\
+    \eassign{\mesg{y}}{1}{\flip{y}}{1}; \eassign{\mesg{y}}{2}{\flip{y}}{2} 
+  \end{array}
+  $$
+  Given:
+  $$
+  \begin{array}{c}
+  (\prog_i,\andgmw(z,\mesg{x},\mesg{y}) \redxs %\\
+  (\prog,\mesg{z})
+  \end{array}
+  $$
+  Then both of the following conditions hold, where $\iov(\prog) = M$:
+  $$
+  \condsep
+      {\progtt(\prog)}
+      {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
+      {\{ \macgv{\mesg{z}} \}}
+      {M_{\{2\}} \cup \{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}
+  $$
+  $$
+  \conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}    
+  $$
+\end{lemma}
+
+
 
 \begin{lemma}
   If $\condp{\pmf}{X_1}{\detx{X_2}}$ and
@@ -62,29 +100,15 @@ decode(andgmw("gate0",encodegmw("s1"),encodegmw("s2")))
 \end{lemma}
 
 \begin{lemma}
-  If $\condsep{\pmf}{X_1}{X_2}{X_3}$ and
-  $\condp{\pmf}{X_2}{\detx{X_4}}$ then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
-\end{lemma}
-
-\begin{lemma}
   Given:
-  $$
-  \begin{array}{c}
-  (\varnothing,\andgmw(z,\mesg{x},\mesg{y}) \redxs %\\
-  (\prog,\mesg{z})
-  \end{array}
-  $$
-  Then:
-  $$
-  \condsep
-      {\progtt(\prog)}
-      {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
-      {\{ \macgv{\mesg{z}} \}}
-      {\{ \elab{\mesg{x}}{2},\elab{\mesg{y}}{2},\elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}
-  $$
-  $$
-  \conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}    
-  $$
+  \begin{mathpar}
+    \condsep{\pmf}{X_1}{X_2}{X_3}
+    
+    \condp{\pmf}{X_1}{\detx{X_2}}
+
+    \condp{\pmf}{X_2}{\detx{X_4}}
+  \end{mathpar}
+    Then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
 \end{lemma}
 
 \begin{lemma}
