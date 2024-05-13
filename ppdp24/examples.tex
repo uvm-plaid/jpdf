@@ -29,8 +29,9 @@ of two variables in the distribution.
   $$\pmf(\macgv{\mesg{w}} = v) \defeq \sum_{\sigma \in A} \pmf(\sigma)$$
   and define:
   $$\condd{\pmf}{X}{\macgv{\mesg{w}} = v}(\sigma) \defeq  \sum_{\sigma' \in A} \condd{\pmf}{X}{\sigma'}(\sigma)$$
-  where $A = \{ \store \in \mems(\{ \elab{\alpha}{1},\elab{\alpha}{2} \} ) \mid
-      \cod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})} = v \}$.
+  where $A$ is:
+  $$\{ \store \in \mems(\{ \elab{\mesg{w}}{1},\elab{\mesg{w}}{2} \} ) \mid
+      \fcod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})} = v \}$$
 \end{definition}
 
 For full details of the GMW protocol the reader is referred to
@@ -240,7 +241,8 @@ efficient, multiplication \cite{XXX}.  Here we show how to implement
 malicious secure two party multiplication in the BDOZ style in
 $\metaprot$. 
 
-A field value $v$ is secret shared among 2 clientz in BDOZ as follows.
+A field value $v$ is secret shared among 2 client in BDOZ in
+the same manner as in GMW.
 Each client $\cid$ gets a pair of the form $(v_\cid,m_\cid)$, where
 $v_\cid$ is a secret share of $v$, i.e., $v = \fcod{v_1 \fplus v_2}$.
 Further, field values $m_\cid$ are MACs of $v_\cid$ that are authenticated
