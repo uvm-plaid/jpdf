@@ -121,13 +121,16 @@ $\macgv{\mesg{z}}$ is decoded as the circuit output.
   $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}])) $$
   Then both of the following conditions hold for all $H$ and $C$ where $\iov(\prog) = S \cup M$:
   \begin{enumerate}
-    \item $\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$
     \item $\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$
+    \item $\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$
   \end{enumerate}
 \end{lemma}
 To prove this, we can formulate and automatically prove gate-level
 versions of the invariant. This serves as a proof tactic
-that simplifies the proof of the GMW invariant.
+that simplifies the proof of the GMW invariant. It establishes
+that the $\eand$ gate output is deterministic conditional on
+the inputs, and is separable from the output shares and
+either parties' received messages. 
 \begin{lemma}[And Gate Tactic]
   \label{lemma-gmwtactic}
   %Define:
@@ -147,20 +150,22 @@ that simplifies the proof of the GMW invariant.
   $$
   Then both of the following conditions hold for both $\cid \in \{ 1,2 \}$ where $\iov(\prog) = M$:
   \begin{enumerate}
+  \item
+    $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
    \item $\condsep
       {\progtt(\prog)}
       {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
       {\{ \macgv{\mesg{z}} \}}
       {M_{\{\cid\}} \cup \{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$
-    \item
-      $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
   \end{enumerate}
 \end{lemma}
 \begin{proof}
 Verified automatically using techniques described in Section \ref{section-bruteforce}.  
 \end{proof}
 
-
+To properly integrate the local reasoning of Lemma \ref{lemma-gmwtactic} with
+the global reasoning of Lemma \ref{lemma-gmwinvariant}, we can demonstrate
+the following.
 \begin{lemma}
   \label{lemma-conditioning}
   Each of the following hold:
@@ -174,14 +179,41 @@ Verified automatically using techniques described in Section \ref{section-brutef
   \end{enumerate}
 \end{lemma}
 
+Then we can put the pieces together to prove the invariant, using automated tactics
+for gate-level reasoning.  
 \begin{proof}[Proof of Lemma \ref{lemma-gmwinvariant}]
-\begin{mathpar}
-  \condsep{\progtt(\prog_1)}{S^1}{\{ \macgv{\mesg{x}} \}}{(M^1_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}
+  By induction on the length of $(\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}]))$.
+  Encoding establishes the invarian in the basis. The most interesting inductive
+  case is the $\andgmw$ gate. 
+  \paragraph{Case $\andgmw$.} In this case we have:
+  $$
+  \begin{array}{c}
+  (\varnothing,e) \redxs (\prog',\decodegmw(E[\andgmw(z,\mesg{x},\mesg{y})])) \redxs \\
+    (\prog,\decodegmw(E[\mesg{z}]))
+  \end{array}
+  $$
+  The induction hypothesis, together with the assumed uniquenenss of $z$, gives:
+  \begin{mathpar}
+  \condsep{\progtt(\prog)}{S^1}{\{ \macgv{\mesg{x}} \}}{(M^1_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}
   
-  \condsep{\progtt(\prog_2)}{S^2}{\{ \macgv{\mesg{y}} \}}{(M^2_C \cup \{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}
+  \condsep{\progtt(\prog)}{S^2}{\{ \macgv{\mesg{y}} \}}{(M^2_C \cup \{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}
+
+  \conddetx{\progtt(\prog)}{S^1}{\{ \macgv{\mesg{x}} \}}
   
-  \condsep{\progtt(\prog_3)}{S^1 \cup S^2}{\{ \macgv{\mesg{z}} \}}{(M^1_C \cup M^2_C \cup \{ \elab{\mesg{x}}{2}, \elab{\mesg{y}}{2}, \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
-\end{mathpar}
+  \conddetx{\progtt(\prog)}{S^1}{\{ \macgv{\mesg{x}} \}}    
+  \end{mathpar}
+  This, together with Lemma \ref{lemma-gmwtactic} (1) and Lemma \ref{lemma-conditioning} (1)
+  give:
+  $$
+  \conddetx{\progtt(\prog)}{S^1 \cup S^2}{\{ \macgv{\mesg{z}} \}}
+  $$
+  and Lemma  \ref{lemma-gmwtactic} (2) and Lemma \ref{lemma-conditioning} (2-3) gives:
+  $$
+  \begin{array}{c}
+    \progtt(\prog)|S^1 \cup S^2) \vdash \\
+    {\{ \macgv{\mesg{z}} \}}{(M^1_C \cup M^2_C \cup \{ \elab{\mesg{x}}{2}, \elab{\mesg{y}}{2}, \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
+  \end{array}
+  $$
 \end{proof}
 
 \subsection{2-Party BDOZ}
