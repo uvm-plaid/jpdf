@@ -23,7 +23,8 @@
       m[z]
     }
     
-    xorgmw(z, x, y) { m[z]@1 := (x+y)@1; m[z]@2 := (x+y)@2; m[z] }
+    xorgmw(z, x, y)
+    { m[z]@1 := (x xor y)@1; m[z]@2 := (x xor y)@2; m[z] }
     
     decodegmw(z) {
       p["1"] := z@1; p["2"] := z@2;

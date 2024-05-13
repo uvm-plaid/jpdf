@@ -1,4 +1,4 @@
-\section{Examples and Proof Tactics}
+\section{Examples and Proof Methods}
 \label{section-examples}
 
 \subsection{2-Party GMW}
@@ -62,18 +62,30 @@ wrapping a circuit.
 
 \subsubsection{Correctness Proof with Verification Tactics}
 
-\begin{definition}
+\begin{definition}[Conditional Separation]
   We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
   $\store' \in \mems(X_1)$ and $\store \in \mems(X_2 \cup X_3)$
   and letting $X = X_1 \cup X_2 \cup X_3$ we have:
   $$\condd{\pmf}{X}{\store'}(\store) =
   \condd{\pmf}{X}{\store'}(\store_{X_2}) *
   \condd{\pmf}{X}{\store'}(\store_{X_3})$$
+\end{definition}
+
+\begin{definition}[Conditional Determinism]  
   We write $\conddetx{\pmf}{X_1}{X_2}$ iff for all
   $\store' \in \mems(X_1)$ there exists 
   $\store \in \mems(X_2)$ such that
   $\condd{\pmf}{X_1 \cup X_2}{\store'}(\store) = 1$.
 \end{definition}
+
+
+\begin{lemma}
+  \label{lemma-gmwinvariant}
+  $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}])) $$
+  $$\iov(\prog) = S \cup M$$
+  $$\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$$
+  $$\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$$
+\end{lemma}
 
 \begin{lemma}
   %Define:
@@ -116,24 +128,18 @@ wrapping a circuit.
 \end{lemma}
 
 \begin{lemma}
-  Given:
-  \begin{mathpar}
-    \condsep{\pmf}{X_1}{X_2}{X_3}
-    
-    \condp{\pmf}{X_1}{\detx{X_2}}
-
-    \condp{\pmf}{X_2}{\detx{X_4}}
-  \end{mathpar}
-    Then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
+  Given $\condsep{\pmf}{X_1}{X_2}{X_3}$ and $\condp{\pmf}{X_1}{\detx{X_2}}$ and $\condp{\pmf}{X_2}{\detx{X_4}}$,
+%  \begin{mathpar}
+%    \condsep{\pmf}{X_1}{X_2}{X_3}
+%    
+%    \condp{\pmf}{X_1}{\detx{X_2}}
+%
+%    \condp{\pmf}{X_2}{\detx{X_4}}
+%  \end{mathpar}
+    then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
 \end{lemma}
 
-\begin{lemma}
-  $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}])) $$
-  $$\iov(\prog) = S \cup M$$
-  $$\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$$
-  $$\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$$
-\end{lemma}
-
+\begin{proof}[Proof of Lemma \ref{lemma-gmwinvariant}]
 \begin{mathpar}
   \condsep{\progtt(\prog_1)}{S^1}{\{ \macgv{\mesg{x}} \}}{(M^1_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}
   
@@ -141,6 +147,7 @@ wrapping a circuit.
   
   \condsep{\progtt(\prog_3)}{S^1 \cup S^2}{\{ \macgv{\mesg{z}} \}}{(M^1_C \cup M^2_C \cup \{ \elab{\mesg{x}}{2}, \elab{\mesg{y}}{2}, \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
 \end{mathpar}
+\end{proof}
 
 \subsection{2-Party BDOZ}
 
