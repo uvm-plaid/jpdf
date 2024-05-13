@@ -57,12 +57,22 @@ identifiers $\ttt{"z"}$, and that all programs are in the form
 of a sequence of let-bindings followed by a call to $\decodegmw$
 wrapping a circuit.
 
-\paragraph{Oblivious Transfer} \cnote{Here is where we
-  wave hands about OT.}
-
+\paragraph{Oblivious Transfer} A passive secure OT protocol
+based on previous work \cite{XXX} can be defined in $\metaprot$,
+however this protocol assumes some shared randomness. Alternatively,
+a simple passive secure OT can be defined with the addition of
+public key cryptography as a primitive. But given the diversity
+of approaches to OT, we instead assume that OT is abstract with
+respect to its implementation, where calls to OT in $\mathbb{F}_2$
+are of the following form-- given a \emph{choice bit}
+$\be_1$ provided by a receiver $\cid$, the sender
+sends either $\be_2$ or $\be_3$.
 $$
 \OT{\elab{\be_1}{\cid}}{\be_2}{\be_3}
 $$
+Critically, the sender learns nothing about $\be_1$ and the
+receiver learns nothing about the unselected value, so we interpret
+these calls in our implementation in $\mathbb{F}_2$ as follows.
 $$
 \begin{array}{l}
 \solve{\stores}{\OT{\elab{\be_1}{\cid_1}}{\be_2}{\be_3}}{\cid_2} = \\
@@ -220,14 +230,15 @@ for gate-level reasoning.
 
 \input{bdoz}
 
-Eliminating cheating by adding information theoretic secure MAC codes
-to shares is a fundamental approach realized by protocols such as BDOZ
-\cite{XXX} and SPDZ \cite{XXX}.  These protocols assume a
-pre-processing phase that distributes shares with MAC codes to
-clients.  This integrates well with pre-processed Beaver Triples to
-implement malicious secure, and relatively efficient, multiplication
-\cite{XXX}.  Here we show how to implement malicious secure two party
-multiplication in the BDOZ style via some extensions of $\minifed$.
+In a malicious setting, detecting cheating by adding
+information-theoretic secure MAC codes to shares is a fundamental approach
+realized by protocols such as BDOZ \cite{XXX} and SPDZ \cite{XXX}.
+These protocols assume a pre-processing phase that distributes shares
+with MAC codes to clients.  This integrates well with pre-processed
+Beaver Triples to implement malicious secure, and relatively
+efficient, multiplication \cite{XXX}.  Here we show how to implement
+malicious secure two party multiplication in the BDOZ style in
+$\metaprot$. 
 
 A field value $v$ is secret shared among 2 clientz in BDOZ as follows.
 Each client $\cid$ gets a pair of the form $(v_\cid,m_\cid)$, where
