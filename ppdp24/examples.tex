@@ -79,15 +79,19 @@ wrapping a circuit.
 \end{definition}
 
 
-\begin{lemma}
+\begin{lemma}[GMW Invariant]
   \label{lemma-gmwinvariant}
+  Given:
   $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}])) $$
-  $$\iov(\prog) = S \cup M$$
-  $$\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$$
-  $$\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$$
+  Then both of the following conditions hold for all $H$ and $C$ where $\iov(\prog) = S \cup M$:
+  \begin{enumerate}
+    \item $\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$
+    \item $\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$
+  \end{enumerate}
 \end{lemma}
 
-\begin{lemma}
+\begin{lemma}[And Gate Tactic]
+  \label{lemma-gmwtactic}
   %Define:
   %$$
   %\begin{array}{c}
@@ -104,16 +108,15 @@ wrapping a circuit.
   \end{array}
   $$
   Then both of the following conditions hold for both $\cid \in \{ 1,2 \}$ where $\iov(\prog) = M$:
-  $$
-  \condsep
+  \begin{enumerate}
+   \item $\condsep
       {\progtt(\prog)}
       {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
       {\{ \macgv{\mesg{z}} \}}
-      {M_{\{\cid\}} \cup \{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}
-  $$
-  $$
-  \conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}    
-  $$
+      {M_{\{\cid\}} \cup \{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$
+    \item
+      $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
+  \end{enumerate}
 \end{lemma}
 
 \begin{proof}
@@ -121,25 +124,16 @@ Verified automatically using techniques described in Section \ref{section-brutef
 \end{proof}
 
 \begin{lemma}
-  If $\condp{\pmf}{X_1}{\detx{X_2}}$ and
-  $\condp{\pmf}{X_2}{\detx{X_3}}$ then $\condp{\pmf}{X_1}{\detx{X_3}}$.
-\end{lemma}
-
-\begin{lemma}
-  If $\condp{\pmf}{X_1}{\detx{X_2}}$ and
-  $\condsep{\pmf}{X_2}{X_3}{X_4}$ then $\condsep{\pmf}{X_1}{X_3}{X_4}$.
-\end{lemma}
-
-\begin{lemma}
-  Given $\condsep{\pmf}{X_1}{X_2}{X_3}$ and $\condp{\pmf}{X_1}{\detx{X_2}}$ and $\condp{\pmf}{X_2}{\detx{X_4}}$,
-%  \begin{mathpar}
-%    \condsep{\pmf}{X_1}{X_2}{X_3}
-%    
-%    \condp{\pmf}{X_1}{\detx{X_2}}
-%
-%    \condp{\pmf}{X_2}{\detx{X_4}}
-%  \end{mathpar}
-    then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
+  \label{lemma-conditioning}
+  Each of the following hold:
+  \begin{enumerate}
+    \item Given $\condp{\pmf}{X_1}{\detx{X_2}}$ and
+      $\condp{\pmf}{X_2}{\detx{X_3}}$, then $\condp{\pmf}{X_1}{\detx{X_3}}$.
+    \item Given $\condp{\pmf}{X_1}{\detx{X_2}}$ and
+      $\condsep{\pmf}{X_2}{X_3}{X_4}$, then $\condsep{\pmf}{X_1}{X_3}{X_4}$.
+    \item Given $\condsep{\pmf}{X_1}{X_2}{X_3}$ and $\condp{\pmf}{X_1}{\detx{X_2}}$
+      and $\condp{\pmf}{X_2}{\detx{X_4}}$, then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
+  \end{enumerate}
 \end{lemma}
 
 \begin{proof}[Proof of Lemma \ref{lemma-gmwinvariant}]
