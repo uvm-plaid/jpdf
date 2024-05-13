@@ -220,7 +220,91 @@ for gate-level reasoning.
 
 \input{bdoz}
 
+Eliminating cheating by adding information theoretic secure MAC codes
+to shares is a fundamental approach realized by protocols such as BDOZ
+\cite{XXX} and SPDZ \cite{XXX}.  These protocols assume a
+pre-processing phase that distributes shares with MAC codes to
+clients.  This integrates well with pre-processed Beaver Triples to
+implement malicious secure, and relatively efficient, multiplication
+\cite{XXX}.  Here we show how to implement malicious secure two party
+multiplication in the BDOZ style via some extensions of $\minifed$.
 
+A field value $v$ is secret shared among 2 clientz in BDOZ as follows.
+Each client $\cid$ gets a pair of the form $(v_\cid,m_\cid)$, where
+$v_\cid$ is a secret share of $v$, i.e., $v = \fcod{v_1 \fplus v_2}$.
+Further, field values $m_\cid$ are MACs of $v_\cid$ that are authenticated
+by the other client's key. In particular, $m_\cid = k + (k_\Delta *
+v_\cid)$ where \emph{keys} $k$ and $k_\Delta$ are known only to $\cid'
+\ne \cid$ and $k_\Delta$. Further, there is a unique \emph{local key}
+$k$ for each shared value, while the \emph{global key} $k_\Delta$ is
+common to all MACs authenticated by $\cid'$. By extending certain
+field operations to these MACed values, a semi-homorphic encryption
+scheme is obtained that is adequate to compute Beaver Triples. For
+example, if local keys $k_1$ and $k_2$ authenticate $\macv_1$ and
+$\macv_2$, then $k_1 \fplus k_2$ authenticates $\macv_1 \macplus
+\macv_2$, where $\macplus$ is addition extended to MACed
+values. Semantics for summation of MACed shares, and multipication of
+shares and plain field values, are given in Figure \ref{fig-bdoz}.
+For more details the reader is referred to \cite{XXX}. We note
+that while we restrict values $v$, $m$, and $k$ to the same
+field in this presentation for simplicity, in general $m$ and
+$k$ can be in extensions of $\mathbb{Z}_p$. 
+
+We define variable forms $\macx{\secret{w}}{\cid}$ and
+$\macx{\flip{w}}{\cid}$ to range over local MACed shares of a secret
+and random sample owned by client $\cid$, respectively. We let
+$\mack{x}{}$ denote the local key for authenticating shares of $x$.
+We also assume a global key $\flip{\ttt{delta}}$ on each client.
+Pre-processing is modeled by assuming that shares are provided on
+input random tapes (memories) with the required properties, as defined
+on the bottom of Figure \ref{fig-bdoz}.
+
+Similarly to field values, we can use MACed shares in
+uniform independent distributions as one-time-pads for
+hiding other values, using subtraction over MACed shares.
+So we introduce a function $\macotp$ to do this
+declaratively.
+$$
+\delta(\macotp,v_1,v_2) \defeq \fcod{v_1 \macminus v_2}
+$$
+
+Another key idea in BDOZ is \emph{secure opening}, where distributed
+shares of a value $v$ are communicated and combined to ``open'' the
+same $v$ on each client. This relies on authentication to detect
+cheating in the malicious setting. To implement secure opening we
+define a $\macauth$ function that authenticates shares, and a
+$\macopen$ function that extracts a field value from its shares.
+\begin{mathpar}
+\delta(\macauth, (v, m), k) \defeq
+     (v, m) \text{\ if\ } m = k \fplus (\flip{\ttt{delta}} \ftimes v)
+ 
+\delta(\macopen, (v_1, m_1), (v_2,m_2)) \defeq
+\fcod{v_1 \fplus v_2}
+\end{mathpar}
+This authentication eliminates cheating and guarantees protocol
+integrity. As we will show in Section \ref{section-types}, this
+can be reflected in a security type for $\macauth$.
+
+Putting these pieces together, we can implement 2-party multiplication with
+Beaver Triples as follows. Recall that Beaver Triples are values
+$(a,b,c)$ such that $c = \fcod{b \ftimes a}$- we implement them here
+as a secret $\secret{c}$ and samples $\flip{a}$ and $\flip{b}$ owned
+by an \emph{oracle} $\Oracle$ that we always assume is honest but is
+otherwise not involved in the protocol. We define pre-processing
+properties of Beaver Triples in Figure \ref{fig-bdoz}. Only one
+Beaver triple can be used per multiplication to ensure secure
+openings, but our scheme can be extended with more Beaver triples
+and reuse of them will be rule out by type linearity as we will
+discuss in Section \ref{section-types}.
+
+First, clients 1 and 2 compute (aka \emph{open}) $\secret{x} \fplus
+\flip{a}$ and $\secret{y} \fplus \flip{b}$ where $\secret{x}$ and
+$\secret{y}$ are 1 and 2's secrets respectively.  Then they both
+perform a secure opening of $\secret{x} \fplus \flip{a}$ and
+$\secret{y} \fplus \flip{b}$, by authenticating each others' shares,
+and record them as $\mesg{d}$ and $\mesg{e}$ respectively. Note
+that the secrets remain hidden since $\flip{a}$ and $\flip{b}$
+are random values.
 
 \begin{definition}
   Given $\prog$ with $\iov(\prog) = S \cup V \cup O$,
