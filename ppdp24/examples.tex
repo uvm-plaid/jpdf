@@ -75,6 +75,15 @@ $$
 
 \subsubsection{Correctness Proof with Verification Tactics}
 
+As discussed above and in related work \cite{XXX}, probabilistic
+separation conditional on certain variables-- e.g., secret inputs or
+public outputs-- is a key mechanism for reasoning about MPC protocol
+security. Following \cite{XXX}, we define a conditional separation
+relation $\condsep{\pmf}{X_1}{X_2}{X_3}$ to mean that
+under the condition of all value assignments for
+$X_2$ and $X_3$ are separable under $\pmf$ on the condition
+of any value assignment of $X_1$-- i.e., conditionally
+on any $\store \in \mems(X_1)$. 
 \begin{definition}[Conditional Separation]
   We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
   $\store' \in \mems(X_1)$ and $\store \in \mems(X_2 \cup X_3)$
@@ -83,7 +92,13 @@ $$
   \condd{\pmf}{X}{\store'}(\store_{X_2}) *
   \condd{\pmf}{X}{\store'}(\store_{X_3})$$
 \end{definition}
-
+Another key concept needed especially for reasoning about
+circuits is conditional determinism. For example, if
+$\macgv{z}$ is an output of an internal gate, it will
+definitely be computed using random variables, however,
+it \emph{should} be determistic under any set of input
+secrets $S$, since we assume that $\idealf$ is
+deterministic.
 \begin{definition}[Conditional Determinism]  
   We write $\conddetx{\pmf}{X_1}{X_2}$ iff for all
   $\store' \in \mems(X_1)$ there exists 
@@ -91,7 +106,15 @@ $$
   $\condd{\pmf}{X_1 \cup X_2}{\store'}(\store) = 1$.
 \end{definition}
 
-
+Given these definitions, we can formulate an invariant
+for circuit computation with respect to internal gates
+as follows. It says that the output of any gate is
+deterministic wrt inputs $S$, and conditionally
+on $S$ the output $\macgv{\mesg{z}}$ remains
+separable from corrupt views and both shares of
+$\macgv{\mesg{z}}$. This last nuance is critical,
+since those shares will in fact be revealed if
+$\macgv{\mesg{z}}$ is decoded as the circuit output. 
 \begin{lemma}[GMW Invariant]
   \label{lemma-gmwinvariant}
   Given:
@@ -102,7 +125,9 @@ $$
     \item $\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$
   \end{enumerate}
 \end{lemma}
-
+To prove this, we can formulate and automatically prove gate-level
+versions of the invariant. This serves as a proof tactic
+that simplifies the proof of the GMW invariant.
 \begin{lemma}[And Gate Tactic]
   \label{lemma-gmwtactic}
   %Define:
@@ -131,10 +156,10 @@ $$
       $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
   \end{enumerate}
 \end{lemma}
-
 \begin{proof}
 Verified automatically using techniques described in Section \ref{section-bruteforce}.  
 \end{proof}
+
 
 \begin{lemma}
   \label{lemma-conditioning}
