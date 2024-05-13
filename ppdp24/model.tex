@@ -118,15 +118,23 @@ information dependencies.
   Given $\prog$ with $\secrets(\prog) = S$ and $\flips(\prog) = R$ and
   pre-processing predicate $\preproc$ on memories, define:
   $$
-  \runs(\prog) \defeq \{ \store \mid \preproc(\store) \wedge
-  %(\dom(\store) = \iov(\prog) \cup R) \wedge
-  (\store_{S \cup R},\prog) \redxs (\store,\varnothing) \}
+  \begin{array}{c}
+    \runs(\prog) \defeq \\
+    \{ \store \mid \exists \store_1 \in \mems(R) . 
+    \exists \store_2 . \preproc(\store_2) \wedge
+    %(\dom(\store) = \iov(\prog) \cup R) \wedge
+    (\store_1 \cap \store_2,\prog) \redxs (\store,\varnothing) \}
+  \end{array}
   $$
   Then the \emph{basic distribution of $\prog$}, written $\progtt(\prog)$, is
   defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
   $$
   \progtt(\store) =  1 / |\runs(\prog)| \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
   $$
+  By default, $\preproc(\store) \iff \dom(\store) = S$, i.e.,
+  the initial memory contains all input secrets in a uniform
+  marginal distribution.
+  
   In some cases, we will also be concerned with the (joint)
   probabilities of expression interpretation given a preceding program
   execution, and we write $\progtt(\prog, \be)$ to denote the program
@@ -258,8 +266,13 @@ to properly reflect the contents of views and outputs even in case of abort.
   Given program $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$, and
   any assumed pre-processing predicate $\preproc$ on memories, define:
   $$
-    \aruns(\prog) \defeq 
-    \{ \store \mid \preproc(\store)  \wedge ((\store_{S\cup R},\prog) \aredx^* (\store,\varnothing)\}% \vee (\store_{S \cup R},\prog) \aredx^* (\store,\bot)) \}
+  \begin{array}{c}
+    \aruns(\prog) \defeq \\
+    \{ \store \mid \exists \store_1 \in \mems(R) . 
+    \exists \store_2 . \preproc(\store_2) \wedge
+    %(\dom(\store) = \iov(\prog) \cup R) \wedge
+    (\store_1 \cap \store_2,\prog) \aredxs (\store,\varnothing) \}
+  \end{array}
   $$
   and also define the following which pads out undefined views and outputs with $\bot$:
   $$
