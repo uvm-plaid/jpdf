@@ -62,30 +62,42 @@ wrapping a circuit.
 
 \subsubsection{Correctness Proof with Verification Tactics}
 
+\begin{definition}
+  We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
+  $\store' \in \mems(X_1)$ and $\store \in \mems(X_2 \cup X_3)$
+  and letting $X = X_1 \cup X_2 \cup X_3$ we have:
+  $$\condd{\pmf}{X}{\store'}(\store) =
+  \condd{\pmf}{X}{\store'}(\store_{X_2}) *
+  \condd{\pmf}{X}{\store'}(\store_{X_3})$$
+  We write $\conddetx{\pmf}{X_1}{X_2}$ iff for all
+  $\store' \in \mems(X_1)$ there exists 
+  $\store \in \mems(X_2)$ such that
+  $\condd{\pmf}{X_1 \cup X_2}{\store'}(\store) = 1$.
+\end{definition}
 
 \begin{lemma}
-  Define:
-  $$
-  \begin{array}{c}
-    \prog_{i} \defeq \\
-    \eassign{\mesg{x}}{1}{\flip{x}}{1}; \eassign{\mesg{x}}{2}{\flip{x}}{2}; \\
-    \eassign{\mesg{y}}{1}{\flip{y}}{1}; \eassign{\mesg{y}}{2}{\flip{y}}{2} 
-  \end{array}
-  $$
+  %Define:
+  %$$
+  %\begin{array}{c}
+  %  \prog_{i} \defeq \\
+  %  \eassign{\mesg{x}}{1}{\flip{x}}{1}; \eassign{\mesg{x}}{2}{\flip{x}}{2}; \\
+  %  \eassign{\mesg{y}}{1}{\flip{y}}{1}; \eassign{\mesg{y}}{2}{\flip{y}}{2} 
+  %\end{array}
+  %$$
   Given:
   $$
   \begin{array}{c}
-  (\prog_i,\andgmw(z,\mesg{x},\mesg{y}) \redxs %\\
+  (\varnothing,\andgmw(z,\mesg{x},\mesg{y}) \redxs %\\
   (\prog,\mesg{z})
   \end{array}
   $$
-  Then both of the following conditions hold, where $\iov(\prog) = M$:
+  Then both of the following conditions hold for both $\cid \in \{ 1,2 \}$ where $\iov(\prog) = M$:
   $$
   \condsep
       {\progtt(\prog)}
       {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
       {\{ \macgv{\mesg{z}} \}}
-      {M_{\{2\}} \cup \{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}
+      {M_{\{\cid\}} \cup \{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}
   $$
   $$
   \conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}    
@@ -93,10 +105,14 @@ wrapping a circuit.
 \end{lemma}
 
 
-
 \begin{lemma}
   If $\condp{\pmf}{X_1}{\detx{X_2}}$ and
   $\condp{\pmf}{X_2}{\detx{X_3}}$ then $\condp{\pmf}{X_1}{\detx{X_3}}$.
+\end{lemma}
+
+\begin{lemma}
+  If $\condp{\pmf}{X_1}{\detx{X_2}}$ and
+  $\condsep{\pmf}{X_2}{X_3}{X_4}$ then $\condsep{\pmf}{X_1}{X_3}{X_4}$.
 \end{lemma}
 
 \begin{lemma}
