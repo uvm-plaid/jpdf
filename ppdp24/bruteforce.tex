@@ -43,9 +43,9 @@ of $\solvealg$ across $\prog$.
   Given $\prog$ where $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$. Define:
   \begin{eqnarray*}
     {tt}\ \ \stores\ (\xassign{x}{\be}{\cid}) &\defeq& \begin{array}{l}
-      \mathrm{let}\ \stores' = \solve{\stores}{\be} \ \mathrm{in}\\
-      \ \ \{\extend{\store}{\view{\cid}{w}}{1} \mid \store \in \stores' \}\ \cup\\
-      \ \ \{\extend{\store}{\view{\cid}{w}}{0} \mid \store \in \stores - \stores' \}\end{array}%\\[2mm]
+      \mathrm{let}\ \stores' = \solve{\stores}{\be}{\cid}\ \mathrm{in}\\
+      \ \ \{\extend{\store}{x}{1} \mid \store \in \stores' \}\ \cup\\
+      \ \ \{\extend{\store}{x}{\cid}}{0} \mid \store \in \stores - \stores' \}\end{array}%\\[2mm]
     %\cruns(\prog) &\defeq& \mathit{foldl}\ {tt}\ \mems(S \cup R)\ \prog
   \end{eqnarray*}
   Then assuming default preprocessing, $\mathit{foldl}\ {tt}\ \mems(S \cup R)\ \prog = \runs(\prog)$.
