@@ -114,12 +114,31 @@ semi-homorphic properties of the BDOZ scheme.
 
 \subsection{Cheating Detection and Integrity}
 
+We can carry out similar proofs of passive security for the protocol in
+Figure \ref{fig-beaver} as for GMW, even using automated tactics for
+the protocol in $\mathbb{F}_2$. But in the case of BDOZ we are also
+concerned with malicious security. To demonstrate this, we can
+demonstrate that the protocol satisfies integrity in the sense of
+Definition \ref{def-integrity}. To do so, we observe that it satisfies
+a stronger property, that we call cheating detection. Intuitively,
+integrity says that the only thing that the adversary can do in the
+malicious model is to elicit the same responses from honest parties
+that an honest run of the protocol would elicit. Cheating detection
+says that the adversary can only execute the protocol honestly, or
+or else gets caught (and abort).
+
+Focusing in, we identify the adversarial inputs as the messages
+sent from the adversary to honest parties, on which honest responses
+to the adversary may depend. We want to say that these are the messages
+that must be legitimate.
 \begin{definition}
   Given $\prog$ with $\iov(\prog) = S \cup V \cup O$,
   let $X_H \subseteq \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$.
   Then the \emph{adversarial inputs to $X_H$} is the least set
   $X_C \subseteq \cinputs$ such that $\progtt(\prog) \not\vdash X_C * X_H$.
 \end{definition}
+Now, we can characterize protocols with cheating detection as those where
+adversarial inputs to honest reponses must themselves be constructed honestly. 
 \begin{definition}[Cheating Detection]
   \emph{Cheating is detected} in $\prog$ with $\iov(\prog) = S \cup V \cup O$ iff
   for all  $\store \in \aruns(\prog)$,
@@ -129,6 +148,13 @@ semi-homorphic properties of the BDOZ scheme.
   with $\store_{X_C} = \store'_{X_C}$.  
 \end{definition}
 
+It is straightforward to demonstrate that cheating detection has integrity,
+since only the ``passive'' adversary can elicit a response from honest parties. 
 \begin{lemma}
   If cheating is detected in $\prog$, then $\prog$ has integrity.
 \end{lemma}
+
+In the case of BDOZ, cheating detection is accomplished by the information-theoretic
+security of the encryption scheme\cite{XXX}. Furthermore, the symmetry of
+the protocol in Figure \ref{fig-beaver} ensures that both parties will authenticate
+shares, so it is robust to corruption of either party. 

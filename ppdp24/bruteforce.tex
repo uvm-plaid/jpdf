@@ -5,16 +5,21 @@ In $\mathbb{F}_2$ a brute force strategy for computing
 $\progtt(\prog)$ for any $\prog$ is to directly compute
 $\runs(\prog)$. By querying $\progtt(\prog)$ we can verify any of the
 hyperproperties discussed previously, or other properties such as
-perfect secrecy \cite{XXX}.  Since $\runs(\prog)$ is exponential in
+perfect secrecy \cite{XXX}.  A basic method to do this is
+to calculate a truth table for the given protocol. Since
+$\runs(\prog)$ is exponential in
 the size of $\secrets(\prog) \cup \flips(\prog)$, this strategy is
-feasible only for smaller protocols. However, we can efficiently
+feasible only for smaller protocols. However, to support some
+scaling we can efficiently
 convert protocols in the passive setting (without $\ttt{assert}$) to
 stratified Datalog programs, and then extract $\runs(\prog)$ by
 calculating Least Herbrand models by parallelization and/or other HPC
 acceleration techniques for logic programs \cite{aspis2018linear}.
 The rewriting we describe here is to Datalog with negation, with a
 negation-as-failure model, though we can also use techniques in
-\cite{sakama2017linear} to eliminate negation from resulting programs
+\cite{sakama2017linear} to eliminate negation from resulting programs.
+
+\subsection{Computing a Truth Table}
 
 In Figure \ref{fig-solve} we define the algorithm
 $\solve{\stores}{\be}{\cid}$ which filters a given $\stores$ to obtain the
@@ -31,7 +36,6 @@ of this operation is characterized as follows.
 
 \solvefig
 
-\begin{comment}
 We immediately note that $\runs(\prog)$ can be obtained by a left-folding
 of $\solvealg$ across $\prog$. 
 \begin{lemma}
@@ -41,12 +45,15 @@ of $\solvealg$ across $\prog$.
     {tt}\ \ \stores\ (\xassign{x}{\be}{\cid}) &\defeq& \begin{array}{l}
       \mathrm{let}\ \stores' = \solve{\stores}{\be} \ \mathrm{in}\\
       \ \ \{\extend{\store}{\view{\cid}{w}}{1} \mid \store \in \stores' \}\ \cup\\
-      \ \ \{\extend{\store}{\view{\cid}{w}}{0} \mid \store \in \stores - \stores' \}\end{array}\\[2mm]
-    \cruns(\prog) &\defeq& \mathit{foldl}\ {tt}\ \mems(S \cup F)\ \prog
+      \ \ \{\extend{\store}{\view{\cid}{w}}{0} \mid \store \in \stores - \stores' \}\end{array}%\\[2mm]
+    %\cruns(\prog) &\defeq& \mathit{foldl}\ {tt}\ \mems(S \cup R)\ \prog
   \end{eqnarray*}
-  Then $\cruns(\prog) = \runs(\prog)$.
+  Then assuming default preprocessing, $\mathit{foldl}\ {tt}\ \mems(S \cup R)\ \prog = \runs(\prog)$.
 \end{lemma}
-\end{comment}
+However, this method does not take advantage of parallellization,
+in that elements of $\runs(\prog)$ can be calculated independently.
+
+\subsection{Conversion to Stratified Datalog}
 
 We define the syntax of Datalog as follows. As per standard
 nomenclature, \emph{atoms} are $\minifed$ variables $x$,
@@ -79,11 +86,11 @@ in $\prog$, obtaining the subset of memories that result
 in a variable assignment of $1$.  
 \begin{definition} Define:
 $$
-{tt}(\xassign{x}{\be}{\cid}) \defeq (x, (\solve{(\mems(\vars\ \be\ \cid))}{\be}{\cid}))
+\bodies(\xassign{x}{\be}{\cid}) \defeq (x, (\solve{(\mems(\vars\ \be\ \cid))}{\be}{\cid}))
 $$
 \end{definition}
-The mapping of ${tt}$ across a program
-$\prog$-- i.e., $(\mathit{map}\ {tt}\ \prog)$--  essentially defines the
+The mapping of $\bodies$ across a program
+$\prog$-- i.e., $(\mathit{map}\ \bodies\ \prog)$--  essentially defines the
 logic program, modulo some syntactic conversion. We can
 accomplish the latter as follows, where $\datalog(\prog)$ defines the
 full conversion.
@@ -97,11 +104,11 @@ full conversion.
   \logit{\{ x_1 \mapsto \beta_1, \ldots, x_n \mapsto \beta_n\}} \defeq
   \logit{x_1 \mapsto \beta_1} \wedge \cdots \wedge \logit{x_n \mapsto \beta_n}
 \end{mathpar}
-Given pairs $(x,\stores)$ in the range of ${tt}$, we define the conversion
+Given pairs $(x,\stores)$ in the range of $\bodies$, we define the conversion
 to clauses as  $\mathit{clauses}(x,\{ \store_1,...,\store_n \}) \defeq x \gets \logit{\store_1} \vee \cdots \vee x \gets \logit{\store_n}$.
 The $\minifed$-to-Datalog conversion is then defined as:
 $$
-\datalog(\prog) \defeq  \mathit{map}\ \mathit{clauses}\ (\mathit{map}\ {tt}\ \prog)
+\datalog(\prog) \defeq  \mathit{map}\ \mathit{clauses}\ (\mathit{map}\ \bodies\ \prog)
 $$
 \end{definition}
 
@@ -139,6 +146,6 @@ Beaver triples. We have also
 verified properties compositional properties of gates themselves that establish
 circuit invariants that imply passive security in larger circuits.
 We discuss these examples and proof methods in Section
-\ref{section-examples}.
+\ref{section-example-gmw}.
 
 

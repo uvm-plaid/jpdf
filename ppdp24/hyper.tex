@@ -131,6 +131,7 @@ of high equivalence (of secrets and views). Intuitively, this property says
 that any adversarial strategy either ``mimics'' a passive strategy with some
 choice of inputs or causes an abort.
 \begin{definition}[Integrity]
+  \label{def-integrity}
   We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
   \emph{integrity} iff for all $H$, $C$, and $\adversary$,
   if $\store \in \aruns(\prog)$ 

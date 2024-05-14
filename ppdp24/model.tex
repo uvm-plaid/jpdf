@@ -127,14 +127,13 @@ information dependencies.
     (\store_1 \cap \store_2,\prog) \redxs (\store,\varnothing) \}
   \end{array}
   $$
-  Then the \emph{basic distribution of $\prog$}, written $\progtt(\prog)$, is
+  By default, $\preproc(\store) \iff \dom(\store) = S$, i.e.,
+  the initial memory contains all input secrets in a uniform
+  marginal distribution. Then the \emph{basic distribution of $\prog$}, written $\progtt(\prog)$, is
   defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
   $$
   \progtt(\store) =  1 / |\runs(\prog)| \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
   $$
-  By default, $\preproc(\store) \iff \dom(\store) = S$, i.e.,
-  the initial memory contains all input secrets in a uniform
-  marginal distribution.
   
   In some cases, we will also be concerned with the (joint)
   probabilities of expression interpretation given a preceding program
@@ -275,7 +274,8 @@ to properly reflect the contents of views and outputs even in case of abort.
     (\store_1 \cap \store_2,\prog) \aredxs (\store,\varnothing) \}
   \end{array}
   $$
-  and also define the following which pads out undefined views and outputs with $\bot$:
+  where by default, $\preproc(\store) \iff \dom(\store) = S$, and also define the following
+  which pads out undefined views and outputs with $\bot$:
   $$
   \begin{array}{l}
     \botruns(\prog) \defeq \\
