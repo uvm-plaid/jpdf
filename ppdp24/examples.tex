@@ -319,9 +319,32 @@ and record them as $\mesg{d}$ and $\mesg{e}$ respectively. Note
 that the secrets remain hidden since $\flip{a}$ and $\flip{b}$
 are random values.
 
+\begin{definition}[BDOZ preprocessing]
+  Define:
+  \begin{mathpar}
+    \mathit{shares} \defeq
+    \{ \elab{\mesg{w}}{\cid} | \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
 
+    \mathit{macs} \defeq  \{ \elab{\mesg{w\ttt{mac}}}{\cid} | \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+
+    \mathit{keys} \defeq  \begin{array}{l}\{ \elab{\mesg{w\ttt{k}}}{\cid} | \cid \in \{ 1, 2 \} \wedge w \in
+    \{ a,b,c,x,y \}  \} \cup \\ \{ \elab{\mesg{\ttt{delta}}}{\cid} | \cid \in \{ 1, 2 \} \} \end{array}
+  \end{mathpar}
+  Then a memory $\store$ satisfies BDOZ preprocessing iff:
+  $$\dom(\store) = \mathit{shares}  \cup \mathit{macs} \cup \mathit{keys}$$
+  and, writing $\store(\macgv{\mesg{w}})$ to denote
+  $\fcod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})}$,
+  the following conditions hold for all $\cid \in \{1,2\}$ and $w \in \{ a,b,c,x,y\}$:
 \begin{mathpar}
+  \store(\macgv{\mesg{w@\cid}}) = \store(\elab{\secret{w}}{\cid})
+
+  \fcod{\store(\macgv{\mesg{a}}) * \store(\macgv{\mesg{b}})} = \store(\macgv{\mesg{c}})
+
+  \lcod{\store, \mesg{w\ttt{mac}}}{\cid} =
+  \lcod{\store, \mesg{wk} + \mesg{\ttt{delta}} * \mesg{w}}{\cid'}  \qquad \cid \ne \cid'  
 \end{mathpar}
+\end{definition}
+
 
 \begin{definition}
   Given $\prog$ with $\iov(\prog) = S \cup V \cup O$,

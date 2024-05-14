@@ -10,26 +10,26 @@
     macctimes(s,c)
     { { share = s.share * c; mac = s.mac * c } }
     
-    macshare(w) { {  share = r[w++"s"]; mac = r[w++"m"] } }
+    macshare(w) { {  share = m[w]; mac = m[w++"mac"] } }
 
-    mack(w) { r[++"k"] }
+    mack(w) { m[w++"k"] }
     
-    auth(s,m,k,i) { assert(m = k + r["delta"] * s)@i }
+    auth(s,m,k,i) { assert(m = k + m["delta"] * s)@i }
     
     secopen(w1,w2,w3,i1,i2)
     {
       let locsum =  macsum(macshare(w1), macshare(w2)) in
-      m[w3+x+"s"]@i1 := (locsum.share)@i2;
-      m[w3++"m"]@i1 := (locsum.mac)@i2;
-      auth(m[w3++"s"],m[w3++"m"],mack(w1) + mack(w2),i1);
-      m[w3]@i1 := (m[w3"s"] + (locsum.share))@i1
+      m[w3]@i1 := (locsum.share)@i2;
+      m[w3++"mac"]@i1 := (locsum.mac)@i2;
+      auth(m[w3],m[w3++"mac"],mack(w1) + mack(w2),i1);
+      m[w3]@i1 := (m[w3] + (locsum.share))@i1
     }
 
     secreveal(s,k,w,i1,i2)
     {
-      p[w++"s"] = s.share@i2;
-      p[w++"m"] = s.mac@i2;
-      auth(p[w++"s"],[w++"m"],k,i1)    
+      p[w] = s.share@i2;
+      p[w++"mac"] = s.mac@i2;
+      auth(p[w],p[w++"mac"],k,i1)    
     }
 
     secopen("a","x","d",1,2);
@@ -48,8 +48,8 @@
     secreveal(maccsum(xys,m["d"] * m["e"]),
               xyk - m["d"] * m["e"],
               "2",2,1);
-    out@1 := (p[1++"s"] + p[2++"s"])@1;
-    out@2 := (p[1++"s"] + p[2++"s"])@2;
+    out@1 := (p[1] + p[2])@1;
+    out@2 := (p[1] + p[2])@2;
   \end{verbatimtab}
 }
 \end{fpfig}
