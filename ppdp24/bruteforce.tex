@@ -45,7 +45,7 @@ of $\solvealg$ across $\prog$.
     {tt}\ \ \stores\ (\xassign{x}{\be}{\cid}) &\defeq& \begin{array}{l}
       \mathrm{let}\ \stores' = \solve{\stores}{\be}{\cid}\ \mathrm{in}\\
       \ \ \{\extend{\store}{x}{1} \mid \store \in \stores' \}\ \cup\\
-      \ \ \{\extend{\store}{x}{\cid}}{0} \mid \store \in \stores - \stores' \}\end{array}%\\[2mm]
+      \ \ \{\extend{\store}{x}{0} \mid \store \in \stores - \stores' \}\end{array}%\\[2mm]
     %\cruns(\prog) &\defeq& \mathit{foldl}\ {tt}\ \mems(S \cup R)\ \prog
   \end{eqnarray*}
   Then assuming default preprocessing, $\mathit{foldl}\ {tt}\ \mems(S \cup R)\ \prog = \runs(\prog)$.
