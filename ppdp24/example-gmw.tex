@@ -187,6 +187,8 @@ the following.
       $\condsep{\pmf}{X_2}{X_3}{X_4}$, then $\condsep{\pmf}{X_1}{X_3}{X_4}$.
     \item Given $\condsep{\pmf}{X_1}{X_2}{X_3}$ and $\condp{\pmf}{X_1}{\detx{X_2}}$
       and $\condp{\pmf}{X_2}{\detx{X_4}}$, then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
+    %\item Given $\condsep{\pmf}{X_1 \cup X_2}{X_3}{X_4}$ and $\condp{\pmf}{X_1 \cup X_2}{\detx{X_2}}$,
+    %  then $\condsep{\pmf}{X_1}{X_2 \cup X_3}{X_4}$.
   \end{enumerate}
 \end{lemma}
 
@@ -194,7 +196,7 @@ Then we can put the pieces together to prove the invariant, using automated tact
 for gate-level reasoning.  
 \begin{proof}[Proof of Lemma \ref{lemma-gmwinvariant}]
   By induction on the length of $(\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}]))$.
-  Encoding establishes the invarian in the basis. The most interesting inductive
+  Encoding establishes the invariant in the basis. The most interesting inductive
   case is the $\andgmw$ gate. 
   \paragraph{Case $\andgmw$.} In this case we have:
   $$
@@ -227,3 +229,28 @@ for gate-level reasoning.
   $$
 \end{proof}
 
+\begin{theorem}
+  If $e$ is a GMW circuit protocol in $\metaprot$ with $(\varnothing,e) \redxs (\prog,())$
+  then $\prog$ satisfies noninterference modulo output. 
+\end{theorem}
+
+\begin{proof}
+  Given that $e$ is a GMW circuit protocol, then by definition we have:
+  $$
+  (\varnothing,e) \redxs (\prog',\decodegmw(\mesg{z})) \redxs (\prog,())
+  $$
+  where by Lemma \ref{lemma-gmwinvariant} and definition of $\decodegmw$,
+  letting $\iov(\prog) = S \cup M \cup P \cup O$ we
+  have:
+  \begin{mathpar}
+    \conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}
+
+    \condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
+  \end{mathpar}
+  so by definition of $\decodegmw$ we have:
+  \begin{mathpar}
+    \conddetx{\progtt(\prog)}{S}{O}
+    
+    \condsep{\progtt(\prog)}{S}{O}{(M \cup P)}
+  \end{mathpar}
+\end{proof}
