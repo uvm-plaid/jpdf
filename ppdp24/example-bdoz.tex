@@ -68,38 +68,51 @@ values $\elab{\mesg{w}}{\cid}$ for all $\cid$.
 \end{definition}
 
 With these conventions, our BDOZ library is defined in Figure \ref{fig-bdoz}.
+In $\metaprot$ we represent BDOZ share, MAC pairs as records:
+$$
+\ttt{\{ share = }v\ttt{;  mac =}\ m \ttt{\}}
+$$
+and we define $\ttt{macsum}$ for addition of shares,
+$\ttt{maccsum}$ for addition of a share and a constant, and
+$\ttt{macctimes}$ for multiplication of a share and a constant
+in the BDOZ encryption scheme \cite{XXX}. The $\ttt{auth}$
+function implements the MAC check as an $\assert$.
+
+We also define a function $\ttt{secopen}$ to implement ``secure
+opening''.  In this standard subprotocol, the value
+$\macgv{\secret{w_1}} \fplus \macgv{\mesg{w_2}}$ is reconstructed as
+$\mesg{w_3}$, by each client $\cid_2$ communicating
+$\lcod{\mesg{w_1} + \mesg{w_2}}{\cid_2}$ to $\cid_1$.  Assuming that
+$\macgv{\mesg{w_2}}$ is in an independent uniform distribution,
+this perfectly hides $\secret{w_1}$. In a mutiplication gate
+either $a$ or $b$ of a Beaver triple are used in secure opening,
+so, e.g., given $
+(\varnothing,\ttt{secopen}(a, x, d, 2, 1) \redxs (\prog,())$
+we have both:
+\begin{mathpar}
+  \conddetx{\progtt(\prog)}{\{\macgv{\mesg{a}},\elab{\secret{x}}{1} \}}{\{ \elab{\mesg{d}}{2} \}}
+  
+  \sep{\progtt(\prog)}{\{ \elab{\mesg{d}}{2} \}}{\{ \elab{\secret{x}}{1}  \}}
+\end{mathpar}
+Furthermore, client 2's authentication of the sum of shares with the
+sum of their keys detects any attempted cheating by $1$.
+Finally, the $\ttt{secreveal}$ function
+is very similar to $\decodegmw$, except with the addition
+of authentication of revealed shares to ensure malicious security. 
 
 \input{beaver}
 
-\begin{definition}[BDOZ preprocessing]
-  Define:
-  \begin{mathpar}
-    \mathit{shares} \defeq
-    \{ \elab{\mesg{w}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+The full protocol for malicious secure product of secrets $x$ (that
+is, $\elab{\secret{x}}{1}$) and $y$ (that is, $\elab{\secret{y}}{2}$)
+using Beaver triple $a,b,c$ is defined in Figure \ref{fig-bdoz}. Both
+parties interact in secure opening of $x \fplus a$ and $y + b$,
+followed by local computation to compute their share of the $x * y$
+using only local addition and product as per standard protocol
+\cite{XXX}. The non-interactive reconstruction of the local authentication
+key for both the secure openings and the final reveal is enabled by the
+semi-homorphic properties of the BDOZ scheme.
 
-    \mathit{macs} \defeq  \{ \elab{\mesg{w\ttt{mac}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
-
-    \mathit{keys} \defeq  \begin{array}{l}\{ \elab{\mesg{w\ttt{k}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in
-    \{ a,b,c,x,y \}  \} \cup \\ \{ \elab{\mesg{\ttt{delta}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \} \end{array}
-  \end{mathpar}
-  Then a memory $\store$ satisfies BDOZ preprocessing iff:
-  $$\dom(\store) = \{ \elab{\secret{x}}{1}, \elab{\secret{y}}{2} \} \cup \mathit{shares}
-  \cup \mathit{macs} \cup \mathit{keys}$$
-  and, writing $\store(\macgv{\mesg{w}})$ to denote
-  $\fcod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})}$,
-  the following conditions hold:
-  \begin{mathpar}
-    \store(\macgv{\mesg{x}}) = \store(\elab{\secret{x}}{1})
-    
-    \store(\macgv{\mesg{y}}) = \store(\elab{\secret{y}}{2})
-    
-    \fcod{\store(\macgv{\mesg{a}}) * \store(\macgv{\mesg{b}})} = \store(\macgv{\mesg{c}})
-  \end{mathpar}
-  and for all $\cid,\cid' \in \{1,2\}$ with $\cid \ne \cid'$ and $w \in \{ a,b,c,x,y\}$:
-  $$\lcod{\store, \mesg{w\ttt{mac}}}{\cid} =
-  \lcod{\store, \mesg{wk} + \mesg{\ttt{delta}} * \mesg{w}}{\cid'}$$
-\end{definition}
-
+\subsection{Cheating Detection and Integrity}
 
 \begin{definition}
   Given $\prog$ with $\iov(\prog) = S \cup V \cup O$,
