@@ -1,4 +1,4 @@
-\begin{fpfig}[t]{2-Party Multiplication Circuit using Beaver Triples and BDOZ message authentication.}{fig-bdoz}
+\begin{fpfig}[t]{2-Party BDOZ Protocol Library.}{fig-bdoz}
 {\footnotesize
   \begin{verbatimtab}
     macsum(s1,s2)
@@ -31,27 +31,9 @@
       p[w++"mac"] = s.mac@i2;
       auth(p[w],p[w++"mac"],k,i1)    
     }
-
-    secopen("a","x","d",1,2);
-    secopen("a","x","d",2,1);
-    secopen("b","y","e",1,2);
-    secopen("b","y","e",2,1);
-    let xyshare = 
-    let xys =
-      macsum(macctimes(macshare("b"), m["d"]),
-             macsum(macctimes(macshare("a"), m["e"]),
-                    macshare("c")))
-    in
-    let xyk = mack("b") * m["d"] + mack("d") * m["d"] + mack("c")               
-    in
-    secreveal(xys,xyk,"1",1,2);
-    secreveal(maccsum(xys,m["d"] * m["e"]),
-              xyk - m["d"] * m["e"],
-              "2",2,1);
-    out@1 := (p[1] + p[2])@1;
-    out@2 := (p[1] + p[2])@2;
   \end{verbatimtab}
 }
 \end{fpfig}
+
 
     
