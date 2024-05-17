@@ -38,7 +38,9 @@ between a group of distributed participants called a \emph{federation}
 that collaboratively compute and publish the result of some known
 \emph{ideal functionality} $\idealf$, while keeping each party's input
 ``secret'', without the use of a trusted third party. This last part
-is critical. For example, if we take $\idealf$ to be the majority vote
+is critical---the ideal functionality is a specification of what
+information the parties agree to \emph{intentionally} reveal. For
+example, if we take $\idealf$ to be the majority vote
 function, a protocol for computing $\idealf$ is MPC-secure if, given
 any set of input votes, it correctly computes and publishes the voting
 result but reveals no other information to the public or to other
@@ -46,8 +48,8 @@ participants. However, by publishing the result, some information
 about individual votes may be implicitly declassified.  For example,
 in the case of a majority vote in a federation of size 3, if the
 motion carries and party 1 has voted no, then party 1 knows exactly
-the votes of parties 2 and 3. This cannot be avoided due to the nature
-of $\idealf$.
+the votes of parties 2 and 3. This is an \emph{intentional} release
+of information and is not considered a security failure.
 
 Security in the MPC setting thus means that protocols cannot reveal
 any secret information other than what is implicitly declassified by
