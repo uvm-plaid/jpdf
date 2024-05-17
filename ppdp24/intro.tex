@@ -5,10 +5,55 @@ important modern, distributed applications such as privacy-preserving
 machine learning \cite{li2021privacy, knott2021crypten,
   koch2020privacy, liu2020privacy} and Zero-Knowledge proofs in
 blockchains \cite{ishai2009zero, lu2019honeybadgermpc,
-  gao2022symmeproof, tomaz2020preserving}. MPC methods have been
-developed by the cryptography community for many years, while
-receiving the attention of the programming languages community more
-recently. In contrast, information flow security has received
+  gao2022symmeproof, tomaz2020preserving}. The security semantics of
+MPC include both confidentiality and integrity properties incorporated
+into models such as real/ideal (aka simulator) security and universal
+composability (UC), developed primarily by the cryptography community
+\cite{XXX}.  Related proof methods are well-studied \cite{Lindell2017}
+but mostly manual. Somewhat independently, a significant
+body of work in programming languages has focused on definition and
+enforcement of confidentiality and integrity \emph{hyperproperties}
+\cite{10.5555/1891823.1891830} such as noninterference and delimited
+release \cite{XXX}. But following a tradition of connecting
+cryptographic and PL-based security models \cite{XXX}, recent work has
+also recognized connections between MPC security models and
+hyperpoperties of, e.g., noninterference \cite{XXX}, and even
+leveraged these connections to enforce MPC security through mechanisms
+such as security types \cite{XXX}. Major benefits of this connection
+in an MPC setting include better language abstractions for defining
+protocols and for mechanisation and even automation of security proofs.
+
+The goal of this paper is to develop a PL model for defining a variety of
+low-level probabilistic MPC protocols, to formulate a collection
+of confidentiality and integrity hyperproperties for our model
+model with familiar information flow analogs, and to show how these
+properties can be leveraged for improved proof automation.
+
+The distinction between high- and low-level languages for MPC is
+important. High-level languages such as Wysteria \cite{XXX} and
+Viaduct \cite{XXX} are designed to provide effective programming of
+full applications. These language designs incorporate sophisticated
+verified compilation techniques such as orchestration \cite{XXX} to
+guarantee high-level security properties, and they rely on
+\emph{libraries} of low-level MPC protocols, such as binary and
+arithmetic circuits. These low-level protocols encapsulate
+abstractions such as secret sharing and semi-homomorphic encrypytion,
+and rely on probabilistic progamming methods. So, low-level MPC
+programming and protocol verification is a distinct challenge but
+critical to the general challenge of PL design for MPC, and complementary
+to high-level language design.
+
+
+Analysis of 
+ 
+have been developed 
+
+The security
+threat models and engMPC is mainly the
+product of a significant body of work in cryptography, 
+
+
+information flow security has received
 significant attention in PL theory and practice especially since the
 turn of the century \cite{1159651}, including a menagerie of variants,
 enforcement mechanisms, and programming frameworks. Much of this has
