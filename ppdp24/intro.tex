@@ -59,10 +59,11 @@ difficult to track with coarse-grained security types alone.
 
 Nevertheless, as previous authors have observed \cite{XXX}, low-level
 protocol design patterns such as secret sharing and circuit gate
-structure have compositional properties that can be abstracted and
-leveraged in larger proof contexts. We contribute to this line of work
-by developing an automated verification technique for subprotocols and
-show how it can be integrated as a tactic in a larger security proof.
+structure have compositional properties that can be independently
+verified and then leveraged in larger proof contexts. We
+contribute to this line of work by developing an automated
+verification technique for subprotocols and show how it can be
+integrated as a tactic in a larger security proof.
 
 \compfig
 
@@ -157,29 +158,32 @@ GMW boolean circuits (Section \ref{section-example-gmw}), and Beaver
 Triple multiplication gates with BDOZ authentication (Section
 \ref{section-example-bdoz}).
 
-\paragraph{Hyperproperty formulation.} In Section \ref{section-pmf} we
-formulate \emph{program distributions}, a formalism for expressing
-dependencies between secrets and views, useful for expressing
-characteristics of protocols and precisely quantifying allowable
-information leakage in terms of protocol outputs. On this basis we can
-formulate security hyperproperties, including \emph{noninterference
-modulo output ($\NIMO$)} that implies passive simulator security. But
-program distributions are flexible and can be used to certify other
-important properties of protocol components, such as probabilistic
-independence, correlation, and distributions under conditioning.
+\paragraph{Hyperproperty formulation.} In Section \ref{section-model} we
+develop our formalism for expressing the joint probability mass function of
+program variables, and give standard definitions of passive and
+malicious real/ideal security in our model. In Section
+\ref{section-hyper}, we formulate a variety of familiar information
+flow properties in our probabilistic setting, including condition
+noninterference, delimited release, and robust declassification, and
+consider the relation between these and real/ideal security.  While it
+has been previously shown that probabilistic conditional
+noninterference is sound for passive security, we formulate new
+properties of integrity which, paired with passive security, imply
+malicious security (Theorem \ref{theorem-integrity}). We observe
+in Section \ref{section-example-bdoz} that authentication mechanisms
+such as BDOZ/SPDZ style MACs enforce a strictly weaker property
+of ``cheating detection''. 
+
 
 \paragraph{Fully and partially automated verification.} In Section
-\ref{section-automation} we develop an automated technique, aka
-certification, for automatically verifying security properties such as
-$\NIMO$ and other supporting properties of protocol components.  While
-certification has high complexity, a compositional approach allows
-certification of program components in isolation.  This enables a
-semi-automated method for large circuits where we (1) define
-certification for components, (2) certify components, (3) prove
-$\NIMO$ based on the certifiedness of components. We develop novel
-methods partially based on separation logic
-\cite{barthe2019probabilistic} to enable (3).  In Section
-\ref{section-composition} we illustrate our method to obtain
-semi-automated verification for the GMW and Yao's Garbled
-Circuit protocols, where certification can be re-used to validate new
-gate implementations.
+\ref{section-bruteforce} we develop a method for automatically
+computing the pmf of $\minifed$ protocols in $\mathbb{F}_2$, that can
+be automatically queried to enforce hyperperproperties of
+security. This method is perfectly accurate but has high complexity;
+we show this can be partially mitigated by conversion of protocols in
+$\mathbb{F}_2$ to stratified Datalog which is amenable to HPC
+acceleration. Furthermore, in Section \ref{section-examples-gmw} we
+consider in detail how this automated technique can be used as a local
+automated tactic for proving security in arbitrarily large GMW
+circuits using conditional probabilistic independence as in
+\cite{XXX}.
