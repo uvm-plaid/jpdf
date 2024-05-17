@@ -49,7 +49,7 @@ clients called a \emph{federation} that collaboratively compute
 and publish the result of some known \emph{ideal functionality}
 $\idealf$, maintaining confidentiality of inputs to $\idealf$ without
 the use of a trusted third party. However, since the outputs of
- $\idealf$ are public, some information about inputs is inevitably
+$\idealf$ are public, some information about inputs is inevitably
 leaked. Thus, the ideal
 functionality establishes a declassification policy \cite{XXX}, which
 is more difficult to enforce than pure noninterference.  And
@@ -125,9 +125,9 @@ important related work. Probabilistic Separation Logic (PSL)
 reasoning about probabilistic independence (aka separation) in
 programs, and they consider several (hyper)properties, such as perfect
 secrecy of one-time-pads and indistinguishability in secret sharing,
-that are critical to MPC. However, their methods are manual, and they
-do not capture notions of conditional independence (separation). This
-latter issue has been addressed in Lilac \cite{XXX}, but the
+that are critical to MPC. However, their methods are manual, and
+don't include conditional independence (separation). This
+latter issue has been addressed in Lilac \cite{XXX}. The
 application of Lilac-style reasoning to MPC protocols has not
 previously been explored, as we do in Section
 \ref{section-example-gmw}.
@@ -144,16 +144,18 @@ automation.
 
 \subsection{Overview and Contributions}
 
-\paragraph{Language design.} In Section \ref{section-minicat} we
+\paragraph{Language design.} In Section \ref{section-lang} we
 develop a new probabilistic programming language $\minifed$ for
-defining synchronous distributed protocols over the binary field. The
-syntax and semantics provides a succinct account of \emph{views} and
-(synchronous) messaging between protocol \emph{clients}. In Section
-\ref{section-metalang} we define a new metaprogramming language
-$\metaprot$ that dynamically generates $\minifed$ protocols. It
-includes control and data structures and is able to express logical
-protocol components, and enjoys a type safety result that guarantees
-that generated protocols are semantically well-defined.
+defining synchronous distributed protocols over an arbitrary
+arithmetic field. The syntax and semantics provides a succinct account
+of synchronous messaging between protocol \emph{clients}. In Section
+\ref{section-metalang} we define a metalanguage $\metaprot$ that
+dynamically generates $\minifed$ protocols. It is able to express
+important low-level abstractions, as we illustrate via implementations
+of protocols including Shamir addition (Section \ref{section-lang}),
+GMW boolean circuits (Section \ref{section-example-gmw}), and Beaver
+Triple multiplication gates with BDOZ authentication (Section
+\ref{section-example-bdoz}).
 
 \paragraph{Hyperproperty formulation.} In Section \ref{section-pmf} we
 formulate \emph{program distributions}, a formalism for expressing
