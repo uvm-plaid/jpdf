@@ -507,3 +507,9 @@
 \long\def\cnote#1{{\small\textbf{\textit{\color{red}(*#1 -- Chris*)}}}}
 \long\def\jnote#1{{\small\textbf{\textit{\color{brown}(*#1 -- Joe*)}}}}
 
+
+\newcommand{\mynote}[2]
+    {{\color{red} \fbox{\bfseries\sffamily\scriptsize#1}
+    {\small$\blacktriangleright$\textsf{\emph{#2}}$\blacktriangleleft$}}~}
+%\newcommand{\mynote}[2]{}
+\newcommand{\todo}[1]{\mynote{TODO}{#1}}
