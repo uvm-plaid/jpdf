@@ -9,17 +9,17 @@ blockchains \cite{ishai2009zero, lu2019honeybadgermpc,
 MPC include both confidentiality and integrity properties incorporated
 into models such as real/ideal (aka simulator) security and universal
 composability (UC), developed primarily by the cryptography community
-\cite{XXX}.  Related proof methods are well-studied \cite{Lindell2017}
+\cite{evans2018pragmatic}.  Related proof methods are well-studied \cite{Lindell2017}
 but mostly manual. Somewhat independently, a significant
 body of work in programming languages has focused on definition and
 enforcement of confidentiality and integrity \emph{hyperproperties}
 \cite{10.5555/1891823.1891830} such as noninterference and delimited
-release \cite{XXX}. Following a tradition of connecting
-cryptographic and PL-based security models \cite{XXX}, recent work has
+release \cite{sabelfeld2009declassification}. Following a tradition of connecting
+cryptographic and PL-based security models \cite{10.1007/3-540-44929-9_1}, recent work has
 also recognized connections between MPC security models and
 hyperpoperties of, e.g., noninterference \cite{8429300}, and even
 leveraged these connections to enforce MPC security through mechanisms
-such as security types \cite{XXX}. Major benefits of this connection
+such as security types \cite{10.1145/3453483.3454074}. Major benefits of this connection
 in an MPC setting include better language abstractions for defining
 protocols and for mechanisation and even automation of security proofs.
 The goal of this paper is to develop a PL model for defining a variety of
@@ -29,41 +29,41 @@ model with familiar information flow analogs, and to show how these
 properties can be leveraged for improved proof automation.
 
 The distinction between high- and low-level languages for MPC is
-important. High-level languages such as Wysteria \cite{XXX} and
-Viaduct \cite{XXX} are designed to provide effective programming of
-full applications. These language designs incorporate sophisticated
-verified compilation techniques such as orchestration \cite{XXX} to
-guarantee high-level security properties, and they rely on
-\emph{libraries} of low-level MPC protocols, such as binary and
-arithmetic circuits. These low-level protocols encapsulate
+important. High-level languages such as Wysteria \cite{} and Viaduct
+\cite{10.1145/3453483.3454074} are designed to provide effective
+programming of full applications. These language designs incorporate
+sophisticated verified compilation techniques such as orchestration
+\cite{viaduct-UC} to guarantee high-level security properties, and
+they rely on \emph{libraries} of low-level MPC protocols, such as
+binary and arithmetic circuits. These low-level protocols encapsulate
 abstractions such as secret sharing and semi-homomorphic encrypytion,
 and rely on probabilistic progamming methods. So, low-level MPC
 programming and protocol verification is a distinct challenge and both
 critical to the general challenge of PL design for MPC and
 complementary to high-level language design.
 
-The connection between information flow hyperproperties and
-MPC security is also complicated especially at a low level.
-MPC protocols involve communication between a group of distributed
-clients called a \emph{federation} that collaboratively compute
-and publish the result of some known \emph{ideal functionality}
-$\idealf$, maintaining confidentiality of inputs to $\idealf$ without
-the use of a trusted third party. However, since the outputs of
-$\idealf$ are public, some information about inputs is inevitably
-leaked. Thus, the ideal
-functionality establishes a declassification policy \cite{XXX}, which
-is more difficult to enforce than pure noninterference.  And
-subtleties of, e.g., semi-homomorphic encryption are central to both
-confidentiality and integrity properties of protocols and similarly
-difficult to track with coarse-grained security types alone.
+The connection between information flow hyperproperties and MPC
+security is also complicated especially at a low level.  MPC protocols
+involve communication between a group of distributed clients called a
+\emph{federation} that collaboratively compute and publish the result
+of some known \emph{ideal functionality} $\idealf$, maintaining
+confidentiality of inputs to $\idealf$ without the use of a trusted
+third party. However, since the outputs of $\idealf$ are public, some
+information about inputs is inevitably leaked. Thus, the ideal
+functionality establishes a declassification policy
+\cite{sabelfeld2009declassification}, which is more difficult to
+enforce than pure noninterference.  And subtleties of, e.g.,
+semi-homomorphic encryption are central to both confidentiality and
+integrity properties of protocols and similarly difficult to track
+with coarse-grained security types alone.
 
-Nevertheless, as previous authors have observed \cite{XXX}, low-level
-protocol design patterns such as secret sharing and circuit gate
-structure have compositional properties that can be independently
-verified and then leveraged in larger proof contexts. We
-contribute to this line of work by developing an automated
-verification technique for subprotocols and show how it can be
-integrated as a tactic in a larger security proof.
+Nevertheless, as previous authors have observed
+\cite{5a51987acaa84c43bb4bf5bcc7d01683}, low-level protocol design
+patterns such as secret sharing and circuit gate structure have
+compositional properties that can be independently verified and then
+leveraged in larger proof contexts. We contribute to this line of work
+by developing an automated verification technique for subprotocols and
+show how it can be integrated as a tactic in a larger security proof.
 
 \compfig
 
@@ -82,9 +82,9 @@ in Figure \ref{fig-comp}, with the caveat that works vary in the degree
 of development in each dimension.
 
 As mentioned above, several high-level languages have been developed
-for writing MPC applications, 
-and frequently exploit the connection between hyperproperties and MPC
-security. Previous work on analysis for the SecreC language
+for writing MPC applications, and frequently exploit the connection
+between hyperproperties and MPC security. Previous work on analysis
+for the SecreC language
 \cite{almeida2018enforcing,10.1145/2637113.2637119} is concerned with
 properties of complex MPC circuits, in particular a user-friendly
 specification and automated enforcement of declassification bounds in
@@ -94,14 +94,15 @@ similar goals and includes a trace-based semantics for reasoning about
 the interactions of MPC protocols. Their compiler also guarantees that
 underlying multi-threaded protocols enforce the single-threaded source
 language semantics. These two lines of work were focused on passive
-security. The Viaduct language \cite{XXX} has a well-developed
+security. The Viaduct language
+\cite{10.1145/3453483.3454074} has a well-developed
 information flow type system that automatically enforces both
 confidentiality and integrity through hyperproperties such as robust
 declassification, in addition to rigorous compilation guarantees
-through orchestration \cite{XXX}. However, these high level
+through orchestration \cite{viaduct-UC}. However, these high level
 languages lack probabilistic features and other abstractions of
-low-level protocols, the implementation and security of which
-are typically assumed as a selection of library compnonents. 
+low-level protocols, the implementation and security of which are
+typically assumed as a selection of library compnonents.
 
 Various related low-level languages with probabilistic features have
 also been developed. The $\lambda_{\mathrm{obliv}}$ language
@@ -110,7 +111,7 @@ enforce so-called probabilistic trace obliviousness.  But similar to
 previous work on oblivious data structures \cite{10.1145/3498713},
 obliviousness is related to pure noninterference, not the relaxed form
 related to passive MPC security. The Haskell-based security type system in
-\cite{XXX} enforces a version of conditioned noninterence that is
+\cite{6266151} enforces a version of conditioned noninterence that is
 sound for passive security in a probabilisitic low-level setting, but
 they do not consider malicious security. And properties of real/ideal
 passive and malicious security for a probabilistic language have been
@@ -128,7 +129,7 @@ programs, and they consider several (hyper)properties, such as perfect
 secrecy of one-time-pads and indistinguishability in secret sharing,
 that are critical to MPC. However, their methods are manual, and
 don't include conditional independence (separation). This
-latter issue has been addressed in Lilac \cite{XXX}. The
+latter issue has been addressed in Lilac \cite{li2023lilac}. The
 application of Lilac-style reasoning to MPC protocols has not
 previously been explored, as we do in Section
 \ref{section-example-gmw}.
@@ -186,4 +187,4 @@ acceleration. Furthermore, in Section \ref{section-examples-gmw} we
 consider in detail how this automated technique can be used as a local
 automated tactic for proving security in arbitrarily large GMW
 circuits using conditional probabilistic independence as in
-\cite{XXX}.
+\cite{li2023lilac}.

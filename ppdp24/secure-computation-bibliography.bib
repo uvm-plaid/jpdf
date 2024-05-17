@@ -187,12 +187,23 @@
 % https://arxiv.org/abs/1907.10708
 
 @article{barthe2019probabilistic,
-  title={A probabilistic separation logic},
-  author={Barthe, Gilles and Hsu, Justin and Liao, Kevin},
-  journal={arXiv preprint arXiv:1907.10708},
-  year={2019}
+@author = {Barthe, Gilles and Hsu, Justin and Liao, Kevin},
+title = {A probabilistic separation logic},
+year = {2019},
+issue_date = {January 2020},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {4},
+number = {POPL},
+url = {https://doi.org/10.1145/3371123},
+doi = {10.1145/3371123},
+abstract = {Probabilistic independence is a useful concept for describing the result of random sampling—a basic operation in all probabilistic languages—and for reasoning about groups of random variables. Nevertheless, existing verification methods handle independence poorly, if at all. We propose a probabili stic separation logic PSL, where separation models probabilistic independence. We first give a new, probabilistic model of the logic of bunched implications (BI). We then build a program logic based on these assertions, and prove soundness of the proof system. We demonstrate our logic by verifying information-theoretic security of cryptographic constructions for several well-known tasks, including private information retrieval, oblivious transfer, secure multi-party addition, and simple oblivious RAM. Our proofs reason purely in terms of high-level properties, like independence and uniformity.},
+journal = {Proc. ACM Program. Lang.},
+month = {dec},
+articleno = {55},
+numpages = {30},
+keywords = {probabilistic independence, separation logic, verified cryptography}
 }
-
 
 %%%%%%%%%%%
 % http://david.darais.com/assets/papers/lang-for-prob-obliv/lpo.pdf
@@ -924,7 +935,7 @@ note = "36th IEEE Computer Security Foundations Symposium, CSF 2023 ; Conference
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-@INPROCEEDINGS {,
+@INPROCEEDINGS {viaduct-UC,
 author = {C. Acay and J. Gancher and R. Recto and A. Myers},
 booktitle = {2024 IEEE 37th Computer Security Foundations Symposium (CSF)},
 title = {Secure Synthesis of Distributed Cryptographic Applications},
