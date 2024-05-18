@@ -236,15 +236,15 @@ incorporates the adversary in Figure \ref{fig-adversary}.
 
 \adversaryfig
 
-Another important distinction of the malicious setting is that it
-typically incorporates \emph{abort}. Honest parties implement
-strategies to detect rule-breaking-- aka \emph{cheating}-- by
-using, e.g., message authentication codes with semi-homomorphic
-properties as in BDOZ and SPDZ \cite{XXX}. If cheating is
-detected, the protocol is aborted. To model this, we extend
-$\minifed$ with an \ttt{assert} command and extend the
-range of memories with $\bot$. Note that the adversary is
-free to ignore their own assertions.
+A key technical distinction of the malicious setting is that it
+typically incorporates ``abort''. Honest parties implement strategies
+to detect rule-breaking-- aka \emph{cheating}-- by using, e.g.,
+message authentication codes with semi-homomorphic properties as in
+BDOZ/SPDZ \cite{10.1007/978-3-030-68869-1_3}. If cheating is detected,
+the protocol is aborted. To model this, we extend $\minifed$ with an
+\ttt{assert} command and extend the range of memories with
+$\bot$. Note that the adversary is free to ignore their own
+assertions.
 \begin{definition}
   We add assertions of the form $\elab{\assert{\phi(\be)}}{\cid}$ to the command
   syntax of $\minifed$, where $\phi$ is a decidable predicate on
