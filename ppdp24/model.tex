@@ -3,18 +3,17 @@
 \label{section-model}
 
 MPC protocols are intended to implement some \emph{ideal
-functionality} $\idealf$. Given a protocol $\prog$ that implements
-$\idealf$, with $\iov(\prog) = S \cup V \cup O$, we will assume
-that the domain of $\idealf$ is $\mems(S)$ and its range is
-$\mems(O)$. Recall the assumption of a partitioning of a federation
-into honest and corrupt subsets $H$ and $C$.  \emph{Simulator
-security} in the MPC setting means that, given $\store \in \mems(S)$,
-a secure protocol $\prog$ does not reveal any more information about
-honest secrets $\store_H$ to parties in $C$ beyond what is
-implicitly declassified by $\idealf(\sigma)$. Security comes in
-\emph{passive} and \emph{malicious} flavors, wherein the adversary
-either follows the rules or not, respectively. Characterization of
-both real world protocol execution and simulation is defined
+functionality} $\idealf$ with per-client outputs. In the $\minifed$
+setting, Given a protocol $\prog$ that implements $\idealf$, with
+$\iov(\prog) = S \cup V \cup O$, the domain of $\idealf$ is $\mems(S)$
+and its range is $\mems(O)$.  Real/ideal security in the MPC
+setting means that, given $\store \in \mems(S)$, a secure protocol
+$\prog$ does not reveal any more information about honest secrets
+$\store_H$ to parties in $C$ beyond what is implicitly declassified by
+$\idealf(\sigma)$. Security comes in \emph{passive} and
+\emph{malicious} flavors, wherein the adversary either follows the
+rules or not, respectively. Characterization of both real world
+protocol execution and simulation is defined
 probabilistically. Following previous work
 \cite{barthe2019probabilistic} we use probability mass functions to
 express joint dependencies between input and output variables, as a
@@ -27,8 +26,7 @@ manner, though following \cite{barthe2019probabilistic} we use
 memories to denote mappings of variables to values (i.e., outcomes),
 so for example given a pmf $\pmf$ we will write $\pmf(\{ \elab{\secret{x}}{1}
 \mapsto 0, \elab{\mesg{y}}{2} \mapsto 1 \})$ to denote the (joint) probability that
-$\elab{\secret{x}}{1} = 0 \wedge \elab{\mesg{y}}{2} = 1$ in the final memory of a
-program containing these variables.
+$\elab{\secret{x}}{1} = 0 \wedge \elab{\mesg{y}}{2} = 1$.
 \begin{definition}
   A \emph{probability mass function} $\pmf$ is a function
   mapping memories in $\mems(X)$ for some $X$ to values in $\mathbb{F}_p$, such that:

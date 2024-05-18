@@ -9,30 +9,33 @@ blockchains \cite{ishai2009zero, lu2019honeybadgermpc,
 MPC include both confidentiality and integrity properties incorporated
 into models such as real/ideal (aka simulator) security and universal
 composability (UC), developed primarily by the cryptography community
-\cite{evans2018pragmatic}.  Related proof methods are well-studied \cite{Lindell2017}
-but mostly manual. Somewhat independently, a significant
-body of work in programming languages has focused on definition and
-enforcement of confidentiality and integrity \emph{hyperproperties}
-\cite{10.5555/1891823.1891830} such as noninterference and delimited
-release \cite{sabelfeld2009declassification}. Following a tradition of connecting
-cryptographic and PL-based security models \cite{10.1007/3-540-44929-9_1}, recent work has
-also recognized connections between MPC security models and
-hyperpoperties of, e.g., noninterference \cite{8429300}, and even
-leveraged these connections to enforce MPC security through mechanisms
-such as security types \cite{10.1145/3453483.3454074}. Major benefits of this connection
-in an MPC setting include better language abstractions for defining
-protocols and for mechanisation and even automation of security proofs.
-The goal of this paper is to develop a PL model for defining a variety of
-low-level probabilistic MPC protocols, to formulate a collection
-of confidentiality and integrity hyperproperties for our model
-model with familiar information flow analogs, and to show how these
-properties can be leveraged for improved proof automation.
+\cite{evans2018pragmatic}.  Related proof methods are well-studied
+\cite{Lindell2017} but mostly manual. Somewhat independently, a
+significant body of work in programming languages has focused on
+definition and enforcement of confidentiality and integrity
+\emph{hyperproperties} \cite{10.5555/1891823.1891830} such as
+noninterference and delimited release
+\cite{sabelfeld2009declassification}. Following a tradition of
+connecting cryptographic and PL-based security models
+\cite{10.1007/3-540-44929-9_1}, recent work has also recognized
+connections between MPC security models and hyperpoperties of, e.g.,
+noninterference \cite{8429300}, and even leveraged these connections
+to enforce MPC security through mechanisms such as security types
+\cite{10.1145/3453483.3454074}. Major benefits of this connection in
+an MPC setting include better language abstractions for defining
+protocols and for mechanisation and even automation of security
+proofs.  The goal of this paper is to develop a PL model for defining
+a variety of low-level probabilistic MPC protocols, to formulate a
+collection of confidentiality and integrity hyperproperties for our
+model model with familiar information flow analogs, and to show how
+these properties can be leveraged for improved proof automation.
 
 The distinction between high- and low-level languages for MPC is
-important. High-level languages such as Wysteria \cite{} and Viaduct
-\cite{10.1145/3453483.3454074} are designed to provide effective
-programming of full applications. These language designs incorporate
-sophisticated verified compilation techniques such as orchestration
+important. High-level languages such as Wysteria
+\cite{rastogi2014wysteria} and Viaduct \cite{10.1145/3453483.3454074}
+are designed to provide effective programming of full
+applications. These language designs incorporate sophisticated
+verified compilation techniques such as orchestration
 \cite{viaduct-UC} to guarantee high-level security properties, and
 they rely on \emph{libraries} of low-level MPC protocols, such as
 binary and arithmetic circuits. These low-level protocols encapsulate
