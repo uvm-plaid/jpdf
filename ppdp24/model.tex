@@ -98,14 +98,12 @@ over $\mathbb{F}_p$. Input memories also contain input secret values
 and possibly other initial view elements as a result of
 pre-processing, e.g., Beaver triples for efficient multiplication,
 and/or MACed share distributions as in BDOZ/SPDZ
-\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3}.  We will also
-assume that any possible initial secrets are equally likely when
-formulating the program distribution.  We define $\runs(\prog)$ as the
-set of final memories resulting from execution of $\prog$ given any
-initial memory, and treat all elements of $\runs(\prog)$ as equally
-likely.  This establishes the basic program distribution that can be
-marginalized and conditioned to quantify input/output information
-dependencies.
+\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3}. We define
+$\runs(\prog)$ as the set of final memories resulting from execution
+of $\prog$ given any initial memory, and treat all elements of
+$\runs(\prog)$ as equally likely.  This establishes the basic program
+distribution that can be marginalized and conditioned to quantify
+input/output information dependencies.
 %In this
 %setting, given a program $\prog$ with $\iov(\prog) = S \cup V$ and
 %$\flips(\prog) = F$ we will consider all $\store \in \mems(S \cup V
@@ -137,11 +135,11 @@ dependencies.
   \progtt(\store) =  1 / |\runs(\prog)| \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
   $$
   
-  In some cases, we will also be concerned with the (joint)
-  probabilities of expression interpretation given a preceding program
-  execution, and we write $\progtt(\prog, \be)$ to denote the program
-  distribution $\progtt(\prog;\itv := \be)$ where $\itv$ is a
-  special variable that is never used in programs.
+  %In some cases, we will also be concerned with the (joint)
+  %probabilities of expression interpretation given a preceding program
+  %execution, and we write $\progtt(\prog, \be)$ to denote the program
+  %distribution $\progtt(\prog;\itv := \be)$ where $\itv$ is a
+  %special variable that is never used in programs.
 \end{definition}
 
 
@@ -157,9 +155,9 @@ the latter \emph{honest views}. Generally we let $V$ range over sets
 of views.
 \begin{definition}[Corrupt and Honest Views]
   Given a program $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$,
-  define $\views(\prog) \defeq M \cup P$, and define $\houtputs$ as the messages in
-  $V = \views(\prog)$ sent from honest
-  to corrupt parties, called \emph{corrupt views}:
+  define $\views(\prog) \defeq M \cup P$, and define $\houtputs$ as
+  the messages and reveals in $V \defeq M \cup P$ sent from honest to corrupt
+  parties, called \emph{corrupt views}:
   $$
   \begin{array}{lcl}
     \houtputs & \defeq
@@ -168,7 +166,7 @@ of views.
            \prog \wedge \cid \in C \wedge \cid' \in H \ \} 
   \end{array}
   $$
-  and similarly define $\cinputs$ as the messages in $V$ sent from corrupt to honest
+  and similarly define $\cinputs$ as the subset of $V$ sent from corrupt to honest
   parties, called \emph{honest views}:
   $$
   \begin{array}{lcl}
@@ -198,9 +196,9 @@ with respect to an ideal functionality.
 In the passive setting the simulator must construct a probabilistic
 algorithm $\SIM$, aka a \emph{simulation}, that is parameterized by
 corrupt inputs and the output of an ideal functionality, and that
-returns a distribution of corrupt views that is indistinguishable
-from the distribution of corrupt views in the real world
-protocol execution.
+returns a reconstruction of corrupt views that is probabilistically
+indistinguishable from the corrupt views in the real world protocol
+execution.
 \begin{definition}
   Given $\store$, and $v$,we write $ \prob(\SIM(\store,v) = \store') $
   to denote the probability that $\SIM(\store,v)$ returns corrupt views
@@ -217,10 +215,10 @@ model as follows.
 \begin{definition}[Passive Security]
   Assume given a program $\prog$ that correctly implements an ideal
   functionality $\idealf$, with $\views(\prog) = V$.  Then $\prog$
-  is \emph{passive secure in the simulator model} iff for all
+  is \emph{passive secure in the simulator model} iff there exists
+  ad simulation $\SIM$ such that for all
   partitions of the federation into honest and corrupt sets $H$ and $C$
-  and for all $\store \in \mems(S)$ there exists a
-  simulation $\SIM$ such that:\todo{is the order of quantifiers right? Doesn't a single simulator have to work for all inputs?}
+  and for all $\store \in \mems(S)$:
   $$
   \dist(\SIM(\store_{C},\idealf(\store))) = \condd{\progtt(\prog)}{\houtputs}{\store}
   $$
