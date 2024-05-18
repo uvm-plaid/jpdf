@@ -97,14 +97,15 @@ values $\elab{\flip{w}}{\cid}$ sampled from a uniform distribution
 over $\mathbb{F}_p$. Input memories also contain input secret values
 and possibly other initial view elements as a result of
 pre-processing, e.g., Beaver triples for efficient multiplication,
-and/or MACed share distributions as in SPDZ \cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3}.
-We will also assume that any possible initial secrets are equally
-likely when formulating the program distribution.  We define
-$\runs(\prog)$ as the set of final memories resulting from execution
-of $\prog$ given any initial memory, and treat all elements of
-$\runs(\prog)$ as equally likely.  This establishes the basic program
-distribution that can be marginalized and conditioned to quantify
-input/output information dependencies.
+and/or MACed share distributions as in BDOZ/SPDZ
+\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3}.  We will also
+assume that any possible initial secrets are equally likely when
+formulating the program distribution.  We define $\runs(\prog)$ as the
+set of final memories resulting from execution of $\prog$ given any
+initial memory, and treat all elements of $\runs(\prog)$ as equally
+likely.  This establishes the basic program distribution that can be
+marginalized and conditioned to quantify input/output information
+dependencies.
 %In this
 %setting, given a program $\prog$ with $\iov(\prog) = S \cup V$ and
 %$\flips(\prog) = F$ we will consider all $\store \in \mems(S \cup V
