@@ -53,14 +53,13 @@ views are the same.
 %\end{definition}
 Intuitively, this conditional noninterference property implies that
 corrupt views give the adversary no better chance of guessing honest
-secrets than the output and corrupt inputs do. So
-the simulator can just arbitrarily pick any honest secrets that
-produce the expected output and run the protocol in simulation to
-reconstruct real world corrupt view distributions. But it requires
-that the simulator can tractably ``pre-image'' a given output of
-a functionality $\idealf$, to determine the inputs that
-could have produced it. This pre-image is called a
-\emph{kernel} in recent work \cite{XXX}.
+secrets than just the output and corrupt inputs do. So the simulator
+can just arbitrarily pick any honest secrets that could have produced
+the given outputs and run the protocol in simulation to reconstruct
+real world corrupt views. This requires that the simulator can
+tractably ``pre-image'' a given output of a functionality $\idealf$,
+to determine the inputs that could have produced it. This equivalence
+class is called a \emph{kernel} in recent work \cite{10.1145/3571740}.
 \begin{definition}
   Given a functionality $\idealf$ and outputs $\store_{\mathit{out}}$, their 
   \emph{kernel}, denoted $\ik(\idealf,\store_{\mathit{out}})$ is
@@ -83,13 +82,11 @@ in previous work \cite{8429300}.
 
 \subsection{Delimited Release}
 
-Previous work has discussed how MPC security is not noninterference,
-but rather how ideal functional sets an upper bound on
-declassification \cite{6266151,almeida2018enforcing}. Nevertheless,
-probabilistic noninterference is preserved by components of
-cryptographic protocols generally, and can be expressed using
-\emph{probabilistic independence} \cite{darais2019language,barthe2019probabilistic}
-We introduce important notation to express independence:
+Probabilistic noninterference is related to perfect secrecy and is
+preserved by components of cryptographic protocols generally. It can
+be expressed using probabilistic independence, aka separation,
+\cite{darais2019language,barthe2019probabilistic}, and we adopt the
+following notation to express independence:
 \begin{definition}
 %  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
 %  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
@@ -99,14 +96,15 @@ We introduce important notation to express independence:
   \pmf(\store_X) * \pmf(\store_Y)$
 \end{definition}
 
-In practice, MPC protocols typically satisfy a \emph{delimited release}
-property \cite{sabelfeld2009declassification}, where messages exchanged remain probabilistically separable
-from secrets, with only declassification events (reveals and outputs)
-releasing information about honest secrets. A key difference is that while
-these declassification events essentially define the policy in delimited
+In practice, MPC protocols typically satisfy a \emph{delimited
+release} property \cite{sabelfeld2009declassification}, where messages
+exchanged remain probabilistically separable from secrets, with only
+declassification events (reveals and outputs) releasing information
+about honest secrets.  A key difference is that while these
+declassification events essentially define the policy in delimited
 release, the ideal functionality sets the release policy for MPC
-passive security, so its necessary to show that declassification events respect
-these bounds.
+passive security, so its necessary to show that declassification
+events respect these bounds.
 \begin{definition}
   Given $H,C$, a protocol $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
   satisfies \emph{delimited release} iff
