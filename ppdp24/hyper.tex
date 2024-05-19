@@ -80,7 +80,7 @@ in previous work \cite{8429300}.
 \end{restatable}
 
 
-\subsection{Delimited Release}
+\subsection{Gradual Release}
 
 Probabilistic noninterference is related to perfect secrecy and is
 preserved by components of cryptographic protocols generally. It can
@@ -96,18 +96,18 @@ following notation to express independence:
   \pmf(\store_X) * \pmf(\store_Y)$
 \end{definition}
 
-In practice, MPC protocols typically satisfy a \emph{delimited
+In practice, MPC protocols typically satisfy a \emph{gradual
 release} property \cite{sabelfeld2009declassification}, where messages
 exchanged remain probabilistically separable from secrets, with only
 declassification events (reveals and outputs) releasing information
 about honest secrets.  A key difference is that while these
-declassification events essentially define the policy in delimited
+declassification events essentially define the policy in gradual
 release, the ideal functionality sets the release policy for MPC
 passive security, so its necessary to show that declassification
 events respect these bounds.
 \begin{definition}
   Given $H,C$, a protocol $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
-  satisfies \emph{delimited release} iff
+  satisfies \emph{gradual release} iff
   $\sep{\progtt(\prog)}{M_C}{S_H}$.
 \end{definition}
 
@@ -192,13 +192,13 @@ The hyperproperty of robust declassification \cite{930133} similarly
 combines a confidentiality property with integrity to establish that
 malicious actors cannot declassify more information than is intended
 by policy. But in this prior work, this policy is established
-by the declassifications themselves, as in delimited release.
+by the declassifications themselves, as in gradual release.
 Thus, we can define a robust declassification property as follows. 
 \begin{definition}[Robust Declassification]
   A protocol satisfies \emph{robust declassification} iff it has integrity and
-  satisfies delimited release. 
+  satisfies gradual release. 
 \end{definition}
-However, it is important to note that delimited release, and
+However, it is important to note that gradual release, and
 hence robust declassification, are not sufficient to establish
 passive or malicious simulator security, where the declassification
 policy is established by the ideal functionality $\idealf$. 
