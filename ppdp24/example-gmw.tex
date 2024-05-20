@@ -248,13 +248,14 @@ for gate-level reasoning.
 
     \condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
   \end{mathpar}
-  so also by definition of $\decodegmw$ we have:
+  and by definition of $\decodegmw$ the value $\{\macgv{\mesg{z}}\}$ is output
+  after the parties publicly reveal $\{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \}$, so we have:
   \begin{mathpar}
     \conddetx{\progtt(\prog)}{S_H \cup S_C}{O}
     
     \condsep{\progtt(\prog)}{S_H \cup S_C}{O}{(M_C \cup P)}
   \end{mathpar}
-  and this by Lemma \ref{lemma-conditioning} (4) we have:
+  and thus by Lemma \ref{lemma-conditioning} (4) we have:
   $$
   \condsep{\progtt(\prog)}{S_C}{(O \cup S_H)}{(M_C \cup P)}
   $$
