@@ -90,31 +90,33 @@ As discussed above and in related work \cite{XXX}, probabilistic
 separation conditional on certain variables-- e.g., secret inputs or
 public outputs-- is a key mechanism for reasoning about MPC protocol
 security. Following \cite{XXX}, we define a conditional separation
-relation $\condsep{\pmf}{X_1}{X_2}{X_3}$ to mean that
-under the condition of all value assignments for
-$X_2$ and $X_3$ are separable under $\pmf$ on the condition
-of any value assignment of $X_1$-- i.e., conditionally
-on any $\store \in \mems(X_1)$. 
-\begin{definition}[Conditional Separation]
-  We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
-  $\store' \in \mems(X_1)$ and $\store \in \mems(X_2 \cup X_3)$
-  and letting $X = X_1 \cup X_2 \cup X_3$ we have:
-  $$\condd{\pmf}{X}{\store'}(\store) =
-  \condd{\pmf}{X}{\store'}(\store_{X_2}) *
-  \condd{\pmf}{X}{\store'}(\store_{X_3})$$
-\end{definition}
-Another key concept needed especially for reasoning about
-circuits is conditional determinism. For example, if
-$\macgv{z}$ is an output of an internal gate, it will
-definitely be computed using random variables, however,
-it \emph{should} be determistic under any set of input
-secrets $S$, since we assume that $\idealf$ is
-deterministic.
-\begin{definition}[Conditional Determinism]  
-  We write $\conddetx{\pmf}{X_1}{X_2}$ iff for all
-  $\store' \in \mems(X_1)$ there exists 
-  $\store \in \mems(X_2)$ such that
-  $\condd{\pmf}{X_1 \cup X_2}{\store'}(\store) = 1$.
+relation $\condsep{\pmf}{X_1}{X_2}{X_3}$ to mean that under the
+condition of all value assignments for $X_2$ and $X_3$ are separable
+under $\pmf$ on the condition of any value assignment of $X_1$-- i.e.,
+conditionally on any $\store \in \mems(X_1)$. Another key concept
+needed especially for reasoning about circuits is conditional
+determinism. For example, if $\macgv{z}$ is an output of an internal
+gate, it will definitely be computed using random variables, however,
+it \emph{should} be determistic under any set of input secrets $S$,
+since we assume that $\idealf$ is deterministic. Conditional
+uniformity is also important, since the gradual release property of
+many protocols means that messages appear in a uniform distribution to
+the adversary.
+\begin{definition}[Conditioning Properties] 
+  Give $\pmf$ and $X_1,X_1,X_3 \subseteq \dom{pmf}$, 
+  we write:
+  \begin{itemize}
+  \item $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
+    $\store' \in \mems(X_1)$ and $\store \in \mems(X_2 \cup X_3)$ we have
+    $\pmf(\store|\store') = \pmf(\store_{X_2}|\store') *  \pmf(\store_{X_3}|\store')$.
+  \item $\conddetx{\pmf}{X_1}{X_2}$ iff for all
+    $\store' \in \mems(X_1)$ there exists 
+    $\store \in \mems(X_2)$ such that $\pmf(\store|\store') = 1$.
+  \item $\condunix{\pmf}{X_1}{X_2}$ iff for all
+    $\store' \in \mems(X_1)$ and
+    $\store \in \mems(X_2)$ we have
+    $\pmf(\store|\store') = 1/p^{|X_2|}$.
+  \end{itemize}
 \end{definition}
 
 Given these definitions, we can formulate an invariant
@@ -215,13 +217,13 @@ for gate-level reasoning.
   \begin{enumerate}[\hspace{5mm}(x.1)]
   \item $\conddetx{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}$
   \item $\condunix{\progtt(\prog)}{S^1}{M^1_C}$
-  \item $\condsep{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}{\{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}$
+  %\item $\condsep{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}{\{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}$
   \end{enumerate}
   and also:
   \begin{enumerate}[\hspace{5mm}(y.1)]
   \item $\conddetx{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}$
   \item $\condunix{\progtt(\prog)}{S^2}{M^2_C}$
-  \item $\condsep{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}{\{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}$
+  %\item $\condsep{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}{\{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}$
   \end{enumerate}
   and by Lemma \ref{lemma-gmwtactic} we have:
   \begin{enumerate}[\hspace{5mm}(z.1)]
@@ -246,7 +248,7 @@ for gate-level reasoning.
   {\{ \macgv{\mesg{z}} \}}
   {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$$
   Additionally Lemma \ref{lemma-conditioning} (2) gives $\condunix{\progtt(\prog)}{S}{\{ \elab{\mesg{z}}{\cid} \}}$,
-  and $x.2$ and $y.2$ give $\condunix{\progtt(\prog)}{S}{(M^1 \cup M^2)_C}$. Facts $x.3$ and $y.3$ together with
+  and $x.2$ and $y.2$ give $\condunix{\progtt(\prog)}{S}{(M^1 \cup M^2)_C}$, $z.3$ together with
   uniqueness of gate identifiers implies:
   $$
   \condunix{\progtt(\prog)}{S}{(M^1 \cup M^2)_C \cup \{  \elab{\mesg{z}}{\cid} \}}
