@@ -69,21 +69,93 @@ leveraged in larger proof contexts. We contribute to this line of work
 by developing an automated verification technique for subprotocols and
 show how it can be integrated as a tactic in a larger security proof.
 
+\subsection{Overview and Contributions}
+
+Our work provides a complete methodology for end-to-end verification
+of MPC protocols via three components:
+%
+\begin{enumerate}
+\item A \textbf{low-level language} for defining MPC primitives
+  (\S\ref{section-lang}).
+\item A \textbf{fully-automated verification method} for low-level MPC
+  primitives in $\mathbb{F}_2$ (\S\ref{section-bruteforce}).
+\item A \textbf{partially-automated verification method} for
+  high-level MPC protocols, which leverages automated proofs for
+  low-level primitives (\S\ref{section-example-gmw}).
+\end{enumerate}
+%
+As part of this methodology, we also develop hyperproperties that
+encode MPC security that may be of independent interest. The complete
+methodology enables the verification of real-world MPC protocols like
+GMW~\cite{goldreich2019play}.
+
+\paragraph{Language design.} In Section \ref{section-lang} we
+develop a new probabilistic programming language $\minifed$ for
+defining synchronous distributed protocols over an arbitrary
+arithmetic field. The syntax and semantics provides a succinct account
+of synchronous messaging between protocol \emph{clients}. In Section
+\ref{section-metalang} we define a metalanguage $\metaprot$ that
+dynamically generates $\minifed$ protocols. It is able to express
+important low-level abstractions, as we illustrate via implementations
+of protocols including Shamir addition (Section \ref{section-lang}),
+GMW boolean circuits (Section \ref{section-example-gmw}), and Beaver
+Triple multiplication gates with BDOZ authentication (Section
+\ref{section-example-bdoz}).
+
+\paragraph{Hyperproperty formulation.} In Section \ref{section-model} we
+develop our formalism for expressing the joint probability mass function of
+program variables, and give standard definitions of passive and
+malicious real/ideal security in our model. In Section
+\ref{section-hyper}, we formulate a variety of familiar information
+flow properties in our probabilistic setting, including conditional
+noninterference, gradual release, and robust declassification, and
+consider the relation between these and real/ideal security.  While it
+has been previously shown that probabilistic conditional
+noninterference is sound for passive security, we formulate new
+properties of integrity which, paired with passive security, imply
+malicious security (Theorem \ref{theorem-integrity}). We observe
+in Section \ref{section-example-bdoz} that authentication mechanisms
+such as BDOZ/SPDZ style MACs enforce a strictly weaker property
+of ``cheating detection'' (Lemma \ref{lemma-cheating}). 
+
+
+\paragraph{Fully and partially automated verification.} In Section
+\ref{section-bruteforce} we develop a method for automatically
+computing the pmf of $\minifed$ protocols in $\mathbb{F}_2$, that can
+be automatically queried to enforce hyperperproperties of
+security. This method is perfectly accurate but has high complexity;
+we show this can be partially mitigated by conversion of protocols in
+$\mathbb{F}_2$ to stratified Datalog which is amenable to HPC
+acceleration. Furthermore, in Section \ref{section-example-gmw} we
+consider in detail how this automated technique can be used as a local
+automated tactic for proving security in arbitrarily large GMW
+circuits using conditional probabilistic independence as in
+\cite{li2023lilac} (Lemmas \ref{lemma-gmwtactic} and \ref{lemma-gmwinvariant}
+and Theorem \ref{theorem-gmw}).
+
 \compfig
 
 \subsection{Related Work}
 \label{section-related-work}
 
 Our main focus is on PL design and automated and semi-automated
-reasoning about security properties of low-level MPC protocols.  We
-consider related systems in several dimensions, including
-whether they are aimed at low-level design with probabilistic features,
-whether they support reasoning about conditional probabilities which
-are central to real/ideal security, whether they consider MPC
-security through the lens of hyperproperties, and whether they consider
-passive and/or malicious security models. We summarize this comparison
-in Figure \ref{fig-comp}, with the caveat that works vary in the degree
-of development in each dimension.
+reasoning about security properties of low-level MPC protocols. Prior
+work has considered \textbf{automated} verification of
+\textbf{high-level} protocols and \textbf{manual} verification of
+\textbf{low-level} protocols---but none offers the combination of
+automation and low-level support we consider.
+%
+We summarize this comparison in Figure
+\ref{fig-comp}, with the caveat that works vary in the degree of
+development in each dimension.
+
+% We consider related systems in several
+% dimensions, including whether they are aimed at low-level design with
+% probabilistic features, whether they support reasoning about
+% conditional probabilities which are central to real/ideal security,
+% whether they consider MPC security through the lens of
+% hyperproperties, and whether they consider passive and/or malicious
+% security models. 
 
 As mentioned above, several high-level languages have been developed
 for writing MPC applications, and frequently exploit the connection
@@ -114,10 +186,9 @@ also been developed. The $\lambda_{\mathrm{obliv}}$ language
 enforce so-called probabilistic trace obliviousness.  But similar to
 previous work on oblivious data structures \cite{10.1145/3498713},
 obliviousness is related to pure noninterference, not the relaxed form
-related to passive MPC security. The Haskell-based security type system in
-\cite{6266151} enforces a version of conditioned noninterence that is
-sound for passive security in a probabilisitic low-level setting, but
-they do not consider malicious security. And properties of real/ideal
+related to passive MPC security. Similarly, the Haskell-based security type system in
+\cite{6266151} enforces a version of noninterence that is
+sound for passive security, but does not verify the correctness of declassifications and does not consider malicious security. And properties of real/ideal
 passive and malicious security for a probabilistic language have been
 formulated in EasyCrypt \cite{8429300}-- though their proof methods,
 while mechanized, are fully manual, and their formulation of malicious
@@ -148,48 +219,3 @@ statistical independence. Recent work by Li et al.~\cite{li2023lilac} proposes a
 manual approach for proving such properties, but does not provide
 automation.
 
-\subsection{Overview and Contributions}
-
-\paragraph{Language design.} In Section \ref{section-lang} we
-develop a new probabilistic programming language $\minifed$ for
-defining synchronous distributed protocols over an arbitrary
-arithmetic field. The syntax and semantics provides a succinct account
-of synchronous messaging between protocol \emph{clients}. In Section
-\ref{section-metalang} we define a metalanguage $\metaprot$ that
-dynamically generates $\minifed$ protocols. It is able to express
-important low-level abstractions, as we illustrate via implementations
-of protocols including Shamir addition (Section \ref{section-lang}),
-GMW boolean circuits (Section \ref{section-example-gmw}), and Beaver
-Triple multiplication gates with BDOZ authentication (Section
-\ref{section-example-bdoz}).
-
-\paragraph{Hyperproperty formulation.} In Section \ref{section-model} we
-develop our formalism for expressing the joint probability mass function of
-program variables, and give standard definitions of passive and
-malicious real/ideal security in our model. In Section
-\ref{section-hyper}, we formulate a variety of familiar information
-flow properties in our probabilistic setting, including condition
-noninterference, gradual release, and robust declassification, and
-consider the relation between these and real/ideal security.  While it
-has been previously shown that probabilistic conditional
-noninterference is sound for passive security, we formulate new
-properties of integrity which, paired with passive security, imply
-malicious security (Theorem \ref{theorem-integrity}). We observe
-in Section \ref{section-example-bdoz} that authentication mechanisms
-such as BDOZ/SPDZ style MACs enforce a strictly weaker property
-of ``cheating detection'' (Lemma \ref{lemma-cheating}). 
-
-
-\paragraph{Fully and partially automated verification.} In Section
-\ref{section-bruteforce} we develop a method for automatically
-computing the pmf of $\minifed$ protocols in $\mathbb{F}_2$, that can
-be automatically queried to enforce hyperperproperties of
-security. This method is perfectly accurate but has high complexity;
-we show this can be partially mitigated by conversion of protocols in
-$\mathbb{F}_2$ to stratified Datalog which is amenable to HPC
-acceleration. Furthermore, in Section \ref{section-example-gmw} we
-consider in detail how this automated technique can be used as a local
-automated tactic for proving security in arbitrarily large GMW
-circuits using conditional probabilistic independence as in
-\cite{li2023lilac} (Lemmas \ref{lemma-gmwtactic} and \ref{lemma-gmwinvariant}
-and Theorem \ref{theorem-gmw}).
