@@ -191,7 +191,7 @@ the following.
       $\condsep{\pmf}{V_1}{V_2}{V_3}$, then $\condsep{\pmf}{S}{V_2}{V_3}$.
     %\item Given $\condsep{\pmf}{X_1}{X_2}{X_3}$ and $\condp{\pmf}{X_1}{\detx{X_2}}$
     %  and $\condp{\pmf}{X_2}{\detx{X_4}}$, then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
-    %\item Given $\condsep{\pmf}{X_1 \cup X_2}{X_3}{X_4}$ and $\condp{\pmf}{X_1 \cup X_2}{\detx{X_3}}$,
+    %\item Given $\condsep{\pmf}{S_1 \cup S_2}{V_3}{X_4}$ and $\condp{\pmf}{X_1 \cup X_2}{\detx{X_3}}$,
     %  then $\condsep{\pmf}{X_1}{X_2 \cup X_3}{X_4}$.
   \end{enumerate}
 \end{lemma}
@@ -209,21 +209,21 @@ for gate-level reasoning.
     (\prog,\decodegmw(E[\mesg{z}]))
   \end{array}
   $$
-
-
-  
+  Letting $\iov(\prog) = S \cup M$, by definition and the induction hypothesis there
+  exist $S^1,S^2 \subseteq S$ and $M^1,M^2 \subseteq M$
+  such that:
   \begin{enumerate}[\hspace{5mm}(x.1)]
   \item $\conddetx{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}$
   \item $\condunix{\progtt(\prog)}{S^1}{M^1_C}$
-  %\item $\condsep{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}{\{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}$
+  \item $\condsep{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}{\{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}$
   \end{enumerate}
-  
+  and also:
   \begin{enumerate}[\hspace{5mm}(y.1)]
   \item $\conddetx{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}$
   \item $\condunix{\progtt(\prog)}{S^2}{M^2_C}$
-  %\item $\condsep{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}{\{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}$
+  \item $\condsep{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}{\{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}$
   \end{enumerate}
-
+  and by Lemma \ref{lemma-gmwtactic} we have:
   \begin{enumerate}[\hspace{5mm}(z.1)]
   \item
     $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
@@ -234,7 +234,6 @@ for gate-level reasoning.
     {\{ \macgv{\mesg{z}} \}}
     {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$
   \end{enumerate}
-
   Given $x.1$ and $y.1$ and assumed uniqueness of random variables
   used in each gate we have $\conddetx{\progtt(\prog)}{S}{\{
     \macgv{\mesg{x}},\macgv{\mesg{y}}\}}$, so it follows from $z.1$
@@ -246,6 +245,13 @@ for gate-level reasoning.
   {S}
   {\{ \macgv{\mesg{z}} \}}
   {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$$
+  Additionally Lemma \ref{lemma-conditioning} (2) gives $\condunix{\progtt(\prog)}{S}{\{ \elab{\mesg{z}}{\cid} \}}$,
+  and $x.2$ and $y.2$ give $\condunix{\progtt(\prog)}{S}{(M^1 \cup M^2)_C}$. Facts $x.3$ and $y.3$ together with
+  uniqueness of gate identifiers implies:
+  $$
+  \condunix{\progtt(\prog)}{S}{(M^1 \cup M^2)_C \cup \{  \elab{\mesg{z}}{\cid} \}}
+  $$
+  This implies the result.
 \end{proof}
 
 \begin{theorem}
@@ -264,19 +270,15 @@ for gate-level reasoning.
   have:
   \begin{mathpar}
     \conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}
-
-    \condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
+    \condunix{\progtt(\prog)}{S}{M_C}
+    \condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{\{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
   \end{mathpar}
   and by definition of $\decodegmw$ the value $\{\macgv{\mesg{z}}\}$ is output
   after the parties publicly reveal $\{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \}$, so we have:
-  \begin{mathpar}
-    \conddetx{\progtt(\prog)}{S_H \cup S_C}{O}
+  \begin{mathpar} 
+    \condunix{\progtt(\prog)}{S}{M_C}
     
-    \condsep{\progtt(\prog)}{S_H \cup S_C}{O}{(M_C \cup P)}
+    \condsep{\progtt(\prog)}{S}{O}{P}
   \end{mathpar}
-  and thus by Lemma \ref{lemma-conditioning} (4) we have:
-  $$
-  \condsep{\progtt(\prog)}{S_C}{(O \cup S_H)}{(M_C \cup P)}
-  $$
   which implies the result.
 \end{proof}
