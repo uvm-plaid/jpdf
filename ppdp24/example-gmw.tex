@@ -130,10 +130,11 @@ $\macgv{\mesg{z}}$ is decoded as the circuit output.
   \label{lemma-gmwinvariant}
   Given:
   $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}])) $$
-  Then both of the following conditions hold for all $H$ and $C$ where $\iov(\prog) = S \cup M$:
+  Then all of the following conditions hold for all $H$ and $C$ where $\iov(\prog) = S \cup M$:
   \begin{enumerate}
-    \item $\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$
-    \item $\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$
+  \item $\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$
+  \item $\condunix{\progtt(\prog)}{S}{M_C}$
+  \item $\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{\{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$
   \end{enumerate}
 \end{lemma}
 To prove this, we can formulate and automatically prove gate-level
@@ -159,15 +160,16 @@ either parties' received messages.
   (\prog,\mesg{z})
   \end{array}
   $$
-  Then both of the following conditions hold for both $\cid \in \{ 1,2 \}$ where $\iov(\prog) = M$:
+  Then all of the following conditions hold for both $\cid \in \{ 1,2 \}$ where $\iov(\prog) = M$:
   \begin{enumerate}
   \item
     $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
-   \item $\condsep
-      {\progtt(\prog)}
-      {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
-      {\{ \macgv{\mesg{z}} \}}
-      {M_{\{\cid\}} \cup \{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$
+  \item $\condunix{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \elab{\mesg{z}}{\cid} \}}$
+  \item $\condsep
+    {\progtt(\prog)}
+    {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
+    {\{ \macgv{\mesg{z}} \}}
+    {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$
   \end{enumerate}
 \end{lemma}
 \begin{proof}
@@ -179,16 +181,18 @@ the global reasoning of Lemma \ref{lemma-gmwinvariant}, we can demonstrate
 the following.
 \begin{lemma}
   \label{lemma-conditioning}
-  Each of the following hold:
+  Give $\pmf$, each of the following hold for $S,V_1,V_2,V_3 \in \dom(\pmf)$:
   \begin{enumerate}
-    \item Given $\condp{\pmf}{X_1}{\detx{X_2}}$ and
-      $\condp{\pmf}{X_2}{\detx{X_3}}$, then $\condp{\pmf}{X_1}{\detx{X_3}}$.
-    \item Given $\condp{\pmf}{X_1}{\detx{X_2}}$ and
-      $\condsep{\pmf}{X_2}{X_3}{X_4}$, then $\condsep{\pmf}{X_1}{X_3}{X_4}$.
-    \item Given $\condsep{\pmf}{X_1}{X_2}{X_3}$ and $\condp{\pmf}{X_1}{\detx{X_2}}$
-      and $\condp{\pmf}{X_2}{\detx{X_4}}$, then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
-    \item Given $\condsep{\pmf}{X_1 \cup X_2}{X_3}{X_4}$ and $\condp{\pmf}{X_1 \cup X_2}{\detx{X_3}}$,
-      then $\condsep{\pmf}{X_1}{X_2 \cup X_3}{X_4}$.
+    \item Given $\condp{\pmf}{S}{\detx{V_1}}$ and
+      $\condp{\pmf}{V_2}{\detx{V_2}}$, then $\condp{\pmf}{S}{\detx{V_2}}$.
+    \item Given $\condp{\pmf}{S}{\detx{V_1}}$ and
+      $\condp{\pmf}{V_1}{\unix{V_2}}$, then $\condp{\pmf}{S}{\unix{V_2}}$.
+    \item Given $\condp{\pmf}{S}{\detx{V_1}}$ and
+      $\condsep{\pmf}{V_1}{V_2}{V_3}$, then $\condsep{\pmf}{S}{V_2}{V_3}$.
+    %\item Given $\condsep{\pmf}{X_1}{X_2}{X_3}$ and $\condp{\pmf}{X_1}{\detx{X_2}}$
+    %  and $\condp{\pmf}{X_2}{\detx{X_4}}$, then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
+    %\item Given $\condsep{\pmf}{X_1 \cup X_2}{X_3}{X_4}$ and $\condp{\pmf}{X_1 \cup X_2}{\detx{X_3}}$,
+    %  then $\condsep{\pmf}{X_1}{X_2 \cup X_3}{X_4}$.
   \end{enumerate}
 \end{lemma}
 
@@ -205,28 +209,43 @@ for gate-level reasoning.
     (\prog,\decodegmw(E[\mesg{z}]))
   \end{array}
   $$
-  The induction hypothesis, together with the assumed uniquenenss of $z$, gives:
-  \begin{mathpar}
-  \condsep{\progtt(\prog)}{S^1}{\{ \macgv{\mesg{x}} \}}{(M^1_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}
-  
-  \condsep{\progtt(\prog)}{S^2}{\{ \macgv{\mesg{y}} \}}{(M^2_C \cup \{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}
 
-  \conddetx{\progtt(\prog)}{S^1}{\{ \macgv{\mesg{x}} \}}
+
   
-  \conddetx{\progtt(\prog)}{S^2}{\{ \macgv{\mesg{y}} \}}    
-  \end{mathpar}
-  This, together with Lemma \ref{lemma-gmwtactic} (1) and Lemma \ref{lemma-conditioning} (1)
-  give:
-  $$
-  \conddetx{\progtt(\prog)}{S^1 \cup S^2}{\{ \macgv{\mesg{z}} \}}
-  $$
-  and Lemma  \ref{lemma-gmwtactic} (2) and Lemma \ref{lemma-conditioning} (2-3) gives:
-  $$
-  \begin{array}{c}
-    \progtt(\prog)|S^1 \cup S^2) \vdash \\
-    {\{ \macgv{\mesg{z}} \}} * {(M^1_C \cup M^2_C \cup \{ \elab{\mesg{x}}{2}, \elab{\mesg{y}}{2}, \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
-  \end{array}
-  $$
+  \begin{enumerate}[\hspace{5mm}(x.1)]
+  \item $\conddetx{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}$
+  \item $\condunix{\progtt(\prog)}{S^1}{M^1_C}$
+  %\item $\condsep{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}{\{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}$
+  \end{enumerate}
+  
+  \begin{enumerate}[\hspace{5mm}(y.1)]
+  \item $\conddetx{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}$
+  \item $\condunix{\progtt(\prog)}{S^2}{M^2_C}$
+  %\item $\condsep{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}{\{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}$
+  \end{enumerate}
+
+  \begin{enumerate}[\hspace{5mm}(z.1)]
+  \item
+    $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
+  \item $\condunix{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \elab{\mesg{z}}{\cid} \}}$
+  \item $\condsep
+    {\progtt(\prog)}
+    {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
+    {\{ \macgv{\mesg{z}} \}}
+    {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$
+  \end{enumerate}
+
+  Given $x.1$ and $y.1$ and assumed uniqueness of random variables
+  used in each gate we have $\conddetx{\progtt(\prog)}{S}{\{
+    \macgv{\mesg{x}},\macgv{\mesg{y}}\}}$, so it follows from $z.1$
+  and Lemma \ref{lemma-conditioning} (1) that
+  $\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$, and also by
+  $z.3$ and Lemma \ref{lemma-conditioning} (3):
+  $$\condsep
+  {\progtt(\prog)}
+  {S}
+  {\{ \macgv{\mesg{z}} \}}
+  {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$$
 \end{proof}
 
 \begin{theorem}
