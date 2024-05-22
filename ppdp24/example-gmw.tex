@@ -59,7 +59,7 @@ of a sequence of let-bindings followed by a call to $\decodegmw$
 wrapping a circuit.
 
 \paragraph{Oblivious Transfer} A passive secure oblivious transfer (OT) protocol
-based on previous work \cite{XXX} can be defined in $\metaprot$,
+based on previous work \cite{barthe2019probabilistic} can be defined in $\metaprot$,
 however this protocol assumes some shared randomness. Alternatively,
 a simple passive secure OT can be defined with the addition of
 public key cryptography as a primitive. But given the diversity
@@ -86,10 +86,10 @@ $$
 
 \subsection{Correctness Proof with Verification Tactics}
 
-As discussed above and in related work \cite{XXX}, probabilistic
+As discussed above and in related work \cite{8429300}, probabilistic
 separation conditional on certain variables-- e.g., secret inputs or
 public outputs-- is a key mechanism for reasoning about MPC protocol
-security. Following \cite{XXX}, we define a conditional separation
+security. Following \cite{barthe2019probabilistic}, we define a conditional separation
 relation $\condsep{\pmf}{X_1}{X_2}{X_3}$ to mean that under the
 condition of all value assignments for $X_2$ and $X_3$ are separable
 under $\pmf$ on the condition of any value assignment of $X_1$-- i.e.,
