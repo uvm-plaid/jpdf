@@ -71,23 +71,24 @@ show how it can be integrated as a tactic in a larger security proof.
 
 \subsection{Overview and Contributions}
 
-Our work provides a complete methodology for end-to-end verification
+In summary, our work provides a complete methodology for end-to-end verification
 of MPC protocols via three components:
 %
 \begin{enumerate}
 \item A \textbf{low-level language} for defining MPC primitives
-  (\S\ref{section-lang}).
+  (Section \ref{section-lang}) with an associated metalanguage
+  to ease programming (Section \ref{section-metalang}).
 \item A \textbf{fully-automated verification method} for low-level MPC
-  primitives in $\mathbb{F}_2$ (\S\ref{section-bruteforce}).
+  primitives in $\mathbb{F}_2$ (Section \ref{section-bruteforce}).
 \item A \textbf{partially-automated verification method} for
-  high-level MPC protocols, which leverages automated proofs for
-  low-level primitives (\S\ref{section-example-gmw}).
+  MPC protocols, which leverages automated proofs for
+  low-level primitives (Section \ref{section-example-gmw}).
 \end{enumerate}
 %
 As part of this methodology, we also develop hyperproperties that
 encode MPC security that may be of independent interest. The complete
 methodology enables the verification of real-world MPC protocols like
-GMW~\cite{goldreich2019play}.
+GMW~\cite{goldreich2019play}. 
 
 \paragraph{Language design.} In Section \ref{section-lang} we
 develop a new probabilistic programming language $\minifed$ for
