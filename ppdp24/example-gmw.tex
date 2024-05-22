@@ -9,7 +9,7 @@ automated techniques in Section \ref{section-bruteforce} can serve
 as tactics integrated with PSL/Lilac-style proofs, we consider GMW
 circuits.  The GMW protocol is a garbled binary circuit protocol.  We
 will assume the 2-party version, though it generalizes to $n$
-parties\cite{goldreich2019play}. GMW uses a common technique in MPC, which is to
+parties \cite{goldreich2019play}. GMW uses a common technique in MPC, which is to
 represent values $v$ as distributed shares $v_1$ and $v_2$ with $v =
 v_1 \fplus v_2$. This trick maintains secrecy of $v$ from both
 parties, and in GMW it is used to maintain the intermediate values of
@@ -39,7 +39,7 @@ For full details of the GMW protocol the reader is referred to
 Figure \ref{fig-gmw}, and includes encoding functions, where
 input secrets are split into shares, $\eand$ and $\exor$ gate
 functions, and a decoding function. Note that $\exor$ requires
-no interaction between parties, while $\eand$ necessitates and
+no interaction between parties, while conjunction necessitates
 1-of-4 oblivious transfer. The gate computation is
 done entirely in secrect, and the decoding function
 is where the declassification occurs-- both parties reveal
@@ -89,19 +89,18 @@ $$
 As discussed above and in related work \cite{8429300}, probabilistic
 separation conditional on certain variables-- e.g., secret inputs or
 public outputs-- is a key mechanism for reasoning about MPC protocol
-security. Following \cite{barthe2019probabilistic}, we define a conditional separation
-relation $\condsep{\pmf}{X_1}{X_2}{X_3}$ to mean that under the
-condition of all value assignments for $X_2$ and $X_3$ are separable
-under $\pmf$ on the condition of any value assignment of $X_1$-- i.e.,
-conditionally on any $\store \in \mems(X_1)$. Another key concept
-needed especially for reasoning about circuits is conditional
-determinism. For example, if $\macgv{z}$ is an output of an internal
-gate, it will definitely be computed using random variables, however,
-it \emph{should} be determistic under any set of input secrets $S$,
-since we assume that $\idealf$ is deterministic. Conditional
-uniformity is also important, since the gradual release property of
-many protocols means that messages appear in a uniform distribution to
-the adversary.
+security. Following \cite{barthe2019probabilistic}, we define a
+conditional separation relation $\condsep{\pmf}{X_1}{X_2}{X_3}$ to
+mean that $X_2$ and $X_3$ are indpendent in $\pmf$ conditionally on
+any assignment of values to $X_1$-- i.e., conditionally on any $\store
+\in \mems(X_1)$. Another key concept needed especially for reasoning
+about circuits is conditional determinism. For example, if $\macgv{z}$
+is an output of an internal gate, it will definitely be computed using
+random variables, however, it \emph{should} be determistic under any
+set of input secrets $S$, since we assume that $\idealf$ is
+deterministic. Conditional uniformity is also important, since the
+gradual release property of many protocols means that messages appear
+in a uniform distribution to the adversary.
 \begin{definition}[Conditioning Properties] 
   Give $\pmf$ and $X_1,X_1,X_3 \subseteq \dom{pmf}$, 
   we write:

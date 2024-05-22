@@ -22,12 +22,12 @@ negation-as-failure model, though we can also use techniques in
 \subsection{Computing a Truth Table}
 
 In Figure \ref{fig-solve} we define the algorithm
-$\solve{\stores}{\be}{\cid}$ which filters a given $\stores$ to obtain the
-subset whose elements satisfy $\be$. In this figure and elsewhere for
-$\mathbb{F}_2$ we use standard names of logical connectives
-for field operations ($\eand$ and $\exor$ for $*$ and $+$ respectively) and
-add $\enot$ and $\eor$ as trivial but convenient extensions. The correctness
-of this operation is characterized as follows.
+$\solve{\stores}{\be}{\cid}$ which filters a given $\stores$ to obtain
+the subset whose elements satisfy $\be$. In this Figure and elsewhere
+we use logical connectives as field operations ($\eand$ and $\exor$
+for $*$ and $+$ respectively) in $\mathbb{F}_2$ and add $\enot$ and
+$\eor$ as trivial but convenient extensions. The correctness of this
+operation is characterized as follows.
 \begin{lemma}
   \label{lemma-solves}
   %For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
@@ -80,8 +80,8 @@ written $\vars\ \be\ \cid$ where:
 
   \vars\ (\be_1 \exor \be_2)\ \cid \defeq (\vars\ \be_1\ \cid) \cup (\vars\ \be_2\ \cid)
 \end{mathpar}
-... and so on. Then, to begin converting a protocol $\prot$ to a Datalog
-we define the function ${tt}$ that applies $\solve{\!}{\!}{\!\!}$ locally to each command
+... and so on. Then, to convert a protocol $\prot$ to a Datalog
+we first define the function $\bodies$ that applies $\solvealg$ locally to each command
 in $\prog$, obtaining the subset of memories that result
 in a variable assignment of $1$.  
 \begin{definition} Define:
