@@ -1,0 +1,20 @@
+\section{Conclusion and Future Work}
+
+The $\metaprot/\minifed$ language model developed in this paper, along
+with the suite of hyperproperties explored, are a foundation
+for defining low-level MPC protocols and exploring methods for security
+verification.  There are several promising avenues for future
+work. Concurrency will be important to capture common MPC idioms such
+as commitment and circuit optimizations, and to consider the UC
+security model \cite{evans2018pragmatic,viaduct-UC}. To support better
+verification, integration of our tactics with a proof assistant is a
+compelling direction that resonate with previous work \cite{8429300}.
+
+Better automated verification is a main goal for future work.
+Security types have been effectively leveraged for high-level
+programs, for both passive and malicious security. This suggests that
+they can be similarly applied at low levels in a way that is
+complementary to high-level systems. Generalizing our automated
+analysis in $\mathbb{F}_2$ to larger arithmetic fields is also a
+compelling technical challenge with potential practical benefits,
+e.g., application to arithmetic circuits. 
