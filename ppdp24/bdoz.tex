@@ -1,5 +1,5 @@
 \begin{fpfig}[t]{2-Party BDOZ Protocol Library.}{fig-bdoz}
-{\footnotesize
+{\footnotesize{
   \begin{verbatimtab}
     macsum(s1,s2)
     { { share = s1.share + s2.share; mac = s1.mac + s2.mac } }
@@ -30,9 +30,8 @@
       p[w] = s.share@i2;
       p[w++"mac"] = s.mac@i2;
       auth(p[w],p[w++"mac"],k,i1)    
-    }
-  \end{verbatimtab}
-}
+    } \end{verbatimtab}
+}}
 \end{fpfig}
 
 

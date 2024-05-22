@@ -5,7 +5,7 @@
 
 In a malicious setting, ``detecting cheating'' by adding
 information-theoretic secure MAC codes to shares is a fundamental
-approach realized by protocols such as BDOZ and SPDZ
+technique pioneered in systems such as BDOZ and SPDZ
 \cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3}.  These protocols
 assume a pre-processing phase that distributes shares with MAC codes
 to clients.  This integrates well with pre-processed Beaver Triples to
@@ -97,10 +97,10 @@ we have both:
   \sep{\progtt(\prog)}{\{ \elab{\mesg{d}}{2} \}}{\{ \elab{\secret{x}}{1}  \}}
 \end{mathpar}
 Furthermore, client 2's authentication of the sum of shares with the
-sum of their keys detects any attempted cheating by $1$.
-Finally, the $\ttt{secreveal}$ function
-is very similar to $\decodegmw$, except with the addition
-of authentication of revealed shares to ensure malicious security. 
+sum of their keys detects any attempted cheating by $1$.  Finally, the
+$\ttt{secreveal}$ function is the same as $\decodegmw$ but with the
+addition of authentication of revealed shares to ensure malicious
+security.
 
 \input{beaver}
 
@@ -117,21 +117,20 @@ scheme.
 
 \subsection{Cheating Detection and Integrity}
 
-We can carry out similar proofs of passive security for the protocol in
-Figure \ref{fig-beaver} as for GMW, even using automated tactics for
-the protocol in $\mathbb{F}_2$. But in the case of BDOZ we are also
-concerned with malicious security. To demonstrate this, we can
-demonstrate that the protocol satisfies integrity in the sense of
-Definition \ref{def-integrity}. To do so, we observe that it satisfies
-a stronger property, that we call cheating detection. Intuitively,
-integrity says that the only thing that the adversary can do in the
-malicious model is to elicit the same responses from honest parties
-that an honest run of the protocol would elicit. Cheating detection
-says that the adversary can only execute the protocol honestly, or
-or else gets caught (and abort).
+We can carry out similar proofs of passive security for the protocol
+in Figure \ref{fig-beaver} as for GMW, even using automated tactics
+for the protocol in $\mathbb{F}_2$. But in the case of BDOZ we are
+also concerned with malicious security. To demonstrate this, we can
+show that the protocol satisfies integrity in the sense of Definition
+\ref{def-integrity}. To do so, we observe that it satisfies a stronger
+property, that we call cheating detection. Cheating detection says
+that the adversary can only execute the protocol honestly, or or else
+gets caught (and abort). Note in particular that this is \emph{not}
+a form of endorsement (the dual of declassificatio), which allows
+the adversary some leeway. Rather, it is a confirmation of high integrity.
 
-Focusing in, we identify the adversarial inputs as the messages
-sent from the adversary to honest parties, on which honest responses
+Focusing in, we identify the \emph{adversarial inputs} as the messages
+sent from the adversary to honest parties on which honest responses
 to the adversary may depend. We want to say that these are the messages
 that must be legitimate.
 \begin{definition}
@@ -141,7 +140,7 @@ that must be legitimate.
   $X_C \subseteq \cinputs$ such that $\progtt(\prog) \not\vdash X_C * X_H$.
 \end{definition}
 Now, we can characterize protocols with cheating detection as those where
-adversarial inputs to honest reponses must themselves be constructed honestly. 
+the adversary can only behave honestly/passively, or else cause abort.
 \begin{definition}[Cheating Detection]
   \emph{Cheating is detected} in $\prog$ with $\iov(\prog) = S \cup V \cup O$ iff
   for all  $\store \in \aruns(\prog)$,
