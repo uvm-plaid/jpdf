@@ -118,15 +118,16 @@ in a uniform distribution to the adversary.
   \end{itemize}
 \end{definition}
 
-Given these definitions, we can formulate an invariant
-for circuit computation with respect to internal gates
-as follows. It says that the output of any gate is
-deterministic wrt inputs $S$, and conditionally
-on $S$ the output $\macgv{\mesg{z}}$ remains
+Given these definitions, we can formulate an invariant for circuit
+computation with respect to internal gates as follows. It says that
+the output of any gate is deterministic given inputs $S$, and
+conditionally on $S$ corrupt views are always in a uniform random
+disrtibution (pure noise), while output $\macgv{\mesg{z}}$ remains
 separable from corrupt views and both shares of
-$\macgv{\mesg{z}}$. This last nuance is critical,
-since those shares will in fact be revealed if
-$\macgv{\mesg{z}}$ is decoded as the circuit output. 
+$\macgv{\mesg{z}}$. This last condition (incidentally missing from PSL
+due to the reliance on more recent innovations in conditioning logic
+\cite{li2023lilac}) is critical since those shares will in fact be
+revealed if $\macgv{\mesg{z}}$ is decoded as the circuit output.
 \begin{lemma}[GMW Invariant]
   \label{lemma-gmwinvariant}
   Given:
@@ -138,12 +139,9 @@ $\macgv{\mesg{z}}$ is decoded as the circuit output.
   \item $\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{\{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$
   \end{enumerate}
 \end{lemma}
-To prove this, we can formulate and automatically prove gate-level
-versions of the invariant. This serves as a proof tactic
-that simplifies the proof of the GMW invariant. It establishes
-that the $\eand$ gate output is deterministic conditional on
-the inputs, and is separable from the output shares and
-either parties' received messages. 
+To prove this, we can formulate and automatically prove local,
+gate-level versions of the invariant. This serves as a proof tactic
+that simplifies the proof of the GMW invariant. 
 \begin{lemma}[And Gate Tactic]
   \label{lemma-gmwtactic}
   %Define:
@@ -179,7 +177,9 @@ Verified automatically using techniques described in Section \ref{section-brutef
 
 To properly integrate the local reasoning of Lemma \ref{lemma-gmwtactic} with
 the global reasoning of Lemma \ref{lemma-gmwinvariant}, we can demonstrate
-the following.
+the following properties of conditioning-based reasoning. While a frame rule
+was developed in \cite{li2023lilac}, these properties are distinct and
+useful for reasoning about MPC. We omit proofs for brevity. 
 \begin{lemma}
   \label{lemma-conditioning}
   Give $\pmf$, each of the following hold for $S,V_1,V_2,V_3 \in \dom(\pmf)$:
@@ -198,7 +198,8 @@ the following.
 \end{lemma}
 
 Then we can put the pieces together to prove the invariant, using automated tactics
-for gate-level reasoning.  
+for gate-level reasoning. We sketch some elements of this proof to focus on
+novel aspects of our technique. 
 \begin{proof}[Proof of Lemma \ref{lemma-gmwinvariant}]
   By induction on the length of $(\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}]))$.
   Encoding establishes the invariant in the basis. The most interesting inductive
@@ -254,7 +255,8 @@ for gate-level reasoning.
   $$
   This implies the result.
 \end{proof}
-
+The preceding Lemma, together with some additional observations about decoding, establish correctness
+of arbitrary circuits. 
 \begin{theorem}
   \label{theorem-gmw}
   If $e$ is a GMW circuit protocol in $\metaprot$ with $(\varnothing,e) \redxs (\prog,())$
