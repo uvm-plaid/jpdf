@@ -23,7 +23,7 @@ of, e.g., noninterference \cite{8429300}, and even leveraged these
 connections to enforce MPC security through mechanisms such as
 security types \cite{10.1145/3453483.3454074}. Major benefits of this
 connection in an MPC setting include better language abstractions for
-defining protocols and for mechanisation and even automation of
+defining protocols and for mechanization and even automation of
 security proofs.  The goal of this paper is to develop a PL model for
 defining a variety of low-level probabilistic MPC protocols, to
 formulate a collection of confidentiality and integrity
@@ -40,7 +40,7 @@ verified compilation techniques such as orchestration
 \cite{viaduct-UC} to guarantee high-level security properties, and
 they rely on \emph{libraries} of low-level MPC protocols, such as
 binary and arithmetic circuits. These low-level protocols encapsulate
-abstractions such as secret sharing and semi-homomorphic encrypytion,
+abstractions such as secret sharing and semi-homomorphic encryption,
 and must be verified by hand. So, low-level MPC
 programming and protocol verification remains a distinct challenge and both
 critical to the general challenge of PL design for MPC and
@@ -179,7 +179,7 @@ declassification, in addition to rigorous compilation guarantees
 through orchestration \cite{viaduct-UC}. However, these high level
 languages lack probabilistic features and other abstractions of
 low-level protocols, the implementation and security of which are
-typically assumed as a selection of library compnonents.
+typically assumed as a selection of library components.
 
 Various related low-level languages with probabilistic features have
 also been developed. The $\lambda_{\mathrm{obliv}}$ language
@@ -188,7 +188,7 @@ enforce so-called probabilistic trace obliviousness.  But similar to
 previous work on oblivious data structures \cite{10.1145/3498713},
 obliviousness is related to pure noninterference, not the relaxed form
 related to passive MPC security. The Haskell-based security type
-system in \cite{6266151} enforces a version of noninterence that is
+system in \cite{6266151} enforces a version of noninterference that is
 sound for passive security, but does not verify the correctness of
 declassifications and does not consider malicious security. And
 properties of real/ideal passive and malicious security for a

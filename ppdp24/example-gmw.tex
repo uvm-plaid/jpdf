@@ -35,13 +35,13 @@ of two variables in the distribution.
 \end{definition}
 
 For full details of the GMW protocol the reader is referred to
-\cite{evans2018pragmatic}. Our implementation libary is shown in
+\cite{evans2018pragmatic}. Our implementation library is shown in
 Figure \ref{fig-gmw}, and includes encoding functions, where
 input secrets are split into shares, $\eand$ and $\exor$ gate
 functions, and a decoding function. Note that $\exor$ requires
 no interaction between parties, while conjunction necessitates
 1-of-4 oblivious transfer. The gate computation is
-done entirely in secrect, and the decoding function
+done entirely in secret, and the decoding function
 is where the declassification occurs-- both parties reveal
 their shares of the final gate output $\macgv{z}$.
 
@@ -91,12 +91,12 @@ separation conditional on certain variables-- e.g., secret inputs or
 public outputs-- is a key mechanism for reasoning about MPC protocol
 security. Following \cite{barthe2019probabilistic}, we define a
 conditional separation relation $\condsep{\pmf}{X_1}{X_2}{X_3}$ to
-mean that $X_2$ and $X_3$ are indpendent in $\pmf$ conditionally on
+mean that $X_2$ and $X_3$ are independent in $\pmf$ conditionally on
 any assignment of values to $X_1$-- i.e., conditionally on any $\store
 \in \mems(X_1)$. Another key concept needed especially for reasoning
 about circuits is conditional determinism. For example, if $\macgv{z}$
 is an output of an internal gate, it will definitely be computed using
-random variables, however, it \emph{should} be determistic under any
+random variables, however, it \emph{should} be deterministic under any
 set of input secrets $S$, since we assume that $\idealf$ is
 deterministic. Conditional uniformity is also important, since the
 gradual release property of many protocols means that messages appear
@@ -122,7 +122,7 @@ Given these definitions, we can formulate an invariant for circuit
 computation with respect to internal gates as follows. It says that
 the output of any gate is deterministic given inputs $S$, and
 conditionally on $S$ corrupt views are always in a uniform random
-disrtibution (pure noise), while output $\macgv{\mesg{z}}$ remains
+distribution (pure noise), while output $\macgv{\mesg{z}}$ remains
 separable from corrupt views and both shares of
 $\macgv{\mesg{z}}$. This last condition (incidentally missing from PSL
 due to the reliance on more recent innovations in conditioning logic

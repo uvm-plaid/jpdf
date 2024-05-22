@@ -86,7 +86,7 @@ $\macgv{\secret{w_1}} \fplus \macgv{\mesg{w_2}}$ is reconstructed as
 $\mesg{w_3}$, by each client $\cid_2$ communicating
 $\lcod{\mesg{w_1} + \mesg{w_2}}{\cid_2}$ to $\cid_1$.  Assuming that
 $\macgv{\mesg{w_2}}$ is in an independent uniform distribution,
-this perfectly hides $\secret{w_1}$. In a mutiplication gate
+this perfectly hides $\secret{w_1}$. In a multiplication gate
 either $a$ or $b$ of a Beaver triple are used in secure opening,
 so, e.g., given $
 (\varnothing,\ttt{secopen}(a, x, d, 2, 1) \redxs (\prog,())$
@@ -112,7 +112,7 @@ followed by the non-interactive computation of shares of $x * y$ for
 secure reveals as per standard protocol
 \cite{10.1007/978-3-030-68869-1_3}. The non-interactive reconstruction
 of the local authentication key for both the secure openings and the
-final reveal is enabled by the semi-homorphic properties of the BDOZ
+final reveal is enabled by the semi-homomorphic properties of the BDOZ
 scheme.
 
 \subsection{Cheating Detection and Integrity}
@@ -126,7 +126,7 @@ show that the protocol satisfies integrity in the sense of Definition
 property, that we call cheating detection. Cheating detection says
 that the adversary can only execute the protocol honestly, or or else
 gets caught (and abort). Note in particular that this is \emph{not}
-a form of endorsement (the dual of declassificatio), which allows
+a form of endorsement (the dual of declassification), which allows
 the adversary some leeway. Rather, it is a confirmation of high integrity.
 
 Focusing in, we identify the \emph{adversarial inputs} as the messages

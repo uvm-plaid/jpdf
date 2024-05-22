@@ -254,11 +254,11 @@ assertions.
 \end{definition}
 
 It is necessary to add $\bot$ to the range of memories since
-the possibility of abort needs to be reflected in adversrarial
+the possibility of abort needs to be reflected in adversarial
 runs of a protocol. We can define $\aruns(\prog,\adversary)$
 as the ``prefix'' memories that result from possibly-aborting
 protocols, but we also need to ``pad out'' the memories
-of partial runs with $\bot$, as we defin in $\botruns(\prog,\adversary)$,
+of partial runs with $\bot$, as we define in $\botruns(\prog,\adversary)$,
 to properly reflect the contents of views and outputs even in case of abort. 
 \begin{definition}
   \label{def-aprogd}
