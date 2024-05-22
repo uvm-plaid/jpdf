@@ -25,9 +25,7 @@ discussed in Section \ref{section-lang}, public reveals and protocol
 outputs are fundamentally forms of declassification.  But consistent
 with other work \cite{8429300}, we can formulate a version of
 probabilistic noninterence conditioned on output that is sound
-for passive security. It says that if two low-equivalent secret
-inputs generate the same output, then the distributions of corrupt
-views are the same. 
+for passive security. 
 \begin{definition}[Noninterference modulo output]
   \label{definition-NIMO}
   We say that a program $\prog$ with $\iov(\prog) = S \cup V \cup O$
@@ -51,7 +49,7 @@ views are the same.
 %  $$
 %  where $\iov(\prog) = S \cup V \cup O$.
 %\end{definition}
-Intuitively, this conditional noninterference property implies that
+This conditional noninterference property implies that
 corrupt views give the adversary no better chance of guessing honest
 secrets than just the output and corrupt inputs do. So the simulator
 can just arbitrarily pick any honest secrets that could have produced
