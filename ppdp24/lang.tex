@@ -146,11 +146,11 @@ communicated as messages to the other clients, while each client keeps
 $\locflip$ as its own share.
 $$
 \begin{array}{lll}
-  \elab{\mesg{s1}}{2} &:=& \elab{(\locflip \fminus \flip{x} \fminus \secret{1})}{1} \\ 
+  \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip \fminus \flip{x})}{1} \\ 
   \elab{\mesg{s1}}{3} &:=& \elab{\flip{x}}{1} \\ 
-  \elab{\mesg{s2}}{1} &:=& \elab{(\locflip \fminus \flip{x} \fminus \secret{2})}{2} \\ 
+  \elab{\mesg{s2}}{1} &:=& \elab{(\secret{2} \fminus \locflip \fminus \flip{x})}{2} \\ 
   \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
-  \elab{\mesg{s3}}{1} &:=& \elab{(\locflip \fminus \flip{x} \fminus \secret{3})}{3} \\ 
+  \elab{\mesg{s3}}{1} &:=& \elab{(\secret{3} \fminus \locflip \fminus \flip{x})}{3} \\ 
   \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3}
 \end{array}
 $$
