@@ -132,7 +132,7 @@ input/output information dependencies.
   marginal distribution. Then the \emph{basic distribution of $\prog$}, written $\progtt(\prog)$, is
   defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
   $$
-  \progtt(\store) =  1 / |\runs(\prog)| \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
+  \progtt(\prog)(\store) =  1 / |\runs(\prog)| \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
   $$
   
   %In some cases, we will also be concerned with the (joint)
@@ -287,7 +287,7 @@ to properly reflect the contents of views and outputs even in case of abort.
   Then the \emph{$\adversary$ distribution of $\prog$}, written $\progtt(\prog,\adversary)$, is
   defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
   $$
-  \progtt(\prog,\adversary) =  1 / |\botruns(\prog)| \ \text{if}\ \store \in \botruns(\prog), \text{otherwise}\ 0
+  \progtt(\prog,\adversary)(\store) =  1 / |\botruns(\prog)| \ \text{if}\ \store \in \botruns(\prog), \text{otherwise}\ 0
   $$
 \end{definition}
 

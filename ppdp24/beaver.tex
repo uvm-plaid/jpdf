@@ -10,7 +10,7 @@
              macsum(macctimes(macshare("a"), m["e"]),
                     macshare("c")))
     in
-    let xyk = mack("b") * m["d"] + mack("d") * m["d"] + mack("c")               
+    let xyk = mack("b") * m["d"] + mack("a") * m["d"] + mack("c")               
     in
     secreveal(xys,xyk,"1",1,2);
     secreveal(maccsum(xys,m["d"] * m["e"]),
