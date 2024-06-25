@@ -146,5 +146,45 @@ $$
   \inferrule
       {e_1 \redx \be_1 \\ e_2 \redx \be_2 \\ e \redx \cid}
       {\mc{\prog}{(\eqs_1,\eqs_2)}{\eqon}{\elab{\assert{e_1 = e_2}}{e}} \redx
-        (\prog,(\eqs_1, \eqs_2 \wedge \eqtrans{\elab{\be_1}{\cid}} = \eqtrans{\elab{\be_2}{\cid}},\eqon)}
+        (\prog;\elab{\assert{\be_1 = \be_2}}{\cid},(\eqs_1, \eqs_2 \wedge \eqtrans{\elab{\be_1}{\cid}} = \eqtrans{\elab{\be_2}{\cid}}),\eqon)}
+      
+  \inferrule
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2 \\ e \redx \cid}
+      {\mc{\prog}{(\eqs_1,\eqs_2)}{\eqoff}{\elab{\assert{e_1 = e_2}}{e}} \redx
+        (\prog;\elab{\assert{\be_1 = \be_2}}{\cid},(\eqs_1, \eqs_2,\eqoff)}
+      
+  \inferrule
+      {e_1 \redx w \\ e_2 \redx \cid_1 \\ e_3 \redx \be \\ e_4 \redx \cid_2}
+      {\mc{\prog}{(\eqs_1,\eqs_2)}{\eqon}{\msend{e_1}{e_2}{e_3}{e_4}} \redx
+        (\prog;\msend{w}{\cid_1}{\be}{\cid_2},
+        (\eqs_1 \wedge \mx{w}{\cid_1} = \eqtrans{\elab{\be}{\cid_2}}, \eqs_2),\eqon)}
+      
+  \inferrule
+      {e_1 \redx w \\ e_2 \redx \cid_1 \\ e_3 \redx \be \\ e_4 \redx \cid_2}
+      {\mc{\prog}{(\eqs_1,\eqs_2)}{\eqoff}{\msend{e_1}{e_2}{e_3}{e_4}} \redx
+        (\prog;\msend{w}{\cid_1}{\be}{\cid_2},
+        (\eqs_1, \eqs_1),\eqoff)}
+
+  \inferrule
+      {}
+      {\mc{\prog}{(\eqs_1,\eqs_2)}{\eqon}{\pre{\eqs}} \redx (\prog,\eqs_1,\eqs_2 \wedge \eqs,\eqoff)}
+
+  \inferrule
+      {}
+      {\mc{\prog}{(\eqs_1,\eqs_2)}{\eqoff}{\post{\eqs}} \redx (\prog,(\eqs_1 \wedge \eqs,\eqs_2),\eqon)}
+            
+  \inferrule
+      {\mc{\prog_1}{(\eqs_{11},\eqs_{12})}{\eqflag_1}{\cmd_1} \redx
+        (\prog_2,(\eqs_{21},\eqs_{22}),\eqflag_2) \\
+       \mc{\prog_2}{(\eqs_{21},\eqs_{22})}{\eqflag_2}{\cmd_2} \redx
+        (\prog_3,(\eqs_{31},\eqs_{32}),\eqflag_3)}
+      {\mc{\prog_1}{(\eqs_{11},\eqs_{12})}{\eqflag_1}{\cmd_1;\cmd_2} \redx
+        (\prog_3,(\eqs_{31},\eqs_{32}),\eqflag_3)}
+
+  \inferrule
+      {\codebase(f) = y_1,\ldots,y_n,\ \cmd \\ e_1 \redx \mv_1 \cdots e_n \redx \mv_n \\
+        \mc{\prog_1}{(\eqs_{11},\eqs_{12})}{\eqflag_1}{\cmd[\mv_1/y_1,]\cdots[\mv_n/y_n]} \redx
+        (\prog_2,(\eqs_{21},\eqs_{22}),\eqflag_2)}
+      {\mc{\prog_1}{(\eqs_{11},\eqs_{12})}{\eqflag_1}{f(e_1,\ldots,e_n)} \redx
+        (\prog_2,(\eqs_{21},\eqs_{22}),\eqflag_2)}
 \end{mathpar}
