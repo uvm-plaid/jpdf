@@ -144,7 +144,7 @@ $$
 
 \begin{mathpar}
   \inferrule
-      {e_1 \redx \be_1 \\ e_2 \redx \be_2}
-      {\mc{\prog}{(\eqs_1,\eqs_2)}{\eqon}{\elab{\assert{e_1 = e_2}}{\cid}} \redx
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2 \\ e \redx \cid}
+      {\mc{\prog}{(\eqs_1,\eqs_2)}{\eqon}{\elab{\assert{e_1 = e_2}}{e}} \redx
         (\prog,(\eqs_1, \eqs_2 \wedge \eqtrans{\elab{\be_1}{\cid}} = \eqtrans{\elab{\be_2}{\cid}},\eqon)}
 \end{mathpar}
