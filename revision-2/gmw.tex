@@ -1,0 +1,36 @@
+\begin{fpfig}[t]{2-Party GMW circuit library.}{fig-gmw}
+{\footnotesize
+  \begin{verbatimtab}
+    encodegmw(in, i1, i2) {
+      m[in]@i2 := (s[in] xor r[in])@i2;
+      m[in]@i1 := r[in]@2;
+      m[in]
+    }
+    
+    andtablegmw(b1, b2, r) {
+      let r11 = r xor (b1 xor true) and (b2 xor true) in
+      let r10 = r xor (b1 xor true) and (b2 xor false) in
+      let r01 = r xor (b1 xor false) and (b2 xor true) in
+      let r00 = r xor (bl xor false) and (b2 xor false) in
+      { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
+    }
+    
+    andgmw(z, x, y) {
+      let r = r[z] in
+      let table = andtablegmw(x,y,r) in
+      m[z]@2 := OT4(x,y,table,2,1);
+      m[z]@1 := r@1;
+      m[z]
+    }
+    
+    xorgmw(z, x, y)
+    { m[z]@1 := (x xor y)@1; m[z]@2 := (x xor y)@2; m[z] }
+    
+    decodegmw(z) {
+      p["1"] := z@1; p["2"] := z@2;
+      out@1 := (p["1"] xor p["2"])@1;
+      out@2 := (p["1"] xor p["2"])@2
+    }
+  \end{verbatimtab}
+}
+\end{fpfig}

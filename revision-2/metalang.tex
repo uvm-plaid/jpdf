@@ -1,0 +1,66 @@
+\section{The $\metaprot$ Metalanguage}
+\label{section-metalang}
+
+Practical MPC computations protocols are
+typically composed of compositional units. Examples include GMW circuits
+and Yao's Garbled Circuits (YGC), that are composed of so-called
+garbled gates. Languages such as Fairplay \cite{269581} provide gates as
+units of abstraction that are ``wired'' together by the programmer to
+generate a complete circuit.
+
+The $\fedprot$ language is low-level and does not include abstractions
+for defining composable elements. So in this Section we introduce the
+$\metaprot$ language which that includes structured data and function
+definitions for defining composable protocol elements at a higher
+level of abstraction.  The $\metaprot$ language is a
+\emph{metalanguage}, where $\fedprot$ protocols are the residuum of
+computation. In addition to these declarative benefits of $\metaprot$,
+component definitions support compositional verification of larger
+protocols as we will discuss with examples in Sections
+\ref{section-example-gmw} and \ref{section-example-bdoz}.
+
+\metaprotfig
+
+\subsection{Syntax}
+
+The syntax of $\metaprot$ is defined in Figure
+\ref{fig-metaprot}.  It includes a syntax of function
+definitions and records, and values $\mv$ include client ids $\cid$, identifier
+strings $w$, expressions $\be$ in field $\mathbb{F}_p$, and the unit value $()$.
+Expression forms allow dynamic construction of field expressions and $\minifed$ commands.
+The construction of a command has the side-effect of adding to the residual
+$\minifed$ protocol. Formally, we consider a complete metaprogram to include both a
+codebase and a ``main'' program that uses the codebase. 
+\begin{definition}
+A \emph{codebase} $\codebase$ is a list of function 
+declarations. We write $ \codebase(f) = y_1,\ldots,y_n,\ e$
+iff $f(y_1,\ldots,y_n) \{ e \} \in \codebase$.
+A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
+codebase and expression $\codebase, e$. We may omit
+$\codebase$ if it is clear from context.  
+\end{definition}
+
+When we consider larger examples, our
+focus will be on developing a codebase that can be used to define
+arbitrary circuits, i.e., complete and concrete protocols. Since
+strings and identifiers can be constructed manually, and expressions
+can occur inside assignments and field expression forms, function
+definitions can generalize over $\fedprot$-level patterns to obtain
+composable program units.
+\subsection{Semantics}
+
+We define a small-step evaluation aka reduction relation $\redx$ in
+Figure \ref{fig-metaprot}.  We write $\redxs$ to denote the
+reflexive, transitive closure of $\redx$. Reduction is defined on
+\emph{configurations} which are pairs of the form $\config{\prog}{e}$,
+where $\prog$ is the $\minifed$ program accumulated during evaluation.
+In this definition we write $e[\mv/y]$ to denote the substitution of $\mv$
+for free occurrences of $y$ in $e$. The rules are mostly standard,
+except when a concrete $\minifed$ assignment is encountered it is added
+to the end of $\prog$.
+
+The rules rely on a definition of \emph{evaluation contexts} $E$
+allowing computation within a larger program context, where $E[e]$
+denotes an expression with $e$ in the hole $[]$ of $E$. The syntax
+of $E$ imposes a left-to-right order of evaluation of subexpressions
+for all forms.

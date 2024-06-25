@@ -1,0 +1,23 @@
+\begin{fpfig}[t]{Authenticated 2-Party Multiplication.}{fig-beaver}
+{\footnotesize
+  \begin{verbatimtab}
+    secopen("a","x","d",1,2);
+    secopen("a","x","d",2,1);
+    secopen("b","y","e",1,2);
+    secopen("b","y","e",2,1);
+    let xys =
+      macsum(macctimes(macshare("b"), m["d"]),
+             macsum(macctimes(macshare("a"), m["e"]),
+                    macshare("c")))
+    in
+    let xyk = mack("b") * m["d"] + mack("d") * m["d"] + mack("c")               
+    in
+    secreveal(xys,xyk,"1",1,2);
+    secreveal(maccsum(xys,m["d"] * m["e"]),
+              xyk - m["d"] * m["e"],
+              "2",2,1);
+    out@1 := (p[1] + p[2])@1;
+    out@2 := (p[1] + p[2])@2;
+  \end{verbatimtab}
+}
+\end{fpfig}

@@ -1,0 +1,287 @@
+\section{2-Party GMW and Passive Security Proof Tactics}
+\label{section-metalang-gmw}
+\label{section-example-gmw}
+
+\input{gmw}
+
+As an extended example of our language and security model, and how the
+automated techniques in Section \ref{section-bruteforce} can serve
+as tactics integrated with PSL/Lilac-style proofs, we consider GMW
+circuits.  The GMW protocol is a garbled binary circuit protocol.  We
+will assume the 2-party version, though it generalizes to $n$
+parties \cite{goldreich2019play}. GMW uses a common technique in MPC, which is to
+represent values $v$ as distributed shares $v_1$ and $v_2$ with $v =
+v_1 \fplus v_2$. This trick maintains secrecy of $v$ from both
+parties, and in GMW it is used to maintain the intermediate values of
+internal gate outputs in circuits. In related literature the notation
+$\macgv{x}$ is used to represent the ``true'' value of $x$ and $[x]$
+is often used to represent the share of given party.
+
+To capture this convention, which is used in many other protocols, we
+introduce a new naming convention for ``global view'' elements
+$\macgv{\mesg{w}}$, which denote the summed value of
+$\elab{\mesg{w}}{1}$ and $\elab{\mesg{w}}{2}$ in a protocol
+run. This concept integrates program distributions in the
+usual manner, as the probability of the outcome of summation
+of two variables in the distribution.
+\begin{definition}
+  For all $\mesg{w}$ define:
+  $$\pmf(\macgv{\mesg{w}} = v) \defeq \sum_{\sigma \in A} \pmf(\sigma)$$
+  and define:
+  $$\condd{\pmf}{X}{\macgv{\mesg{w}} = v}(\sigma) \defeq  \sum_{\sigma' \in A} \condd{\pmf}{X}{\sigma'}(\sigma)$$
+  where $A$ is:
+  $$\{ \store \in \mems(\{ \elab{\mesg{w}}{1},\elab{\mesg{w}}{2} \} ) \mid
+      \fcod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})} = v \}$$
+\end{definition}
+
+For full details of the GMW protocol the reader is referred to
+\cite{evans2018pragmatic}. Our implementation library is shown in
+Figure \ref{fig-gmw}, and includes encoding functions, where
+input secrets are split into shares, $\eand$ and $\exor$ gate
+functions, and a decoding function. Note that $\exor$ requires
+no interaction between parties, while conjunction necessitates
+1-of-4 oblivious transfer. The gate computation is
+done entirely in secret, and the decoding function
+is where the declassification occurs-- both parties reveal
+their shares of the final gate output $\macgv{z}$.
+
+For example, the following program uses our GMW library to define
+a circuit with a single \eand gate and input secrets $\ttt{s1}$ and
+$\ttt{s2}$ from client's 1 and 2 respectively:
+\begin{verbatimtab}
+         let s1 = encodegmw("s1") in
+         let s2 = encodegmw("s2") in
+         decodegmw(andgmw("z",s1,s2))
+\end{verbatimtab}
+By convention we will assume that all gates are assigned unique output
+identifiers $\ttt{"z"}$, and that all programs are in the form
+of a sequence of let-bindings followed by a call to $\decodegmw$
+wrapping a circuit.
+
+\paragraph{Oblivious Transfer} A passive secure oblivious transfer (OT) protocol
+based on previous work \cite{barthe2019probabilistic} can be defined in $\metaprot$,
+however this protocol assumes some shared randomness. Alternatively,
+a simple passive secure OT can be defined with the addition of
+public key cryptography as a primitive. But given the diversity
+of approaches to OT, we instead assume that OT is abstract with
+respect to its implementation, where calls to OT in $\mathbb{F}_2$
+are of the following form-- given a \emph{choice bit}
+$\be_1$ provided by a receiver $\cid$, the sender
+sends either $\be_2$ or $\be_3$.
+$$
+\OT{\elab{\be_1}{\cid}}{\be_2}{\be_3}
+$$
+Critically, the sender learns nothing about $\be_1$ and the
+receiver learns nothing about the unselected value, so we interpret
+these calls in our implementation in $\mathbb{F}_2$ as follows.
+$$
+\begin{array}{l}
+\solve{\stores}{\OT{\elab{\be_1}{\cid_1}}{\be_2}{\be_3}}{\cid_2} = \\
+\qquad ((\solve{\stores}{\be_1}{\cid_1}) \cap 
+(\solve{\stores}{\be_2}{\cid_2})) \cup \\
+\qquad ((\stores - (\solve{\stores}{\be_1}{\cid_1})) \cap
+(\solve{\stores}{\be_3}{\cid_2})
+\end{array}
+$$
+
+\subsection{Correctness Proof with Verification Tactics}
+
+As discussed above and in related work \cite{8429300}, probabilistic
+separation conditional on certain variables-- e.g., secret inputs or
+public outputs-- is a key mechanism for reasoning about MPC protocol
+security. Following \cite{barthe2019probabilistic}, we define a
+conditional separation relation $\condsep{\pmf}{X_1}{X_2}{X_3}$ to
+mean that $X_2$ and $X_3$ are independent in $\pmf$ conditionally on
+any assignment of values to $X_1$-- i.e., conditionally on any $\store
+\in \mems(X_1)$. Another key concept needed especially for reasoning
+about circuits is conditional determinism. For example, if $\macgv{z}$
+is an output of an internal gate, it will definitely be computed using
+random variables, however, it \emph{should} be deterministic under any
+set of input secrets $S$, since we assume that $\idealf$ is
+deterministic. Conditional uniformity is also important, since the
+gradual release property of many protocols means that messages appear
+in a uniform distribution to the adversary.
+\begin{definition}[Conditioning Properties] 
+  Give $\pmf$ and $X_1,X_1,X_3 \subseteq \dom{pmf}$, 
+  we write:
+  \begin{itemize}
+  \item $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
+    $\store' \in \mems(X_1)$ and $\store \in \mems(X_2 \cup X_3)$ we have
+    $\pmf(\store|\store') = \pmf(\store_{X_2}|\store') *  \pmf(\store_{X_3}|\store')$.
+  \item $\conddetx{\pmf}{X_1}{X_2}$ iff for all
+    $\store' \in \mems(X_1)$ there exists 
+    $\store \in \mems(X_2)$ such that $\pmf(\store|\store') = 1$.
+  \item $\condunix{\pmf}{X_1}{X_2}$ iff for all
+    $\store' \in \mems(X_1)$ and
+    $\store \in \mems(X_2)$ we have
+    $\pmf(\store|\store') = 1/p^{|X_2|}$.
+  \end{itemize}
+\end{definition}
+
+Given these definitions, we can formulate an invariant for circuit
+computation with respect to internal gates as follows. It says that
+the output of any gate is deterministic given inputs $S$, and
+conditionally on $S$ corrupt views are always in a uniform random
+distribution (pure noise), while output $\macgv{\mesg{z}}$ remains
+separable from corrupt views and both shares of
+$\macgv{\mesg{z}}$. This last condition (incidentally missing from PSL
+due to the reliance on more recent innovations in conditioning logic
+\cite{li2023lilac}) is critical since those shares will in fact be
+revealed if $\macgv{\mesg{z}}$ is decoded as the circuit output.
+\begin{lemma}[GMW Invariant]
+  \label{lemma-gmwinvariant}
+  Given:
+  $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}])) $$
+  Then all of the following conditions hold for all $H$ and $C$ where $\iov(\prog) = S \cup M$:
+  \begin{enumerate}
+  \item $\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$
+  \item $\condunix{\progtt(\prog)}{S}{M_C}$
+  \item $\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{\{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$
+  \end{enumerate}
+\end{lemma}
+To prove this, we can formulate and automatically prove local,
+gate-level versions of the invariant. This serves as a proof tactic
+that simplifies the proof of the GMW invariant. 
+\begin{lemma}[And Gate Tactic]
+  \label{lemma-gmwtactic}
+  %Define:
+  %$$
+  %\begin{array}{c}
+  %  \prog_{i} \defeq \\
+  %  \eassign{\mesg{x}}{1}{\flip{x}}{1}; \eassign{\mesg{x}}{2}{\flip{x}}{2}; \\
+  %  \eassign{\mesg{y}}{1}{\flip{y}}{1}; \eassign{\mesg{y}}{2}{\flip{y}}{2} 
+  %\end{array}
+  %$$
+  Given:
+  $$
+  \begin{array}{c}
+  (\varnothing,\andgmw(z,\mesg{x},\mesg{y}) \redxs %\\
+  (\prog,\mesg{z})
+  \end{array}
+  $$
+  Then all of the following conditions hold for both $\cid \in \{ 1,2 \}$ where $\iov(\prog) = M$:
+  \begin{enumerate}
+  \item
+    $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
+  \item $\condunix{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \elab{\mesg{z}}{\cid} \}}$
+  \item $\condsep
+    {\progtt(\prog)}
+    {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
+    {\{ \macgv{\mesg{z}} \}}
+    {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+Verified automatically using techniques described in Section \ref{section-bruteforce}.  
+\end{proof}
+
+To properly integrate the local reasoning of Lemma \ref{lemma-gmwtactic} with
+the global reasoning of Lemma \ref{lemma-gmwinvariant}, we can demonstrate
+the following properties of conditioning-based reasoning. While a frame rule
+was developed in \cite{li2023lilac}, these properties are distinct and
+useful for reasoning about MPC. We omit proofs for brevity. 
+\begin{lemma}
+  \label{lemma-conditioning}
+  Give $\pmf$, each of the following hold for $S,V_1,V_2,V_3 \in \dom(\pmf)$:
+  \begin{enumerate}
+    \item Given $\condp{\pmf}{S}{\detx{V_1}}$ and
+      $\condp{\pmf}{V_2}{\detx{V_2}}$, then $\condp{\pmf}{S}{\detx{V_2}}$.
+    \item Given $\condp{\pmf}{S}{\detx{V_1}}$ and
+      $\condp{\pmf}{V_1}{\unix{V_2}}$, then $\condp{\pmf}{S}{\unix{V_2}}$.
+    \item Given $\condp{\pmf}{S}{\detx{V_1}}$ and
+      $\condsep{\pmf}{V_1}{V_2}{V_3}$, then $\condsep{\pmf}{S}{V_2}{V_3}$.
+    %\item Given $\condsep{\pmf}{X_1}{X_2}{X_3}$ and $\condp{\pmf}{X_1}{\detx{X_2}}$
+    %  and $\condp{\pmf}{X_2}{\detx{X_4}}$, then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
+    %\item Given $\condsep{\pmf}{S_1 \cup S_2}{V_3}{X_4}$ and $\condp{\pmf}{X_1 \cup X_2}{\detx{X_3}}$,
+    %  then $\condsep{\pmf}{X_1}{X_2 \cup X_3}{X_4}$.
+  \end{enumerate}
+\end{lemma}
+
+Then we can put the pieces together to prove the invariant, using automated tactics
+for gate-level reasoning. We sketch some elements of this proof to focus on
+novel aspects of our technique. 
+\begin{proof}[Proof of Lemma \ref{lemma-gmwinvariant}]
+  By induction on the length of $(\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}]))$.
+  Encoding establishes the invariant in the basis. The most interesting inductive
+  case is the $\andgmw$ gate. 
+  \paragraph{Case $\andgmw$.} In this case we have:
+  $$
+  \begin{array}{c}
+  (\varnothing,e) \redxs (\prog',\decodegmw(E[\andgmw(z,\mesg{x},\mesg{y})])) \redxs \\
+    (\prog,\decodegmw(E[\mesg{z}]))
+  \end{array}
+  $$
+  Letting $\iov(\prog) = S \cup M$, by definition and the induction hypothesis there
+  exist $S^1,S^2 \subseteq S$ and $M^1,M^2 \subseteq M$
+  such that:
+  \begin{enumerate}[\hspace{5mm}(x.1)]
+  \item $\conddetx{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}$
+  \item $\condunix{\progtt(\prog)}{S^1}{M^1_C}$
+  %\item $\condsep{\progtt(\prog)}{S^1}{\{\macgv{\mesg{x}}\}}{\{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}$
+  \end{enumerate}
+  and also:
+  \begin{enumerate}[\hspace{5mm}(y.1)]
+  \item $\conddetx{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}$
+  \item $\condunix{\progtt(\prog)}{S^2}{M^2_C}$
+  %\item $\condsep{\progtt(\prog)}{S^2}{\{\macgv{\mesg{y}}\}}{\{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}$
+  \end{enumerate}
+  and by Lemma \ref{lemma-gmwtactic} we have:
+  \begin{enumerate}[\hspace{5mm}(z.1)]
+  \item
+    $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
+  \item $\condunix{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \elab{\mesg{z}}{\cid} \}}$
+  \item $\condsep
+    {\progtt(\prog)}
+    {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
+    {\{ \macgv{\mesg{z}} \}}
+    {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$
+  \end{enumerate}
+  Given $x.1$ and $y.1$ and assumed uniqueness of random variables
+  used in each gate we have $\conddetx{\progtt(\prog)}{S}{\{
+    \macgv{\mesg{x}},\macgv{\mesg{y}}\}}$, so it follows from $z.1$
+  and Lemma \ref{lemma-conditioning} (1) that
+  $\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$, and also by
+  $z.3$ and Lemma \ref{lemma-conditioning} (3):
+  $$\condsep
+  {\progtt(\prog)}
+  {S}
+  {\{ \macgv{\mesg{z}} \}}
+  {\{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$$
+  Additionally Lemma \ref{lemma-conditioning} (2) gives $\condunix{\progtt(\prog)}{S}{\{ \elab{\mesg{z}}{\cid} \}}$,
+  and $x.2$ and $y.2$ give $\condunix{\progtt(\prog)}{S}{(M^1 \cup M^2)_C}$, $z.3$ together with
+  uniqueness of gate identifiers implies:
+  $$
+  \condunix{\progtt(\prog)}{S}{(M^1 \cup M^2)_C \cup \{  \elab{\mesg{z}}{\cid} \}}
+  $$
+  This implies the result.
+\end{proof}
+The preceding Lemma, together with some additional observations about decoding, establish correctness
+of arbitrary circuits. 
+\begin{theorem}
+  \label{theorem-gmw}
+  If $e$ is a GMW circuit protocol in $\metaprot$ with $(\varnothing,e) \redxs (\prog,())$
+  then $\prog$ satisfies noninterference modulo output. 
+\end{theorem}
+
+\begin{proof}
+  Given that $e$ is a GMW circuit protocol, then by definition we have:
+  $$
+  (\varnothing,e) \redxs (\prog',\decodegmw(\mesg{z})) \redxs (\prog,())
+  $$
+  where by Lemma \ref{lemma-gmwinvariant} and definition of $\decodegmw$,
+  for any $H$ and $C$ letting $\iov(\prog) = S \cup M \cup P \cup O$ we
+  have:
+  \begin{mathpar}
+    \conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}
+    \condunix{\progtt(\prog)}{S}{M_C}
+    \condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{\{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
+  \end{mathpar}
+  and by definition of $\decodegmw$ the value $\{\macgv{\mesg{z}}\}$ is output
+  after the parties publicly reveal $\{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \}$, so we have:
+  \begin{mathpar} 
+    \condunix{\progtt(\prog)}{S}{M_C}
+    
+    \condsep{\progtt(\prog)}{S}{O}{P}
+  \end{mathpar}
+  which implies the result.
+\end{proof}

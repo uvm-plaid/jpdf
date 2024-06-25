@@ -1,0 +1,38 @@
+\begin{fpfig}[t]{2-Party BDOZ Protocol Library.}{fig-bdoz}
+{\footnotesize{
+  \begin{verbatimtab}
+    macsum(s1,s2)
+    { { share = s1.share + s2.share; mac = s1.mac + s2.mac } }
+    
+    maccsum(s,c)
+    { { share = s.share + c; mac = s.mac + c } }
+    
+    macctimes(s,c)
+    { { share = s.share * c; mac = s.mac * c } }
+    
+    macshare(w) { {  share = m[w]; mac = m[w++"mac"] } }
+
+    mack(w) { m[w++"k"] }
+    
+    auth(s,m,k,i) { assert(m = k + m["delta"] * s)@i }
+    
+    secopen(w1,w2,w3,i1,i2)
+    {
+      let locsum =  macsum(macshare(w1), macshare(w2)) in
+      m[w3++"s"]@i1 := (locsum.share)@i2;
+      m[w3++"smac"]@i1 := (locsum.mac)@i2;
+      auth(m[w3++"s"],m[w3++"smac"],mack(w1) + mack(w2),i1);
+      m[w3]@i1 := (m[w3++"s"] + (locsum.share))@i1
+    }
+
+    secreveal(s,k,w,i1,i2)
+    {
+      p[w] = s.share@i2;
+      p[w++"mac"] = s.mac@i2;
+      auth(p[w],p[w++"mac"],k,i1)    
+    } \end{verbatimtab}
+}}
+\end{fpfig}
+
+
+    

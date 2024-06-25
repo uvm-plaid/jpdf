@@ -1,0 +1,331 @@
+\section{Security Model}
+\label{section-pmf}
+\label{section-model}
+
+MPC protocols are intended to implement some \emph{ideal
+functionality} $\idealf$ with per-client outputs. In the $\minifed$
+setting, Given a protocol $\prog$ that implements $\idealf$, with
+$\iov(\prog) = S \cup V \cup O$, the domain of $\idealf$ is $\mems(S)$
+and its range is $\mems(O)$.  Real/ideal security in the MPC
+setting means that, given $\store \in \mems(S)$, a secure protocol
+$\prog$ does not reveal any more information about honest secrets
+$\store_H$ to parties in $C$ beyond what is implicitly declassified by
+$\idealf(\sigma)$. Security comes in \emph{passive} and
+\emph{malicious} flavors, wherein the adversary either follows the
+rules or not, respectively. Characterization of both real world
+protocol execution and simulation is defined
+probabilistically. Following previous work
+\cite{barthe2019probabilistic} we use probability mass functions to
+express joint dependencies between input and output variables, as a
+metric of information leakage.
+
+\subsection{Probability Mass Functions} 
+
+We define joint probability mass functions (pmfs) in the standard
+manner, though following \cite{barthe2019probabilistic} we use
+memories to denote mappings of variables to values (i.e., outcomes),
+so for example given a pmf $\pmf$ we will write $\pmf(\{ \elab{\secret{x}}{1}
+\mapsto 0, \elab{\mesg{y}}{2} \mapsto 1 \})$ to denote the (joint) probability that
+$\elab{\secret{x}}{1} = 0 \wedge \elab{\mesg{y}}{2} = 1$.
+\begin{definition}
+  A \emph{probability mass function} $\pmf$ is a function
+  mapping memories in $\mems(X)$ for some $X$ to values in $\mathbb{F}_p$, such that:
+  $$
+  \sum_{\store \in \mems(X)} \pmf(\store) \  = \ 1
+  $$
+\end{definition}
+%To recover succinct and familiar notation, we may omit the domain of a
+%distribution when it is clear from an application context-
+%i.e., we allow the following sugaring:
+%$$
+%\pdf{}(\store) \defeq \pdf{\dom(\store)}(\store)
+%$$
+Now, we can define a notion of marginal and conditional
+distributions as follows, which are standard for discrete
+probability mass functions. 
+\begin{definition}
+  Given $\pmf$ the \emph{marginal distribution} of variables $X$
+  in $\pmf$, denoted $\margd{\pmf}{X}$, is defined as follows:
+  $$
+  \forall \store \in \mems(X) \quad . \quad \margd{\pmf}{X}(\store) =
+  \sum_{\store' \in \mems(X-\dom(\dom(\pmf)))} \pmf(\store \cap \store')
+  $$
+\end{definition}
+
+\begin{definition}
+  Given $\margd{\pmf}{X}$, let $\stores$ be a set of memories with the
+  same domain $Y \subseteq X$. Then the \emph{conditional distribution given
+  $\stores$}  denoted
+  $\condd{\pmf}{X}{\stores}$ is a distribution with domain $X$ where for all
+  $\store \in \mems(X)$:
+  $$
+  \condd{\pmf}{X}{\stores}(\store) =
+  (\sum_{\store' \in \stores} \margd{\pmf}{X}(\store \cap \store')) /
+  (\sum_{\store' \in \stores} \margd{\pmf}{Y}(\store'))
+  $$
+  where $\margd{\pmf}{X}(\store \cap \store')) = 0$ if $\store \cap \store'$ is undefined.
+\end{definition}
+To recover familiar notation we allow the syntactic
+sugarings $\condd{\pmf}{X}{\store}  \defeq \condd{\pmf}{X}{\{ \store\}}$, and
+$\pmf(\store)  \defeq \margd{\pmf}{X}(\store)$ and $\pmf(\store|\stores) \defeq
+\condd{\pmf}{X}{\stores}(\store)$ where $\dom(\store) = X$.
+%\begin{eqnarray*}
+%  \condd{\pmf}{X}{\store}  &\defeq& \condd{\pmf}{X}{\{ \store\}}\\
+%  \pmf(\store)  &\defeq& \margd{\pmf}{X}(\store)  \qquad \dom(\store) = X\\
+%  \pmf(\store|\stores)  &\defeq& \condd{\pmf}{X}{\stores}(\store) \qquad \dom(\store) = X
+%\end{eqnarray*}
+
+We also define the \emph{support} of a distribution in the usual manner-
+it is the set of values a set of variables can take on with non-zero
+probability.
+\begin{definition}[Support]
+  $\support(\pmf) \defeq \{ (v_1,\ldots,v_n) \mid
+  \pmf(x_1 \mapsto v_1, \ldots, x_n \mapsto v_n) > 0 \} $
+\end{definition}
+
+\subsection{Basic Distribution of a Protocol}
+Now we can define the probability distribution of a program $\prog$,
+that we denote $\progtt(\prog)$. Since $\fedcat$ is deterministic the
+results of any run are determined by the input values together with
+the random tape. And since we constrain programs to not overwrite
+views, we are assured that \emph{final} memories contain both a
+complete record of all initial secrets as well as views resulting from
+communicated information. 
+
+Our semantics require that random tapes contain values for all program
+values $\elab{\flip{w}}{\cid}$ sampled from a uniform distribution
+over $\mathbb{F}_p$. Input memories also contain input secret values
+and possibly other initial view elements as a result of
+pre-processing, e.g., Beaver triples for efficient multiplication,
+and/or MACed share distributions as in BDOZ/SPDZ
+\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3}. We define
+$\runs(\prog)$ as the set of final memories resulting from execution
+of $\prog$ given any initial memory, and treat all elements of
+$\runs(\prog)$ as equally likely.  This establishes the basic program
+distribution that can be marginalized and conditioned to quantify
+input/output information dependencies.
+%In this
+%setting, given a program $\prog$ with $\iov(\prog) = S \cup V$ and
+%$\flips(\prog) = F$ we will consider all $\store \in \mems(S \cup V
+%\cup F)$ such that $ \config{\store_{S \cup F}}{\prog} \redxs
+%\config{\store_}{\varnothing} $ to be equally probable, establishing
+%the basic distribution of the program. %From this, we can immediately
+%derive the marginal distribution of $S \cup V$ to reason about
+%dependencies between secrets and views.
+\begin{definition}
+  \label{def-progtt}
+  \label{def-progd}
+  \label{definition-progd}
+  Given $\prog$ with $\secrets(\prog) = S$ and $\flips(\prog) = R$ and
+  pre-processing predicate $\preproc$ on memories, define:
+  $$
+  \begin{array}{c}
+    \runs(\prog) \defeq \\
+    \{ \store \mid \exists \store_1 \in \mems(R) . 
+    \exists \store_2 . \preproc(\store_2) \wedge
+    %(\dom(\store) = \iov(\prog) \cup R) \wedge
+    (\store_1 \cap \store_2,\prog) \redxs (\store,\varnothing) \}
+  \end{array}
+  $$
+  By default, $\preproc(\store) \iff \dom(\store) = S$, i.e.,
+  the initial memory contains all input secrets in a uniform
+  marginal distribution. Then the \emph{basic distribution of $\prog$}, written $\progtt(\prog)$, is
+  defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
+  $$
+  \progtt(\store) =  1 / |\runs(\prog)| \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
+  $$
+  
+  %In some cases, we will also be concerned with the (joint)
+  %probabilities of expression interpretation given a preceding program
+  %execution, and we write $\progtt(\prog, \be)$ to denote the program
+  %distribution $\progtt(\prog;\itv := \be)$ where $\itv$ is a
+  %special variable that is never used in programs.
+\end{definition}
+
+
+\subsection{Honest and Corrupt Views}
+
+Information about honest secrets can be revealed to corrupt clients
+through messages sent from honest to corrupt clients, and through
+publicly broadcast information from honest clients. Dually,
+corrupt clients can impact protocol integrity through the messages
+sent from corrupt to honest clients, and through publicly broadcast information
+from corrupt clients. We call the former \emph{corrupt views}, and
+the latter \emph{honest views}. Generally we let $V$ range over sets
+of views.
+\begin{definition}[Corrupt and Honest Views]
+  Given a program $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$,
+  define $\views(\prog) \defeq M \cup P$, and define $\houtputs$ as
+  the messages and reveals in $V \defeq M \cup P$ sent from honest to corrupt
+  parties, called \emph{corrupt views}:
+  $$
+  \begin{array}{lcl}
+    \houtputs & \defeq
+        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in H \ \}\ \cup \\
+      & & \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
+           \prog \wedge \cid \in C \wedge \cid' \in H \ \} 
+  \end{array}
+  $$
+  and similarly define $\cinputs$ as the subset of $V$ sent from corrupt to honest
+  parties, called \emph{honest views}:
+  $$
+  \begin{array}{lcl}
+    \cinputs &  \defeq
+        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in C \ \} \ \cup\\
+      & & \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
+              \prog \wedge \cid \in H \wedge \cid' \in C \ \}
+  \end{array}
+  $$
+\end{definition}
+
+\subsection{Passive Correctness and Security}
+
+In the passive setting we assume that $H$ and $C$ follow the
+rules of protocols and share messages as expected. A first
+consideration is whether a given protocol is \emph{correct}
+with respect to an ideal functionality. 
+\begin{definition}[Passive Correctness]
+  %Given $\prog$ with output variables $\out{1},\ldots,\out{n}$ and ideal
+  We say that a protocol $\prog$ is \emph{passive correct} for a functionality
+  $\idealf$ iff for all $\store \in \mems(\secrets(\prog))$
+  we have $\progtt(\prog)(\idealf(\store) \mid \store) = 1$.
+  %with $\idealf(\store) = v_1,\ldots,v_n$ we have
+  %$\progtt(\prog)(\out{1} \mapsto v_1,\ldots,\out{n} \mapsto v_n \mid \store) = 1$.
+\end{definition}
+
+In the passive setting the simulator must construct a probabilistic
+algorithm $\SIM$, aka a \emph{simulation}, that is parameterized by
+corrupt inputs and the output of an ideal functionality, and that
+returns a reconstruction of corrupt views that is probabilistically
+indistinguishable from the corrupt views in the real world protocol
+execution.
+\begin{definition}
+  Given $\store$, and $v$,we write $ \prob(\SIM(\store,v) = \store') $
+  to denote the probability that $\SIM(\store,v)$ returns corrupt views
+  $\store'$ as a result. We write $\dist(\SIM(\store,v))$ to
+  denote the distribution of corrupt views reconstructed by the
+  simulation, where for
+  all $\store' \in \mems(V)$:
+  $$
+  \dist(\SIM(\store,v))(\store')\ \defeq\ \prob(\SIM(\store,v) = \store') 
+  $$
+\end{definition}
+Then we can define passive security in the real/ideal
+model as follows. 
+\begin{definition}[Passive Security]
+  Assume given a program $\prog$ that correctly implements an ideal
+  functionality $\idealf$, with $\views(\prog) = V$.  Then $\prog$
+  is \emph{passive secure in the simulator model} iff there exists
+  ad simulation $\SIM$ such that for all
+  partitions of the federation into honest and corrupt sets $H$ and $C$
+  and for all $\store \in \mems(S)$:
+  $$
+  \dist(\SIM(\store_{C},\idealf(\store))) = \condd{\progtt(\prog)}{\houtputs}{\store}
+  $$
+\end{definition}
+
+\subsection{Malicious Security}
+
+In the malicious model we assume that corrupt clients are in the
+thrall of an adversary $\adversary$ who does not necessarily follow
+the rules of the protocol.  We model this by positing a $\arewrite$
+function which is given a corrupt memory $\store_C$ and expression
+$\be$, and returns a rewritten expression that can be interpreted to
+yield a corrupt input. We define the evaluation relation that
+incorporates the adversary in Figure \ref{fig-adversary}.
+
+\adversaryfig
+
+A key technical distinction of the malicious setting is that it
+typically incorporates ``abort''. Honest parties implement strategies
+to detect rule-breaking-- aka \emph{cheating}-- by using, e.g.,
+message authentication codes with semi-homomorphic properties as in
+BDOZ/SPDZ \cite{10.1007/978-3-030-68869-1_3}. If cheating is detected,
+the protocol is aborted. To model this, we extend $\minifed$ with an
+\ttt{assert} command and extend the range of memories with
+$\bot$. Note that the adversary is free to ignore their own
+assertions.
+\begin{definition}
+  We add assertions of the form $\elab{\assert{\phi(\be)}}{\cid}$ to the command
+  syntax of $\minifed$, where $\phi$ is a decidable predicate on
+  $\mathbb{F}_p$ and with operational semantics given in Figure
+  \ref{fig-adversary}. We also extend the range of memories $\store$
+  to $\mathbb{F}_p \cup \{ \bot \}$.
+\end{definition}
+
+It is necessary to add $\bot$ to the range of memories since
+the possibility of abort needs to be reflected in adversarial
+runs of a protocol. We can define $\aruns(\prog,\adversary)$
+as the ``prefix'' memories that result from possibly-aborting
+protocols, but we also need to ``pad out'' the memories
+of partial runs with $\bot$, as we define in $\botruns(\prog,\adversary)$,
+to properly reflect the contents of views and outputs even in case of abort. 
+\begin{definition}
+  \label{def-aprogd}
+  \label{def-aprogtt}
+  \label{definition-aprogd}
+  Given program $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$, and
+  any assumed pre-processing predicate $\preproc$ on memories, define:
+  $$
+  \begin{array}{c}
+    \aruns(\prog) \defeq \\
+    \{ \store \mid \exists \store_1 \in \mems(R) . 
+    \exists \store_2 . \preproc(\store_2) \wedge
+    %(\dom(\store) = \iov(\prog) \cup R) \wedge
+    (\store_1 \cap \store_2,\prog) \aredxs (\store,\varnothing) \}
+  \end{array}
+  $$
+  where by default, $\preproc(\store) \iff \dom(\store) = S$, and also define the following
+  which pads out undefined views and outputs with $\bot$:
+  $$
+  \begin{array}{l}
+    \botruns(\prog) \defeq \\
+    \qquad \{ \store\{ x_1 \mapsto \bot, \ldots, x_n \mapsto \bot \} \mid \\
+    \qquad \phantom{\{} \store \in \aruns(\prog) \wedge \{ x_1,\ldots,x_n\} = (V \cup O) - \dom(\store) \}
+  \end{array}
+  $$
+  Then the \emph{$\adversary$ distribution of $\prog$}, written $\progtt(\prog,\adversary)$, is
+  defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
+  $$
+  \progtt(\prog,\adversary) =  1 / |\botruns(\prog)| \ \text{if}\ \store \in \botruns(\prog), \text{otherwise}\ 0
+  $$
+\end{definition}
+
+Given this preamble, we can define malicious simulation and malicious security
+in a standard manner \cite{evans2018pragmatic}, as follows.
+\begin{definition}[Malicious Simulation]
+  Given a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$, honest and corrupt 
+  clients $H$ and $C$, adversary $\adversary$, and honest inputs
+  $\store \in \mems(S_H)$, the \emph{malicious simulation}  $\SIM(\store)$ has three phases:
+  \begin{enumerate}
+  \item In the first phase $\SIM_1$, $\adversary$ gives the
+    simulator some $\store' \in \mems(S_C)$, and the simulator consults an
+    oracle to compute $\idealf(\store \cup \store') \in \mems(O)$.
+  \item In the second phase $\SIM_2$, the simulator is given the corrupt
+    outputs $\idealf(\store \cup \store')_C$, which are again given to
+    $\adversary$, who decides either to abort or not. If so, then the
+    simulator is given $\sigma_{\mathit{out}} \defeq \{ \out{\cid} \mapsto \bot \mid \cid \in H \}$
+    and arbitrary internal state $\Sigma$.
+    Otherwise the simulator is given $\sigma_{\mathit{out}} \defeq \idealf(\store \cup \store')_H$
+    and $\Sigma$.
+  \item In the third phase $\SIM_3$, given $\store_{\mathit{out}}$ and $\Sigma$, the simulator
+    finally outputs
+    $\store_{\mathit{out}} \cup \store_{\mathit{views}}$ for some
+    calculated $\store_{\mathit{views}} \in \mems(\houtputs)$.
+  \end{enumerate}
+\end{definition}
+
+\begin{definition}[Malicious Security]
+  We write $\dist(\SIM(\store))$ to
+  denote the distribution of honest outputs and corrupt views reconstructed by the
+  malicious simulation, where for
+  all $\store'$:
+  $$
+  \dist(\SIM(\store))(\store')\ \defeq\ \prob(\SIM(\store) = \store') 
+  $$
+  Then a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is \emph{malicious
+  secure} iff for all $H$, $C$, $\adversary$, and $\store \in \mems(S_H)$:
+  $$
+  \dist(\SIM(\store)) = \condd{\progtt(\prog,\adversary)}{\houtputs \cup O_H}{\store}
+  $$  
+\end{definition}

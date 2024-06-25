@@ -1,0 +1,228 @@
+\section{Introduction}
+
+Secure Multi-Party Computation (MPC) protocols support data privacy in
+important modern, distributed applications such as privacy-preserving
+machine learning \cite{li2021privacy, knott2021crypten,
+  koch2020privacy, liu2020privacy} and Zero-Knowledge proofs in
+blockchains \cite{ishai2009zero, lu2019honeybadgermpc,
+  gao2022symmeproof, tomaz2020preserving}. The security semantics of
+MPC include both confidentiality and integrity properties incorporated
+into models such as real/ideal (aka simulator) security and universal
+composability (UC), developed primarily by the cryptography community
+\cite{XXX}.  Related proof methods are well-studied \cite{Lindell2017}
+but mostly manual. Somewhat independently, a significant
+body of work in programming languages has focused on definition and
+enforcement of confidentiality and integrity \emph{hyperproperties}
+\cite{10.5555/1891823.1891830} such as noninterference and delimited
+release \cite{XXX}. But following a tradition of connecting
+cryptographic and PL-based security models \cite{XXX}, recent work has
+also recognized connections between MPC security models and
+hyperpoperties of, e.g., noninterference \cite{XXX}, and even
+leveraged these connections to enforce MPC security through mechanisms
+such as security types \cite{XXX}. Major benefits of this connection
+in an MPC setting include better language abstractions for defining
+protocols and for mechanisation and even automation of security proofs.
+
+The goal of this paper is to develop a PL model for defining a variety of
+low-level probabilistic MPC protocols, to formulate a collection
+of confidentiality and integrity hyperproperties for our model
+model with familiar information flow analogs, and to show how these
+properties can be leveraged for improved proof automation.
+
+The distinction between high- and low-level languages for MPC is
+important. High-level languages such as Wysteria \cite{XXX} and
+Viaduct \cite{XXX} are designed to provide effective programming of
+full applications. These language designs incorporate sophisticated
+verified compilation techniques such as orchestration \cite{XXX} to
+guarantee high-level security properties, and they rely on
+\emph{libraries} of low-level MPC protocols, such as binary and
+arithmetic circuits. These low-level protocols encapsulate
+abstractions such as secret sharing and semi-homomorphic encrypytion,
+and rely on probabilistic progamming methods. So, low-level MPC
+programming and protocol verification is a distinct challenge but
+critical to the general challenge of PL design for MPC, and complementary
+to high-level language design.
+
+
+Analysis of 
+ 
+have been developed 
+
+The security
+threat models and engMPC is mainly the
+product of a significant body of work in cryptography, 
+
+
+information flow security has received
+significant attention in PL theory and practice especially since the
+turn of the century \cite{1159651}, including a menagerie of variants,
+enforcement mechanisms, and programming frameworks. Much of this has
+been enabled by the unified metatheory of \emph{hyperproperties}
+\cite{10.5555/1891823.1891830}, including noninterference, that
+establishes a common conceptual framework for reasoning about and
+implementing systems with information flow security.
+
+On its surface, security for MPC protocols seems similar to
+probabilistic noninterference. However, MPC security differs from
+noninterference in a subtle but fundamental way, and approaches for
+verifying noninterference cannot naturally extend to MPC security. Our
+goal is to explore connections between the security model of MPC-- the
+\emph{real/ideal} aka \emph{simulator security} model -- and
+trace-based hyperproperties, and to leverage these connections to
+obtain automated enforcement mechanisms for MPC protocol
+development. Currently, proof methods for MPC protocol development are
+well-studied \cite{Lindell2017} with some previous work leveraging
+connections with hyperproperties \cite{8429300}. But these methods
+require fully manual proof construction and are thus tedious and
+error-prone. Therefore our exploration makes both theoretical and
+practical contributions.
+
+\subsection{The Analysis Challenge of MPC}
+MPC protocols involve communication
+between a group of distributed participants called a \emph{federation}
+that collaboratively compute and publish the result of some known
+\emph{ideal functionality} $\idealf$, while keeping each party's input
+``secret'', without the use of a trusted third party. This last part
+is critical. For example, if we take $\idealf$ to be the majority vote
+function, a protocol for computing $\idealf$ is MPC-secure if, given
+any set of input votes, it correctly computes and publishes the voting
+result but reveals no other information to the public or to other
+participants. However, by publishing the result, some information
+about individual votes may be implicitly declassified.  For example,
+in the case of a majority vote in a federation of size 3, if the
+motion carries and party 1 has voted no, then party 1 knows exactly
+the votes of parties 2 and 3. This cannot be avoided due to the nature
+of $\idealf$.
+
+Security in the MPC setting thus means that protocols cannot reveal
+any secret information other than what is implicitly declassified by
+the publicized output of the ideal functionality. The security model
+also assumes that some subset of participants can be corrupted and
+collude adversarially to possibly infer more secret information. The
+accepted method of demonstrating protocol security in this setting is
+to define a \emph{simulation} algorithm that runs in the ``ideal''
+world which, given just the inputs of corrupted parties and the output
+of the ideal functionality, is able to reconstruct information that
+corrupted parties receive in their so-called \emph{views} of the
+protocol running in the real world.  This implies that adversarial
+views provide no information beyond what is provided by the ideal
+output alone. Simulation is defined probabilistically since MPC
+protocols typically rely on cryptographic and probabilistic methods.
+
+In Section \ref{section-hyperprop-passive} we formalize real/ideal
+security, and we define and discuss simple examples of MPC protocols
+in Section \ref{section-minicat-examples} and more complex ones in
+Section \ref{section-metalang}. But an immediate and main point in
+relation to security hyperproperties is that, due to the potential for
+information release in MPC, simulator security is \emph{not} a strict
+probabilistic noninterference or trace obliviousness property, as we
+show in Section \ref{section-hyperprop-ni}- rather, the public output
+allows and sets an upper bound on declassification.
+
+\subsection{Overview and Contributions}
+
+\paragraph{Language design.} In Section \ref{section-minicat} we
+develop a new probabilistic programming language $\minifed$ for
+defining synchronous distributed protocols over the binary field. The
+syntax and semantics provides a succinct account of \emph{views} and
+(synchronous) messaging between protocol \emph{clients}. In Section
+\ref{section-metalang} we define a new metaprogramming language
+$\metaprot$ that dynamically generates $\minifed$ protocols. It
+includes control and data structures and is able to express logical
+protocol components, and enjoys a type safety result that guarantees
+that generated protocols are semantically well-defined.
+
+\paragraph{Hyperproperty formulation.} In Section \ref{section-pmf} we
+formulate \emph{program distributions}, a formalism for expressing
+dependencies between secrets and views, useful for expressing
+characteristics of protocols and precisely quantifying allowable
+information leakage in terms of protocol outputs. On this basis we can
+formulate security hyperproperties, including \emph{noninterference
+modulo output ($\NIMO$)} that implies passive simulator security. But
+program distributions are flexible and can be used to certify other
+important properties of protocol components, such as probabilistic
+independence, correlation, and distributions under conditioning.
+
+\paragraph{Fully and partially automated verification.} In Section
+\ref{section-automation} we develop an automated technique, aka
+certification, for automatically verifying security properties such as
+$\NIMO$ and other supporting properties of protocol components.  While
+certification has high complexity, a compositional approach allows
+certification of program components in isolation.  This enables a
+semi-automated method for large circuits where we (1) define
+certification for components, (2) certify components, (3) prove
+$\NIMO$ based on the certifiedness of components. We develop novel
+methods partially based on separation logic
+\cite{barthe2019probabilistic} to enable (3).  In Section
+\ref{section-composition} we illustrate our method to obtain
+semi-automated verification for the GMW and Yao's Garbled
+Circuit protocols, where certification can be re-used to validate new
+gate implementations.
+
+\compfig
+
+\subsection{Related Work}
+\label{section-related-work}
+
+Our main focus is on automated and semi-automated reasoning about
+security properties of specific protocols, both through whole-program
+analysis and compositional properties of program components that
+support security.
+
+Previous work on analysis for the SecreC language
+\cite{almeida2018enforcing,10.1145/2637113.2637119} is concerned with
+properties of complex MPC circuits, in particular a user-friendly
+specification and automated enforcement of declassification bounds in
+programs that use MPC in subprograms. This work is explicitly
+reminiscent of information flow approaches such as delimited
+information release \cite{10.1007/978-3-540-37621-7_9}, downgrading
+policies \cite{li2005downgrading}, and relaxed noninterference
+\cite{10.1145/1040305.1040319}. However, their program logic assumes
+correctness of the underlying MPC protocols.  The Wys$^\star$ language
+\cite{wysstar}, based on Wysteria \cite{rastogi2014wysteria}, has
+similar goals and includes a trace-based semantics for reasoning about
+the interactions of MPC protocols. Their compiler also guarantees that
+underlying multi-threaded protocols enforce the single-threaded source
+language semantics. However their language ultimately compiles to
+protocols assumed to be secure.  All of these systems leverage type
+systems to obtain automated security analyses.
+
+In the realm of protocol verification, previous work has shown how to
+reduce proofs of simulator security to program equivalence assertions,
+which supports computer-aided verification of MPC protocols in
+EasyCrypt \cite{8429300}. This work also leveraged hyperproperty
+characterizations of simulator security, both passive and
+active. However, their EasyCrpyt security proof constructions are
+entirely manual. Probabilistic Separation Logic
+\cite{barthe2019probabilistic} develops a logical framework for
+reasoning about probabilistic independence in programs.  They consider
+several MPC protocols and show how to systematically deduce, e.g.,
+probabilistic independence of input secrets and adversarial views that
+are critical security properties.  However, their methods are manual. 
+Also, their focus on independence does not address the subtleties of
+dependence that arise during MPC protocol execution, and the authors
+do not formulate or prove simulator security properties in
+\cite{barthe2019probabilistic}. The $\lambda_{\mathrm{obliv}}$
+language \cite{darais2019language} is perhaps most closely related to
+our work. Here, a type system is used to automatically enforce
+so-called probabilistic trace obliviousness and they show how to use
+their system to implement several variants of oblivious RAM. However,
+obliviousness is related to noninterference and does not address
+allowable information leakage as in MPC, and their use of type
+linearity disallows the reuse of sampled probabilistic values which is
+common in the MPC idiom, as our examples will illustrate. Similarly,
+previous work on oblivious data structures \cite{10.1145/3498713},
+while intended for sound integration into MPC protocols, focus on
+expression and enforcement of obliviousness and do not account for
+allowable information leakage.
+
+Our work also shares many ideas with probabilistic programming
+languages designed to perform (exact or approximate)
+inference~\cite{holtzen2020scaling, carpenter2017stan, wood2014new,
+  bingham2019pyro, albarghouthi2017fairsquare, de2007problog,
+  pfeffer2009figaro, saad2021sppl}. Our setting, however, requires
+verifying properties beyond inference, including conditional
+independence. Recent work by Li et al.~\cite{li2023lilac} proposes a
+manual approach for proving such properties, but does not provide
+automation.
+

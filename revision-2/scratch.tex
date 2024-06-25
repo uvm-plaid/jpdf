@@ -1,0 +1,149 @@
+\newcommand{\sx}[2]{\elab{\secret{#1}}{#2}}
+\newcommand{\mx}[2]{\elab{\mesg{#1}}{#2}} 
+%\newcommand{\px}[2]{\elab{\rvl{#1}}{#2}} 
+\newcommand{\rx}[2]{\elab{\flip{#1}}{#2}}
+\newcommand{\ox}[2]{\elab{\out{#1}}{#2}}
+\newcommand{\signals}{\leadsto}
+
+\newcommand{\tj}[5]{#1,#2 \vdash_{#3} #4 : #5}
+\newcommand{\cty}[2]{c(#1,#2)}
+\newcommand{\setit}[1]{\{ #1 \}}
+\newcommand{\ty}{T}
+\newcommand{\eqs}{\mathit{E}}
+\newcommand{\toeq}[1]{\lfloor #1 \rfloor}
+\newcommand{\autheq}[1]{\phi_{\mathrm{auth}}(#1)}
+\newcommand{\upgrade}[1]{\uparrow #1}
+
+\renewcommand{\redx}{\Rightarrow}
+\renewcommand{\redxs}{\redx}
+\newcommand{\abort}{\bot}
+\newcommand{\pre}[1]{\ttt{pre}(#1)}
+\newcommand{\post}[1]{\ttt{post}(#1)}
+\newcommand{\eqflag}{\mathit{sw}}
+\newcommand{\eqon}{\ttt{on}}
+\newcommand{\eqoff}{\ttt{off}}
+\newcommand{\eqtrans}[1]{\lfloor #1 \rfloor}
+\newcommand{\mc}[4]{(#1,#2,#3,#4)}
+\newcommand{\cmd}{\instr}
+
+$$
+    \begin{array}{rcl@{\hspace{2mm}}r}
+      \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid & \textit{expressions}\\
+      & & v \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \\[2mm]
+      x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid \rvl{w} \mid \out{\cid} & \textit{variables} \\[2mm]
+      %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      \prog &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid
+      \reveal{w}{e}{\cid} \mid \pubout{\cid}{\be}{\cid} \mid \prog;\prog & \textit{protocols} 
+    \end{array}
+$$
+
+\bigskip
+    
+ $$
+  %\begin{array}{c@{\hspace{5mm}}c}
+  \begin{array}{rcl}
+    \lcod{\store, v}{\cid} &=& v\\
+    \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \fminus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fminus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
+  %\end{array} 
+  %\begin{array}{rcl}
+    \lcod{\store, \flip{w}}{\cid} &=& \store(\elab{\flip{w}}{\cid})\\
+    \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
+    \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
+    \lcod{\store, \rvl{w}}{\cid} &=& \store(\rvl{w})\\
+    %\lcod{\store, f\,\be_1\,\cdots\, \be_n}{\cid} &=& \delta(f,\lcod{\store, \be_1}{\cid},\ldots,\lcod{\store,\be_n}{\cid})
+  \end{array}
+  %\end{array}
+  $$
+
+\bigskip
+
+  \begin{mathpar}
+    (\store, \xassign{x}{\be}{\cid}) \redx \extend{\store}{x}{\lcod{\store,\be}{\cid}}
+
+    \inferrule
+    {(\store_1,\be_1) \redx \store_2 \\ (\store_2,\be_2) \redx \store_3 }
+    {(\store_1,\be_1;\be_2) \redx \store_3}
+    %(\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)    
+    %(\store, \reveal{w}{\be}{\cid};\prog) \redx (\extend{\store}{\rvl{w}}{\lcod{\store,\be}{\cid}}, \prog)   
+    %(\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
+  \end{mathpar}
+
+
+$$
+\begin{array}{rclr}
+  (\store, \xassign{x}{\be}{\cid}) &\aredx&
+  \extend{\store}{x}{\lcod{\store,\be}{\cid}} & \cid \in H\\
+  (\store, \xassign{x}{\be}{\cid}) &\aredx&
+  \extend{\store}{x}{\lcod{\arewrite(\store_C,\be)}{\cid}} & \cid \in C
+\end{array}
+$$
+
+$$
+\begin{array}{rcl@{\qquad}r}
+  (\store,\elab{\assert{\be_1 = \be_2}}{\cid}) &\aredx& \store & \text{if\ }
+  \lcod{\store,\be_1}{\cid} = \lcod{\store,\be_2}{\cid}  \text{\ or\ } \cid \in C\\
+  (\store,\elab{\assert{\phi(\be)}}{\cid}) &\aredx& \abort & \text{if\ } \neg\phi(\store,\lcod{\store,\be}{\cid})
+\end{array}
+$$
+
+\begin{mathpar}
+  (\store, \xassign{x}{\be}{\cid}) \redx \extend{\store}{x}{\lcod{\store,\be}{\cid}}
+  
+  \inferrule
+      {(\store_1,\be_1) \redx \abort}
+      {(\store_1,\be_1;\be_2) \redx \abort}
+\end{mathpar}
+
+$$
+\begin{array}{rcl}
+  \multicolumn{3}{l}{\flab \in \mathrm{Field},\   y \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[1mm]
+  %x &\in& \mathrm{EVar}\\
+  %f &\in& \mathrm{FName}\\[2mm]
+  e &::=& \mv \mid \flip{e} \mid \secret{e} \mid \mesg{e} \mid \rvl{e} \mid e \bop e \mid
+  \elet{y}{e}{e} \mid \\
+  & & f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \mid e.\flab \\
+  %  & \textit{expressions}\\
+  \cmd &::=& \msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
+      \elab{\assert{e = e}}{e} \mid \\
+  & & f(e,\ldots,e) \mid  \cmd;\cmd \mid \pre{\eqs} \mid \post{\eqs} \\[1mm]
+  \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
+  \mv &::=& w \mid \cid \mid \be \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
+  \\ % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
+  \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y,\ldots,y) \{ \cmd \} \\[1mm]%& \textit{functions}
+  \phi &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e} \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
+  \eqs &::=& \phi = \phi \mid \eqs \wedge \eqs 
+\end{array}
+$$
+
+\begin{mathpar}
+  \inferrule
+      {e[\mv/y] \redx \mv'}
+      {\elet{y}{\mv}{e} \redx \mv'}
+
+  \inferrule
+      {\codebase(f) = y_1,\ldots,y_n,\ e \\ e_1 \redx \mv_1 \cdots e_n \redx \mv_n \\
+        e[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \mv}
+      {f(e_1,\ldots,e_n) \redx \mv}
+
+  \inferrule
+      {e_1 \redx \mv_1 \cdots e_n \redx \mv_n }
+      {\{ \flab_1 = e_1; \ldots; \flab_n = e_n \} \redx \{ \flab_1 = \mv_1; \ldots; \flab_n = \mv_n \} }
+
+  \inferrule
+      {e \redx \{\ldots; \flab = \mv; \ldots\}}
+      {e.\flab \redx \mv}
+
+  \inferrule
+      {e_1 \redx w_1 \\ e_2 \redx w_2}
+      {e_1 \concat e_2 \redx w_1w_2}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {}
+      {\mc{\prog}{(\eqs_1,\eqs_2)}{\eqflag}{}}
+\end{mathpar}

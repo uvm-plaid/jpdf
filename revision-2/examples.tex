@@ -1,0 +1,383 @@
+\section{Examples and Proof Methods}
+\label{section-examples}
+
+\subsection{2-Party GMW}
+\label{section-metalang-gmw}
+
+\input{gmw}
+
+The GMW protocol is a garbled binary circuit protocol. In this section
+we will assume the 2-party version, though it generalizes to $n$
+parties\cite{XXX}. GMW uses a common technique in MPC, which is to
+represent values $v$ as distributed shares $v_1$ and $v_2$ with
+$v = v_1 \fplus v_2$. This trick maintains secrecy of $v$
+from both parties, and in GMW it is used to maintain the intermediate
+values of internal gate outputs in circuits. In related literature
+the notation $\macgv{x}$ is used to represent the ``true''
+value of $x$ and $[x]$ is often used to represent the share of
+given party.
+
+To capture this convention, which is used in many other protocols, we
+introduce a new naming convention for ``global view'' elements
+$\macgv{\mesg{w}}$, which denote the summed value of
+$\elab{\mesg{w}}{1}$ and $\elab{\mesg{w}}{2}$ in a protocol
+run. This concept integrates program distributions in the
+usual manner, as the probability of the outcome of summation
+of two variables in the distribution.
+\begin{definition}
+  For all $\mesg{w}$ define:
+  $$\pmf(\macgv{\mesg{w}} = v) \defeq \sum_{\sigma \in A} \pmf(\sigma)$$
+  and define:
+  $$\condd{\pmf}{X}{\macgv{\mesg{w}} = v}(\sigma) \defeq  \sum_{\sigma' \in A} \condd{\pmf}{X}{\sigma'}(\sigma)$$
+  where $A$ is:
+  $$\{ \store \in \mems(\{ \elab{\mesg{w}}{1},\elab{\mesg{w}}{2} \} ) \mid
+      \fcod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})} = v \}$$
+\end{definition}
+
+For full details of the GMW protocol the reader is referred to
+\cite{evans2018pragmatic}. Our implementation libary is shown in
+Figure \ref{fig-gmw}, and includes encoding functions, where
+input secrets are split into shares, $\eand$ and $\exor$ gate
+functions, and a decoding function. Note that $\exor$ requires
+no interaction between parties, while $\eand$ necessitates and
+1-of-4 oblivious transfer. The gate computation is
+done entirely in secrect, and the decoding function
+is where the declassification occurs-- both parties reveal
+their shares of the final gate output $\macgv{z}$.
+
+For example, the following program uses our GMW library to define
+a circuit with a single \eand gate and input secrets $\ttt{s1}$ and
+$\ttt{s2}$ from client's 1 and 2 respectively:
+\begin{verbatimtab}
+         let s1 = encodegmw("s1") in
+         let s2 = encodegmw("s2") in
+         decodegmw(andgmw("z",s1,s2))
+\end{verbatimtab}
+By convention we will assume that all gates are assigned unique output
+identifiers $\ttt{"z"}$, and that all programs are in the form
+of a sequence of let-bindings followed by a call to $\decodegmw$
+wrapping a circuit.
+
+\paragraph{Oblivious Transfer} A passive secure OT protocol
+based on previous work \cite{XXX} can be defined in $\metaprot$,
+however this protocol assumes some shared randomness. Alternatively,
+a simple passive secure OT can be defined with the addition of
+public key cryptography as a primitive. But given the diversity
+of approaches to OT, we instead assume that OT is abstract with
+respect to its implementation, where calls to OT in $\mathbb{F}_2$
+are of the following form-- given a \emph{choice bit}
+$\be_1$ provided by a receiver $\cid$, the sender
+sends either $\be_2$ or $\be_3$.
+$$
+\OT{\elab{\be_1}{\cid}}{\be_2}{\be_3}
+$$
+Critically, the sender learns nothing about $\be_1$ and the
+receiver learns nothing about the unselected value, so we interpret
+these calls in our implementation in $\mathbb{F}_2$ as follows.
+$$
+\begin{array}{l}
+\solve{\stores}{\OT{\elab{\be_1}{\cid_1}}{\be_2}{\be_3}}{\cid_2} = \\
+\qquad ((\solve{\stores}{\be_1}{\cid_1}) \cap 
+(\solve{\stores}{\be_2}{\cid_2})) \cup \\
+\qquad ((\stores - (\solve{\stores}{\be_1}{\cid_1})) \cap
+(\solve{\stores}{\be_3}{\cid_2})
+\end{array}
+$$
+
+\subsubsection{Correctness Proof with Verification Tactics}
+
+As discussed above and in related work \cite{XXX}, probabilistic
+separation conditional on certain variables-- e.g., secret inputs or
+public outputs-- is a key mechanism for reasoning about MPC protocol
+security. Following \cite{XXX}, we define a conditional separation
+relation $\condsep{\pmf}{X_1}{X_2}{X_3}$ to mean that
+under the condition of all value assignments for
+$X_2$ and $X_3$ are separable under $\pmf$ on the condition
+of any value assignment of $X_1$-- i.e., conditionally
+on any $\store \in \mems(X_1)$. 
+\begin{definition}[Conditional Separation]
+  We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
+  $\store' \in \mems(X_1)$ and $\store \in \mems(X_2 \cup X_3)$
+  and letting $X = X_1 \cup X_2 \cup X_3$ we have:
+  $$\condd{\pmf}{X}{\store'}(\store) =
+  \condd{\pmf}{X}{\store'}(\store_{X_2}) *
+  \condd{\pmf}{X}{\store'}(\store_{X_3})$$
+\end{definition}
+Another key concept needed especially for reasoning about
+circuits is conditional determinism. For example, if
+$\macgv{z}$ is an output of an internal gate, it will
+definitely be computed using random variables, however,
+it \emph{should} be determistic under any set of input
+secrets $S$, since we assume that $\idealf$ is
+deterministic.
+\begin{definition}[Conditional Determinism]  
+  We write $\conddetx{\pmf}{X_1}{X_2}$ iff for all
+  $\store' \in \mems(X_1)$ there exists 
+  $\store \in \mems(X_2)$ such that
+  $\condd{\pmf}{X_1 \cup X_2}{\store'}(\store) = 1$.
+\end{definition}
+
+Given these definitions, we can formulate an invariant
+for circuit computation with respect to internal gates
+as follows. It says that the output of any gate is
+deterministic wrt inputs $S$, and conditionally
+on $S$ the output $\macgv{\mesg{z}}$ remains
+separable from corrupt views and both shares of
+$\macgv{\mesg{z}}$. This last nuance is critical,
+since those shares will in fact be revealed if
+$\macgv{\mesg{z}}$ is decoded as the circuit output. 
+\begin{lemma}[GMW Invariant]
+  \label{lemma-gmwinvariant}
+  Given:
+  $$ (\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}])) $$
+  Then both of the following conditions hold for all $H$ and $C$ where $\iov(\prog) = S \cup M$:
+  \begin{enumerate}
+    \item $\conddetx{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}$
+    \item $\condsep{\progtt(\prog)}{S}{\{\macgv{\mesg{z}}\}}{(M_C \cup \{ \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}$
+  \end{enumerate}
+\end{lemma}
+To prove this, we can formulate and automatically prove gate-level
+versions of the invariant. This serves as a proof tactic
+that simplifies the proof of the GMW invariant. It establishes
+that the $\eand$ gate output is deterministic conditional on
+the inputs, and is separable from the output shares and
+either parties' received messages. 
+\begin{lemma}[And Gate Tactic]
+  \label{lemma-gmwtactic}
+  %Define:
+  %$$
+  %\begin{array}{c}
+  %  \prog_{i} \defeq \\
+  %  \eassign{\mesg{x}}{1}{\flip{x}}{1}; \eassign{\mesg{x}}{2}{\flip{x}}{2}; \\
+  %  \eassign{\mesg{y}}{1}{\flip{y}}{1}; \eassign{\mesg{y}}{2}{\flip{y}}{2} 
+  %\end{array}
+  %$$
+  Given:
+  $$
+  \begin{array}{c}
+  (\varnothing,\andgmw(z,\mesg{x},\mesg{y}) \redxs %\\
+  (\prog,\mesg{z})
+  \end{array}
+  $$
+  Then both of the following conditions hold for both $\cid \in \{ 1,2 \}$ where $\iov(\prog) = M$:
+  \begin{enumerate}
+  \item
+    $\conddetx{\progtt(\prog)}{\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}{\{ \macgv{\mesg{z}} \}}$
+   \item $\condsep
+      {\progtt(\prog)}
+      {\{ \macgv{\mesg{x}},\macgv{\mesg{y}} \}}
+      {\{ \macgv{\mesg{z}} \}}
+      {M_{\{\cid\}} \cup \{ \elab{\mesg{z}}{1},\elab{\mesg{z}}{2} \}}$
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+Verified automatically using techniques described in Section \ref{section-bruteforce}.  
+\end{proof}
+
+To properly integrate the local reasoning of Lemma \ref{lemma-gmwtactic} with
+the global reasoning of Lemma \ref{lemma-gmwinvariant}, we can demonstrate
+the following.
+\begin{lemma}
+  \label{lemma-conditioning}
+  Each of the following hold:
+  \begin{enumerate}
+    \item Given $\condp{\pmf}{X_1}{\detx{X_2}}$ and
+      $\condp{\pmf}{X_2}{\detx{X_3}}$, then $\condp{\pmf}{X_1}{\detx{X_3}}$.
+    \item Given $\condp{\pmf}{X_1}{\detx{X_2}}$ and
+      $\condsep{\pmf}{X_2}{X_3}{X_4}$, then $\condsep{\pmf}{X_1}{X_3}{X_4}$.
+    \item Given $\condsep{\pmf}{X_1}{X_2}{X_3}$ and $\condp{\pmf}{X_1}{\detx{X_2}}$
+      and $\condp{\pmf}{X_2}{\detx{X_4}}$, then $\condsep{\pmf}{X_1}{X_4}{X_3}$.
+  \end{enumerate}
+\end{lemma}
+
+Then we can put the pieces together to prove the invariant, using automated tactics
+for gate-level reasoning.  
+\begin{proof}[Proof of Lemma \ref{lemma-gmwinvariant}]
+  By induction on the length of $(\varnothing,e) \redxs (\prog,\decodegmw(E[\mesg{z}]))$.
+  Encoding establishes the invarian in the basis. The most interesting inductive
+  case is the $\andgmw$ gate. 
+  \paragraph{Case $\andgmw$.} In this case we have:
+  $$
+  \begin{array}{c}
+  (\varnothing,e) \redxs (\prog',\decodegmw(E[\andgmw(z,\mesg{x},\mesg{y})])) \redxs \\
+    (\prog,\decodegmw(E[\mesg{z}]))
+  \end{array}
+  $$
+  The induction hypothesis, together with the assumed uniquenenss of $z$, gives:
+  \begin{mathpar}
+  \condsep{\progtt(\prog)}{S^1}{\{ \macgv{\mesg{x}} \}}{(M^1_C \cup \{ \elab{\mesg{x}}{1}, \elab{\mesg{x}}{2} \})}
+  
+  \condsep{\progtt(\prog)}{S^2}{\{ \macgv{\mesg{y}} \}}{(M^2_C \cup \{ \elab{\mesg{y}}{1}, \elab{\mesg{y}}{2} \})}
+
+  \conddetx{\progtt(\prog)}{S^1}{\{ \macgv{\mesg{x}} \}}
+  
+  \conddetx{\progtt(\prog)}{S^1}{\{ \macgv{\mesg{x}} \}}    
+  \end{mathpar}
+  This, together with Lemma \ref{lemma-gmwtactic} (1) and Lemma \ref{lemma-conditioning} (1)
+  give:
+  $$
+  \conddetx{\progtt(\prog)}{S^1 \cup S^2}{\{ \macgv{\mesg{z}} \}}
+  $$
+  and Lemma  \ref{lemma-gmwtactic} (2) and Lemma \ref{lemma-conditioning} (2-3) gives:
+  $$
+  \begin{array}{c}
+    \progtt(\prog)|S^1 \cup S^2) \vdash \\
+    {\{ \macgv{\mesg{z}} \}}{(M^1_C \cup M^2_C \cup \{ \elab{\mesg{x}}{2}, \elab{\mesg{y}}{2}, \elab{\mesg{z}}{1}, \elab{\mesg{z}}{2} \})}
+  \end{array}
+  $$
+\end{proof}
+
+\subsection{2-Party BDOZ}
+
+\input{bdoz}
+
+In a malicious setting, detecting cheating by adding
+information-theoretic secure MAC codes to shares is a fundamental
+approach realized by protocols such as BDOZ \cite{XXX} and SPDZ
+\cite{XXX}.  These protocols assume a pre-processing phase that
+distributes shares with MAC codes to clients.  This integrates well
+with pre-processed Beaver Triples to implement malicious secure, and
+relatively efficient, multiplication \cite{XXX}. Recall
+that Beaver triples are values $a,b,c$ with $\fcod{a * b = c}$,
+unique per multiplication gate, that are secret shared with clients
+during pre-processing. 
+
+A field value $v$ is secret shared among 2 client in BDOZ in the same
+manner as in GMW.  Each client $\cid$ gets a pair of the form
+$(v_\cid,m_\cid)$, where $v_\cid$ is a share of $v$ reconstructed by
+addition, i.e., $v = \fcod{v_1 \fplus v_2}$, and $m_\cid$ is a MAC of
+$v_\cid$.  More precisely, $m_\cid = k + (k_\Delta * v_\cid)$ where
+\emph{keys} $k$ and $k_\Delta$ are known only to $\cid' \ne \cid$ and
+$k_\Delta$. The \emph{local key} $k$ is unique per MAC, while the
+\emph{global key} $k_\Delta$ is common to all MACs authenticated by
+$\cid'$. This is a semi-homomorphic encryption scheme that supports
+addition of shares and multiplication of shares by a constant
+\cite{XXX}. For more details the reader is referred to \cite{XXX}. We
+note that while we restrict values $v$, $m$, and $k$ to the same field
+in this presentation for simplicity, in general $m$ and $k$ can be in
+extensions of $\mathbb{Z}_p$.
+
+We can capture both the distribution of Beaver triples and
+BDOZ shares as a pre-processing predicate that establishes
+conditions for initial memories (see Definition \ref{def-progttb}).
+As for GMW, we use $\macgv{\mesg{w}}$ to refer to secret-shared
+values reconstructed with addition, where by convention
+shares are message values $\elab{\mesg{w}}{\cid}$ for all $\cid$.
+\begin{definition}[BDOZ preprocessing]
+  Define:
+  \begin{mathpar}
+    \mathit{shares} \defeq
+    \{ \elab{\mesg{w}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+
+    \mathit{macs} \defeq  \{ \elab{\mesg{w\ttt{mac}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+
+    \mathit{keys} \defeq  \begin{array}{l}\{ \elab{\mesg{w\ttt{k}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in
+    \{ a,b,c,x,y \}  \} \cup \\ \{ \elab{\mesg{\ttt{delta}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \} \end{array}
+  \end{mathpar}
+  Then a memory $\store$ satisfies BDOZ preprocessing iff:
+  $$\dom(\store) = \{ \elab{\secret{x}}{1}, \elab{\secret{y}}{2} \} \cup \mathit{shares}
+  \cup \mathit{macs} \cup \mathit{keys}$$
+  and, writing $\store(\macgv{\mesg{w}})$ to denote
+  $\fcod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})}$,
+  the following conditions hold:
+  \begin{mathpar}
+    \store(\macgv{\mesg{x}}) = \store(\elab{\secret{x}}{1})
+    
+    \store(\macgv{\mesg{y}}) = \store(\elab{\secret{y}}{2})
+    
+    \fcod{\store(\macgv{\mesg{a}}) * \store(\macgv{\mesg{b}})} = \store(\macgv{\mesg{c}})
+  \end{mathpar}
+  and for all $\cid,\cid' \in \{1,2\}$ with $\cid \ne \cid'$ and $w \in \{ a,b,c,x,y\}$:
+  $$\lcod{\store, \mesg{w\ttt{mac}}}{\cid} =
+  \lcod{\store, \mesg{wk} + \mesg{\ttt{delta}} * \mesg{w}}{\cid'}$$
+\end{definition}
+
+
+\input{beaver}
+
+Another key idea in BDOZ is \emph{secure opening}, where distributed
+shares of a value $v$ are communicated and combined to ``open'' the
+same $v$ on each client. This relies on authentication to detect
+cheating in the malicious setting. To implement secure opening we
+define a $\macauth$ function that authenticates shares, and a
+$\macopen$ function that extracts a field value from its shares.
+\begin{mathpar}
+\delta(\macauth, (v, m), k) \defeq
+     (v, m) \text{\ if\ } m = k \fplus (\flip{\ttt{delta}} \ftimes v)
+ 
+\delta(\macopen, (v_1, m_1), (v_2,m_2)) \defeq
+\fcod{v_1 \fplus v_2}
+\end{mathpar}
+This authentication eliminates cheating and guarantees protocol
+integrity. As we will show in Section \ref{section-types}, this
+can be reflected in a security type for $\macauth$.
+
+Putting these pieces together, we can implement 2-party multiplication with
+Beaver Triples as follows. Recall that Beaver Triples are values
+$(a,b,c)$ such that $c = \fcod{b \ftimes a}$- we implement them here
+as a secret $\secret{c}$ and samples $\flip{a}$ and $\flip{b}$ owned
+by an \emph{oracle} $\Oracle$ that we always assume is honest but is
+otherwise not involved in the protocol. We define pre-processing
+properties of Beaver Triples in Figure \ref{fig-bdoz}. Only one
+Beaver triple can be used per multiplication to ensure secure
+openings, but our scheme can be extended with more Beaver triples
+and reuse of them will be rule out by type linearity as we will
+discuss in Section \ref{section-types}.
+
+First, clients 1 and 2 compute (aka \emph{open}) $\secret{x} \fplus
+\flip{a}$ and $\secret{y} \fplus \flip{b}$ where $\secret{x}$ and
+$\secret{y}$ are 1 and 2's secrets respectively.  Then they both
+perform a secure opening of $\secret{x} \fplus \flip{a}$ and
+$\secret{y} \fplus \flip{b}$, by authenticating each others' shares,
+and record them as $\mesg{d}$ and $\mesg{e}$ respectively. Note
+that the secrets remain hidden since $\flip{a}$ and $\flip{b}$
+are random values.
+
+\begin{definition}[BDOZ preprocessing]
+  Define:
+  \begin{mathpar}
+    \mathit{shares} \defeq
+    \{ \elab{\mesg{w}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+
+    \mathit{macs} \defeq  \{ \elab{\mesg{w\ttt{mac}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+
+    \mathit{keys} \defeq  \begin{array}{l}\{ \elab{\mesg{w\ttt{k}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in
+    \{ a,b,c,x,y \}  \} \cup \\ \{ \elab{\mesg{\ttt{delta}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \} \end{array}
+  \end{mathpar}
+  Then a memory $\store$ satisfies BDOZ preprocessing iff:
+  $$\dom(\store) = \{ \elab{\secret{x}}{1}, \elab{\secret{y}}{2} \} \cup \mathit{shares}
+  \cup \mathit{macs} \cup \mathit{keys}$$
+  and, writing $\store(\macgv{\mesg{w}})$ to denote
+  $\fcod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})}$,
+  the following conditions hold:
+  \begin{mathpar}
+    \store(\macgv{\mesg{x}}) = \store(\elab{\secret{x}}{1})
+    
+    \store(\macgv{\mesg{y}}) = \store(\elab{\secret{y}}{2})
+    
+    \fcod{\store(\macgv{\mesg{a}}) * \store(\macgv{\mesg{b}})} = \store(\macgv{\mesg{c}})
+  \end{mathpar}
+  and for all $\cid,\cid' \in \{1,2\}$ with $\cid \ne \cid'$ and $w \in \{ a,b,c,x,y\}$:
+  $$\lcod{\store, \mesg{w\ttt{mac}}}{\cid} =
+  \lcod{\store, \mesg{wk} + \mesg{\ttt{delta}} * \mesg{w}}{\cid'}$$
+\end{definition}
+
+
+\begin{definition}
+  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$,
+  let $X_H \subseteq \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$.
+  Then the \emph{adversarial inputs to $X_H$} is the least set
+  $X_C \subseteq \cinputs$ such that $\progtt(\prog) \not\vdash X_C * X_H$.
+\end{definition}
+\begin{definition}[Cheating Detection]
+  \emph{Cheating is detected} in $\prog$ with $\iov(\prog) = S \cup V \cup O$ iff
+  for all  $\store \in \aruns(\prog)$,
+  letting $X_H = \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$,
+  and letting $X_C$ be the adversarial inputs to $X_H$,
+  there exists $\sigma'\in \runs(\prog)$
+  with $\store_{X_C} = \store'_{X_C}$.  
+\end{definition}
+
+\begin{lemma}
+  If cheating is detected in $\prog$, then $\prog$ has integrity.
+\end{lemma}

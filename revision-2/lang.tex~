@@ -1,0 +1,187 @@
+\section{The $\minicat$ Protocol Language}
+\label{section-lang}
+
+The $\minifed$ language establishes a basic model of synchronous
+protocols between a federation of \emph{clients} exchanging values in
+the binary field. A model of synchronous communication captures a wide
+range of MPC protocols. Concurrency is out of scope in this work but
+an avenue for future work. The lack of sophisticated control
+structures in $\minifed$ is intentional, since minimizing features
+eases analysis and control abstractions such as function definitions
+can be integrated into a metalanguage that generates $\minifed$
+programs (Section \ref{section-metalang}).
+
+We identify clients by natural numbers and federations- finite sets of
+clients- are always given statically.  Our threat model assumes a
+partition of the federation into \emph{honest} $H$ and \emph{corrupt}
+$C$ subsets. We model probabilistic programming via a \emph{random
+tape} semantics. That is, we will assume that programs can make
+reference to values chosen from a uniform random distributions defined
+in the initial program memory.  Programs aka protocols execute
+deterministically given the random tape.
+
+\subsection{Syntax}
+
+\minifedfig
+
+The syntax of $\minifed$, defined in Figure \ref{fig-minifed},
+includes values $v$ and standard operations of addition, subtraction,
+and multiplication in a finite field $\mathbb{F}_p$ where $p$ is some
+prime.  Protocols are given input secret values $\secret{w}$ as well
+as random samples $\flip{w}$ on the input tape, implemented using a
+\emph{memory} as described below (Section
+\ref{section-lang-semantics}) where $w$ is a distinguishing 
+identifier string. Protocols are sequences of assignment commands of three
+different forms:
+\begin{itemize}
+\item $\eassign{\mesg{w}}{\cid_2}{\be}{\cid_1}$: This
+  is a \emph{message send} where expression $\be$ is computed
+  by client $\cid_1$ and sent to client $\cid_2$ as message
+  $\mesg{w}$.
+\item $\reveal{w}{\be}{\cid}$: This
+  is a \emph{public reveal} where expression $\be$ is computed
+  by client $\cid$ and broadcast to the federation, typically
+  to communicate intermediate results for use in final output
+  computations.
+\item $\pubout{\cid}{\be}{\cid}$: This
+  is an \emph{output} where expression $\be$ is computed
+  by client $\cid$ and reported as its output. As a
+  sanity condition we disallow commands
+  $\pubout{\cid_1}{\be}{\cid_2}$ where $\cid_1\ne\cid_2$.
+\end{itemize}
+For example, in the following protocol, a client 1
+subtracts a random sample $\flip{y}$ from $\mathbb{F}_p$ from their
+secret value $\secret{x}$ and sends the result to client
+2 as a message $\mesg{z}$:
+$$
+\eassign{\mesg{z}}{2}{(\secret{x} - \flip{y})}{1}
+$$
+Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be
+referenced in expressions once they've been defined.
+This distinction between messages and broadcast public
+reveal is consistent with previous formulations, e.g.,
+\cite{6266151}.
+
+We let $x$ range over \emph{variables} which are identifiers where
+client ownership is specified- e.g.,
+$\elab{\mesg{\mathit{foo}}}{\cid}$ is a message $\mathit{foo}$ that
+was sent to $\cid$. We let $X$ range over sets of variables, and more
+specifically, $S$ ranges over sets of secret variables
+$\elab{\secret{w}}{\cid}$, $R$ ranges over sets of random variables
+$\elab{\flip{w}}{\cid}$, $M$ ranges over sets of message variables
+$\elab{\mesg{w}}{\cid}$, $P$ ranges over sets of public variables
+$\rvl{w}$, and $O$ ranges over sets of output variables $\out{\cid}$.
+Given a program $\prog$, we write $\iov(\prog)$ to denote the set $S
+\cup M \cup P \cup O$ of variables in $\prog$ with ownership made
+explicit and $\secrets(\prog)$ to denote $S$, and we write
+$\flips(\prog)$ to denote the set $R$ of random samplings in $\prog$
+with ownership made explicit. We write $\vars(\prog)$ to denote
+$\iov(\prog) \cup \flips(\prog)$. For any set of variables $X$ and
+clients $I$, we write $X_I$ to denote the subset of $X$ owned by any
+client $\cid \in I$, in particular we write $X_H$ and $X_C$ to denote the
+subsets belonging to honest and corrupt parties, respectively.
+
+\subsection{Semantics}
+\label{section-lang-semantics}
+
+\emph{Memories} are fundamental to the semantics of $\fedcat$ and
+provide random tape and secret inputs to protocols, and also record
+message sends, public broadcast, and client outputs. Memories $\store$ are finite
+(partial) mapping from variables $x$ to values $v \in \mathbb{Z}_p$. The \emph{domain} of a
+memory is written $\dom(\store)$ and is the finite set of variables on
+which the memory is defined. We write $\store\{ x \mapsto v\}$ for
+$x\not\in\dom(\store)$ to denote the memory $\store'$ such that
+$\store'(x) = v$ and otherwise $\store'(y) = \store(y)$ for all $y
+\in \dom(\store)$. We write $\store \subseteq \store'$ iff
+$\dom(\store) \subseteq \dom(\store')$ and $\store(x) =
+\store'(x)$ for all $x \in \dom(\store)$. We write $\store \cap
+\store'$ to denote the combination of $\store$ and $\store'$
+assuming $\store(x) = \store'(x)$ for all $x \in \dom(\store)
+\cap \dom(\store')$, otherwise $\store \cap \store'$ is undefined.
+We write $\store \subseteq \store'$ iff $\store \cap \store'
+= \store$.
+
+Given a set of variables $X$, we write $\store_X$ to denote the
+memory $\store$ restricted to the domain $X$, and we define
+$\mems(X)$ as the set of all memories with domain $X$:
+$$
+\mems(X) \defeq \{ \store \mid \dom(\store) = X \}
+$$
+Thus, given a protocol $\prog$, the set of all random tapes for
+$\prog$ is $\mems(\flips(\prog))$.
+%We let $\stores$ range
+%over sets of memories with the same domain, and abusing notation
+%we write $\dom(\stores)$ to denote the common domain,
+%and $\stores_X \defeq \{ \store_X | \store \in \stores \}$.
+
+Given a variable-free expression $\be$, we write $\cod{\be}$ to denote
+the standard interpretation of $\be$ in the arithmetic field
+$\mathbb{Z}_{p}$. With the introduction of variables to expressions,
+we need to interpret variables with respect to a specific memory, and
+all variables used in an expression must belong to a specified client.
+Thus, we denote interpretation of expressions $\be$ computed on a
+client $\cid$ as $\lcod{\store,\be}{\cid}$. This interpretation is
+defined in Figure \ref{fig-minifed}. The small-step reduction relation
+$\redx$ is then defined in Figure \ref{fig-minifed} to evaluate
+commands. Reduction is a relation on \emph{configurations} $(\store,
+\prog)$ where all three command forms- message send, broadcast, and
+output- are implemented as updates to the memory $\store$. We write
+$\redxs$ to denote the reflexive, transitive closure of\ $\redx$.
+
+\subsection{Example: Passive Secure Addition}
+\label{section-lang-example}
+
+Shamir addition leverages homomorphic properties of addition in
+arithmetic fields to implement secret addition. If a field value $v_1$
+is uniformly random, then $v_1 \fminus v_2$ is an encryption of $v_2$
+where $v_1$ is an information theoretically secure one-time-pad, which
+is exploited for secret sharing, noting that $v_2$ can be
+reconstructed by summing $v_1$ and $v_3 \defeq v_1 \fminus v_2$. 
+
+In $\minifed$, to privately sum secret values $\secret{\cid}$, each
+client $\cid$ in the federation $\{ 1, 2, 3 \}$ samples a value
+$\locflip$ that can be used as a one-time pad with another random
+sample $\flip{x}$ and $\secret{\cid}$. This yields two secret shares
+communicated as messages to the other clients, while each client keeps
+$\locflip$ as its own share.
+$$
+\begin{array}{lll}
+  \elab{\mesg{s1}}{2} &:=& \elab{(\locflip \fminus \flip{x} \fminus \secret{1})}{1} \\ 
+  \elab{\mesg{s1}}{3} &:=& \elab{\flip{x}}{1} \\ 
+  \elab{\mesg{s2}}{1} &:=& \elab{(\locflip \fminus \flip{x} \fminus \secret{2})}{2} \\ 
+  \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
+  \elab{\mesg{s3}}{1} &:=& \elab{(\locflip \fminus \flip{x} \fminus \secret{3})}{3} \\ 
+  \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3}
+\end{array}
+$$
+This scheme guarantees that messages
+are viewed as random noise by any observer 
+besides $\cid$ \cite{barthe2019probabilistic}. Next, each client
+publicly reveals the sum of all of its shares, including its local
+share. This step does reveal information about secrets-- note in
+particular that $\locflip$ is reused and is no longer a one-time-pad:
+$$
+\begin{array}{lll}
+  \rvl{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  \rvl{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
+  \rvl{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} 
+\end{array}
+$$
+Finally, each client outputs the sum of each sum of shares, yielding
+the sum of secrets. The protocol is correct because the outputs are all the
+true sum of secrets, and it is secure because no more information about the
+secrets other than that revealed by their sum is exposed.
+$$
+%\elab{\mesg{o1}}{2} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  %\elab{\mesg{o1}}{3} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  %\elab{\mesg{o2}}{1} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
+  %\elab{\mesg{o2}}{3} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\ 
+  %\elab{\mesg{o3}}{1} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\ 
+  %\elab{\mesg{o3}}{2} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3}\\ 
+  %\pubout{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3} + \mesg{o2} + \mesg{o3})}{1}
+\begin{array}{lll}
+  \out{1} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{1}\\
+  \out{2} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{2}\\
+  \out{3} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{3}
+\end{array}
+$$

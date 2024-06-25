@@ -1,0 +1,163 @@
+\subsection{2-Party BDOZ and Integrity Enforcement}
+\label{section-example-bdoz}
+
+\input{bdoz}
+
+In a malicious setting, ``detecting cheating'' by adding
+information-theoretic secure MAC codes to shares is a fundamental
+technique pioneered in systems such as BDOZ and SPDZ
+\cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3}.  These protocols
+assume a pre-processing phase that distributes shares with MAC codes
+to clients.  This integrates well with pre-processed Beaver Triples to
+implement malicious secure, and relatively efficient, multiplication
+\cite{evans2018pragmatic}. Recall that Beaver triples are values $a,b,c$ with
+$\fcod{a * b} = c$, unique per multiplication gate, that are secret
+shared with clients during pre-processing. Here we consider the
+2-party version.
+
+A field value $v$ is secret shared among 2 clients in BDOZ in the same
+manner as in GMW.  Each client $\cid$ gets a pair of the form
+$(v_\cid,m_\cid)$, where $v_\cid$ is a share of $v$ reconstructed by
+addition, i.e., $v = \fcod{v_1 \fplus v_2}$, and $m_\cid$ is a MAC of
+$v_\cid$.  More precisely, $m_\cid = k + (k_\Delta * v_\cid)$ where
+\emph{keys} $k$ and $k_\Delta$ are known only to $\cid' \ne \cid$ and
+$k_\Delta$. The \emph{local key} $k$ is unique per MAC, while the
+\emph{global key} $k_\Delta$ is common to all MACs authenticated by
+$\cid'$. This is a semi-homomorphic encryption scheme that supports
+addition of shares and multiplication of shares by a constant-- for
+more details the reader is referred to Orsini
+\cite{10.1007/978-3-030-68869-1_3}. We note that while we restrict
+values $v$, $m$, and $k$ to the same field in this presentation for
+simplicity, in general $m$ and $k$ can be in extensions of
+$\mathbb{Z}_p$.
+
+We can capture both the preliminary distribution of Beaver triples and BDOZ shares
+as a pre-processing predicate that establishes conditions for initial
+memories (see Definition \ref{def-aprogtt}).  Here we assume two input
+secrets $\elab{\secret{x}}{1}$ and $\elab{\secret{y}}{2}$ and a single
+Beaver Triple to compute $\elab{\secret{x}}{1} \ftimes
+\elab{\secret{y}}{2}$, but we can extend this for additional gates.
+As for GMW, we use $\macgv{\mesg{w}}$ to refer to secret-shared values
+reconstructed with addition, where by convention shares are message
+values $\elab{\mesg{w}}{\cid}$ for all $\cid$.
+\begin{definition}[BDOZ preprocessing]
+  Define:
+  \begin{mathpar}
+    \mathit{shares} \defeq
+    \{ \elab{\mesg{w}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+
+    \mathit{macs} \defeq  \{ \elab{\mesg{w\ttt{mac}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+
+    \mathit{keys} \defeq  \begin{array}{l}\{ \elab{\mesg{w\ttt{k}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in
+    \{ a,b,c,x,y \}  \} \cup \\ \{ \elab{\mesg{\ttt{delta}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \} \end{array}
+  \end{mathpar}
+  Then a memory $\store$ satisfies BDOZ preprocessing iff:
+  $$\dom(\store) = \{ \elab{\secret{x}}{1}, \elab{\secret{y}}{2} \} \cup \mathit{shares}
+  \cup \mathit{macs} \cup \mathit{keys}$$
+  and, writing $\store(\macgv{\mesg{w}})$ to denote
+  $\fcod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})}$,
+  the following conditions hold:
+  \begin{mathpar}
+    \store(\macgv{\mesg{x}}) = \store(\elab{\secret{x}}{1})
+    
+    \store(\macgv{\mesg{y}}) = \store(\elab{\secret{y}}{2})
+    
+    \fcod{\store(\macgv{\mesg{a}}) * \store(\macgv{\mesg{b}})} = \store(\macgv{\mesg{c}})
+  \end{mathpar}
+  and for all $\cid,\cid' \in \{1,2\}$ with $\cid \ne \cid'$ and $w \in \{ a,b,c,x,y\}$:
+  $$\lcod{\store, \mesg{w\ttt{mac}}}{\cid} =
+  \lcod{\store, \mesg{wk} + \mesg{\ttt{delta}} * \mesg{w}}{\cid'}$$
+\end{definition}
+
+With these conventions, our BDOZ library is defined in Figure \ref{fig-bdoz}.
+In $\metaprot$ we represent BDOZ share, MAC pairs as records:
+$$
+\ttt{\{ share = }v\ttt{;  mac =}\ m \ttt{\}}
+$$
+and we define $\ttt{macsum}$ for addition of shares,
+$\ttt{maccsum}$ for addition of a share and a constant, and
+$\ttt{macctimes}$ for multiplication of a share and a constant
+in the BDOZ encryption scheme \cite{10.1007/978-3-030-68869-1_3}. The $\ttt{auth}$
+function implements the MAC check as an $\assert$.
+
+We also define a function $\ttt{secopen}$ to implement ``secure
+opening''.  In this standard subprotocol, the value
+$\macgv{\secret{w_1}} \fplus \macgv{\mesg{w_2}}$ is reconstructed as
+$\mesg{w_3}$, by each client $\cid_2$ communicating
+$\lcod{\mesg{w_1} + \mesg{w_2}}{\cid_2}$ to $\cid_1$.  Assuming that
+$\macgv{\mesg{w_2}}$ is in an independent uniform distribution,
+this perfectly hides $\secret{w_1}$. In a multiplication gate
+either $a$ or $b$ of a Beaver triple are used in secure opening,
+so, e.g., given $
+(\varnothing,\ttt{secopen}(a, x, d, 2, 1) \redxs (\prog,())$
+we have both:
+\begin{mathpar}
+  \conddetx{\progtt(\prog)}{\{\macgv{\mesg{a}},\elab{\secret{x}}{1} \}}{\{ \elab{\mesg{d}}{2} \}}
+  
+  \sep{\progtt(\prog)}{\{ \elab{\mesg{d}}{2} \}}{\{ \elab{\secret{x}}{1}  \}}
+\end{mathpar}
+Furthermore, client 2's authentication of the sum of shares with the
+sum of their keys detects any attempted cheating by $1$.  Finally, the
+$\ttt{secreveal}$ function is the same as $\decodegmw$ but with the
+addition of authentication of revealed shares to ensure malicious
+security.
+
+\input{beaver}
+
+The full protocol for malicious secure product of secrets $x$ (that
+is, $\elab{\secret{x}}{1}$) and $y$ (that is, $\elab{\secret{y}}{2}$)
+using Beaver triple $a,b,c$ is defined in Figure \ref{fig-bdoz}. Both
+parties interact in secure opening of $x \fplus a$ and $y + b$,
+followed by the non-interactive computation of shares of $x * y$ for
+secure reveals as per standard protocol
+\cite{10.1007/978-3-030-68869-1_3}. The non-interactive reconstruction
+of the local authentication key for both the secure openings and the
+final reveal is enabled by the semi-homomorphic properties of the BDOZ
+scheme.
+
+\subsection{Cheating Detection and Integrity}
+
+We can carry out similar proofs of passive security for the protocol
+in Figure \ref{fig-beaver} as for GMW, even using automated tactics
+for the protocol in $\mathbb{F}_2$. But in the case of BDOZ we are
+also concerned with malicious security. To demonstrate this, we can
+show that the protocol satisfies integrity in the sense of Definition
+\ref{def-integrity}. To do so, we observe that it satisfies a stronger
+property, that we call cheating detection. Cheating detection says
+that the adversary can only execute the protocol honestly, or or else
+gets caught (and abort). Note in particular that this is \emph{not}
+a form of endorsement (the dual of declassification), which allows
+the adversary some leeway. Rather, it is a confirmation of high integrity.
+
+Focusing in, we identify the \emph{adversarial inputs} as the messages
+sent from the adversary to honest parties on which honest responses
+to the adversary may depend. We want to say that these are the messages
+that must be legitimate.
+\begin{definition}
+  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$,
+  let $X_H \subseteq \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$.
+  Then the \emph{adversarial inputs to $X_H$} is the least set
+  $X_C \subseteq \cinputs$ such that $\progtt(\prog) \not\vdash X_C * X_H$.
+\end{definition}
+Now, we can characterize protocols with cheating detection as those where
+the adversary can only behave honestly/passively, or else cause abort.
+\begin{definition}[Cheating Detection]
+  \emph{Cheating is detected} in $\prog$ with $\iov(\prog) = S \cup V \cup O$ iff
+  for all  $\store \in \aruns(\prog)$,
+  letting $X_H = \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$,
+  and letting $X_C$ be the adversarial inputs to $X_H$,
+  there exists $\sigma'\in \runs(\prog)$
+  with $\store_{X_C} = \store'_{X_C}$.  
+\end{definition}
+
+It is straightforward to demonstrate that cheating detection has integrity,
+since only the ``passive'' adversary can elicit a response from honest parties. 
+\begin{lemma}
+  \label{lemma-cheating}
+  If cheating is detected in $\prog$, then $\prog$ has integrity.
+\end{lemma}
+
+In the case of BDOZ, cheating detection is accomplished by the information-theoretic
+security of the encryption scheme \cite{evans2018pragmatic}. Furthermore, the symmetry of
+the protocol in Figure \ref{fig-beaver} ensures that both parties will authenticate
+shares, so it is robust to corruption of either party. 

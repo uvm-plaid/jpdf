@@ -1,0 +1,192 @@
+\newcommand{\compfig}
+{
+  \begin{fpfig}[t]{Comparison of systems for verification of MPC security in PLs.}{fig-comp}
+    \begin{tabular}{lccccccc}
+      & 
+      \begin{sideways} probabilistic language \end{sideways} &
+      \begin{sideways} probabilistic conditioning \end{sideways} & 
+      \begin{sideways} low-level protocols \end{sideways} & 
+      \begin{sideways} passive security \end{sideways} & 
+      \begin{sideways} malicious security \end{sideways}& 
+      \begin{sideways} hyperproperties \end{sideways}& 
+      \begin{sideways} automation \end{sideways}\\\hline\hline
+      Haskell EDSL \cite{6266151} & \checkmark &  & \checkmark  & \checkmark & & \checkmark & \checkmark \\\hline
+      MPC in SecreC \cite{almeida2018enforcing} & \checkmark & \checkmark &   & \checkmark & & \checkmark & \checkmark \\\hline
+      $\lambda_{\text{obliv}}$ \cite{darais2019language} & \checkmark & & \checkmark & & & \checkmark & \checkmark \\\hline
+      PSL \cite{barthe2019probabilistic} & \checkmark & & \checkmark & & & & \\\hline
+      Lilac \cite{li2023lilac} & \checkmark & \checkmark & & & & & \\\hline
+      Wys$^*$ \cite{wysstar} & & & & \checkmark & & \checkmark & \checkmark\\\hline
+      Viaduct \cite{10.1145/3453483.3454074,viaduct-UC} & & & & \checkmark & \checkmark & \checkmark & \checkmark\\\hline
+      MPC in EasyCrypt \cite{8429300} &  \checkmark &  \checkmark &  \checkmark & \checkmark & \checkmark & \checkmark & \\\hline
+      $\metaprot$/$\minifed$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark\\
+      \hline
+    \end{tabular}
+  \end{fpfig}
+}
+
+
+\newcommand{\minifedfig}
+{
+\begin{fpfig}[t]{Top-to-bottom: Basic $\minifed$ syntax, expression interpretation, and command evaluation.}{fig-minifed}
+  {
+    $$
+    \begin{array}{rcl@{\hspace{2mm}}r}
+      \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid & \textit{expressions}\\
+      & & v \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \\[2mm]
+      x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid \rvl{w} \mid \out{\cid} & \textit{variables} \\[2mm]
+      %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      \instr &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid
+      \reveal{w}{e}{\cid} \mid \pubout{\cid}{\be}{\cid} & \textit{commands} \\[2mm]
+      \prog &::=& \varnothing \mid \instr; \prog & \textit{protocols}
+    \end{array}
+    $$
+
+    \medskip
+  
+  \rule{80mm}{0.5pt}
+    
+  $$
+  %\begin{array}{c@{\hspace{5mm}}c}
+  \begin{array}{rcl}
+    \lcod{\store, v}{\cid} &=& v\\
+    \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \fminus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fminus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
+  %\end{array} 
+  %\begin{array}{rcl}
+    \lcod{\store, \flip{w}}{\cid} &=& \store(\elab{\flip{w}}{\cid})\\
+    \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
+    \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
+    \lcod{\store, \rvl{w}}{\cid} &=& \store(\rvl{w})\\
+    %\lcod{\store, f\,\be_1\,\cdots\, \be_n}{\cid} &=& \delta(f,\lcod{\store, \be_1}{\cid},\ldots,\lcod{\store,\be_n}{\cid})
+  \end{array}
+  %\end{array}
+  $$
+
+  \vspace{4mm}
+  
+  \rule{80mm}{0.5pt}
+
+  \begin{mathpar}
+    (\store, \xassign{x}{\be}{\cid};\prog) \redx (\extend{\store}{x}{\lcod{\store,\be}{\cid}}, \prog)
+    %(\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)    
+    %(\store, \reveal{w}{\be}{\cid};\prog) \redx (\extend{\store}{\rvl{w}}{\lcod{\store,\be}{\cid}}, \prog)   
+    %(\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
+  \end{mathpar}
+  }
+\end{fpfig}
+}
+
+\newcommand{\adversaryfig}
+{
+\begin{fpfig}[h]{Adversarial semantics, and semantics of $\ttt{assert}$.}{fig-adversary}
+  {
+    $$
+    \begin{array}{rclr}
+      (\store, \xassign{x}{\be}{\cid};\prog) &\aredx&
+      (\extend{\store}{x}{\lcod{\store,\be}{\cid}}, \prog) & \cid \in H\\
+      (\store, \xassign{x}{\be}{\cid};\prog) &\aredx&
+      (\extend{\store}{x}{\lcod{\arewrite(\store_C,\be)}{\cid}}, \prog) & \cid \in C
+    \end{array}
+    $$
+    
+    $$
+    \begin{array}{rcl@{\qquad}r}
+      (\store,\elab{\assert{\phi(\be)}}{\cid};\prog) &\aredx& (\store,\prog) & \text{if\ } \phi(\lcod{\store,\be}{\cid}) \text{\ or\ } \cid \in C\\
+      (\store,\elab{\assert{\phi(\be)}}{\cid};\prog) &\aredx& (\store,\varnothing)  & \text{if\ } \neg\phi(\store,\lcod{\store,\be}{\cid})
+    \end{array}
+    $$
+  }
+\end{fpfig}
+}
+
+\newcommand{\solvefig}
+{
+  \begin{fpfig}[h]{Filtering solutions to expressions in $\mathbb{F}_2$.}{fig-solve}
+    {\small \begin{eqnarray*}
+        \solve{\stores}{1}{\cid} &=& \stores\\
+        \solve{\stores}{0}{\cid} &=& \varnothing\\
+        \solve{\stores}{\mesg{w}}{\cid} &=& \{ \store \in \stores \mid \store(\elab{\mesg{w}}{\cid}) = 1 \} \\
+        \solve{\stores}{\flip{w}}{\cid} &=& \{ \store \in \stores \mid \store(\elab{\flip{w}}{\cid}) = 1 \} \\
+        \solve{\stores}{\secret{w}}{\cid} &=& \{ \store \in \stores \mid \store(\elab{\secret{w}}{\cid}) = 1 \} \\
+        \solve{\stores}{\rvl{w}}{\cid} &=& \{ \store \in \stores \mid \store(\rvl{w}) = 1 \} \\
+        \solve{\stores}{(\enot\ \be)}{\cid} &=& \stores - (\solve{\stores}{\be}{\cid})\\
+        \solve{\stores}{(\be_1\ \eand\ \be_2)}{\cid} &=& (\solve{\stores}{\be_1}{\cid}) \cap (\solve{\stores}{\be_2}{\cid}) \\
+        \solve{\stores}{(\be_1\ \eor\ \be_2)}{\cid} &=& (\solve{\stores}{\be_1}{\cid}) \cup (\solve{\stores}{\be_2}{\cid}) \\
+        \solve{\stores}{(\be_1\ \exor\ \be_2)}{\cid} &=&
+        ((\solve{\stores}{\be_1}{\cid}) \cap (\stores - \solve{\stores}{\be_2}{\cid})) \cup\\
+        && ((\stores - \solve{\stores}{\be_1}{\cid}) \cap (\solve{\stores}{\be_2}{\cid})) 
+      \end{eqnarray*} }
+  \end{fpfig}
+}
+
+\newcommand{\metaprotfig}
+{
+  \begin{fpfig}[t]{$\metaprot$ syntax (T), evaluation contexts (M), and operational semantics (B).}{fig-metaprot}
+    {\small{
+    $$
+    \begin{array}{rcl}
+      \multicolumn{3}{l}{\flab \in \mathrm{Field},\   y \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[1mm]
+      %x &\in& \mathrm{EVar}\\
+      %f &\in& \mathrm{FName}\\[2mm]
+      e &::=& \mv \mid \flip{e} \mid \secret{e} \mid \mesg{e} \mid \rvl{e} \mid e \bop e \mid \\%  & \textit{expressions}\\
+      & & \msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid \\
+      & &  \elab{\assert{\phi(e)}}{e} \mid y \mid \elet{y}{e}{e} \mid \\
+      & & f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \mid e.\flab \mid e;e \\[1mm]
+      \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
+      \mv &::=& w \mid \cid \mid \be \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
+      \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
+           \mathit{fn} &::=& f(y,\ldots,y) \{ e \} %& \textit{functions}
+    \end{array}
+    $$
+    }
+
+    \rule{80mm}{0.5pt}
+
+    {\small
+    $$
+      \begin{array}{c}
+        E \ ::= \\
+        \begin{array}{l}
+          [\,] \mid E\ \bop\ e \mid \mv\ \bop\ E \mid \flip{E} \mid \secret{E} \mid \mesg{E} \mid \rvl{E} \mid \\
+          \msend{E}{e}{e}{e} \mid \msend{\mv}{E}{e}{e} \mid \msend{\mv}{\mv}{E}{e} \mid \msend{\mv}{\mv}{\mv}{E} \mid\\
+          \reveal{E}{e}{e} \mid \reveal{\mv}{E}{e} \mid \reveal{\mv}{\mv}{E} \mid\\
+          \pubout{E}{e}{e} \mid \pubout{\mv}{E}{e} \mid \pubout{\mv}{\mv}{E} \mid\\
+          \elab{\assert{\phi(E)}}{e} \mid \elab{\assert{\phi(\mv)}}{E} \mid\\
+          \elet{y}{E}{e} \mid f(\mv,\ldots,\mv,E,e,\ldots,e) \mid E;e \\
+          \{ \flab = \mv;\ldots;\flab = \mv;\flab = E;\flab = e;\ldots;\flab = e \} \mid E.\flab 
+        \end{array}
+      \end{array}
+    $$
+    \vspace{.5mm}
+    
+    \rule{80mm}{0.5pt}
+    
+    %$$
+    %\begin{array}{rcl@{\hspace{2mm}}r}
+    \begin{mathpar}
+      \config{\prog}{\elet{y}{\mv}{e}} \redx \config{\prog}{e[\mv/y]}
+       
+      \inferrule
+          {\codebase(f) = y_1,\ldots,y_n,\ e}
+          {\config{\prog}{f(\mv_1,...,\mv_n)} \redx \config{\prog}{e[\mv_1/y_1,\ldots,\mv_n/y_n]}} 
+      
+      \config{\prog}{\{\ldots; \flab = \mv; \ldots\}.\flab} \redx \config{\prog}{\mv}
+      
+      \config{\prog}{w_1\concat w_2} \redx \config{\prog}{w_1w_2}
+      
+      \config{\prog}{\mv;e} \redx \config{\prog}{e}
+      
+      \config{\prog}{\instr} \redx \config{\prog;\instr}{()}
+      
+      \inferrule
+          {\config{\prog}{e} \redx \config{\prog'}{e'}}
+          {\config{\prog}{E[e]} \redx \config{\prog'}{E[e']}}
+    \end{mathpar}}
+    %\end{array}
+    %$$
+  }
+\end{fpfig}
+}

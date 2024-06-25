@@ -1,0 +1,151 @@
+\section{Automated Verification in $\mathbb{F}_2$}
+\label{section-bruteforce}
+
+In the binary field $\mathbb{F}_2$, a brute force strategy for computing
+$\progtt(\prog)$ for any $\prog$ is to directly compute
+$\runs(\prog)$. By querying $\progtt(\prog)$ we can verify any of the
+hyperproperties discussed previously, or other properties such as
+perfect secrecy \cite{barthe2019probabilistic}.  A basic method to do this is
+to calculate a truth table for the given protocol. Since
+$\runs(\prog)$ is exponential in
+the size of $\secrets(\prog) \cup \flips(\prog)$, this strategy is
+feasible only for smaller protocols. However, to support some
+scaling we can efficiently
+convert protocols in the passive setting (without $\ttt{assert}$) to
+stratified Datalog programs, and then extract $\runs(\prog)$ by
+calculating Least Herbrand models by parallelization and/or other HPC
+acceleration techniques for logic programs \cite{aspis2018linear}.
+The rewriting we describe here is to Datalog with negation, with a
+negation-as-failure model, though we can also use techniques in
+\cite{sakama2017linear} to eliminate negation from resulting programs.
+
+\subsection{Computing a Truth Table}
+
+In Figure \ref{fig-solve} we define the algorithm
+$\solve{\stores}{\be}{\cid}$ which filters a given $\stores$ to obtain
+the subset whose elements satisfy $\be$. In this Figure and elsewhere
+we use logical connectives as field operations ($\eand$ and $\exor$
+for $*$ and $+$ respectively) in $\mathbb{F}_2$ and add $\enot$ and
+$\eor$ as trivial but convenient extensions. The correctness of this
+operation is characterized as follows.
+\begin{lemma}
+  \label{lemma-solves}
+  %For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
+  $(\solve{\stores}{\be}{\cid}) = \{ \store \in \stores \ \mid\ \lcod{\store,\be}{\cid} = 1 \}$.
+\end{lemma}
+
+\solvefig
+
+We immediately note that $\runs(\prog)$ can be obtained by a left-folding
+of $\solvealg$ across $\prog$. 
+\begin{lemma}
+  \label{lemma-cruns}
+  Given $\prog$ where $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$. Define:
+  \begin{eqnarray*}
+    {tt}\ \ \stores\ (\xassign{x}{\be}{\cid}) &\defeq& \begin{array}{l}
+      \mathrm{let}\ \stores' = \solve{\stores}{\be}{\cid}\ \mathrm{in}\\
+      \ \ \{\extend{\store}{x}{1} \mid \store \in \stores' \}\ \cup\\
+      \ \ \{\extend{\store}{x}{0} \mid \store \in \stores - \stores' \}\end{array}%\\[2mm]
+    %\cruns(\prog) &\defeq& \mathit{foldl}\ {tt}\ \mems(S \cup R)\ \prog
+  \end{eqnarray*}
+  Then assuming default preprocessing, $\mathit{foldl}\ {tt}\ \mems(S \cup R)\ \prog = \runs(\prog)$.
+\end{lemma}
+However, this method does not take advantage of parallelization,
+in that elements of $\runs(\prog)$ can be calculated independently.
+
+\subsection{Conversion to Stratified Datalog}
+
+We define the syntax of Datalog as follows. As per standard
+nomenclature, \emph{atoms} are $\minifed$ variables $x$,
+\emph{literals} are atoms or negated atoms, and clause bodies are
+conjunctions of literals.  A \emph{fact} is a clause with no body. A
+\emph{Datalog program} is a list of clauses.
+$$
+\begin{array}{rclr}
+  \mathit{body} &::=&  x \mid \neg x \mid x \wedge \mathit{body} \mid \neg x \wedge \mathit{body} \\
+  \mathit{clause} &::=& x \gets \mathit{body} \mid x \gets
+\end{array}
+$$
+When translating protocols, we need to extract the variables
+that occur in expressions $\be$ computed by a client $\cid$,
+written $\vars\ \be\ \cid$ where:
+\begin{mathpar}
+  \vars\ \secret{w} \cid \defeq \{ \elab{\secret{w}}{\cid} \}
+  
+  \vars\ \mesg{w} \cid \defeq \{ \elab{\mesg{w}}{\cid} \}
+
+  \vars\ \rvl{w} \cid \defeq \{ \elab{\rvl{w}}{\cid} \}
+
+  \vars\ \flip{w} \cid \defeq \{ \elab{\flip{w}}{\cid} \}
+
+  \vars\ (\be_1 \exor \be_2)\ \cid \defeq (\vars\ \be_1\ \cid) \cup (\vars\ \be_2\ \cid)
+\end{mathpar}
+... and so on. Then, to convert a protocol $\prot$ to a Datalog
+we first define the function $\bodies$ that applies $\solvealg$ locally to each command
+in $\prog$, obtaining the subset of memories that result
+in a variable assignment of $1$.  
+\begin{definition} Define:
+$$
+\bodies(\xassign{x}{\be}{\cid}) \defeq (x, (\solve{(\mems(\vars\ \be\ \cid))}{\be}{\cid}))
+$$
+\end{definition}
+The mapping of $\bodies$ across a program
+$\prog$-- i.e., $(\mathit{map}\ \bodies\ \prog)$--  essentially defines the
+logic program, modulo some syntactic conversion. We can
+accomplish the latter as follows, where $\datalog(\prog)$ defines the
+full conversion.
+\begin{definition} We define the conversion from memories to
+  literals and clause bodies as follows:
+\begin{mathpar}
+  \logit{x \mapsto 1} \defeq x
+
+  \logit{x \mapsto 0} \defeq \neg x
+
+  \logit{\{ x_1 \mapsto \beta_1, \ldots, x_n \mapsto \beta_n\}} \defeq
+  \logit{x_1 \mapsto \beta_1} \wedge \cdots \wedge \logit{x_n \mapsto \beta_n}
+\end{mathpar}
+Given pairs $(x,\stores)$ in the range of $\bodies$, we define the conversion
+to clauses as  $\mathit{clauses}(x,\{ \store_1,...,\store_n \}) \defeq x \gets \logit{\store_1} \vee \cdots \vee x \gets \logit{\store_n}$.
+The $\minifed$-to-Datalog conversion is then defined as:
+$$
+\datalog(\prog) \defeq  \mathit{map}\ \mathit{clauses}\ (\mathit{map}\ \bodies\ \prog)
+$$
+\end{definition}
+
+In addition to converting view definitions to logic clauses, we also need to convert
+secrets and random tapes. Since we assume given values for these in an arbitrary run of
+the program, we can capture these as a particular fact base.
+\begin{definition}
+  Given $\store$, let $\{x_1,\ldots,x_n \} =
+  \{ x \in \dom(\store) \mid \store(x) = 1 \}$.
+  Then define $\mathit{facts}(\store) \defeq x_1 \gets, \ldots, x_n \gets$.
+\end{definition}
+The following result ties these pieces together and establishes
+correctness of this approach.
+\begin{lemma}
+  For all $\prog$, 
+  $\datalog(\prog)$ is a \emph{normal}, \emph{stratified}
+  program \cite{aspis2018linear}, and $\store$ is the unique Least Herbrand
+  Model of: $$(\mathit{facts}(\store_{\secrets(\prog) \cup \flips(\prog)}),\datalog(\prog))$$
+  iff $\store \in \runs(\prog)$.
+\end{lemma}
+Finally, to compute $\runs(\prog)$, and thus $\progtt(\prog)$, we compute
+the Least Herbrand Model $\store$ of $(\mathit{facts}(\store'),\datalog(\prog))$
+for all $\store' \in \mems(\secrets(\prog) \cup \flips(\prog))$, observing
+that model computation for distinct fact bases can be done in parallel. 
+
+\paragraph{Verifying Security Properties} We can
+query correct representations of $\runs(\prog)$ by using
+implementations of conditioning and marginalization to automatically
+verify the passive model hyperproperties described in Section
+\ref{section-hyper}-- in particular correctness and noninterference
+modulo output, which imply passive security.  We have used this method
+to verify security in $\mathbb{F}_2$ of Shamir addition as defined in Section
+\ref{section-lang-example}, and single-gate $\eand$ and $\exor$ circuits with GMW
+Beaver triples. We have also
+verified properties compositional properties of gates themselves that establish
+circuit invariants that imply passive security in larger circuits.
+We discuss these examples and proof methods in Section
+\ref{section-example-gmw}.
+
+

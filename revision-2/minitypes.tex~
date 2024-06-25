@@ -1,0 +1,156 @@
+\section{Confidentiality Types for $\minicat$}
+
+
+\newcommand{\sx}[2]{\elab{\secret{#1}}{#2}}
+\newcommand{\mx}[2]{\elab{\mesg{#1}}{#2}} 
+%\newcommand{\px}[2]{\elab{\rvl{#1}}{#2}} 
+\newcommand{\rx}[2]{\elab{\flip{#1}}{#2}}
+\newcommand{\ox}[2]{\elab{\out{#1}}{#2}}
+\newcommand{\signals}{\leadsto}
+
+\newcommand{\tj}[5]{#1,#2 \vdash_{#3} #4 : #5}
+\newcommand{\cty}[2]{c(#1,#2)}
+\newcommand{\setit}[1]{\{ #1 \}}
+\newcommand{\ty}{T}
+
+\begin{definition}
+  A \emph{ciphertype} is of the form $\cty{x}{\ty}$ where $\ty$ is a \emph{type} which is a set
+  of either either variables $x$ or ciphertypes. A \emph{type environment} $\Gamma$ is a finite
+  list of type bindings. 
+\end{definition}
+
+Intuitively, a type is the set of variables on which a given value may
+depend, and a ciphertype $\cty{x}{\ty}$ denotes a value with type
+$\ty$ that has been encrypted using $x$ as a one-time-pad. So for
+example, the following is the type of $\mx{s1}{2}$ in the example in Section
+\ref{section-lang-example}:
+$$
+\setit{\cty{\elab{\locflip}{1}}{\setit{\cty{\rx{x}{1}}{\setit{\sx{1}{1}}}}}}
+$$
+and the following is the type of $\mx{s1}{3}$:
+$$
+\setit{\rx{x}{1}}
+$$
+
+Further, the union of the types of multiple values represents their
+joint dependencies. We make the conservative approximation that any
+dependency on a one-time-pad $x$ ``unlocks'' dependencies of a value
+encrypted with $x$. To capture a notion of closure under this
+interpretation we define the type rewrite relation $\signals$.
+\begin{mathpar}
+  (\setit{x,\cty{x}{\ty'}} \cup \ty) \signals (\setit{x} \cup \ty' \cup \ty)
+
+  \inferrule
+  {\ty_1 \signals \ty_2 \\ \ty_2 \signals \ty_3}
+  {\ty_1 \signals \ty_3}
+
+  \ty \signals \ty
+\end{mathpar}
+
+Then, a set of values is considered high security if it has any
+dependencies on honest secrets revealed by $\signals$. This allows us
+to associate \emph{security labels} $\hilab$ and $\lolab$ with types.
+Note that this implicitly assumes that encrypted values, random
+samples, and corrupt secrets are all low security.
+$$
+\seclab(\ty) =
+\begin{cases}
+  \hilab \text{\ if\ } \ty \signals \{ \sx{w}{\cid} \} \cup \ty' \text{\ and\ } \cid \in H \\
+  \lolab \text{\ otherwise}
+\end{cases}
+$$
+
+Expression type judgements are of the form
+$\tj{\Gamma}{R}{\cid}{\be}{\ty}$, where $\Gamma$ is a classical type
+environment and $R$ is a linear type environment.  The latter ensures
+that a random variable $\elab{\flip{w}}{\cid}$ is only used once for
+this purpose, though it may be used more than once as a classical type
+that reflects its dependency. To help enforce this in the analysis We
+write $R_1;R_2$ to denote the union of $R_1$ and $R_2$ if $R_1$ and
+$R_2$ are disjoint, otherwise $R_1;R_2$ is undefined. The type of
+programs $\Gamma,R \vdash \prog : \Gamma'$ can be viewed as a Hoare
+Type where $\Gamma$ represents dependency preconditions in memory and
+$\Gamma'$ are dependencies resulting from execution of $\prog$.
+
+The most interesting rule is $\TirName{Share}$ which generates
+a ciphertype, given a random sample used as a one-time-pad that
+from which the encrypted value is either added or subtracted.
+Additionally, the linear use of the sample is registered in
+the judgement. 
+\begin{mathpar}
+  \inferrule[Value] {}
+            {\tj{\Gamma}{\varnothing}{\cid}{v}{\varnothing}}
+  
+  \inferrule[Secret]
+  {}
+  {\tj{\Gamma}{\varnothing}{\cid}{\secret{w}}{\setit{\sx{w}{\cid}}}}
+    
+  \inferrule[Rando]
+  {}
+  {\tj{\Gamma}{\varnothing}{\cid}{\flip{w}}{\setit{\rx{w}{\cid}}}}
+  
+  \inferrule[Mesg]
+  {}
+  {\tj{\Gamma}{\varnothing}{\cid}{\mesg{w}}{\Gamma(\mx{w}{\cid})}}
+    
+  \inferrule[PubM]
+  {}
+  {\tj{\Gamma}{\varnothing}{\cid}{\rvl{w}}{\Gamma(\rvl{w})}}
+
+  \inferrule[Share]
+  {\tj{\Gamma}{R}{\cid}{\be}{\ty} \\ \oplus \in \{ \fplus,\fminus \}}
+  {\tj{\Gamma}{R;\rx{w}{\cid}}{\cid}{\flip{w} \oplus \be}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+
+  \inferrule[Binop]
+  {\tj{\Gamma}{R_1}{\cid}{\be_1}{\ty_1} \\ \tj{\Gamma}{R_1}{\cid}{\be_1}{\ty_1} \\
+              \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\tj{\Gamma}{R_1;R_2}{\cid}{\be_1 \oplus \be_2}{\ty_1 \cup \ty_2}}
+
+  \inferrule[Command]
+  {\tj{\Gamma}{R_1}{\cid}{\be}{\ty} \\ \Gamma; x : \ty,R_2 \vdash \prog : \Gamma'}
+  {\Gamma,R_1;R_2 \vdash x := \elab{\be}{\cid};\prog : \Gamma'} 
+
+  \inferrule[Term]
+  {}
+  {\Gamma,\varnothing \vdash \varnothing: \Gamma}          
+\end{mathpar}
+
+Then a main result is that protocols where the collective messages received by the
+adversary are low security satisfy gradual release.
+\begin{theorem}[Confidentiality Type Safety]
+  Given $\Gamma_1,R \vdash \prog : \Gamma_2$ where $\Gamma_1$ is sound for
+  preprocessing and:
+  $$\seclab(\bigcup_{\mx{w}{\cid} \in X} \Gamma_2(\mx{w}{\cid}) \cup \flips(\prog)_C) = \lolab$$
+  for $X \defeq \dom(\Gamma_2)_C$.
+  Then $\prog$ satisfies gradual release.
+\end{theorem}
+
+This definition accounts for preprocessing of memories. In the default
+case where initial memories just contain secrets and the random tape,
+we can take $\Gamma_1$ to be $\varnothing$ In cases of nontrivial
+pre-processing we need to define $\Gamma_1$ \cnote{and also a formal
+  notion of soundness}. For example, in a 2-client Beaver Triple
+scheme, we imagine that client 1's secret $x$ is shared as
+messages $\mx{x}{1}$ and $\mx{x}{x}$ in the initial memory, obtained
+via the ``0-time-pad'' use of the random value $\rx{x}{1}$.
+So in this case $\Gamma_1$ would contain:
+\begin{mathpar}
+\mx{x}{1} : \setit{\rx{x}{1}}
+
+\mx{x}{2} : \setit{\cty{\rx{x}{1}}{\setit{\sx{x}{1}}}}
+\end{mathpar}
+Similarly, we imagine that clients 1 and 2 possess respective
+shares of random values $a$ and $b$ on their random tape:
+$$
+\rx{a}{1}\quad  \rx{a}{2}\quad \rx{b}{1}\quad \rx{b}{2} 
+$$
+as well as shares $\mx{c}{1}$ and $\mx{c}{2}$ of a value
+$c \defeq a * b$, i.e.:
+$$c \defeq
+(\rx{a}{1} \fplus \rx{a}{2}) \ftimes (\rx{b}{1} \fplus \rx{b}{2})$$
+so $\Gamma_1$ contains:
+\begin{mathpar}
+  \mx{c}{1} : \setit{\rx{c}{1}}
+
+\mx{c}{2} : \setit{ \cty{\rx{c}{1}}{\setit{\rx{a}{1},\rx{a}{2},\rx{b}{1},\rx{b}{2}}} }
+\end{mathpar}
