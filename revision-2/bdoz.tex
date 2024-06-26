@@ -10,7 +10,7 @@
     macctimes(s,c)
     { { share = s.share * c; mac = s.mac * c } }
     
-    macshare(w) { {  share = m[w]; mac = m[w++"mac"] } }
+    macshare(w) { {  share = m[w++"s"]]; mac = m[w++"mac"] } }
 
     mack(w) { m[w++"k"] }
     
@@ -20,7 +20,7 @@
     {
       let locsum =  macsum(macshare(w1), macshare(w2)) in
       m[w3++"s"]@i1 := (locsum.share)@i2;
-      m[w3++"smac"]@i1 := (locsum.mac)@i2;
+      m[w3++"mac"]@i1 := (locsum.mac)@i2;
       auth(m[w3++"s"],m[w3++"smac"],mack(w1) + mack(w2),i1);
       m[w3]@i1 := (m[w3++"s"] + (locsum.share))@i1
     }
