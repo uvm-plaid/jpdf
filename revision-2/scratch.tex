@@ -155,15 +155,14 @@ $$
 
 \begin{mathpar}
   \inferrule[Send]
-            {\tj{\Gamma}{R}{\eqs}{\cid}{\be}{\lty{\ty}{\latel}}}
-            {\ej{\Gamma}{R}{\eqs}{\xassign{x}{\be}{\cid}}{\Gamma; x : \lty{\ty}{\latel}}
+            {\tj{\Gamma}{R}{\eqs}{\cid}{\be}{\lty{\ty}{\seclev(\cid)}}}
+            {\ej{\Gamma}{R}{\eqs}{\xassign{x}{\be}{\cid}}{\Gamma; x : \lty{\ty}{\seclev(\cid)}}
               {\eqs \wedge x = \toeq{\elab{\be}{\cid}}}}
              
   \inferrule[Assert]
             {\eqs \models \toeq{\elab{\be_1}{\cid}} = \toeq{\elab{\be_2}{\cid}}}
-            {\ej{\Gamma}{R}{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Gamma}\eqs}
-
-
+            {\ej{\Gamma}{R}{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Gamma}{\eqs}}
+            
   \inferrule[Seq]
             {\ej{\Gamma_1}{R_1}{\eqs_1}{\prog_1}{\Gamma_2}{\eqs_2}\\
              \ej{\Gamma_2}{R_2}{\eqs_2}{\prog_2}{\Gamma_3}{\eqs_3}}
@@ -172,6 +171,15 @@ $$
   \inferrule[Constraint]
       {\ej{\Gamma_1}{R}{\eqs_1}{\prog}{\Gamma_2}{\eqs_2} \\ \eqs_1' \models \eqs_1' \\ \eqs_2 \models \eqs_2'}
       {\ej{\Gamma_1}{R}{\eqs_1'}{\prog}{\Gamma_2}{\eqs_2'}}
+             
+  \inferrule[MAC]
+            {\eqs \models 
+              \mx{w\ttt{m}}{\cid} = \mx{w\ttt{k}}{\cid} \fplus \ttt{(}\mx{\ttt{delta}}{\cid} \ftimes
+                  \mx{w\ttt{s}}{\cid}\ttt{)} \\
+              \Gamma(\mx{w\ttt{s}}{\cid}) = \lty{\ty}{\latel}}
+            {\ej{\Gamma}{R}{\eqs}{
+                \elab{\assert{\mesg{w\ttt{m}} = \mesg{w\ttt{k}} \fplus \ttt{(}\mesg{\ttt{delta}} \ftimes
+                  \mesg{w\ttt{s}}\ttt{)}}}{\cid}}{\Gamma;\mx{w\ttt{s}}{\cid}:\lty{\ty}{\hilab}}{\eqs}}
 \end{mathpar}
 
 \section{$\metaprot$ Syntax and Semantics}
