@@ -29,6 +29,8 @@
 \newcommand{\mc}[4]{(#1,#2,#3,#4)}
 \newcommand{\cmd}{\instr}
 
+\section{$\minicat$ Syntax and Semantics}
+
 $$
     \begin{array}{rcl@{\hspace{2mm}}r}
       \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
@@ -75,6 +77,7 @@ $$
     %(\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
   \end{mathpar}
 
+\section{$\minicat$ Adversarial Semantics}
 
 $$
 \begin{array}{rclr}
@@ -107,6 +110,7 @@ $$
       {(\store_1,\prog_1;\prog_2) \aredx \abort}
 \end{mathpar}
 
+\section{$\minicat$ Constraint Typing}
 
 \begin{mathpar}
   \inferrule[Value]
@@ -164,58 +168,13 @@ $$
             {\ej{\Gamma_1}{R_1}{\eqs_1}{\prog_1}{\Gamma_2}{\eqs_2}\\
              \ej{\Gamma_2}{R_2}{\eqs_2}{\prog_2}{\Gamma_3}{\eqs_3}}
             {\ej{\Gamma_1}{R_1;R_2}{\eqs_1}{\prog_1;\prog_2}{\Gamma_3}{\eqs_3}}
+
+  \inferrule[Constraint]
+      {\ej{\Gamma_1}{R}{\eqs_1}{\prog}{\Gamma_2}{\eqs_2} \\ \eqs_1' \models \eqs' \\ \eqs_2 \models \eqs_2'}
+      {\ej{\Gamma_1}{R}{\eqs_1'}{\prog}{\Gamma_2}{\eqs_2'}}
 \end{mathpar}
 
-
-\begin{comment}
-  \inferrule[Secret]
-  {}
-  {\tj{\Gamma}{\varnothing}{\cid}{\secret{w}}{\setit{\sx{w}{\cid}}}}
-    
-  \inferrule[Rando]
-  {}
-  {\tj{\Gamma}{\varnothing}{\cid}{\flip{w}}{\setit{\rx{w}{\cid}}}}
-  
-  \inferrule[Mesg]
-  {}
-  {\tj{\Gamma}{\varnothing}{\cid}{\mesg{w}}{\Gamma(\mx{w}{\cid})}}
-    
-  \inferrule[PubM]
-  {}
-  {\tj{\Gamma}{\varnothing}{\cid}{\rvl{w}}{\Gamma(\rvl{w})}}
-
-  \inferrule[Share]
-  {\tj{\Gamma}{R}{\cid}{\be}{\ty} \\ \oplus \in \{ \fplus,\fminus \}}
-  {\tj{\Gamma}{R;\rx{w}{\cid}}{\cid}{\be \oplus \flip{w}}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
-
-  \inferrule[Binop]
-  {\tj{\Gamma}{R_1}{\cid}{\be_1}{\ty_1} \\ \tj{\Gamma}{R_1}{\cid}{\be_1}{\ty_1} \\
-              \oplus \in \{ \fplus,\fminus,\ftimes \}}
-  {\tj{\Gamma}{R_1;R_2}{\cid}{\be_1 \oplus \be_2}{\ty_1 \cup \ty_2}}
-
-  \inferrule[Command]
-  {\tj{\Gamma}{R_1}{\cid}{\be}{\ty} \\ \Gamma; x : \ty,R_2, \eqs \cup \{ x = \toeq{\elab{\be}{\cid}} \} \vdash \prog : \Gamma'}
-  {\Gamma,R_1;R_2, \eqs \vdash x := \elab{\be}{\cid};\prog : \Gamma'} 
-
-  \inferrule[Assert]
-  {\eqs \vdash \toeq{\elab{\be_1}{\cid}} = \toeq{\elab{\be_2}{\cid}} 
-              \\ \Gamma; R, \eqs \vdash \prog : \Gamma'}
-  {\Gamma,R,\eqs \vdash \elab{\assert{\be_1 = \be_2}}{\cid};\prog : \Gamma'} 
-
-  \inferrule[Auth]
-  {\eqs \vdash \toeq{\autheq{\mesg{w}}}
-              \\ \Gamma; \elab{\mesg{w}}{\cid} : \upgrade{\Gamma(\elab{\mesg{w}}{\cid})}, R, \eqs \vdash \prog : \Gamma'}
-  {\Gamma,R,\eqs \vdash \elab{\assert{\autheq{\mesg{w}}}}{\cid};\prog : \Gamma'} 
-
-  \inferrule[Term]
-  {}
-  {\Gamma,\varnothing \vdash \varnothing: \Gamma,\varnothing}          
-\end{mathpar}
-\end{comment}
-
-
-
-
+\section{$\metalang$ Syntax and Semantics}
 
 $$
 \begin{array}{rcl}
@@ -308,6 +267,7 @@ $$
         (\prog_2,(\eqs_{21},\eqs_{22}),\eqflag_2)}
 \end{mathpar}
 
+\section{Examples}
 
 \begin{verbatimtab}
     encodegmw(in, i1, i2) {
