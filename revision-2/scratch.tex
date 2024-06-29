@@ -5,14 +5,17 @@
 \newcommand{\ox}[2]{\elab{\out{#1}}{#2}}
 \newcommand{\signals}{\leadsto}
 
-\newcommand{\tj}[5]{#1,#2 \vdash_{#3} #4 : #5}
+\newcommand{\tj}[6]{#1,#2,#3 \vdash_{#4} #5 : #6}
+\newcommand{\ej}[6]{#1,#2,#3 \vdash #4 : #5,#6}
 \newcommand{\cty}[2]{c(#1,#2)}
 \newcommand{\setit}[1]{\{ #1 \}}
 \newcommand{\ty}{T}
+\newcommand{\lty}[2]{#1 \cdot #2}
 \newcommand{\eqs}{\mathit{E}}
 \newcommand{\toeq}[1]{\lfloor #1 \rfloor}
 \newcommand{\autheq}[1]{\phi_{\mathrm{auth}}(#1)}
 \newcommand{\upgrade}[1]{\uparrow #1}
+\newcommand{\seclev}{\mathcal{L}}
 
 \renewcommand{\redx}{\Rightarrow}
 \renewcommand{\redxs}{\redx}
@@ -65,8 +68,8 @@ $$
     (\store, \xassign{x}{\be}{\cid}) \redx \extend{\store}{x}{\lcod{\store,\be}{\cid}}
 
     \inferrule
-    {(\store_1,\be_1) \redx \store_2 \\ (\store_2,\be_2) \redx \store_3 }
-    {(\store_1,\be_1;\be_2) \redx \store_3}
+    {(\store_1,\prog_1) \redx \store_2 \\ (\store_2,\prog_2) \redx \store_3 }
+    {(\store_1,\prog_1;\prog_2) \redx \store_3}
     %(\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)    
     %(\store, \reveal{w}{\be}{\cid};\prog) \redx (\extend{\store}{\rvl{w}}{\lcod{\store,\be}{\cid}}, \prog)   
     %(\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
@@ -91,18 +94,80 @@ $$
 $$
 
 \begin{mathpar}
-  (\store, \xassign{x}{\be}{\cid}) \redx \extend{\store}{x}{\lcod{\store,\be}{\cid}}
-  
   \inferrule
-      {(\store_1,\be_1) \redx \abort}
-      {(\store_1,\be_1;\be_2) \redx \abort}
+      {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \store_3 }
+      {(\store_1,\prog_1;\prog_2) \aredx \store_3}
+
+  \inferrule
+      {(\store_1,\prog_1) \aredx \abort}
+      {(\store_1,\prog_1;\prog_2) \aredx \abort}
+      
+  \inferrule
+      {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \abort }
+      {(\store_1,\prog_1;\prog_2) \aredx \abort}
 \end{mathpar}
 
 
 \begin{mathpar}
-  \inferrule[Value] {}
-            {\tj{\Gamma}{\varnothing}{\cid}{v}{\varnothing}}
+  \inferrule[Value]
+  {}
+  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{v}{\lty{\varnothing}}{\hilab}}
   
+  \inferrule[Secret]
+  {}
+  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\secret{w}}{\lty{\setit{\sx{w}{\cid}}}{\seclev(\cid)}}}
+  
+  \inferrule[Rando]
+  {}
+  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\flip{w}}{\lty{\setit{\rx{w}{\cid}}}{\seclev(\cid)}}}  
+  
+  \inferrule[Mesg]
+  {}
+  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\mesg{w}}{\Gamma(\mx{w}{\cid})}}
+    
+  \inferrule[PubM]
+  {}
+  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\rvl{w}}{\Gamma(\rvl{w})}}
+
+  \inferrule[IntegrityWeaken]
+  {\tj{\Gamma}{R}{\eqs}{\cid}{\be}{\lty{\ty}{\latel_1}} \\ \latel_1 \sle \latel_2}
+  {\tj{\Gamma}{R}{\eqs}{\cid}{\be}{\lty{\ty}{\latel_2}}}
+  
+  \inferrule[RandoDeduce]
+  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\be}{\lty{\ty}{\latel}} \\ E \models
+              \toeq{\elab{\be}{\cid}} = \rx{w}{\cid}'}
+  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\be}{\lty{\setit{\rx{w}{\cid}}}{\latel}}}
+
+  \inferrule[Encode]
+  {\tj{\Gamma}{R_1}{\eqs}{\cid}{\be_1}{\lty{\ty}{\latel}} \\
+   \tj{\Gamma}{R_2}{\eqs}{\cid}{\be_2}{\lty{\setit{\rx{w}{\cid}}}{\latel}} \\ \oplus \in \{ \fplus,\fminus \}}
+  {\tj{\Gamma}{R1;R_2;\rx{w}{\cid}}{\eqs}{\cid}{\be_1 \oplus \be_2}{\lty{\setit{\cty{\rx{w}{\cid}}{\ty}}}}{\latel}}
+
+  \inferrule[Binop]
+  {\tj{\Gamma}{R_1}{\eqs}{\cid}{\be_1}{\lty{\ty_1}{\latel}} \\
+   \tj{\Gamma}{R_2}{\eqs}{\cid}{\be_2}{\lty{\ty_2}{\latel}} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\tj{\Gamma}{R_1;R_2}{\eqs}{\cid}{\be_1 \oplus \be_2}{\lty{\ty_1 \cup \ty_2}}{\latel}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Send]
+            {\tj{\Gamma}{R}{\eqs}{\cid}{\be}{\lty{\ty}{\latel}}}
+            {\ej{\Gamma}{R}{\eqs}{\xassign{x}{\be}{\cid}}{\Gamma; x : \lty{\ty}{\latel}}
+              {\eqs \wedge x = \toeq{\elab{\be}{\cid}}}}
+             
+  \inferrule[Assert]
+            {\eqs \models \toeq{\elab{\be_1}{\cid}} = \toeq{\elab{\be_2}{\cid}}}
+            {\ej{\Gamma}{R}{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Gamma}\eqs}
+
+
+  \inferrule[Seq]
+            {\ej{\Gamma_1}{R_1}{\eqs_1}{\prog_1}{\Gamma_2}{\eqs_2}\\
+             \ej{\Gamma_2}{R_2}{\eqs_2}{\prog_2}{\Gamma_3}{\eqs_3}}
+            {\ej{\Gamma_1}{R_1;R_2}{\eqs_1}{\prog_1;\prog_2}{\Gamma_3}{\eqs_3}}
+\end{mathpar}
+
+
+\begin{comment}
   \inferrule[Secret]
   {}
   {\tj{\Gamma}{\varnothing}{\cid}{\secret{w}}{\setit{\sx{w}{\cid}}}}
@@ -146,7 +211,7 @@ $$
   {}
   {\Gamma,\varnothing \vdash \varnothing: \Gamma,\varnothing}          
 \end{mathpar}
-
+\end{comment}
 
 
 

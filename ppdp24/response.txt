@@ -1,4 +1,4 @@
-Many thanks to the reviewers for their thoughtful comments. To be succinct we restrict our responses to main issues raised.
+Many thanks to the reviewers for their thoughtful comments. We will consider and address all of them in future iterations of this work. To be succinct we restrict our responses to main issues raised.
 
 Reviewer 1 comments:
 
@@ -26,9 +26,9 @@ The meaning of the outer brackets is defined in Section 2.2 in the paragraph jus
 
 Yes this was a typo, we did have the order right in Section 2.1.
 
-"Ultimately, these technical issues make it exceedingly difficult to judge the coreectness."
+"Ultimately, these technical issues make it exceedingly difficult to judge the coreectness..."
 
-Overall, it seems that a misunderstanding of our definition of sigma \cap \sigma' led to an impression of more general incorrectness. We hope that our above comments have clarified that our definition aligns with the one the reviewer states to be correct, since further we believe that the Definitions in Section 3.1 are more or less standard modulo some specialized notation. We can certainly clarify and improve this notation, e.g., by using a different symbol for \cap and highlighting our Definition.
+Overall, it seems that a misunderstanding of our definition of sigma \cap \sigma' led to an impression of more general incorrectness. We hope that our above comments have clarified that our definition aligns with the one the reviewer states to be correct, since further we believe that the Definitions in Section 3.1 are more or less standard modulo some specialized notation. We can certainly clarify and improve this notation , e.g., by using a different symbol for \cap and highlighting our Definition.
 
 
 Reviewer 2 comments:
