@@ -1,0 +1,38 @@
+Many thanks to the reviewers for their thoughtful comments. To be succinct we restrict our responses to main issues raised.
+
+Reviewer 1 comments:
+
+"The definition of sigma \cap sigma' does not line up with its usage in many places. The intersection is defined so that the domain of the intersection is the intersection of the domains. This is corroborated by the claim that sigma \sub sigma' iff (sigma \cap sigma') = sigma...However, in numerous locations (sigma \cap sigma') seems to be used in place of the union (sigma \cup sigma') which would be correct. Here, one would define (sigma \cup sigma')(x) to be sigma(x) if x \in dom(\sigma) and sigma'(x) if x \in dom(\sigma') with the condition that they agree on their intersection (with the union being undefined otherwise). Note that this satisfies sigma \sub sigma' iff (sigma \cup sigma') = sigma'."
+
+Our definition of sigma \cap sigma' is in fact the one that the reviewer identifies as correct, not the incorrect one the reviewer suggests. In Section 2.2 we say "we write sigma \cap sigma to denote the combination of sigma and sigma' assuming sigma(x) = sigma'(x) for all x in dom(sigma) \cap dom(sigma'), otherwise sigma cap sigma' is undefined." Perhaps the word "combination" here was misleading but we meant "unioning" in the sense the reviewer means. It is also possible that the use of \cap instead of another symbol is confusing, and we can certainly clarify this in a revision and/or use a different symbol. However the reviewer's definition is the one intended in our text.
+
+"Def. 3.3 also has typing problems. In the numerator, P_X specifically has domain mems(X), but its argument (sigma \cap sigma') is in mems(Y) with Y \sub X. I believe the definition would be correct if the union is used instead."
+
+Our previous comment (about sigma \cap sigma') applies to this also.  
+
+"The text in Section 3.1 is confusing at best, and I believe actually incorrect (in part due to the intersection/union confusion). First, for a PMF P, P should be viewed as a function mems(X) -> R for some parameter X. This is implicit in Def. 3.1, but making it explicit would help elucidate the issues with definitions 3.2 and 3.3."
+
+Our previous comment applies to this in part, especially wrt correctness. Additionally, in Definition 3.3 we introduce syntactic sugaring P(sigma) to denotes P_X(sigma) where dom(X) is given (as X), which we believe is conventional. However we agree with the reviewer that subsequent definitions would be clarified by being explicit (about X) in Definitions 3.1-3.
+
+"In Def. 3.2, the implied domain of P is mems(Y) for some X \sub Y. The marginal should be a restriction to a smaller/shorter memory. Then sigma' is given as being in mems(X - dom(dom(P))). It's not clear what dom(dom(P)) means. If dom(P) = mems(Y) and dom(mems(Y)) = Y, then it might mean Y. But then X - Y is empty since X \sub Y. Probably the proper definition should be..."
+
+Yes we meant "mems(dom(dom(P)) - X)" (not "mems(X - dom(dom(P)))"), with that edit the definition comports with the one the reviewer suggests. The meaning of dom(dom(P)) is determined by the definition of memories in Section 2.2 and Definition 3.1 (though we can clarify this in the definition).
+
+"Fig. 2, middle: Are the outer brackets on lines 2-4 needed? In any case, their meaning is never defined (though one can infer it)."
+
+The meaning of the outer brackets is defined in Section 2.2 in the paragraph just before Section 2.3.
+
+"One technical error is in Secton 2.3. The subtractions are all backwards."
+
+Yes this was a typo, we did have the order right in Section 2.1.
+
+"Ultimately, these technical issues make it exceedingly difficult to judge the coreectness."
+
+Overall, it seems that a misunderstanding of our definition of sigma \cap \sigma' led to an impression of more general incorrectness. We hope that our above comments have clarified that our definition aligns with the one the reviewer states to be correct, since further we believe that the Definitions in Section 3.1 are more or less standard modulo some specialized notation. We can certainly clarify and improve this notation, e.g., by using a different symbol for \cap and highlighting our Definition.
+
+
+Reviewer 2 comments:
+
+"- Page 8, Section 6. Why do you call Prelude a "metalanguage"? A metalanguage is a language for defining languages (example: BNF-like formats such as yacc or bison). In fact, Prelude is a language which can be translated into Overture programs, and the "semantics" defined in Figure 5 is the translation from Prelude to Overture. Indeed, Prelude has no real operational semantics acting on a memory; only Overture has it."
+
+Our use of the term "metalanguage" was based on previous "staged" or "metaprogramming" languages such as MetaML, where programs produce programs. The semantics of Prelude (Figure 5) specify that Prelude programs yield Overture programs as side effects of computation, hence our use of the term. We now recognize that the reviewer's definition is popular so we can change "metalanguage" to "staged language" to avoid misleading readers. 

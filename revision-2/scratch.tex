@@ -98,6 +98,60 @@ $$
       {(\store_1,\be_1;\be_2) \redx \abort}
 \end{mathpar}
 
+
+\begin{mathpar}
+  \inferrule[Value] {}
+            {\tj{\Gamma}{\varnothing}{\cid}{v}{\varnothing}}
+  
+  \inferrule[Secret]
+  {}
+  {\tj{\Gamma}{\varnothing}{\cid}{\secret{w}}{\setit{\sx{w}{\cid}}}}
+    
+  \inferrule[Rando]
+  {}
+  {\tj{\Gamma}{\varnothing}{\cid}{\flip{w}}{\setit{\rx{w}{\cid}}}}
+  
+  \inferrule[Mesg]
+  {}
+  {\tj{\Gamma}{\varnothing}{\cid}{\mesg{w}}{\Gamma(\mx{w}{\cid})}}
+    
+  \inferrule[PubM]
+  {}
+  {\tj{\Gamma}{\varnothing}{\cid}{\rvl{w}}{\Gamma(\rvl{w})}}
+
+  \inferrule[Share]
+  {\tj{\Gamma}{R}{\cid}{\be}{\ty} \\ \oplus \in \{ \fplus,\fminus \}}
+  {\tj{\Gamma}{R;\rx{w}{\cid}}{\cid}{\be \oplus \flip{w}}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+
+  \inferrule[Binop]
+  {\tj{\Gamma}{R_1}{\cid}{\be_1}{\ty_1} \\ \tj{\Gamma}{R_1}{\cid}{\be_1}{\ty_1} \\
+              \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\tj{\Gamma}{R_1;R_2}{\cid}{\be_1 \oplus \be_2}{\ty_1 \cup \ty_2}}
+
+  \inferrule[Command]
+  {\tj{\Gamma}{R_1}{\cid}{\be}{\ty} \\ \Gamma; x : \ty,R_2, \eqs \cup \{ x = \toeq{\elab{\be}{\cid}} \} \vdash \prog : \Gamma'}
+  {\Gamma,R_1;R_2, \eqs \vdash x := \elab{\be}{\cid};\prog : \Gamma'} 
+
+  \inferrule[Assert]
+  {\eqs \vdash \toeq{\elab{\be_1}{\cid}} = \toeq{\elab{\be_2}{\cid}} 
+              \\ \Gamma; R, \eqs \vdash \prog : \Gamma'}
+  {\Gamma,R,\eqs \vdash \elab{\assert{\be_1 = \be_2}}{\cid};\prog : \Gamma'} 
+
+  \inferrule[Auth]
+  {\eqs \vdash \toeq{\autheq{\mesg{w}}}
+              \\ \Gamma; \elab{\mesg{w}}{\cid} : \upgrade{\Gamma(\elab{\mesg{w}}{\cid})}, R, \eqs \vdash \prog : \Gamma'}
+  {\Gamma,R,\eqs \vdash \elab{\assert{\autheq{\mesg{w}}}}{\cid};\prog : \Gamma'} 
+
+  \inferrule[Term]
+  {}
+  {\Gamma,\varnothing \vdash \varnothing: \Gamma,\varnothing}          
+\end{mathpar}
+
+
+
+
+
+
 $$
 \begin{array}{rcl}
   \multicolumn{3}{l}{\flab \in \mathrm{Field},\   y \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[1mm]
@@ -263,20 +317,21 @@ $$
       post(m[z++"m"]@i2 == m[z++"k"]@i1 + (m["delta"]@i1 * m[z++"s"]@i2)
   }
 
-  sum("a","x","d",1,2);
-  sum("a","x","d",2,1);
-  open("d",1,2);
-  open("d",2,1);
-  sum("b","y","e",1,2);
-  sum("b","y","e",2,1);
-  open("e",1,2);
-  open("e",1,1);
-  
+  sum(z,x,y) { _sum(z,x,y,1,2);_sum(z,x,y,2,1) }
+
+  open(x) { _open(x,1,2); _open(x,2,1) } 
+
+
+  sum("a","x","d");
+  open("d");
+  sum("b","y","e");
+  open("e");
   let xys =
       macsum(macctimes(macshare("b"), m["d"]),
              macsum(macctimes(macshare("a"), m["e"]),
                     macshare("c")))
-  
+  let xyk = mack("b") * m["d"] + mack("a") * m["e"] + mack("c")
+                    
   secopen("a","x","d",1,2);
     secopen("a","x","d",2,1);
     secopen("b","y","e",1,2);
@@ -295,3 +350,5 @@ $$
     out@1 := (p[1] + p[2])@1;
     out@2 := (p[1] + p[2])@2;
 \end{verbatimtab}
+
+
