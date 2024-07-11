@@ -3,7 +3,7 @@
 %\newcommand{\px}[2]{\elab{\rvl{#1}}{#2}} 
 \newcommand{\rx}[2]{\elab{\flip{#1}}{#2}}
 \newcommand{\ox}[2]{\elab{\out{#1}}{#2}}
-\newcommand{\signals}{\leadsto}
+\newcommand{\signals}[1]{\stackrel{#1}{\leadsto}}
 
 \newcommand{\tj}[6]{#1,#2,#3 \vdash_{#4} #5 : #6}
 \newcommand{\ej}[6]{#1,#2,#3 \vdash #4 : #5,#6}
@@ -13,9 +13,14 @@
 \newcommand{\lty}[2]{#1 \cdot #2}
 \newcommand{\eqs}{\mathit{E}}
 \newcommand{\toeq}[1]{\lfloor #1 \rfloor}
+\newcommand{\eop}{\equiv}
 \newcommand{\autheq}[1]{\phi_{\mathrm{auth}}(#1)}
 \newcommand{\upgrade}[1]{\uparrow #1}
 \newcommand{\seclev}{\mathcal{L}}
+
+\newcommand{\eqj}[4]{#1,#2 \vdash #3 : #4}
+\newcommand{\cpj}[4]{#1,#2 \vdash #3 : #4}
+\newcommand{\leakj}[3]{#1,#2 \vdash #3}
 
 \renewcommand{\redx}{\Rightarrow}
 \renewcommand{\redxs}{\redx}
@@ -112,6 +117,72 @@ $$
 
 \section{$\minicat$ Constraint Typing}
 
+$$
+\begin{array}{rcl}
+  \phi &::=& x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
+  \eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
+\end{array}
+$$
+
+We write $\eqs_1 \models \eqs_2$ iff every model of $E_1$ is a model of $E_2$. Note that
+this relation is reflexive and transitive.
+
+\subsection{Confidentiality Types}
+
+\begin{mathpar}
+  \inferrule[DepTy]
+  {}
+  {\eqj{\varnothing}{\eqs}{\phi}{\vars(\phi)}}
+  
+  \inferrule[Encode]
+  {\eqs \models \phi \eop \phi' \oplus \rx{w}{\cid} \\
+   \oplus \in \{ \fplus,\fminus \}\\
+   \eqj{R}{\eqs}{\phi'}{\ty}}
+  {\eqj{R;\{ \rx{w}{\cid} \}}{\eqs}{\phi}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Send]
+            {\eqj{R}{\eqs}{\toeq{\elab{\be}{\cid}}}{\ty}}
+            {\cpj{R}{\eqs}{\xassign{x}{\be}{\cid}}{x : \ty}}
+            
+  \inferrule[Seq]
+            {\cpj{R_1}{\eqs}{\prog_1}{\Gamma_1}\\
+             \cpj{R_2}{\eqs}{\prog_2}{\Gamma_2}}
+            {\cpj{R_1;R_2}{\eqs}{\prog_1;\prog_2}{\Gamma_1;\Gamma_2}}
+\end{mathpar}
+
+\begin{definition}
+  $\cpj{R}{\eqs}{\prog}{\Gamma}$ is \emph{valid} iff it is derivable and $\toeq{\prog} \models \eqs$.
+\end{definition}
+
+
+\begin{mathpar}
+  \inferrule
+      {\cid \in C}
+      {\leakj{\Gamma}{C}{\Gamma(\mx{w}{\cid})}}
+
+  \inferrule
+      {\leakj{\Gamma}{C}{T_1 \cup T_2}}
+      {\leakj{\Gamma}{C}{T_1}}
+
+  \inferrule
+      {\leakj{\Gamma}{C}{\setit{ \mx{w}{\cid} }}}
+      {\leakj{\Gamma}{C}{\Gamma(\mx{w}{\cid})}}
+
+  \inferrule
+      {\leakj{\Gamma}{C}{\setit{ \rx{w}{\cid} }} \\ \leakj{\Gamma}{C}{\setit{ \cty{\rx{w}{\cid}}{\ty} }} }
+      {\leakj{\Gamma}{C}{\ty}}
+\end{mathpar}
+
+\begin{theorem}
+  If $\cpj{R}{\eqs}{\prog}{\Gamma}$ is valid and for all $H,C$
+  it is not the case that $\leakj{\Gamma}{C}{\setit{\sx{w}{\cid}}}$ for $\cid \in H$,
+  then $\prog$ satisfies gradual release.
+\end{theorem}
+
+\subsection{Integrity Types}
+
 \begin{mathpar}
   \inferrule[Value]
   {}
@@ -136,17 +207,22 @@ $$
   \inferrule[IntegrityWeaken]
   {\tj{\Gamma}{R}{\eqs}{\cid}{\be}{\lty{\ty}{\latel_1}} \\ \latel_1 \sle \latel_2}
   {\tj{\Gamma}{R}{\eqs}{\cid}{\be}{\lty{\ty}{\latel_2}}}
-  
-  \inferrule[RandoDeduce]
-  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\be}{\lty{\ty}{\latel}} \\ E \models
-              \toeq{\elab{\be}{\cid}} = \rx{w}{\cid}'}
-  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\be}{\lty{\setit{\rx{w}{\cid}}}{\latel}}}
 
   \inferrule[Encode]
-  {\tj{\Gamma}{R_1}{\eqs}{\cid}{\be_1}{\lty{\ty}{\latel}} \\
-   \tj{\Gamma}{R_2}{\eqs}{\cid}{\be_2}{\lty{\setit{\rx{w}{\cid}}}{\latel}} \\ \oplus \in \{ \fplus,\fminus \}}
-  {\tj{\Gamma}{R1;R_2;\rx{w}{\cid}}{\eqs}{\cid}{\be_1 \oplus \be_2}{\lty{\setit{\cty{\rx{w}{\cid}}{\ty}}}}{\latel}}
-
+  {\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\be}{\lty{\ty}{\latel}} \\
+    \eqs \models \toeq{\elab{\be}{\cid}} = \phi \oplus \rx{w}{\cid'} \\ \oplus \in \{ \fplus,\fminus \}}
+  {\tj{\Gamma}{\rx{w}{\cid}}{\eqs}{\cid}{\be}{\lty{\setit{\cty{\rx{w}{\cid'}}{\Gamma(\phi)}}}}{\latel}}
+  
+  %\inferrule[RandoDeduce]
+  %{\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\be}{\lty{\ty}{\latel}} \\ \eqs \models
+  %            \toeq{\elab{\be}{\cid}} = \rx{w}{\cid}'}
+  %{\tj{\Gamma}{\varnothing}{\eqs}{\cid}{\be}{\lty{\setit{\rx{w}{\cid}}}{\latel}}}
+  %
+  %\inferrule[Encode]
+  %{\tj{\Gamma}{R_1}{\eqs}{\cid}{\be_1}{\lty{\ty}{\latel}} \\
+  % \tj{\Gamma}{R_2}{\eqs}{\cid}{\be_2}{\lty{\setit{\rx{w}{\cid}}}{\latel}} \\ \oplus \in \{ \fplus,\fminus \}}
+  %{\tj{\Gamma}{R1;R_2;\rx{w}{\cid}}{\eqs}{\cid}{\be_1 \oplus \be_2}{\lty{\setit{\cty{\rx{w}{\cid}}{\ty}}}}{\latel}}
+  %
   \inferrule[Binop]
   {\tj{\Gamma}{R_1}{\eqs}{\cid}{\be_1}{\lty{\ty_1}{\latel}} \\
    \tj{\Gamma}{R_2}{\eqs}{\cid}{\be_2}{\lty{\ty_2}{\latel}} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
@@ -183,6 +259,7 @@ $$
                   \mesg{w\ttt{s}}\ttt{)}}}{\cid}}{\Gamma;\mx{w\ttt{s}}{\cid}:\lty{\ty}{\hilab}}{\eqs}}
 \end{mathpar}
 
+
 \section{$\metaprot$ Syntax and Semantics}
 
 $$
@@ -202,7 +279,7 @@ $$
   \\ % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
   \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y,\ldots,y) \{ \cmd \} \\[1mm]%& \textit{functions}
   \phi &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e} \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
-  \eqs &::=& \phi = \phi \mid \eqs \wedge \eqs 
+  \eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
 \end{array}
 $$
 
