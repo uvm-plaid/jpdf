@@ -127,6 +127,31 @@ $$
 We write $\eqs_1 \models \eqs_2$ iff every model of $E_1$ is a model of $E_2$. Note that
 this relation is reflexive and transitive.
 
+\begin{mathpar}
+  \toeq{x} = x
+
+  \toeq{\elab{\be_1 \fplus \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \fplus \toeq{\elab{\be_1}{\cid}}
+
+  \toeq{\elab{\be_1 \fminus \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \fminus \toeq{\elab{\be_1}{\cid}}
+
+  \toeq{\elab{\be_1 \ftimes \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \ftimes \toeq{\elab{\be_1}{\cid}}
+\end{mathpar}
+
+\begin{mathpar}
+  \toeq{\xassign{x}{\be}{\cid}} = x \eop \toeq{\elab{\be}{\cid}}
+
+  \toeq{\prog_1;\prog_2} = \toeq{\prog_1} \wedge \toeq{\prog_2} 
+\end{mathpar}
+
+The motivating idea is that we can interpret any protocol $\prog$ as a set
+of equality constraints $\toeq{\prog}$ and use an SMT solver to verify
+properties relevant to correctness, confidentiality, and integrity.
+Further, we can leverage entailment relation is critical for efficiency--
+we can use annotations to obtain a weakened precondition for relevant properties.
+That is, given $\prog$, program annotations or other cues can be used
+to find a minimal $\eqs$ with $\toeq{\prog} \models \eqs$ for verifying
+correctness and security.
+
 \subsection{Confidentiality Types}
 
 \begin{mathpar}
@@ -155,7 +180,6 @@ this relation is reflexive and transitive.
 \begin{definition}
   $\cpj{R}{\eqs}{\prog}{\Gamma}$ is \emph{valid} iff it is derivable and $\toeq{\prog} \models \eqs$.
 \end{definition}
-
 
 \begin{mathpar}
   \inferrule
