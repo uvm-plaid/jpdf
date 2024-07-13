@@ -182,7 +182,7 @@ correctness and security.
 \begin{mathpar}
   \inferrule[Send]
             {\eqj{R}{\eqs}{\toeq{\elab{\be}{\cid}}}{\ty}}
-            {\cpj{R}{\eqs}{\xassign{x}{\be}{\cid}}{x : \ty}}
+            {\cpj{R}{\eqs}{\xassign{x}{\be}{\cid}}{(x : \ty)}}
             
   \inferrule[Seq]
             {\cpj{R_1}{\eqs}{\prog_1}{\Gamma_1}\\
@@ -234,6 +234,7 @@ m[y]@1 := OT(s[y]@1,-r[y],r[y])@2
 
 \subsection{Compositional Type Verification in $\metaprot$}
 
+\cnote{Need to fix the following to allow reduction of $x$.}
 \begin{mathpar}
   \inferrule[Mesg]
             {e_1 \redx \be \\ e_2 \redx \cid \\ \atj{R_1}{\eqs}{\toeq{\elab{\be}{\cid}}}{R_2}{\ty}}
@@ -256,6 +257,24 @@ m[y]@1 := OT(s[y]@1,-r[y],r[y])@2
             {\mtj{R_1}{\eqs_1}{\prog_1}{\Gamma_2}{R_2}{\eqs_2}\\ \mtj{R_2}{\eqs_2}{\prog_2}{\Gamma_3}{R_3}{\eqs_3}}
             {\mtj{R_1}{\eqs_1}{\prog_1;\prog_2}{\Gamma_2;\Gamma_3}{R_3}{\eqs_3}}
 \end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Sig]
+            {\codebase(f) = x_1,\ldots,x_n, \instr \\
+             \subn = [\mv_1/x_1]\cdots[\mv_n/x_n] \\
+             \mtj{\varnothing}{\subn(\eqs_1)}{\instr}{\subn(\Gamma)}{\subn(R)}{\subn(\eqs_2)}}
+            {f : \fty{\eqs_1}{x_1,\ldots,x_n}{\Gamma}{R}{\eqs_2}}
+\end{mathpar}
+
+\begin{definition}
+  $\tsig$ is \emph{verified} iff $f : \tsig(f)$ is valid for all $f \in \dom(\tsig)$.
+\end{definition}
+
+The following theorem holds for protocols with default preprocessing.
+\begin{theorem}
+  If $\tsig$ is verified and $\mtj{\varnothing}{\varnothing}{e}{\Gamma}{R}{\eqs}$ then
+  $e \redx \prog$ and $\cpj{R}{\eqs}{\prog}{\Gamma}$ is valid.
+\end{theorem}
 
 \subsection{Integrity Types}
 
