@@ -3,6 +3,7 @@
 %\newcommand{\px}[2]{\elab{\rvl{#1}}{#2}} 
 \newcommand{\rx}[2]{\elab{\flip{#1}}{#2}}
 \newcommand{\ox}[2]{\elab{\out{#1}}{#2}}
+\newcommand{\eqcast}[2]{#1\ \ttt{as}\ #2}
 \newcommand{\signals}[1]{\stackrel{#1}{\leadsto}}
 
 \newcommand{\tj}[6]{#1,#2,#3 \vdash_{#4} #5 : #6}
@@ -233,12 +234,6 @@ m[y]@1 := OT(s[y]@1,-r[y],r[y])@2
 
 \subsection{Compositional Type Verification in $\metaprot$}
 
-\newcommand{\eqcast}[2]{#1\ \ttt{as}\ #2}
-
-%sig(f) = Epre (x) (R, G, Epost)  e => v  E |= Epre[v/x]  
-%---------------------------------------------------------
-%R1,E |- f(e) : G[v/x], R1;R[v/x]; E /\ Epost[v/x]
-
 \begin{mathpar}
   \inferrule[Mesg]
             {e_1 \redx \be \\ e_2 \redx \cid \\ \atj{R_1}{\eqs}{\toeq{\elab{\be}{\cid}}}{R_2}{\ty}}
@@ -256,6 +251,10 @@ m[y]@1 := OT(s[y]@1,-r[y],r[y])@2
               \subn = [\mv_1/x_1]\cdots[\mv_n/x_n] \\
               \eqs \models \subn(\eqs_1)}
             {\mtj{R_1}{\eqs}{f(e_1,\ldots,e_n)}{\subn(\Gamma)}{R_1;\subn(R)}{\eqs \wedge \subn(\eqs_2)}}
+
+  \inferrule[Seq]          
+            {\mtj{R_1}{\eqs_1}{\prog_1}{\Gamma_2}{R_2}{\eqs_2}\\ \mtj{R_2}{\eqs_2}{\prog_2}{\Gamma_3}{R_3}{\eqs_3}}
+            {\mtj{R_1}{\eqs_1}{\prog_1;\prog_2}{\Gamma_2;\Gamma_3}{R_3}{\eqs_3}}
 \end{mathpar}
 
 \subsection{Integrity Types}
