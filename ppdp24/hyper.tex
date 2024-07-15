@@ -144,11 +144,14 @@ for honest outputs, except for the possibility of abort.
   \label{lemma-malicious-correct}
   If a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ is passive correct for
   $\idealf$ and
-  has integrity, then for all $H$, $C$, and $\adversary$ and $\store_1 \in \mems(S_H)$,
-  there exists $\store_2 \in \mems(S_C)$ such that:
+  has integrity, then for all $H$, $C$, $\adversary$, $\store_1 \in \mems(S_H)$,
+  $\ox{\cid} \in (O_H)$, and $\mv \in \mathbb{F}_p$, if:
   $$
-  \idealf(\store_1 \cap \store_2)_H \cup \{ \bot \} \supseteq
-    \support(\progtt(\prog,\adversary)(O_H|\store_1))
+  \progtt(\prog,\adversary)(\{ \ox{\cid} \mapsto \mv \} \mid \store_1) > 0
+  $$
+  then exists $\store_2 \in \mems(S_C)$ such that:
+  $$
+  \idealf(\store_1 \uplus \store_2)(\ox{\cid}) = \mv
   $$
 \end{lemma}
 The following result establishes that integrity implies malicious

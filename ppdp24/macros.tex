@@ -171,6 +171,7 @@
 \newcommand{\handler}[3]{\mathrm{try}\, #1\, \mathrm{with}\, \exn(#2) \Rightarrow #3}
 \newcommand{\exn}{\mathit{exn}}
 \newcommand{\dom}{\mathrm{dom}}
+\newcommand{\rdom}{\mathrm{rdom}}
 \newcommand{\efst}{\mathrm{fst}}
 \newcommand{\esnd}{\mathrm{snd}}
 \newcommand{\natt}{\textrm{Nat}}
@@ -325,9 +326,11 @@
 \newcommand{\keys}{\mathit{keys}}
 \newcommand{\fedcat}{\minifed}
 
-\newcommand{\sx}[2]{\texttt{s[#1,"#2"]}}
-\newcommand{\fx}[2]{\texttt{f[#1,"#2"]}}
-\newcommand{\vx}[2]{\texttt{v[#1,"#2"]}}
+\newcommand{\sx}[2]{\elab{\secret{#1}}{#2}}
+\newcommand{\mx}[2]{\elab{\mesg{#1}}{#2}} 
+%\newcommand{\px}[2]{\elab{\rvl{#1}}{#2}} 
+\newcommand{\rx}[2]{\elab{\flip{#1}}{#2}}
+\newcommand{\ox}[1]{\out{#1}}
 
 \newcommand{\IF}[1]{#1_{\mathit{i}}}
 \newcommand{\idealf}{\mathcal{F}}

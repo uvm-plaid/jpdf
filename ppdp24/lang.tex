@@ -87,18 +87,21 @@ subsets belonging to honest and corrupt parties, respectively.
 \emph{Memories} are fundamental to the semantics of $\fedcat$ and
 provide random tape and secret inputs to protocols, and also record
 message sends, public broadcast, and client outputs. Memories $\store$ are finite
-(partial) mapping from variables $x$ to values $v \in \mathbb{Z}_p$. The \emph{domain} of a
-memory is written $\dom(\store)$ and is the finite set of variables on
-which the memory is defined. We write $\store\{ x \mapsto v\}$ for
-$x\not\in\dom(\store)$ to denote the memory $\store'$ such that
+(partial) mapping from variables $x$ to values $v \in \mathbb{F}_p$.
+The \emph{domain} of a memory is written $\dom(\store)$ and is
+the finite set of variables on which the memory is defined.
+We write $\store\{ x \mapsto v\}$ for $x\not\in\dom(\store)$
+to denote the memory $\store'$ such that
 $\store'(x) = v$ and otherwise $\store'(y) = \store(y)$ for all $y
 \in \dom(\store)$. We write $\store \subseteq \store'$ iff
 $\dom(\store) \subseteq \dom(\store')$ and $\store(x) =
-\store'(x)$ for all $x \in \dom(\store)$. We write $\store \cap
+\store'(x)$ for all $x \in \dom(\store)$. We write $\store \uplus
 \store'$ to denote the combination of $\store$ and $\store'$
 assuming $\store(x) = \store'(x)$ for all $x \in \dom(\store)
-\cap \dom(\store')$, otherwise $\store \cap \store'$ is undefined.
-We write $\store \subseteq \store'$ iff $\store \cap \store'
+\cap \dom(\store')$, otherwise $\store \uplus \store'$ is undefined.
+\cnote{Check to make sure all $\cap$ and $\cup$s have been revised
+with $\uplus$.}
+We write $\store \subseteq \store'$ iff $\store \uplus \store'
 = \store$.
 
 Given a set of variables $X$, we write $\store_X$ to denote the
@@ -116,7 +119,7 @@ $\prog$ is $\mems(\flips(\prog))$.
 
 Given a variable-free expression $\be$, we write $\cod{\be}$ to denote
 the standard interpretation of $\be$ in the arithmetic field
-$\mathbb{Z}_{p}$. With the introduction of variables to expressions,
+$\mathbb{F}_{p}$. With the introduction of variables to expressions,
 we need to interpret variables with respect to a specific memory, and
 all variables used in an expression must belong to a specified client.
 Thus, we denote interpretation of expressions $\be$ computed on a

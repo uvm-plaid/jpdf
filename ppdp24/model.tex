@@ -21,18 +21,31 @@ metric of information leakage.
 
 \subsection{Probability Mass Functions} 
 
-We define joint probability mass functions (pmfs) in the standard
-manner, though following \cite{barthe2019probabilistic} we use
-memories to denote mappings of variables to values (i.e., outcomes),
-so for example given a pmf $\pmf$ we will write $\pmf(\{ \elab{\secret{x}}{1}
-\mapsto 0, \elab{\mesg{y}}{2} \mapsto 1 \})$ to denote the (joint) probability that
-$\elab{\secret{x}}{1} = 0 \wedge \elab{\mesg{y}}{2} = 1$.
+We define discrete joint probability mass functions (pmfs) in a
+standard manner but develop some notations that are useful for our
+presentation. Firstly, whereas distributions typically map
+realizations of random variables to values in $[0..1]$, for
+convenience and following \cite{barthe2019probabilistic} we use
+memories to represent realizations, so for example given a pmf $\pmf$
+over variables $\{ \sx{x}{1}, \mx{y}{2} \}$ we write $\pmf(\{
+\elab{\secret{x}}{1} \mapsto 0, \elab{\mesg{y}}{2} \mapsto 1 \})$ to
+denote the (joint) probability that $\elab{\secret{x}}{1} = 0 \wedge
+\elab{\mesg{y}}{2} = 1$. Recall from Section
+\ref{section-lang-semantics} that $\uplus$ denotes the combination of
+memories, so for example $\{ \elab{\secret{x}}{1} \mapsto 0\} \uplus
+\{\elab{\mesg{y}}{2} \mapsto 1 \} = \{ \elab{\secret{x}}{1} \mapsto 0,
+\elab{\mesg{y}}{2} \mapsto 1 \}$.
 \begin{definition}
   A \emph{probability mass function} $\pmf$ is a function
-  mapping memories in $\mems(X)$ for some $X$ to values in $\mathbb{F}_p$, such that:
+  mapping memories in $\mems(X)$ for given variables $X$ to
+  values in $\mathbb{R}$ such that:
   $$
   \sum_{\store \in \mems(X)} \pmf(\store) \  = \ 1
   $$
+  %The \emph{support} of a distribution is the set of realizations
+  %of random variables with non-zero probability:
+  %$\support(\pmf) \defeq \{ (v_1,\ldots,v_n) \mid
+  %\pmf(\{ x_1 \mapsto v_1, \ldots, x_n \mapsto v_n\}) > 0 \} $
 \end{definition}
 %To recover succinct and familiar notation, we may omit the domain of a
 %distribution when it is clear from an application context-
@@ -44,43 +57,37 @@ Now, we can define a notion of marginal and conditional
 distributions as follows, which are standard for discrete
 probability mass functions. 
 \begin{definition}
-  Given $\pmf$ the \emph{marginal distribution} of variables $X$
-  in $\pmf$, denoted $\margd{\pmf}{X}$, is defined as follows:
+  Given $\pmf$ with $\dom(\pmf) = \mems(Y)$, the \emph{marginal distribution}
+  of variables $X \subseteq Y$ in $\pmf$, denoted $\margd{\pmf}{X}$, is defined as follows:
   $$
   \forall \store \in \mems(X) \quad . \quad \margd{\pmf}{X}(\store) =
-  \sum_{\store' \in \mems(X-\dom(\dom(\pmf)))} \pmf(\store \cap \store')
+  \sum_{\store' \in \mems(Y-X)} \pmf(\store \uplus \store')
   $$
 \end{definition}
 
 \begin{definition}
-  Given $\margd{\pmf}{X}$, let $\stores$ be a set of memories with the
-  same domain $Y \subseteq X$. Then the \emph{conditional distribution given
-  $\stores$}  denoted
-  $\condd{\pmf}{X}{\stores}$ is a distribution with domain $X$ where for all
-  $\store \in \mems(X)$:
+  Given $\pmf$ with $\dom(\pmf) = \mems(Z)$, the \emph{conditional distribution}
+  of $X$ given $Y$ where $X \cup Y \subseteq Z$ and $X \cap Y = \varnothing$, denoted $\condd{\pmf}{X}{Y}$,
+  is defined as follows:
   $$
-  \condd{\pmf}{X}{\stores}(\store) =
-  (\sum_{\store' \in \stores} \margd{\pmf}{X}(\store \cap \store')) /
-  (\sum_{\store' \in \stores} \margd{\pmf}{Y}(\store'))
+  \forall \store \in \mems(X \cup Y)\ .\ 
+  \condd{\pmf}{X}{Y}(\store) =
+  \begin{cases}
+    0 \text{\ if\ } \margd{\pmf}{Y}(\store_Y) = 0\\
+    \margd{\pmf}{X \cup Y}(\store) / \margd{\pmf}{Y}(\store_Y)\ \text{\ otherwise}
+  \end{cases}
   $$
-  where $\margd{\pmf}{X}(\store \cap \store')) = 0$ if $\store \cap \store'$ is undefined.
 \end{definition}
-To recover familiar notation we allow the syntactic
-sugarings $\condd{\pmf}{X}{\store}  \defeq \condd{\pmf}{X}{\{ \store\}}$, and
-$\pmf(\store)  \defeq \margd{\pmf}{X}(\store)$ and $\pmf(\store|\stores) \defeq
-\condd{\pmf}{X}{\stores}(\store)$ where $\dom(\store) = X$.
-%\begin{eqnarray*}
-%  \condd{\pmf}{X}{\store}  &\defeq& \condd{\pmf}{X}{\{ \store\}}\\
-%  \pmf(\store)  &\defeq& \margd{\pmf}{X}(\store)  \qquad \dom(\store) = X\\
-%  \pmf(\store|\stores)  &\defeq& \condd{\pmf}{X}{\stores}(\store) \qquad \dom(\store) = X
-%\end{eqnarray*}
-
-We also define the \emph{support} of a distribution in the usual manner-
-it is the set of values a set of variables can take on with non-zero
-probability.
-\begin{definition}[Support]
-  $\support(\pmf) \defeq \{ (v_1,\ldots,v_n) \mid
-  \pmf(x_1 \mapsto v_1, \ldots, x_n \mapsto v_n) > 0 \} $
+We also define some convenient syntactic sugarings. The first will allow us to
+compare marginal distributions under different realization conditions
+(as in, e.g., Definition \ref{definition-NIMO}), the others are standard.
+\begin{definition}
+  Given $\pmf$, for all $\store_2 \in \mems(Y)$ and $\store_1 \in \mems(X)$ define:
+  \begin{enumerate}
+  \item $\condd{\pmf}{X}{\store_2}(\store_1) \defeq \condd{\pmf}{X}{Y}(\store_1 \uplus \store_2)$
+  \item $\pmf(\store_1)  \defeq \margd{\pmf}{X}(\store_1)$ 
+  \item $\pmf(\store_1|\store_2) \defeq \condd{\pmf}{X}{Y}(\store_1 \uplus \store_2)$
+  \end{enumerate}
 \end{definition}
 
 \subsection{Basic Distribution of a Protocol}
