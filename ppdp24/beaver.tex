@@ -10,8 +10,11 @@ p["xys2"] := (m["bs"] * m["d"] + m["as"] * m["e"] + m["cs"])@2
 p["xym2"] := (m["bm"] * m["d"] + m["am"] * m["e"] + m["cm"])@2
 m["xyk"]@1 := (m["bk"] * m["d"] + m["ak"] * m["e"] + m["ck"])@1;
 
+m["xys"]@1 := (m["bs"] * m["d"] + m["as"] * m["e"] + m["cs"] +
+               m["d"] * m["e"])
+
 auth(p["xys2"], p["xym2"], m["xyk"], 1);
-out@1 := p["xys1"] + p["xys2"]@1;
+out@1 := m["xys"] + p["xys2"]@1;
 \end{verbatimtab}
 }
 \end{fpfig}
