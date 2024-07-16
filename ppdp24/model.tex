@@ -131,7 +131,7 @@ input/output information dependencies.
     \{ \store \mid \exists \store_1 \in \mems(R) . 
     \exists \store_2 . \preproc(\store_2) \wedge
     %(\dom(\store) = \iov(\prog) \cup R) \wedge
-    (\store_1 \cap \store_2,\prog) \redxs (\store,\varnothing) \}
+    (\store_1 \uplus \store_2,\prog) \redxs (\store,\varnothing) \}
   \end{array}
   $$
   By default, $\preproc(\store) \iff \dom(\store) = S$, i.e.,
@@ -279,7 +279,7 @@ to properly reflect the contents of views and outputs even in case of abort.
     \{ \store \mid \exists \store_1 \in \mems(R) . 
     \exists \store_2 . \preproc(\store_2) \wedge
     %(\dom(\store) = \iov(\prog) \cup R) \wedge
-    (\store_1 \cap \store_2,\prog) \aredxs (\store,\varnothing) \}
+    (\store_1 \uplus \store_2,\prog) \aredxs (\store,\varnothing) \}
   \end{array}
   $$
   where by default, $\preproc(\store) \iff \dom(\store) = S$, and also define the following

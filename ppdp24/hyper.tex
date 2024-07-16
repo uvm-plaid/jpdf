@@ -33,7 +33,7 @@ for passive security.
   iff for all $H$ and $C$ and $\store_1 \in \mems(S_C \cup O)$ and $\store_2 \in \mems(\houtputs)$
   we have:
   $$
-  \condd{\progtt(\prog)}{S_H}{\store_1} = \condd{\progtt(\prog)}{S_H}{\store_1 \cap \store_2}
+  \condd{\progtt(\prog)}{S_H}{\store_1} = \condd{\progtt(\prog)}{S_H}{\store_1 \uplus \store_2}
  $$
 \end{definition}
 %\begin{definition}[Noninterference modulo output]
@@ -185,7 +185,7 @@ correctness).
   $\SIM_3$, along with $\idealf(\store')$, via $\Sigma$. 
   In $\SIM_3$, the simulator can then run $\prog$ in simulation
   with inputs $\store'_C$ and arbitrary $\store'' \in \mems(S_H)$
-  such that $\store'_C \cap \store'' \in \ik(\idealf,\idealf(\store'))$.
+  such that $\store'_C \uplus \store'' \in \ik(\idealf,\idealf(\store'))$.
   The assumption of passive security of $\prog$ implies the result.
 \end{proof}
 
