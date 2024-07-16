@@ -88,10 +88,10 @@ following notation to express independence:
 \begin{definition}
 %  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
 %  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
-  We write $\sep{\pmf}{X}{Y}$ iff for all
-    $\store \in \mems(X \cup Y)$ we have
-  $\margd{\pmf}{X \cup Y}(\store) =
-  \pmf(\store_X) * \pmf(\store_Y)$
+  We write $\sep{\pmf}{X_1}{X_2}$ iff for all
+    $\store \in \mems(X_1 \cup X_2)$ we have
+  $\margd{\pmf}{X_1 \cup X_2}(\store) =
+  \pmf(\store_{X_1}) * \pmf(\store_{X_2})$
 \end{definition}
 
 In practice, MPC protocols typically satisfy a \emph{gradual
