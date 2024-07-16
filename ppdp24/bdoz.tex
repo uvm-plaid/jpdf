@@ -2,6 +2,12 @@
 {\footnotesize{
 \begin{verbatimtab}
 auth(s,m,k,i) { assert(m == k + (m["delta"] * s))@i; }
+  
+sum_she(z,x,y,i) {
+  m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i;
+  m[z++"m"]@i := (m[x++"m"] + m[y++"m"])@i;
+  m[z++"k"]@i := (m[x++"k"] + m[y++"k"])@i
+}
 
 open(x,i1,i2){
   m[x++"exts"]@i1 := m[x++"s"]@i2;
@@ -9,16 +15,12 @@ open(x,i1,i2){
   auth(m[x++"exts"], m[x++"extm"], m[x++"k"], i1);
   m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
 }
-  
-sum(z, x, y,i1,i2) {
-  m[z++"s"]@i2 := (m[x++"s"] + m[y++"s"])@i2;
-  m[z++"m"]@i2 := (m[x++"m"] + m[y++"m"])@i2;
-  m[z++"k"]@i1 := (m[x++"k"] + m[y++"k"])@i1
-}
 \end{verbatimtab}
 }}
 \end{fpfig}
 
+
+%%%%%%%%% OLD VERSION BELOW
 \begin{comment}
 
 \begin{fpfig}[t]{2-Party BDOZ Protocol Library.}{fig-bdoz}

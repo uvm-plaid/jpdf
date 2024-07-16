@@ -1,24 +1,29 @@
-\begin{fpfig}[t]{Authenticated 2-party multiplication with trusted Client 1.}{fig-beaver}
+\begin{fpfig}[t]{Authenticated 2-party multiplication with honest client 1.}{fig-beaver}
 {\footnotesize
-  \begin{verbatimtab}
-sum("a","x","d",1,2);
-open("d",1,2);
-sum("b","y","e",1,2);
-open("e",1,2);
+\begin{verbatimtab}
+sum_she("d","a","x",1);
+sum_she("d","a","x",2);
+sum_she("e","b","y",1);
+sum_she("e","b","y",2);
 
-p["xys2"] := (m["bs"] * m["d"] + m["as"] * m["e"] + m["cs"])@2
-p["xym2"] := (m["bm"] * m["d"] + m["am"] * m["e"] + m["cm"])@2
-m["xyk"]@1 := (m["bk"] * m["d"] + m["ak"] * m["e"] + m["ck"])@1;
+open("e",1,2);
+open("d",1,2);
+
+p["xys2"] := (m["bs"] * m["d"] + m["as"] * m["e"] + m["cs"])@2;
+p["xym2"] := (m["bm"] * m["d"] + m["am"] * m["e"] + m["cm"])@2;
 
 m["xys"]@1 := (m["bs"] * m["d"] + m["as"] * m["e"] + m["cs"] +
-               m["d"] * m["e"])
+               m["d"] * m["e"])@1;
+m["xyk"]@1 := (m["bk"] * m["d"] + m["ak"] * m["e"] + m["ck"])@1;
 
 auth(p["xys2"], p["xym2"], m["xyk"], 1);
-out@1 := m["xys"] + p["xys2"]@1;
+
+out@1 := m["xys"] + p["xys2"]@1
 \end{verbatimtab}
 }
 \end{fpfig}
 
+%%%%%%%%% OLD VERSION BELOW
 \begin{comment}
 
 \begin{fpfig}[t]{Authenticated 2-Party Multiplication.}{fig-beaver}

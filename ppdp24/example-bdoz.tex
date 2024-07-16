@@ -16,37 +16,41 @@ shared with clients during pre-processing. Here we consider the
 2-party version.
 
 A field value $v$ is secret shared among 2 clients in BDOZ in the same
-manner as in GMW.  Each client $\cid$ gets a pair of the form
-$(v_\cid,m_\cid)$, where $v_\cid$ is a share of $v$ reconstructed by
-addition, i.e., $v = \fcod{v_1 \fplus v_2}$, and $m_\cid$ is a MAC of
-$v_\cid$.  More precisely, $m_\cid = k + (k_\Delta * v_\cid)$ where
-\emph{keys} $k$ and $k_\Delta$ are known only to $\cid' \ne \cid$ and
-$k_\Delta$. The \emph{local key} $k$ is unique per MAC, while the
-\emph{global key} $k_\Delta$ is common to all MACs authenticated by
-$\cid'$. This is a semi-homomorphic encryption scheme that supports
-addition of shares and multiplication of shares by a constant-- for
-more details the reader is referred to Orsini
-\cite{10.1007/978-3-030-68869-1_3}. We note that while we restrict
-values $v$, $m$, and $k$ to the same field in this presentation for
-simplicity, in general $m$ and $k$ can be in extensions of
-$\mathbb{F}_p$.
+manner as in GMW, but with the addition of a separate MAC values.  Each
+client $\cid$ gets a pair of values $(v_\cid,m_\cid)$, where $v_\cid$
+is a share of $v$ reconstructed by addition, i.e., $v = \fcod{v_1
+  \fplus v_2}$, and $m_\cid$ is a MAC of $v_\cid$.  More precisely,
+$m_\cid = k + (k_\Delta * v_\cid)$ where \emph{keys} $k$ and
+$k_\Delta$ are known only to $\cid' \ne \cid$ and $k_\Delta$. The
+\emph{local key} $k$ is unique per MAC, while the \emph{global key}
+$k_\Delta$ is common to all MACs authenticated by $\cid'$. This is a
+semi-homomorphic encryption scheme that supports addition of shares
+and multiplication of shares by a constant-- for more details the
+reader is referred to Orsini \cite{10.1007/978-3-030-68869-1_3}. We
+note that while we restrict values $v$, $m$, and $k$ to the same field
+in this presentation for simplicity, in general $m$ and $k$ can be in
+extensions of $\mathbb{F}_p$.
 
-We can capture both the preliminary distribution of Beaver triples and BDOZ shares
-as a pre-processing predicate that establishes conditions for initial
-memories (see Definition \ref{def-aprogtt}).  Here we assume two input
-secrets $\elab{\secret{x}}{1}$ and $\elab{\secret{y}}{2}$ and a single
-Beaver Triple to compute $\elab{\secret{x}}{1} \ftimes
-\elab{\secret{y}}{2}$, but we can extend this for additional gates.
-As for GMW, we use $\macgv{\mesg{w}}$ to refer to secret-shared values
-reconstructed with addition, where by convention shares are message
-values $\elab{\mesg{w}}{\cid}$ for all $\cid$.
+We can capture both the preliminary distribution of Beaver triples and
+BDOZ shares as a pre-processing predicate that establishes conditions
+for initial memories (see Definition \ref{def-aprogtt}).  Here we
+assume two input secrets $\elab{\secret{x}}{1}$ and
+$\elab{\secret{y}}{2}$ and a single Beaver Triple to compute
+$\elab{\secret{x}}{1} \ftimes \elab{\secret{y}}{2}$, but we can extend
+this for additional gates.  As for GMW, we use $\macgv{\mesg{w}}$ to
+refer to secret-shared values reconstructed with addition, but for
+BDOZ by convention each share of $\macgv{\mesg{w}}$ is represented as
+$\elab{\mesg{w\ttt{s}}}{\cid}$, the MAC of which is represented as a
+$\elab{\mesg{w\ttt{m}}}{\cid}$ for all $\cid$, 
+and each client holds a key $\elab{\mesg{w\ttt{k}}}{\cid}$ for
+authentication of the other's share.
 \begin{definition}[BDOZ preprocessing]
   Define:
   \begin{mathpar}
     \mathit{shares} \defeq
-    \{ \elab{\mesg{w}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+    \{ \elab{\mesg{w\ttt{s}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
 
-    \mathit{macs} \defeq  \{ \elab{\mesg{w\ttt{mac}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
+    \mathit{macs} \defeq  \{ \elab{\mesg{w\ttt{m}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in \{ a,b,c,x,y \}  \}
 
     \mathit{keys} \defeq  \begin{array}{l}\{ \elab{\mesg{w\ttt{k}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \wedge w \in
     \{ a,b,c,x,y \}  \} \cup \\ \{ \elab{\mesg{\ttt{delta}}}{\cid}\ |\ \cid \in \{ 1, 2 \} \} \end{array}
@@ -55,7 +59,7 @@ values $\elab{\mesg{w}}{\cid}$ for all $\cid$.
   $$\dom(\store) = \{ \elab{\secret{x}}{1}, \elab{\secret{y}}{2} \} \cup \mathit{shares}
   \cup \mathit{macs} \cup \mathit{keys}$$
   and, writing $\store(\macgv{\mesg{w}})$ to denote
-  $\fcod{\store(\elab{\mesg{w}}{1}) + \store(\elab{\mesg{w}}{2})}$,
+  $\fcod{\store(\elab{\mesg{w\ttt{s}}}{1}) + \store(\elab{\mesg{w\ttt{s}}}{2})}$,
   the following conditions hold:
   \begin{mathpar}
     \store(\macgv{\mesg{x}}) = \store(\elab{\secret{x}}{1})
@@ -65,55 +69,43 @@ values $\elab{\mesg{w}}{\cid}$ for all $\cid$.
     \fcod{\store(\macgv{\mesg{a}}) * \store(\macgv{\mesg{b}})} = \store(\macgv{\mesg{c}})
   \end{mathpar}
   and for all $\cid,\cid' \in \{1,2\}$ with $\cid \ne \cid'$ and $w \in \{ a,b,c,x,y\}$:
-  $$\lcod{\store, \mesg{w\ttt{mac}}}{\cid} =
-  \lcod{\store, \mesg{wk} + \mesg{\ttt{delta}} * \mesg{w}}{\cid'}$$
+  $$
+  \store(\mx{w\ttt{m}}{\cid}) =
+    \fcod{\store(\mx{w\ttt{k}}{\cid'}) + \store(\mx{\ttt{delta}}{\cid'}) * \store(\mx{w\ttt{s}}{\cid})}
+  $$
+  %$$\lcod{\store, \mesg{w\ttt{m}}}{\cid} =
+  %\fcod{\lcod{\store, \mesg{w\ttt{k}} + \mesg{\ttt{delta}} * \mesg{w\ttt{m}}}{\cid'}$$
 \end{definition}
 
-With these conventions, our BDOZ library is defined in Figure \ref{fig-bdoz}.
-In $\metaprot$ we represent BDOZ share, MAC pairs as records:
-$$
-\ttt{\{ share = }v\ttt{;  mac =}\ m \ttt{\}}
-$$
-and we define $\ttt{macsum}$ for addition of shares,
-$\ttt{maccsum}$ for addition of a share and a constant, and
-$\ttt{macctimes}$ for multiplication of a share and a constant
-in the BDOZ encryption scheme \cite{10.1007/978-3-030-68869-1_3}. The $\ttt{auth}$
-function implements the MAC check as an $\assert$.
+With these conventions, a BDOZ library is defined in Figure
+\ref{fig-bdoz} and a multiplication protocol to compute $\sx{x}{1} *
+\sx{y}{2}$ is defined in Figure \ref{fig-beaver}. The latter is
+malicious secure assuming that client 1 is trusted. Initially, in
+calls to $\ttt{sum\_she}$ each party computes the sum of their shares
+of $\sx{x}{1} + \macgv{\mesg{a}}$ and $\sx{y}{2} + \macgv{\mesg{b}}$,
+and non-interactively computes the associated MACs and keys in the
+SHE authentication scheme. These values are then
+securely opened on client 1, which authenticates client
+2's share via a call to $\ttt{auth}$ that $\ttt{assert}$s
+the BDOZ authentication property. Note that the
+opening of $\sx{y}{2} + \macgv{\mesg{b}}$ reveals no
+information to client 1 about $\sx{y}{2}$ since $\macgv{\mesg{b}}$ is
+in a unform random distribution by assumption. It is
+also malicious secure since cheating is detected
+by the $\ttt{assert}$.
 
-We also define a function $\ttt{secopen}$ to implement ``secure
-opening''.  In this standard subprotocol, the value
-$\macgv{\secret{w_1}} \fplus \macgv{\mesg{w_2}}$ is reconstructed as
-$\mesg{w_3}$, by each client $\cid_2$ communicating
-$\lcod{\mesg{w_1} + \mesg{w_2}}{\cid_2}$ to $\cid_1$.  Assuming that
-$\macgv{\mesg{w_2}}$ is in an independent uniform distribution,
-this perfectly hides $\secret{w_1}$. In a multiplication gate
-either $a$ or $b$ of a Beaver triple are used in secure opening,
-so, e.g., given $
-(\varnothing,\ttt{secopen}(a, x, d, 2, 1) \redxs (\prog,())$
-we have both:
-\begin{mathpar}
-  \conddetx{\progtt(\prog)}{\{\macgv{\mesg{a}},\elab{\secret{x}}{1} \}}{\{ \elab{\mesg{d}}{2} \}}
-  
-  \sep{\progtt(\prog)}{\{ \elab{\mesg{d}}{2} \}}{\{ \elab{\secret{x}}{1}  \}}
-\end{mathpar}
-Furthermore, client 2's authentication of the sum of shares with the
-sum of their keys detects any attempted cheating by $1$.  Finally, the
-$\ttt{secreveal}$ function is the same as $\decodegmw$ but with the
-addition of authentication of revealed shares to ensure malicious
-security.
+Following this, each party non-interactively calculates their share of
+$\sx{x}{1} \ftimes \sx{y}{2}$, while client 2 calculates the MAC of
+their share, and reveals both their share and MAC to client 1. These
+are reveals since information about $\sx{y}{2}$ is exposed by
+the multiplication.  Client 1 also calculates the appropriate key and
+authenticates client 2's share following the BDOZ SHE MAC scheme
+\cite{10.1007/978-3-030-68869-1_3} and the standard Beaver protocol
+\cite{evans2018pragmatic}. Hence the protocol is correct and
+malicious secure given trusted client 1. The authentication scheme
+can also be run symmetrically on client 2.
 
 \input{beaver}
-
-The full protocol for malicious secure product of secrets $x$ (that
-is, $\elab{\secret{x}}{1}$) and $y$ (that is, $\elab{\secret{y}}{2}$)
-using Beaver triple $a,b,c$ is defined in Figure \ref{fig-bdoz}. Both
-parties interact in secure opening of $x \fplus a$ and $y + b$,
-followed by the non-interactive computation of shares of $x * y$ for
-secure reveals as per standard protocol
-\cite{10.1007/978-3-030-68869-1_3}. The non-interactive reconstruction
-of the local authentication key for both the secure openings and the
-final reveal is enabled by the semi-homomorphic properties of the BDOZ
-scheme.
 
 \subsection{Cheating Detection and Integrity}
 
