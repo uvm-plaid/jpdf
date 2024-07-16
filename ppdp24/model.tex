@@ -58,23 +58,23 @@ distributions as follows, which are standard for discrete
 probability mass functions. 
 \begin{definition}
   Given $\pmf$ with $\dom(\pmf) = \mems(X_2)$, the \emph{marginal distribution}
-  of variables $X_1 \subseteq X_2$ in $\pmf$, denoted $\margd{\pmf}{X_1}$, is defined as follows:
+  of variables $X_1 \subseteq X_2$ in $\pmf$ is denoted $\margd{\pmf}{X_1}$ and defined as follows:
   $$
-  \forall \store \in \mems(X_1) \quad . \quad \margd{\pmf}{X_1}(\store) =
+  \forall \store \in \mems(X_1) \quad . \quad \margd{\pmf}{X_1}(\store) \defeq
   \sum_{\store' \in \mems(X_2-X_1)} \pmf(\store \uplus \store')
   $$
 \end{definition}
 
 \begin{definition}
-  Given $\pmf$ with $\dom(\pmf) = \mems(X_3)$, the \emph{conditional distribution}
-  of $X_1$ given $X_2$ where $X_1 \cup X_2 \subseteq X_3$ and $X_1 \cap X_2 = \varnothing$, denoted $\condd{\pmf}{X_1}{X_2}$,
-  is defined as follows:
+  Given $\pmf$, the \emph{conditional distribution}
+  of $X_1$ given $X_2$ where $X_1 \cup X_2 \subseteq \dom(\pmf)$ and $X_1 \cap X_2 = \varnothing$
+  is denoted $\condd{\pmf}{X_1}{X_2}$ and defined as follows:
   $$
   \forall \store \in \mems(X_1 \cup X_2)\ .\ 
-  \condd{\pmf}{X_1}{X_2}(\store) =
+  \condd{\pmf}{X_1}{X_2}(\store) \defeq
   \begin{cases}
-    0 \text{\ if\ } \margd{\pmf}{X_2}(\store_X_2) = 0\\
-    \margd{\pmf}{X_1 \cup X_2}(\store) / \margd{\pmf}{X_2}(\store_X_2)\ \text{\ otherwise}
+    0 \text{\ if\ } \margd{\pmf}{X_2}(\store_{X_2}) = 0\\
+    \margd{\pmf}{X_1 \cup X_2}(\store) / \margd{\pmf}{X_2}(\store_{X_2})\ \text{\ o.w.}
   \end{cases}
   $$
 \end{definition}
@@ -82,7 +82,7 @@ We also define some convenient syntactic sugarings. The first will allow us to
 compare marginal distributions under different realization conditions
 (as in, e.g., Definition \ref{definition-NIMO}), the others are standard.
 \begin{definition}
-  Given $\pmf$, for all $\store_2 \in \mems(X_2)$ and $\store_1 \in \mems(X_1)$ define:
+  Given $\pmf$, for all $\store_1 \in \mems(X_1)$ and $\store_2 \in \mems(X_2)$ define:
   \begin{enumerate}
   \item $\condd{\pmf}{X_1}{\store_2}(\store_1) \defeq \condd{\pmf}{X_1}{X_2}(\store_1 \uplus \store_2)$
   \item $\pmf(\store_1)  \defeq \margd{\pmf}{X_1}(\store_1)$ 
