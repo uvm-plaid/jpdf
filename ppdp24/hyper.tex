@@ -60,11 +60,11 @@ to determine the inputs that could have produced it. This equivalence
 class is called a \emph{kernel} in recent work \cite{10.1145/3571740}.
 \begin{definition}
   Given a functionality $\idealf$ and outputs $\store_{\mathit{out}}$, their 
-  \emph{kernel}, denoted $\ik(\idealf,\store_{\mathit{out}})$ is
+  \emph{kernel}, denoted $\kernel{\idealf}{\store_{\mathit{out}}}$ is
   $
   \{ \store\ |\ \idealf(\store) = \store_{\mathit{out}} \}
   $.
-  We say that $\idealf$ is \emph{pre-imageable} iff $\ik(\idealf, \store_{\mathit{out}})$ for all
+  We say that $\idealf$ is \emph{pre-imageable} iff $\kernel{\idealf}{\store_{\mathit{out}}}$ for all
   $\store_{\mathit{out}}$ can be computed tractably.
 \end{definition}
 A soundness result for passive security can then be given as follows.
@@ -185,7 +185,7 @@ correctness).
   $\SIM_3$, along with $\idealf(\store')$, via $\Sigma$. 
   In $\SIM_3$, the simulator can then run $\prog$ in simulation
   with inputs $\store'_C$ and arbitrary $\store'' \in \mems(S_H)$
-  such that $\store'_C \uplus \store'' \in \ik(\idealf,\idealf(\store'))$.
+  such that $\store'_C \uplus \store'' \in \kernel{\idealf}{\idealf(\store')}$.
   The assumption of passive security of $\prog$ implies the result.
 \end{proof}
 
