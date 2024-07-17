@@ -5,8 +5,8 @@
 MPC protocols are intended to implement some \emph{ideal
 functionality} $\idealf$ with per-client outputs. In the $\minifed$
 setting, Given a protocol $\prog$ that implements $\idealf$, with
-$\iov(\prog) = S \cup V \cup O$, the domain of $\idealf$ is $\mems(S)$
-and its range is $\mems(O)$.  Real/ideal security in the MPC
+$\iov(\prog) = S \cup M \cup P \cup O$, the domain of $\idealf$
+is $\mems(S)$ and its range is $\mems(O)$.  Real/ideal security in the MPC
 setting means that, given $\store \in \mems(S)$, a secure protocol
 $\prog$ does not reveal any more information about honest secrets
 $\store_H$ to parties in $C$ beyond what is implicitly declassified by
@@ -223,9 +223,9 @@ model as follows.
   Assume given a program $\prog$ that correctly implements an ideal
   functionality $\idealf$, with $\views(\prog) = V$.  Then $\prog$
   is \emph{passive secure in the simulator model} iff there exists
-  ad simulation $\SIM$ such that for all
+  a simulation $\SIM$ such that for all
   partitions of the federation into honest and corrupt sets $H$ and $C$
-  and for all $\store \in \mems(S)$:
+  and for all $\store \in \mems(\secrets(\prog))$:
   $$
   \dist(\SIM(\store_{C},\idealf(\store))) = \condd{\progtt(\prog)}{\houtputs}{\store}
   $$
@@ -233,8 +233,8 @@ model as follows.
 
 \subsection{Malicious Security}
 
-In the malicious model we assume that corrupt clients are in the
-thrall of an adversary $\adversary$ who does not necessarily follow
+In the malicious model we assume that corrupt clients are in
+thrall to an adversary $\adversary$ who does not necessarily follow
 the rules of the protocol.  We model this by positing a $\arewrite$
 function which is given a corrupt memory $\store_C$ and expression
 $\be$, and returns a rewritten expression that can be interpreted to
@@ -262,10 +262,10 @@ assertions.
 
 It is necessary to add $\bot$ to the range of memories since
 the possibility of abort needs to be reflected in adversarial
-runs of a protocol. We can define $\aruns(\prog,\adversary)$
+runs of a protocol. We can define $\aruns(\prog)$
 as the ``prefix'' memories that result from possibly-aborting
 protocols, but we also need to ``pad out'' the memories
-of partial runs with $\bot$, as we define in $\botruns(\prog,\adversary)$,
+of partial runs with $\bot$, as we define in $\botruns(\prog)$,
 to properly reflect the contents of views and outputs even in case of abort. 
 \begin{definition}
   \label{def-aprogd}
