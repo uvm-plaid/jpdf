@@ -21,13 +21,14 @@ negation-as-failure model, though we can also use techniques in
 
 \subsection{Computing a Truth Table}
 
-In Figure \ref{fig-solve} we define the algorithm
-$\solve{\stores}{\be}{\cid}$ which filters a given $\stores$ to obtain
-the subset whose elements satisfy $\be$. In this Figure and elsewhere
-we use logical connectives as field operations ($\eand$ and $\exor$
-for $*$ and $+$ respectively) in $\mathbb{F}_2$ and add $\enot$ and
-$\eor$ as trivial but convenient extensions. The correctness of this
-operation is characterized as follows.
+Letting $\stores$ denote sets of memories, in Figure \ref{fig-solve}
+we define the algorithm $\solve{\stores}{\be}{\cid}$ which filters a
+given $\stores$ to obtain the subset whose elements satisfy $\be$. In
+this Figure and elsewhere we use logical connectives as field
+operations ($\eand$ and $\exor$ for $*$ and $+$ respectively) in
+$\mathbb{F}_2$ and add $\enot$ and $\eor$ as trivial but convenient
+extensions. The correctness of this operation is characterized as
+follows.
 \begin{lemma}
   \label{lemma-solves}
   %For all $\stores$ and $\be$ with $\vars(\be) \subseteq \dom(\stores)$,
