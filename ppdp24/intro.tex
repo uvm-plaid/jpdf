@@ -76,8 +76,10 @@ of MPC protocols via three components:
 %
 \begin{enumerate}
 \item A \textbf{low-level language} for defining MPC primitives
-  (Section \ref{section-lang}) with an associated metalanguage
-  to ease programming (Section \ref{section-metalang}).
+  (Section \ref{section-lang}) with an associated \textbf{metalanguage}
+  to ease programming (Section \ref{section-metalang})\footnote{By metalanguage
+  we mean a multi-stage aka metaprogramming language where code is a value, as
+  in, e.g., MetaML \cite{TAHA2000211}.}. 
 \item A \textbf{fully-automated verification method} for low-level MPC
   primitives in $\mathbb{F}_2$ (Section \ref{section-bruteforce}).
 \item A \textbf{partially-automated verification method} for

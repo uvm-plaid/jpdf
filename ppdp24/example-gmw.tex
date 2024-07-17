@@ -49,8 +49,8 @@ For example, the following program uses our GMW library to define
 a circuit with a single \eand\ gate and input secrets $\ttt{s1}$ and
 $\ttt{s2}$ from client's 1 and 2 respectively:
 \begin{verbatimtab}
-         let s1 = encodegmw("s1",1,2) in
-         let s2 = encodegmw("s2",2,1) in
+         let s1 = encodegmw("s1",2,1) in
+         let s2 = encodegmw("s2",1,2) in
          decodegmw(andgmw("z",s1,s2))
 \end{verbatimtab}
 By convention we will assume that all gates are assigned unique output
