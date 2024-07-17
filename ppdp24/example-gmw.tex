@@ -49,8 +49,8 @@ For example, the following program uses our GMW library to define
 a circuit with a single \eand gate and input secrets $\ttt{s1}$ and
 $\ttt{s2}$ from client's 1 and 2 respectively:
 \begin{verbatimtab}
-         let s1 = encodegmw("s1") in
-         let s2 = encodegmw("s2") in
+         let s1 = encodegmw("s1",1,2) in
+         let s2 = encodegmw("s2",2,1) in
          decodegmw(andgmw("z",s1,s2))
 \end{verbatimtab}
 By convention we will assume that all gates are assigned unique output
@@ -102,7 +102,7 @@ deterministic. Conditional uniformity is also important, since the
 gradual release property of many protocols means that messages appear
 in a uniform distribution to the adversary.
 \begin{definition}[Conditioning Properties] 
-  Give $\pmf$ and $X_1,X_1,X_3 \subseteq \dom{pmf}$, 
+  Given $\pmf$ and $X_1,X_2,X_3 \subseteq \dom(\pmf)$, 
   we write:
   \begin{itemize}
   \item $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
@@ -182,10 +182,10 @@ was developed in \cite{li2023lilac}, these properties are distinct and
 useful for reasoning about MPC. We omit proofs for brevity. 
 \begin{lemma}
   \label{lemma-conditioning}
-  Give $\pmf$, each of the following hold for $S,V_1,V_2,V_3 \in \dom(\pmf)$:
+  Given $\pmf$, each of the following hold for $S,V_1,V_2,V_3 \in \dom(\pmf)$:
   \begin{enumerate}
     \item Given $\condp{\pmf}{S}{\detx{V_1}}$ and
-      $\condp{\pmf}{V_2}{\detx{V_2}}$, then $\condp{\pmf}{S}{\detx{V_2}}$.
+      $\condp{\pmf}{V_1}{\detx{V_2}}$, then $\condp{\pmf}{S}{\detx{V_2}}$.
     \item Given $\condp{\pmf}{S}{\detx{V_1}}$ and
       $\condp{\pmf}{V_1}{\unix{V_2}}$, then $\condp{\pmf}{S}{\unix{V_2}}$.
     \item Given $\condp{\pmf}{S}{\detx{V_1}}$ and

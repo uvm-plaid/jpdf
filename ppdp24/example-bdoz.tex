@@ -134,7 +134,7 @@ that must be legitimate.
 Now, we can characterize protocols with cheating detection as those where
 the adversary can only behave honestly/passively, or else cause abort.
 \begin{definition}[Cheating Detection]
-  \emph{Cheating is detected} in $\prog$ with $\iov(\prog) = S \cup V \cup O$ iff
+  \emph{Cheating is detectable} in $\prog$ with $\iov(\prog) = S \cup V \cup O$ iff
   for all  $\store \in \aruns(\prog)$,
   letting $X_H = \{ x \mid x \in (\houtputs \cup O_H) \wedge x \in \dom(\store) \}$,
   and letting $X_C$ be the adversarial inputs to $X_H$,
@@ -146,7 +146,7 @@ It is straightforward to demonstrate that cheating detection has integrity,
 since only the ``passive'' adversary can elicit a response from honest parties. 
 \begin{lemma}
   \label{lemma-cheating}
-  If cheating is detected in $\prog$, then $\prog$ has integrity.
+  If cheating is detectable in $\prog$, then $\prog$ has integrity.
 \end{lemma}
 
 In the case of BDOZ, cheating detection is accomplished by the information-theoretic
