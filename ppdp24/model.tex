@@ -308,17 +308,17 @@ in a standard manner \cite{evans2018pragmatic}, as follows.
   \begin{enumerate}
   \item In the first phase $\SIM_1$, $\adversary$ gives the
     simulator some $\store' \in \mems(S_C)$, and the simulator consults an
-    oracle to compute $\idealf(\store \cup \store') \in \mems(O)$.
+    oracle to compute $\idealf(\store \uplus \store') \in \mems(O)$.
   \item In the second phase $\SIM_2$, the simulator is given the corrupt
-    outputs $\idealf(\store \cup \store')_C$, which are again given to
+    outputs $\idealf(\store \uplus \store')_C$, which are again given to
     $\adversary$, who decides either to abort or not. If so, then the
     simulator is given $\sigma_{\mathit{out}} \defeq \{ \out{\cid} \mapsto \bot \mid \cid \in H \}$
     and arbitrary internal state $\Sigma$.
-    Otherwise the simulator is given $\sigma_{\mathit{out}} \defeq \idealf(\store \cup \store')_H$
+    Otherwise the simulator is given $\sigma_{\mathit{out}} \defeq \idealf(\store \uplus \store')_H$
     and $\Sigma$.
   \item In the third phase $\SIM_3$, given $\store_{\mathit{out}}$ and $\Sigma$, the simulator
     finally outputs
-    $\store_{\mathit{out}} \cup \store_{\mathit{views}}$ for some
+    $\store_{\mathit{out}} \uplus \store_{\mathit{views}}$ for some
     calculated $\store_{\mathit{views}} \in \mems(\houtputs)$.
   \end{enumerate}
 \end{definition}
