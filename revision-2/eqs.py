@@ -21,7 +21,7 @@ s.add(o == p1 + p2)
 s.check()
 
 # correctness (should be unsat)
-s.check(x + y != o)
+s.check(x + y != o)  
 
 # 3-party addition in F7
 
