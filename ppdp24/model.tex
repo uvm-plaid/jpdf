@@ -313,10 +313,10 @@ in a standard manner \cite{evans2018pragmatic}, as follows.
     outputs $\idealf(\store \uplus \store')_C$, which are again given to
     $\adversary$, who decides either to abort or not. If so, then the
     simulator is given $\sigma_{\mathit{out}} \defeq \{ \out{\cid} \mapsto \bot \mid \cid \in H \}$
-    and arbitrary internal state $\Sigma$.
+    and arbitrary internal state $\varsigma$.
     Otherwise the simulator is given $\sigma_{\mathit{out}} \defeq \idealf(\store \uplus \store')_H$
-    and $\Sigma$.
-  \item In the third phase $\SIM_3$, given $\store_{\mathit{out}}$ and $\Sigma$, the simulator
+    and $\varsigma$.
+  \item In the third phase $\SIM_3$, given $\store_{\mathit{out}}$ and $\varsigma$, the simulator
     finally outputs
     $\store_{\mathit{out}} \uplus \store_{\mathit{views}}$ for some
     calculated $\store_{\mathit{views}} \in \mems(\houtputs)$.
