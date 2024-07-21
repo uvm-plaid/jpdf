@@ -55,13 +55,13 @@ secret value $\secret{x}$ and sends the result to client
 2 as a message $\mesg{z}$:
 $$
 \eassign{\mesg{z}}{2}{(\secret{x} - \flip{y})}{1}
-$$
-Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be
-referenced in expressions once they've been defined.
-This distinction between messages and broadcast public
-reveal is consistent with previous formulations, e.g.,
-\cite{6266151}.
-
+$$ Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be referenced in
+expressions once they've been defined.  This distinction between
+messages and broadcast public reveal is consistent with previous
+formulations, e.g., \cite{6266151}. To identify and distinguish
+between collections of variables in protocols we introduce the
+following notation.
+\begin{definition}
 We let $x$ range over \emph{variables} which are identifiers where
 client ownership is specified- e.g.,
 $\elab{\mesg{\mathit{foo}}}{\cid}$ is a message $\mathit{foo}$ that
@@ -71,15 +71,16 @@ $\elab{\secret{w}}{\cid}$, $R$ ranges over sets of random variables
 $\elab{\flip{w}}{\cid}$, $M$ ranges over sets of message variables
 $\elab{\mesg{w}}{\cid}$, $P$ ranges over sets of public variables
 $\rvl{w}$, and $O$ ranges over sets of output variables $\out{\cid}$.
-Given a program $\prog$, we write $\iov(\prog)$ to denote the set $S
-\cup M \cup P \cup O$ of variables in $\prog$ with ownership made
-explicit and $\secrets(\prog)$ to denote $S$, and we write
-$\flips(\prog)$ to denote the set $R$ of random samplings in $\prog$
-with ownership made explicit. We write $\vars(\prog)$ to denote
-$\iov(\prog) \cup \flips(\prog)$. For any set of variables $X$ and
-clients $I$, we write $X_I$ to denote the subset of $X$ owned by any
-client $\cid \in I$, in particular we write $X_H$ and $X_C$ to denote the
-subsets belonging to honest and corrupt parties, respectively.
+Given a program $\prog$, we write $\iov(\prog)$ to denote the
+particular set $S \cup M \cup P \cup O$ of variables in $\prog$ and
+$\secrets(\prog)$ to denote $S$, and we write $\flips(\prog)$ to
+denote the particular set $R$ of random samplings in $\prog$. We write
+$\vars(\prog)$ to denote $\iov(\prog) \cup \flips(\prog)$. For any set
+of variables $X$ and clients $I$, we write $X_I$ to denote the subset
+of $X$ owned by any client $\cid \in I$, in particular we write $X_H$
+and $X_C$ to denote the subsets belonging to honest and corrupt
+parties, respectively.
+\end{definition}
 
 \subsection{Semantics}
 \label{section-lang-semantics}
