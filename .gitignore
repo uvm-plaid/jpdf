@@ -1,1 +1,3 @@
 /nearley-parser/node_modules/
+/code/*/target/
+.vscode/
