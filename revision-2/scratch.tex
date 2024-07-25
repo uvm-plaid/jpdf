@@ -19,14 +19,15 @@
 \newcommand{\upgrade}[1]{\uparrow #1}
 \newcommand{\seclev}{\mathcal{L}}
 
-\newcommand{\mtj}[6]{#1,#2 \vdash #3 : (#4,#5,#6)}
+\newcommand{\tsig}{\mathrm{sig}}
+\newcommand{\subn}{\rho}
+\newcommand{\hty}[4]{\{ #1 \}\ #2,#3\  \{ #4 \} }
+\newcommand{\dht}[5]{\Pi #1 . \hty{#2}{#3}{#4}{#5} }
+\newcommand{\mtj}[6]{#1 \vdash #2 : \hty{#3}{#4}{#5}{#6}}
 \newcommand{\atj}[4]{#1 \Vdash #2 : (#3,#4)}
 \newcommand{\eqj}[4]{#1,#2 \vdash #3 : #4}
 \newcommand{\cpj}[4]{#1,#2 \vdash #3 : #4}
 \newcommand{\leakj}[3]{#1,#2 \vdash_{\mathit{leak}} #3}
-\newcommand{\tsig}{\mathrm{sig}}
-\newcommand{\subn}{\rho}
-\newcommand{\fty}[5]{\{ #1 \}\ #2\  \{ #3,#4,#5 \} }
 
 \renewcommand{\redx}{\Rightarrow}
 \renewcommand{\redxs}{\redx}
@@ -318,32 +319,32 @@ $$
 \begin{mathpar}
   \inferrule[Mesg]
             {e_1 \redx \be \\ e_2 \redx \cid \\ \atj{R_1}{\toeq{\elab{\be}{\cid}}}{R_2}{\ty}}
-            {\mtj{R_1}{\eqs}{\xassign{x}{e_1}{e_2}}{x:\ty}{R_1;R_2}{\eqs \wedge x \eop \toeq{\elab{\be}{\cid}}}}
+            {\mtj{R_1}{\xassign{x}{e_1}{e_2}}{\eqs}{x:\ty}{R_1;R_2}{\eqs \wedge x \eop \toeq{\elab{\be}{\cid}}}}
 
   \inferrule[Encode]
             {e_1 \redx \be \\ e_2 \redx \cid \\ e_3 \redx \phi \\
               \eqs \models \toeq{\elab{\be}{\cid}} \eop \phi\\
               \atj{R_1}{\phi}{R_2}{\ty}}
-            {\mtj{R_1}{\eqs}{\eqcast{\xassign{x}{e_1}{e_2}}{e_3}}{x:\ty}{R_1;R_2}{E\wedge x \eop \phi}}
+            {\mtj{R_1}{\eqcast{\xassign{x}{e_1}{e_2}}{e_3}}{\eqs}{x:\ty}{R_1;R_2}{E\wedge x \eop \phi}}
 
   \inferrule[App]
-            {\tsig(f) = \fty{\eqs_1}{x_1,\ldots,x_n}{\Gamma}{R}{\eqs_2} \\
+            {\tsig(f) = \dht{x_1,\ldots,x_n}{\eqs_1}{\Gamma}{R}{\eqs_2} \\
               e_1 \redx \mv_1\ \cdots\ e_n \redx \mv_n \\
               \subn = [\mv_1/x_1]\cdots[\mv_n/x_n] \\
               \eqs \models \subn(\eqs_1)}
-            {\mtj{R_1}{\eqs}{f(e_1,\ldots,e_n)}{\subn(\Gamma)}{R_1;\subn(R)}{\eqs \wedge \subn(\eqs_2)}}
+            {\mtj{R_1}{f(e_1,\ldots,e_n)}{\eqs}{\subn(\Gamma)}{R_1;\subn(R)}{\eqs \wedge \subn(\eqs_2)}}
 
   \inferrule[Seq]          
-            {\mtj{R_1}{\eqs_1}{\prog_1}{\Gamma_2}{R_2}{\eqs_2}\\ \mtj{R_2}{\eqs_2}{\prog_2}{\Gamma_3}{R_3}{\eqs_3}}
-            {\mtj{R_1}{\eqs_1}{\prog_1;\prog_2}{\Gamma_2;\Gamma_3}{R_3}{\eqs_3}}
+            {\mtj{R_1}{\prog_1}{\eqs_1}{\Gamma_2}{R_2}{\eqs_2}\\ \mtj{R_1}{\prog_2}{\eqs_2}{\Gamma_3}{R_3}{\eqs_3}}
+            {\mtj{R_1}{\prog_1;\prog_2}{\eqs_1}{\Gamma_2;\Gamma_3}{R_2;R_3}{\eqs_3}}
 \end{mathpar}
 
 \begin{mathpar}
   \inferrule[Sig]
             {\codebase(f) = x_1,\ldots,x_n, \instr \\
              \subn = [\mv_1/x_1]\cdots[\mv_n/x_n] \\
-             \mtj{\varnothing}{\subn(\eqs_1)}{\subn(\instr)}{\subn(\Gamma)}{\subn(R)}{\eqs} \\ \eqs \models \subn(\eqs_2)}
-            {f : \fty{\eqs_1}{x_1,\ldots,x_n}{\Gamma}{R}{\eqs_2}}
+             \mtj{\varnothing}{\subn(\instr)}{\subn(\eqs_1)}{\subn(\Gamma)}{\subn(R)}{\eqs} \\ \eqs \models \subn(\eqs_2)}
+            {f : \dht{x_1,\ldots,x_n}{\eqs_1}{\Gamma}{R}{\eqs_2}}
 \end{mathpar}
 
 \begin{definition}
@@ -352,7 +353,7 @@ $$
 
 The following theorem holds for protocols with default preprocessing.
 \begin{theorem}
-  If $\tsig$ is verified and $\mtj{\varnothing}{\varnothing}{e}{\Gamma}{R}{\eqs}$ then
+  If $\tsig$ is verified and $\mtj{\varnothing}{e}{\varnothing}{\Gamma}{R}{\eqs}$ then
   $e \redx \prog$ and $\cpj{R}{\eqs}{\prog}{\Gamma}$ is valid.
 \end{theorem}
 
