@@ -339,6 +339,30 @@ $$
   \inferrule
       {e_1 \redx w_1 \\ e_2 \redx w_2}
       {e_1 \concat e_2 \redx w_1w_2}
+
+  \inferrule
+      {e \redx w}
+      {\mesg{e} \redx w}
+
+  \inferrule
+      {e \redx w}
+      {\mx{e}{\cid} \redx \mx{w}{\cid} }
+
+  \inferrule
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2}     
+      {e_1 \fplus e_2 \redx \be_1 \fplus \be_2}
+
+  \inferrule
+      {e_1 \redx x_1 \\ e_2 \redx x_2}     
+      {e_1 \fplus e_2 \redx x_1 \fplus x_2}
+
+  \inferrule
+      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
+      {e_1 \eop e_2 \redx \phi_1 \eop \phi_2}
+
+  \inferrule
+      {e_1 \redx \eqs_1 \\ e_2 \redx \eqs_2 }
+      {e_1 \redx e_2 \redx \eqs_1 \redx \eqs_2}
 \end{mathpar}
 
 

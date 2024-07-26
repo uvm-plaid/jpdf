@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  26 JUL 2024 09:09
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  26 JUL 2024 10:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1130,25 +1130,25 @@ LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
 (Font)              scaled to size 5.5pt on input line 295.
 [3.3] [4.4]
-Overfull \hbox (6.60594pt too wide) in paragraph at lines 448--448
+Underfull \vbox (badness 3250) has occurred while \output is active []
+
+ [5.5]
+Overfull \hbox (6.60594pt too wide) in paragraph at lines 472--472
 []       \T1/zi4/m/it/10 (m[z]@1 : { r[z]@1 }; m[z]@2 : {c(r[z]@1, { m[x]@1, m[
 x]@2, m[y]@1, m[y]@2 })} ),[] 
  []
 
 
-Underfull \vbox (badness 3250) has occurred while \output is active []
-
- [5.5]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [6.6]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 552.
+(hyperref)                removing `math shift' on input line 576.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 552.
+(hyperref)                removing `math shift' on input line 576.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1156,9 +1156,9 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [7.7]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 666.
+(textcomp)             Default family used instead on input line 690.
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 6
-66.
+90.
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
@@ -1168,7 +1168,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 
-666.
+690.
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
@@ -1236,7 +1236,7 @@ lic/newtx/txmiaX.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/txf
 onts/txsya.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/txfonts/t
 xsyb.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/newtx/txsys.pfb
 >
-Output written on main.pdf (9 pages, 450549 bytes).
+Output written on main.pdf (9 pages, 450912 bytes).
 PDF statistics:
  205 PDF objects out of 1000 (max. 8388607)
  154 compressed objects within 2 object streams
