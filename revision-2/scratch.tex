@@ -281,8 +281,10 @@ $$
 
 \subsection{Compositional Type Verification in $\metaprot$}
 
+Note the redefinition of $x$ impacts the definition of $\ty$, $\Gamma$, $\phi$, and $\eqs$.
 $$
 \begin{array}{rcl}
+  x &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\[2mm]
   \multicolumn{3}{l}{\flab \in \mathrm{Field},\   y \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[1mm]
   %x &\in& \mathrm{EVar}\\
   %f &\in& \mathrm{FName}\\[2mm]
@@ -292,13 +294,13 @@ $$
   %  & \textit{expressions}\\
   \cmd &::=& \msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
       \elab{\assert{e = e}}{e} \mid \\
-  & & f(e,\ldots,e) \mid  \cmd;\cmd \mid \pre{\eqs} \mid \post{\eqs} \\[1mm]
+  & & f(e,\ldots,e) \mid  \cmd;\cmd \mid \eqcast{\mx{e}{e}}{\phi} \\[2mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
   \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
   \mv &::=& w \mid \cid \mid \be \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
   \\ % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
-  \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y,\ldots,y) \{ \cmd \} \\[1mm]%& \textit{functions}
-  \phi &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e} \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
-  \eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
+  \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y,\ldots,y) \{ \cmd \} %\\[1mm]%& \textit{functions}
+  %\phi &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e} \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
+  %\eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
 \end{array}
 $$
 
@@ -315,17 +317,41 @@ $$
   {\atj{R_1}{\phi_1 \oplus \phi_2}{R_1;R_2}{\ty_1 \cup \ty_2}}
 \end{mathpar}
 
-\cnote{Need to fix the following to allow reduction of $x$.}
+
+\begin{mathpar}
+  \inferrule
+      {e[\mv/y] \redx \mv'}
+      {\elet{y}{\mv}{e} \redx \mv'}
+
+  \inferrule
+      {\codebase(f) = y_1,\ldots,y_n,\ e \\ e_1 \redx \mv_1 \cdots e_n \redx \mv_n \\
+        e[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \mv}
+      {f(e_1,\ldots,e_n) \redx \mv}
+
+  \inferrule
+      {e_1 \redx \mv_1 \cdots e_n \redx \mv_n }
+      {\{ \flab_1 = e_1; \ldots; \flab_n = e_n \} \redx \{ \flab_1 = \mv_1; \ldots; \flab_n = \mv_n \} }
+
+  \inferrule
+      {e \redx \{\ldots; \flab = \mv; \ldots\}}
+      {e.\flab \redx \mv}
+
+  \inferrule
+      {e_1 \redx w_1 \\ e_2 \redx w_2}
+      {e_1 \concat e_2 \redx w_1w_2}
+\end{mathpar}
+
+
 \begin{mathpar}
   \inferrule[Mesg]
             {e_1 \redx \be \\ e_2 \redx \cid \\ \atj{R_1}{\toeq{\elab{\be}{\cid}}}{R_2}{\ty}}
             {\mtj{R_1}{\xassign{x}{e_1}{e_2}}{\eqs}{x:\ty}{R_1;R_2}{\eqs \wedge x \eop \toeq{\elab{\be}{\cid}}}}
 
   \inferrule[Encode]
-            {e_1 \redx \be \\ e_2 \redx \cid \\ e_3 \redx \phi \\
+            {e_1 \redx w \\ e_2 \redx \cid \\
               \eqs \models \toeq{\elab{\be}{\cid}} \eop \phi\\
               \atj{R_1}{\phi}{R_2}{\ty}}
-            {\mtj{R_1}{\eqcast{\xassign{x}{e_1}{e_2}}{e_3}}{\eqs}{x:\ty}{R_1;R_2}{E\wedge x \eop \phi}}
+            {\mtj{R_1}{\eqcast{\mx{e_1}{e_2}}{\phi}}{\eqs}{\mx{w}{\cid}:\ty}{R_1;R_2}{E\wedge \mx{w}{i} \eop \phi}}
 
   \inferrule[App]
             {\tsig(f) = \dht{x_1,\ldots,x_n}{\eqs_1}{\Gamma}{R}{\eqs_2} \\
@@ -366,16 +392,18 @@ andtableygc(g,x,y)
    in permute4(r[x],r[y],table)
 }
 
-m[x]@1 := s2(s[x],r[x],~r[x])@2 as s[x]@2 xor r[x]@2
+m[x]@1 := s2(s[x],r[x],~r[x])@2;
+m[x]@1 as s[x]@2 xor r[x]@2;
 
 // m[x]@1 : { c(r[x]@2, { s[x]@2 }) } 
 
-m[y]@1 := OT(s[y]@1,r[y],~r[y])@2 as s[y]@1 xor r[y]@2;
+m[y]@1 := OT(s[y]@1,r[y],~r[y])@2;
+m[y]@1 as s[y]@1 xor r[y]@2;
 
 // m[y]@1 : { c(r[y]@2, { s[y]@1 }) } 
 	      
-m[ag]@1 := OT4(m[x]@1, m[y]@1, andtable(ag,r[x],r[y]))@2
- as  ~((r[x]@2 = m[x]@1) and (r[y]@2 = m[y]@1)) xor r[ag]@2
+m[ag]@1 := OT4(m[x]@1, m[y]@1, andtable(ag,r[x],r[y]))@2;
+m[ag]@1 as  ~((r[x]@2 = m[x]@1) and (r[y]@2 = m[y]@1)) xor r[ag]@2;
 
 // m[ag]@1 : { c(r[ag]@2, {r[x]@2, r[y]@2, m[x]@1,  m[y]@1} }
 
@@ -404,8 +432,8 @@ out@1 := p[o]@1
     
     andgmw(z, x, y) {
       let table = andtablegmw(x,y,z) in
-      m[z]@2 := OT4(m[x],m[y],table,2,1)
-        as ~((m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2)) xor r[z]@1);
+      m[z]@2 := OT4(m[x],m[y],table,2,1);
+      m[z]@2 as ~((m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2)) xor r[z]@1);
       m[z]@1 := r[z]@1
     }
 
