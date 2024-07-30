@@ -8,20 +8,20 @@
     <description>CVC5 Java Bindings</description>
     <url>https://github.com/cvc5/cvc5</url>
 
-      <developers>
+    <developers>
         <developer>
-          <url>${project.url}</url>
+            <url>${project.url}</url>
         </developer>
-      </developers>
-     
-      <licenses>
+    </developers>
+
+    <licenses>
         <license>
-          <url>${project.url}</url>
+            <url>${project.url}</url>
         </license>
-      </licenses>
-     
-      <scm>
+    </licenses>
+
+    <scm>
         <url>${project.url}</url>
-      </scm>
-     
+    </scm>
+
 </project>
