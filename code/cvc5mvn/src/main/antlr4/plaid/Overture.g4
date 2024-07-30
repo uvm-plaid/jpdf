@@ -1,43 +1,35 @@
+// define lexer and parser rules in a single combined grammar file
 grammar Overture;
-
-// We define expression to be either a method call or a string.
-expression
-    : methodCall
-    | STRING
-    ;
-
-// We define methodCall to be a method name followed by an opening
-// paren, an optional list of arguments, and a closing paren.
-methodCall
-    : methodName '(' methodCallArguments ')'
-    ;
-
-// We define methodName to be a name.
-methodName
-    : NAME
-    ;
-
-// We define methodCallArguments to be a list of expressions
-// separated by commas.
-methodCallArguments
-    : // No arguments
-    | expression (',' expression)*  // Some arguments
-    ;
-
-// NAME represents any variable or method name.
-// The regular expression we use basically means "starts with a letter
-// and may follow with any number of alphanumerical characters"
-NAME
-    : [a-zA-Z][a-zA-Z0-9]*
-    ;
-
-// STRING represents a string value, for example "abc".
-// Note that for simplicity, we don't allow escaping double quotes.
-STRING
-    : '"' ~('"')* '"'
-    ;
-
-// WS represents a whitespace, which is ignored entirely by skip.
-WS
-    : [ \t\u000C\r\n]+ -> skip
-    ;
+/* Parser Rules*/
+// We define expression to be a value, an arithmetic expression, or a string.
+expression : expression TIMES expression
+            | expression PLUS expression
+            | MINUS expression
+            | LPAREN expression RPAREN
+            | 's' LSQUARE STRING RSQUARE
+            | 'r' LSQUARE STRING RSQUARE
+            | 'm' LSQUARE STRING RSQUARE
+            | 'p' LSQUARE STRING RSQUARE
+            | value;
+value : VALUE;
+/* Lexer Rules */
+// We define value to be any integer
+VALUE : [0-9]+ ;
+SHARE : 's';
+RANDOM : 'r';
+MESSAGE : 'm';
+OUTPPUT : 'p';
+// We define identifier to match any combination of uppercase, lowercase, and integer
+IDENTIFIER : [a-zA-Z0-9]+;
+// We define string to match double quotes
+STRING : '"' ~('"')+ '"';
+// We define operator tokens consiting of plus, minus, and mutiplication
+TIMES :'*';
+PLUS : '+';
+MINUS : '-';
+LPAREN : '(';
+RPAREN : ')';
+LSQUARE : '[';
+RSQUARE : ']';
+// We represent a whitespace token, ignored by skip
+WS : [ \t\r\n]+ -> skip;

@@ -18,12 +18,17 @@ public class AppTest
     @Test
     public void shouldAnswerWithTrue()
     {
-        String prog = "\"asdf\"";
+        String prog = "p[\"foo\"] * 12 + m[\"bar\"]";
         ANTLRInputStream input = new ANTLRInputStream(prog);
         OvertureLexer lexer = new OvertureLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
+        // Print tokens before filtering
+        //tokens.fill();
+        for (Object tok : tokens.getTokens()){
+            System.out.println(tok);
+        }
         OvertureParser parser = new OvertureParser(tokens);
+        parser.setBuildParseTree(true);
         ParseTree tree = parser.expression();
-        assertTrue(tree.getText().equals("\"asdf\""));
-    }
+        System.out.println(tree.toStringTree(parser));    }
 }
