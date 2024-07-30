@@ -21,13 +21,19 @@ public class App
     public static void main( String[] args ) throws Exception
     {
         // antlr demo
-        String prog = "\"asdf\"";
-        ANTLRInputStream input = new ANTLRInputStream(prog);
-        OvertureLexer lexer = new OvertureLexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        OvertureParser parser = new OvertureParser(tokens);
-        ParseTree tree = parser.expression();
-        System.out.println(tree.getText());
+      String prog = "p[\"foo\"] * 12 + m[\"bar\"]";
+      ANTLRInputStream input = new ANTLRInputStream(prog);
+      OvertureLexer lexer = new OvertureLexer(input);
+      CommonTokenStream tokens = new CommonTokenStream(lexer);
+      // Print tokens before filtering
+      //tokens.fill();
+      for (Object tok : tokens.getTokens()){
+        System.out.println(tok);
+      }
+      OvertureParser parser = new OvertureParser(tokens);
+      parser.setBuildParseTree(true);
+      ParseTree tree = parser.expression();
+      System.out.println(tree.toStringTree(parser));
 
         // cvc5 demo
             // Create a solver
