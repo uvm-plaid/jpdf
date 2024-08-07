@@ -7,7 +7,7 @@ s = Solver()
 s.resetAssertions()
 
 m1, f11, x = FiniteFieldElems('m1 f11 x', 7)
-m2, f21, y = FiniteFieldElems('m1 f21 y', 7)
+m2, f21, y = FiniteFieldElems('m2 f21 y', 7)
 p1, p2, o = FiniteFieldElems('p1 p2 o', 7)
 
 # constraints from the protocol
