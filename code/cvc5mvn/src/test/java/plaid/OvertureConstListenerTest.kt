@@ -13,12 +13,7 @@ class OvertureConstListenerTest : AbstractOvertureTest() {
      */
     @Test
     fun constantNames() {
-        val src =
-            """
-            out@1 := s[x]@1
-            """
-
-        val program = loadProgram(src)
+        val program = loadProgram("out@1 := s[x]@1")
         val solver = Solver()
         val sort = solver.mkFiniteFieldSort("7", 10)
         val listener = OvertureConstListener(solver, sort)
