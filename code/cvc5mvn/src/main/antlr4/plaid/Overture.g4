@@ -15,8 +15,9 @@ expr
     ;
 
 atparty : AT party ;
-dest : outputloc atparty; // TODO Add more
+dest : destloc atparty;
 source : expr atparty ;
+destloc : messageloc | publicloc | outputloc ;
 memloc : secretloc | randomloc | messageloc | publicloc | outputloc ;
 secretloc : SECRET index #SecretMemory ;
 randomloc : RANDOM index #RandomMemory ;

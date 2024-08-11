@@ -2,7 +2,6 @@ package plaid
 
 import io.github.cvc5.Solver
 import io.github.cvc5.Sort
-import io.github.cvc5.Term
 import org.antlr.v4.runtime.RuleContext
 import plaid.OvertureParser.DestContext
 import plaid.OvertureParser.SecretMemoryContext
