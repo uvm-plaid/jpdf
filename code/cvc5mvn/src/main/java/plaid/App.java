@@ -32,7 +32,7 @@ public class App
       }
       OvertureParser parser = new OvertureParser(tokens);
       parser.setBuildParseTree(true);
-      ParseTree tree = parser.expression();
+      ParseTree tree = parser.program();
       System.out.println(tree.toStringTree(parser));
 
         // cvc5 demo
