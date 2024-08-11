@@ -1,25 +1,10 @@
 package plaid
 
 import junit.framework.TestCase.assertEquals
-import org.antlr.v4.runtime.ANTLRInputStream
-import org.antlr.v4.runtime.BailErrorStrategy
-import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.misc.ParseCancellationException
 import org.junit.Test
-import plaid.OvertureParser.ProgramContext
 
-class OvertureParserTest {
-
-    private fun loadProgram(src: String): ProgramContext {
-        val input = ANTLRInputStream(src)
-        val lexer = OvertureLexer(input)
-        val tokens = CommonTokenStream(lexer)
-        val parser = OvertureParser(tokens)
-        parser.buildParseTree = true
-        // TODO Would be nice to see error AND throw exception...
-        parser.errorHandler = BailErrorStrategy()
-        return parser.program()
-    }
+class OvertureParserTest : AbstractOvertureTest() {
 
     /**
      * Programs must have at least one assignment.
