@@ -54,7 +54,7 @@ class OvertureConstListener(
     }
 
     override fun enterPublicMemory(ctx: PublicMemoryContext) {
-        register(ctx, "p", ctx.location())
+        register(ctx, "p", "")
     }
 
     override fun enterOutputMemory(ctx: OutputMemoryContext) {

@@ -7,7 +7,7 @@ import org.junit.Test
 class OvertureParserTest : AbstractOvertureTest() {
 
     /**
-     * Programs must have at least one assignment.
+     * Protocols that do not have any assignments do not parse.
      */
     @Test(expected = ParseCancellationException::class)
     fun assignmentCount0() {
@@ -15,31 +15,28 @@ class OvertureParserTest : AbstractOvertureTest() {
     }
 
     /**
-     * Recognizes programs that have one assignment.
+     * Protocols that have one assignment parse to an AST that has one
+     * assignment.
      */
     @Test
     fun assignmentCount1() {
-        val program = loadProgram("out @ 1 := 18 @ 1")
+        val program = loadProgram("out@1 := 18@1")
         assertEquals(1, program.assignmentCount())
     }
 
     /**
-     * Recognizes programs that have multiple assignments.
+     * Protocols that have more than one assignment parse to an AST that has
+     * one that same number of assignments.
      */
     @Test
     fun assignmentCount2() {
-        val src =
-            """
-            out @ 1 := 18 @ 1
-            out @ 2 := 18 @ 2
-            """
-
-        val program = loadProgram(src)
+        val program = loadProgram("out@1 := 18@1; out @ 2 := 18 @ 2")
         assertEquals(2, program.assignmentCount())
     }
 
     /**
-     * Recognizes the source and destination parties in an assignment.
+     * The AST for an assignment contains the correct source and destination
+     * parties.
      */
     @Test
     fun assignmentParties() {
