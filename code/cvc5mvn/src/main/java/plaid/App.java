@@ -21,193 +21,185 @@ public class App
     public static void main( String[] args ) throws Exception
     {
         // antlr demo
-      String prog = "p[\"foo\"] * 12 + m[\"bar\"]";
-      ANTLRInputStream input = new ANTLRInputStream(prog);
-      OvertureLexer lexer = new OvertureLexer(input);
-      CommonTokenStream tokens = new CommonTokenStream(lexer);
-      // Print tokens before filtering
-      //tokens.fill();
-      for (Object tok : tokens.getTokens()){
-        System.out.println(tok);
-      }
-      OvertureParser parser = new OvertureParser(tokens);
-      parser.setBuildParseTree(true);
-      ParseTree tree = parser.program();
-      System.out.println(tree.toStringTree(parser));
+        //String prog = "p[\"foo\"] * 12 + m[\"bar\"]";
+        String prog = "m[\"foo\"]@2 := (s[\"x\"] + -r[\"y\"])@1";
+        //String prog = "m[\"foo\"]@2";
+        ANTLRInputStream input = new ANTLRInputStream(prog);
+        OvertureLexer lexer = new OvertureLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        // Print tokens before filtering
+        //tokens.fill();
+        for (Object tok : tokens.getTokens()){
+            System.out.println(tok);
+        }
+        OvertureParser parser = new OvertureParser(tokens);
+        parser.setBuildParseTree(false);
+        System.out.println(parser.protocol());
+        //ParseTree tree = parser.program();
+        //System.out.println(tree.toStringTree(parser));
 
         // cvc5 demo
-            // Create a solver
-    Solver solver = new Solver();
-    {
-      // We will ask the solver to produce models and unsat cores,
-      // hence these options should be turned on.
-      //! [docs-java-quickstart-1 start]
-      solver.setOption("produce-models", "true");
-      solver.setOption("produce-unsat-cores", "true");
-      //! [docs-java-quickstart-1 end]
+        // create a solver
+        Solver solver = new Solver();
 
-      // The simplest way to set a logic for the solver is to choose "ALL".
-      // This enables all logics in the solver.
-      // Alternatively, "QF_ALL" enables all logics without quantifiers.
-      // To optimize the solver's behavior for a more specific logic,
-      // use the logic name, e.g. "QF_BV" or "QF_AUFBV".
+// 2-party addition in F7
+        solver.resetAssertions();
 
-      // Set the logic
-      //! [docs-java-quickstart-2 start]
-      solver.setLogic("ALL");
-      //! [docs-java-quickstart-2 end]
+        solver.setLogic("ALL");
 
-      // In this example, we will define constraints over reals and integers.
-      // Hence, we first obtain the corresponding sorts.
-      //! [docs-java-quickstart-3 start]
-      Sort realSort = solver.getRealSort();
-      Sort intSort = solver.getIntegerSort();
-      //! [docs-java-quickstart-3 end]
+        Sort f7 = solver.mkFiniteFieldSort("7", 10);
 
-      // x and y will be real variables, while a and b will be integer variables.
-      // Formally, their cpp type is Term,
-      // and they are called "constants" in SMT jargon:
-      //! [docs-java-quickstart-4 start]
-      Term x = solver.mkConst(realSort, "x");
-      Term y = solver.mkConst(realSort, "y");
-      Term a = solver.mkConst(intSort, "a");
-      Term b = solver.mkConst(intSort, "b");
-      //! [docs-java-quickstart-4 end]
+        Term m1 = solver.mkConst(f7, "m1");
+        Term f11 = solver.mkConst(f7, "f11");
+        Term x = solver.mkConst(f7, "x");
+        Term m2 = solver.mkConst(f7, "m2");
+        Term f21 = solver.mkConst(f7, "f21");
+        Term y = solver.mkConst(f7, "y");
+        Term p1 = solver.mkConst(f7, "p1");
+        Term p2 = solver.mkConst(f7, "p2");
+        Term o = solver.mkConst(f7, "o");
 
-      // Our constraints regarding x and y will be:
-      //
-      //   (1)  0 < x
-      //   (2)  0 < y
-      //   (3)  x + y < 1
-      //   (4)  x <= y
-      //
+// constraints from the protocol
+        Term c1 = solver.mkTerm(Kind.EQUAL, solver.mkTerm(Kind.FINITE_FIELD_ADD, x, (solver.mkTerm(Kind.FINITE_FIELD_MULT, f11, (solver.mkFiniteFieldElem("-1", f7, 10))))), m2);
+        Term c2 = solver.mkTerm(Kind.EQUAL, solver.mkTerm(Kind.FINITE_FIELD_ADD, y, (solver.mkTerm(Kind.FINITE_FIELD_MULT, f21, (solver.mkFiniteFieldElem("-1", f7, 10))))), m1);
+        Term c3 = solver.mkTerm(Kind.EQUAL, solver.mkTerm(Kind.FINITE_FIELD_ADD, m1, f11), p1);
+        Term c4 = solver.mkTerm(Kind.EQUAL, solver.mkTerm(Kind.FINITE_FIELD_ADD, m2, f21), p2);
+        Term c5 = solver.mkTerm(Kind.EQUAL, solver.mkTerm(Kind.FINITE_FIELD_ADD, p1, p2), o);
 
-      //! [docs-java-quickstart-5 start]
-      // Formally, constraints are also terms. Their sort is Boolean.
-      // We will construct these constraints gradually,
-      // by defining each of their components.
-      // We start with the constant numerals 0 and 1:
-      Term zero = solver.mkReal(0);
-      Term one = solver.mkReal(1);
+        solver.assertFormula(c1);
+        solver.assertFormula(c2);
+        solver.assertFormula(c3);
+        solver.assertFormula(c4);
+        solver.assertFormula(c5);
 
-      // Next, we construct the term x + y
-      Term xPlusY = solver.mkTerm(Kind.ADD, x, y);
 
-      // Now we can define the constraints.
-      // They use the operators +, <=, and <.
-      // In the API, these are denoted by ADD, LEQ, and LT.
-      // A list of available operators is available in:
-      // src/api/cpp/cvc5_kind.h
-      Term constraint1 = solver.mkTerm(Kind.LT, zero, x);
-      Term constraint2 = solver.mkTerm(Kind.LT, zero, y);
-      Term constraint3 = solver.mkTerm(Kind.LT, xPlusY, one);
-      Term constraint4 = solver.mkTerm(Kind.LEQ, x, y);
+// sanity check (should be sat)
+        Result r_sat = solver.checkSat();
+        System.out.println(r_sat);
 
-      // Now we assert the constraints to the solver.
-      solver.assertFormula(constraint1);
-      solver.assertFormula(constraint2);
-      solver.assertFormula(constraint3);
-      solver.assertFormula(constraint4);
-      //! [docs-java-quickstart-5 end]
 
-      // Check if the formula is satisfiable, that is,
-      // are there real values for x and y that satisfy all the constraints?
-      //! [docs-java-quickstart-6 start]
-      Result r1 = solver.checkSat();
-      //! [docs-java-quickstart-6 end]
+// correctness (should be unsat)
+        Result r_unsat = solver.checkSatAssuming(solver.mkTerm(Kind.DISTINCT, solver.mkTerm(Kind.FINITE_FIELD_ADD, x, y), o));
+        System.out.println(r_unsat);
 
-      // The result is either SAT, UNSAT, or UNKNOWN.
-      // In this case, it is SAT.
-      //! [docs-java-quickstart-7 start]
-      System.out.println("expected: sat");
-      System.out.println("result: " + r1);
-      //! [docs-java-quickstart-7 end]
 
-      // We can get the values for x and y that satisfy the constraints.
-      //! [docs-java-quickstart-8 start]
-      Term xVal = solver.getValue(x);
-      Term yVal = solver.getValue(y);
-      //! [docs-java-quickstart-8 end]
+// 3-party addition in F7
+        solver.resetAssertions();
 
-      // It is also possible to get values for compound terms,
-      // even if those did not appear in the original formula.
-      //! [docs-java-quickstart-9 start]
-      Term xMinusY = solver.mkTerm(Kind.SUB, x, y);
-      Term xMinusYVal = solver.getValue(xMinusY);
-      //! [docs-java-quickstart-9 end]
+        Term m21 = solver.mkConst(f7, "m21");
+        Term m31 = solver.mkConst(f7, "m31");
+        Term s1 = solver.mkConst(f7, "s1");
+        Term rl1 = solver.mkConst(f7, "rl1");
+        Term r1 = solver.mkConst(f7, "r1");
+        Term m12 = solver.mkConst(f7, "m12");
+        Term m32 = solver.mkConst(f7, "m32");
+        Term s2 = solver.mkConst(f7, "s2");
+        Term rl2 = solver.mkConst(f7, "rl2");
+        Term r2 = solver.mkConst(f7, "r2");
+        Term m13 = solver.mkConst(f7, "m13");
+        Term m23 = solver.mkConst(f7, "m23");
+        Term s3 = solver.mkConst(f7, "s3");
+        Term rl3 = solver.mkConst(f7, "rl3");
+        Term r3 = solver.mkConst(f7, "r3");
+        Term p1_3 = solver.mkConst(f7, "p1");
+        Term p2_3 = solver.mkConst(f7, "p2");
+        Term p3_3 = solver.mkConst(f7, "p3");
+        Term o_3 = solver.mkConst(f7, "o");
 
-      // Further, we can convert the values to java types
-      //! [docs-java-quickstart-10 start]
-      Pair<BigInteger, BigInteger> xPair = xVal.getRealValue();
-      Pair<BigInteger, BigInteger> yPair = yVal.getRealValue();
-      Pair<BigInteger, BigInteger> xMinusYPair = xMinusYVal.getRealValue();
+/*
 
-      System.out.println("value for x: " + xPair.first + "/" + xPair.second);
-      System.out.println("value for y: " + yPair.first + "/" + yPair.second);
-      System.out.println("value for x - y: " + xMinusYPair.first + "/" + xMinusYPair.second);
-      //! [docs-java-quickstart-10 end]
+s.add(p1 == rl1 + m21 + m31)
+s.add(p2 == rl2 + m12 + m32)
+s.add(p3 == rl3 + m13 + m23)
+s.add(o == p1 + p2 + p3)
+ */
 
-      // Another way to independently compute the value of x - y would be
-      // to perform the (rational) arithmetic manually.
-      // However, for more complex terms,
-      // it is easier to let the solver do the evaluation.
-      //! [docs-java-quickstart-11 start]
-      Pair<BigInteger, BigInteger> xMinusYComputed =
-          new Pair(xPair.first.multiply(yPair.second).subtract(xPair.second.multiply(yPair.first)),
-              xPair.second.multiply(yPair.second));
-      BigInteger g = xMinusYComputed.first.gcd(xMinusYComputed.second);
-      xMinusYComputed = new Pair(xMinusYComputed.first.divide(g), xMinusYComputed.second.divide(g));
-      if (xMinusYComputed.equals(xMinusYPair))
-      {
-        System.out.println("computed correctly");
-      }
-      else
-      {
-        System.out.println("computed incorrectly");
-      }
-      //! [docs-java-quickstart-11 end]
+// constraints from the protocol
+        Term c31 = solver.mkTerm(Kind.EQUAL, // (s1 - rl1) - r1
+                solver.mkTerm(Kind.FINITE_FIELD_ADD,
+                        solver.mkTerm(Kind.FINITE_FIELD_ADD, s1, solver.mkTerm(Kind.FINITE_FIELD_MULT, rl1, solver.mkFiniteFieldElem("-1", f7, 10))),
+                        solver.mkTerm(Kind.FINITE_FIELD_MULT, r1, solver.mkFiniteFieldElem("-1", f7, 10))),
+                m12); //
+        Term c32 = solver.mkTerm(Kind.EQUAL, m13, r1);
 
-      // Next, we will check satisfiability of the same formula,
-      // only this time over integer variables a and b.
+        Term c33 = solver.mkTerm(Kind.EQUAL,
+                solver.mkTerm(Kind.FINITE_FIELD_ADD,
+                        solver.mkTerm(Kind.FINITE_FIELD_ADD, s2, solver.mkTerm(Kind.FINITE_FIELD_MULT, rl2, solver.mkFiniteFieldElem("-1", f7, 10))),
+                        solver.mkTerm(Kind.FINITE_FIELD_MULT, r2, solver.mkFiniteFieldElem("-1", f7, 10))),
+                m21); //
 
-      // We start by resetting assertions added to the solver.
-      //! [docs-java-quickstart-12 start]
-      solver.resetAssertions();
-      //! [docs-java-quickstart-12 end]
+        Term c34 = solver.mkTerm(Kind.EQUAL, m23, r2);
 
-      // Next, we assert the same assertions above with integers.
-      // This time, we inline the construction of terms
-      // to the assertion command.
-      //! [docs-java-quickstart-13 start]
-      solver.assertFormula(solver.mkTerm(Kind.LT, solver.mkInteger(0), a));
-      solver.assertFormula(solver.mkTerm(Kind.LT, solver.mkInteger(0), b));
-      solver.assertFormula(
-          solver.mkTerm(Kind.LT, solver.mkTerm(Kind.ADD, a, b), solver.mkInteger(1)));
-      solver.assertFormula(solver.mkTerm(Kind.LEQ, a, b));
-      //! [docs-java-quickstart-13 end]
+        Term c35 = solver.mkTerm(Kind.EQUAL,
+                solver.mkTerm(Kind.FINITE_FIELD_ADD,
+                        solver.mkTerm(Kind.FINITE_FIELD_ADD, s3, solver.mkTerm(Kind.FINITE_FIELD_MULT, rl3, solver.mkFiniteFieldElem("-1", f7, 10))),
+                        solver.mkTerm(Kind.FINITE_FIELD_MULT, r3, solver.mkFiniteFieldElem("-1", f7, 10))),
+                m31); //
+        Term c36 = solver.mkTerm(Kind.EQUAL, m32, r3);
+        Term c37 = solver.mkTerm(Kind.EQUAL, solver.mkTerm(Kind.FINITE_FIELD_ADD, solver.mkTerm(Kind.FINITE_FIELD_ADD, rl1, m21), m31), p1_3);
+        Term c38 = solver.mkTerm(Kind.EQUAL, solver.mkTerm(Kind.FINITE_FIELD_ADD, solver.mkTerm(Kind.FINITE_FIELD_ADD, rl2, m12), m32), p2_3);
+        Term c39 = solver.mkTerm(Kind.EQUAL, solver.mkTerm(Kind.FINITE_FIELD_ADD, solver.mkTerm(Kind.FINITE_FIELD_ADD, rl3, m13), m23), p3_3);
+        Term c30 = solver.mkTerm(Kind.EQUAL, solver.mkTerm(Kind.FINITE_FIELD_ADD, solver.mkTerm(Kind.FINITE_FIELD_ADD, p1_3, p2_3), p3_3), o_3);
 
-      // We check whether the revised assertion is satisfiable.
-      //! [docs-java-quickstart-14 start]
-      Result r2 = solver.checkSat();
+// sanity check (should be sat)
+        solver.assertFormula(c31);
+        solver.assertFormula(c32);
+        solver.assertFormula(c33);
+        solver.assertFormula(c34);
+        solver.assertFormula(c35);
+        solver.assertFormula(c36);
+        solver.assertFormula(c37);
+        solver.assertFormula(c38);
+        solver.assertFormula(c39);
+        solver.assertFormula(c30);
 
-      // This time the formula is unsatisfiable
-      System.out.println("expected: unsat");
-      System.out.println("result: " + r2);
-      //! [docs-java-quickstart-14 end]
+        r_sat = solver.checkSat();
+        System.out.println(r_sat);
 
-      // We can query the solver for an unsatisfiable core, i.e., a subset
-      // of the assertions that is already unsatisfiable.
-      //! [docs-java-quickstart-15 start]
-      List<Term> unsatCore = Arrays.asList(solver.getUnsatCore());
-      System.out.println("unsat core size: " + unsatCore.size());
-      System.out.println("unsat core: ");
-      for (Term t : unsatCore)
-      {
-        System.out.println(t);
-      }
-      //! [docs-java-quickstart-15 end]
-    }
-    Context.deletePointers();
+// correctness (should be unsat)
+        r_unsat = solver.checkSatAssuming(solver.mkTerm(Kind.DISTINCT, solver.mkTerm(Kind.FINITE_FIELD_ADD, solver.mkTerm(Kind.FINITE_FIELD_ADD, s1, s2), s3), o_3));
+        System.out.println(r_unsat);
+
+// BDOZ/SPDZ scheme
+        solver.resetAssertions();
+
+        Term mac1 = solver.mkConst(f7, "mac1");
+        Term mac2 = solver.mkConst(f7, "mac2");
+        m1 = solver.mkConst(f7, "m1");
+        m2 = solver.mkConst(f7, "m2");
+        Term k1 = solver.mkConst(f7, "k1");
+        Term k2 = solver.mkConst(f7, "k2");
+        Term d = solver.mkConst(f7, "d");
+        Term a = solver.mkConst(f7, "a");
+
+      /*
+      s.add(mac1 == k1 + (d * m1))
+s.add(mac2 == k2 + (d * m2))
+       */
+
+        Term c41 = solver.mkTerm(Kind.EQUAL, mac1, solver.mkTerm(Kind.FINITE_FIELD_ADD, k1, solver.mkTerm(Kind.FINITE_FIELD_MULT, d, m1)));
+        Term c42 = solver.mkTerm(Kind.EQUAL, mac2, solver.mkTerm(Kind.FINITE_FIELD_ADD, k2, solver.mkTerm(Kind.FINITE_FIELD_MULT, d, m2)));
+
+        solver.assertFormula(c41);
+        solver.assertFormula(c42);
+
+// HE for sum of shares (should be unsat)
+        r_unsat = solver.checkSatAssuming(solver.mkTerm(Kind.DISTINCT,
+                solver.mkTerm(Kind.FINITE_FIELD_ADD, mac1, mac2),
+                solver.mkTerm(Kind.FINITE_FIELD_ADD,
+                        solver.mkTerm(Kind.FINITE_FIELD_ADD, k1, k2),
+                        solver.mkTerm(Kind.FINITE_FIELD_MULT, d, solver.mkTerm(Kind.FINITE_FIELD_ADD, m1, m2)))));
+
+        System.out.println(r_unsat);
+
+// HE for multiplication of share and public value a (should be unsat)
+        r_unsat = solver.checkSatAssuming(solver.mkTerm(Kind.DISTINCT,
+                solver.mkTerm(Kind.FINITE_FIELD_MULT, mac1, a),
+                solver.mkTerm(Kind.FINITE_FIELD_ADD,
+                        solver.mkTerm(Kind.FINITE_FIELD_MULT, k1, a),
+                        solver.mkTerm(Kind.FINITE_FIELD_MULT, d, solver.mkTerm(Kind.FINITE_FIELD_MULT, m1, a)))));
+
+        System.out.println(r_unsat);
 
     }
 }

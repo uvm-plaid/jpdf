@@ -1,52 +1,57 @@
 // define lexer and parser rules in a single combined grammar file
 grammar Overture;
 /* Parser Rules*/
+// We define expression to be a value, an arithmetic expression, or a string.
+// TODO Revision 2
+protocol : command (';' protocol)* | ; // match empty string
 
-program : assignment+ ;
-assignment : dest ASSIGN source ;
+expression : expression TIMES expression #TimesExpr
+            | expression PLUS expression #PlusExpr
+            | MINUS expression #MinusExpr
+            | LPAREN expression RPAREN #ParenExpr
+            | memloc #MemExpr
+            | VALUE #ValueExpr
+            ;
 
-expr
-    : LPAREN expr RPAREN #ParenExpr
-    | MINUS expr #MinusExpr
-    | expr TIMES expr #TimesExpr
-    | expr PLUS expr #PlusExpr
-    | memloc #MemExpr
-    | VALUE #ValueExpr
-    ;
+variable : memloc atparty | OUTPUT atparty;
 
-atparty : AT party ;
+command : dest ASSIGN source;
+
+atparty : AT VALUE;
 dest : destloc atparty;
-source : expr atparty ;
-destloc : messageloc | publicloc | outputloc ;
-memloc : secretloc | randomloc | messageloc | publicloc | outputloc ;
-secretloc : SECRET index #SecretMemory ;
-randomloc : RANDOM index #RandomMemory ;
-messageloc : MESSAGE index #MessageMemory ;
-publicloc : PUBLIC index #PublicMemory ;
-outputloc : OUTPUT #OutputMemory ;
-index : LSQUARE IDENTIFIER RSQUARE ; // TODO Should be identifier, why not working?
-party : VALUE ;
+destloc : messageloc | publicloc | outputloc;
+messageloc : MESSAGE index #MessageMemory;
+publicloc : PUBLIC #PublicMemory;
+outputloc : OUTPUT index #OutputMemory;
+index : LSQUARE STRING RSQUARE;
+source : expression atparty;
 
-VALUE : [0-9]+ ;
+memloc : secretloc | randomloc | messageloc | publicloc | outputloc;
+secretloc : SECRET index #SecretMemory;
+randomloc : RANDOM index #RandomMemory;
 
-ASSIGN : ':=' ;
-SECRET : 's' ;
-RANDOM : 'r' ;
-MESSAGE : 'm' ;
-PUBLIC : 'p' ;
-OUTPUT : 'out' ;
-
+/* Lexer Rules */
+// We define value to be any integer
+VALUE : [0-9]+;
+SECRET : 's';
+RANDOM : 'r';
+MESSAGE : 'm';
+PUBLIC : 'p';
+OUTPUT : 'out';
+AT : '@';
+ASSIGN : ':=';
 // We define identifier to match any combination of uppercase, lowercase, and integer
-IDENTIFIER : [0-9A-Za-z]+ ;
-
-TIMES : '*' ;
-PLUS : '+' ;
-MINUS : '-' ;
-LPAREN : '(' ;
-RPAREN : ')' ;
-LSQUARE : '[' ;
-RSQUARE : ']' ;
-AT : '@' ;
-
+IDENTIFIER : [a-zA-Z0-9]+;
+// We define string to match double quotes
+STRING : '"' ~('"')+ '"';
+// We define operator tokens consiting of plus, minus, and mutiplication
+TIMES :'*';
+PLUS : '+';
+MINUS : '-';
+LPAREN : '(';
+RPAREN : ')';
+LSQUARE : '[';
+RSQUARE : ']';
+//NEWLINE : '\r'? '\n';
 // We represent a whitespace token, ignored by skip
-WS : [ \t\r\n]+ -> skip ;
+WS : [ \t\r\n]+ -> skip;
