@@ -45,6 +45,7 @@
 \renewcommand{\OT}[5]{\elab{\ttt{OT(}\elab{#1}{#2},#3,#4 \ttt{)}}{#5}}
 \newcommand{\eqspre}{\eqs_{\mathit{pre}}}
 \newcommand{\macbdoz}[1]{\psi_{\mathit{BDOZ}}(#1)}
+\newcommand{\initigamma}{\mathit{init}}
 
 \section{$\minicat$ Syntax and Semantics}
 
@@ -373,6 +374,24 @@ $$
   \mesg{w\ttt{s}}\ttt{)}
 $$
 
+\begin{definition}  
+  Given $H,C$ and pre-processing predicate $\eqspre$ defining $M$,
+  define $\initigamma(\eqspre) \defeq \Gamma$
+  where for all $\mx{w}{\cid} \in M$ we have $\Gamma(\mx{w}{\cid}) = \seclev(\cid)$.
+\end{definition}
+
+\begin{definition}
+  Given pre-processing predicate $\eqspre$ and protocol $\prog$, 
+  for all $H,C$ the judgement $\ipj{\initigamma(\eqspre)}{E}{\prog}{\Gamma}$ is valid
+  iff it is derivable and $\eqspre \wedge \toeq{\prog} \models E$.
+\end{definition}
+  
+\begin{theorem}
+  Given pre-processing predicate $\eqspre$ and protocol $\prog$, if
+  for all $H,C$ the judgement $\ipj{\initigamma(\eqspre)}{E}{\prog}{\Gamma}$ is valid
+  and for all $x \in \houtputs$ we have $\Gamma(x) = \hilab$, then cheating
+  is detectable in $\prog$.
+\end{theorem}
 
 \section{Compositional Type Verification in $\metaprot$}
 

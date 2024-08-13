@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  13 AUG 2024 17:58
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  13 AUG 2024 18:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1007,28 +1007,28 @@ Class acmart Info: Printing folios on input line 103.
 
 (./scratch.tex
 LaTeX Font Info:    Trying to load font information for T1+LinuxBiolinumT-TLF o
-n input line 49.
+n input line 50.
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/libertine/T1LinuxBiolinumT-TLF.fd
 File: T1LinuxBiolinumT-TLF.fd 2017/03/20 (autoinst) Font definitions for T1/Lin
 uxBiolinumT-TLF.
 )
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 10.0pt on input line 49.
+(Font)              scaled to size 10.0pt on input line 50.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `LinuxBiolinumT-TLF' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/b/n' will be
-(Font)              scaled to size 10.0pt on input line 49.
+(Font)              scaled to size 10.0pt on input line 50.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 10.0pt on input line 49.
+(Font)              scaled to size 10.0pt on input line 50.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `LinuxLibertineT-TLF' (encoding: OT1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 7.3pt on input line 49.
+(Font)              scaled to size 7.3pt on input line 50.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
@@ -1036,107 +1036,103 @@ File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 10.0pt on input line 49.
+(Font)              scaled to size 10.0pt on input line 50.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 7.3pt on input line 49.
+(Font)              scaled to size 7.3pt on input line 50.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 5.5pt on input line 49.
+(Font)              scaled to size 5.5pt on input line 50.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 49.
+(hyperref)                removing `math shift' on input line 50.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 49.
+(hyperref)                removing `math shift' on input line 50.
 
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 54
+LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 55
 .
 (/usr/local/texlive/2020/texmf-dist/tex/latex/inconsolata/t1zi4.fd
 File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 10.0pt on input line 54.
+(Font)              scaled to size 10.0pt on input line 55.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 7.3pt on input line 54.
+(Font)              scaled to size 7.3pt on input line 55.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 5.5pt on input line 54.
+(Font)              scaled to size 5.5pt on input line 55.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 10.0pt on input line 54.
+(Font)              scaled to size 10.0pt on input line 55.
 
 
 Class acmart Warning: \vspace should only be used to provide space above/below 
-surrounding objects on input line 64.
+surrounding objects on input line 65.
 
 
 Class acmart Warning: \vspace should only be used to provide space above/below 
-surrounding objects on input line 84.
+surrounding objects on input line 85.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 97.
+(hyperref)                removing `math shift' on input line 98.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 97.
+(hyperref)                removing `math shift' on input line 98.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 136.
+(hyperref)                removing `math shift' on input line 137.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 136.
+(hyperref)                removing `math shift' on input line 137.
 
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 7.0pt on input line 164.
+(Font)              scaled to size 7.0pt on input line 165.
 [1.1{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/it' will be
-(Font)              scaled to size 10.0pt on input line 185.
+(Font)              scaled to size 10.0pt on input line 186.
 Package hyperref Info: bookmark level for unknown definition defaults to 0 on i
-nput line 218.
+nput line 219.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 9.0pt on input line 224.
+(Font)              scaled to size 9.0pt on input line 225.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
-(Font)              scaled to size 9.0pt on input line 224.
+(Font)              scaled to size 9.0pt on input line 225.
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 8.0pt on input line 266.
+(Font)              scaled to size 8.0pt on input line 267.
 
 [2.2]
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
-(Font)              scaled to size 10.0pt on input line 269.
+(Font)              scaled to size 10.0pt on input line 270.
 Package hyperref Info: bookmark level for unknown theorem defaults to 0 on inpu
-t line 269.
+t line 270.
 
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 270.
+(Font)              using `T1/zi4/m/n' instead on input line 271.
 
 [3.3]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 377.
+(hyperref)                removing `math shift' on input line 396.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 377.
+(hyperref)                removing `math shift' on input line 396.
 
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 10.0pt on input line 390.
+(Font)              scaled to size 10.0pt on input line 409.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 7.3pt on input line 390.
+(Font)              scaled to size 7.3pt on input line 409.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 5.5pt on input line 390.
-
-Underfull \vbox (badness 6110) has occurred while \output is active []
-
- [4.4]
-[5.5]
-Overfull \hbox (6.60594pt too wide) in paragraph at lines 567--567
+(Font)              scaled to size 5.5pt on input line 409.
+[4.4] [5.5]
+Overfull \hbox (6.60594pt too wide) in paragraph at lines 586--586
 []       \T1/zi4/m/it/10 (m[z]@1 : { r[z]@1 }; m[z]@2 : {c(r[z]@1, { m[x]@1, m[
 x]@2, m[y]@1, m[y]@2 })} ),[] 
  []
@@ -1147,9 +1143,9 @@ Underfull \vbox (badness 3250) has occurred while \output is active []
  [6.6]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 611.
+(textcomp)             Default family used instead on input line 630.
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 6
-11.
+30.
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
@@ -1159,7 +1155,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 
-611.
+630.
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
@@ -1194,11 +1190,11 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 20457 strings out of 480608
- 304575 string characters out of 5903631
- 609390 words of memory out of 5000000
- 35556 multiletter control sequences out of 15000+600000
- 661353 words of font info for 199 fonts, out of 8000000 for 9000
+ 20479 strings out of 480608
+ 305056 string characters out of 5903631
+ 611390 words of memory out of 5000000
+ 35557 multiletter control sequences out of 15000+600000
+ 663366 words of font info for 211 fonts, out of 8000000 for 9000
  1302 hyphenation exceptions out of 8191
  63i,16n,100p,791b,570s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
@@ -1227,10 +1223,10 @@ lic/newtx/txmiaX.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/txf
 onts/txsya.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/txfonts/t
 xsyb.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/newtx/txsys.pfb
 >
-Output written on main.pdf (8 pages, 446745 bytes).
+Output written on main.pdf (8 pages, 450087 bytes).
 PDF statistics:
- 199 PDF objects out of 1000 (max. 8388607)
- 149 compressed objects within 2 object streams
- 30 named destinations out of 1000 (max. 500000)
+ 206 PDF objects out of 1000 (max. 8388607)
+ 156 compressed objects within 2 object streams
+ 36 named destinations out of 1000 (max. 500000)
  50261 words of extra memory for PDF output out of 51595 (max. 10000000)
 
