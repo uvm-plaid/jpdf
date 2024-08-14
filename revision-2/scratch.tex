@@ -383,13 +383,13 @@ $$
 
 \begin{definition}
   Given pre-processing predicate $\eqspre$ and protocol $\prog$, 
-  for all $H,C$ the judgement $\ipj{\initigamma(\eqspre)}{E}{\prog}{\Gamma}$ is valid
+  for all $H,C$ the judgement $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is valid
   iff it is derivable and $\eqspre \wedge \toeq{\prog} \models E$.
 \end{definition}
   
 \begin{theorem}
   Given pre-processing predicate $\eqspre$ and protocol $\prog$, if
-  for all $H,C$ the judgement $\ipj{\initigamma(\eqspre)}{E}{\prog}{\Gamma}$ is valid
+  for all $H,C$ the judgement $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is valid
   and for all $x \in \houtputs$ we have $\Gamma(x) = \hilab$, then cheating
   is detectable in $\prog$.
 \end{theorem}
@@ -519,10 +519,14 @@ $$
   $\tsig$ is \emph{verified} iff $f : \tsig(f)$ is valid for all $f \in \dom(\tsig)$.
 \end{definition}
 
-The following theorem holds for protocols with default preprocessing.
 \begin{theorem}
-  If $\tsig$ is verified and $\mtj{\varnothing}{e}{\varnothing}{\Gamma}{R}{\eqs}$ then
-  $e \redx \prog$ and $\cpj{R}{\eqs}{\prog}{\Gamma}$ is valid.
+  Given preprocessing predicate $\eqspre$, program $\instr$, and verified $\tsig$, if
+  $\mtj{\eqspre}{\instr}{\varnothing}{\Gamma}{R}{\eqs}$ then
+  $\instr \redx \prog$ and:
+  \begin{enumerate}
+  \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid.
+  \item $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is valid.
+  \end{enumerate}
 \end{theorem}
 
 \subsection{Confidentiality Examples}
