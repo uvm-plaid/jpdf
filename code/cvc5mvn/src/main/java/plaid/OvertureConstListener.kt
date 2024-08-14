@@ -34,11 +34,11 @@ class OvertureConstListener(
 
     fun memories() = bindings.values
     override fun enterDest(ctx: DestContext) {
-        partyId = ctx.atparty().partyId()
+        partyId = ctx.partyId()
     }
 
     override fun enterSource(ctx: SourceContext) {
-        partyId = ctx.atparty().partyId()
+        partyId = ctx.partyId()
     }
 
     override fun enterSecretMemory(ctx: SecretMemoryContext) {

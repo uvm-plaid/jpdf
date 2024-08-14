@@ -1,28 +1,31 @@
 package plaid
 
+import org.antlr.v4.runtime.tree.ParseTree
 import plaid.OvertureParser.CommandContext
-import plaid.OvertureParser.AtpartyContext
 import plaid.OvertureParser.ProtocolContext
 import plaid.OvertureParser.MessageMemoryContext
 import plaid.OvertureParser.RandomMemoryContext
-import plaid.OvertureParser.PublicMemoryContext
 import plaid.OvertureParser.SecretMemoryContext
+import plaid.OvertureParser.DestContext
+import plaid.OvertureParser.SourceContext
 
-fun CommandContext.destinationPartyId() =
-    dest().atparty().partyId()
+fun ParseTree.children() =
+    (0 .. childCount).map { getChild(it) }
 
-fun CommandContext.sourcePartyId() =
-    source().atparty().partyId()
+fun DestContext.partyId(): String =
+    atparty().VALUE().text
 
-fun AtpartyContext.partyId(): String =
-    party().VALUE().text
+fun SourceContext.partyId(): String =
+    atparty().VALUE().text
 
-fun ProtocolContext.assignmentCount() =
-    assignment().size
+fun ProtocolContext.commands() =
+    children().filterIsInstance<CommandContext>()
 
-fun ProtocolContext.firstAssignment(): CommandContext =
-    this.
-    command().first()
+fun ProtocolContext.commandCount() =
+    commands().size
+
+fun ProtocolContext.firstCommand() =
+    commands().first()
 
 fun MessageMemoryContext.location(): String =
     index().STRING().text

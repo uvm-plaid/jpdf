@@ -3,9 +3,14 @@ grammar Overture;
 /* Parser Rules*/
 // We define expression to be a value, an arithmetic expression, or a string.
 // TODO Revision 2
+/*
 protocol
     : dest ASSIGN source #Command
     | protocol ';' protocol #Protocols ;
+*/
+
+protocol : command (';' command)* EOF ;
+command : dest ASSIGN source ;
 
 expression : expression TIMES expression #TimesExpr
             | expression PLUS expression #PlusExpr

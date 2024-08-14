@@ -1,7 +1,6 @@
 package plaid
 
 import io.github.cvc5.Solver
-import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import junit.framework.TestCase.assertEquals
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import org.junit.Test
@@ -9,16 +8,16 @@ import org.junit.Test
 class OvertureConstListenerTest : AbstractOvertureTest() {
 
     /**
-     * Walking an assignment captures the destination and source memory
-     * locations as cvc5 constants.
+     * Walking a command captures the destination and source memory locations
+     * as cvc5 constants.
      */
     @Test
     fun constantNames() {
-        val program = loadProgram("out@1 := s[x]@1")
+        val protocol = loadProtocol(""" out@1 := s["x"]@1 """)
         val solver = Solver()
         val sort = solver.mkFiniteFieldSort("7", 10)
         val listener = OvertureConstListener(solver, sort)
-        ParseTreeWalker().walk(listener, program)
+        ParseTreeWalker().walk(listener, protocol)
 
         val cvcIds = listener.memories().map { it.name }
         assertEquals(setOf("out_1", "s_x_1"), cvcIds.toSet())
@@ -31,11 +30,11 @@ class OvertureConstListenerTest : AbstractOvertureTest() {
      */
     @Test
     fun memoryReuse() {
-        val program = loadProgram("out@1 := s[x]@1 + s[x]@1")
+        val protocol = loadProtocol(""" out@1 := (s["x"] + s["x"])@1 """)
         val solver = Solver()
         val sort = solver.mkFiniteFieldSort("7", 10)
         val listener = OvertureConstListener(solver, sort)
-        ParseTreeWalker().walk(listener, program)
+        ParseTreeWalker().walk(listener, protocol)
 
         val memories = listener.memories()
         assertEquals(2, memories.size)
