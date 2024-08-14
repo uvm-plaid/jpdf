@@ -47,6 +47,8 @@
 \newcommand{\macbdoz}[1]{\psi_{\mathit{BDOZ}}(#1)}
 \newcommand{\initigamma}{\mathit{init}}
 \newcommand{\notg}[1]{\breve{#1}}
+\newcommand{\cgamma}[1]{#1|1}
+\newcommand{\igamma}[1]{#1|2}
 
 \section{$\minicat$ Syntax and Semantics}
 
@@ -524,8 +526,8 @@ $$
   $\mtj{\eqspre}{\instr}{\varnothing}{\Gamma}{R}{\eqs}$ then
   $\instr \redx \prog$ and:
   \begin{enumerate}
-  \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid.
-  \item $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is valid.
+  \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\cgamma(\Gamma)}$ is valid.
+  \item $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\igamma(\Gamma)}$ is valid.
   \end{enumerate}
 \end{theorem}
 
