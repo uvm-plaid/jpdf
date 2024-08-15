@@ -13,6 +13,7 @@
 \newcommand{\cty}[2]{c(#1,#2)}
 \newcommand{\setit}[1]{\{ #1 \}}
 \newcommand{\ty}{T}
+\newcommand{\ity}{I}
 \newcommand{\lty}[2]{#1 \cdot #2}
 \newcommand{\eqs}{\mathit{E}}
 \newcommand{\toeq}[1]{\lfloor #1 \rfloor}
@@ -30,6 +31,8 @@
 \newcommand{\eqj}[4]{#1,#2 \vdash #3 : #4}
 \newcommand{\cpj}[4]{#1,#2 \vdash #3 : #4}
 \newcommand{\leakj}[3]{#1,#2 \vdash_{\mathit{leak}} #3}
+\newcommand{\icod}[2]{\cod{#1}_{#2}}
+\newcommand{\prejoin}{\sqcap}
 
 \renewcommand{\redx}{\Rightarrow}
 \renewcommand{\redxs}{\redx}
@@ -314,11 +317,11 @@ $$
   
   \inferrule[Secret]
   {}
-  {\itj{\Gamma}{\eqs}{\cid}{\secret{w}}{\seclev(\cid)}}
+  {\itj{\Gamma}{\eqs}{\cid}{\secret{w}}{\cid}}
   
   \inferrule[Rando]
   {}
-  {\itj{\Gamma}{\eqs}{\cid}{\flip{w}}{\seclev(\cid)}}
+  {\itj{\Gamma}{\eqs}{\cid}{\flip{w}}{\cid}}
   
   \inferrule[Mesg]
   {}
@@ -329,19 +332,19 @@ $$
   {\itj{\Gamma}{\eqs}{\cid}{\rvl{w}}{\Gamma(\rvl{w})}}
 
   \inferrule[Binop]
-  {\itj{\Gamma}{\eqs}{\cid}{\be_1}{\latel} \\
-   \itj{\Gamma}{\eqs}{\cid}{\be_2}{\latel} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
-  {\itj{\Gamma}{\eqs}{\cid}{\be_1 \oplus \be_2}{\latel}}
-
-  \inferrule[IntegrityWeaken]
-  {\itj{\Gamma}{\eqs}{\cid}{\be}{\latel_1} \\ \latel_1 \sle \latel_2}
-  {\itj{\Gamma}{\eqs}{\cid}{\be}{\latel_2}}
+  {\itj{\Gamma}{\eqs}{\cid}{\be_1}{\ity_1} \\
+   \itj{\Gamma}{\eqs}{\cid}{\be_2}{\ity_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\itj{\Gamma}{\eqs}{\cid}{\be_1 \oplus \be_2}{\ity_1 \prejoin \ity_2}}
+%
+%  \inferrule[IntegrityWeaken]
+%  {\itj{\Gamma}{\eqs}{\cid}{\be}{\latel_1} \\ \latel_1 \sle \latel_2}
+%  {\itj{\Gamma}{\eqs}{\cid}{\be}{\latel_2}}
 \end{mathpar}
 
 \begin{mathpar}
   \inferrule[Send]
-            {\itj{\Gamma}{\eqs}{\cid}{\be}{\seclev(\cid)}}
-            {\ipj{\Gamma}{\eqs}{\xassign{x}{\be}{\cid}}{\Gamma; x : \seclev(\cid)}}
+            {\itj{\Gamma}{\eqs}{\cid}{\be}{\ity}}
+            {\ipj{\Gamma}{\eqs}{\xassign{x}{\be}{\cid}}{\Gamma; x : \cid \prejoin \ity}}
              
 %  \inferrule[Assert]
 %            {\eqs \models \toeq{\elab{\be_1}{\cid}} = \toeq{\elab{\be_2}{\cid}}}
@@ -377,22 +380,38 @@ $$
   \mesg{w\ttt{s}}\ttt{)}
 $$
 
+\begin{mathpar}
+  \inferrule
+      {}
+      {\icod{\latel}{H,C} = \latel}
+      
+  \inferrule
+      {\cid \in H}
+      {\icod{\cid}{H,C} = \hilab}
+      
+  \inferrule
+      {\cid \in C}
+      {\icod{\cid}{H,C} = \lolab} 
+  
+  \icod{\ity_1 \prejoin \ity_2}{H,C} = \icod{\ity_1}{H,C} \wedge \icod{\ity_2}{H,C}
+\end{mathpar}  
+  
 \begin{definition}  
   Given $H,C$ and pre-processing predicate $\eqspre$ defining $M$,
   define $\initigamma(\eqspre) \defeq \Gamma$
-  where for all $\mx{w}{\cid} \in M$ we have $\Gamma(\mx{w}{\cid}) = \seclev(\cid)$.
+  where for all $\mx{w}{\cid} \in M$ we have $\Gamma(\mx{w}{\cid}) = \cid$.
 \end{definition}
 
 \begin{definition}
   Given pre-processing predicate $\eqspre$ and protocol $\prog$, 
-  for all $H,C$ the judgement $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is valid
+  we say $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is \emph{valid}
   iff it is derivable and $\eqspre \wedge \toeq{\prog} \models E$.
 \end{definition}
   
 \begin{theorem}
   Given pre-processing predicate $\eqspre$ and protocol $\prog$, if
-  for all $H,C$ the judgement $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is valid
-  and for all $x \in \houtputs$ we have $\Gamma(x) = \hilab$, then cheating
+  $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is valid
+  and for all $H,C$ and $x \in \houtputs$ we have $\icod{\Gamma(x)}{H,C} = \hilab$, then cheating
   is detectable in $\prog$.
 \end{theorem}
 
@@ -526,8 +545,8 @@ $$
   $\mtj{\eqspre}{\instr}{\varnothing}{\Gamma}{R}{\eqs}$ then
   $\instr \redx \prog$ and:
   \begin{enumerate}
-  \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\cgamma(\Gamma)}$ is valid.
-  \item $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\igamma(\Gamma)}$ is valid.
+  \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\cgamma{\Gamma}}$ is valid.
+  \item $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\igamma{\Gamma}}$ is valid.
   \end{enumerate}
 \end{theorem}
 
