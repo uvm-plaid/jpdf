@@ -19,13 +19,19 @@
         <kotlin.version>2.0.0</kotlin.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>ProjectRepo</id>
+            <name>ProjectRepo</name>
+            <url>file://${project.basedir}/libs</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>io.github.p-org.solvers</groupId>
             <artifactId>cvc5</artifactId>
             <version>1.2.0</version>
-            <scope>system</scope>
-            <systemPath>/usr/local/share/java/cvc5-1.2.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -75,7 +81,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.1</version>
                 <configuration>
-                    <argLine>-Djava.library.path=/usr/local/lib</argLine>
+                    <argLine>-Djava.library.path=${env.CVC5_LIB_PATH}</argLine>
                 </configuration>
             </plugin>
             <plugin>
