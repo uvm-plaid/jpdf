@@ -1,7 +1,7 @@
 package plaid
 
-import io.github.cvc5.Solver
 import io.github.cvc5.Sort
+import io.github.cvc5.TermManager
 import org.antlr.v4.runtime.RuleContext
 import plaid.OvertureParser.DestContext
 import plaid.OvertureParser.SecretMemoryContext
@@ -16,7 +16,7 @@ import plaid.OvertureParser.SourceContext
  * them as constants in a cvc5 solver.
  */
 class OvertureConstListener(
-    private val solver: Solver,
+    private val termManager: TermManager,
     private val sort: Sort
 ) : OvertureBaseListener() {
 
@@ -26,13 +26,14 @@ class OvertureConstListener(
     private fun register(context: RuleContext, type: String, id: String) {
         val cvcId =
             if (id == "") "${type}_${partyId}"
-            else "${type}_${id}_${partyId}"
+            else "${type}_${id.drop(1).dropLast(1)}_${partyId}"
 
-        val memory = bindings.getOrPut(cvcId) { Memory(cvcId, solver.mkConst(sort, cvcId)) }
+        val memory = bindings.getOrPut(cvcId) { Memory(cvcId, termManager.mkConst(sort, cvcId)) }
         memory.contexts.add(context)
     }
 
     fun memories() = bindings.values
+
     override fun enterDest(ctx: DestContext) {
         partyId = ctx.partyId()
     }

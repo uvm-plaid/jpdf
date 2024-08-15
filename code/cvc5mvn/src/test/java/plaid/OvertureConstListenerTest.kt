@@ -1,6 +1,6 @@
 package plaid
 
-import io.github.cvc5.Solver
+import io.github.cvc5.TermManager
 import junit.framework.TestCase.assertEquals
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import org.junit.Test
@@ -14,9 +14,9 @@ class OvertureConstListenerTest : AbstractOvertureTest() {
     @Test
     fun constantNames() {
         val protocol = loadProtocol(""" out@1 := s["x"]@1 """)
-        val solver = Solver()
-        val sort = solver.mkFiniteFieldSort("7", 10)
-        val listener = OvertureConstListener(solver, sort)
+        val termManager = TermManager()
+        val sort = termManager.mkFiniteFieldSort("7", 10)
+        val listener = OvertureConstListener(termManager, sort)
         ParseTreeWalker().walk(listener, protocol)
 
         val cvcIds = listener.memories().map { it.name }
@@ -31,9 +31,9 @@ class OvertureConstListenerTest : AbstractOvertureTest() {
     @Test
     fun memoryReuse() {
         val protocol = loadProtocol(""" out@1 := (s["x"] + s["x"])@1 """)
-        val solver = Solver()
-        val sort = solver.mkFiniteFieldSort("7", 10)
-        val listener = OvertureConstListener(solver, sort)
+        val termManager = TermManager()
+        val sort = termManager.mkFiniteFieldSort("7", 10)
+        val listener = OvertureConstListener(termManager, sort)
         ParseTreeWalker().walk(listener, protocol)
 
         val memories = listener.memories()
