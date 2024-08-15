@@ -118,6 +118,20 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-Djava.library.path=${env.CVC5_LIB_PATH}</argument>
+                        <argument>-classpath</argument>
+                        <classpath />
+                        <argument>plaid.App</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
             <!-- from https://stackoverflow.com/questions/39315165/antlr4-with-maven-sample-project-->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
