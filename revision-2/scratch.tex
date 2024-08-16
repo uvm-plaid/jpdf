@@ -305,7 +305,8 @@ m[y]@1 := OT(s[y]@1,-r[y],r[y])@2
 $$
 \begin{array}{rcl@{\hspace{2mm}}r}
   \latel &::=& \hilab \mid \lolab \\
-  \Gamma &::=& \varnothing \mid \Gamma; x : \latel
+  \ity &::=& \latel \mid \cid \mid \ity \prejoin \ity \\
+  \Gamma &::=& \varnothing \mid \Gamma; x : \ity
 \end{array} 
 $$
 
@@ -417,6 +418,8 @@ $$
 
 \section{Compositional Type Verification in $\metaprot$}
 
+\subsection{Syntax and Semantics}
+
 Note the redefinition of $x$ impacts the definition of $\ty$, $\Gamma$, $\phi$, and $\eqs$.
 $$
 \begin{array}{rcl}
@@ -439,20 +442,6 @@ $$
   %\eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
 \end{array}
 $$
-
-\begin{mathpar}
-  \atj{R}{x}{\varnothing}{\setit{x}}
-
-  \inferrule
-  {\atj{R}{\phi}{R_1}{\ty} \\ \rx{w}{\cid}\not\in R \\ \oplus \in \setit{\fplus,\fminus}}
-  {\atj{R_1}{\phi \oplus \rx{w}{\cid}}{R_1 \cup \setit{\rx{w}{\cid}}}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
-
-  \inferrule
-  {\atj{R}{\phi_1}{R_1}{\ty_1} \\
-   \atj{R}{\phi_2}{R_2}{\ty_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
-  {\atj{R_1}{\phi_1 \oplus \phi_2}{R_1;R_2}{\ty_1 \cup \ty_2}}
-\end{mathpar}
-
 
 \begin{mathpar}
   \inferrule
@@ -478,16 +467,42 @@ $$
 
   \inferrule
       {e \redx w}
-      {\mesg{e} \redx w}
-
-  \inferrule
-      {e \redx w}
-      {\mx{e}{\cid} \redx \mx{w}{\cid} }
-
+      {\mesg{e} \redx \mesg{w}}
+      
   \inferrule
       {e_1 \redx \be_1 \\ e_2 \redx \be_2}     
       {e_1 \fplus e_2 \redx \be_1 \fplus \be_2}
+      
+  \inferrule
+      {e_1 \redx w \\ e_2 \redx \cid}
+      {\mx{e_1}{e_2} \redx \mx{w}{\cid}}
+\end{mathpar}
 
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx x \\ e_2 \redx \be \\ e_3 \redx \cid}
+      {e_1 := \elab{e_2}{e_3} \redx x := \elab{\be}{\cid}}
+
+  \inferrule
+      {e_1 \redx \prog_1 \\ e_2 \redx \prog_2}
+      {e_1;e_2 \redx \prog_1;\prog_2}
+
+  \inferrule
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2 \\ e_3 \redx \cid}
+      {\elab{\assert{e_1 = e_2}}{e_3} \redx \elab{\assert{\be_1 = \be_2}}{\cid}}
+
+  \inferrule
+      {\codebase(f) = y_1,\ldots,y_n, \instr \\
+        e_1 \redx \mv_1\ \cdots\ e_n \redx \mv_n \\
+        \subn = [\mv_1/y_1]\cdots[\mv_n/y_n] \\
+        \subn(\instr) \redx \prog
+      }
+      {f(e_1,\ldots,e_n) \redx \prog}
+\end{mathpar}
+
+\subsection{Dependent Hoare Type Theory}
+
+\begin{mathpar}
   \inferrule
       {e_1 \redx x_1 \\ e_2 \redx x_2}     
       {e_1 \ftimes e_2 \redx x_1 \ftimes x_2}
@@ -501,6 +516,33 @@ $$
       {e_1 \wedge e_2 \redx \eqs_1 \wedge \eqs_2}
 \end{mathpar}
 
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx x \\ \notg{\ty} \redx \ty}
+      {\cty{e_1}{\notg{\ty}} \redx \cty{x}{\ty}}
+      
+  \inferrule
+      {\notg{t_1} \redx t_1 \cdots \notg{t_n} \redx t_n}
+      {\setit{\notg{t_1},\ldots,\notg{t_n}} \redx \setit{ t_1,\ldots,t_n }}
+
+
+  \inferrule
+      {e \redx x \\ \notg{\ty} \redx \ty}
+      {\notg{\Gamma}; e : \notg{\ty} \redx \Gamma; x : \ty }
+\end{mathpar}
+
+\begin{mathpar}
+  \atj{R}{x}{\varnothing}{\setit{x}}
+
+  \inferrule
+  {\atj{R}{\phi}{R_1}{\ty} \\ \rx{w}{\cid}\not\in R \\ \oplus \in \setit{\fplus,\fminus}}
+  {\atj{R_1}{\phi \oplus \rx{w}{\cid}}{R_1 \cup \setit{\rx{w}{\cid}}}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+
+  \inferrule
+  {\atj{R}{\phi_1}{R_1}{\ty_1} \\
+   \atj{R}{\phi_2}{R_2}{\ty_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\atj{R_1}{\phi_1 \oplus \phi_2}{R_1;R_2}{\ty_1 \cup \ty_2}}
+\end{mathpar}
 
 \begin{mathpar}
   \inferrule[Mesg]

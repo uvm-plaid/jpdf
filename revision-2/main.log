@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  15 AUG 2024 14:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  16 AUG 2024 19:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1119,35 +1119,35 @@ LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
 [3.3]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 418.
+(hyperref)                removing `math shift' on input line 419.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 418.
+(hyperref)                removing `math shift' on input line 419.
 
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 10.0pt on input line 431.
+(Font)              scaled to size 10.0pt on input line 434.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 7.3pt on input line 431.
+(Font)              scaled to size 7.3pt on input line 434.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 5.5pt on input line 431.
-[4.4] [5.5]
-Overfull \hbox (6.60594pt too wide) in paragraph at lines 615--615
+(Font)              scaled to size 5.5pt on input line 434.
+
+Underfull \vbox (badness 6188) has occurred while \output is active []
+
+ [4.4]
+[5.5] [6.6]
+Overfull \hbox (6.60594pt too wide) in paragraph at lines 657--657
 []       \T1/zi4/m/it/10 (m[z]@1 : { r[z]@1 }; m[z]@2 : {c(r[z]@1, { m[x]@1, m[
 x]@2, m[y]@1, m[y]@2 })} ),[] 
  []
 
-
-Underfull \vbox (badness 3250) has occurred while \output is active []
-
- [6.6]
+[7.7]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 659.
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 6
-59.
-
-(/usr/local/texlive/2020/texmf-dist/tex/latex/base/t1cmtt.fd
+(textcomp)             Default family used instead on input line 701.
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 7
+01.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
 Package microtype Info: Loading generic protrusion settings for font family
@@ -1155,7 +1155,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 
-659.
+701.
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
@@ -1164,7 +1164,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: TS1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
- [7.7])
+ [8.8])
 No file main.bbl.
 
 Class acmart Warning: ACM keywords are mandatory for papers over two pages.
@@ -1172,14 +1172,14 @@ Class acmart Warning: ACM keywords are mandatory for papers over two pages.
 
 Class acmart Warning: CCS concepts are mandatory for papers over two pages.
 
-[8.8]
+[9.9]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 131.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 131.
  (./main.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 131.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 131.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: C5F2012B2C17BD84F5FDFD874C46C731;1960.
+(rerunfilecheck)             Checksum: 05971E4178BFE52A6FFD9206DCB9103A;2372.
 
 
 LaTeX Font Warning: Size substitutions with differences
@@ -1188,15 +1188,18 @@ LaTeX Font Warning: Size substitutions with differences
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 20491 strings out of 480608
- 305203 string characters out of 5903631
- 612390 words of memory out of 5000000
- 35563 multiletter control sequences out of 15000+600000
+ 20496 strings out of 480608
+ 305269 string characters out of 5903631
+ 608390 words of memory out of 5000000
+ 35565 multiletter control sequences out of 15000+600000
  663753 words of font info for 214 fonts, out of 8000000 for 9000
  1302 hyphenation exceptions out of 8191
- 63i,16n,100p,791b,570s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 63i,16n,100p,791b,595s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 }{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/libertine/lbtn_fygcup.enc}
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/libertine/lbtn_ncsllp.enc}{
@@ -1223,10 +1226,10 @@ lic/newtx/txmiaX.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/txf
 onts/txsya.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/txfonts/t
 xsyb.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/newtx/txsys.pfb
 >
-Output written on main.pdf (8 pages, 450458 bytes).
+Output written on main.pdf (9 pages, 452643 bytes).
 PDF statistics:
- 211 PDF objects out of 1000 (max. 8388607)
- 161 compressed objects within 2 object streams
- 38 named destinations out of 1000 (max. 500000)
- 50261 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 223 PDF objects out of 1000 (max. 8388607)
+ 172 compressed objects within 2 object streams
+ 41 named destinations out of 1000 (max. 500000)
+ 50277 words of extra memory for PDF output out of 51595 (max. 10000000)
 
