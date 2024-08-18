@@ -1,0 +1,95 @@
+\newcommand{\minicatsyntaxfig}{
+\begin{fpfig}[t]{Syntax of $\minicat$}{fig-minicat-syntax}
+\small{
+$$
+    \begin{array}{rcl@{\hspace{4mm}}r}
+      \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[1mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid & \textit{expressions}\\
+      & & \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid \OT{\be}{\cid}{\be}{\be}\\[2mm]
+      x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid & \textit{variables} \\[0mm]
+         & & \rvl{w} \mid \out{\cid} \\[1mm]
+      %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      \prog &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \reveal{w}{e}{\cid} \mid & \textit{protocols} \\[0mm]
+              & & \pubout{\cid}{\be}{\cid} \mid \prog;\prog 
+    \end{array}
+$$}
+\end{fpfig}    
+}
+
+\newcommand{\minicatredxfig}{
+\begin{fpfig}[t]{Operational semantics of $\minicat$ expressions (T) and programs (B).}{fig-minicat-redx}
+\small{
+ $$
+  %\begin{array}{c@{\hspace{5mm}}c}
+  \begin{array}{rcl}
+    \lcod{\store, v}{\cid} &=& v\\
+    \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \fminus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fminus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
+  %\end{array} 
+  %\begin{array}{rcl}
+    \lcod{\store, \flip{w}}{\cid} &=& \store(\elab{\flip{w}}{\cid})\\
+    \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
+    \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
+    \lcod{\store, \rvl{w}}{\cid} &=& \store(\rvl{w})\\
+    \lcod{\store, \OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2} &=&
+    \begin{cases}
+      \lcod{\store,\be_2}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 0 \\
+      \lcod{\store,\be_3}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 1 \\
+    \end{cases}
+  \end{array}
+  %\end{array}
+  $$
+
+\medskip
+
+\begin{mathpar}
+  (\store, \xassign{x}{\be}{\cid}) \redx \extend{\store}{x}{\lcod{\store,\be}{\cid}}
+  
+  \inferrule
+      {(\store_1,\prog_1) \redx \store_2 \\ (\store_2,\prog_2) \redx \store_3 }
+      {(\store_1,\prog_1;\prog_2) \redx \store_3}
+      %(\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)    
+      %(\store, \reveal{w}{\be}{\cid};\prog) \redx (\extend{\store}{\rvl{w}}{\lcod{\store,\be}{\cid}}, \prog)   
+      %(\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\minicataredxfig}{
+\begin{fpfig}[t]{Adversarial semantics of $\minicat$.}{fig-minicat-aredx}
+\small{
+\begin{mathpar}
+  \inferrule
+      { \cid \in H }
+      { (\store, \xassign{x}{\be}{\cid}) \aredx \extend{\store}{x}{\lcod{\store,\be}{\cid}} }
+      
+  \inferrule
+      {\cid \in C }
+      { (\store, \xassign{x}{\be}{\cid}) \aredx \extend{\store}{x}{\lcod{\arewrite(\store_C,\be)}{\cid}}}
+      
+  \inferrule
+      {\lcod{\store,\be_1}{\cid} = \lcod{\store,\be_2}{\cid}  \text{\ or\ } \cid \in C}
+      { (\store,\elab{\assert{\be_1 = \be_2}}{\cid}) \aredx \store }
+      
+  \inferrule
+      {\lcod{\store,\be_1}{\cid} \ne \lcod{\store,\be_2}{\cid}  \text{\ or\ } \cid \in C}
+      {(\store,\elab{\assert{\be_1 = \be_2}}{\cid}) \aredx \abort}
+  
+  \inferrule
+      {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \store_3 }
+      {(\store_1,\prog_1;\prog_2) \aredx \store_3}
+
+  \inferrule
+      {(\store_1,\prog_1) \aredx \abort}
+      {(\store_1,\prog_1;\prog_2) \aredx \abort}
+      
+  \inferrule
+      {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \abort }
+      {(\store_1,\prog_1;\prog_2) \aredx \abort}
+\end{mathpar}}
+\end{fpfig}
+}
+           
