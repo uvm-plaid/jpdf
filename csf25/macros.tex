@@ -1,4 +1,14 @@
-\newcommand{\note}[1]{\noindent\textit{(\textbf{$\star$note$\star$:}\ \ #1)}}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{conject}{Conjecture}[section]
+\newtheorem{exmp}{Example}[section]
+\def\squareforqed{\hbox{\rlap{$\sqcap$}$\sqcup$}}
+\def\qed{\ifmmode\squareforqed\else{\unskip\nobreak\hfil
+\penalty50\hskip1em\null\nobreak\hfil\squareforqed
+\parfillskip=0pt\finalhyphendemerits=0\endgraf}\fi}
+\newenvironment{proof}[1]{\noindent\textit{Proof.}\ #1}{\qed\medskip}
 
 \newcommand{\evals}{\Downarrow}
 \newcommand{\diverges}{\Uparrow}
@@ -568,4 +578,6 @@
     {\small$\blacktriangleright$\textsf{\emph{#2}}$\blacktriangleleft$}}~}
 %\newcommand{\mynote}[2]{}
 \newcommand{\todo}[1]{\mynote{TODO}{#1}}
+    
+\newcommand{\note}[1]{\noindent\textit{(\textbf{$\star$note$\star$:}\ \ #1)}}
 
