@@ -7,13 +7,13 @@
 \newcommand{\signals}[1]{\stackrel{#1}{\leadsto}}
 
 \newcommand{\tj}[6]{#1,#2,#3 \vdash_{#4} #5 : #6}
-\newcommand{\itj}[5]{#1,#2 \vdash_{#3} #4 : #5}
-\newcommand{\ipj}[4]{#1,#2 \vdash #3 : #4}
+\newcommand{\itj}[3]{\vdash_{#1} #2 : #3}
+\newcommand{\ipj}[3]{#1 \vdash #2 : #3}
 \newcommand{\ej}[6]{#1,#2,#3 \vdash #4 : #5,#6}
 \newcommand{\cty}[2]{c(#1,#2)}
 \newcommand{\setit}[1]{\{ #1 \}}
 \newcommand{\ty}{T}
-\newcommand{\ity}{I}
+\newcommand{\ity}[2]{#1 \cdot #2}
 \newcommand{\lty}[2]{#1 \cdot #2}
 \newcommand{\eqs}{\mathit{E}}
 \newcommand{\toeq}[1]{\lfloor #1 \rfloor}
@@ -24,13 +24,14 @@
 
 \newcommand{\tsig}{\mathrm{sig}}
 \newcommand{\subn}{\rho}
-\newcommand{\hty}[4]{\{ #1 \}\ #2,#3\  \{ #4 \} }
-\newcommand{\dht}[5]{\Pi #1 . \hty{#2}{#3}{#4}{#5} }
-\newcommand{\mtj}[6]{#1 \vdash #2 : \hty{#3}{#4}{#5}{#6}}
-\newcommand{\atj}[4]{#1 \Vdash #2 : (#3,#4)}
+\newcommand{\hty}[5]{\{ #1 \}\ #2,#3 \cdot #4\  \{ #5 \} }
+\newcommand{\dht}[6]{\Pi #1 . \hty{#2}{#3}{#4}{#5}{#6}}
+\newcommand{\mtj}[6]{\vdash #1 : \hty{#2}{#3}{#4}{#5}{#6}}
+\newcommand{\atj}[3]{\Vdash #1 : (#2,#3)}
 \newcommand{\eqj}[4]{#1,#2 \vdash #3 : #4}
 \newcommand{\cpj}[4]{#1,#2 \vdash #3 : #4}
 \newcommand{\leakj}[3]{#1,#2 \vdash_{\mathit{leak}} #3}
+\newcommand{\cheatj}[3]{#1 \underset{#2}{\leadsto} #3}
 \newcommand{\icod}[2]{\cod{#1}_{#2}}
 \newcommand{\prejoin}{\sqcap}
 
@@ -305,8 +306,7 @@ m[y]@1 := OT(s[y]@1,-r[y],r[y])@2
 $$
 \begin{array}{rcl@{\hspace{2mm}}r}
   \latel &::=& \hilab \mid \lolab \\
-  \ity &::=& \latel \mid \cid \mid \ity \prejoin \ity \\
-  \Gamma &::=& \varnothing \mid \Gamma; x : \ity
+  \Delta &::=& \varnothing \mid \Delta; x : \ity{\cid}{V}
 \end{array} 
 $$
 
@@ -314,59 +314,59 @@ $$
 \begin{mathpar}
   \inferrule[Value]
   {}
-  {\itj{\Gamma}{\eqs}{\cid}{v}{\hilab}}
+  {\itj{\cid}{v}{\varnothing}}
   
   \inferrule[Secret]
   {}
-  {\itj{\Gamma}{\eqs}{\cid}{\secret{w}}{\cid}}
+  {\itj{\cid}{\secret{w}}{\varnothing}}
   
   \inferrule[Rando]
   {}
-  {\itj{\Gamma}{\eqs}{\cid}{\flip{w}}{\cid}}
+  {\itj{\cid}{\flip{w}}{\varnothing}}
   
   \inferrule[Mesg]
   {}
-  {\itj{\Gamma}{\eqs}{\cid}{\mesg{w}}{\Gamma(\mx{w}{\cid})}}
+  {\itj{\cid}{\mesg{w}}{\setit{\mx{w}{\cid}}}}
     
   \inferrule[PubM]
   {}
-  {\itj{\Gamma}{\eqs}{\cid}{\rvl{w}}{\Gamma(\rvl{w})}}
+  {\itj{\cid}{\rvl{w}}{\setit{\rvl{w}}}}
 
   \inferrule[Binop]
-  {\itj{\Gamma}{\eqs}{\cid}{\be_1}{\ity_1} \\
-   \itj{\Gamma}{\eqs}{\cid}{\be_2}{\ity_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
-  {\itj{\Gamma}{\eqs}{\cid}{\be_1 \oplus \be_2}{\ity_1 \prejoin \ity_2}}
+  {\itj{\cid}{\be_1}{V_1} \\
+   \itj{\cid}{\be_2}{V_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\itj{\cid}{\be_1 \oplus \be_2}{V_1 \cup V_2}}
 %
 %  \inferrule[IntegrityWeaken]
-%  {\itj{\Gamma}{\eqs}{\cid}{\be}{\latel_1} \\ \latel_1 \sle \latel_2}
-%  {\itj{\Gamma}{\eqs}{\cid}{\be}{\latel_2}}
+%  {\itj{\Delta}{\eqs}{\cid}{\be}{\latel_1} \\ \latel_1 \sle \latel_2}
+%  {\itj{\Delta}{\eqs}{\cid}{\be}{\latel_2}}
 \end{mathpar}
 
 \begin{mathpar}
   \inferrule[Send]
-            {\itj{\Gamma}{\eqs}{\cid}{\be}{\ity}}
-            {\ipj{\Gamma}{\eqs}{\xassign{x}{\be}{\cid}}{\Gamma; x : \cid \prejoin \ity}}
+            {\itj{\cid}{\be}{V}}
+            {\ipj{\eqs}{\xassign{x}{\be}{\cid}}{(x : \ity{\cid}{V})}}
              
 %  \inferrule[Assert]
 %            {\eqs \models \toeq{\elab{\be_1}{\cid}} = \toeq{\elab{\be_2}{\cid}}}
-%            {\ej{\Gamma}{R}{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Gamma}{\eqs}}
+%            {\ej{\Delta}{R}{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Delta}{\eqs}}
 %            
   \inferrule[Seq]
-            {\ipj{\Gamma_1}{\eqs}{\prog_1}{\Gamma_2}\\
-             \ipj{\Gamma_2}{\eqs}{\prog_2}{\Gamma_3}}
-            {\ipj{\Gamma_1}{\eqs}{\prog_1;\prog_2}{\Gamma_3}}
+            {\ipj{\eqs}{\prog_1}{\Delta_1}\\
+             \ipj{\eqs}{\prog_2}{\Delta_2}}
+            {\ipj{\eqs}{\prog_1;\prog_2}{\Delta_1;\Delta_2}}
 
   \inferrule[MAC]
             {\eqs \models \toeq{\elab{\assert{\macbdoz{w}}}{\cid}}}
-            {\ipj{\Gamma}{\eqs}{\elab{\assert{\macbdoz{w}}}{\cid}}{\Gamma; \mx{w\ttt{s}}{\cid}: \cid}}
+            {\ipj{\eqs}{\elab{\assert{\macbdoz{w}}}{\cid}}{(\mx{w\ttt{s}}{\cid}: \ity{\cid}{\varnothing})}}
 %
 %  \inferrule[MAC]
 %            {\eqs \models 
 %              \mx{w\ttt{m}}{\cid} \eop \mx{w\ttt{k}}{\cid} \fplus \ttt{(}\mx{\ttt{delta}}{\cid} \ftimes
 %                  \mx{w\ttt{s}}{\cid}\ttt{)}}
-%            {\ipj{\Gamma}{\eqs}{
+%            {\ipj{\Delta}{\eqs}{
 %                \elab{\assert{\mesg{w\ttt{m}} \eop \mesg{w\ttt{k}} \fplus \ttt{(}\mesg{\ttt{delta}} \ftimes
-%                  \mesg{w\ttt{s}}\ttt{)}}}{\cid}}{\Gamma;\mx{w\ttt{s}}{\cid}: \hilab }}
+%                  \mesg{w\ttt{s}}\ttt{)}}}{\cid}}{\Delta;\mx{w\ttt{s}}{\cid}: \hilab }}
 \end{mathpar}
 
 %$$
@@ -384,35 +384,36 @@ $$
 \begin{mathpar}
   \inferrule
       {}
-      {\icod{\latel}{H,C} = \latel}
+      {\cheatj{\varnothing}{H,C}{\seclev_{H,C}}}
       
   \inferrule
-      {\cid \in H}
-      {\icod{\cid}{H,C} = \hilab}
+      {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in H}
+      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\hilab \wedge (\bigwedge_{x \in V} \seclev_2(x))}}}
       
   \inferrule
-      {\cid \in C}
-      {\icod{\cid}{H,C} = \lolab} 
-  
-  \icod{\ity_1 \prejoin \ity_2}{H,C} = \icod{\ity_1}{H,C} \wedge \icod{\ity_2}{H,C}
-\end{mathpar}  
-  
-\begin{definition}  
-  Given $H,C$ and pre-processing predicate $\eqspre$ defining $M$,
-  define $\initigamma(\eqspre) \defeq \Gamma$
-  where for all $\mx{w}{\cid} \in M$ we have $\Gamma(\mx{w}{\cid}) = \cid$.
-\end{definition}
+      {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in C}
+      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\lolab}}}
+\end{mathpar}
 
 \begin{definition}
   Given pre-processing predicate $\eqspre$ and protocol $\prog$, 
-  we say $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is \emph{valid}
+  we say $\ipj{\eqs}{\prog}{\Delta}$ is \emph{valid}
   iff it is derivable and $\eqspre \wedge \toeq{\prog} \models E$.
 \end{definition}
   
+\begin{definition}  
+  Given $H,C$,
+  define $\seclev_{H,C}$ such that for all $\mx{w}{\cid}$ we
+  have $\seclev_{H,C}(\mx{w}{\cid} ) = \hilab$ if $\cid \in H$ and $\lolab$
+  otherwise.
+\end{definition}
+  
 \begin{theorem}
-  Given pre-processing predicate $\eqspre$ and protocol $\prog$, if
-  $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\Gamma}$ is valid
-  and for all $H,C$ and $x \in \houtputs$ we have $\icod{\Gamma(x)}{H,C} = \hilab$, then cheating
+  Given pre-processing predicate $\eqspre$ and protocol $\prog$ with
+  $\views(\prog) = V$, if
+  $\ipj{\eqs}{\prog}{\Delta}$ is valid
+  and for all $H,C$ with $\cheatj{\Delta}{H,C}{\seclev}$
+  we have $\seclev(x) = \hilab$ for all $x \in \houtputs$, then cheating
   is detectable in $\prog$.
 \end{theorem}
 
@@ -420,7 +421,6 @@ $$
 
 \subsection{Syntax and Semantics}
 
-Note the redefinition of $x$ impacts the definition of $\ty$, $\Gamma$, $\phi$, and $\eqs$.
 $$
 \begin{array}{rcl}
   x &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\[2mm]
@@ -522,60 +522,73 @@ $$
       {\cty{e_1}{\notg{\ty}} \redx \cty{x}{\ty}}
       
   \inferrule
-      {\notg{t_1} \redx t_1 \cdots \notg{t_n} \redx t_n}
+      {\notg{t_1} \redx t_1 \\ \cdots \\ \notg{t_n} \redx t_n}
       {\setit{\notg{t_1},\ldots,\notg{t_n}} \redx \setit{ t_1,\ldots,t_n }}
 
+  \inferrule
+      {\notg{\Gamma} \redx \Gamma \\ e \redx x \\ \notg{\ty} \redx \ty }
+      {\notg{\Gamma}; e : \notg{\ty} \redx \Gamma; x : \ty }
 
   \inferrule
-      {e \redx x \\ \notg{\ty} \redx \ty}
-      {\notg{\Gamma}; e : \notg{\ty} \redx \Gamma; x : \ty }
+      {\notg{\Delta} \redx \Delta \\ e_1 \redx x  \\ e_2 \redx \cid \\ \notg{V} \redx V}
+      {\notg{\Delta}; e_1 : \ity{e_2}{\notg{V}} \redx \Delta; x : \ity{\cid}{V} }
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\Gamma} \redx \\ \notg{R} \redx R
+        \\ \notg{\Delta} \redx \Delta \\ \notg{\eqs_2} \redx \eqs_2}
+      {\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}} \redx
+        \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}}
 \end{mathpar}
 
 \begin{mathpar}
-  \atj{R}{x}{\varnothing}{\setit{x}}
+  \atj{x}{\varnothing}{\setit{x}}
 
   \inferrule
-  {\atj{R}{\phi}{R_1}{\ty} \\ \rx{w}{\cid}\not\in R \\ \oplus \in \setit{\fplus,\fminus}}
-  {\atj{R_1}{\phi \oplus \rx{w}{\cid}}{R_1 \cup \setit{\rx{w}{\cid}}}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+  {\atj{\phi}{R}{\ty} \\ \rx{w}{\cid}\not\in R \\ \oplus \in \setit{\fplus,\fminus}}
+  {\atj{\phi \oplus \rx{w}{\cid}}{R \cup \setit{\rx{w}{\cid}}}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
 
   \inferrule
-  {\atj{R}{\phi_1}{R_1}{\ty_1} \\
-   \atj{R}{\phi_2}{R_2}{\ty_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
-  {\atj{R_1}{\phi_1 \oplus \phi_2}{R_1;R_2}{\ty_1 \cup \ty_2}}
+  {\atj{\phi_1}{R_1}{\ty_1} \\
+   \atj{\phi_2}{R_2}{\ty_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\atj{\phi_1 \oplus \phi_2}{R_1;R_2}{\ty_1 \cup \ty_2}}
 \end{mathpar}
 
 \begin{mathpar}
   \inferrule[Mesg]
-            {e_1 \redx x \\ e_2 \redx \be \\ e_3 \redx \cid \\ \atj{R_1}{\toeq{\elab{\be}{\cid}}}{R_2}{\ty}}
-            {\mtj{R_1}{\xassign{e_1}{e_2}{e_3}}{\eqs}{x:\ty}{R_1;R_2}{\eqs \wedge x \eop \toeq{\elab{\be}{\cid}}}}
+            {e_1 \redx x \\ e_2 \redx \be \\ e_3 \redx \cid \\ \atj{\toeq{\elab{\be}{\cid}}}{R_2}{\ty} \\
+              \itj{\cid}{\be}{V}}
+            {\mtj{\xassign{e_1}{e_2}{e_3}}{\eqs}{(x:\ty)}{R_1;R_2}{(x : \ity{\cid}{V})}{\eqs \wedge x \eop \toeq{\elab{\be}{\cid}}}}
 
   \inferrule[Encode]
             {e_1 \redx w \\ e_2 \redx \cid \\ e_3 \redx \phi \\
               \eqs \models \toeq{\elab{\be}{\cid}} \eop \phi\\
-              \atj{R_1}{\phi}{R_2}{\ty}}
-            {\mtj{R_1}{\eqcast{\mx{e_1}{e_2}}{e_3}}{\eqs}{\mx{w}{\cid}:\ty}{R_1;R_2}{E\wedge \mx{w}{i} \eop \phi}}
+              \atj{\phi}{R}{\ty}}
+            {\mtj{\eqcast{\mx{e_1}{e_2}}{e_3}}{\eqs}{(\mx{w}{\cid}:\ty)}{R}{\varnothing}{\eqs}}
 
   \inferrule[App]
-            {\tsig(f) = \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\eqs_2}} \\
+            {\tsig(f) = \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{\Delta}}{\notg{R}}{\notg{\eqs_2}} \\
               e_1 \redx \mv_1\ \cdots\ e_n \redx \mv_n \\
               \subn = [\mv_1/y_1]\cdots[\mv_n/y_n] \\
-              \subn(\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\eqs_2}}) \redx \hty{\eqs_1}{\Gamma}{R}{\eqs_2} \\
+              \subn(\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}) \redx
+                    \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2} \\
               \eqs \models \eqs_1}
-            {\mtj{R_1}{f(e_1,\ldots,e_n)}{\eqs}{\Gamma}{R_1;R}{\eqs \wedge \eqs_2}}
+            {\mtj{f(e_1,\ldots,e_n)}{\eqs}{\Gamma}{R}{\Delta}{\eqs \wedge \eqs_2}}
 
   \inferrule[Seq]          
-            {\mtj{R_1}{\prog_1}{\eqs_1}{\Gamma_2}{R_2}{\eqs_2}\\ \mtj{R_1}{\prog_2}{\eqs_2}{\Gamma_3}{R_3}{\eqs_3}}
-            {\mtj{R_1}{\prog_1;\prog_2}{\eqs_1}{\Gamma_2;\Gamma_3}{R_2;R_3}{\eqs_3}}
+            {\mtj{\prog_1}{\eqs_1}{\Gamma_1}{R_1}{\Delta_1}{\eqs_2} \\
+             \mtj{\prog_2}{\eqs_2}{\Gamma_2}{R_2}{\Delta_2}{\eqs_3}}
+            {\mtj{\prog_1;\prog_2}{\eqs_1}{\Gamma_1;\Gamma_2}{R_1;R_2}{\Delta_1;\Delta_2}{\eqs_3}}
 \end{mathpar}
 
 \begin{mathpar}
   \inferrule[Sig]
             {\codebase(f) = y_1,\ldots,y_n, \instr \\
               \subn = [\mv_1/y_1]\cdots[\mv_n/y_n] \\
-              \subn(\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\eqs_2}}) \redx \hty{\eqs_1}{\Gamma}{R}{\eqs_2} \\
-              \mtj{\varnothing}{\subn(\instr)}{\eqs_1}{\Gamma}{R}{\eqs} \\
+              \subn(\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{\Delta}}{\notg{R}}{\notg{\eqs_2}}) \redx
+                    \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2} \\
+              \mtj{\subn(\instr)}{\eqs_1}{\Gamma}{R}{\Delta}{\eqs} \\
               \eqs \models \eqs_2}
-            {f : \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\eqs_2}}}
+            {f : \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}}
 \end{mathpar}
 
 \begin{definition}
@@ -584,11 +597,11 @@ $$
 
 \begin{theorem}
   Given preprocessing predicate $\eqspre$, program $\instr$, and verified $\tsig$, if
-  $\mtj{\eqspre}{\instr}{\varnothing}{\Gamma}{R}{\eqs}$ then
+  the judgement $\mtj{\instr}{\eqspre}{\Gamma}{R}{\Delta}{\eqs}$ is derivable then
   $\instr \redx \prog$ and:
   \begin{enumerate}
-  \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\cgamma{\Gamma}}$ is valid.
-  \item $\ipj{\initigamma(\eqspre)}{\eqs}{\prog}{\igamma{\Gamma}}$ is valid.
+  \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid.
+  \item $\ipj{\eqs}{\prog}{\Delta}$ is valid.
   \end{enumerate}
 \end{theorem}
 
