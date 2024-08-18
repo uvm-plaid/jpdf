@@ -1,0 +1,70 @@
+\section{$\minicat$ Constraint Verification}
+
+\subsection{Constraint Satisfiability Modulo Finite Fields}
+
+$$
+\begin{array}{rcl}
+  \phi &::=& x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
+  \eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
+\end{array}
+$$
+
+We write $\eqs_1 \models \eqs_2$ iff every model of $E_1$ is a model of $E_2$. Note that
+this relation is reflexive and transitive.
+
+\begin{mathpar}
+  \toeq{x} = x
+
+  \toeq{\elab{\be_1 \fplus \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \fplus \toeq{\elab{\be_1}{\cid}}
+
+  \toeq{\elab{\be_1 \fminus \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \fminus \toeq{\elab{\be_1}{\cid}}
+
+  \toeq{\elab{\be_1 \ftimes \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \ftimes \toeq{\elab{\be_1}{\cid}}
+\end{mathpar}
+
+\begin{mathpar}
+  \toeq{\OT{\be_1}{\cid_1}{\be_2}{\be_3}{\cid_2}} =
+  (\toeq{\elab{\be_1}{\cid_1}} \wedge \toeq{\elab{\be_3}{\cid_2}}) \vee
+  (\neg\toeq{\elab{\be_1}{\cid_1}} \wedge \toeq{\elab{\be_2}{\cid_2}}) 
+\end{mathpar}
+
+\begin{mathpar}
+  \toeq{\xassign{x}{\be}{\cid}} = x \eop \toeq{\elab{\be}{\cid}}
+  
+  \toeq{\assert{\be_1 = \be_2}{\cid}} =  \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}
+
+  \toeq{\prog_1;\prog_2} = \toeq{\prog_1} \wedge \toeq{\prog_2} 
+\end{mathpar}
+
+The motivating idea is that we can interpret any protocol $\prog$ as a set
+of equality constraints $\toeq{\prog}$ and use an SMT solver to verify
+properties relevant to correctness, confidentiality, and integrity.
+Further, we can leverage entailment relation is critical for efficiency--
+we can use annotations to obtain a weakened precondition for relevant properties.
+That is, given $\prog$, program annotations or other cues can be used
+to find a minimal $\eqs$ with $\toeq{\prog} \models \eqs$ for verifying
+correctness and security.
+
+\subsubsection{Example: Correctness of 3-Party Addition}
+
+$$
+\begin{array}{lll}
+  \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip \fminus \flip{x})}{1} \\ 
+  \elab{\mesg{s1}}{3} &:=& \elab{\flip{x}}{1} \\ 
+  \elab{\mesg{s2}}{1} &:=& \elab{(\secret{2} \fminus \locflip \fminus \flip{x})}{2} \\ 
+  \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
+  \elab{\mesg{s3}}{1} &:=& \elab{(\secret{3} \fminus \locflip \fminus \flip{x})}{3} \\ 
+  \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3}\\
+  \rvl{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  \rvl{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
+  \rvl{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\
+  \out{1} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{1}\\
+  \out{2} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{2}\\
+  \out{3} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{3}
+\end{array}
+$$
+Letting $\prog$ be this protocol, we can verify correctness
+as:
+$$
+\toeq{\prog}\ \models\ \out{3} \eop \sx{1}{1} \fplus \sx{2}{2} \fplus \sx{3}{3}
+$$
