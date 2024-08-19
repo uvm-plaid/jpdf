@@ -9,8 +9,27 @@ $$
 \end{array}
 $$
 
-We write $\eqs_1 \models \eqs_2$ iff every model of $E_1$ is a model of $E_2$. Note that
-this relation is reflexive and transitive.
+\begin{mathpar}
+  \store(\phi_1 \fplus \phi_2) = \cod{\store(\phi_1) \fplus \store(\phi_2)}
+  
+  \store(\phi_1 \ftimes \phi_2) = \cod{\store(\phi_1) \ftimes \store(\phi_2)}
+  
+  \store(\phi_1 \fminus \phi_2) = \cod{\store(\phi_1) \fminus \store(\phi_2)}
+\end{mathpar}
+
+\begin{definition}
+  Given $\eqs = \phi_1 \eop \phi_1' \wedge \cdots \wedge \phi_n \eop
+  \phi_n'$ and $\store$, we say that $\store$ is a \emph{model} of
+  $\eqs$, written $\store \models \eqs$, iff $\store(\phi_i) =
+  \store(\phi_i')$ for all $1 \le i \le n$. We write $\eqs_1 \models
+  \eqs_2$ iff  $\store \models E_1$ implies $\store \models
+  E_2$ for all $\store$, and note this relation is reflexive and transitive.
+\end{definition}
+
+\begin{theorem}
+  $\eqs \models \phi \eop \phi'$ iff $\eqs \wedge \phi \not\eop \phi'$ is
+  not satisfiable.
+\end{theorem}
 
 \begin{mathpar}
   \toeq{x} = x

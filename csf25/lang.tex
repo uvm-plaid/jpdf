@@ -66,6 +66,8 @@ and $X_C$ to denote the subsets belonging to honest and corrupt
 parties, respectively.
 \end{definition}
 
+\cnote{Add comments about OT.}
+
 \subsection{Semantics}
 \label{section-lang-semantics}
 
@@ -130,13 +132,7 @@ where all three command forms- message send, broadcast, and
 output- are implemented as updates to the memory $\store$. 
 
 \subsection{$\minicat$ Adversarial Semantics}
-
-$$
-    \begin{array}{rcl@{\hspace{2mm}}r}
-      \prog &::=& \cdots \mid \assert{\be = \be}
-    \end{array}
-$$
-    
+  
 \minicataredxfig
 
 In the malicious model we assume that corrupt clients are in
@@ -145,7 +141,7 @@ the rules of the protocol.  We model this by positing a $\arewrite$
 function which is given a corrupt memory $\store_C$ and expression
 $\be$, and returns a rewritten expression that can be interpreted to
 yield a corrupt input. We define the evaluation relation that
-incorporates the adversary in Figure \ref{fig-adversary}.
+incorporates the adversary in Figure \ref{fig-minicat-aredx}.
 
 A key technical distinction of the malicious setting is that it
 typically incorporates ``abort''. Honest parties implement strategies
@@ -153,7 +149,13 @@ to detect rule-breaking-- aka \emph{cheating}-- by using, e.g.,
 message authentication codes with semi-homomorphic properties as in
 BDOZ/SPDZ \cite{10.1007/978-3-030-68869-1_3}. If cheating is detected,
 the protocol is aborted. To model this, we extend $\minifed$ with an
-\ttt{assert} command and extend the range of memories with
+\ttt{assert} command:
+$$
+    \begin{array}{rcl@{\hspace{2mm}}r}
+      \prog &::=& \cdots \mid \assert{\be = \be}
+    \end{array}
+$$
+and extend the range of memories with
 $\bot$. Note that the adversary is free to ignore their own
 assertions.
 \begin{definition}
