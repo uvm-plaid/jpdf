@@ -155,13 +155,10 @@ $$
       \prog &::=& \cdots \mid \assert{\be = \be}
     \end{array}
 $$
-and extend the range of memories with
-$\bot$. Note that the adversary is free to ignore their own
-assertions.
-\begin{definition}
-  We add assertions of the form $\elab{\assert{\phi(\be)}}{\cid}$ to the command
-  syntax of $\minifed$, where $\phi$ is a decidable predicate on
-  $\mathbb{F}_p$ and with operational semantics given in Figure
-  \ref{fig-adversary}. We also extend the range of memories $\store$
-  to $\mathbb{F}_p \cup \{ \bot \}$.
-\end{definition}
+
+The big-step adversarial semantics relation $\aredx$ is then defined
+in Figure \ref{fig-minicat-aredx} as a mapping from configurations to
+$\stores$ or $\bot$.
+
+As we will discuss, this form of asserting equality between expressions
+is sufficient to capture MAC checking and support integrity in protocols.
