@@ -3,11 +3,11 @@
 \small{
 $$
     \begin{array}{rcl@{\hspace{4mm}}r}
-      \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[1mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
       \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid & \textit{expressions}\\
       & & \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid \OT{\be}{\cid}{\be}{\be}\\[2mm]
       x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid & \textit{variables} \\[0mm]
-         & & \rvl{w} \mid \out{\cid} \\[1mm]
+         & & \rvl{w} \mid \out{\cid} \\[2mm]
       %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
       \prog &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \reveal{w}{e}{\cid} \mid & \textit{protocols} \\[0mm]
