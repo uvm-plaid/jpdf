@@ -2,15 +2,7 @@
 
 The $\minifed$ language establishes a basic model of synchronous
 protocols between a federation of \emph{clients} exchanging values in
-the binary field. A model of synchronous communication captures a wide
-range of MPC protocols. Concurrency is out of scope in this work but
-an avenue for future work. The lack of sophisticated control
-structures in $\minifed$ is intentional, since minimizing features
-eases analysis and control abstractions such as function definitions
-can be integrated into a metalanguage that generates $\minifed$
-programs (Section \ref{section-metalang}).
-
-We identify clients by natural numbers and federations- finite sets of
+the binary field. We identify clients by natural numbers and federations- finite sets of
 clients- are always given statically.  Our threat model assumes a
 partition of the federation into \emph{honest} $H$ and \emph{corrupt}
 $C$ subsets. We model probabilistic programming via a \emph{random
@@ -48,14 +40,7 @@ different forms:
   sanity condition we disallow commands
   $\pubout{\cid_1}{\be}{\cid_2}$ where $\cid_1\ne\cid_2$.
 \end{itemize}
-For example, in the following protocol, a client 1
-subtracts a random sample $\flip{y}$ from $\mathbb{F}_p$ from their
-secret value $\secret{x}$ and sends the result to client
-2 as a message $\mesg{z}$:
-$$
-\eassign{\mesg{z}}{2}{(\secret{x} - \flip{y})}{1}
-$$ Both messages $\mesg{w}$ and reveals $\rvl{w}$ can be referenced in
-expressions once they've been defined.  This distinction between
+The distinction between
 messages and broadcast public reveal is consistent with previous
 formulations, e.g., \cite{6266151}. To identify and distinguish
 between collections of variables in protocols we introduce the
@@ -80,7 +65,6 @@ of $X$ owned by any client $\cid \in I$, in particular we write $X_H$
 and $X_C$ to denote the subsets belonging to honest and corrupt
 parties, respectively.
 \end{definition}
-
 
 \subsection{Semantics}
 \label{section-lang-semantics}
@@ -139,13 +123,11 @@ we need to interpret variables with respect to a specific memory, and
 all variables used in an expression must belong to a specified client.
 Thus, we denote interpretation of expressions $\be$ computed on a
 client $\cid$ as $\lcod{\store,\be}{\cid}$. This interpretation is
-defined in Figure \ref{fig-minifed}. The small-step reduction relation
-$\redx$ is then defined in Figure \ref{fig-minifed} to evaluate
-commands. Reduction is a relation on \emph{configurations} $(\store,
-\prog)$ where all three command forms- message send, broadcast, and
-output- are implemented as updates to the memory $\store$. We write
-$\redxs$ to denote the reflexive, transitive closure of\ $\redx$.
-
+defined in Figure \ref{fig-minicat-redx}, along with the big-step
+reduction relation $\redx$ to evaluate commands. Reduction is a mapping
+fromon \emph{configurations} $(\store,\prog)$ to final stores
+where all three command forms- message send, broadcast, and
+output- are implemented as updates to the memory $\store$. 
 
 \subsection{$\minicat$ Adversarial Semantics}
 

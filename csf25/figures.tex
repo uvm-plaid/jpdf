@@ -73,7 +73,7 @@ $$}
       { (\store,\elab{\assert{\be_1 = \be_2}}{\cid}) \aredx \store }
       
   \inferrule
-      {\lcod{\store,\be_1}{\cid} \ne \lcod{\store,\be_2}{\cid}  \text{\ or\ } \cid \in C}
+      {\lcod{\store,\be_1}{\cid} \ne \lcod{\store,\be_2}{\cid}}
       {(\store,\elab{\assert{\be_1 = \be_2}}{\cid}) \aredx \abort}
   
   \inferrule
@@ -86,7 +86,7 @@ $$}
       
   \inferrule
       {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \abort }
-      {(\store_1,\prog_1;\prog_2) \aredx \abort}
+      {(\store_1,\prog_1;\prog_2) \aredx \store_2}
 \end{mathpar}}
 \end{fpfig}
 }
