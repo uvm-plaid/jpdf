@@ -1029,3 +1029,28 @@ abstract="An additively-homomorphic encryption scheme enables us to compute line
 isbn="978-3-642-20465-4"
 }
 
+@InProceedings{SMFF,
+author="Ozdemir, Alex
+and Kremer, Gereon
+and Tinelli, Cesare
+and Barrett, Clark",
+editor="Enea, Constantin
+and Lal, Akash",
+title="Satisfiability Modulo Finite Fields",
+booktitle="Computer Aided Verification",
+year="2023",
+publisher="Springer Nature Switzerland",
+address="Cham",
+pages="163--186",
+abstract="We study satisfiability modulo the theory of finite fields and give a decision procedure for this theory. We implement our procedure for prime fields inside the cvc5 SMT solver. Using this theory, we construct SMT queries that encode translation validation for various zero knowledge proof compilers applied to Boolean computations. We evaluate our procedure on these benchmarks. Our experiments show that our implementation is superior to previous approaches (which encode field arithmetic using integers or bit-vectors).",
+isbn="978-3-031-37703-7"
+}
+
+@inproceedings{skalka-near-ppdp24,
+  title = {Language-Based Security for Low-Level MPC},
+  author = {Christian Skalka and Joseph P. Near},
+  year = {2024},
+  booktitle = {Proceedings of the ACM Conference on Principles and Practice of Declarative Programming},
+  abstract = {Secure Multi-Party Computation (MPC) is an important enabling technology for data privacy in modern distributed applications. Currently, proof methods for low-level MPC protocols are primarily manual and thus tedious and error-prone, and are also non-standardized and unfamiliar to most PL theorists. As a step towards better language support and language-based enforcement, we develop a new staged PL for defining a variety of low-level probabilistic MPC protocols. We also formulate a collection of confidentiality and integrity hyperproperties for our language model that are familiar from information flow, including conditional noninterference, gradual release, and robust declassification. We demonstrate their relation to standard MPC threat models of passive and malicious security, and how they can be leveraged in security verification of protocols. To prove these properties we develop automated tactics in $\mathbb{F}_2$ that can be integrated with separation logic-style reasoning.},
+  pdf = {https://arxiv.org/abs/2407.16504}
+}

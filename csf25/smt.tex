@@ -1,5 +1,14 @@
 \section{$\minicat$ Constraint Verification}
 
+In previous work we have shown that the semantics of $\minicat$ in
+$\mathbb{F}_2$ can be implemented with Datalog \cite{skalka-near-ppdp24}, which is
+essentially a form of constraint programming. In this paper we extend
+this idea to arbitrary prime fields by using a more general form of
+SMT constraint programming, specifically Satisfiability Modulo Finite
+Fields \cite{SMFF}. As we will show in subsequent sections, this
+interpretation supports correctness guarantees, and also static type
+analyses for enforcing confidentiality and integrity properties.
+
 \subsection{Constraint Satisfiability Modulo Finite Fields}
 
 $$
