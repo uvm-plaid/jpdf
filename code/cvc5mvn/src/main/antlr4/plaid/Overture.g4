@@ -20,13 +20,13 @@ expression : expression TIMES expression #TimesExpr
             | VALUE #ValueExpr
             ;
 
-variable : memloc atparty | OUTPUT atparty;
+variable : randomloc atparty| secretloc atparty | messageloc atparty | publicloc | OUTPUT atparty;
 
 atparty : AT VALUE;
-dest : destloc atparty;
-destloc : messageloc | publicloc | outputloc;
+dest : destloc atparty | publicloc;
+destloc : messageloc | outputloc;
 messageloc : MESSAGE index #MessageMemory;
-publicloc : PUBLIC #PublicMemory;
+publicloc : PUBLIC index #PublicMemory;
 outputloc : OUTPUT #OutputMemory;
 index : LSQUARE STRING RSQUARE;
 source : expression atparty;

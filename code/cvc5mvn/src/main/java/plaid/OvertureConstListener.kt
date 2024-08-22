@@ -26,6 +26,7 @@ class OvertureConstListener(
     private fun register(context: RuleContext, type: String, id: String) {
         val cvcId =
             if (id == "") "${type}_${partyId}"
+            else if (type == "p") "${type}_${id.drop(1).dropLast(1)}_${partyId.drop(1)}"
             else "${type}_${id.drop(1).dropLast(1)}_${partyId}"
 
         val memory = bindings.getOrPut(cvcId) { Memory(cvcId, termManager.mkConst(sort, cvcId)) }
@@ -55,7 +56,7 @@ class OvertureConstListener(
     }
 
     override fun enterPublicMemory(ctx: PublicMemoryContext) {
-        register(ctx, "p", "")
+        register(ctx, "p", ctx.location())
     }
 
     override fun enterOutputMemory(ctx: OutputMemoryContext) {
