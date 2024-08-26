@@ -27,23 +27,22 @@ that is by itself independent of $\sx{x}{2}$. However, we also
 want to track the dependence of $\mx{x}{2}$ and $\rx{x}{2}$.
 In short, we assign $\mx{x}{1}$ a ``ciphertext type'':
 $$
-\mx{x}{1} : \cty{\rx{x}{2}}{\sx{x}{2}}
+\mx{x}{1} : \cty{\rx{x}{2}}{\setit{\sx{x}{2}}}
 $$
-indicating that $\mx{x}{1}$ is an encryption of a value
-dependent on $\sx{x}{2}$ with $\rx{x}{2}$ and as long as client 1
-does not subsequently receive messages that are dependent on $\rx{x}{2}$, the
-value $\sx{x}{2}$ remains hidden.
+indicating syntactically that $\mx{x}{1}$ is an encryption of a
+value dependent on $\sx{x}{2}$ with $\rx{x}{2}$ and as long as client
+1 does not subsequently receive messages that are dependent on
+$\rx{x}{2}$, the value $\sx{x}{2}$ remains hidden.
 
-Of course, there are other methods for encrypting values
-in MPC protocols-- but we can observe that many are algebraically
-equivalent to this fundamental schema. For example, in
-Yao's Garbled Circuits (YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents
-encrypted wire values as random samples, and the ``evaluator''
-obtains the wire value for its input via OT. The evaluator shares 
-the initial encrypted wire value of one of its input secrets as
-a selection bit-- assuming that client
-2 is the garbler and client 1 is the evaluator, we can
-write this as:
+Of course, there are other methods for encrypting values in MPC
+protocols-- but we can observe that many are algebraically equivalent
+to this fundamental schema. For example, in Yao's Garbled Circuits
+(YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents encrypted wire
+values as a random sample (for 1) or its negation (for 0), and the
+``evaluator'' obtains the wire value for its input via OT. The
+evaluator shares the initial encrypted wire value of one of its input
+secrets as a selection bit-- assuming that client 2 is the garbler and
+client 1 is the evaluator, we can write this as:
 $$
 \xassign{\mx{x}{1}}{\mux{\secret{x}}{\neg\flip{x}}{\flip{x}}}{2}
 $$
@@ -54,23 +53,53 @@ $$
 and letting this protocol be $\prog$ the following is valid:
 \begin{mathpar}
 %\toeq{\xassign{\mx{x}{1}}{\OT{\secret{x}}{1}{\neg\flip{x}}{\flip{x}}}{2}}
-   \toeq{\prog} \models \mx{x}{1} \eop \sx{x}{2} \fplus \rx{x}{2}
+   \toeq{\prog} \models \mx{x}{1} \eop \neg\sx{x}{2} \fplus \rx{x}{2}
 \end{mathpar}
 This allows us to assign the same ciphertext type to $\mx{x}{1}$ as
-above-- that is, $\cty{\rx{x}{2}}{\sx{x}{2}}$.
-  
-$$
-\begin{array}{rcl@{\hspace{2mm}}r}
-  t &::=& x \mid \cty{x}{T} \\
-  \ty & \in & 2^{t}\\
-  \Gamma &::=& \varnothing \mid \Gamma; x : \ty
-\end{array} 
-$$
+above-- that is, $\cty{\rx{x}{2}}{\setit{\sx{x}{2}}}$. Leveraging the
+equivalence this way has been previously well-studied
+\cite{barthe2019probabilistic}.  Since this is a one-time-pad scheme,
+it is also important that we ensure that samples are used at most once
+for encryption. As in previous work \cite{darais2019language} we can
+use a form of type linearity to this end.
 
+The syntax of types $\ty$ and type environments $\Gamma$ are presented
+in Figure \ref{fig-cpj}\cnote{need to fix set notations}. We also
+define type judgements for expressions and programs by direct
+interpretation as terms $\phi$ and constraints $\eqs$ respectively,
+via the encoding $\toeq{cdot}$. The \TirName{Encode} rule captures
+the use ``fresh'' samples for encryption discussed above. Derivations
+enforce linearity by requiring that variables used for encryption
+are added to judgements, and guaranteed to not be used elsewhere
+via a form of union that ensures disjointness of combined sets. 
 \begin{definition}
   $R_1;R_2 = R_1 \cup R_2$ iff $R_1 \cap R_2 = \varnothing$.
 \end{definition}
+The \TirName{DepTy} rule handles all other syntactic forms and just
+records the dependencies on variables in the term.  The \TirName{Send}
+rule records the types of messages, reveals, and outputs in
+enviroments, and the \TirName{Seq} rule combines the types of
+sequenced programs.  Given this we define validity of program type
+judgements as follows. \cnote{Define $\eqspre$.}
+\begin{definition}
+  Given preprocessing predicate $\eqspre$ and protocol $\prog$ we say
+  $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is \emph{valid} iff it is derivable and
+  $\eqspre \wedge \toeq{\prog} \models \eqs$.
+\end{definition}
+It is important to note that this presentation of derivations is
+logical, not algorithmic-- in particular it is not syntax-directed
+due to the \TirName{Encode} rule.
 
+\begin{fpfig}[t]{Syntax and Derivation Rules for $\minicat$ Confidentiality Types}{fig-cpj}
+\small{
+$$
+\begin{array}{rcl@{\hspace{3mm}}l}
+  t &::=& x \mid \cty{x}{T} \\
+  \ty & \in & 2^{t} & \gdesc{types}\\
+  \Gamma &::=& \varnothing \mid \Gamma; x : \ty & \gdesc{type environments}
+\end{array} 
+$$
+\medskip
 \begin{mathpar}
   \inferrule[DepTy]
   {}
@@ -93,13 +122,11 @@ $$
              \cpj{R_2}{\eqs}{\phi_2}{\Gamma_2}}
             {\cpj{R_1;R_2}{\eqs}{\phi_1 \wedge \phi_2}{\Gamma_1;\Gamma_2}}
 \end{mathpar}
+}
+\end{fpfig}
 
-\begin{definition}
-  Given preprocessing predicate $\eqspre$ and protocol $\prog$ we say
-  $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is \emph{valid} iff it is derivable and
-  $\eqspre \wedge \toeq{\prog} \models \eqs$.
-\end{definition}
-
+\begin{fpfig}[t]{Dependencies in Corrupt Views: Derivation Rules}{fig-leakj}
+\small{
 \begin{mathpar}
   \inferrule
       {\cid \in C}
@@ -117,6 +144,8 @@ $$
       {\leakj{\Gamma}{C}{\setit{ \rx{w}{\cid} }} \\ \leakj{\Gamma}{C}{\setit{ \cty{\rx{w}{\cid}}{\ty} }} }
       {\leakj{\Gamma}{C}{\ty}}
 \end{mathpar}
+}
+\end{fpfig}
 
 \begin{theorem}
   If $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid and there exists no $H,C$ 
@@ -124,6 +153,7 @@ $$
   then $\prog$ satisfies gradual release.
 \end{theorem}
 
+\begin{comment}
 \subsection{Examples}
 
 \begin{verbatimtab}
@@ -145,7 +175,4 @@ m[y]@1 := OT(s[y]@1,-r[y],r[y])@2
 // m[y]@1 == s[y]@1 + -r[y]@2
 // m[y]@1 : { c(r[y]@2, { s[y]@1 }) } 
 \end{verbatimtab}
-
-$$
-\select{x}{y}{z}
-$$
+\end{comment}
