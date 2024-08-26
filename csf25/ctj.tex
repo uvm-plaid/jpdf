@@ -1,5 +1,64 @@
 \section{Confidentiality Types}
 
+It is well-known that adding or subtracting a sample from a uniform
+distribution in a finite field yields a value in a uniform
+distribution, meaning that samples can be used as one-time-pads with
+perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
+In our type system for confidentiality, we aim to approximate
+distributions by tracking which program variables an expression
+may depend on. But we also want to capture this fundamental mechanism
+of encryption.
+
+For example, given a message send such as:
+$$
+\xassign{\mx{x}{1}}{\secret{x} \ftimes \flip{x}}{2}
+$$
+we would assign the following type to denote that $\mx{x}{1}$ is dependent on
+both $\sx{x}{2}$ and $\rx{x}{2}$:
+$$
+\mx{x}{1} : \setit{\sx{x}{2}, \rx{x}{2}}
+$$
+But in the case of 2-party reconstructive sharing:
+$$
+\xassign{\mx{x}{1}}{\secret{x} \fminus \flip{x}}{2}
+$$
+we want the type of $\mx{x}{1}$ to be an ``encrypted'' type
+that is by itself independent of $\sx{x}{2}$. However, we also
+want to track the dependence of $\mx{x}{2}$ and $\rx{x}{2}$.
+In short, we assign $\mx{x}{1}$ a ``ciphertext type'':
+$$
+\mx{x}{1} : \cty{\rx{x}{2}}{\sx{x}{2}}
+$$
+indicating that $\mx{x}{1}$ is an encryption of a value
+dependent on $\sx{x}{2}$ with $\rx{x}{2}$ and as long as client 1
+does not subsequently receive messages that are dependent on $\rx{x}{2}$, the
+value $\sx{x}{2}$ remains hidden.
+
+Of course, there are other methods for encrypting values
+in MPC protocols-- but we can observe that many are algebraically
+equivalent to this fundamental schema. For example, in
+Yao's Garbled Circuits (YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents
+encrypted wire values as random samples, and the ``evaluator''
+obtains the wire value for its input via OT. The evaluator shares 
+the initial encrypted wire value of one of its input secrets as
+a selection bit-- assuming that client
+2 is the garbler and client 1 is the evaluator, we can
+write this as:
+$$
+\xassign{\mx{x}{1}}{\mux{\secret{x}}{\neg\flip{x}}{\flip{x}}}{2}
+$$
+where for all $\be_1,\be_2,\be_3$:
+$$
+\mux{\be_1}{\be_2}{\be_3} \defeq (\neg\be_1 \ftimes \be_2) \fplus (\be_1 \ftimes \be_3)
+$$
+and letting this protocol be $\prog$ the following is valid:
+\begin{mathpar}
+%\toeq{\xassign{\mx{x}{1}}{\OT{\secret{x}}{1}{\neg\flip{x}}{\flip{x}}}{2}}
+   \toeq{\prog} \models \mx{x}{1} \eop \sx{x}{2} \fplus \rx{x}{2}
+\end{mathpar}
+This allows us to assign the same ciphertext type to $\mx{x}{1}$ as
+above-- that is, $\cty{\rx{x}{2}}{\sx{x}{2}}$.
+  
 $$
 \begin{array}{rcl@{\hspace{2mm}}r}
   t &::=& x \mid \cty{x}{T} \\
