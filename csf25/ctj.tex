@@ -147,6 +147,12 @@ $$
 }
 \end{fpfig}
 
+\subsection{Detecting Leakage Through Dependencies}
+
+Given a valid typing, we need to determine the information accessible by the
+adversary, who will have control over all corrupt clients in $C$ given
+a partitioning $H,C$.  
+
 \begin{theorem}
   If $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid and there exists no $H,C$ 
   and  $\sx{w}{\cid}$ for $\cid \in H$ with $\leakj{\Gamma}{C}{\setit{\sx{w}{\cid}}}$,

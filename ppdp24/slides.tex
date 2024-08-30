@@ -1,0 +1,135 @@
+% Inbuilt themes in beamer
+\documentclass{beamer}
+
+% Theme choice:
+\usetheme{CambridgeUS}
+\usecolortheme{default}
+
+\input{slide-macros}
+
+% Title page details: 
+\title{Language-Based Security for Low-Level MPC}
+
+\author{Christian Skalka and Joe Near}
+
+\date{September 10, 2024}
+
+\logo{
+\includegraphics[width=3cm]{UVM_Logo_Primary_Horiz_G.png}
+}
+
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+% Title page frame
+\begin{frame}
+    \titlepage 
+\end{frame}
+
+% Remove logo from the next slides
+\logo{}
+
+
+% % Outline frame
+% \begin{frame}{Outline}
+%     \tableofcontents
+% \end{frame}
+
+\section{Ideal Functionality}
+\begin{frame}{Ideal Functionality}
+  $$
+  \idealf(\sx{1}{1},\sx{2}{2},\sx{3}{3}) =
+  \sx{1}{1}\ \exor\ \sx{2}{2}\ \exor\ \sx{3}{3}
+  $$
+  Suppose the output of the protocol is 1 and that party 3 is corrupted, so
+  the adversary knows that $\sx{3}{3} = 0$.
+  
+  \medskip
+
+  This unavoidably declassifies some information about the secrets of
+  parties 1 and 2-- either:
+  $$
+  \sx{1}{1} = 0 \wedge \sx{2}{2} = 1
+  $$
+  or:
+  $$
+  \sx{1}{1} = 1 \wedge \sx{2}{2} = 0
+  $$
+  with equal probability.
+\end{frame}
+
+\section{Conditional Noninterference}
+\begin{frame}{Conditional Noninterference}
+  
+  \begin{block}{Bounded Declassification}
+    The ideal functionality defines a declassification ``limit''. Any protocol $\prog$
+    should not reveal any more through broadcasts and DMs.
+  \end{block}
+
+  \begin{block}{Adversarial Views}
+    In a run of the protocol, in addition to the output and secrets of corrupt
+    parties, the adversary has access to all broadcasts and messages received
+    by corrupt parties.
+  \end{block}
+
+  \begin{alertblock}{Conditional Noninterference}
+    The probability of honest secrets conditioned on the protocol output
+    should not be changed by conditioning on adversarial views. 
+  \end{alertblock}
+  
+\end{frame}
+
+\section{Secret Sharing}
+\begin{frame}{Secret Sharing}
+
+  \begin{block}{Reconstructive Sharing}
+    $$
+    \begin{array}{lll}
+      \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip \fminus \flip{x})}{1} \\ 
+      \elab{\mesg{s1}}{3} &:=& \elab{\flip{x}}{1} \\ 
+      \elab{\mesg{s2}}{1} &:=& \elab{(\secret{2} \fminus \locflip \fminus \flip{x})}{2} \\ 
+      \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
+      \elab{\mesg{s3}}{1} &:=& \elab{(\secret{3} \fminus \locflip \fminus \flip{x})}{3} \\ 
+      \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3}
+    \end{array}
+    $$
+  \end{block}
+  
+\end{frame}
+
+% Lists frame
+\section{Lists in Beamer}
+\begin{frame}{Lists in Beamer}
+
+This is an unordered list:
+\begin{itemize}
+    \item Item 1
+    \item Item 2
+    \item Item 3
+\end{itemize}
+
+and this is an ordered list:
+\begin{enumerate}
+    \item Item 1
+    \item Item 2
+    \item Item 3
+\end{enumerate}
+
+\end{frame}
+
+% Blocks frame
+\section{Blocks in Beamer}
+\begin{frame}{Blocks in Beamer}
+    \begin{block}{Standard Block}
+        This is a standard block.
+    \end{block}
+    \begin{alertblock}{Alert Message}
+        This block presents alert message.
+    \end{alertblock}
+    \begin{exampleblock}{An example of typesetting tool}
+        Example: MS Word, \LaTeX{}
+    \end{exampleblock}
+\end{frame} 
+
+\end{document}
