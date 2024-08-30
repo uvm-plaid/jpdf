@@ -36,6 +36,33 @@
 %     \tableofcontents
 % \end{frame}
 
+\section{What's an MPC Protocol}
+\begin{frame}
+
+  A \cemph{protocol} $\prog$ implements an \emph{ideal functionality} $\idealf$,
+  defined in terms of operations in a prime field $\mathbb{F}_p$, where
+  the inputs are the secrets of clients.
+
+  \medskip
+
+  Low-level, probabilistic protocols are defined in terms of basic variable types:
+  \begin{itemize}
+  \item $\secret{x}$: secret values in $\mathbb{F}_p$.
+  \item $\mesg{x}$: messages received during the protocol.
+  \item $\reveal{x}$: broadcast messages.
+  \item $\flip{x}$: a uniformly random sample from $\mathbb{F}_p$ (implemented with
+    a random tape semantics).
+  \item $\pubout$: a protocol output
+  \end{itemize}
+  We can localize variables and expressions to \emph{clients}, and any information
+  exchanged between clients must be through messaging.
+  \begin{block}{Example}
+    $$
+    \mx{x}{1} := \elab{(\secret{x} - \flip{x})}{2}
+    $$
+  \end{block}
+\end{frame}
+
 \section{Ideal Functionality}
 \begin{frame}{Ideal Functionality}
   $$
