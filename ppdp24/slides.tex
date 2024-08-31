@@ -106,7 +106,7 @@
   $$
   \sx{1}{1} = 1 \wedge \sx{2}{2} = 0
   $$
-  with equal probability. \cemph{Adversarial views from the run of $\prog$ should not
+  with \cemph{equal probability of .5}. \cemph{Adversarial views from the run of $\prog$ should not
     allow the adversary better guesses.}
   \end{exampleblock}
   
@@ -140,7 +140,7 @@
 \section{Example: Shamir Addition}
 \begin{frame}{Example: Shamir Addition}
 
-  To implement 3-party summation (xor in $\mathbb{F}_2)$, we can use \emph{Shamir addition}.
+  To implement 3-party summation (xor in $\mathbb{F}_2$), we can use \emph{Shamir addition}.
   Each party first generates \emph{reconstructive shares}.
   
   \begin{block}{Reconstructive Sharing}
@@ -199,6 +199,16 @@
     \end{array}
     $$
   \end{block}
+  
+  %\begin{exampleblock}{Example Bad Protocol}
+  %  If 1 is honest and accidentally broadcasts its local share:
+  %  $$
+  %  \mx{leak}{*} := \elab{\locflip}{1}
+  %  $$
+  %  conditioning on adversarial views now yields probability 1 for
+  %  either $\sx{1}{1} = 0 \wedge \sx{2}{2} = 1$ or
+  %  $\sx{1}{1} = 1 \wedge \sx{2}{2} = 0$.
+  %\end{exampleblock}
   
 \end{frame}
 
