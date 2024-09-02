@@ -277,6 +277,8 @@
   
 \end{frame}
 
+\section{Compositional Properties of Circuits}
+
 \begin{frame}{Circuits and Gates}
 
   Low-level protocols such as YGC and GMW implement $\idealf$ as a \cemph{circuit}.
@@ -287,17 +289,38 @@
   \end{itemize}
 
   \begin{exampleblock}{2-Party GMW}
-    GMW rep.~invariant: each client in $\setit{1,2}$ holds a share of wire values.
+    Rep.~invariant: each client in $\setit{1,2}$ holds a share of wire values.
     \begin{itemize}
     \item $\ttt{andgmw}(x,y,z)$:
       \begin{itemize}
-      \item Input shares $\mx{x}{1}$, $\mx{x}{2}$ and $\mx{y}{1}$, $\mx{y}{2}$.
+      \item Input shares $\mx{x}{1}$, $\mx{x}{2}$ and $\mx{y}{1}$, $\mx{y}{2}$--
+        wire value for $x$ is $\mx{x}{1} + \mx{x}{2}$, etc.
       \item Output shares $\mx{z}{1}$, $\mx{z}{2}$ received during gate execution.
       \end{itemize}
     \end{itemize}
     
   \end{exampleblock}
 
+\end{frame}
+
+\begin{frame}
+  
+  \begin{exampleblock}{2-Party GMW (Contd.)}
+    \begin{itemize}
+    \item $\ttt{andgmw}(x,y,z)$:
+      \begin{itemize}
+      \item Picking dummy for $x,y,z$, we can automatically generate a
+        pmf under all possible wire inputs.
+      \item Pmf can be queried to verify critical properties-- e.g., the
+        uniform distribution of output shares under any input conditions. 
+      \end{itemize}
+      Once properties of gates are verified, we can show that rep.~invariants
+      are maintained in any circuit.
+    \end{itemize}
+    
+  \end{exampleblock}
+  
+  
 \end{frame}
 
 \end{document}
