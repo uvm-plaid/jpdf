@@ -223,15 +223,21 @@
   \end{block}
 
   \begin{itemize}
-  \item Messages $\mx{ss1}$ through $\mx{ss3}$ are \emph{not} probabilistically independent of inputs
-    secrets, but ...
-  \item They \emph{are} independent of secrets conditioned on the output!
+  \item Messages $\mx{ss1}$ through $\mx{ss3}$ are \emph{not} probabilistically independent of inputs, but ...
+  \item They \emph{are} independent of secrets conditioned on the output! 
   \end{itemize}
   
 \end{frame}
 
 \begin{frame}{Example contd.: Output}
 
+  \begin{alertblock}
+    Any $\mx{ss1}{*},\mx{ss2}{*},\mx{ss3}{*}$ such that:
+    $$
+    \mx{ss1}{*} + \mx{ss2}{*} + \mx{ss3}{*} = \sx{1}{1} + \sx{2}{2}  + \sx{3}{3}
+    $$
+    are \cemph{equally likely}.
+  \end{alertblock}
   The output phase does not reveal additional information, but is
   algebraically correct.
   \begin{block}{Client Outputs}
