@@ -5,6 +5,9 @@
 \usetheme{CambridgeUS}
 \usecolortheme{default}
 
+\usepackage[style=verbose,backend=biber]{biblatex}
+\addbibresource{secure-computation-bibliography.bib}
+
 \input{slide-macros}
 
 % Title page details: 
@@ -44,17 +47,22 @@
   \begin{itemize}
   \item The inputs are \cemph{secret values} of \cemph{clients} in a \emph{federation}
     $\setit{1,...,j}$.
-  \item The \cemph{output} is made publicly available by $\prog$
+  \item The \cemph{output} is made \emph{publicly available} by $\prog$
   \end{itemize}
   The output may leak secret information to an \cemph{adversary} trying to
-  guess secret values.  Consider:
+  guess secret values.
+
+  \begin{exampleblock}{Consider:}
   $$
   \idealf(x,y) = x * y
   $$
-  If the output is odd, the adversary knows both secrets must be.  
+  If the output is odd, the adversary knows both $x$ and $y$ must be, even
+  if $x$ and $y$ remain hidden.
+  \end{exampleblock}
+  
 \end{frame}
  
-\begin{frame}{Protocol Implementation}
+\begin{frame}{Protocol Implementation in Overture}
 
   Low-level, probabilistic protocols are defined in terms of basic variable types
   (identifiers $x$ distinguish them):
@@ -66,7 +74,7 @@
   \end{itemize}
   We can localize variables and expressions to \emph{clients}, and any information
   exchanged between clients must be through messaging.
-  \begin{exampleblock}{Toy Example}
+  \begin{exampleblock}{Toy Example:}
     $$
     \begin{array}{rcl@{\qquad}l}
       \mx{x}{1} &:=& \elab{(\secret{x} - \flip{x})}{2}  & \textit{(unicast)}\\
@@ -78,7 +86,7 @@
 
 \begin{frame}{(Passive) Threat Model}
   The adversary wants to guess secrets. In addition to knowing the public
-  output, the adversary may also corrupt some subset of clients $C$:
+  output, the adversary may also corrupt \emph{any} subset of clients $C$:
   \begin{itemize}
   \item adversary has access to the secrets of clients in $C$.
   \item adversary has access to messages received by members of $C$ during execution of $\prog$,
@@ -210,6 +218,27 @@
   %  either $\sx{1}{1} = 0 \wedge \sx{2}{2} = 1$ or
   %  $\sx{1}{1} = 1 \wedge \sx{2}{2} = 0$.
   %\end{exampleblock}
+  
+\end{frame}
+
+\section{Models of a Protocol}
+
+\begin{frame}{Computing Protocol Distributions}
+
+  The probability distribution of a protocol $\prog$ (as a pmf) can be precisely computed
+  by interpretation as a \cemph{constraint program}.
+  \begin{itemize}
+  \item Interpretation as a Datalog program-- set of Least Herbrand Models.
+    \begin{itemize}
+      \item Random tapes represented as fact base.
+    \end{itemize}
+  \item Interpretation as SMT constraints \footnote{Ozdemir, A., Kremer, G., Tinelli, C., Barrett, C. (2023). \emph{Satisfiability Modulo Finite Fields}. In: Enea, C., Lal, A. (eds) Computer Aided Verification. CAV 2023. }-- set of all models.
+  \end{itemize}
+  Set of models can be queried to enforce hyperproperties-- but poor scaling.
+
+  \begin{alertblock}{Hypothesis: Composable Properties}
+    Compositional properties of protocol components can be independently verified, tractably.
+  \end{alertblock}
   
 \end{frame}
 

@@ -1044,3 +1044,20 @@ author = {Walid Taha and Tim Sheard},
 keywords = {Functional programming, -Calculus, High-level program generation, Type-safety, Type-systems, Programming language semantics, Multi-level languages, Multi-stage languages},
 abstract = {We introduce MetaML, a practically motivated, statically typed multi-stage programming language. MetaML is a “real” language. We have built an implementation and used it to solve multi-stage problems. MetaML allows the programmer to construct, combine, and execute code fragments in a type-safe manner. Code fragments can contain free variables, but they obey the static-scoping principle. MetaML performs type-checking for all stages once and for all before the execution of the first stage. Certain anomalies with our first MetaML implementation led us to formalize an illustrative subset of the MetaML implementation. We present both a big-step semantics and type system for this subset, and prove the type system's soundness with respect to a big-step semantics. From a software engineering point of view, this means that generators written in the MetaML subset never generate unsafe programs. A type system and semantics for full MetaML is still ongoing work. We argue that multi-stage languages are useful as programming languages in their own right, that they supply a sound basis for high-level program generation technology, and that they should support features that make it possible for programmers to write staged computations without significantly changing their normal programming style. To illustrate this we provide a simple three-stage example elaborating a number of practical issues. The design of MetaML was based on two main principles that we identified as fundamental for high-level program generation, namely, cross-stage persistence and cross-stage safety. We present these principles, explain the technical problems they give rise to, and how we address with these problems in our implementation.}
 }
+
+@InProceedings{SMFF,
+author="Ozdemir, Alex
+and Kremer, Gereon
+and Tinelli, Cesare
+and Barrett, Clark",
+editor="Enea, Constantin
+and Lal, Akash",
+title="Satisfiability Modulo Finite Fields",
+booktitle="Computer Aided Verification",
+year="2023",
+publisher="Springer Nature Switzerland",
+address="Cham",
+pages="163--186",
+abstract="We study satisfiability modulo the theory of finite fields and give a decision procedure for this theory. We implement our procedure for prime fields inside the cvc5 SMT solver. Using this theory, we construct SMT queries that encode translation validation for various zero knowledge proof compilers applied to Boolean computations. We evaluate our procedure on these benchmarks. Our experiments show that our implementation is superior to previous approaches (which encode field arithmetic using integers or bit-vectors).",
+isbn="978-3-031-37703-7"
+}
