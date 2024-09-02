@@ -263,11 +263,11 @@
   The probability distribution of a protocol $\prog$ (as a pmf) can be precisely computed
   by interpretation as a \cemph{constraint program}.
   \begin{itemize}
-  \item Interpretation as a Datalog program-- set of Least Herbrand Models.
+  \item $\mathbb{F}_2$ interpretation as a Datalog program-- set of Least Herbrand Models.
     \begin{itemize}
       \item Random tapes represented as fact base.
     \end{itemize}
-  \item Interpretation as SMT constraints\footnote{Ozdemir, A., Kremer, G., Tinelli, C., Barrett, C. (2023). \emph{Satisfiability Modulo Finite Fields}. In: Enea, C., Lal, A. (eds) Computer Aided Verification. CAV 2023. }-- set of all models.
+  \item $\mathbb{F}_p$ interpretation as SMT constraints\footnote{Ozdemir, A., Kremer, G., Tinelli, C., Barrett, C. (2023). \emph{Satisfiability Modulo Finite Fields}. In: Enea, C., Lal, A. (eds) Computer Aided Verification. CAV 2023. }-- set of all models.
   \end{itemize}
   Set of models can be queried to enforce hyperproperties-- but poor scaling.
 
