@@ -39,6 +39,41 @@
 %     \tableofcontents
 % \end{frame}
 
+\section{Overview}
+
+\begin{frame}{Background}
+  
+  \cemph{Secure Multiparty Computation (MPC)} is a paradigm for
+  \cemph{confidential computing}.
+  \begin{itemize}
+  \item Guarantees data privacy.
+  \item Software-based protocols (vs., e.g., enclaves).
+  \item No trusted 3rd party.
+  \end{itemize}
+  Many existing deployments: voting, auctions, satellite trajectories, COVID exposure notification, ...\footnote{https://mpc.cs.berkeley.edu}
+
+  \medskip
+
+  Various language frameworks, including MPyC, Fairplay, Viaduct.
+\end{frame}
+
+\begin{frame}{Contributions}
+
+  Existing HLLs rely on low-level MPC protocols with correctness
+  assumed.
+  \begin{itemize}
+  \item Low-level protocols possess distinct features, e.g., probabilistic sampling.
+  \item Existing proof techniques manual, error prone, complex security model.
+  \end{itemize}
+  Our contributions:
+  \begin{itemize}
+  \item Language design for low-level protocol definitions.
+  \item (Re)formulation of security mode as \cemph{hyperoperties} (e.g., noninterference).
+  \item Automated proof techniques.
+  \end{itemize}
+  
+\end{frame}
+
 \section{What's an MPC Protocol}
 
 \begin{frame}{The Ideal Functionality}
