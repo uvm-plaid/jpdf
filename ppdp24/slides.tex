@@ -69,7 +69,10 @@
   \begin{itemize}
   \item Language design for low-level protocol definitions.
   \item (Re)formulation of security mode as \cemph{hyperproperties} (e.g., noninterference).
-  \item Automated proof techniques.
+  \item Semi-automated proof techniques.
+    \begin{itemize}
+    \item Automatically verify small program components, manually combine for whole-program proofs. 
+    \end{itemize}
   \end{itemize}
   
 \end{frame}
@@ -136,7 +139,7 @@
 
 \begin{frame}{Declassification of the Ideal Functionality}
 
-  \begin{exampleblock}{Example: 3-Party xor}
+  \begin{exampleblock}{Example: 3-Party xor in $\mathbb{F}_2$}
   $$
   \idealf(\sx{1}{1},\sx{2}{2},\sx{3}{3}) =
   \sx{1}{1}\ \exor\ \sx{2}{2}\ \exor\ \sx{3}{3}
@@ -223,8 +226,8 @@
   \end{block}
 
   \begin{itemize}
-  \item Messages $\mx{ss1}$ through $\mx{ss3}$ are \emph{not} probabilistically independent of inputs, but ...
-  \item They \emph{are} independent of secrets conditioned on the output!
+  \item Messages $\mx{ss1}$ through $\mx{ss3}$ are \cemph{not probabilistically independent of inputs}, but ...
+  \item They \emph{are} \cemph{independent of secrets conditioned on the output}!
   \end{itemize}
   
 \end{frame}
@@ -283,6 +286,27 @@
 \end{frame}
 
 \section{Compositional Properties of Circuits}
+
+\begin{frame}{Prelude and Component Definitions}
+
+  The Prelude language allows modular definition of Overture protocol components.
+  \begin{itemize}
+  \item Function definitions, function calls, structured data.
+  \item A \emph{staged} language that generates a complete Overture protocol
+    as a side effect.
+  \end{itemize}
+  In addition to programmer convenience, Prelude supports verification:
+  \begin{itemize}
+  \item Prelude functions define Overture (sub)protocols that can be automatically verified.
+  \item Large protocols can be verified manually by composing function properties. 
+  \end{itemize}
+
+  \begin{exampleblock}{Example: Summing Shares}
+    $$
+    \ttt{sum}(x,y,z,i) \{ \mx{z}{i} := \elab{\mesg{x} \fplus \mesg{y}}{i} \} 
+    $$
+  \end{exampleblock}
+\end{frame}
 
 \begin{frame}{Circuits and Gates}
 
