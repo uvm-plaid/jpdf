@@ -129,6 +129,8 @@
   \item adversary has access to the secrets of clients in $C$.
   \item adversary has access to messages received by members of $C$ during execution of $\prog$,
     aka \cemph{adversarial views}.
+  \item adversary cannot break the rules of the protol\footnote{Malicious security also
+  considered separately in our work.}.
   \end{itemize}
 
   \begin{alertblock}{Bounded Declassification}
@@ -204,7 +206,9 @@
     $$
   \end{block}
   \begin{itemize}
-  \item \emph{algebraically} we have $\sx{1}{1} = \elab{\mesg{s1}}{2} + \elab{\mesg{s1}}{3} + \elab{\locflip}{1}$, etc.
+  \item $\elab{\mesg{s1}}{2}, \elab{\mesg{s1}}{3}, \elab{\locflip}{1}$ are the \emph{shares} of $\sx{1}{1}$,
+    etc.
+  \item \emph{algebraically} $\sx{1}{1} = \elab{\mesg{s1}}{2} + \elab{\mesg{s1}}{3} + \elab{\locflip}{1}$.
   \item \emph{probabilistically} any 2 out of three shares are in a uniform random distribution.
   \end{itemize}
   
