@@ -154,7 +154,7 @@
   $$
   \sx{1}{1} = 1 \text{\ and\ } \sx{2}{2} = 0
   $$
-  with equal probability of .5. \cemph{Adversarial views from the run of $\prog$ should not
+  with equal joint probability of .5. \cemph{Adversarial views from the run of $\prog$ should not
     allow the adversary better guesses.}
   \end{exampleblock}
   
@@ -322,17 +322,20 @@
 
   \begin{exampleblock}{Example: 2-Party GMW in $\mathbb{F}_2$}
     Rep.~invariant: each client in $\setit{1,2}$ holds a share of wire values.
+
+    \medskip
+  
+    $\ttt{andgmw}(x,y,z)$:
+    
     \begin{itemize}
-    \item $\ttt{andgmw}(x,y,z)$:
-      \begin{itemize}
-      \item Input shares $\mx{x}{1}$, $\mx{x}{2}$ and $\mx{y}{1}$, $\mx{y}{2}$--
-        wire value for $x$ is $\mx{x}{1} + \mx{x}{2}$, etc.
-      \item Output shares $\mx{z}{1}$, $\mx{z}{2}$ received during gate execution.
-        $$
-        \mx{z}{1} + \mx{z}{2} = (\mx{x}{1} + \mx{x}{2}) * (\mx{y}{1} + \mx{y}{2})
-        $$
-      \end{itemize}
-    \end{itemize}    
+    \item Input shares $\mx{x}{1}$, $\mx{x}{2}$ and $\mx{y}{1}$, $\mx{y}{2}$--
+      wire value for $x$ is $\mx{x}{1} + \mx{x}{2}$, etc.
+    \item Output shares $\mx{z}{1}$, $\mx{z}{2}$ received during gate execution.
+      $$
+      \mx{z}{1} + \mx{z}{2} = (\mx{x}{1} + \mx{x}{2}) * (\mx{y}{1} + \mx{y}{2})
+      $$
+    \end{itemize}
+
   \end{exampleblock}
 
 \end{frame}
@@ -340,26 +343,24 @@
 \begin{frame}
   
   \begin{exampleblock}{2-Party GMW (Contd.)}
+
+    Picking dummy $x,y,z$, we can execute $\ttt{andgmw}(x,y,z)$
+    to generate a generic ``and'' gate $\prog_{\wedge}$ in Overture.
     \begin{itemize}
-    \item $\ttt{andgmw}(x,y,z)$:
-      \begin{itemize}
-      \item Picking dummy for $x,y,z$, we can automatically generate a
-        generic ``and'' gate $\prog_{\wedge}$ in Overture
-      \item Automatically calculate the pmf of $\prog_{\wedge}$.
-      \item Pmf can be queried to verify critical properties-- e.g., the
-        uniform distribution of output shares under any input conditions. 
-      \end{itemize}
-      Once properties of gates are verified, we can show that rep.~invariants
-      are maintained in any circuit.
-      \begin{itemize}
-      \item Leverage logics for reasoning about probabilistic programming: Probabilistic
-        Separation Logic, Lilac.
-      \item Manual proofs, but automated tactics and applicability to any circuit.
-      \end{itemize}
+    \item Automatically calculate the pmf of $\prog_{\wedge}$.
+    \item Pmf can be queried to verify critical properties-- e.g., the
+      uniform distribution of output shares under any input conditions. 
     \end{itemize}
-    
+    Once properties of gates are verified, we can prove that rep.~invariants
+    are maintained in any circuit.
+    \begin{itemize}
+    \item Manual proofs, but automated tactics and applicability to any circuit.
+    \item Leverage logics for reasoning about probabilistic programming: Probabilistic
+      Separation Logic, Lilac.
+    \end{itemize}
+ 
   \end{exampleblock}
-    
+  
 \end{frame}
 
 \section{Conclusion and Future Work}
