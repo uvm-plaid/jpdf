@@ -295,17 +295,19 @@
   \item A \emph{staged} language that generates a complete Overture protocol
     as a side effect.
   \end{itemize}
+  
+  \begin{exampleblock}{Example: Summing Shares}
+    $$
+    \ttt{sum}(x,y,z,i) \{ \mx{z}{i} := \elab{\mesg{x} \fplus \mesg{y}}{i} \} 
+    $$
+  \end{exampleblock}
+
   In addition to programmer convenience, Prelude supports verification:
   \begin{itemize}
   \item Prelude functions define Overture (sub)protocols that can be automatically verified.
   \item Large protocols can be verified manually by composing function properties. 
   \end{itemize}
 
-  \begin{exampleblock}{Example: Summing Shares}
-    $$
-    \ttt{sum}(x,y,z,i) \{ \mx{z}{i} := \elab{\mesg{x} \fplus \mesg{y}}{i} \} 
-    $$
-  \end{exampleblock}
 \end{frame}
 
 \begin{frame}{Circuits and Gates}
@@ -326,8 +328,7 @@
         wire value for $x$ is $\mx{x}{1} + \mx{x}{2}$, etc.
       \item Output shares $\mx{z}{1}$, $\mx{z}{2}$ received during gate execution.
       \end{itemize}
-    \end{itemize}
-    
+    \end{itemize}    
   \end{exampleblock}
 
 \end{frame}
