@@ -21,12 +21,12 @@ public class SolverExtension {
         new ParseTreeWalker().walk(listener, tree);
         Iterable<Memory> memoryList = listener.memories();
 
-        System.out.println(memoryList);
+        //System.out.println(memoryList);
         OvertureConstraintListener overtureConstraintListener = new OvertureConstraintListener(termManager, prime, memoryList);
 
         // iterate over commands in the parse tree
         for (OvertureParser.CommandContext commandContext : tree.command()){
-            System.out.println(overtureConstraintListener.visit(commandContext));
+           // System.out.println(overtureConstraintListener.visit(commandContext));
             solver.assertFormula(overtureConstraintListener.visit(commandContext));
 
         }

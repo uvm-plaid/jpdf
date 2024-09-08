@@ -90,7 +90,21 @@ public class App
         System.out.println(r_unsat);
         */
         
-
+        // prelude demo
+        String program = """
+                         decodegmw(z) {
+                            p["1"] := m[z]@1; p["2"] := m[z]@2;
+                            out@1 := (p["1"] + p["2"])@1;
+                            out@2 := (p["1"] + p["2"])@2
+                         }
+                         """;
+        ANTLRInputStream input = new ANTLRInputStream(program);
+        PreludeLexer lexer = new PreludeLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        PreludeParser parser = new PreludeParser(tokens);
+        parser.setBuildParseTree(true);
+        PreludeParser.ProgramContext pc = parser.program();
+        System.out.println(pc.toStringTree(parser));
         /*
         //String prog = "p[\"foo\"] * 12 + m[\"bar\"]";
         String prog = "m[\"foo\"]@2 := (s[\"x\"] + -r[\"y\"])@1";
