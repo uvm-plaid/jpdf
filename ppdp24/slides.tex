@@ -307,17 +307,18 @@
     $$
   \end{exampleblock}
 
-  In addition to programmer convenience, Prelude supports verification:
-  \begin{itemize}
-  \item Prelude functions define Overture (sub)protocols that can be automatically verified.
-  \item Large protocols can be verified manually by composing function properties. 
-  \end{itemize}
+  In addition to programmer convenience, Prelude supports function-level verification.
+  %Prelude supports verification:
+  %\begin{itemize}
+  %\item Prelude functions define Overture (sub)protocols that can be automatically verified.
+  %\item Large protocols can be verified manually by composing function properties. 
+  %\end{itemize}
 
 \end{frame}
 
-\begin{frame}{Circuits and Gates}
+\begin{frame}{Circuits and Gate Paradigms}
 
-  Protocols such as Goldreich-Micali-Wigderson (GMW) implement $\idealf$ as a \cemph{circuit}.
+  Goldreich-Micali-Wigderson (GMW) protocol implements $\idealf$ as a \cemph{circuit}.
   \begin{itemize}
   \item Composed by combing-- aka ``wiring''-- \cemph{gates}.
   \item Each gate standard definition, supports primitive $\fplus$ and $\ftimes$.
@@ -355,10 +356,9 @@
     \item Pmf can be queried to verify critical properties-- e.g., the
       uniform distribution of output shares under any input conditions. 
     \end{itemize}
-    Once properties of gates are verified, we can prove that rep.~invariants
-    are maintained in any circuit.
+    Gate verification serves as a \emph{tactic} for manual circuit-level
+    proofs. 
     \begin{itemize}
-    \item Manual proofs, but automated tactics and applicability to any circuit.
     \item Leverage logics for reasoning about probabilistic programming: Probabilistic
       Separation Logic, Lilac.
     \end{itemize}
