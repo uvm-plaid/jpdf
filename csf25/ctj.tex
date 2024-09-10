@@ -63,6 +63,8 @@ it is also important that we ensure that samples are used at most once
 for encryption. As in previous work \cite{darais2019language} we can
 use a form of type linearity to this end.
 
+\cpjfig
+
 The syntax of types $\ty$ and type environments $\Gamma$ are presented
 in Figure \ref{fig-cpj}\cnote{need to fix set notations}. We also
 define type judgements for expressions and programs by direct
@@ -90,68 +92,21 @@ It is important to note that this presentation of derivations is
 logical, not algorithmic-- in particular it is not syntax-directed
 due to the \TirName{Encode} rule.
 
-\begin{fpfig}[t]{Syntax and Derivation Rules for $\minicat$ Confidentiality Types}{fig-cpj}
-\small{
-$$
-\begin{array}{rcl@{\hspace{3mm}}l}
-  t &::=& x \mid \cty{x}{T} \\
-  \ty & \in & 2^{t} & \gdesc{types}\\
-  \Gamma &::=& \varnothing \mid \Gamma; x : \ty & \gdesc{type environments}
-\end{array} 
-$$
-\medskip
-\begin{mathpar}
-  \inferrule[DepTy]
-  {}
-  {\eqj{\varnothing}{\eqs}{\phi}{\vars(\phi)}}
-  
-  \inferrule[Encode]
-  {\eqs \models \phi \eop \phi' \oplus \rx{w}{\cid} \\
-   \oplus \in \{ \fplus,\fminus \}\\
-   \eqj{R}{\eqs}{\phi'}{\ty}}
-  {\eqj{R;\{ \rx{w}{\cid} \}}{\eqs}{\phi}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
-\end{mathpar}
-
-\begin{mathpar}
-  \inferrule[Send]
-            {\eqj{R}{\eqs}{\phi}{\ty}}
-            {\cpj{R}{\eqs}{x \eop \phi}{(x : \ty)}}
-            
-  \inferrule[Seq]
-            {\cpj{R_1}{\eqs}{\phi_1}{\Gamma_1}\\
-             \cpj{R_2}{\eqs}{\phi_2}{\Gamma_2}}
-            {\cpj{R_1;R_2}{\eqs}{\phi_1 \wedge \phi_2}{\Gamma_1;\Gamma_2}}
-\end{mathpar}
-}
-\end{fpfig}
-
-\begin{fpfig}[t]{Dependencies in Corrupt Views: Derivation Rules}{fig-leakj}
-\small{
-\begin{mathpar}
-  \inferrule
-      {\cid \in C}
-      {\leakj{\Gamma}{C}{\Gamma(\mx{w}{\cid})}}
-
-  \inferrule
-      {\leakj{\Gamma}{C}{T_1 \cup T_2}}
-      {\leakj{\Gamma}{C}{T_1}}
-
-  \inferrule
-      {\leakj{\Gamma}{C}{\setit{ \mx{w}{\cid} }}}
-      {\leakj{\Gamma}{C}{\Gamma(\mx{w}{\cid})}}
-
-  \inferrule
-      {\leakj{\Gamma}{C}{\setit{ \rx{w}{\cid} }} \\ \leakj{\Gamma}{C}{\setit{ \cty{\rx{w}{\cid}}{\ty} }} }
-      {\leakj{\Gamma}{C}{\ty}}
-\end{mathpar}
-}
-\end{fpfig}
-
 \subsection{Detecting Leakage Through Dependencies}
 
-Given a valid typing, we need to determine the information accessible by the
-adversary, who will have control over all corrupt clients in $C$ given
-a partitioning $H,C$.  
+\leakjfig
+
+Given a valid typing, we need to conservatively approximate the
+information accessible by the adversary, who will have control over
+all corrupt clients in $C$ given a partitioning $H,C$. In particular,
+if the adversary has access to an encypted value and another value
+that is dependent on its one-time-pad key-- i.e., access to values
+with types of the forms:
+$$
+\setit{\cty{\rx{x}{\cid}}{\ty}} \qquad \setit{\rx{x}{\cid}, \ldots} 
+$$
+then we can conservatively assume that the adversary can decrypt the
+value of type $\ty$.
 
 \begin{theorem}
   If $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid and there exists no $H,C$ 

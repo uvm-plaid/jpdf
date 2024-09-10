@@ -81,7 +81,7 @@
 
 \begin{frame}{The Ideal Functionality}
   A \emph{protocol} $\prog$ implements an \emph{ideal functionality} $\idealf$,
-  defined in terms of operations in a prime field $\mathbb{F}_p$.
+  defined in terms of operations $(+,-,*)$ in a prime field $\mathbb{F}_p$.
   \begin{itemize}
   \item The inputs are \cemph{secret values} of \cemph{clients} in a \emph{federation}
     $\setit{1,...,j}$.
@@ -141,7 +141,7 @@
 
 \begin{frame}{Declassification of the Ideal Functionality}
 
-  \begin{exampleblock}{Example: 3-Party $\fplus$} %in $\mathbb{F}_2$ (where $\fplus$ is $\exor$ and $\ftimes$ is $\wedge$)}
+  \begin{exampleblock}{Example: 3-Party $\fplus$ in $\mathbb{F}_2$ (where $\fplus$ is $\exor$ and $\ftimes$ is $\wedge$)}
   $$
   \idealf(\sx{1}{1},\sx{2}{2},\sx{3}{3}) =
   \sx{1}{1}\ \fplus\ \sx{2}{2}\ \fplus\ \sx{3}{3}
@@ -170,20 +170,19 @@
       induces a probability distribution of program variables.
     \item Conditioning on the output and corrupt secrets =  declassification
       bounds.
-    \item Conditioning on adversarial views tells us whether they leak information--
-      if it changes the distribution of honest secrets.
+    \item Conditioning on adversarial views = distribution of honest secrets.
   \end{itemize}
   
   \begin{alertblock}{Conditional Noninterference}
     The probability of honest secrets conditioned on the protocol output
     should not be changed by conditioning on adversarial views. 
-  \end{alertblock}
 
   \begin{itemize}
   \item Sound for the standard \emph{passive simulator security} model.
-  \item A \emph{hyperproperty} that accommodates traditional PL-based security
-    mechanisms and theory. 
+  %\item A \emph{hyperproperty} that accommodates traditional PL-based security
+  %  mechanisms and theory. 
   \end{itemize}
+  \end{alertblock}
   
 \end{frame}
 

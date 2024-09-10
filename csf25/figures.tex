@@ -90,4 +90,64 @@ $$}
 \end{mathpar}}
 \end{fpfig}
 }
-           
+
+\newcommand{\cpjfig}{
+\begin{fpfig}[t]{Syntax and Derivation Rules for $\minicat$ Confidentiality Types}{fig-cpj}
+\small{
+$$
+\begin{array}{rcl@{\hspace{3mm}}l}
+  t &::=& x \mid \cty{x}{T} \\
+  \ty & \in & 2^{t} & \gdesc{confidentiality types}\\
+  \Gamma &::=& \varnothing \mid \Gamma; x : \ty & \gdesc{confidentiality type environments}
+\end{array} 
+$$
+\medskip
+\begin{mathpar}
+  \inferrule[DepTy]
+  {}
+  {\eqj{\varnothing}{\eqs}{\phi}{\vars(\phi)}}
+  
+  \inferrule[Encode]
+  {\eqs \models \phi \eop \phi' \oplus \rx{w}{\cid} \\
+   \oplus \in \{ \fplus,\fminus \}\\
+   \eqj{R}{\eqs}{\phi'}{\ty}}
+  {\eqj{R;\{ \rx{w}{\cid} \}}{\eqs}{\phi}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Send]
+            {\eqj{R}{\eqs}{\phi}{\ty}}
+            {\cpj{R}{\eqs}{x \eop \phi}{(x : \ty)}}
+            
+  \inferrule[Seq]
+            {\cpj{R_1}{\eqs}{\phi_1}{\Gamma_1}\\
+             \cpj{R_2}{\eqs}{\phi_2}{\Gamma_2}}
+            {\cpj{R_1;R_2}{\eqs}{\phi_1 \wedge \phi_2}{\Gamma_1;\Gamma_2}}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\leakjfig}{
+\begin{fpfig}[t]{Dependencies in Corrupt Views: Derivation Rules}{fig-leakj}
+\small{
+\begin{mathpar}
+  \inferrule
+      {\cid \in C}
+      {\leakj{\Gamma}{C}{\Gamma(\mx{w}{\cid})}}
+
+  \inferrule
+      {\leakj{\Gamma}{C}{T_1 \cup T_2}}
+      {\leakj{\Gamma}{C}{T_1}}
+
+  \inferrule
+      {\leakj{\Gamma}{C}{\setit{ \mx{w}{\cid} }}}
+      {\leakj{\Gamma}{C}{\Gamma(\mx{w}{\cid})}}
+
+  \inferrule
+      {\leakj{\Gamma}{C}{\setit{ \rx{w}{\cid} }} \\ \leakj{\Gamma}{C}{\setit{ \cty{\rx{w}{\cid}}{\ty} }} }
+      {\leakj{\Gamma}{C}{\ty}}
+\end{mathpar}
+}
+\end{fpfig}
+}
