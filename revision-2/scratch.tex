@@ -398,7 +398,7 @@ $$
       {f(e_1,\ldots,e_n) \redx \mv}
 
   \inferrule
-      {e_1 \redx \mv_1 \cdots e_n \redx \mv_n }
+      {e_1 \redx \mv_1 \\ \cdots \\ e_n \redx \mv_n }
       {\{ \flab_1 = e_1; \ldots; \flab_n = e_n \} \redx \{ \flab_1 = \mv_1; \ldots; \flab_n = \mv_n \} }
 
   \inferrule
@@ -437,7 +437,7 @@ $$
 
   \inferrule
       {\codebase(f) = y_1,\ldots,y_n, \instr \\
-        e_1 \redx \mv_1\ \cdots\ e_n \redx \mv_n \\
+        e_1 \redx \mv_1 \ \cdots \ e_n \redx \mv_n \\
         \subn = [\mv_1/y_1]\cdots[\mv_n/y_n] \\
         \subn(\instr) \redx \prog
       }
