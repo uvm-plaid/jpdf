@@ -91,13 +91,53 @@ public class App
         */
         
         // prelude demo
-        String program = """
-                         decodegmw(z) {
-                            p["1"] := m[z]@1; p["2"] := m[z]@2;
-                            out@1 := (p["1"] + p["2"])@1;
-                            out@2 := (p["1"] + p["2"])@2
-                         }
-                         """;
+        // String program = """
+        //                 decodegmw(z) {
+        //                    p["1"] := m[z]@1; p["2"] := m[z]@2;
+        //                    out@1 := (p["1"] + p["2"])@1;
+        //                    out@2 := (p["1"] + p["2"])@2
+        //                 }
+        //                 """;
+
+        String program =
+//                """
+//                in(x, y) { x ++ y }
+//
+//                bar(x, y) { m[foo(x,y)] }
+//
+//                baz(x, y, i) { bar(x,y) := (s[foo(x,y)] + r[foo(y,x)])@i }
+//
+//                main() { baz("foo","bar",1); out@1 := bar("foo","bar")@1 }
+//                """;
+                """
+                        encodegmw(pin, i1, i2) {
+                        m[pin]@i2 := (s[pin] + r[pin])@i1;
+                        m[pin]@i1 := r[pin]@i1
+                        }
+                        andtablegmw(x, y, z) {
+                        let r11 = r[z] + (m[x] + true) * (m[y] + true) in
+                        let r10 = r[z] + (m[x] + true) * (m[y] + false) in
+                        let r01 = r[z] + (m[x] + false) * (m[y] + true) in
+                        let r00 = r[z] + (m[x] + false) * (m[y] + false) in
+                        { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
+                        }
+                        
+                        decodegmw(z) {
+                        p["1"] := m[z]@1; p["2"] := m[z]@2;
+                        out@1 := (p["1"] + p["2"])@1;
+                        out@2 := (p["1"] + p["2"])@2
+                        }
+                        main() {
+                        encodegmw("x",2,1);
+                        encodegmw("y",2,1);
+                        encodegmw("z",1,2);
+                        andgmw("g1","x","z");
+                        xorgmw("g2","g1","y");
+                        decodegmw("g2")
+                        }
+                        """;
+
+
         ANTLRInputStream input = new ANTLRInputStream(program);
         PreludeLexer lexer = new PreludeLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
