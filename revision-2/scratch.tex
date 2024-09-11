@@ -377,7 +377,7 @@ $$
   & & f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \mid e.\flab \mid \elab{e}{e} \mid y\\
   %  & \textit{expressions}\\
   \cmd &::=& %\msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
-  \assign{e}{e} \mid \assert{e = e} \mid f(e,\ldots,e) \mid  \cmd;\cmd \\[2mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
+  \assign{e}{e} \mid \elab{\assert{e = e}}{e} \mid f(e,\ldots,e) \mid  \cmd;\cmd \\[2mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
   \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
   \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
   \\ % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
@@ -432,8 +432,8 @@ $$
       {e_1;e_2 \redx \prog_1;\prog_2}
 
   \inferrule
-      {e_1 \redx \be_1 \\ e_2 \redx \be_2}
-      {\assert{e_1 = e_2} \redx \assert{\be_1 = \be_2}}
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2 \\ e_3 \redx \cid}
+      {\elab{\assert{e_1 = e_2}}{e_3} \redx \elab{\assert{\be_1 = \be_2}}{\cid}}
 
   \inferrule
       {\codebase(f) = y_1,\ldots,y_n, \instr \\
