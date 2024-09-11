@@ -94,7 +94,7 @@
 #1
 \end{tabbing}
 }
-\newcommand{\eassign}[2]{#1 := #2}
+\newcommand{\assign}[2]{#1 := #2}
 \newcommand{\ederef}[1]{\,!#1}
 \newcommand{\declass}[2]{\mathrm{declassify}_{#2}(#1)}
 \newcommand{\eendorse}[2]{\mathrm{endorse}_{#2}(#1)}
@@ -438,12 +438,13 @@
 \renewcommand{\secret}[1]{\ttt{s[}#1\ttt{]}}
 \newcommand{\key}[1]{\ttt{k[}#1\ttt{]}}
 \newcommand{\mesg}[1]{\ttt{m[}#1\ttt{]}}
-\newcommand{\out}[1]{\elab{\ttt{out}}{#1}}
+\newcommand{\outkw}{\ttt{out}}
+\newcommand{\out}[1]{\elab{\outkw}{#1}}
 \newcommand{\rvl}[1]{\ttt{p[}#1\ttt{]}}
 \renewcommand{\oracle}[1]{\ttt{H[}#1\ttt{]}}
 %\newcommand{\elab}[2]{#1_{#2}}
 \newcommand{\elab}[2]{#1\ttt{@}#2}
-\renewcommand{\eassign}[4]{\elab{#1}{#2} := \elab{#3}{#4}}
+\newcommand{\eassign}[4]{\elab{#1}{#2} := \elab{#3}{#4}}
 \newcommand{\xassign}[3]{#1 := \elab{#2}{#3}}
 \newcommand{\pubout}[3]{\out{#1} := \elab{#2}{#3}}
 \newcommand{\reveal}[3]{\rvl{#1} := \elab{#2}{#3}}

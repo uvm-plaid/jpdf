@@ -368,16 +368,16 @@ $$
 
 $$
 \begin{array}{rcl}
-  \notg{x} &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\[2mm]
+  %\notg{x} &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\[2mm]
   \multicolumn{3}{l}{\flab \in \mathrm{Field},\   y \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[1mm]
   %x &\in& \mathrm{EVar}\\
   %f &\in& \mathrm{FName}\\[2mm]
-  e &::=& \mv \mid \flip{e} \mid \secret{e} \mid \mesg{e} \mid \rvl{e} \mid e \bop e \mid
+  e &::=& \mv \mid \flip{e} \mid \secret{e} \mid \mesg{e} \mid \rvl{e} \mid \outkw \mid e \bop e \mid
   \elet{y}{e}{e} \mid \\
-  & & f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \mid e.\flab \mid \notg{x} \mid y\\
+  & & f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \mid e.\flab \mid \elab{e}{e} \mid y\\
   %  & \textit{expressions}\\
   \cmd &::=& %\msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
-  \xassign{e}{e}{e} \mid \elab{\assert{e = e}}{e} \mid f(e,\ldots,e) \mid  \cmd;\cmd \\[2mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
+  \assign{e}{e} \mid \assert{e = e} \mid f(e,\ldots,e) \mid  \cmd;\cmd \\[2mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
   \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
   \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
   \\ % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
@@ -418,22 +418,22 @@ $$
       {e_1 \fplus e_2 \redx \be_1 \fplus \be_2}
       
   \inferrule
-      {e_1 \redx w \\ e_2 \redx \cid}
-      {\mx{e_1}{e_2} \redx \mx{w}{\cid}}
+      {e_1 \redx \be \\ e_2 \redx \cid}
+      {\elab{e_1}{e_2} \redx \elab{\be}{\cid}}
 \end{mathpar}
 
 \begin{mathpar}
   \inferrule
-      {e_1 \redx x \\ e_2 \redx \be \\ e_3 \redx \cid}
-      {e_1 := \elab{e_2}{e_3} \redx x := \elab{\be}{\cid}}
+      {e_1 \redx x \\ e_2 \redx \elab{\be}{\cid}}
+      {\assign{e_1}{e_2} \redx \xassign{x}{\be}{\cid}}
 
   \inferrule
       {e_1 \redx \prog_1 \\ e_2 \redx \prog_2}
       {e_1;e_2 \redx \prog_1;\prog_2}
 
   \inferrule
-      {e_1 \redx \be_1 \\ e_2 \redx \be_2 \\ e_3 \redx \cid}
-      {\elab{\assert{e_1 = e_2}}{e_3} \redx \elab{\assert{\be_1 = \be_2}}{\cid}}
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2}
+      {\assert{e_1 = e_2} \redx \assert{\be_1 = \be_2}}
 
   \inferrule
       {\codebase(f) = y_1,\ldots,y_n, \instr \\
@@ -452,13 +452,13 @@ $$
 
 $$
 \begin{array}{rcl}
-  \notg{\phi} &::=& \notg{x} \mid \notg{\phi} \fplus \notg{\phi} \mid \notg{\phi} \fminus \notg{\phi} \mid \notg{\phi} \ftimes \notg{\phi} \\
+  \notg{\phi} &::=& e \mid \notg{\phi} \fplus \notg{\phi} \mid \notg{\phi} \fminus \notg{\phi} \mid \notg{\phi} \ftimes \notg{\phi} \\
   \notg{\eqs} &::=& \notg{\phi} \eop \notg{\phi} \mid \notg{\eqs} \wedge \notg{\eqs} \\
-  \notg{t} &::=& \notg{x} \mid \cty{\notg{x}}{\notg{\ty}} \\
+  \notg{t} &::=& e \mid \cty{e}{\notg{\ty}} \\
   \notg{\ty} & \in & 2^{\notg{t}}\\
   \notg{\Gamma} &::=& \varnothing \mid \notg\Gamma; e : \notg{\ty}\\
   \notg\Delta &::=& \varnothing \mid \notg\Delta; e : \ity{e}{\notg{V}}\\
-  \notg{X} &\in& 2^{\notg{x}}
+  \notg{X} &\in& 2^{e}
 \end{array}
 $$
 
@@ -478,8 +478,8 @@ $$
 
 \begin{mathpar}
   \inferrule
-      {e_1 \redx x \\ \notg{\ty} \redx \ty}
-      {\cty{e_1}{\notg{\ty}} \redx \cty{x}{\ty}}
+      {e \redx x \\ \notg{\ty} \redx \ty}
+      {\cty{e}{\notg{\ty}} \redx \cty{x}{\ty}}
       
   \inferrule
       {\notg{t_1} \redx t_1 \\ \cdots \\ \notg{t_n} \redx t_n}
