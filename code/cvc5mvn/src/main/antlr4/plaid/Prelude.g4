@@ -14,19 +14,19 @@ p_expression : p_expression binop p_expression #OperExprvalue
             | 'let' y '=' p_expression 'in' p_expression #LetExpr
             | fname LPAREN p_expression (',' p_expression)* RPAREN #FuncExpr
             | memloc #MemExpr
-            | p_variable #VarExpr
+            | p_expression AT p_expression #AtExpr
             | LCURLY l '=' p_expression (';' l '=' p_expression)* RCURLY #FieldExpr
             | y #EVarExpr
             | value #ValueExpr
             ;
 
 command : command (';' command) #ListCommand
-        | p_expression ASSIGN (LPAREN)? p_expression (RPAREN)? AT p_expression #AssignCommand
-        | 'assert' LPAREN p_expression '=' p_expression RPAREN AT p_expression #AssertCommand
+        | p_expression ASSIGN (LPAREN)? p_expression (RPAREN)? #AssignCommand
+        | 'assert' LPAREN p_expression '=' p_expression RPAREN #AssertCommand
         | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCommand
         ;
 
-p_variable : memloc AT p_expression;
+//p_variable : memloc AT p_expression;
 memloc : secretloc | randomloc | messageloc | publicloc;
 secretloc : SECRET index #SecretMemory;
 randomloc : RANDOM index #RandomMemory;
