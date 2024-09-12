@@ -94,25 +94,45 @@ due to the \TirName{Encode} rule.
 
 \subsection{Detecting Leakage Through Dependencies}
 
-\leakjfig
-
-Given a valid typing, we need to conservatively approximate the
-information accessible by the adversary, who will have control over
-all corrupt clients in $C$ given a partitioning $H,C$. In particular,
-if the adversary has access to an encypted value and another value
-that is dependent on its one-time-pad key-- i.e., access to values
-with types of the forms:
+Given a valid typing, we can leverage structural type information to
+conservatively approximate the information accessible by the
+adversary who has control over all corrupt clients in $C$ given
+a partitioning $H,C$. In particular, if the adversary has access to an
+encypted value and another value that is dependent on its one-time-pad
+key-- i.e., access to values with types of the forms:
 $$
 \setit{\cty{\rx{x}{\cid}}{\ty}} \qquad \setit{\rx{x}{\cid}, \ldots} 
 $$
 then we can conservatively assume that the adversary can decrypt the
-value of type $\ty$.
+value of type $\ty$ and thus have access to those values.
 
+In Figure \ref{fig-leakj} we define derivation rules for the
+``leakage'' judgement $\leakj{\Gamma}{C}{\ty}$ which intuitively says
+that given a protocol with type environment $\Gamma$ and corrupt
+clients $C$, the adversary may be able to observe dependencies on
+values of type $\ty$ in their adversarial messages.  The real aim of
+this relation is to determine if
+$\leakj{\Gamma}{C}{\setit{\sx{w}{\cid}}}$ with $\cid \in H$-- that is,
+if the adversary may observe dependencies on honest secrets.
+
+Our main type safety result combines typing and leakage judgements,
+and guarantees gradual release of protocols-- that is, that adversarial
+messages reflect no dependencies on honest secrets.
+\cnote{Need to define gradual release... should probably have a section
+  where we summarize hyperproperties.}
 \begin{theorem}
   If $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid and there exists no $H,C$ 
   and  $\sx{w}{\cid}$ for $\cid \in H$ with $\leakj{\Gamma}{C}{\setit{\sx{w}{\cid}}}$,
   then $\prog$ satisfies gradual release.
 \end{theorem}
+
+\leakjfig
+
+Of course, it is important to recall from \cite{skalka-near-ppdp24}
+that gradual release does \emph{not} imply passive security, since it
+only concerns adversarial messages, but not public reveals of outputs
+where dependencies on input secrects can occur even in secure
+protocols.
 
 \begin{comment}
 \subsection{Examples}
