@@ -152,7 +152,7 @@ the protocol is aborted. To model this, we extend $\minifed$ with an
 \ttt{assert} command:
 $$
     \begin{array}{rcl@{\hspace{2mm}}r}
-      \prog &::=& \cdots \mid \assert{\be = \be}
+      \prog &::=& \cdots \mid \elab{\assert{\be = \be}}{\cid}
     \end{array}
 $$
 As we will discuss, this form of asserting equality between expressions

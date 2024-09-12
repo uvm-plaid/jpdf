@@ -84,7 +84,7 @@ applied in SMT systems to implement our notion of entailment.
 \begin{mathpar}
   \toeq{\xassign{x}{\be}{\cid}} = x \eop \toeq{\elab{\be}{\cid}}
   
-  \toeq{\assert{\be_1 = \be_2}{\cid}} =  \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}
+  \toeq{\elab{\assert{\be_1 = \be_2}}{\cid}} =  \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}
 
   \toeq{\prog_1;\prog_2} = \toeq{\prog_1} \wedge \toeq{\prog_2} 
 \end{mathpar}}
