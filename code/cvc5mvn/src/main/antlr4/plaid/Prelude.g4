@@ -10,9 +10,9 @@ function : fname LPAREN (y (',' y)*)? RPAREN LCURLY p_expression RCURLY #ExprFun
 
 p_expression : p_expression binop p_expression #OperExprvalue
             | LPAREN p_expression RPAREN #ParenPExpr
-            | p_expression '.' l #FieldSelecExpr
+            | p_expression '.' l #FieldSelectExpr
             | 'let' y '=' p_expression 'in' p_expression #LetExpr
-            | fname LPAREN p_expression (',' p_expression)* RPAREN #FuncExpr
+            | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCallExpr
             | memloc #MemExpr
             | p_expression AT p_expression #AtExpr
             | LCURLY l '=' p_expression (';' l '=' p_expression)* RCURLY #FieldExpr
@@ -22,8 +22,8 @@ p_expression : p_expression binop p_expression #OperExprvalue
 
 command : command (';' command) #ListCommand
         | p_expression ASSIGN (LPAREN)? p_expression (RPAREN)? #AssignCommand
-        | 'assert' LPAREN p_expression '=' p_expression RPAREN #AssertCommand
-        | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCommand
+        | 'assert' LPAREN p_expression '=' p_expression RPAREN AT p_expression #AssertCommand
+        | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCallCommand
         ;
 
 //p_variable : memloc AT p_expression;
@@ -35,16 +35,16 @@ publicloc : PUBLIC index #PublicMemory;
 outputloc : OUTPUT #OutputMemory;
 index : LSQUARE p_expression RSQUARE;
 
-l : IDENTIFIER #Field;
-y : IDENTIFIER #EVar;
-fname : IDENTIFIER #FName;
-binop :  TIMES | PLUS | MINUS | CONCAT;
+l : IDENTIFIER;
+y : IDENTIFIER;
+fname : IDENTIFIER;
+binop :  TIMES #TimeOp| PLUS #PlusOp| MINUS #MinusOp| CONCAT #ConcatOp;
 
-value : STRING
-      | VALUE
-      | o_expression
-      | o_variable
-      | LCURLY l '=' value (';' l '=' value)* RCURLY
+value : STRING #StringVal
+      | VALUE #ValueVal
+      | o_expression #ExprVal
+      | o_variable #VarVal
+      | LCURLY l '=' value (';' l '=' value)* RCURLY #FieldVal
       ;
 
 o_expression : o_expression TIMES o_expression #TimesExpr

@@ -93,13 +93,21 @@ public class App
         // prelude demo
         String program =
                 """
-                foo(x, y) { x ++ y }
-
-                bar(x, y) { m[foo(x,y)] }
-
-                baz(x, y, i) { bar(x,y)@i := (s[foo(x,y)] + r[foo(y,x)])@i }
-
-                main() { baz("foo","bar",1); out@1 := bar("foo","bar")@1 }
+                        andtablegmw(x, y, z) {
+                                let r11 = r[z] + (m[x] + true) * (m[y] + true) in
+                                let r10 = r[z] + (m[x] + true) * (m[y] + false) in
+                                let r01 = r[z] + (m[x] + false) * (m[y] + true) in
+                                let r00 = r[z] + (m[x] + false) * (m[y] + false) in
+                                { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
+                        }
+                        
+                        andgmw(z, x, y) {
+                           let table = andtablegmw(x,y,z) in
+                           m[x]@1 := m[x]@2;
+                           m[y]@1 := m[y]@2;
+                           m[z]@2 := mux4(m[x], m[y], table.row1, table.row2, table.row3, table.row4)@1;
+                           m[z]@1 := r[z]@1
+                        }
                 """;
 
         ANTLRInputStream input = new ANTLRInputStream(program);
@@ -109,6 +117,8 @@ public class App
         parser.setBuildParseTree(true);
         PreludeParser.ProgramContext pc = parser.program();
         System.out.println(pc.toStringTree(parser));
+
+
         /*
         //String prog = "p[\"foo\"] * 12 + m[\"bar\"]";
         String prog = "m[\"foo\"]@2 := (s[\"x\"] + -r[\"y\"])@1";
@@ -137,15 +147,15 @@ public class App
 
         OvertureConstraintListener overtureConstraintListener = new OvertureConstraintListener(termManager, f7, memoryList);
         Term result = overtureConstraintListener.visit(pc);
-        System.out.println(result);*/
+        System.out.println(result);
 
 
-        // cvc5 demo
+        // old cvc5 demo
         // create a solver
         //TermManager termManager = new TermManager();
         //Solver solver = new Solver(termManager);
 
-// 2-party addition in F7
+        // 2-party addition in F7
         solver.resetAssertions();
         //Sort f7 = solver.mkFiniteFieldSort("7", 10);
 
@@ -288,7 +298,7 @@ public class App
                         solver.mkTerm(Kind.FINITE_FIELD_MULT, d, solver.mkTerm(Kind.FINITE_FIELD_MULT, m1, a)))));
 
         System.out.println(r_unsat);
-
+        */
 
 
     }
