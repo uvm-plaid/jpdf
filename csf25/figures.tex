@@ -151,3 +151,94 @@ $$
 }
 \end{fpfig}
 }
+
+\newcommand{\ipjfig}{
+\begin{fpfig}[t]{Syntax and derivation rule of $\minicat$ integrity types}{fig-ipj}
+\small{
+$$
+\begin{array}{rcl@{\hspace{4mm}}l}
+  \latel &::=& \hilab \mid \lolab & \gdesc{integrity labels} \\
+  \Delta &::=& \varnothing \mid \Delta; x : \ity{\cid}{V} & \gdesc{confidentiality type environments}
+\end{array} 
+$$
+
+\begin{mathpar}
+  \inferrule[Value]
+  {}
+  {\itj{\cid}{v}{\varnothing}}
+  
+  \inferrule[Secret]
+  {}
+  {\itj{\cid}{\secret{w}}{\varnothing}}
+  
+  \inferrule[Rando]
+  {}
+  {\itj{\cid}{\flip{w}}{\varnothing}}
+  
+  \inferrule[Mesg]
+  {}
+  {\itj{\cid}{\mesg{w}}{\setit{\mx{w}{\cid}}}}
+    
+  \inferrule[PubM]
+  {}
+  {\itj{\cid}{\rvl{w}}{\setit{\rvl{w}}}}
+
+  \inferrule[Binop]
+  {\itj{\cid}{\be_1}{V_1} \\
+   \itj{\cid}{\be_2}{V_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\itj{\cid}{\be_1 \oplus \be_2}{V_1 \cup V_2}}
+%
+%  \inferrule[IntegrityWeaken]
+%  {\itj{\Delta}{\eqs}{\cid}{\be}{\latel_1} \\ \latel_1 \sle \latel_2}
+%  {\itj{\Delta}{\eqs}{\cid}{\be}{\latel_2}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Send]
+            {\itj{\cid}{\be}{V}}
+            {\ipj{\eqs}{\xassign{x}{\be}{\cid}}{(x : \ity{\cid}{V})}}
+             
+%  \inferrule[Assert]
+%            {\eqs \models \toeq{\elab{\be_1}{\cid}} = \toeq{\elab{\be_2}{\cid}}}
+%            {\ej{\Delta}{R}{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Delta}{\eqs}}
+%            
+  \inferrule[Seq]
+            {\ipj{\eqs}{\prog_1}{\Delta_1}\\
+             \ipj{\eqs}{\prog_2}{\Delta_2}}
+            {\ipj{\eqs}{\prog_1;\prog_2}{\Delta_1;\Delta_2}}
+
+  \inferrule[MAC]
+            {\eqs \models \toeq{\elab{\assert{\macbdoz{w}}}{\cid}}}
+            {\ipj{\eqs}{\elab{\assert{\macbdoz{w}}}{\cid}}{(\mx{w\ttt{s}}{\cid}: \ity{\cid}{\varnothing})}}
+%
+%  \inferrule[MAC]
+%            {\eqs \models 
+%              \mx{w\ttt{m}}{\cid} \eop \mx{w\ttt{k}}{\cid} \fplus \ttt{(}\mx{\ttt{delta}}{\cid} \ftimes
+%                  \mx{w\ttt{s}}{\cid}\ttt{)}}
+%            {\ipj{\Delta}{\eqs}{
+%                \elab{\assert{\mesg{w\ttt{m}} \eop \mesg{w\ttt{k}} \fplus \ttt{(}\mesg{\ttt{delta}} \ftimes
+%                  \mesg{w\ttt{s}}\ttt{)}}}{\cid}}{\Delta;\mx{w\ttt{s}}{\cid}: \hilab }}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\cheatjfig}{
+\begin{fpfig}[t]{Assigning integrity labels to variables}{fig-cheatj}
+\small{
+\begin{mathpar}
+  \inferrule
+      {}
+      {\cheatj{\varnothing}{H,C}{\seclev_{H,C}}}
+      
+  \inferrule
+      {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in H}
+      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\hilab \wedge (\bigwedge_{x \in V} \seclev_2(x))}}}
+      
+  \inferrule
+      {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in C}
+      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\lolab}}}
+\end{mathpar}
+}
+\end{fpfig}
+}
