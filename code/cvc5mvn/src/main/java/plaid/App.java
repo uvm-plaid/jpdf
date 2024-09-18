@@ -1,17 +1,52 @@
 package plaid;
 
-import java.math.BigInteger;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.PrintStream;
+import java.io.InputStream;
 import java.util.*;
-
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
-
+import org.antlr.v4.runtime.tree.gui.TreeViewer;
 import io.github.cvc5.*;
-import java.math.BigInteger;
-import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 
 public class App 
 {
+    // allow arbitrary Prelude source code files to be input
+    // return a parse tree
+    public static String preludeParseTree(InputStream in) throws Exception{
+        // prelude demo
+        String program = new String(in.readAllBytes());
+        ANTLRInputStream input = new ANTLRInputStream(program);
+        PreludeLexer lexer = new PreludeLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        PreludeParser parser = new PreludeParser(tokens);
+        parser.setBuildParseTree(true);
+        PreludeParser.ProgramContext pc = parser.program();
+
+        System.out.println(pc.toStringTree(parser)); // show AST in console
+        //List<String> ruleNameList = Arrays.asList(parser.getRuleNames());
+        //String prettyTree = TreeUtils.toPrettyTree(pc, ruleNameList);
+
+//        //show AST in GUI
+//        JFrame frame = new JFrame("Antlr AST");
+//        JPanel panel = new JPanel();
+//        TreeViewer viewer = new TreeViewer(Arrays.asList(
+//                parser.getRuleNames()),tree);
+//        viewer.setScale(1.5); // Scale a little
+//        panel.add(viewer);
+//        frame.add(panel);
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.pack();
+//        frame.setVisible(true);
+        return pc.toStringTree(parser);
+    }
+
+    // return memories in an overture program
     public static Map<String, Term> createLookup(Iterable<Memory> memories){
         HashMap<String, Term> results = new HashMap<>();
 
@@ -23,9 +58,8 @@ public class App
         return results;
     }
 
-    public static void main( String[] args ) throws Exception
-    {
-        // antlr&cvc5 demo
+    // antlr&cvc5 demo
+    public static void overtureToCVC5() throws Exception{
         TermManager termManager = new TermManager();
         Solver solver = new Solver(termManager);
         solver.resetAssertions();
@@ -64,7 +98,17 @@ public class App
                 lookup.get("out_3")));
 
         System.out.println(r_unsat);
+    }
 
+    public static void main( String[] args ) throws Exception
+    {
+        // prelude demo
+        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/java/plaid/confidentiality_example.txt");
+        InputStream inputStream = new FileInputStream(file);
+        PrintStream outputStream = new PrintStream("parse tree for " + file.getName());
+        outputStream.println(preludeParseTree(inputStream));
+        inputStream.close();
+        outputStream.close();
 
         /*
         //2-party addition
@@ -90,33 +134,7 @@ public class App
         System.out.println(r_unsat);
         */
         
-        // prelude demo
-        String program =
-                """
-                        andtablegmw(x, y, z) {
-                                let r11 = r[z] + (m[x] + true) * (m[y] + true) in
-                                let r10 = r[z] + (m[x] + true) * (m[y] + false) in
-                                let r01 = r[z] + (m[x] + false) * (m[y] + true) in
-                                let r00 = r[z] + (m[x] + false) * (m[y] + false) in
-                                { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
-                        }
-                        
-                        andgmw(z, x, y) {
-                           let table = andtablegmw(x,y,z) in
-                           m[x]@1 := m[x]@2;
-                           m[y]@1 := m[y]@2;
-                           m[z]@2 := mux4(m[x], m[y], table.row1, table.row2, table.row3, table.row4)@1;
-                           m[z]@1 := r[z]@1
-                        }
-                """;
 
-        ANTLRInputStream input = new ANTLRInputStream(program);
-        PreludeLexer lexer = new PreludeLexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        PreludeParser parser = new PreludeParser(tokens);
-        parser.setBuildParseTree(true);
-        PreludeParser.ProgramContext pc = parser.program();
-        System.out.println(pc.toStringTree(parser));
 
 
         /*
