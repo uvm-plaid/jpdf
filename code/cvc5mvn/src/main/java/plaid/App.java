@@ -102,13 +102,21 @@ public class App
 
     public static void main( String[] args ) throws Exception
     {
-        // prelude demo
-        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/java/plaid/confidentiality_example.txt");
+        // prelude-overture demo
+        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/prelude-overture/confidentiality_example.txt");
         InputStream inputStream = new FileInputStream(file);
-        PrintStream outputStream = new PrintStream("parse tree for " + file.getName());
-        outputStream.println(preludeParseTree(inputStream));
+
+        Interpreter interpreter = new Interpreter();
+        interpreter.interpret(inputStream, System.out);
         inputStream.close();
-        outputStream.close();
+
+        // prelude demo
+//        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/java/plaid/confidentiality_example.txt");
+//        InputStream inputStream = new FileInputStream(file);
+//        PrintStream outputStream = new PrintStream("parse tree for " + file.getName());
+//        outputStream.println(preludeParseTree(inputStream));
+//        inputStream.close();
+//        outputStream.close();
 
         /*
         //2-party addition
