@@ -147,7 +147,7 @@ public class ExpressionEvaluator extends PreludeBaseVisitor<Object>{
     }
 
     @Override
-    public Object visitParenPExpr(PreludeParser.ParenPExprContext ctx) {
+    public String visitParenPExpr(PreludeParser.ParenPExprContext ctx) {
         // ( e )
         String e = (String)visit(ctx.p_expression());
         return (ctx.LPAREN() + e + ctx.RPAREN());

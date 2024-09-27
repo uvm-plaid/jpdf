@@ -17,10 +17,10 @@ p_expression : p_expression binop p_expression #OperExprvalue
             | p_expression AT p_expression #AtExpr
             | LCURLY l '=' p_expression (';' l '=' p_expression)* RCURLY #FieldExpr
             | y #EVarExpr
-            | value #ValueExpr
+            | value #ValExpr
             ;
 
-command : command (';' command) #ListCommand
+command : command (';' command) #CommandList
         | p_expression ASSIGN (LPAREN)? p_expression (RPAREN)? #AssignCommand
         | 'assert' LPAREN p_expression '=' p_expression RPAREN AT p_expression #AssertCommand
         | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCallCommand
@@ -28,34 +28,34 @@ command : command (';' command) #ListCommand
 
 //p_variable : memloc AT p_expression;
 memloc : secretloc | randomloc | messageloc | publicloc;
-secretloc : SECRET index #SecretMemory;
-randomloc : RANDOM index #RandomMemory;
-messageloc : MESSAGE index #MessageMemory;
-publicloc : PUBLIC index #PublicMemory;
-outputloc : OUTPUT #OutputMemory;
+secretloc : SECRET index #SecretExpr;
+randomloc : RANDOM index #RandomExpr;
+messageloc : MESSAGE index #MessageExpr;
+publicloc : PUBLIC index #PublicExpr;
+outputloc : OUTPUT #OutputExpr;
 index : LSQUARE p_expression RSQUARE;
 
 l : IDENTIFIER;
 y : IDENTIFIER;
 fname : IDENTIFIER;
-binop :  TIMES #TimeOp| PLUS #PlusOp| MINUS #MinusOp| CONCAT #ConcatOp;
+binop :  TIMES #TimesExpr| PLUS #PlusExpr| MINUS #MinusExpr| CONCAT #ConcatExpr;
 
-value : STRING #StringVal
-      | VALUE #ValueVal
-      | o_expression #ExprVal
-      | o_variable #VarVal
-      | LCURLY l '=' value (';' l '=' value)* RCURLY #FieldVal
+value : STRING #String
+      | VALUE #Val
+      | o_expression #Expr
+      | o_variable #Var
+      | LCURLY l '=' value (';' l '=' value)* RCURLY #Field
       ;
 
-o_expression : o_expression TIMES o_expression #TimesExpr
-            | o_expression PLUS o_expression #PlusExpr
-            | MINUS o_expression #MinusExpr
-            | LPAREN o_expression RPAREN #ParenOExpr
-            | RANDOM LSQUARE STRING RSQUARE #RandomExpr
-            | SECRET LSQUARE STRING RSQUARE #SecretExpr
-            | MESSAGE LSQUARE STRING RSQUARE #MessageExpr
-            | PUBLIC LSQUARE STRING RSQUARE #PublicExpr
-            | VALUE #ValExpr
+o_expression : o_expression TIMES o_expression #Times
+            | o_expression PLUS o_expression #Plus
+            | MINUS o_expression #Minus
+            | LPAREN o_expression RPAREN #Paren
+            | RANDOM LSQUARE STRING RSQUARE #RandomMemory
+            | SECRET LSQUARE STRING RSQUARE #SecretMemory
+            | MESSAGE LSQUARE STRING RSQUARE #MessageMemory
+            | PUBLIC LSQUARE STRING RSQUARE #PublicMemory
+            | VALUE #ValueExpr
             ;
 
 o_variable : RANDOM LSQUARE STRING RSQUARE AT VALUE #RandomVar
