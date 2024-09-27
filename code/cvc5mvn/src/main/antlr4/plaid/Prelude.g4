@@ -8,17 +8,23 @@ function : fname LPAREN (y (',' y)*)? RPAREN LCURLY p_expression RCURLY #ExprFun
           | fname LPAREN (y (',' y)*)? RPAREN LCURLY command RCURLY #CommandFunc
           ;
 
-p_expression : p_expression binop p_expression #OperExprvalue
-            | LPAREN p_expression RPAREN #ParenPExpr
-            | p_expression '.' l #FieldSelectExpr
-            | 'let' y '=' p_expression 'in' p_expression #LetExpr
-            | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCallExpr
-            | memloc #MemExpr
-            | p_expression AT p_expression #AtExpr
-            | LCURLY l '=' p_expression (';' l '=' p_expression)* RCURLY #FieldExpr
-            | y #EVarExpr
-            | value #ValExpr
-            ;
+p_expression
+    : p_expression TIMES p_expression #TimesExpr
+    | p_expression PLUS p_expression #PlusExpr
+    | p_expression MINUS p_expression #MinusExpr
+    | p_expression CONCAT p_expression #ConcatExpr
+    | LPAREN p_expression RPAREN #ParenPExpr
+    | p_expression '.' l #FieldSelectExpr
+    | 'let' y '=' p_expression 'in' p_expression #LetExpr
+    | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCallExpr
+    | memloc #MemExpr
+    | p_expression AT p_expression #AtExpr
+    | LCURLY l '=' p_expression (';' l '=' p_expression)* RCURLY #FieldExpr
+    | y #EVarExpr
+    /*| value #ValExpr*/
+    | STRING #Str
+    | VALUE #Val
+    ;
 
 command : command (';' command) #CommandList
         | p_expression ASSIGN (LPAREN)? p_expression (RPAREN)? #AssignCommand
@@ -38,14 +44,15 @@ index : LSQUARE p_expression RSQUARE;
 l : IDENTIFIER;
 y : IDENTIFIER;
 fname : IDENTIFIER;
-binop :  TIMES #TimesExpr| PLUS #PlusExpr| MINUS #MinusExpr| CONCAT #ConcatExpr;
 
+/*
 value : STRING #String
       | VALUE #Val
       | o_expression #Expr
       | o_variable #Var
       | LCURLY l '=' value (';' l '=' value)* RCURLY #Field
       ;
+*/
 
 o_expression : o_expression TIMES o_expression #Times
             | o_expression PLUS o_expression #Plus

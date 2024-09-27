@@ -59,46 +59,46 @@ public class App
     }
 
     // antlr&cvc5 demo
-    public static void overtureToCVC5() throws Exception{
-        TermManager termManager = new TermManager();
-        Solver solver = new Solver(termManager);
-        solver.resetAssertions();
-        solver.setLogic("ALL");
-        Sort f7 = termManager.mkFiniteFieldSort("7", 10);
-
-
-        // 3-party addition
-        String protocol = """
-                m["s1"]@2 := ((s["1"] + -r["local"]) + -r["x"])@1;
-                m["s1"]@3 := r["x"]@1;
-                m["s2"]@1 := ((s["2"] + -r["local"]) + -r["x"])@2;
-                m["s2"]@3 := r["x"]@2;
-                m["s3"]@1 := ((s["3"] + -r["local"]) + -r["x"])@3;
-                m["s3"]@2 := r["x"]@3;
-                p["1"] := ((r["local"] + m["s2"]) + m["s3"])@1;
-                p["2"] := ((m["s1"] + r["local"]) + m["s3"])@2;
-                p["3"] := ((m["s1"] + m["s2"]) + r["local"])@3;
-                out@1 := ((p["1"] + p["2"]) + p["3"])@1;
-                out@2 := ((p["1"] + p["2"]) + p["3"])@2;
-                out@3 := ((p["1"] + p["2"])+ p["3"])@3
-                
-                """;
-
-        Iterable<Memory> memoryList = SolverExtension.addOvertureProtocolConst(solver, f7, protocol);
-        // sanity check (should be sat)
-        System.out.println(solver.checkSat());
-
-        // correctness (should be unsat)
-        Map<String, Term> lookup = createLookup(memoryList);
-
-        Result r_unsat = solver.checkSatAssuming(termManager.mkTerm(Kind.DISTINCT,
-                termManager.mkTerm(Kind.FINITE_FIELD_ADD,
-                        termManager.mkTerm(Kind.FINITE_FIELD_ADD, lookup.get("s_1_1"), lookup.get("s_2_2")),
-                        lookup.get("s_3_3")),
-                lookup.get("out_3")));
-
-        System.out.println(r_unsat);
-    }
+//    public static void overtureToCVC5() throws Exception{
+//        TermManager termManager = new TermManager();
+//        Solver solver = new Solver(termManager);
+//        solver.resetAssertions();
+//        solver.setLogic("ALL");
+//        Sort f7 = termManager.mkFiniteFieldSort("7", 10);
+//
+//
+//        // 3-party addition
+//        String protocol = """
+//                m["s1"]@2 := ((s["1"] + -r["local"]) + -r["x"])@1;
+//                m["s1"]@3 := r["x"]@1;
+//                m["s2"]@1 := ((s["2"] + -r["local"]) + -r["x"])@2;
+//                m["s2"]@3 := r["x"]@2;
+//                m["s3"]@1 := ((s["3"] + -r["local"]) + -r["x"])@3;
+//                m["s3"]@2 := r["x"]@3;
+//                p["1"] := ((r["local"] + m["s2"]) + m["s3"])@1;
+//                p["2"] := ((m["s1"] + r["local"]) + m["s3"])@2;
+//                p["3"] := ((m["s1"] + m["s2"]) + r["local"])@3;
+//                out@1 := ((p["1"] + p["2"]) + p["3"])@1;
+//                out@2 := ((p["1"] + p["2"]) + p["3"])@2;
+//                out@3 := ((p["1"] + p["2"])+ p["3"])@3
+//
+//                """;
+//
+//        Iterable<Memory> memoryList = SolverExtension.addOvertureProtocolConst(solver, f7, protocol);
+//        // sanity check (should be sat)
+//        System.out.println(solver.checkSat());
+//
+//        // correctness (should be unsat)
+//        Map<String, Term> lookup = createLookup(memoryList);
+//
+//        Result r_unsat = solver.checkSatAssuming(termManager.mkTerm(Kind.DISTINCT,
+//                termManager.mkTerm(Kind.FINITE_FIELD_ADD,
+//                        termManager.mkTerm(Kind.FINITE_FIELD_ADD, lookup.get("s_1_1"), lookup.get("s_2_2")),
+//                        lookup.get("s_3_3")),
+//                lookup.get("out_3")));
+//
+//        System.out.println(r_unsat);
+//    }
 
     public static void main( String[] args ) throws Exception
     {
