@@ -1,16 +1,10 @@
 package plaid.ast;
 
-public class PublicExpr implements PreludeExpression{
-    private final Identifier p;
+public class PublicExpr implements PreludeExpression {
     private final PreludeExpression e;
 
-    public PublicExpr(Identifier p, PreludeExpression e){
-        this.p = p;
+    public PublicExpr(PreludeExpression e){
         this.e = e;
-    }
-
-    public Identifier getP(){
-        return p;
     }
 
     public PreludeExpression getE(){

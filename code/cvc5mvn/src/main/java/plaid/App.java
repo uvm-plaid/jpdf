@@ -103,12 +103,12 @@ public class App
     public static void main( String[] args ) throws Exception
     {
         // prelude-overture demo
-        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/prelude-overture/confidentiality_example.txt");
-        InputStream inputStream = new FileInputStream(file);
+//        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/prelude-overture/confidentiality_example.txt");
+//        InputStream inputStream = new FileInputStream(file);
 
-        Interpreter interpreter = new Interpreter();
-        interpreter.interpret(inputStream, System.out);
-        inputStream.close();
+//        Interpreter interpreter = new Interpreter();
+//        interpreter.interpret(inputStream, System.out);
+//        inputStream.close();
 
         // prelude demo
 //        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/java/plaid/confidentiality_example.txt");
