@@ -1,16 +1,11 @@
 package plaid.ast;
 
-public class RandomExpr implements PreludeExpression{
-    private final Identifier r;
+public class RandomExpr implements PreludeExpression {
+
     private final PreludeExpression e;
 
-    public RandomExpr(Identifier r, PreludeExpression e){
-        this.r = r;
+    public RandomExpr(PreludeExpression e){
         this.e = e;
-    }
-
-    public Identifier getR(){
-        return r;
     }
 
     public PreludeExpression getE(){
