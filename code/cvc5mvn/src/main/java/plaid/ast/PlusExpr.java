@@ -1,6 +1,6 @@
 package plaid.ast;
 
-public class PlusExpr implements OvertureExpression, PreludeExpression {
+public class PlusExpr implements PreludeExpression {
 
     private final PreludeExpression e1;
     private final PreludeExpression e2;

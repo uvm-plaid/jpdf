@@ -1,5 +1,5 @@
 package plaid.ast;
-
+@Deprecated
 public class Minus implements OvertureExpression {
     private OvertureExpression e;
 

@@ -1,5 +1,5 @@
 package plaid.ast;
-
+@Deprecated
 public class Times implements OvertureExpression{
 
     private final OvertureExpression e1;

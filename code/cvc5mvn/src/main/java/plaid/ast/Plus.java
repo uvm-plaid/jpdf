@@ -1,6 +1,6 @@
 package plaid.ast;
-
-public class Plus implements OvertureExpression{
+@Deprecated
+public class Plus implements OvertureExpression {
 
     private final OvertureExpression e1;
     private final OvertureExpression e2;

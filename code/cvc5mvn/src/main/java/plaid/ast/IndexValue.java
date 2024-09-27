@@ -1,13 +1,13 @@
 package plaid.ast;
 
 public class IndexValue extends Value{
-    private final IndexValue i;
+    private final int i;
 
-    public IndexValue(IndexValue i){
+    public IndexValue(int i){
         this.i = i;
     }
 
-    public IndexValue getI(){
+    public int getI(){
         return i;
     }
 
