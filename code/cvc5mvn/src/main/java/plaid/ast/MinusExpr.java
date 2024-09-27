@@ -1,5 +1,7 @@
 package plaid.ast;
 
+import java.util.Objects;
+
 public class MinusExpr implements PreludeExpression {
 
     private final PreludeExpression e1;
@@ -16,5 +18,18 @@ public class MinusExpr implements PreludeExpression {
 
     public PreludeExpression getE2() {
         return e2;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MinusExpr minusExpr = (MinusExpr) o;
+        return Objects.equals(e1, minusExpr.e1) && Objects.equals(e2, minusExpr.e2);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(e1, e2);
     }
 }

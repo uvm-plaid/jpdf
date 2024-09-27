@@ -1,5 +1,6 @@
 package plaid.ast;
 
+@Deprecated
 public class SecretMemory implements OvertureExpression{
     private final Identifier s;
     private final Str w;

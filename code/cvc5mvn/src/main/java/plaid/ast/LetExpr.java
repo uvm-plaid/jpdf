@@ -1,5 +1,7 @@
 package plaid.ast;
 
+import java.util.Objects;
+
 public class LetExpr implements PreludeExpression{
     private final Identifier y;
     private final PreludeExpression e1;
@@ -27,4 +29,16 @@ public class LetExpr implements PreludeExpression{
         return e2;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LetExpr letExpr = (LetExpr) o;
+        return Objects.equals(y, letExpr.y) && Objects.equals(e1, letExpr.e1) && Objects.equals(e2, letExpr.e2);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(y, e1, e2);
+    }
 }

@@ -1,5 +1,6 @@
 package plaid.ast;
 
+@Deprecated
 public class RandomMemory implements OvertureExpression{
     private final Identifier r;
     private final Str w;

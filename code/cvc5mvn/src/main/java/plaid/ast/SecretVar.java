@@ -1,5 +1,6 @@
 package plaid.ast;
 
+@Deprecated
 public class SecretVar implements OvertureVariable{
     private final Identifier s;
     private final Str w;

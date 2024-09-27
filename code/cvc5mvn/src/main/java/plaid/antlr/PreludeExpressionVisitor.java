@@ -15,6 +15,7 @@ import static plaid.PreludeParser.PublicExprContext;
 import static plaid.PreludeParser.ParenPExprContext;
 import static plaid.PreludeParser.FieldSelectExprContext;
 import static plaid.PreludeParser.TimesExprContext;
+import static plaid.PreludeParser.StrContext;
 
 public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
@@ -73,17 +74,17 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public SecretExpr visitSecretExpr(SecretExprContext ctx) {
-        return new SecretExpr(visit(ctx.index().p_expression()));
+        return null;
     }
 
     @Override
     public RandomExpr visitRandomExpr(RandomExprContext ctx) {
-        return new RandomExpr(visit(ctx.index().p_expression()));
+        return null;
     }
 
     @Override
     public MessageExpr visitMessageExpr(MessageExprContext ctx) {
-        return new MessageExpr(visit(ctx.index().p_expression()));
+        return null;
     }
 
     @Override
@@ -93,7 +94,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public OutputExpr visitOutputExpr(OutputExprContext ctx) {
-        return new OutputExpr();
+        return null;
     }
 
     @Override
@@ -114,6 +115,11 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     @Override
     public TimesExpr visitTimesExpr(TimesExprContext ctx) {
         return new TimesExpr(visit(ctx.p_expression(0)), visit(ctx.p_expression(1)));
+    }
+
+    @Override
+    public Str visitStr(StrContext ctx) {
+        return new Str(ctx.getText().replaceAll("\"", ""));
     }
 
 }

@@ -1,5 +1,7 @@
 package plaid.ast;
 
+import java.util.Objects;
+
 public class Str extends Value {
 
     private final String str;
@@ -10,5 +12,18 @@ public class Str extends Value {
 
     public String getStr() {
         return str;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Str str1 = (Str) o;
+        return Objects.equals(str, str1.str);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(str);
     }
 }

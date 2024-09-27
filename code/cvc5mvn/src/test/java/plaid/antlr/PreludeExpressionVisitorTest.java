@@ -1,9 +1,11 @@
 package plaid.antlr;
 
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.junit.Assert;
 import org.junit.Test;
 import plaid.ast.PreludeExpression;
+import plaid.ast.Str;
+
+import static org.junit.Assert.assertEquals;
 
 public class PreludeExpressionVisitorTest {
 
@@ -14,13 +16,22 @@ public class PreludeExpressionVisitorTest {
     }
 
     /**
+     * String literals parse, and no quotes in the tree.
+     */
+    @Test
+    public void stringLiteral() {
+        PreludeExpression lit = ast("\"asdf\"");
+        assertEquals(new Str("asdf"), lit);
+    }
+
+    /**
      * An expression is an expression no matter how many parens it is wrapped in.
      */
     @Test
     public void unlimitedParens() {
-        PreludeExpression none = ast("x");
+        PreludeExpression none = ast("\"x\"");
         PreludeExpression many = ast("((((((\"x\"))))))");
-        Assert.assertEquals(none, many);
+        assertEquals(many, none);
     }
 
 }

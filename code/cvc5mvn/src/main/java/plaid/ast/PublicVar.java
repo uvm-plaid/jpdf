@@ -1,5 +1,6 @@
 package plaid.ast;
 
+@Deprecated
 public class PublicVar implements OvertureVariable{
     private final Identifier p;
     private final Str w;

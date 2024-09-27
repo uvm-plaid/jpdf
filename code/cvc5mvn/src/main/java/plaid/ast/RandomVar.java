@@ -1,5 +1,6 @@
 package plaid.ast;
 
+@Deprecated
 public class RandomVar implements OvertureVariable{
     private final Identifier r;
     private final Str w;

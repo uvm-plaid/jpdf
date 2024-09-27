@@ -1,5 +1,7 @@
 package plaid.ast;
 
+import java.util.Objects;
+
 public class CommandFunction implements PreludeFunction{
     private final Identifier fname;
     private final Identifier y;
@@ -21,5 +23,18 @@ public class CommandFunction implements PreludeFunction{
 
     public PreludeCommand getC() {
         return c;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommandFunction that = (CommandFunction) o;
+        return Objects.equals(fname, that.fname) && Objects.equals(y, that.y) && Objects.equals(c, that.c);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fname, y, c);
     }
 }
