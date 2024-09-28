@@ -2,19 +2,30 @@ package plaid.antlr;
 
 import plaid.PreludeBaseVisitor;
 import plaid.PreludeParser;
-import plaid.ast.*;
+import plaid.ast.ConcatExpr;
+import plaid.ast.MessageExpr;
+import plaid.ast.MinusExpr;
+import plaid.ast.Num;
+import plaid.ast.OutputExpr;
+import plaid.ast.PlusExpr;
+import plaid.ast.PreludeExpression;
+import plaid.ast.PublicExpr;
+import plaid.ast.RandomExpr;
+import plaid.ast.SecretExpr;
+import plaid.ast.Str;
+import plaid.ast.TimesExpr;
 
 import static plaid.PreludeParser.ConcatExprContext;
-import static plaid.PreludeParser.OutputExprContext;
-import static plaid.PreludeParser.PlusMinusExprContext;
-import static plaid.PreludeParser.SecretExprContext;
-import static plaid.PreludeParser.RandomExprContext;
-import static plaid.PreludeParser.MessageExprContext;
-import static plaid.PreludeParser.PublicExprContext;
-import static plaid.PreludeParser.ParenPExprContext;
 import static plaid.PreludeParser.FieldSelectExprContext;
-import static plaid.PreludeParser.TimesExprContext;
+import static plaid.PreludeParser.MessageExprContext;
+import static plaid.PreludeParser.OutputExprContext;
+import static plaid.PreludeParser.ParenPExprContext;
+import static plaid.PreludeParser.PlusMinusExprContext;
+import static plaid.PreludeParser.PublicExprContext;
+import static plaid.PreludeParser.RandomExprContext;
+import static plaid.PreludeParser.SecretExprContext;
 import static plaid.PreludeParser.StrContext;
+import static plaid.PreludeParser.TimesExprContext;
 
 public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
@@ -27,63 +38,43 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     private PreludeExpressionVisitor() { /* Empty */ }
 
     @Override
-    public PreludeExpression visitExprFunc(PreludeParser.ExprFuncContext ctx) {
-        return super.visitExprFunc(ctx);
-    }
-
-    @Override
-    public PreludeExpression visitMemExpr(PreludeParser.MemExprContext ctx) {
-        return super.visitMemExpr(ctx);
-    }
-
-    @Override
     public PreludeExpression visitParenPExpr(ParenPExprContext ctx) {
         return visit(ctx.p_expression());
     }
 
     @Override
-    public PreludeExpression visitEVarExpr(PreludeParser.EVarExprContext ctx) {
-        return super.visitEVarExpr(ctx);
-    }
-
-    @Override
-    public PreludeExpression visitFunctionCallExpr(PreludeParser.FunctionCallExprContext ctx) {
-        return super.visitFunctionCallExpr(ctx);
-    }
-
-    @Override
     public PreludeExpression visitLetExpr(PreludeParser.LetExprContext ctx) {
-        return super.visitLetExpr(ctx);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public PreludeExpression visitAtExpr(PreludeParser.AtExprContext ctx) {
-        return super.visitAtExpr(ctx);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public PreludeExpression visitFieldExpr(PreludeParser.FieldExprContext ctx) {
-        return super.visitFieldExpr(ctx);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public PreludeExpression visitFieldSelectExpr(FieldSelectExprContext ctx) {
-        return null;//new FieldSelectExpr(visit(ctx.p_expression()), visit(ctx.l().));
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public SecretExpr visitSecretExpr(SecretExprContext ctx) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public RandomExpr visitRandomExpr(RandomExprContext ctx) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public MessageExpr visitMessageExpr(MessageExprContext ctx) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -93,7 +84,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public OutputExpr visitOutputExpr(OutputExprContext ctx) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
