@@ -119,11 +119,6 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
-    public PreludeExpression visitValueExpr(PreludeParser.ValueExprContext ctx) {
-        return super.visitValueExpr(ctx);
-    }
-
-    @Override
     public PreludeExpression visitNum(PreludeParser.NumContext ctx) {
         return new Num(Integer.parseInt(ctx.getText()));
     }

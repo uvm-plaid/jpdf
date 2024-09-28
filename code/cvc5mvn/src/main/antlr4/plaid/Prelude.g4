@@ -31,7 +31,6 @@ command : command (';' command) #CommandList
         | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCallCommand
         ;
 
-//p_variable : memloc AT p_expression;
 memloc : secretloc | randomloc | messageloc | publicloc;
 secretloc : SECRET index #SecretExpr;
 randomloc : RANDOM index #RandomExpr;
@@ -46,33 +45,6 @@ fname : IDENTIFIER;
 
 pmop : '+' | '-' ;
 
-/*
-value : STRING #String
-      | VALUE #Val
-      | o_expression #Expr
-      | o_variable #Var
-      | LCURLY l '=' value (';' l '=' value)* RCURLY #Field
-      ;
-*/
-
-o_expression : o_expression TIMES o_expression #Times
-            | o_expression PLUS o_expression #Plus
-            | MINUS o_expression #Minus
-            | LPAREN o_expression RPAREN #Paren
-            | RANDOM LSQUARE STRING RSQUARE #RandomMemory
-            | SECRET LSQUARE STRING RSQUARE #SecretMemory
-            | MESSAGE LSQUARE STRING RSQUARE #MessageMemory
-            | PUBLIC LSQUARE STRING RSQUARE #PublicMemory
-            | VALUE #ValueExpr
-            ;
-
-o_variable : RANDOM LSQUARE STRING RSQUARE AT VALUE #RandomVar
-            | SECRET LSQUARE STRING RSQUARE AT VALUE #SecretVar
-            | MESSAGE LSQUARE STRING RSQUARE AT VALUE #MessageVar
-            | PUBLIC LSQUARE STRING RSQUARE #PublicVar
-            | OUTPUT AT VALUE #OutputVar
-            ;
-
 /* Lexer Rules */
 // We define value to be any integer
 VALUE : [0-9]+;
@@ -83,9 +55,7 @@ PUBLIC : 'p';
 OUTPUT : 'out';
 AT : '@';
 ASSIGN : ':=';
-//LET : 'let';
-//ASSERT : 'assert';
-//IN : 'in';
+
 // We define identifier to match any combination of uppercase, lowercase, and integer
 IDENTIFIER : [a-zA-Z0-9]+;
 
@@ -95,7 +65,6 @@ STRING : '"' ~('"')+ '"';
 TIMES :'*';
 PLUS : '+';
 CONCAT : '++';
-//EQUAL : '=';
 MINUS : '-';
 LPAREN : '(';
 RPAREN : ')';
@@ -103,6 +72,5 @@ LSQUARE : '[';
 RSQUARE : ']';
 LCURLY : '{';
 RCURLY : '}';
-//NEWLINE : '\r'? '\n';
 // We represent a whitespace token, ignored by skip
 WS : [ \t\n\r\f]+ -> skip;
