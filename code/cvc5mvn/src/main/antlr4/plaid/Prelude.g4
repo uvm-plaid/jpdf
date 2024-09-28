@@ -9,10 +9,9 @@ function : fname LPAREN (y (',' y)*)? RPAREN LCURLY p_expression RCURLY #ExprFun
           ;
 
 p_expression
-    : p_expression TIMES p_expression #TimesExpr
-    | p_expression PLUS p_expression #PlusExpr
-    | p_expression MINUS p_expression #MinusExpr
-    | p_expression CONCAT p_expression #ConcatExpr
+    : p_expression '*' p_expression #TimesExpr
+    | p_expression pmop p_expression #PlusMinusExpr
+    | p_expression '++' p_expression #ConcatExpr
     | LPAREN p_expression RPAREN #ParenPExpr
     | p_expression '.' l #FieldSelectExpr
     | 'let' y '=' p_expression 'in' p_expression #LetExpr
@@ -23,7 +22,7 @@ p_expression
     | y #EVarExpr
     /*| value #ValExpr*/
     | STRING #Str
-    | VALUE #Val
+    | VALUE #Num
     ;
 
 command : command (';' command) #CommandList
@@ -44,6 +43,8 @@ index : LSQUARE p_expression RSQUARE;
 l : IDENTIFIER;
 y : IDENTIFIER;
 fname : IDENTIFIER;
+
+pmop : '+' | '-' ;
 
 /*
 value : STRING #String

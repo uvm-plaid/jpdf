@@ -5,9 +5,8 @@ import plaid.PreludeParser;
 import plaid.ast.*;
 
 import static plaid.PreludeParser.ConcatExprContext;
-import static plaid.PreludeParser.MinusExprContext;
 import static plaid.PreludeParser.OutputExprContext;
-import static plaid.PreludeParser.PlusExprContext;
+import static plaid.PreludeParser.PlusMinusExprContext;
 import static plaid.PreludeParser.SecretExprContext;
 import static plaid.PreludeParser.RandomExprContext;
 import static plaid.PreludeParser.MessageExprContext;
@@ -98,13 +97,10 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
-    public PlusExpr visitPlusExpr(PlusExprContext ctx) {
-        return new PlusExpr(visit(ctx.p_expression(0)), visit(ctx.p_expression(1)));
-    }
-
-    @Override
-    public MinusExpr visitMinusExpr(MinusExprContext ctx) {
-        return new MinusExpr(visit(ctx.p_expression(0)), visit(ctx.p_expression(1)));
+    public PreludeExpression visitPlusMinusExpr(PlusMinusExprContext ctx) {
+        PreludeExpression e0 = visit(ctx.p_expression(0));
+        PreludeExpression e1 = visit(ctx.p_expression(1));
+        return ctx.pmop().getText().equals("+") ? new PlusExpr(e0, e1) : new MinusExpr(e0, e1);
     }
 
     @Override
@@ -122,4 +118,13 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
         return new Str(ctx.getText().replaceAll("\"", ""));
     }
 
+    @Override
+    public PreludeExpression visitValueExpr(PreludeParser.ValueExprContext ctx) {
+        return super.visitValueExpr(ctx);
+    }
+
+    @Override
+    public PreludeExpression visitNum(PreludeParser.NumContext ctx) {
+        return new Num(Integer.parseInt(ctx.getText()));
+    }
 }
