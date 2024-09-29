@@ -3,6 +3,7 @@ package plaid.antlr;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 import plaid.ast.ConcatExpr;
+import plaid.ast.FieldExpr;
 import plaid.ast.FieldSelectExpr;
 import plaid.ast.FunctionCallExpr;
 import plaid.ast.Identifier;
@@ -20,6 +21,7 @@ import plaid.ast.Str;
 import plaid.ast.TimesExpr;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -159,6 +161,19 @@ public class PreludeExpressionVisitorTest {
         assertEquals(new FunctionCallExpr(
                 new Identifier("f"),
                 List.of(new Num(0), new Identifier("x"))), ast("f(0, x)"));
+    }
+
+    /**
+     * Fields can have zero, one, or multiple members.
+     */
+    @Test
+    public void fieldExpr() {
+        assertEquals(new FieldExpr(Map.of()), ast("{}"));
+        assertEquals(new FieldExpr(Map.of(
+                new Identifier("a"), new Num(0))), ast("{a=0}"));
+        assertEquals(new FieldExpr(Map.of(
+                new Identifier("a"), new Num(0),
+                new Identifier("b"), new Num(1))), ast("{a=0; b=1}"));
     }
 
 }

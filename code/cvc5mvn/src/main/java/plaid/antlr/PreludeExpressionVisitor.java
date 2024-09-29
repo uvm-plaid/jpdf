@@ -3,6 +3,7 @@ package plaid.antlr;
 import plaid.PreludeBaseVisitor;
 import plaid.PreludeParser.FunctionCallExprContext;
 import plaid.ast.ConcatExpr;
+import plaid.ast.FieldExpr;
 import plaid.ast.FieldSelectExpr;
 import plaid.ast.FunctionCallExpr;
 import plaid.ast.Identifier;
@@ -20,6 +21,7 @@ import plaid.ast.Str;
 import plaid.ast.TimesExpr;
 
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import static plaid.PreludeParser.AtExprContext;
 import static plaid.PreludeParser.FieldExprContext;
@@ -68,9 +70,10 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
-    public PreludeExpression visitFieldExpr(FieldExprContext ctx) {
-        // TODO Implement me
-        throw new UnsupportedOperationException();
+    public FieldExpr visitFieldExpr(FieldExprContext ctx) {
+        return new FieldExpr(ctx.flddecl().stream().collect(Collectors.toMap(
+                x -> new Identifier(x.ident().getText()),
+                x -> visit(x.expr()))));
     }
 
     @Override

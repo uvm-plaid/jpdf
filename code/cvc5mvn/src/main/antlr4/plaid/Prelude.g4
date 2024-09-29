@@ -22,8 +22,8 @@ expr
     | 'm' '[' expr ']' #MessageExpr
     | 'p' '[' expr ']' #PublicExpr
     | 'out' #OutputExpr
-    | '{' ident '=' expr (';' ident '=' expr)* '}' #FieldExpr
-    | IDENTIFIER #IdentExpr
+    | '{' (flddecl (';' flddecl)*)? '}' #FieldExpr
+    | ident #IdentExpr
     | STRING #Str
     | VALUE #Num
     ;
@@ -34,6 +34,7 @@ command : command (';' command) #CommandList
         | ident '(' expr (',' expr)* ')' #FunctionCallCommand
         ;
 
+flddecl : ident '=' expr ;
 pmop : '+' | '-' ;
 ident : IDENTIFIER ;
 
