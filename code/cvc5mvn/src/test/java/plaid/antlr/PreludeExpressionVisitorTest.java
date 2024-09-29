@@ -28,9 +28,7 @@ import static org.junit.Assert.assertEquals;
 public class PreludeExpressionVisitorTest {
 
     private PreludeExpression ast(String src) {
-        PreludeLoader loader = new PreludeLoader();
-        ParseTree tree = loader.createParser(src).expr();
-        return new PreludeExpressionVisitor().visit(tree);
+        return PreludeLoader.toExpression(src);
     }
 
     /**
