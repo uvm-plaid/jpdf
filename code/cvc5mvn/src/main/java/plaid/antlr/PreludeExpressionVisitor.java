@@ -2,7 +2,10 @@ package plaid.antlr;
 
 import plaid.PreludeBaseVisitor;
 import plaid.PreludeParser;
+import plaid.PreludeParser.IdentExprContext;
 import plaid.ast.ConcatExpr;
+import plaid.ast.FieldSelectExpr;
+import plaid.ast.Identifier;
 import plaid.ast.MessageExpr;
 import plaid.ast.MinusExpr;
 import plaid.ast.Num;
@@ -39,7 +42,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public PreludeExpression visitParenPExpr(ParenPExprContext ctx) {
-        return visit(ctx.p_expression());
+        return visit(ctx.expr());
     }
 
     @Override
@@ -59,7 +62,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public PreludeExpression visitFieldSelectExpr(FieldSelectExprContext ctx) {
-        throw new UnsupportedOperationException();
+        return new FieldSelectExpr(visit(ctx.expr()), new Identifier(ctx.ident().getText()));
     }
 
     @Override
@@ -79,7 +82,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public PublicExpr visitPublicExpr(PublicExprContext ctx) {
-        return new PublicExpr(visit(ctx.index().p_expression()));
+        return new PublicExpr(visit(ctx.index().expr()));
     }
 
     @Override
@@ -89,19 +92,19 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public PreludeExpression visitPlusMinusExpr(PlusMinusExprContext ctx) {
-        PreludeExpression e0 = visit(ctx.p_expression(0));
-        PreludeExpression e1 = visit(ctx.p_expression(1));
+        PreludeExpression e0 = visit(ctx.expr(0));
+        PreludeExpression e1 = visit(ctx.expr(1));
         return ctx.pmop().getText().equals("+") ? new PlusExpr(e0, e1) : new MinusExpr(e0, e1);
     }
 
     @Override
     public ConcatExpr visitConcatExpr(ConcatExprContext ctx) {
-        return new ConcatExpr(visit(ctx.p_expression(0)), visit(ctx.p_expression(1)));
+        return new ConcatExpr(visit(ctx.expr(0)), visit(ctx.expr(1)));
     }
 
     @Override
     public TimesExpr visitTimesExpr(TimesExprContext ctx) {
-        return new TimesExpr(visit(ctx.p_expression(0)), visit(ctx.p_expression(1)));
+        return new TimesExpr(visit(ctx.expr(0)), visit(ctx.expr(1)));
     }
 
     @Override
@@ -113,4 +116,10 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     public PreludeExpression visitNum(PreludeParser.NumContext ctx) {
         return new Num(Integer.parseInt(ctx.getText()));
     }
+
+    @Override
+    public Identifier visitIdentExpr(IdentExprContext ctx) {
+        return new Identifier(ctx.getText());
+    }
+
 }

@@ -2,7 +2,15 @@ package plaid.antlr;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
-import plaid.ast.*;
+import plaid.ast.ConcatExpr;
+import plaid.ast.FieldSelectExpr;
+import plaid.ast.Identifier;
+import plaid.ast.MinusExpr;
+import plaid.ast.Num;
+import plaid.ast.PlusExpr;
+import plaid.ast.PreludeExpression;
+import plaid.ast.Str;
+import plaid.ast.TimesExpr;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,7 +18,7 @@ public class PreludeExpressionVisitorTest {
 
     private PreludeExpression ast(String src) {
         PreludeLoader loader = new PreludeLoader();
-        ParseTree tree = loader.createParser(src).p_expression();
+        ParseTree tree = loader.createParser(src).expr();
         return PreludeExpressionVisitor.getInstance().visit(tree);
     }
 
@@ -19,8 +27,7 @@ public class PreludeExpressionVisitorTest {
      */
     @Test
     public void stringLiteral() {
-        PreludeExpression lit = ast("\"asdf\"");
-        assertEquals(new Str("asdf"), lit);
+        assertEquals(new Str("asdf"), ast("\"asdf\""));
     }
 
     /**
@@ -38,8 +45,8 @@ public class PreludeExpressionVisitorTest {
      */
     @Test
     public void multiplyFirst() {
-        PreludeExpression lit = ast("3 + 2 * 9");
-        assertEquals(new PlusExpr(new Num(3), new TimesExpr(new Num(2), new Num(9))), lit);
+        PreludeExpression expr = ast("3 + 2 * 9");
+        assertEquals(new PlusExpr(new Num(3), new TimesExpr(new Num(2), new Num(9))), expr);
     }
 
     /**
@@ -60,8 +67,8 @@ public class PreludeExpressionVisitorTest {
      */
     @Test
     public void parensOverride() {
-        PreludeExpression lit = ast("(3 + 2) * 9");
-        assertEquals(new TimesExpr(new PlusExpr(new Num(3), new Num(2)), new Num(9)), lit);
+        PreludeExpression expr = ast("(3 + 2) * 9");
+        assertEquals(new TimesExpr(new PlusExpr(new Num(3), new Num(2)), new Num(9)), expr);
     }
 
     /**
@@ -69,8 +76,17 @@ public class PreludeExpressionVisitorTest {
      */
     @Test
     public void strConcat() {
-        PreludeExpression lit = ast("\"a\" ++ \"b\" ++ \"c\"");
-        assertEquals(new ConcatExpr(new ConcatExpr(new Str("a"), new Str("b")), new Str("c")), lit);
+        PreludeExpression expr = ast("\"a\" ++ \"b\" ++ \"c\"");
+        assertEquals(new ConcatExpr(new ConcatExpr(new Str("a"), new Str("b")), new Str("c")), expr);
     }
 
+    /**
+     * Field selection has higher precedence than binary ops.
+     */
+    @Test
+    public void selectPrecedence() {
+        PreludeExpression expr = ast("8 * parent.child");
+        PreludeExpression select = new FieldSelectExpr(new Identifier("parent"), new Identifier("child"));
+        assertEquals(new TimesExpr(new Num(8), select), expr);
+    }
 }

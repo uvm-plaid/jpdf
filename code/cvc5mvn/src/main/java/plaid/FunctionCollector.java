@@ -16,14 +16,14 @@ public class FunctionCollector extends PreludeBaseListener{
         return commandFunctions;
     }
 
-    @Override
-    public void enterExprFunc(PreludeParser.ExprFuncContext ctx) {
-        exprFunctions.put(ctx.fname().getText(), ctx);
-    }
-
-    @Override
-    public void enterCommandFunc(PreludeParser.CommandFuncContext ctx) {
-        commandFunctions.put(ctx.fname().getText(), ctx);
-    }
+//    @Override
+//    public void enterExprFunc(PreludeParser.ExprFuncContext ctx) {
+//        exprFunctions.put(ctx.fname().getText(), ctx);
+//    }
+//
+//    @Override
+//    public void enterCommandFunc(PreludeParser.CommandFuncContext ctx) {
+//        commandFunctions.put(ctx.fname().getText(), ctx);
+//    }
 
 }

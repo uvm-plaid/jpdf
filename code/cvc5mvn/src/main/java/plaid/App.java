@@ -47,16 +47,16 @@ public class App
     }
 
     // return memories in an overture program
-    public static Map<String, Term> createLookup(Iterable<Memory> memories){
-        HashMap<String, Term> results = new HashMap<>();
-
-        // iterate over memories
-        for(Memory memory : memories){
-            results.put(memory.getName(), memory.getTerm());
-        }
-
-        return results;
-    }
+//    public static Map<String, Term> createLookup(Iterable<Memory> memories){
+//        HashMap<String, Term> results = new HashMap<>();
+//
+//        // iterate over memories
+//        for(Memory memory : memories){
+//            results.put(memory.getName(), memory.getTerm());
+//        }
+//
+//        return results;
+//    }
 
     // antlr&cvc5 demo
 //    public static void overtureToCVC5() throws Exception{

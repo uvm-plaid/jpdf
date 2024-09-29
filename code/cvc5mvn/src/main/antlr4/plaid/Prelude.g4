@@ -4,31 +4,30 @@ grammar Prelude;
 
 program : function+ EOF;
 
-function : fname LPAREN (y (',' y)*)? RPAREN LCURLY p_expression RCURLY #ExprFunc
-          | fname LPAREN (y (',' y)*)? RPAREN LCURLY command RCURLY #CommandFunc
+function : ident LPAREN (ident (',' ident)*)? RPAREN LCURLY expr RCURLY #ExprFunc
+          | ident LPAREN (ident (',' ident)*)? RPAREN LCURLY command RCURLY #CommandFunc
           ;
 
-p_expression
-    : p_expression '*' p_expression #TimesExpr
-    | p_expression pmop p_expression #PlusMinusExpr
-    | p_expression '++' p_expression #ConcatExpr
-    | LPAREN p_expression RPAREN #ParenPExpr
-    | p_expression '.' l #FieldSelectExpr
-    | 'let' y '=' p_expression 'in' p_expression #LetExpr
-    | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCallExpr
+expr
+    : expr '.' ident #FieldSelectExpr
+    | expr '*' expr #TimesExpr
+    | expr pmop expr #PlusMinusExpr
+    | expr '++' expr #ConcatExpr
+    | LPAREN expr RPAREN #ParenPExpr
+    | 'let' ident '=' expr 'in' expr #LetExpr
+    | fname LPAREN expr (',' expr)* RPAREN #FunctionCallExpr
     | memloc #MemExpr
-    | p_expression AT p_expression #AtExpr
-    | LCURLY l '=' p_expression (';' l '=' p_expression)* RCURLY #FieldExpr
-    | y #EVarExpr
-    /*| value #ValExpr*/
+    | expr AT expr #AtExpr
+    | LCURLY ident '=' expr (';' ident '=' expr)* RCURLY #FieldExpr
+    | IDENTIFIER #IdentExpr
     | STRING #Str
     | VALUE #Num
     ;
 
 command : command (';' command) #CommandList
-        | p_expression ASSIGN (LPAREN)? p_expression (RPAREN)? #AssignCommand
-        | 'assert' LPAREN p_expression '=' p_expression RPAREN AT p_expression #AssertCommand
-        | fname LPAREN p_expression (',' p_expression)* RPAREN #FunctionCallCommand
+        | expr ASSIGN (LPAREN)? expr (RPAREN)? #AssignCommand
+        | 'assert' LPAREN expr '=' expr RPAREN AT expr #AssertCommand
+        | fname LPAREN expr (',' expr)* RPAREN #FunctionCallCommand
         ;
 
 memloc : secretloc | randomloc | messageloc | publicloc;
@@ -37,13 +36,11 @@ randomloc : RANDOM index #RandomExpr;
 messageloc : MESSAGE index #MessageExpr;
 publicloc : PUBLIC index #PublicExpr;
 outputloc : OUTPUT #OutputExpr;
-index : LSQUARE p_expression RSQUARE;
+index : LSQUARE expr RSQUARE;
 
-l : IDENTIFIER;
-y : IDENTIFIER;
 fname : IDENTIFIER;
-
 pmop : '+' | '-' ;
+ident : IDENTIFIER ;
 
 /* Lexer Rules */
 // We define value to be any integer

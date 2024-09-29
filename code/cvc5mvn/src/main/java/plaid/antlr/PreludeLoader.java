@@ -5,9 +5,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import plaid.PreludeLexer;
 import plaid.PreludeParser;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 public class PreludeLoader {
 
     public PreludeParser createParser(String src) {
