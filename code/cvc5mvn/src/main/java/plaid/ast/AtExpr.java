@@ -2,6 +2,7 @@ package plaid.ast;
 
 import java.util.Objects;
 
+@Deprecated
 public class AtExpr implements PreludeExpression{
     private final PreludeExpression e1;
     private final PreludeExpression e2;

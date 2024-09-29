@@ -10,6 +10,7 @@ function : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc
 
 expr
     : expr '.' ident #FieldSelectExpr
+    | expr '@' expr #AtExpr
     | expr '*' expr #TimesExpr
     | expr pmop expr #PlusMinusExpr
     | expr '++' expr #ConcatExpr
@@ -21,7 +22,6 @@ expr
     | 'm' '[' expr ']' #MessageExpr
     | 'p' '[' expr ']' #PublicExpr
     | 'out' #OutputExpr
-    | expr '@' expr #AtExpr
     | '{' ident '=' expr (';' ident '=' expr)* '}' #FieldExpr
     | IDENTIFIER #IdentExpr
     | STRING #Str

@@ -1,8 +1,6 @@
 package plaid.antlr;
 
 import plaid.PreludeBaseVisitor;
-import plaid.PreludeParser;
-import plaid.PreludeParser.IdentExprContext;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldSelectExpr;
 import plaid.ast.Identifier;
@@ -18,6 +16,12 @@ import plaid.ast.SecretExpr;
 import plaid.ast.Str;
 import plaid.ast.TimesExpr;
 
+import java.util.Stack;
+
+import static plaid.PreludeParser.AtExprContext;
+import static plaid.PreludeParser.FieldExprContext;
+import static plaid.PreludeParser.LetExprContext;
+import static plaid.PreludeParser.IdentExprContext;
 import static plaid.PreludeParser.ConcatExprContext;
 import static plaid.PreludeParser.FieldSelectExprContext;
 import static plaid.PreludeParser.MessageExprContext;
@@ -29,16 +33,11 @@ import static plaid.PreludeParser.RandomExprContext;
 import static plaid.PreludeParser.SecretExprContext;
 import static plaid.PreludeParser.StrContext;
 import static plaid.PreludeParser.TimesExprContext;
+import static plaid.PreludeParser.NumContext;
 
 public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
-    public static PreludeExpressionVisitor getInstance() {
-        return INSTANCE;
-    }
-
-    private static final PreludeExpressionVisitor INSTANCE = new PreludeExpressionVisitor();
-
-    private PreludeExpressionVisitor() { /* Empty */ }
+    private final Stack<PreludeExpression> indexes = new Stack<>();
 
     @Override
     public PreludeExpression visitParenPExpr(ParenPExprContext ctx) {
@@ -46,17 +45,20 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
-    public PreludeExpression visitLetExpr(PreludeParser.LetExprContext ctx) {
+    public PreludeExpression visitLetExpr(LetExprContext ctx) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public PreludeExpression visitAtExpr(PreludeParser.AtExprContext ctx) {
-        throw new UnsupportedOperationException();
+    public PreludeExpression visitAtExpr(AtExprContext ctx) {
+        indexes.push(visit(ctx.expr(1)));
+        PreludeExpression result = visit(ctx.expr(0));
+        indexes.pop();
+        return result;
     }
 
     @Override
-    public PreludeExpression visitFieldExpr(PreludeParser.FieldExprContext ctx) {
+    public PreludeExpression visitFieldExpr(FieldExprContext ctx) {
         throw new UnsupportedOperationException();
     }
 
@@ -67,17 +69,17 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public SecretExpr visitSecretExpr(SecretExprContext ctx) {
-        throw new UnsupportedOperationException();
+        return new SecretExpr(visit(ctx.expr()), indexes.peek());
     }
 
     @Override
     public RandomExpr visitRandomExpr(RandomExprContext ctx) {
-        throw new UnsupportedOperationException();
+        return new RandomExpr(visit(ctx.expr()), indexes.peek());
     }
 
     @Override
     public MessageExpr visitMessageExpr(MessageExprContext ctx) {
-        throw new UnsupportedOperationException();
+        return new MessageExpr(visit(ctx.expr()), indexes.peek());
     }
 
     @Override
@@ -87,7 +89,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public OutputExpr visitOutputExpr(OutputExprContext ctx) {
-        throw new UnsupportedOperationException();
+        return new OutputExpr(indexes.peek());
     }
 
     @Override
@@ -113,7 +115,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
-    public PreludeExpression visitNum(PreludeParser.NumContext ctx) {
+    public PreludeExpression visitNum(NumContext ctx) {
         return new Num(Integer.parseInt(ctx.getText()));
     }
 

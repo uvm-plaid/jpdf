@@ -5,10 +5,15 @@ import org.junit.Test;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldSelectExpr;
 import plaid.ast.Identifier;
+import plaid.ast.MessageExpr;
 import plaid.ast.MinusExpr;
 import plaid.ast.Num;
+import plaid.ast.OutputExpr;
 import plaid.ast.PlusExpr;
 import plaid.ast.PreludeExpression;
+import plaid.ast.PublicExpr;
+import plaid.ast.RandomExpr;
+import plaid.ast.SecretExpr;
 import plaid.ast.Str;
 import plaid.ast.TimesExpr;
 
@@ -19,7 +24,7 @@ public class PreludeExpressionVisitorTest {
     private PreludeExpression ast(String src) {
         PreludeLoader loader = new PreludeLoader();
         ParseTree tree = loader.createParser(src).expr();
-        return PreludeExpressionVisitor.getInstance().visit(tree);
+        return new PreludeExpressionVisitor().visit(tree);
     }
 
     /**
@@ -89,4 +94,39 @@ public class PreludeExpressionVisitorTest {
         PreludeExpression select = new FieldSelectExpr(new Identifier("parent"), new Identifier("child"));
         assertEquals(new TimesExpr(new Num(8), select), expr);
     }
+
+    /**
+     * Parses memory expressions with index if needed.
+     */
+    @Test
+    public void memoryExpr() {
+        assertEquals(new OutputExpr(new Num(1)), ast("out@1"));
+        assertEquals(new SecretExpr(new Str("x"), new Num(1)), ast("s[\"x\"]@1"));
+        assertEquals(new MessageExpr(new Str("x"), new Num(1)), ast("m[\"x\"]@1"));
+        assertEquals(new RandomExpr(new Str("x"), new Num(1)), ast("r[\"x\"]@1"));
+        assertEquals(new PublicExpr(new Str("x")), ast("p[\"x\"]@1"));
+    }
+
+    /**
+     * Multiple party indexes get assigned correctly as siblings.
+     */
+    @Test
+    public void partyIndexSiblings() {
+        PreludeExpression expr = ast("s[\"y\"]@2 + s[\"x\"]@1");
+        assertEquals(new PlusExpr(
+                new SecretExpr(new Str("y"), new Num(2)),
+                new SecretExpr(new Str("x"), new Num(1))), expr);
+    }
+
+    /**
+     * Party indexes get stacked if needed.
+     */
+    @Test
+    public void partyIndexesStack() {
+        PreludeExpression expr = ast("(s[\"y\"] + s[\"x\"]@1)@2");
+        assertEquals(new PlusExpr(
+                new SecretExpr(new Str("y"), new Num(2)),
+                new SecretExpr(new Str("x"), new Num(1))), expr);
+    }
+
 }
