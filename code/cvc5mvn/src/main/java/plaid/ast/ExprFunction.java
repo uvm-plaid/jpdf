@@ -1,13 +1,14 @@
 package plaid.ast;
 
+import java.util.List;
 import java.util.Objects;
 
 public class ExprFunction implements PreludeFunction{
     private final Identifier fname;
-    private final Identifier y;
+    private final List<Identifier> y;
     private final PreludeExpression e;
 
-    public ExprFunction(Identifier fname, Identifier y, PreludeExpression e){
+    public ExprFunction(Identifier fname, List<Identifier> y, PreludeExpression e){
         this.fname = fname;
         this.y = y;
         this.e = e;
@@ -17,7 +18,7 @@ public class ExprFunction implements PreludeFunction{
         return fname;
     }
 
-    public Identifier getY() {
+    public List<Identifier> getY() {
         return y;
     }
 

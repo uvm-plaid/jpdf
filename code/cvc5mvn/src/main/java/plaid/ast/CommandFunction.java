@@ -1,13 +1,14 @@
 package plaid.ast;
 
+import java.util.List;
 import java.util.Objects;
 
 public class CommandFunction implements PreludeFunction{
     private final Identifier fname;
-    private final Identifier y;
+    private final List<Identifier> y;
     private final PreludeCommand c;
 
-    public CommandFunction(Identifier fname, Identifier y, PreludeCommand c){
+    public CommandFunction(Identifier fname, List<Identifier> y, PreludeCommand c){
         this.fname = fname;
         this.y = y;
         this.c = c;
@@ -17,7 +18,7 @@ public class CommandFunction implements PreludeFunction{
         return fname;
     }
 
-    public Identifier getY() {
+    public List<Identifier> getY() {
         return y;
     }
 
