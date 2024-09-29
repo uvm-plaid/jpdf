@@ -1,6 +1,7 @@
 package plaid.antlr;
 
 import plaid.PreludeBaseVisitor;
+import plaid.PreludeParser.FunctionCallExprContext;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldSelectExpr;
 import plaid.ast.Identifier;
@@ -45,7 +46,14 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
+    public PreludeExpression visitFunctionCallExpr(FunctionCallExprContext ctx) {
+        // TODO Implement me
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public PreludeExpression visitLetExpr(LetExprContext ctx) {
+        // TODO Implement me
         throw new UnsupportedOperationException();
     }
 
@@ -59,6 +67,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public PreludeExpression visitFieldExpr(FieldExprContext ctx) {
+        // TODO Implement me
         throw new UnsupportedOperationException();
     }
 
