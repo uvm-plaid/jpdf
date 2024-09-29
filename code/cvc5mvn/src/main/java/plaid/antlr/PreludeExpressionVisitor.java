@@ -4,6 +4,7 @@ import plaid.PreludeBaseVisitor;
 import plaid.PreludeParser.FunctionCallExprContext;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldSelectExpr;
+import plaid.ast.FunctionCallExpr;
 import plaid.ast.Identifier;
 import plaid.ast.LetExpr;
 import plaid.ast.MessageExpr;
@@ -47,9 +48,10 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
-    public PreludeExpression visitFunctionCallExpr(FunctionCallExprContext ctx) {
-        // TODO Implement me
-        throw new UnsupportedOperationException();
+    public FunctionCallExpr visitFunctionCallExpr(FunctionCallExprContext ctx) {
+        return new FunctionCallExpr(
+                new Identifier(ctx.ident().getText()),
+                ctx.expr().stream().map(this::visit).toList());
     }
 
     @Override

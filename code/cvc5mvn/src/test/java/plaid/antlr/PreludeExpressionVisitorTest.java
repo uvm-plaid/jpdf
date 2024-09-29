@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldSelectExpr;
+import plaid.ast.FunctionCallExpr;
 import plaid.ast.Identifier;
 import plaid.ast.LetExpr;
 import plaid.ast.MessageExpr;
@@ -17,6 +18,8 @@ import plaid.ast.RandomExpr;
 import plaid.ast.SecretExpr;
 import plaid.ast.Str;
 import plaid.ast.TimesExpr;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -140,6 +143,22 @@ public class PreludeExpressionVisitorTest {
                 new Identifier("z"),
                 new Num(1),
                 new PlusExpr(new Num(2), new Identifier("z"))), expr);
+    }
+
+    /**
+     * Function calls can have zero, one, or multiple parameters.
+     */
+    @Test
+    public void functionCall() {
+        assertEquals(new FunctionCallExpr(
+                new Identifier("f"),
+                List.of()), ast("f()"));
+        assertEquals(new FunctionCallExpr(
+                new Identifier("f"),
+                List.of(new Num(0))), ast("f(0)"));
+        assertEquals(new FunctionCallExpr(
+                new Identifier("f"),
+                List.of(new Num(0), new Identifier("x"))), ast("f(0, x)"));
     }
 
 }

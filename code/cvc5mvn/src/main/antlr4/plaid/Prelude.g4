@@ -16,7 +16,7 @@ expr
     | expr '++' expr #ConcatExpr
     | '(' expr ')' #ParenPExpr
     | 'let' ident '=' expr 'in' expr #LetExpr
-    | ident '(' expr (',' expr)* ')' #FunctionCallExpr
+    | ident '(' (expr (',' expr)*)? ')' #FunctionCallExpr
     | 's' '[' expr ']' #SecretExpr
     | 'r' '[' expr ']' #RandomExpr
     | 'm' '[' expr ']' #MessageExpr
