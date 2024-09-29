@@ -5,6 +5,7 @@ import plaid.PreludeParser.FunctionCallExprContext;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldSelectExpr;
 import plaid.ast.Identifier;
+import plaid.ast.LetExpr;
 import plaid.ast.MessageExpr;
 import plaid.ast.MinusExpr;
 import plaid.ast.Num;
@@ -52,9 +53,8 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
-    public PreludeExpression visitLetExpr(LetExprContext ctx) {
-        // TODO Implement me
-        throw new UnsupportedOperationException();
+    public LetExpr visitLetExpr(LetExprContext ctx) {
+        return new LetExpr(new Identifier(ctx.ident().getText()), visit(ctx.expr(0)), visit(ctx.expr(1)));
     }
 
     @Override
@@ -72,7 +72,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
-    public PreludeExpression visitFieldSelectExpr(FieldSelectExprContext ctx) {
+    public FieldSelectExpr visitFieldSelectExpr(FieldSelectExprContext ctx) {
         return new FieldSelectExpr(visit(ctx.expr()), new Identifier(ctx.ident().getText()));
     }
 
@@ -124,7 +124,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
     }
 
     @Override
-    public PreludeExpression visitNum(NumContext ctx) {
+    public Num visitNum(NumContext ctx) {
         return new Num(Integer.parseInt(ctx.getText()));
     }
 

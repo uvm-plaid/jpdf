@@ -5,6 +5,7 @@ import org.junit.Test;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldSelectExpr;
 import plaid.ast.Identifier;
+import plaid.ast.LetExpr;
 import plaid.ast.MessageExpr;
 import plaid.ast.MinusExpr;
 import plaid.ast.Num;
@@ -127,6 +128,18 @@ public class PreludeExpressionVisitorTest {
         assertEquals(new PlusExpr(
                 new SecretExpr(new Str("y"), new Num(2)),
                 new SecretExpr(new Str("x"), new Num(1))), expr);
+    }
+
+    /**
+     * Parses let expressions.
+     */
+    @Test
+    public void letExpr() {
+        PreludeExpression expr = ast("let z = 1 in 2 + z");
+        assertEquals(new LetExpr(
+                new Identifier("z"),
+                new Num(1),
+                new PlusExpr(new Num(2), new Identifier("z"))), expr);
     }
 
 }
