@@ -17,8 +17,9 @@ public class PreludeCommandVisitor extends PreludeBaseVisitor<PreludeCommand> {
 
     @Override
     public AssignCommand visitAssignCommand(AssignCommandContext ctx) {
-        // TODO Implement me
-        throw new UnsupportedOperationException();
+        return new AssignCommand(
+                PreludeLoader.toExpression(ctx.expr(0)),
+                PreludeLoader.toExpression(ctx.expr(1)));
     }
 
     @Override
