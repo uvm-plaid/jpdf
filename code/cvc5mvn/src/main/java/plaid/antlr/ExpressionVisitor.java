@@ -40,7 +40,7 @@ import static plaid.PreludeParser.StrContext;
 import static plaid.PreludeParser.TimesExprContext;
 import static plaid.PreludeParser.NumContext;
 
-public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
+public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
     private final Stack<PreludeExpression> indexes = new Stack<>();
 

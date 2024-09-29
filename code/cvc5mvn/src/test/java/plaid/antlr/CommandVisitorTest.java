@@ -12,10 +12,10 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class PreludeCommandVisitorTest {
+public class CommandVisitorTest {
 
     private PreludeCommand ast(String src) {
-        return PreludeLoader.toCommand(src);
+        return Loader.toCommand(src);
     }
 
     /**

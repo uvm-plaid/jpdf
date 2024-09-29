@@ -11,7 +11,7 @@ import plaid.ast.PreludeCommand;
 import plaid.ast.PreludeExpression;
 import plaid.ast.Program;
 
-public class PreludeLoader {
+public class Loader {
 
     public static PreludeParser createParser(String src) {
         ANTLRInputStream input = new ANTLRInputStream(src);
@@ -23,7 +23,7 @@ public class PreludeLoader {
     }
 
     public static PreludeExpression toExpression(ExprContext ctx) {
-        return new PreludeExpressionVisitor().visit(ctx);
+        return new ExpressionVisitor().visit(ctx);
     }
 
     public static PreludeExpression toExpression(String src) {
@@ -31,7 +31,7 @@ public class PreludeLoader {
     }
 
     public static PreludeCommand toCommand(CommandContext ctx) {
-        return new PreludeCommandVisitor().visit(ctx);
+        return new CommandVisitor().visit(ctx);
     }
 
     public static PreludeCommand toCommand(String src) {

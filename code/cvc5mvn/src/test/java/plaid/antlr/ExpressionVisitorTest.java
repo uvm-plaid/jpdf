@@ -1,6 +1,5 @@
 package plaid.antlr;
 
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldExpr;
@@ -25,10 +24,10 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class PreludeExpressionVisitorTest {
+public class ExpressionVisitorTest {
 
     private PreludeExpression ast(String src) {
-        return PreludeLoader.toExpression(src);
+        return Loader.toExpression(src);
     }
 
     /**
