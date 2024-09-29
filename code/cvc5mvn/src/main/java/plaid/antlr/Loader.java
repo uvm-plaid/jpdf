@@ -2,6 +2,8 @@ package plaid.antlr;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import plaid.PreludeLexer;
 import plaid.PreludeParser;
 import plaid.PreludeParser.CommandContext;
@@ -39,8 +41,9 @@ public class Loader {
     }
 
     public static Program toProgram(ProgramContext ctx) {
-        // TODO Implement me
-        throw new UnsupportedOperationException();
+        FunctionListener listener = new FunctionListener();
+        new ParseTreeWalker().walk(listener, ctx);
+        return new Program(listener.getCommandFunctions(), listener.getExprFunctions());
     }
 
     public static Program toProgram(String src) {
