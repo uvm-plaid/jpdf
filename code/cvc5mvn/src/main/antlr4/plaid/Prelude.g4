@@ -31,7 +31,7 @@ expr
 command : command (';' command) #CommandList
         | expr ':=' ('(')? expr (')')? #AssignCommand
         | 'assert' '(' expr '=' expr ')' '@' expr #AssertCommand
-        | ident '(' expr (',' expr)* ')' #FunctionCallCommand
+        | ident '(' (expr (',' expr)*)? ')' #FunctionCallCommand
         ;
 
 flddecl : ident '=' expr ;
