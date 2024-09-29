@@ -5,9 +5,9 @@ import java.util.Objects;
 public class RandomExpr implements PreludeExpression {
 
     private final PreludeExpression e;
-    private final IndexValue i;
+    private final PreludeExpression i;
 
-    public RandomExpr(PreludeExpression e, IndexValue i){
+    public RandomExpr(PreludeExpression e, PreludeExpression i){
         this.e = e;
         this.i = i;
     }
@@ -16,7 +16,7 @@ public class RandomExpr implements PreludeExpression {
         return e;
     }
 
-    public IndexValue getI() {
+    public PreludeExpression getI() {
         return i;
     }
 

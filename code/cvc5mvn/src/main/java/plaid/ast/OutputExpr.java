@@ -4,13 +4,13 @@ import java.util.Objects;
 
 public class OutputExpr implements PreludeExpression {
 
-    private final IndexValue i;
+    private final PreludeExpression i;
 
-    public OutputExpr(IndexValue i) {
+    public OutputExpr(PreludeExpression i) {
         this.i = i;
     }
 
-    public IndexValue getI() {
+    public PreludeExpression getI() {
         return i;
     }
 

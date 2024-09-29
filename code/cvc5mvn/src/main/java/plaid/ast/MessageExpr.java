@@ -4,9 +4,9 @@ import java.util.Objects;
 
 public class MessageExpr implements PreludeExpression{
     private final PreludeExpression e;
-    private final IndexValue i;
+    private final PreludeExpression i;
 
-    public MessageExpr(PreludeExpression e, IndexValue i){
+    public MessageExpr(PreludeExpression e, PreludeExpression i){
         this.e = e;
         this.i = i;
     }
@@ -15,7 +15,7 @@ public class MessageExpr implements PreludeExpression{
         return e;
     }
 
-    public IndexValue getI() {
+    public PreludeExpression getI() {
         return i;
     }
 

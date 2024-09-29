@@ -82,7 +82,7 @@ public class PreludeExpressionVisitor extends PreludeBaseVisitor<PreludeExpressi
 
     @Override
     public PublicExpr visitPublicExpr(PublicExprContext ctx) {
-        return new PublicExpr(visit(ctx.index().expr()));
+        return new PublicExpr(visit(ctx.expr()));
     }
 
     @Override

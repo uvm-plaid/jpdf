@@ -2,9 +2,9 @@ package plaid.ast;
 
 public class SecretExpr implements PreludeExpression{
     private final PreludeExpression e;
-    private final IndexValue i;
+    private final PreludeExpression i;
 
-    public SecretExpr(PreludeExpression e, IndexValue i){
+    public SecretExpr(PreludeExpression e, PreludeExpression i){
         this.e = e;
         this.i = i;
     }
@@ -13,7 +13,7 @@ public class SecretExpr implements PreludeExpression{
         return e;
     }
 
-    public IndexValue getI() {
+    public PreludeExpression getI() {
         return i;
     }
 
