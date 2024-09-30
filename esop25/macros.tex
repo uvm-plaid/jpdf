@@ -1,15 +1,3 @@
-\newtheorem{definition}{Definition}[section]
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{corollary}{Corollary}[section]
-\newtheorem{lemma}{Lemma}[section]
-\newtheorem{conject}{Conjecture}[section]
-\newtheorem{exmp}{Example}[section]
-\def\squareforqed{\hbox{\rlap{$\sqcap$}$\sqcup$}}
-\def\qed{\ifmmode\squareforqed\else{\unskip\nobreak\hfil
-\penalty50\hskip1em\null\nobreak\hfil\squareforqed
-\parfillskip=0pt\finalhyphendemerits=0\endgraf}\fi}
-\newenvironment{proof}[1]{\noindent\textit{Proof.}\ #1}{\qed\medskip}
-
 \newcommand{\evals}{\Downarrow}
 \newcommand{\diverges}{\Uparrow}
 \newcommand{\intt}{\mathrm{int}}
@@ -233,27 +221,6 @@
 
 %\newcommand{\tr}{\theta}
 
-
-\newcommand{\problemheading}[1]{\noindent\textbf{#1}\ }
-\newcounter{problemcounter}
-\setcounter{problemcounter}{1}
-
-\newcommand{\EC}[1]
-    {\problemheading{Extra Credit \textit{(#1 points)}.}}
-
-\newcommand{\pproblem}[1]
-    {\problemheading{Problem \arabic{problemcounter} \textit{(#1 points)}.} \stepcounter{problemcounter}}
-           
-\newcommand{\gproblem}[1]
-    {\problemheading{Problem \arabic{problemcounter} \textit{(Graduate Students Only; #1 points)}.} \stepcounter{problemcounter}}
-
-\newcommand{\problem}
-    {\problemheading{Problem \arabic{problemcounter}.} \stepcounter{problemcounter}}
-
-\newcounter{solncounter}
-\setcounter{solncounter}{1}
-\newcommand{\solution}
-    {\problemheading{Solution to Problem \arabic{solncounter}.} \stepcounter{solncounter}}
 
 \newcommand{\chash}{\mathcal{H}}
 \newcommand{\acl}{\mathit{Auth}}
@@ -581,5 +548,5 @@
 %\newcommand{\mynote}[2]{}
 \newcommand{\todo}[1]{\mynote{TODO}{#1}}
     
-\newcommand{\note}[1]{\noindent\textit{(\textbf{$\star$note$\star$:}\ \ #1)}}
+%\newcommand{\note}[1]{\noindent\textit{(\textbf{$\star$note$\star$:}\ \ #1)}}
 
