@@ -28,16 +28,16 @@ public class FullProgramParseTest {
                     ((not(s1) * not(s2)) * b1)
                 }
                 
-                andtablegmw(x, y, z) {
-                    let r11 = r[z] + (m[x] + 1) * (m[y] + 1) in
-                    let r10 = r[z] + (m[x] + 1) * (m[y] + 0) in
-                    let r01 = r[z] + (m[x] + 0) * (m[y] + 1) in
-                    let r00 = r[z] + (m[x] + 0) * (m[y] + 0) in
+                andtablegmw(x, y, z, i) {
+                    let r11 = (r[z] + (m[x] + 1) * (m[y] + 1))@i in
+                    let r10 = (r[z] + (m[x] + 1) * (m[y] + 0))@i in
+                    let r01 = (r[z] + (m[x] + 0) * (m[y] + 1))@i in
+                    let r00 = (r[z] + (m[x] + 0) * (m[y] + 0))@i in
                     { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
                 }
                 
                 andgmw(z, x, y) {
-                   let table = andtablegmw(x,y,z) in
+                   let table = andtablegmw(x,y,z,1) in
                    m[x]@1 := m[x]@2;
                    m[y]@1 := m[y]@2;
                    m[z]@2 := mux4(m[x], m[y], table.row1, table.row2, table.row3, table.row4)@1;
