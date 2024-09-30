@@ -3,6 +3,8 @@ package plaid.antlr;
 import org.junit.Test;
 import plaid.ast.Program;
 
+import static org.junit.Assert.assertNotNull;
+
 public class FullProgramParseTest {
 
     /**
@@ -66,5 +68,6 @@ public class FullProgramParseTest {
                 """);
 
         System.out.print(program);
+        assertNotNull(program);
     }
 }
