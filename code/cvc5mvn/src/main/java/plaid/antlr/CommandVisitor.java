@@ -30,8 +30,11 @@ public class CommandVisitor extends PreludeBaseVisitor<PreludeCommand> {
 
     @Override
     public AssertCommand visitAssertCommand(AssertCommandContext ctx) {
-        // TODO Implement me
-        throw new UnsupportedOperationException();
+        ExpressionVisitor visitor = new ExpressionVisitor();
+        visitor.setPartyIndex(Loader.toExpression(ctx.expr(2)));
+        return new AssertCommand(
+                visitor.visit(ctx.expr(0)),
+                visitor.visit(ctx.expr(1)));
     }
 
     @Override

@@ -1,12 +1,15 @@
 package plaid.antlr;
 
 import org.junit.Test;
+import plaid.ast.AssertCommand;
 import plaid.ast.AssignCommand;
 import plaid.ast.FunctionCallCommand;
 import plaid.ast.Identifier;
+import plaid.ast.MessageExpr;
 import plaid.ast.Num;
 import plaid.ast.OutputExpr;
 import plaid.ast.PreludeCommand;
+import plaid.ast.Str;
 
 import java.util.List;
 
@@ -40,6 +43,16 @@ public class CommandVisitorTest {
         assertEquals(new FunctionCallCommand(
                 new Identifier("f"),
                 List.of(new Num(0), new Identifier("x"))), ast("f(0, x)"));
+    }
+
+    /**
+     * Parses assert commands.
+     */
+    @Test
+    public void assertCommand() {
+        assertEquals(new AssertCommand(
+                new MessageExpr(new Str("x"), new Num(5)),
+                new MessageExpr(new Str("y"), new Num(5))), ast("assert (m[\"x\"] = m[\"y\"])@5"));
     }
 
 }

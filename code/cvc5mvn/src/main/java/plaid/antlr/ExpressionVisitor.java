@@ -43,21 +43,21 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
     private PreludeExpression partyIndex;
 
-    private PreludeExpression getPartyIndex() {
+    public PreludeExpression getPartyIndex() {
         if (partyIndex == null) {
             throw new IllegalStateException("No party index");
         }
         return partyIndex;
     }
 
-    private void setPartyIndex(PreludeExpression partyIndex) {
+    public void setPartyIndex(PreludeExpression partyIndex) {
         if (this.partyIndex != null) {
             throw new IllegalStateException("Part index already exists");
         }
         this.partyIndex = partyIndex;
     }
 
-    private void resetPartyIndex() {
+    public void resetPartyIndex() {
         this.partyIndex = null;
     }
 
