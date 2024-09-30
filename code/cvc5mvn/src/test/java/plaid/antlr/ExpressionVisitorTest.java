@@ -122,14 +122,43 @@ public class ExpressionVisitorTest {
     }
 
     /**
-     * Party indexes get stacked if needed.
+     * Party indexes must not be ambiguous.
      */
-    @Test
-    public void partyIndexesStack() {
-        PreludeExpression expr = ast("(s[\"y\"] + s[\"x\"]@1)@2");
-        assertEquals(new PlusExpr(
-                new SecretExpr(new Str("y"), new Num(2)),
-                new SecretExpr(new Str("x"), new Num(1))), expr);
+    @Test(expected = IllegalStateException.class)
+    public void partyIndexesDoNotStack() {
+        ast("(s[\"y\"] + s[\"x\"]@1)@2");
+    }
+
+    /**
+     * Party index required for memory expression.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void memoryPartyIndexRequired() {
+        ast("m[\"y\"]");
+    }
+
+    /**
+     * Party index required for secret expression.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void secretPartyIndexRequired() {
+        ast("s[\"y\"]");
+    }
+
+    /**
+     * Party index required for random expression.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void randomPartyIndexRequired() {
+        ast("r[\"y\"]");
+    }
+
+    /**
+     * Party index required for output expression.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void outputPartyIndexRequired() {
+        ast("out");
     }
 
     /**

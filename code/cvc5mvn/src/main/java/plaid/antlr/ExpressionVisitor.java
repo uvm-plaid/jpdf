@@ -20,7 +20,6 @@ import plaid.ast.SecretExpr;
 import plaid.ast.Str;
 import plaid.ast.TimesExpr;
 
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static plaid.PreludeParser.AtExprContext;
@@ -42,7 +41,25 @@ import static plaid.PreludeParser.NumContext;
 
 public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
-    private final Stack<PreludeExpression> indexes = new Stack<>();
+    private PreludeExpression partyIndex;
+
+    private PreludeExpression getPartyIndex() {
+        if (partyIndex == null) {
+            throw new IllegalStateException("No party index");
+        }
+        return partyIndex;
+    }
+
+    private void setPartyIndex(PreludeExpression partyIndex) {
+        if (this.partyIndex != null) {
+            throw new IllegalStateException("Part index already exists");
+        }
+        this.partyIndex = partyIndex;
+    }
+
+    private void resetPartyIndex() {
+        this.partyIndex = null;
+    }
 
     @Override
     public PreludeExpression visitParenPExpr(ParenPExprContext ctx) {
@@ -63,9 +80,9 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
     @Override
     public PreludeExpression visitAtExpr(AtExprContext ctx) {
-        indexes.push(visit(ctx.expr(1)));
+        setPartyIndex(visit(ctx.expr(1)));
         PreludeExpression result = visit(ctx.expr(0));
-        indexes.pop();
+        resetPartyIndex();
         return result;
     }
 
@@ -83,17 +100,17 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
     @Override
     public SecretExpr visitSecretExpr(SecretExprContext ctx) {
-        return new SecretExpr(visit(ctx.expr()), indexes.peek());
+        return new SecretExpr(visit(ctx.expr()), getPartyIndex());
     }
 
     @Override
     public RandomExpr visitRandomExpr(RandomExprContext ctx) {
-        return new RandomExpr(visit(ctx.expr()), indexes.peek());
+        return new RandomExpr(visit(ctx.expr()), getPartyIndex());
     }
 
     @Override
     public MessageExpr visitMessageExpr(MessageExprContext ctx) {
-        return new MessageExpr(visit(ctx.expr()), indexes.peek());
+        return new MessageExpr(visit(ctx.expr()), getPartyIndex());
     }
 
     @Override
@@ -103,7 +120,7 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
     @Override
     public OutputExpr visitOutputExpr(OutputExprContext ctx) {
-        return new OutputExpr(indexes.peek());
+        return new OutputExpr(getPartyIndex());
     }
 
     @Override
