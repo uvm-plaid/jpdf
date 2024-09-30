@@ -1,0 +1,244 @@
+\newcommand{\minicatsyntaxfig}{
+\begin{fpfig}[t]{Syntax of $\minicat$}{fig-minicat-syntax}
+\small{
+$$
+    \begin{array}{rcl@{\hspace{4mm}}r}
+      \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid & \textit{expressions}\\
+      & & \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid \OT{\be}{\cid}{\be}{\be}\\[2mm]
+      x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid & \textit{variables} \\[0mm]
+         & & \rvl{w} \mid \out{\cid} \\[2mm]
+      %& &  \select{\be}{\be}{\be} \mid \ctxt{v}{k} \mid \key{w} \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      %& &  \select{\fp(\be)}{\be}{\be} \ctxt{v,\be}{k}  \mid \sk{\be}(\be) \mid \pk{\be}{\be}(\be) \mid \pk{\be}{\be} \\[2mm]
+      \prog &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \reveal{w}{e}{\cid} \mid & \textit{protocols} \\[0mm]
+              & & \pubout{\cid}{\be}{\cid} \mid \prog;\prog 
+    \end{array}
+$$}
+\end{fpfig}    
+}
+
+\newcommand{\minicatredxfig}{
+\begin{fpfig}[t]{Semantics of $\minicat$ expressions (T) and programs (B).}{fig-minicat-redx}
+\small{
+ $$
+  %\begin{array}{c@{\hspace{5mm}}c}
+  \begin{array}{rcl}
+    \lcod{\store, v}{\cid} &=& v\\
+    \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \fminus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fminus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
+  %\end{array} 
+  %\begin{array}{rcl}
+    \lcod{\store, \flip{w}}{\cid} &=& \store(\elab{\flip{w}}{\cid})\\
+    \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
+    \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
+    \lcod{\store, \rvl{w}}{\cid} &=& \store(\rvl{w})\\
+    \lcod{\store, \OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2} &=&
+    \begin{cases}
+      \lcod{\store,\be_2}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 0 \\
+      \lcod{\store,\be_3}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 1 \\
+    \end{cases}
+  \end{array}
+  %\end{array}
+  $$
+
+\begin{mathpar}
+  (\store, \xassign{x}{\be}{\cid}) \redx \extend{\store}{x}{\lcod{\store,\be}{\cid}}
+  
+  \inferrule
+      {(\store_1,\prog_1) \redx \store_2 \\ (\store_2,\prog_2) \redx \store_3 }
+      {(\store_1,\prog_1;\prog_2) \redx \store_3}
+      %(\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)    
+      %(\store, \reveal{w}{\be}{\cid};\prog) \redx (\extend{\store}{\rvl{w}}{\lcod{\store,\be}{\cid}}, \prog)   
+      %(\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\minicataredxfig}{
+\begin{fpfig}[t]{Adversarial semantics of $\minicat$.}{fig-minicat-aredx}
+\small{
+\begin{mathpar}
+  \inferrule
+      { \cid \in H }
+      { (\store, \xassign{x}{\be}{\cid}) \aredx \extend{\store}{x}{\lcod{\store,\be}{\cid}} }
+      
+  \inferrule
+      {\cid \in C }
+      { (\store, \xassign{x}{\be}{\cid}) \aredx \extend{\store}{x}{\lcod{\arewrite(\store_C,\be)}{\cid}}}
+      
+  \inferrule
+      {\lcod{\store,\be_1}{\cid} = \lcod{\store,\be_2}{\cid}  \text{\ or\ } \cid \in C}
+      { (\store,\elab{\assert{\be_1 = \be_2}}{\cid}) \aredx \store }
+      
+  \inferrule
+      {\lcod{\store,\be_1}{\cid} \ne \lcod{\store,\be_2}{\cid}}
+      {(\store,\elab{\assert{\be_1 = \be_2}}{\cid}) \aredx \abort}
+  
+  \inferrule
+      {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \store_3 }
+      {(\store_1,\prog_1;\prog_2) \aredx \store_3}
+
+  \inferrule
+      {(\store_1,\prog_1) \aredx \abort}
+      {(\store_1,\prog_1;\prog_2) \aredx \abort}
+      
+  \inferrule
+      {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \abort }
+      {(\store_1,\prog_1;\prog_2) \aredx \store_2}
+\end{mathpar}}
+\end{fpfig}
+}
+
+\newcommand{\cpjfig}{
+\begin{fpfig}[t]{Syntax and Derivation Rules for $\minicat$ Confidentiality Types}{fig-cpj}
+\small{
+$$
+\begin{array}{rcl@{\hspace{3mm}}l}
+  t &::=& x \mid \cty{x}{T} \\
+  \ty & \in & 2^{t} & \gdesc{confidentiality types}\\
+  \Gamma &::=& \varnothing \mid \Gamma; x : \ty & \gdesc{confidentiality type environments}
+\end{array} 
+$$
+\medskip
+\begin{mathpar}
+  \inferrule[DepTy]
+  {}
+  {\eqj{\varnothing}{\eqs}{\phi}{\vars(\phi)}}
+  
+  \inferrule[Encode]
+  {\eqs \models \phi \eop \phi' \oplus \rx{w}{\cid} \\
+   \oplus \in \{ \fplus,\fminus \}\\
+   \eqj{R}{\eqs}{\phi'}{\ty}}
+  {\eqj{R;\{ \rx{w}{\cid} \}}{\eqs}{\phi}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Send]
+            {\eqj{R}{\eqs}{\phi}{\ty}}
+            {\cpj{R}{\eqs}{x \eop \phi}{(x : \ty)}}
+            
+  \inferrule[Seq]
+            {\cpj{R_1}{\eqs}{\phi_1}{\Gamma_1}\\
+             \cpj{R_2}{\eqs}{\phi_2}{\Gamma_2}}
+            {\cpj{R_1;R_2}{\eqs}{\phi_1 \wedge \phi_2}{\Gamma_1;\Gamma_2}}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\leakjfig}{
+\begin{fpfig}[t]{Dependencies in Corrupt Views: Derivation Rules}{fig-leakj}
+\small{
+\begin{mathpar}
+  \inferrule
+      {\cid \in C}
+      {\leakj{\Gamma}{C}{\Gamma(\mx{w}{\cid})}}
+
+  \inferrule
+      {\leakj{\Gamma}{C}{T_1 \cup T_2}}
+      {\leakj{\Gamma}{C}{T_1}}
+
+  \inferrule
+      {\leakj{\Gamma}{C}{\setit{ \mx{w}{\cid} }}}
+      {\leakj{\Gamma}{C}{\Gamma(\mx{w}{\cid})}}
+
+  \inferrule
+      {\leakj{\Gamma}{C}{\setit{ \rx{w}{\cid} }} \\ \leakj{\Gamma}{C}{\setit{ \cty{\rx{w}{\cid}}{\ty} }} }
+      {\leakj{\Gamma}{C}{\ty}}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\ipjfig}{
+\begin{fpfig}[t]{Syntax and derivation rule of $\minicat$ integrity types}{fig-ipj}
+\small{
+$$
+\begin{array}{rcl@{\hspace{4mm}}l}
+  \latel &::=& \hilab \mid \lolab & \gdesc{integrity labels} \\
+  \Delta &::=& \varnothing \mid \Delta; x : \ity{\cid}{V} & \gdesc{confidentiality type environments}
+\end{array} 
+$$
+
+\begin{mathpar}
+  \inferrule[Value]
+  {}
+  {\itj{\cid}{v}{\varnothing}}
+  
+  \inferrule[Secret]
+  {}
+  {\itj{\cid}{\secret{w}}{\varnothing}}
+  
+  \inferrule[Rando]
+  {}
+  {\itj{\cid}{\flip{w}}{\varnothing}}
+  
+  \inferrule[Mesg]
+  {}
+  {\itj{\cid}{\mesg{w}}{\setit{\mx{w}{\cid}}}}
+    
+  \inferrule[PubM]
+  {}
+  {\itj{\cid}{\rvl{w}}{\setit{\rvl{w}}}}
+
+  \inferrule[Binop]
+  {\itj{\cid}{\be_1}{V_1} \\
+   \itj{\cid}{\be_2}{V_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\itj{\cid}{\be_1 \oplus \be_2}{V_1 \cup V_2}}
+%
+%  \inferrule[IntegrityWeaken]
+%  {\itj{\Delta}{\eqs}{\cid}{\be}{\latel_1} \\ \latel_1 \sle \latel_2}
+%  {\itj{\Delta}{\eqs}{\cid}{\be}{\latel_2}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Send]
+            {\itj{\cid}{\be}{V}}
+            {\ipj{\eqs}{\xassign{x}{\be}{\cid}}{(x : \ity{\cid}{V})}}
+             
+%  \inferrule[Assert]
+%            {\eqs \models \toeq{\elab{\be_1}{\cid}} = \toeq{\elab{\be_2}{\cid}}}
+%            {\ej{\Delta}{R}{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Delta}{\eqs}}
+%            
+  \inferrule[Seq]
+            {\ipj{\eqs}{\prog_1}{\Delta_1}\\
+             \ipj{\eqs}{\prog_2}{\Delta_2}}
+            {\ipj{\eqs}{\prog_1;\prog_2}{\Delta_1;\Delta_2}}
+
+  \inferrule[MAC]
+            {\eqs \models \toeq{\elab{\assert{\macbdoz{w}}}{\cid}}}
+            {\ipj{\eqs}{\elab{\assert{\macbdoz{w}}}{\cid}}{(\mx{w\ttt{s}}{\cid}: \ity{\cid}{\varnothing})}}
+%
+%  \inferrule[MAC]
+%            {\eqs \models 
+%              \mx{w\ttt{m}}{\cid} \eop \mx{w\ttt{k}}{\cid} \fplus \ttt{(}\mx{\ttt{delta}}{\cid} \ftimes
+%                  \mx{w\ttt{s}}{\cid}\ttt{)}}
+%            {\ipj{\Delta}{\eqs}{
+%                \elab{\assert{\mesg{w\ttt{m}} \eop \mesg{w\ttt{k}} \fplus \ttt{(}\mesg{\ttt{delta}} \ftimes
+%                  \mesg{w\ttt{s}}\ttt{)}}}{\cid}}{\Delta;\mx{w\ttt{s}}{\cid}: \hilab }}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\cheatjfig}{
+\begin{fpfig}[t]{Assigning integrity labels to variables}{fig-cheatj}
+\small{
+\begin{mathpar}
+  \inferrule
+      {}
+      {\cheatj{\varnothing}{H,C}{\seclev_{H,C}}}
+      
+  \inferrule
+      {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in H}
+      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\hilab \wedge (\bigwedge_{x \in V} \seclev_2(x))}}}
+      
+  \inferrule
+      {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in C}
+      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\lolab}}}
+\end{mathpar}
+}
+\end{fpfig}
+}

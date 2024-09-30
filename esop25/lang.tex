@@ -1,0 +1,162 @@
+\section{$\minicat$ Syntax and Operational Semantics}
+
+The $\minifed$ language establishes a basic model of synchronous
+protocols between a federation of \emph{clients} exchanging values in
+the binary field. We identify clients by natural numbers and federations- finite sets of
+clients- are always given statically.  Our threat model assumes a
+partition of the federation into \emph{honest} $H$ and \emph{corrupt}
+$C$ subsets. We model probabilistic programming via a \emph{random
+tape} semantics. That is, we will assume that programs can make
+reference to values chosen from a uniform random distributions defined
+in the initial program memory.  Programs aka protocols execute
+deterministically given the random tape.
+
+\subsection{Syntax}
+
+\minicatsyntaxfig
+
+The syntax of $\minifed$, defined in Figure \ref{fig-minicat-syntax},
+includes values $v$ and standard operations of addition, subtraction,
+and multiplication in a finite field $\mathbb{F}_p$ where $p$ is some
+prime.  Protocols are given input secret values $\secret{w}$ as well
+as random samples $\flip{w}$ on the input tape, implemented using a
+\emph{memory} as described below (Section
+\ref{section-lang-semantics}) where $w$ is a distinguishing 
+identifier string. Protocols are sequences of assignment commands of three
+different forms:
+\begin{itemize}
+\item $\eassign{\mesg{w}}{\cid_2}{\be}{\cid_1}$: This
+  is a \emph{message send} where expression $\be$ is computed
+  by client $\cid_1$ and sent to client $\cid_2$ as message
+  $\mesg{w}$.
+\item $\reveal{w}{\be}{\cid}$: This
+  is a \emph{public reveal} where expression $\be$ is computed
+  by client $\cid$ and broadcast to the federation, typically
+  to communicate intermediate results for use in final output
+  computations.
+\item $\pubout{\cid}{\be}{\cid}$: This
+  is an \emph{output} where expression $\be$ is computed
+  by client $\cid$ and reported as its output. As a
+  sanity condition we disallow commands
+  $\pubout{\cid_1}{\be}{\cid_2}$ where $\cid_1\ne\cid_2$.
+\end{itemize}
+The distinction between
+messages and broadcast public reveal is consistent with previous
+formulations, e.g., \cite{6266151}. To identify and distinguish
+between collections of variables in protocols we introduce the
+following notation.
+\begin{definition}
+We let $x$ range over \emph{variables} which are identifiers where
+client ownership is specified- e.g.,
+$\elab{\mesg{\mathit{foo}}}{\cid}$ is a message $\mathit{foo}$ that
+was sent to $\cid$. We let $X$ range over sets of variables, and more
+specifically, $S$ ranges over sets of secret variables
+$\elab{\secret{w}}{\cid}$, $R$ ranges over sets of random variables
+$\elab{\flip{w}}{\cid}$, $M$ ranges over sets of message variables
+$\elab{\mesg{w}}{\cid}$, $P$ ranges over sets of public variables
+$\rvl{w}$, and $O$ ranges over sets of output variables $\out{\cid}$.
+Given a program $\prog$, we write $\iov(\prog)$ to denote the
+particular set $S \cup M \cup P \cup O$ of variables in $\prog$ and
+$\secrets(\prog)$ to denote $S$, and we write $\flips(\prog)$ to
+denote the particular set $R$ of random samplings in $\prog$. We write
+$\vars(\prog)$ to denote $\iov(\prog) \cup \flips(\prog)$. For any set
+of variables $X$ and clients $I$, we write $X_I$ to denote the subset
+of $X$ owned by any client $\cid \in I$, in particular we write $X_H$
+and $X_C$ to denote the subsets belonging to honest and corrupt
+parties, respectively.
+\end{definition}
+
+\cnote{Add comments about OT.}
+
+\subsection{Semantics}
+\label{section-lang-semantics}
+
+\minicatredxfig
+
+\emph{Memories} are fundamental to the semantics of $\fedcat$ and
+provide random tape and secret inputs to protocols, and also record
+message sends, public broadcast, and client outputs.
+\begin{definition}
+  Memories $\store$
+are finite (partial) mappings from variables $x$ to values $v \in
+\mathbb{F}_p$.  The \emph{domain} of a memory is written
+$\dom(\store)$ and is the finite set of variables on which the memory
+is defined.  We write $\store\{ x \mapsto v\}$ for
+$x\not\in\dom(\store)$ to denote the memory $\store'$ such that
+$\store'(x) = v$ and otherwise $\store'(y) = \store(y)$ for all $y \in
+\dom(\store)$. We write $\store \subseteq \store'$ iff $\dom(\store)
+\subseteq \dom(\store')$ and $\store(x) = \store'(x)$ for all $x \in
+\dom(\store)$. Given any $\store$ and $\store'$ with
+$\store(x) = \store'(x)$ for all $x \in \dom(\store) \cap \dom(\store')$,
+we write $\store \uplus \store'$ to denote the memory
+with domain $X = \dom(\store) \cup \dom(\store')$ such
+that:
+$$
+\forall x \in X .
+(\store \uplus \store')(x) =
+\begin{cases} \store(x) \text{\ if\ } x\in\dom(\store) \\ \store'(x) \text{\ otherwise\ }\end{cases} 
+$$
+%We write $\store \subseteq \store'$ iff $\store \uplus \store' = \store$.
+\end{definition}
+In our subsequent presentation we will often want to consider arbitrary
+memories that range over particular variables and to restrict
+memories to particular subsets of their domain:
+\begin{definition}
+  Given a set of variables $X$ and memory $\store$, we write
+  $\store_X$ to denote the memory with $\dom(\store_X) = X$ and
+  $\store_X(x) = \store(x)$ for all $x \in X$. We define $\mems(X)$ as
+  the set of all memories with domain $X$:
+  $$
+  \mems(X) \defeq \{ \store \mid \dom(\store) = X \}
+  $$
+\end{definition}
+So for example, given a protocol $\prog$, the set of all random tapes for
+$\prog$ is $\mems(\flips(\prog))$, and the memory $\store_{\secrets(\prog)}$
+is $\store$ restricted to the secrets in $\prog$.
+%We let $\stores$ range
+%over sets of memories with the same domain, and abusing notation
+%we write $\dom(\stores)$ to denote the common domain,
+%and $\stores_X \defeq \{ \store_X | \store \in \stores \}$.
+
+Given a variable-free expression $\be$, we write $\cod{\be}$ to denote
+the standard interpretation of $\be$ in the arithmetic field
+$\mathbb{F}_{p}$. With the introduction of variables to expressions,
+we need to interpret variables with respect to a specific memory, and
+all variables used in an expression must belong to a specified client.
+Thus, we denote interpretation of expressions $\be$ computed on a
+client $\cid$ as $\lcod{\store,\be}{\cid}$. This interpretation is
+defined in Figure \ref{fig-minicat-redx}, along with the big-step
+reduction relation $\redx$ to evaluate commands. Reduction is a mapping
+fromon \emph{configurations} $(\store,\prog)$ to final stores
+where all three command forms- message send, broadcast, and
+output- are implemented as updates to the memory $\store$. 
+
+\subsection{$\minicat$ Adversarial Semantics}
+  
+\minicataredxfig
+
+In the malicious model we assume that corrupt clients are in
+thrall to an adversary $\adversary$ who does not necessarily follow
+the rules of the protocol.  We model this by positing a $\arewrite$
+function which is given a corrupt memory $\store_C$ and expression
+$\be$, and returns a rewritten expression that can be interpreted to
+yield a corrupt input. We define the evaluation relation that
+incorporates the adversary in Figure \ref{fig-minicat-aredx}.
+
+A key technical distinction of the malicious setting is that it
+typically incorporates ``abort''. Honest parties implement strategies
+to detect rule-breaking-- aka \emph{cheating}-- by using, e.g.,
+message authentication codes with semi-homomorphic properties as in
+BDOZ/SPDZ \cite{10.1007/978-3-030-68869-1_3}. If cheating is detected,
+the protocol is aborted. To model this, we extend $\minifed$ with an
+\ttt{assert} command:
+$$
+    \begin{array}{rcl@{\hspace{2mm}}r}
+      \prog &::=& \cdots \mid \elab{\assert{\be = \be}}{\cid}
+    \end{array}
+$$
+As we will discuss, this form of asserting equality between expressions
+is sufficient to capture MAC checking and support integrity in protocols.
+The big-step adversarial semantics relation $\aredx$ is then defined
+in Figure \ref{fig-minicat-aredx} as a mapping from configurations to
+$\stores$ or $\bot$.

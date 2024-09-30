@@ -1,0 +1,141 @@
+\section{$\minicat$ Constraint Verification}
+
+In previous work we have shown that the semantics of $\minicat$ in
+$\mathbb{F}_2$ can be implemented with Datalog
+\cite{skalka-near-ppdp24}, which is a form of constraint
+programming. In this paper we extend this idea to arbitrary prime
+fields by using a more general form of SMT constraint programming,
+specifically Satisfiability Modulo Finite Fields \cite{SMFF}. As we
+will show in subsequent sections, this interpretation supports
+correctness guarantees, and also static type analyses for enforcing
+confidentiality and integrity properties.
+
+\subsection{Constraint Satisfiability Modulo Finite Fields}
+
+In Figure \ref{fig-eqs} we define a syntax of SMT-style constraints
+$\eqs$, where constraint terms $\phi$ are similar to expressions $\be$
+except the can ``cross party lines''. This turns out to be very useful
+to express correctness properties-- for example, in the GMW protocol
+wire values in circuits are represented by reconstructive shares
+\cite{evans2018pragmatic}.  If by convention shares of values $n$ are
+represented by $\mesg{n}$ on clients, then assuming two clients
+$\setit{1,2}$ the reconstructed value can be expressed as $\mx{n}{1} +
+\mx{n}{2}$.  So, while summing values across clients is disallowed in
+$\minicat$ protocols, we can express properties of shared values
+via constraints.
+
+\begin{fpfig}[t]{Syntax of constraints and memory application extended to
+  SMT expressions}{fig-eqs}
+\small{
+$$
+\begin{array}{rcl}
+  \phi &::=& x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
+  \eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
+\end{array}
+$$
+
+\begin{mathpar}
+  \store(\phi_1 \fplus \phi_2) = \cod{\store(\phi_1) \fplus \store(\phi_2)}
+  
+  \store(\phi_1 \ftimes \phi_2) = \cod{\store(\phi_1) \ftimes \store(\phi_2)}
+  
+  \store(\phi_1 \fminus \phi_2) = \cod{\store(\phi_1) \fminus \store(\phi_2)}
+\end{mathpar}}
+\end{fpfig}
+
+This language of constraints has a direct interpretation in the Finite
+Fields theory of cvc5 \cite{SMFF}. We can leverage this to implement a
+critical \emph{entailment} property, written $\eqs_1 \models \eqs_2$.
+Our entailment relation is based on model satisfiability in a standard
+sense, except we represent models as memories $\store$. To this end
+we extend application of memories to terms $\store(\phi)$ in
+Figure \ref{fig-eqs}, and we formally define entailment as follows.
+\begin{definition}
+  Given $\eqs$ of the form $\phi_1 \eop \phi_1' \wedge \cdots \wedge \phi_n \eop
+  \phi_n'$ and $\store$, we say that $\store$ is a \emph{model} of
+  $\eqs$, written $\store \models \eqs$, iff $\store(\phi_i) =
+  \store(\phi_i')$ for all $1 \le i \le n$. We write $\eqs_1 \models
+  \eqs_2$ iff  $\store \models E_1$ implies $\store \models
+  E_2$ for all $\store$, and note this relation is reflexive and transitive.
+\end{definition}
+
+Given this Definition, the following Theorem is well-known and commonly
+applied in SMT systems to implement our notion of entailment. 
+\begin{theorem}
+  $\eqs \models \phi \eop \phi'$ iff $\eqs \wedge \phi \not\eop \phi'$ is
+  not satisfiable.
+\end{theorem}
+
+\subsection{Programs as Constraint Systems}
+
+\begin{fpfig}[t]{Interpretation of $\minicat$ expressions (T) and programs (B) as
+  constraints}{fig-toeq}
+\small{
+\begin{mathpar}
+  \toeq{x} = x
+
+  \toeq{\elab{\be_1 \fplus \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \fplus \toeq{\elab{\be_1}{\cid}}
+
+  \toeq{\elab{\be_1 \fminus \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \fminus \toeq{\elab{\be_1}{\cid}}
+
+  \toeq{\elab{\be_1 \ftimes \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \ftimes \toeq{\elab{\be_1}{\cid}}
+\end{mathpar}
+
+\begin{mathpar}
+  \toeq{\xassign{x}{\be}{\cid}} = x \eop \toeq{\elab{\be}{\cid}}
+  
+  \toeq{\elab{\assert{\be_1 = \be_2}}{\cid}} =  \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}
+
+  \toeq{\prog_1;\prog_2} = \toeq{\prog_1} \wedge \toeq{\prog_2} 
+\end{mathpar}}
+\end{fpfig}
+
+A central idea of our approach is that we can interpret any protocol
+$\prog$ as a set of equality constraints (denoted $\toeq{\prog}$) and use an SMT
+solver to verify properties relevant to correctness, confidentiality,
+and integrity. Further, we can leverage entailment relation is critical for efficiency--
+we can use annotations to obtain a weakened precondition for relevant properties.
+That is, given $\prog$, program annotations or other cues can be used
+to find a minimal $\eqs$ with $\toeq{\prog} \models \eqs$ for verifying
+correctness and security.
+
+The mapping $\toeq{\cdot}$ from programs $\prog$ to contraints
+is defined in Figure \ref{fig-toeq}. The interpretion of OT is ommitted
+from this figure which is general-- for $\mathbb{F}_2$ the interpretation
+is:
+\begin{mathpar}
+  \toeq{\elab{\OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2}} =
+  (\toeq{\elab{\be_1}{\cid_1}} \ftimes \toeq{\elab{\be_3}{\cid_2}}) \fplus
+  (\neg\toeq{\elab{\be_1}{\cid_1}} \ftimes \toeq{\elab{\be_2}{\cid_2}}) 
+\end{mathpar}
+The correctness of this interpretation is characterized as follows.  
+\begin{theorem}
+  $\store$ is a model of $\eqspre \wedge \toeq{\prog}$ iff $\store \in \runs(\prog)$.
+  \cnote{Need to define $\runs$ somewhere.}
+\end{theorem}
+
+\subsubsection{Example: Correctness of 3-Party Addition}
+Consider the following 3-party Shamir Addition protocol.
+
+$$
+\begin{array}{lll}
+  \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip \fminus \flip{x})}{1} \\ 
+  \elab{\mesg{s1}}{3} &:=& \elab{\flip{x}}{1} \\ 
+  \elab{\mesg{s2}}{1} &:=& \elab{(\secret{2} \fminus \locflip \fminus \flip{x})}{2} \\ 
+  \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
+  \elab{\mesg{s3}}{1} &:=& \elab{(\secret{3} \fminus \locflip \fminus \flip{x})}{3} \\ 
+  \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3}\\
+  \rvl{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+  \rvl{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
+  \rvl{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\
+  \out{1} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{1}\\
+  \out{2} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{2}\\
+  \out{3} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{3}
+\end{array}
+$$
+Letting $\prog$ be this protocol, we can verify correctness
+as follows-- the output is the sum of the three input secrets:
+$$
+\toeq{\prog}\ \models\ \out{1} \eop \sx{1}{1} \fplus \sx{2}{2} \fplus \sx{3}{3}
+$$
+
