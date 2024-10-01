@@ -13,29 +13,32 @@ public class FullProgramParseTest {
     @Test
     public void confidentialityExample() {
         Program program = Loader.toProgram("""
+                exprfunctions:
 
-                encodegmw(n, i1, i2) {
-                    m[n]@i2 := (s[n] + r[n])@i1;
-                    m[n]@i1 := r[n]@i1
-                }
-                
                 not(x){
                     x + 1
                 }
-                
+
                 mux4(s1, s2, b1, b2, b3, b4){
                     ((s1 * s2) * b4) +
                     ((not(s1) * s2) * b3) +
                     ((s1 * not(s2)) * b2) +
                     ((not(s1) * not(s2)) * b1)
                 }
-                
+
                 andtablegmw(x, y, z, i) {
                     let r11 = (r[z] + (m[x] + 1) * (m[y] + 1))@i in
                     let r10 = (r[z] + (m[x] + 1) * (m[y] + 0))@i in
                     let r01 = (r[z] + (m[x] + 0) * (m[y] + 1))@i in
                     let r00 = (r[z] + (m[x] + 0) * (m[y] + 0))@i in
                     { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
+                }
+
+                cmdfunctions:
+
+                encodegmw(n, i1, i2) {
+                    m[n]@i2 := (s[n] + r[n])@i1;
+                    m[n]@i1 := r[n]@i1
                 }
                 
                 andgmw(z, x, y) {

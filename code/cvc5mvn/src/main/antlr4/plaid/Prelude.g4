@@ -1,12 +1,13 @@
 // define lexer and parser rules in a single combined grammar file
 grammar Prelude;
-/* Parser Rules*/
 
-program : function+ EOF;
+program : exprfuncsection? cmdfuncsection? EOF;
 
-function : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc
-          | ident '(' (ident (',' ident)*)? ')' '{' command '}' #CommandFunc
-          ;
+exprfuncsection : 'exprfunctions:' exprfunc* ;
+exprfunc : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc ;
+
+cmdfuncsection : 'cmdfunctions:' cmdfunc* ;
+cmdfunc : ident '(' (ident (',' ident)*)? ')' '{' command '}' #CommandFunc ;
 
 expr
     : expr '.' ident #FieldSelectExpr
@@ -28,11 +29,12 @@ expr
     | VALUE #Num
     ;
 
-command : command (';' command) #CommandList
-        | expr ':=' ('(')? expr (')')? #AssignCommand
-        | 'assert' '(' expr '=' expr ')' '@' expr #AssertCommand
-        | ident '(' (expr (',' expr)*)? ')' #FunctionCallCommand
-        ;
+command
+    : command (';' command) #CommandList
+    | expr ':=' ('(')? expr (')')? #AssignCommand
+    | 'assert' '(' expr '=' expr ')' '@' expr #AssertCommand
+    | ident '(' (expr (',' expr)*)? ')' #FunctionCallCommand
+    ;
 
 flddecl : ident '=' expr ;
 pmop : '+' | '-' ;

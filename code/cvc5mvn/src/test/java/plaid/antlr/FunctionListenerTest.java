@@ -51,7 +51,7 @@ public class FunctionListenerTest {
                 new Num(2));
 
         assertFunctions(
-                "f() { 0 } g(x) { 1 } h(x, y) { 2 }",
+                "exprfunctions: f() { 0 } g(x) { 1 } h(x, y) { 2 }",
                 List.of(f, g, h),
                 List.of());
     }
@@ -77,7 +77,7 @@ public class FunctionListenerTest {
                 new AssignCommand(new OutputExpr(new Num(1)), new Num(2)));
 
         assertFunctions(
-                "f() { out@1 := 2 } g(x) { out@1 := 2 } h(x, y) { out@1 := 2 }",
+                "cmdfunctions: f() { out@1 := 2 } g(x) { out@1 := 2 } h(x, y) { out@1 := 2 }",
                 List.of(),
                 List.of(f, g, h));
     }
@@ -98,7 +98,7 @@ public class FunctionListenerTest {
                 new AssignCommand(new OutputExpr(new Num(1)), new Num(2)));
 
         assertFunctions(
-                "f() { 3 } g() { out@1 := 2 }",
+                "exprfunctions: f() { 3 } cmdfunctions: g() { out@1 := 2 }",
                 List.of(f),
                 List.of(g));
     }
