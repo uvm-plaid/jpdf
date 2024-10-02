@@ -2,7 +2,7 @@ package plaid.ast;
 
 import java.util.Objects;
 
-public class OutputExpr implements PreludeExpression {
+public class OutputExpr implements MemoryExpr {
 
     private final PreludeExpression i;
 
