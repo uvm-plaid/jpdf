@@ -23,39 +23,35 @@ protocols as we will discuss with examples in Section
 \subsection{Syntax and Semantics}
 
 The syntax of $\metaprot$ is defined in Figure
-\ref{fig-metaprot}.  It includes a syntax of function
-definitions and records, and values $\mv$ include client ids $\cid$, identifier
-strings $w$, expressions $\be$ in field $\mathbb{F}_p$, and the unit value $()$.
-Expression forms allow dynamic construction of field expressions and $\minifed$ commands.
-The construction of a command has the side-effect of adding to the residual
-$\minifed$ protocol. Formally, we consider a complete metaprogram to include both a
-codebase and a ``main'' program that uses the codebase. 
+\ref{fig-metaprotsyntax}.  It includes a syntax of values $\mv$ that
+include client ids $\cid$, identifier strings $w$, expressions $\be$
+in field $\mathbb{F}_p$, record values, and $\minicat$ variables
+$x$. $\metaprot$ expression forms allow dynamic construction of these
+values. $\metaprot$ \emph{instruction} forms allow dynamic
+construction of $\minicat$ protocols $\prog$, incorporating expression
+evaluation. The syntax also supports definitions of functions that
+compute values $\mv$ and, as a distinct form, functions that compute
+protocols.  Formally, we consider a complete metaprogram to include
+both a codebase and a ``main'' program that uses the codebase.
 \begin{definition}
 A \emph{codebase} $\codebase$ is a list of function 
 declarations. We write $ \codebase(f) = y_1,\ldots,y_n,\ e$
-iff $f(y_1,\ldots,y_n) \{ e \} \in \codebase$.
-A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
-codebase and expression $\codebase, e$. We may omit
-$\codebase$ if it is clear from context.  
+if $f(y_1,\ldots,y_n) \{ e \} \in \codebase$, and we
+write  $ \codebase(f) = y_1,\ldots,y_n,\ \instr$
+if $f(y_1,\ldots,y_n) \{ \instr \} \in \codebase$.
+%A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
+%codebase and expression $\codebase, e$. We may omit
+%$\codebase$ if it is clear from context.  
 \end{definition}
 
-We define a small-step evaluation aka reduction relation $\redx$ in
-Figure \ref{fig-metaprot}.  We write $\redxs$ to denote the
-reflexive, transitive closure of $\redx$. Reduction is defined on
-\emph{configurations} which are pairs of the form $\config{\prog}{e}$,
-where $\prog$ is the $\minifed$ program accumulated during evaluation.
-In this definition we write $e[\mv/y]$ to denote the substitution of $\mv$
-for free occurrences of $y$ in $e$. The rules are mostly standard,
-except when a concrete $\minifed$ assignment is encountered it is added
-to the end of $\prog$.
+We define a big-step evaluation relation $\redx$ in Figures
+\ref{fig-metaprotexprsemantics} and \ref{fig-metaprotinstrsemantics}
+for expressions and instructions, respectively.  In this definition we
+write $e[\mv/y]$ and $\instr[\mv/y]$ to denote the substitution of
+$\mv$ for free occurrences of $y$ in $e$ or $\instr$ respectively. The
+rules are mostly standard.
 
 \metaprotexprsemanticsfig
-
-The rules rely on a definition of \emph{evaluation contexts} $E$
-allowing computation within a larger program context, where $E[e]$
-denotes an expression with $e$ in the hole $[]$ of $E$. The syntax
-of $E$ imposes a left-to-right order of evaluation of subexpressions
-for all forms.
 
 \metaprotinstrsemanticsfig
 
