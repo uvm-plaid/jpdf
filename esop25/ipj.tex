@@ -97,9 +97,9 @@ $\latel$. By default, given a partitioning $H,C$ this labeling maps
 messages to the integrity level of the owner.
 \begin{definition}  
   Given $H,C$,
-  define $\seclev_{H,C}$ such that for all $\mx{w}{\cid}$ we
-  have $\seclev_{H,C}(\mx{w}{\cid} ) = \hilab$ if $\cid \in H$ and $\lolab$
-  otherwise.
+  define $\seclev_{H,C}$ such that $\seclev_{H,C}(\mx{w}{\cid} ) = \hilab$
+  if $\cid \in H$  and $\lolab$
+  otherwise for all $\mx{w}{\cid}$.
 \end{definition}
 During execution of a protocol, the integrity of messages and reveals
 affected by values sent by other parties, as recorded in $\Delta$

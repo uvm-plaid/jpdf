@@ -1,89 +1,77 @@
 \section{Compositional Type Verification in $\metaprot$}
 
+Practical MPC computations protocols are
+typically composed of compositional units. Examples include GMW circuits
+and Yao's Garbled Circuits (YGC), that are composed of so-called
+garbled gates. Languages such as Fairplay \cite{269581} provide gates as
+units of abstraction that are ``wired'' together by the programmer to
+generate a complete circuit.
+
+The $\fedprot$ language is low-level and does not include abstractions
+for defining composable elements. So in this Section we introduce the
+$\metaprot$ language that includes structured data and function
+definitions for defining composable protocol elements at a higher
+level of abstraction.  The $\metaprot$ language is a
+\emph{metalanguage}, where $\fedprot$ protocols are the residuum of
+computation. In addition to these declarative benefits of $\metaprot$,
+component definitions support compositional verification of larger
+protocols as we will discuss with examples in Section
+\ref{section-examples}.
+
+\metaprotsyntaxfig
+
 \subsection{Syntax and Semantics}
 
-$$
-\begin{array}{rcl}
-  %\notg{x} &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\[2mm]
-  \multicolumn{3}{l}{\flab \in \mathrm{Field},\   y \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[1mm]
-  %x &\in& \mathrm{EVar}\\
-  %f &\in& \mathrm{FName}\\[2mm]
-  e &::=& \mv \mid \flip{e} \mid \secret{e} \mid \mesg{e} \mid \rvl{e} \mid \outkw \mid e \bop e \mid
-  \elet{y}{e}{e} \mid \\
-  & & f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \mid e.\flab \mid \elab{e}{e} \mid y\\
-  %  & \textit{expressions}\\
-  \cmd &::=& %\msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
-  \assign{e}{e} \mid \elab{\assert{e = e}}{e} \mid f(e,\ldots,e) \mid  \cmd;\cmd \\[2mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
-  \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
-  \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
-  \\ % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
-  \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y,\ldots,y) \{ \cmd \} %\\[1mm]%& \textit{functions}
-  %\phi &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e} \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
-  %\eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
-\end{array}
-$$
+The syntax of $\metaprot$ is defined in Figure
+\ref{fig-metaprot}.  It includes a syntax of function
+definitions and records, and values $\mv$ include client ids $\cid$, identifier
+strings $w$, expressions $\be$ in field $\mathbb{F}_p$, and the unit value $()$.
+Expression forms allow dynamic construction of field expressions and $\minifed$ commands.
+The construction of a command has the side-effect of adding to the residual
+$\minifed$ protocol. Formally, we consider a complete metaprogram to include both a
+codebase and a ``main'' program that uses the codebase. 
+\begin{definition}
+A \emph{codebase} $\codebase$ is a list of function 
+declarations. We write $ \codebase(f) = y_1,\ldots,y_n,\ e$
+iff $f(y_1,\ldots,y_n) \{ e \} \in \codebase$.
+A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
+codebase and expression $\codebase, e$. We may omit
+$\codebase$ if it is clear from context.  
+\end{definition}
 
-\begin{mathpar}
-  \inferrule
-      {e[\mv/y] \redx \mv'}
-      {\elet{y}{\mv}{e} \redx \mv'}
+We define a small-step evaluation aka reduction relation $\redx$ in
+Figure \ref{fig-metaprot}.  We write $\redxs$ to denote the
+reflexive, transitive closure of $\redx$. Reduction is defined on
+\emph{configurations} which are pairs of the form $\config{\prog}{e}$,
+where $\prog$ is the $\minifed$ program accumulated during evaluation.
+In this definition we write $e[\mv/y]$ to denote the substitution of $\mv$
+for free occurrences of $y$ in $e$. The rules are mostly standard,
+except when a concrete $\minifed$ assignment is encountered it is added
+to the end of $\prog$.
 
-  \inferrule
-      {\codebase(f) = y_1,\ldots,y_n,\ e \\ e_1 \redx \mv_1 \cdots e_n \redx \mv_n \\
-        e[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \mv}
-      {f(e_1,\ldots,e_n) \redx \mv}
+\metaprotexprsemanticsfig
 
-  \inferrule
-      {e_1 \redx \mv_1 \\ \cdots \\ e_n \redx \mv_n }
-      {\{ \flab_1 = e_1; \ldots; \flab_n = e_n \} \redx \{ \flab_1 = \mv_1; \ldots; \flab_n = \mv_n \} }
+The rules rely on a definition of \emph{evaluation contexts} $E$
+allowing computation within a larger program context, where $E[e]$
+denotes an expression with $e$ in the hole $[]$ of $E$. The syntax
+of $E$ imposes a left-to-right order of evaluation of subexpressions
+for all forms.
 
-  \inferrule
-      {e \redx \{\ldots; \flab = \mv; \ldots\}}
-      {e.\flab \redx \mv}
-
-  \inferrule
-      {e_1 \redx w_1 \\ e_2 \redx w_2}
-      {e_1 \concat e_2 \redx w_1w_2}
-
-  \inferrule
-      {e \redx w}
-      {\mesg{e} \redx \mesg{w}}
-      
-  \inferrule
-      {e_1 \redx \be_1 \\ e_2 \redx \be_2}     
-      {e_1 \fplus e_2 \redx \be_1 \fplus \be_2}
-      
-  \inferrule
-      {e_1 \redx \be \\ e_2 \redx \cid}
-      {\elab{e_1}{e_2} \redx \elab{\be}{\cid}}
-\end{mathpar}
-
-\begin{mathpar}
-  \inferrule
-      {e_1 \redx x \\ e_2 \redx \elab{\be}{\cid}}
-      {\assign{e_1}{e_2} \redx \xassign{x}{\be}{\cid}}
-
-  \inferrule
-      {e_1 \redx \prog_1 \\ e_2 \redx \prog_2}
-      {e_1;e_2 \redx \prog_1;\prog_2}
-
-  \inferrule
-      {e_1 \redx \be_1 \\ e_2 \redx \be_2 \\ e_3 \redx \cid}
-      {\elab{\assert{e_1 = e_2}}{e_3} \redx \elab{\assert{\be_1 = \be_2}}{\cid}}
-
-  \inferrule
-      {\codebase(f) = y_1,\ldots,y_n, \instr \\
-        e_1 \redx \mv_1 \ \cdots \ e_n \redx \mv_n \\
-        \subn = [\mv_1/y_1]\cdots[\mv_n/y_n] \\
-        \subn(\instr) \redx \prog
-      }
-      {f(e_1,\ldots,e_n) \redx \prog}
-\end{mathpar}
+\metaprotinstrsemanticsfig
 
 \subsection{Dependent Hoare Type Theory}
 
+\subsubsection{$\minicat$ expression type algorithm}
+
+\atjfig
+
+\begin{lemma}
+  If $\atj{\toeq{\phi}}{R}{\ty}$ then $\eqj{R}{\eqs}{\phi}{\ty}$ for any $\eqs$.
+\end{lemma}
+
+
 $$
-\cmd ::= \cdots \mid \eqcast{\mx{e}{e}}{\notg{\phi}} 
+\cmd ::= \cdots \mid \eqcast{\mx{e}{e}}{\notg{\phi}}
 $$
 
 $$
@@ -136,18 +124,7 @@ $$
         \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}}
 \end{mathpar}
 
-\begin{mathpar}
-  \atj{x}{\varnothing}{\setit{x}}
 
-  \inferrule
-  {\atj{\phi}{R}{\ty} \\ \rx{w}{\cid}\not\in R \\ \oplus \in \setit{\fplus,\fminus}}
-  {\atj{\phi \oplus \rx{w}{\cid}}{R \cup \setit{\rx{w}{\cid}}}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
-
-  \inferrule
-  {\atj{\phi_1}{R_1}{\ty_1} \\
-   \atj{\phi_2}{R_2}{\ty_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
-  {\atj{\phi_1 \oplus \phi_2}{R_1;R_2}{\ty_1 \cup \ty_2}}
-\end{mathpar}
 
 \begin{mathpar}
   \inferrule[Mesg]
