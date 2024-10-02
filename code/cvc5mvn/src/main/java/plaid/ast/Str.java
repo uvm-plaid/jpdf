@@ -1,5 +1,6 @@
 package plaid.ast;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Str extends Value {
@@ -26,4 +27,10 @@ public class Str extends Value {
     public int hashCode() {
         return Objects.hashCode(str);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        return List.of();
+    }
+
 }

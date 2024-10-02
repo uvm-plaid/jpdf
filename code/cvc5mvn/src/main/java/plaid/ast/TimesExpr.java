@@ -1,5 +1,6 @@
 package plaid.ast;
 
+import java.util.List;
 import java.util.Objects;
 
 public class TimesExpr implements PreludeExpression{
@@ -31,6 +32,11 @@ public class TimesExpr implements PreludeExpression{
     @Override
     public int hashCode() {
         return Objects.hash(e1, e2);
+    }
+
+    @Override
+    public Iterable<Node> children() {
+        return List.of(e1, e2);
     }
 
 }

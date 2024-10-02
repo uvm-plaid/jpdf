@@ -1,4 +1,4 @@
 package plaid.ast;
 
-public interface PreludeCommand {
+public interface PreludeCommand extends Node {
 }

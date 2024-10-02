@@ -1,5 +1,6 @@
 package plaid.ast;
 
+import java.util.List;
 import java.util.Objects;
 
 // value in Overture
@@ -27,4 +28,10 @@ public class Num implements OvertureExpression {
     public int hashCode() {
         return Objects.hashCode(num);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        return List.of();
+    }
+
 }

@@ -1,5 +1,6 @@
 package plaid.ast;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Identifier implements PreludeExpression {
@@ -26,4 +27,10 @@ public class Identifier implements PreludeExpression {
     public int hashCode() {
         return Objects.hashCode(name);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        return List.of();
+    }
+
 }

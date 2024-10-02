@@ -1,5 +1,6 @@
 package plaid.ast;
 
+import java.util.List;
 import java.util.Objects;
 
 public class FieldSelectExpr implements PreludeExpression{
@@ -31,4 +32,10 @@ public class FieldSelectExpr implements PreludeExpression{
     public int hashCode() {
         return Objects.hash(e, l);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        return List.of(e, l);
+    }
+
 }

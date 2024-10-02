@@ -1,5 +1,6 @@
 package plaid.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,4 +27,10 @@ public class CommandList implements PreludeCommand{
     public int hashCode() {
         return Objects.hashCode(commands);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        return new ArrayList<>(commands);
+    }
+
 }

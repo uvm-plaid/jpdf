@@ -1,5 +1,6 @@
 package plaid.ast;
 
+import java.util.List;
 import java.util.Objects;
 
 public class RandomExpr implements MemoryExpr {
@@ -32,4 +33,10 @@ public class RandomExpr implements MemoryExpr {
     public int hashCode() {
         return Objects.hash(e, i);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        return List.of(e, i);
+    }
+
 }

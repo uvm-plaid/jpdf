@@ -1,5 +1,7 @@
 package plaid.ast;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,4 +40,14 @@ public class CommandFunction implements PreludeFunction{
     public int hashCode() {
         return Objects.hash(fname, y, c);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        Collection<Node> result = new ArrayList<>();
+        result.add(fname);
+        result.addAll(y);
+        result.add(c);
+        return result;
+    }
+
 }

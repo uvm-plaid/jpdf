@@ -1,9 +1,10 @@
 package plaid.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Program {
+public class Program implements Node {
 
     private final List<CommandFunction> commandFunctions;
     private final List<ExprFunction> exprFunctions;
@@ -32,6 +33,14 @@ public class Program {
     @Override
     public int hashCode() {
         return Objects.hash(commandFunctions, exprFunctions);
+    }
+
+    @Override
+    public Iterable<Node> children() {
+        List<Node> result = new ArrayList<>();
+        result.addAll(commandFunctions);
+        result.addAll(exprFunctions);
+        return result;
     }
 
 }
