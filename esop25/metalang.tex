@@ -44,6 +44,8 @@ if $f(y_1,\ldots,y_n) \{ \instr \} \in \codebase$.
 %$\codebase$ if it is clear from context.  
 \end{definition}
 
+\metaprotexprsemanticsfig
+
 We define a big-step evaluation relation $\redx$ in Figures
 \ref{fig-metaprotexprsemantics} and \ref{fig-metaprotinstrsemantics}
 for expressions and instructions, respectively.  In this definition we
@@ -56,13 +58,12 @@ programs prior to evaluation. We defer discussion of this form,
 as well as the syntactic category $\notg{\phi}$, to the next
 Section.
 
-\metaprotexprsemanticsfig
 
 \metaprotinstrsemanticsfig
 
 \subsection{Dependent Hoare Type Theory}
 
-Our first goal with a $\metaprot$ type theory is to define an
+Our first goal in the $\metaprot$ type theory is to define an
 algorithmic system that is sound for both confidentiality and
 integrity typings as defined in Sections \ref{section-cpj} and
 \ref{section-ipj}. Returning to the example in Section
@@ -75,7 +76,9 @@ the needed hint.
 
 Consider the following $\ttt{encode}$ function definition that
 generalizes this encoding for any identifier $y$ and sender, receiver
-pair $s,r$:
+pair $s,r$. The second line in the body is a hint that
+the message $\mx{y}{r}$ can be considered equivalent to
+$\neg\sx{y}{s} \fplus \rx{y}{s}$:
 $$
 \begin{array}{l}
 \ttt{encode}(y,s,r) \{\\
@@ -84,25 +87,65 @@ $$
 \}
 \end{array}
 $$
+This hint can be validated using SMT, and then the
+syntactic structure of $\neg\sx{y}{s} \fplus \rx{y}{s}$
+allows its immediate interpretation as a one-time-pad encoding.
 
-Furthermore, we want to minimize the amount of SMT solving needed for
-type verification.  Our approach is to support pre- and post-condition
-annotations on $\metaprot$ functions that can be independently
-verified, allowing significant reduction of SMT overhead in
-whole-program analysis.
+Our second goal in the $\metaprot$ type system is to minimize the
+amount of SMT solving needed for type verification.  Returning to the
+$\ttt{encode}$ example, type checking in our systems only requires the
+hint to be verified once, with the guarantee that $\ttt{encode}$ can
+be applied anywhere without needing to re-verify the hint in
+application instances. To verify the hint in $\ttt{encode}$, we can
+just choose arbitrary values $w,\cid_1,\cid_2$ for $y$, $s$, and $r$,
+evaluate $\ttt{encode}(w,\cid_1,\cid_2) \redx \prog$, and then verify:
+$$\toeq{\prog} \models \mx{w}{\cid_2} \eop
+\neg\sx{w}{\cid_1} \fplus \rx{w}{\cid_1}$$ 
+Since $\ttt{encode}$ is closed, validity is guaranteed for
+any instance of $y$, $s$, and $r$.
+
+We generalize these benefits of compositional verification by allowing
+pre- and post-condition annotations on $\metaprot$ functions. For
+example, consider a GMW-style, 2-party ``and-gate'' function
+$\ttt{andgmw}(x,y,z)$. In this protocol, each party $\cid
+\in \{1,2\}$ holds an additive secret share $\mx{x}{\cid}$ of
+values identified by $x$ and $y$, and at the end of the
+protocol each hold a secret share $\mx{z}{\cid}$, where:
+$$
+\mx{z}{1} \fplus \mx{z}{2} \eop (\mx{x}{1} \fplus \mx{x}{2}) \ftimes (\mx{y}{1} \fplus \mx{y}{2})
+$$
+We provide details of $\ttt{andgmw}$ and other GMW protocol
+elements in Section \ref{section-examples}.  Our point now is that,
+similarly to the $\ttt{encode}$ example, we can verify this
+post-condition once as a correctness property for $\ttt{andgmw}$, and
+then integrate instances of it into circuit correctness properties
+with the guarantee that each instance also holds for any
+$\ttt{andgmw}$ gate.  Since the program logic of $\ttt{andgmw}$ is
+non-trivial, and typical circuits can use up to thousands of gates,
+this has significant practical benefits by greatly reducing SMT overhead
+in whole-program analysis.
 
 \subsubsection{$\minicat$ expression type algorithm}
 
+A core element of $\metaprot$ type checking is type checking
+of $\minicat$ expressions. The integrity type system presented in Section
+\ref{section-ipj} is already algorithmic and ready to use. But confidentiality
+typing presented in Section \ref{section-cpj} is not syntax-directed
+due to the \TirName{Encode} rule. But as described above, by introducing
+hint annotations we can ``cast'' any relevant expression form into
+the simplest equivalent syntactic form for one-time-pad encoding.
+Thus, in Figure \ref{fig-atj} we present the algorithm for
+confidentiality type judgements, where we eliminate the need for
+integrated SMT solving by assuming this sort of casting. 
+
 \atjfig
 
+The following Lemma establishes correctness of algorithmic confidentiality
+type checking, and makes explicit that SMT checking is eliminated in the
+judgement.
 \begin{lemma}
   If $\atj{\toeq{\phi}}{R}{\ty}$ then $\eqj{R}{\eqs}{\phi}{\ty}$ for any $\eqs$.
 \end{lemma}
-
-
-$$
-\cmd ::= \cdots \mid \eqcast{\mx{e}{e}}{\notg{\phi}}
-$$
 
 $$
 \begin{array}{rcl}
