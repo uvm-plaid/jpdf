@@ -27,14 +27,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-public class Prover {
+public class TermFactory {
 
     private final Sort sort;
     private final TermManager termManager;
     private final Collection<Memory> memories = new HashSet<>();
     private final Term minusOne;
 
-    public Prover(TermManager termManager, Sort sort) {
+    public TermFactory(TermManager termManager, Sort sort) {
         this.termManager = termManager;
         this.sort = sort;
         this.minusOne = mkFiniteFieldElem("-1", sort, 10);

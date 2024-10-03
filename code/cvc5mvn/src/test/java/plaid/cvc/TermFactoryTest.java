@@ -20,7 +20,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class ProverTest {
+public class TermFactoryTest {
 
     /**
      * Registers memory nodes when they are children of other nodes.
@@ -29,7 +29,7 @@ public class ProverTest {
     public void registerChildren() throws CVC5ApiException {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        Prover prover = new Prover(termManager, sort);
+        TermFactory prover = new TermFactory(termManager, sort);
         MessageExpr mem = new MessageExpr(new Str("x"), new Num(3));
         PreludeExpression expr = new PlusExpr(new Num(6), mem);
         prover.createConstants(expr);
@@ -45,7 +45,7 @@ public class ProverTest {
     public void registerFirstMemory() throws CVC5ApiException {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        Prover prover = new Prover(termManager, sort);
+        TermFactory prover = new TermFactory(termManager, sort);
         MessageExpr expr = new MessageExpr(new Str("x"), new Num(3));
         prover.createConstants(expr);
 
@@ -66,7 +66,7 @@ public class ProverTest {
     public void registerDistinctMemories() throws CVC5ApiException {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        Prover prover = new Prover(termManager, sort);
+        TermFactory prover = new TermFactory(termManager, sort);
         MemoryExpr expr1 = new MessageExpr(new Str("x"), new Num(3));
         prover.createConstants(expr1);
         MemoryExpr expr2 = new RandomExpr(new Str("y"), new Num(5));
@@ -83,7 +83,7 @@ public class ProverTest {
     public void reuseMemories() throws CVC5ApiException {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        Prover prover = new Prover(termManager, sort);
+        TermFactory prover = new TermFactory(termManager, sort);
         MemoryExpr expr = new MessageExpr(new Str("x"), new Num(3));
         prover.createConstants(expr);
         MemoryExpr twin = new MessageExpr(new Str("x"), new Num(3));
@@ -99,7 +99,7 @@ public class ProverTest {
     @Test(expected = IllegalArgumentException.class)
     public void nonMemNames() {
         MemoryExpr other = List::of;
-        Prover.getCvcName(other);
+        TermFactory.getCvcName(other);
     }
 
     /**
@@ -107,11 +107,11 @@ public class ProverTest {
      */
     @Test
     public void memNames() {
-        assertEquals("m_x_4", Prover.getCvcName(new MessageExpr(new Str("x"), new Num(4))));
-        assertEquals("o_4", Prover.getCvcName(new OutputExpr(new Num(4))));
-        assertEquals("p_x", Prover.getCvcName(new PublicExpr(new Str("x"))));
-        assertEquals("r_x_4", Prover.getCvcName(new RandomExpr(new Str("x"), new Num(4))));
-        assertEquals("s_x_4", Prover.getCvcName(new SecretExpr(new Str("x"), new Num(4))));
+        assertEquals("m_x_4", TermFactory.getCvcName(new MessageExpr(new Str("x"), new Num(4))));
+        assertEquals("o_4", TermFactory.getCvcName(new OutputExpr(new Num(4))));
+        assertEquals("p_x", TermFactory.getCvcName(new PublicExpr(new Str("x"))));
+        assertEquals("r_x_4", TermFactory.getCvcName(new RandomExpr(new Str("x"), new Num(4))));
+        assertEquals("s_x_4", TermFactory.getCvcName(new SecretExpr(new Str("x"), new Num(4))));
     }
 
     /**
@@ -120,7 +120,7 @@ public class ProverTest {
     @Test
     public void intEval() {
         Num num = new Num(3);
-        assertEquals(3, Prover.toInt(num));
+        assertEquals(3, TermFactory.toInt(num));
     }
 
     /**
@@ -128,7 +128,7 @@ public class ProverTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void intEvalUnsupported() {
-        Prover.toInt(new Str("x"));
+        TermFactory.toInt(new Str("x"));
     }
 
     /**
@@ -137,7 +137,7 @@ public class ProverTest {
     @Test
     public void stringEval() {
         Str str = new Str("x");
-        assertEquals("x", Prover.toString(str));
+        assertEquals("x", TermFactory.toString(str));
     }
 
     /**
@@ -145,7 +145,7 @@ public class ProverTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void stringEvalUnsupported() {
-        Prover.toString(new Num(3));
+        TermFactory.toString(new Num(3));
     }
 
 }
