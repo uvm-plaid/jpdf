@@ -416,3 +416,45 @@ $$
     
 \end{fpfig}
 }
+
+\newcommand{\mtjfig}{
+\begin{fpfig}[t]{$\metaprot$ type derivation rules.}{fig-mtj}
+\begin{mathpar}
+  \inferrule[Mesg]
+            {e_1 \redx x \\ e_2 \redx \be \\ e_3 \redx \cid \\ \atj{\toeq{\elab{\be}{\cid}}}{R_2}{\ty} \\
+              \itj{\cid}{\be}{V}}
+            {\mtj{\xassign{e_1}{e_2}{e_3}}{\eqs}{(x:\ty)}{R_1;R_2}{(x : \ity{\cid}{V})}{\eqs \wedge x \eop \toeq{\elab{\be}{\cid}}}}
+
+  \inferrule[Encode]
+            {e_1 \redx w \\ e_2 \redx \cid \\ \notg{\phi} \redx \phi \\
+              \eqs \models \toeq{\elab{\be}{\cid}} \eop \phi\\
+              \atj{\phi}{R}{\ty}}
+            {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(\mx{w}{\cid}:\ty)}{R}{\varnothing}{\eqs}}
+
+  \inferrule[App]
+            {\tsig(f) = \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}} \\
+              e_1 \redx \mv_1\ \cdots\ e_n \redx \mv_n \\
+              \subn = [\mv_1/y_1]\cdots[\mv_n/y_n] \\
+              \subn(\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}) \redx
+                    \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2} \\
+              \eqs \models \eqs_1}
+            {\mtj{f(e_1,\ldots,e_n)}{\eqs}{\Gamma}{R}{\Delta}{\eqs \wedge \eqs_2}}
+
+  \inferrule[Seq]          
+            {\mtj{\prog_1}{\eqs_1}{\Gamma_1}{R_1}{\Delta_1}{\eqs_2} \\
+             \mtj{\prog_2}{\eqs_2}{\Gamma_2}{R_2}{\Delta_2}{\eqs_3}}
+            {\mtj{\prog_1;\prog_2}{\eqs_1}{\Gamma_1;\Gamma_2}{R_1;R_2}{\Delta_1;\Delta_2}{\eqs_3}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Sig]
+            {\codebase(f) = y_1,\ldots,y_n, \instr \\
+              \subn = [\mv_1/y_1]\cdots[\mv_n/y_n] \\
+              \subn(\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}) \redx
+                    \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2} \\
+              \mtj{\subn(\instr)}{\eqs_1}{\Gamma}{R}{\Delta}{\eqs} \\
+              \eqs \models \eqs_2}
+            {f : \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}}
+\end{mathpar}
+\end{fpfig}
+}
