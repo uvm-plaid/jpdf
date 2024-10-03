@@ -252,8 +252,9 @@ $$
   & & e.\flab \mid \elab{e}{e} \mid \elet{y}{e}{e} \mid  f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \\[1mm]
   %  & \textit{expressions}\\
   \cmd &::=& %\msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
-  \assign{e}{e} \mid \elab{\assert{e = e}}{e} \mid f(e,\ldots,e) \mid  \cmd;\cmd \mid
-  \eqcast{\mx{e}{e}}{\notg{\phi}} & \gdesc{instructions}\\[1mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
+  \assign{e}{e} \mid f(e,\ldots,e) \mid
+  \elet{y}{e}{\instr} \mid  \cmd;\cmd & \gdesc{instructions}\\
+         & & \elab{\assert{e = e}}{e} \mid \eqcast{\mx{e}{e}}{\notg{\phi}} \\[1mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
   \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
   \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
   & \gdesc{values}\\[1mm] % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
@@ -271,8 +272,8 @@ $$
 \small{
   \begin{mathpar}
   \inferrule
-      {e[\mv/y] \redx \mv'}
-      {\elet{y}{\mv}{e} \redx \mv'}
+      {e_1 \redx \mv \\ e_2[\mv/y] \redx \mv'}
+      {\elet{y}{e_1}{e_2} \redx \mv'}
       
   \inferrule
       {e_1 \redx \be \\ e_2 \redx \cid}
@@ -324,6 +325,10 @@ $$
         \instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
       }
       {f(e_1,\ldots,e_n) \redx \prog}
+      
+  \inferrule
+      {e \redx \mv \\ \instr[\mv/y] \redx \prog}
+      {\elet{y}{e}{\instr} \redx \prog}
 
   \inferrule
       {e_1 \redx \prog_1 \\ e_2 \redx \prog_2}
