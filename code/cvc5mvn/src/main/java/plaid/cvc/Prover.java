@@ -16,13 +16,13 @@ import plaid.ast.Str;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class Solver {
+public class Prover {
 
     private final Sort sort;
     private final TermManager termManager;
     private final Collection<Memory> memories = new HashSet<>();
 
-    public Solver(TermManager termManager, Sort sort) {
+    public Prover(TermManager termManager, Sort sort) {
         this.termManager = termManager;
         this.sort = sort;
     }

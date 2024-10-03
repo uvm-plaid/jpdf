@@ -20,7 +20,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class SolverTest {
+public class ProverTest {
 
     /**
      * Registers memory nodes when they are children of other nodes.
@@ -29,12 +29,12 @@ public class SolverTest {
     public void registerChildren() throws CVC5ApiException {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        Solver solver = new Solver(termManager, sort);
+        Prover prover = new Prover(termManager, sort);
         MessageExpr mem = new MessageExpr(new Str("x"), new Num(3));
         PreludeExpression expr = new PlusExpr(new Num(6), mem);
-        solver.register(expr);
+        prover.register(expr);
 
-        Collection<Memory> memories = solver.getMemories();
+        Collection<Memory> memories = prover.getMemories();
         assertEquals(1, memories.size());
     }
 
@@ -45,14 +45,14 @@ public class SolverTest {
     public void registerFirstMemory() throws CVC5ApiException {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        Solver solver = new Solver(termManager, sort);
+        Prover prover = new Prover(termManager, sort);
         MessageExpr expr = new MessageExpr(new Str("x"), new Num(3));
-        solver.register(expr);
+        prover.register(expr);
 
-        Collection<Memory> memories = solver.getMemories();
+        Collection<Memory> memories = prover.getMemories();
         assertEquals("One memory", 1, memories.size());
 
-        Memory mem = solver.getMemories().iterator().next();
+        Memory mem = prover.getMemories().iterator().next();
         assertEquals("Name based on expression", "m_x_3", mem.name());
 
         MessageExpr twin = new MessageExpr(new Str("x"), new Num(3));
@@ -66,13 +66,13 @@ public class SolverTest {
     public void registerDistinctMemories() throws CVC5ApiException {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        Solver solver = new Solver(termManager, sort);
+        Prover prover = new Prover(termManager, sort);
         MemoryExpr expr1 = new MessageExpr(new Str("x"), new Num(3));
-        solver.register(expr1);
+        prover.register(expr1);
         MemoryExpr expr2 = new RandomExpr(new Str("y"), new Num(5));
-        solver.register(expr2);
+        prover.register(expr2);
 
-        Collection<Memory> memories = solver.getMemories();
+        Collection<Memory> memories = prover.getMemories();
         assertEquals("Two memories", 2, memories.size());
     }
 
@@ -83,13 +83,13 @@ public class SolverTest {
     public void reuseMemories() throws CVC5ApiException {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        Solver solver = new Solver(termManager, sort);
+        Prover prover = new Prover(termManager, sort);
         MemoryExpr expr = new MessageExpr(new Str("x"), new Num(3));
-        solver.register(expr);
+        prover.register(expr);
         MemoryExpr twin = new MessageExpr(new Str("x"), new Num(3));
-        solver.register(twin);
+        prover.register(twin);
 
-        Collection<Memory> memories = solver.getMemories();
+        Collection<Memory> memories = prover.getMemories();
         assertEquals(1, memories.size());
     }
 
@@ -99,7 +99,7 @@ public class SolverTest {
     @Test(expected = IllegalArgumentException.class)
     public void nonMemNames() {
         MemoryExpr other = List::of;
-        Solver.getCvcName(other);
+        Prover.getCvcName(other);
     }
 
     /**
@@ -107,11 +107,11 @@ public class SolverTest {
      */
     @Test
     public void memNames() {
-        assertEquals("m_x_4", Solver.getCvcName(new MessageExpr(new Str("x"), new Num(4))));
-        assertEquals("o_4", Solver.getCvcName(new OutputExpr(new Num(4))));
-        assertEquals("p_x", Solver.getCvcName(new PublicExpr(new Str("x"))));
-        assertEquals("r_x_4", Solver.getCvcName(new RandomExpr(new Str("x"), new Num(4))));
-        assertEquals("s_x_4", Solver.getCvcName(new SecretExpr(new Str("x"), new Num(4))));
+        assertEquals("m_x_4", Prover.getCvcName(new MessageExpr(new Str("x"), new Num(4))));
+        assertEquals("o_4", Prover.getCvcName(new OutputExpr(new Num(4))));
+        assertEquals("p_x", Prover.getCvcName(new PublicExpr(new Str("x"))));
+        assertEquals("r_x_4", Prover.getCvcName(new RandomExpr(new Str("x"), new Num(4))));
+        assertEquals("s_x_4", Prover.getCvcName(new SecretExpr(new Str("x"), new Num(4))));
     }
 
     /**
@@ -120,7 +120,7 @@ public class SolverTest {
     @Test
     public void intEval() {
         Num num = new Num(3);
-        assertEquals(3, Solver.toInt(num));
+        assertEquals(3, Prover.toInt(num));
     }
 
     /**
@@ -128,7 +128,7 @@ public class SolverTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void intEvalUnsupported() {
-        Solver.toInt(new Str("x"));
+        Prover.toInt(new Str("x"));
     }
 
     /**
@@ -137,7 +137,7 @@ public class SolverTest {
     @Test
     public void stringEval() {
         Str str = new Str("x");
-        assertEquals("x", Solver.toString(str));
+        assertEquals("x", Prover.toString(str));
     }
 
     /**
@@ -145,7 +145,7 @@ public class SolverTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void stringEvalUnsupported() {
-        Solver.toString(new Num(3));
+        Prover.toString(new Num(3));
     }
 
 }
