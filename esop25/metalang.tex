@@ -49,13 +49,47 @@ We define a big-step evaluation relation $\redx$ in Figures
 for expressions and instructions, respectively.  In this definition we
 write $e[\mv/y]$ and $\instr[\mv/y]$ to denote the substitution of
 $\mv$ for free occurrences of $y$ in $e$ or $\instr$ respectively. The
-rules are mostly standard.
+rules are mostly standard. Note that we do not include an evaluation
+rule for the form $\eqcast{e}{e}{\notg{\phi}}$ which only has
+relevance for the type system and which we assume is erased from
+programs prior to evaluation. We defer discussion of this form,
+as well as the syntactic category $\notg{\phi}$, to the next
+Section.
 
 \metaprotexprsemanticsfig
 
 \metaprotinstrsemanticsfig
 
 \subsection{Dependent Hoare Type Theory}
+
+Our first goal with a $\metaprot$ type theory is to define an
+algorithmic system that is sound for both confidentiality and
+integrity typings as defined in Sections \ref{section-cpj} and
+\ref{section-ipj}. Returning to the example in Section
+\ref{section-cpj}, note that the key equivalence of the $\ttt{mux}$
+expression with a one-time-pad encryption we observe there
+is not trivial. To ensure that this sort of equivalence
+can be picked up by the type system, we introduce a
+an annotation form that allows the programmer to provide
+the needed hint.
+
+Consider the following $\ttt{encode}$ function definition that
+generalizes this encoding for any identifier $y$ and sender, receiver
+pair $s,r$:
+$$
+\begin{array}{l}
+\ttt{encode}(y,s,r) \{\\
+\quad \xassign{\mx{y}{r}}{\mux{\secret{y}}{\neg\flip{y}}{\flip{y}}}{s};\\
+\quad \eqcast{\mx{y}{r}}{\neg\sx{y}{s} \fplus \rx{y}{s}}\\
+\}
+\end{array}
+$$
+
+Furthermore, we want to minimize the amount of SMT solving needed for
+type verification.  Our approach is to support pre- and post-condition
+annotations on $\metaprot$ functions that can be independently
+verified, allowing significant reduction of SMT overhead in
+whole-program analysis.
 
 \subsubsection{$\minicat$ expression type algorithm}
 

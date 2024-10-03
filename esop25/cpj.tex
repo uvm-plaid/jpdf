@@ -1,4 +1,5 @@
 \section{Confidentiality Types}
+\label{section-cpj}
 
 It is well-known that adding or subtracting a sample from a uniform
 distribution in a finite field yields a value in a uniform
@@ -9,30 +10,30 @@ distributions by tracking which program variables an expression
 may depend on. But we also want to capture this fundamental mechanism
 of encryption.
 
-For example, given a message send such as:
+For example, given some string $y$ and a message send such as:
 $$
-\xassign{\mx{x}{1}}{\secret{x} \ftimes \flip{x}}{2}
+\xassign{\mx{w}{1}}{\secret{w} \ftimes \flip{w}}{2}
 $$
-we would assign the following type to denote that $\mx{x}{1}$ is dependent on
-both $\sx{x}{2}$ and $\rx{x}{2}$:
+we would assign the following type to denote that $\mx{w}{1}$ is dependent on
+both $\sx{w}{2}$ and $\rx{w}{2}$:
 $$
-\mx{x}{1} : \setit{\sx{x}{2}, \rx{x}{2}}
+\mx{w}{1} : \setit{\sx{w}{2}, \rx{w}{2}}
 $$
 But in the case of 2-party reconstructive sharing:
 $$
-\xassign{\mx{x}{1}}{\secret{x} \fminus \flip{x}}{2}
+\xassign{\mx{w}{1}}{\secret{w} \fminus \flip{w}}{2}
 $$
-we want the type of $\mx{x}{1}$ to be an ``encrypted'' type
-that is by itself independent of $\sx{x}{2}$. However, we also
-want to track the dependence of $\mx{x}{2}$ and $\rx{x}{2}$.
-In short, we assign $\mx{x}{1}$ a ``ciphertext type'':
+we want the type of $\mx{w}{1}$ to be an ``encrypted'' type
+that is by itself independent of $\sx{w}{2}$. However, we also
+want to track the dependence of $\mx{w}{2}$ and $\rx{w}{2}$.
+In short, we assign $\mx{w}{1}$ a ``ciphertext type'':
 $$
-\mx{x}{1} : \cty{\rx{x}{2}}{\setit{\sx{x}{2}}}
+\mx{w}{1} : \cty{\rx{w}{2}}{\setit{\sx{w}{2}}}
 $$
-indicating syntactically that $\mx{x}{1}$ is an encryption of a
-value dependent on $\sx{x}{2}$ with $\rx{x}{2}$ and as long as client
+indicating syntactically that $\mx{w}{1}$ is an encryption of a
+value dependent on $\sx{w}{2}$ with $\rx{w}{2}$ and as long as client
 1 does not subsequently receive messages that are dependent on
-$\rx{x}{2}$, the value $\sx{x}{2}$ remains hidden.
+$\rx{w}{2}$, the value $\sx{w}{2}$ remains hidden.
 
 Of course, there are other methods for encrypting values in MPC
 protocols-- but we can observe that many are algebraically equivalent
@@ -44,7 +45,7 @@ evaluator shares the initial encrypted wire value of one of its input
 secrets as a selection bit-- assuming that client 2 is the garbler and
 client 1 is the evaluator, we can write this as:
 $$
-\xassign{\mx{x}{1}}{\mux{\secret{x}}{\neg\flip{x}}{\flip{x}}}{2}
+\xassign{\mx{w}{1}}{\mux{\secret{w}}{\neg\flip{w}}{\flip{w}}}{2}
 $$
 where for all $\be_1,\be_2,\be_3$:
 $$
@@ -52,11 +53,11 @@ $$
 $$
 and letting this protocol be $\prog$ the following is valid:
 \begin{mathpar}
-%\toeq{\xassign{\mx{x}{1}}{\OT{\secret{x}}{1}{\neg\flip{x}}{\flip{x}}}{2}}
-   \toeq{\prog} \models \mx{x}{1} \eop \neg\sx{x}{2} \fplus \rx{x}{2}
+%\toeq{\xassign{\mx{w}{1}}{\OT{\secret{w}}{1}{\neg\flip{w}}{\flip{w}}}{2}}
+   \toeq{\prog} \models \mx{w}{1} \eop \neg\sx{w}{2} \fplus \rx{w}{2}
 \end{mathpar}
-This allows us to assign the same ciphertext type to $\mx{x}{1}$ as
-above-- that is, $\cty{\rx{x}{2}}{\setit{\sx{x}{2}}}$. Leveraging the
+This allows us to assign the same ciphertext type to $\mx{w}{1}$ as
+above-- that is, $\cty{\rx{w}{2}}{\setit{\sx{w}{2}}}$. Leveraging the
 equivalence this way has been previously well-studied
 \cite{barthe2019probabilistic}.  Since this is a one-time-pad scheme,
 it is also important that we ensure that samples are used at most once
@@ -101,7 +102,7 @@ a partitioning $H,C$. In particular, if the adversary has access to an
 encypted value and another value that is dependent on its one-time-pad
 key-- i.e., access to values with types of the forms:
 $$
-\setit{\cty{\rx{x}{\cid}}{\ty}} \qquad \setit{\rx{x}{\cid}, \ldots} 
+\setit{\cty{\rx{w}{\cid}}{\ty}} \qquad \setit{\rx{w}{\cid}, \ldots} 
 $$
 then we can conservatively assume that the adversary can decrypt the
 value of type $\ty$ and thus have access to those values.
