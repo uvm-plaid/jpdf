@@ -2,6 +2,7 @@ package plaid.ast;
 
 import java.util.Objects;
 
+@Deprecated
 public class IndexValue extends Value{
     private final int i;
 
