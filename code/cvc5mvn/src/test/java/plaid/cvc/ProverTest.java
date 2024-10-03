@@ -32,7 +32,7 @@ public class ProverTest {
         Prover prover = new Prover(termManager, sort);
         MessageExpr mem = new MessageExpr(new Str("x"), new Num(3));
         PreludeExpression expr = new PlusExpr(new Num(6), mem);
-        prover.register(expr);
+        prover.createConstants(expr);
 
         Collection<Memory> memories = prover.getMemories();
         assertEquals(1, memories.size());
@@ -47,7 +47,7 @@ public class ProverTest {
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         Prover prover = new Prover(termManager, sort);
         MessageExpr expr = new MessageExpr(new Str("x"), new Num(3));
-        prover.register(expr);
+        prover.createConstants(expr);
 
         Collection<Memory> memories = prover.getMemories();
         assertEquals("One memory", 1, memories.size());
@@ -68,9 +68,9 @@ public class ProverTest {
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         Prover prover = new Prover(termManager, sort);
         MemoryExpr expr1 = new MessageExpr(new Str("x"), new Num(3));
-        prover.register(expr1);
+        prover.createConstants(expr1);
         MemoryExpr expr2 = new RandomExpr(new Str("y"), new Num(5));
-        prover.register(expr2);
+        prover.createConstants(expr2);
 
         Collection<Memory> memories = prover.getMemories();
         assertEquals("Two memories", 2, memories.size());
@@ -85,9 +85,9 @@ public class ProverTest {
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         Prover prover = new Prover(termManager, sort);
         MemoryExpr expr = new MessageExpr(new Str("x"), new Num(3));
-        prover.register(expr);
+        prover.createConstants(expr);
         MemoryExpr twin = new MessageExpr(new Str("x"), new Num(3));
-        prover.register(twin);
+        prover.createConstants(twin);
 
         Collection<Memory> memories = prover.getMemories();
         assertEquals(1, memories.size());
