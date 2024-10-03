@@ -83,4 +83,15 @@ public class CommandVisitorTest {
                     new AssignCommand(new OutputExpr(new Num(2)), new Identifier("x"))))), command);
     }
 
+    /**
+     * Parses list of commands.
+     */
+    @Test
+    public void commandList() {
+        PreludeCommand command = ast("out@1 := x; out@2 := x");
+        assertEquals(new CommandList(List.of(
+                new AssignCommand(new OutputExpr(new Num(1)), new Identifier("x")),
+                new AssignCommand(new OutputExpr(new Num(2)), new Identifier("x")))), command);
+    }
+
 }

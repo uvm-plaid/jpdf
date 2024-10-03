@@ -41,7 +41,6 @@ public class CommandVisitor extends PreludeBaseVisitor<PreludeCommand> {
 
     @Override
     public CommandList visitCommandList(CommandListContext ctx) {
-        // TODO Either unit test or eliminate
         return new CommandList(ctx.command().stream().map(this::visit).toList());
     }
 
