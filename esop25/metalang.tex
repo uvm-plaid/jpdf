@@ -125,7 +125,7 @@ non-trivial, and typical circuits can use up to thousands of gates,
 this has significant practical benefits by greatly reducing SMT overhead
 in whole-program analysis.
 
-\subsubsection{$\minicat$ expression type algorithm}
+\subsubsection{$\minicat$ expression type algorithm.}
 
 A core element of $\metaprot$ type checking is type checking
 of $\minicat$ expressions. The integrity type system presented in Section
@@ -146,6 +146,23 @@ judgement.
 \begin{lemma}
   If $\atj{\toeq{\phi}}{R}{\ty}$ then $\eqj{R}{\eqs}{\phi}{\ty}$ for any $\eqs$.
 \end{lemma}
+
+\subsubsection{Dependent Hoare types for instructions.}
+
+Types for instructions have the following form:
+$$
+\hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}
+$$
+
+$$
+\ttt{encode} :
+\begin{array}[t]{ll}
+  \Pi x,s,r . & \{ \} \quad \mx{x}{r} : \cty{\rx{x}{s}}{\sx{x}{s}}, \{ \rx{x}{s} \} \\
+  & \phantom{\{ \}} \quad \mx{x}{r} : \ity{s}{\{ \rx{x}{s}, \sx{x}{s} \}} \\
+  & \{ \mx{x}{r} \eop \neg\sx{y}{s} \fplus \rx{y}{s} \}
+\end{array}
+$$
+
 
 $$
 \begin{array}{rcl}
