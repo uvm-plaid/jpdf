@@ -5,11 +5,13 @@ import plaid.PreludeParser.AssertCommandContext;
 import plaid.PreludeParser.AssignCommandContext;
 import plaid.PreludeParser.CommandListContext;
 import plaid.PreludeParser.FunctionCallCommandContext;
+import plaid.PreludeParser.LetCommandContext;
 import plaid.ast.AssertCommand;
 import plaid.ast.AssignCommand;
 import plaid.ast.CommandList;
 import plaid.ast.FunctionCallCommand;
 import plaid.ast.Identifier;
+import plaid.ast.LetCommand;
 import plaid.ast.PreludeCommand;
 
 public class CommandVisitor extends PreludeBaseVisitor<PreludeCommand> {
@@ -41,6 +43,14 @@ public class CommandVisitor extends PreludeBaseVisitor<PreludeCommand> {
     public CommandList visitCommandList(CommandListContext ctx) {
         // TODO Either unit test or eliminate
         return new CommandList(ctx.command().stream().map(this::visit).toList());
+    }
+
+    @Override
+    public LetCommand visitLetCommand(LetCommandContext ctx) {
+        return new LetCommand(
+                new Identifier(ctx.ident().getText()),
+                Loader.toExpression(ctx.expr()),
+                Loader.toCommand(ctx.command()));
     }
 
 }

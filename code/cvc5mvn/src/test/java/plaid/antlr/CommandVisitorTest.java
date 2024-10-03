@@ -3,8 +3,10 @@ package plaid.antlr;
 import org.junit.Test;
 import plaid.ast.AssertCommand;
 import plaid.ast.AssignCommand;
+import plaid.ast.CommandList;
 import plaid.ast.FunctionCallCommand;
 import plaid.ast.Identifier;
+import plaid.ast.LetCommand;
 import plaid.ast.MessageExpr;
 import plaid.ast.Num;
 import plaid.ast.OutputExpr;
@@ -53,6 +55,32 @@ public class CommandVisitorTest {
         assertEquals(new AssertCommand(
                 new MessageExpr(new Str("x"), new Num(5)),
                 new MessageExpr(new Str("y"), new Num(5))), ast("assert (m[\"x\"] = m[\"y\"])@5"));
+    }
+
+    /**
+     * Parses let commands.
+     */
+    @Test
+    public void letCommand() {
+        PreludeCommand command = ast("let x = 4 in out@1 := x");
+        assertEquals(new LetCommand(
+                new Identifier("x"),
+                new Num(4),
+                new AssignCommand(new OutputExpr(new Num(1)), new Identifier("x"))), command);
+    }
+
+    /**
+     * Let commands can have multiple other commands inside them.
+     */
+    @Test
+    public void letCommandScope() {
+        PreludeCommand command = ast("let x = 4 in out@1 := x; out@2 := x");
+        assertEquals(new LetCommand(
+                new Identifier("x"),
+                new Num(4),
+                new CommandList(List.of(
+                    new AssignCommand(new OutputExpr(new Num(1)), new Identifier("x")),
+                    new AssignCommand(new OutputExpr(new Num(2)), new Identifier("x"))))), command);
     }
 
 }

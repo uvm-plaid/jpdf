@@ -35,10 +35,10 @@ command
     | expr ':=' ('(')? expr (')')? #AssignCommand
     | 'assert' '(' expr '=' expr ')' '@' expr #AssertCommand
     | ident '(' (expr (',' expr)*)? ')' #FunctionCallCommand
+    | 'let' ident '=' expr 'in' command #LetCommand
     ;
 
 flddecl : ident '=' expr ;
-pmop : '+' | '-' ;
 ident : IDENTIFIER ;
 
 /* Lexer Rules */
