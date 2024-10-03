@@ -28,4 +28,8 @@ public class Field extends Value{
     public int hashCode() {
         return Objects.hashCode(elements);
     }
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }

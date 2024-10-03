@@ -25,4 +25,9 @@ public class IndexValue extends Value{
     public int hashCode() {
         return Objects.hashCode(i);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }

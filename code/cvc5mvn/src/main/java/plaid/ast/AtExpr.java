@@ -32,4 +32,9 @@ public class AtExpr implements PreludeExpression{
     public int hashCode() {
         return Objects.hash(e1, e2);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }

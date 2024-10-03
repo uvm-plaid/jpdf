@@ -32,4 +32,9 @@ public class OutputVar implements OvertureVariable{
     public int hashCode() {
         return Objects.hash(out, i);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }

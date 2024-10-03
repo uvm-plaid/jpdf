@@ -38,4 +38,8 @@ public class MessageVar implements OvertureVariable{
     public int hashCode() {
         return Objects.hash(m, w, i);
     }
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }

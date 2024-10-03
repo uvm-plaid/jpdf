@@ -24,4 +24,9 @@ public class PublicVar implements OvertureVariable{
         return i;
     }
 
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
+
 }

@@ -32,4 +32,9 @@ public class MessageMemory implements OvertureExpression{
     public int hashCode() {
         return Objects.hash(m, w);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }

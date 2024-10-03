@@ -17,4 +17,9 @@ public class Times implements OvertureExpression{
     public OvertureExpression getE2() {
         return e2;
     }
+
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }

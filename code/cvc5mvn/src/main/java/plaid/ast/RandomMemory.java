@@ -17,4 +17,8 @@ public class RandomMemory implements OvertureExpression{
     public Str getW(){
         return w;
     }
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }

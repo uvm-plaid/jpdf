@@ -23,4 +23,9 @@ public class RandomVar implements OvertureVariable{
     public IndexValue getI(){
         return i;
     }
+
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }

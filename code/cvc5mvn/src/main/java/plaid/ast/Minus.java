@@ -26,4 +26,9 @@ public class Minus implements OvertureExpression {
     public int hashCode() {
         return Objects.hashCode(e);
     }
+
+    @Override
+    public Iterable<Node> children() {
+        throw new UnsupportedOperationException();
+    }
 }
