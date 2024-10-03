@@ -190,16 +190,47 @@ $$
   & \{ \mx{x}{r} \eop \neg\sx{y}{s} \fplus \rx{y}{s} \}
 \end{array}
 $$
+A key property of this example and our type system generally is that once
+the $\Pi$ type is verified, typing any application of it requires verification
+of the precondition instance, but not the postcondition instance.
+
+\subsection{Algorithmic Type Validity in $\metaprot$}
 
 \mtjfig
 
+We equate types up to evaluation of subexpressions as defined in
+Figure \ref{fig-notg}. Since expression evaluation is total we can
+just evaluate types of closed instructions, which have closed types,
+to obtain Hoare typings for instructions. In Figure \ref{fig-mtj} we
+define the type derivation rules for $\metaprot$. In the
+\TirName{Mesg} rule we use algorithmic confidentiality and integrity
+type checking in a straightforward manner.  In the \TirName{Encode}
+rule, we verify the hint given in the type annotation, and then use it
+for type checking.  In the \TirName{App} rule we verify preconditions
+of the given function type and instantiate the type and postconditions
+with the given expression arguments.  The \TirName{Sig} rule we
+specify how to verify $\Pi$ types for functions. Note that the values
+$\mv_1,\ldots,\mv_n$ chosen to instantiate the function parameters are
+chosen arbitrarily\cnote{Might need to be a little more careful about
+  this}.
+
+We allow the programmer to specify a type signature $\tsig$ that
+maps functions in $\codebase$ to valid dependent Hoare
+typings. Define:
 \begin{definition}
   $\tsig$ is \emph{verified} iff $f : \tsig(f)$ is valid for all $f \in \dom(\tsig)$.
 \end{definition}
+In practice, the programmer only needs to specify pre-~and post-conditions,
+since the rest of the type is reconstructed by type checking.
 
-\begin{theorem}
+The following Theorem establishes our main result, which
+is the $\metaprot$ type checking is sound with respect to both
+confidentiality and integrity typings. Since these typings
+imply security hyperproperties of confidentiality and integrity,
+$\metaprot$ type checking implicitly enforces them.
+\begin{theorem}[Soundness of $\metaprot$ type checking]
   Given preprocessing predicate $\eqspre$, program $\instr$, and verified $\tsig$, if
-  the judgement $\mtj{\instr}{\eqspre}{\Gamma}{R}{\Delta}{\eqs}$ is derivable then
+  the judgement: $$\mtj{\instr}{\eqspre}{\Gamma}{R}{\Delta}{\eqs}$$ is derivable then
   $\instr \redx \prog$ and:
   \begin{enumerate}
   \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid.
