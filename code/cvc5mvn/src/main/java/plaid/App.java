@@ -47,19 +47,19 @@ public class App
     }
 
     // return memories in an overture program
-//    public static Map<String, Term> createLookup(Iterable<Memory> memories){
-//        HashMap<String, Term> results = new HashMap<>();
-//
-//        // iterate over memories
-//        for(Memory memory : memories){
-//            results.put(memory.getName(), memory.getTerm());
-//        }
-//
-//        return results;
-//    }
+    public static Map<String, Term> createLookup(Iterable<Memory> memories){
+        HashMap<String, Term> results = new HashMap<>();
+
+        // iterate over memories
+        for(Memory memory : memories){
+            results.put(memory.getName(), memory.getTerm());
+        }
+
+        return results;
+    }
 
     // antlr&cvc5 demo
-//    public static void overtureToCVC5() throws Exception{
+    public static void overtureToCVC5() throws Exception{
 //        TermManager termManager = new TermManager();
 //        Solver solver = new Solver(termManager);
 //        solver.resetAssertions();
@@ -98,25 +98,18 @@ public class App
 //                lookup.get("out_3")));
 //
 //        System.out.println(r_unsat);
-//    }
+    }
 
     public static void main( String[] args ) throws Exception
     {
-        // prelude-overture demo
-//        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/prelude-overture/confidentiality_example.txt");
-//        InputStream inputStream = new FileInputStream(file);
-
-//        Interpreter interpreter = new Interpreter();
-//        interpreter.interpret(inputStream, System.out);
-//        inputStream.close();
-
+        String path = args[0];
         // prelude demo
-//        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/java/plaid/confidentiality_example.txt");
-//        InputStream inputStream = new FileInputStream(file);
-//        PrintStream outputStream = new PrintStream("parse tree for " + file.getName());
-//        outputStream.println(preludeParseTree(inputStream));
-//        inputStream.close();
-//        outputStream.close();
+        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/java/plaid/confidentiality_example.txt");
+        InputStream inputStream = new FileInputStream(file);
+        PrintStream outputStream = new PrintStream("parse tree for " + file.getName());
+        outputStream.println(preludeParseTree(inputStream));
+        inputStream.close();
+        outputStream.close();
 
         /*
         //2-party addition

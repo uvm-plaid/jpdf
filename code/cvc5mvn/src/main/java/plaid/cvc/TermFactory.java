@@ -57,13 +57,13 @@ public class TermFactory {
         createConstants(command);
         return switch (command) {
             case CommandList x -> x.getCommands().stream().flatMap(y -> toTerms(y).stream()).toList();
+            // TODO Is this the right way to make terms from asserts?
             case AssertCommand x -> List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.getE1()), toTerm(x.getE2())));
             case AssignCommand x -> List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.getE1()), toTerm(x.getE2())));
             default -> throw new IllegalArgumentException("Not an overture command " + command.getClass().getName());
         };
     }
 
-    // TODO Unit test
     public Term toTerm(PreludeExpression expr) {
         return switch (expr) {
             case MemoryExpr x -> lookup(x);
@@ -94,7 +94,7 @@ public class TermFactory {
     }
 
     public void createConstants(MemoryExpr expr) {
-        if (lookup(expr) != null) {
+        if (lookup(expr) == null) {
             String name = getCvcName(expr);
             memories.add(new Memory(name, termManager.mkConst(sort, name), expr));
         }
