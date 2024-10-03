@@ -149,11 +149,39 @@ judgement.
 
 \subsubsection{Dependent Hoare types for instructions.}
 
-Types for instructions have the following form:
+Hoare-style types for instructions have the following form:
 $$
 \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}
 $$
+Here, $\eqs_1$ and $\eqs_2$ are the pre- and post- conditions
+respectively, $\Gamma$ is the confidentiality type environment of the
+protocol resulting from execution of the instruction, which is sound
+wrt confidentiality typing, $R$ are the one-time-pads consumed in the
+confidentialty typing, and $\Delta$ is the sound integrity type
+environment.
 
+To obtain high precision in the type system, and to generalize
+functions typings, we also introduce a form of type dependency,
+specifically dependence on $\metaprot$ expressions. Dependent
+$\Pi$ types have the form:
+$$
+\dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}
+$$
+where $y_1,\ldots,y_n$ range over values $\mv$ and each of
+$\notg{\eqs_1}$ etc.~may contain expressions with free occurences
+of $y_1,\ldots,y_n$-- the syntax of these forms is in Figure
+\ref{fig-notg}. These $\Pi$ types are assigned to functions
+and instantiated at application points. 
+
+For example, here is a valid typing of $\ttt{encode}$.  It says that
+under any precondition, evaluating $\ttt{encode}$ results in a cipher
+type for the encoded message $\mx{x}{r}$, which consumes the
+one-time-pad $\rx{x}{s}$, and the integrity of $\mx{x}{r}$ is
+determined by the integrity of $\rx{x}{s}$ and $\sx{x}{s}$. The
+postcondition expresses the key confidentiality property of
+$\mx{x}{r}$, but also may be practically useful for correctness
+properties since it is a simpler expression form than the $\ttt{mux}$
+form:
 $$
 \ttt{encode} :
 \begin{array}[t]{ll}
