@@ -356,3 +356,63 @@ $$
 }
 \end{fpfig}
 }
+
+
+\newcommand{\notgfig}{
+\begin{fpfig}[t]{Evaluation of expressions within types and constraints.}{fig-notg}
+$$
+\begin{array}{cc}
+\begin{array}{rcl}
+  \notg{\phi} &::=& e \mid \notg{\phi} \fplus \notg{\phi} \mid \notg{\phi} \fminus \notg{\phi} \mid \notg{\phi} \ftimes \notg{\phi} \\
+  \notg{\eqs} &::=& \notg{\phi} \eop \notg{\phi} \mid \notg{\eqs} \wedge \notg{\eqs} \\
+  \notg{t} &::=& e \mid \cty{e}{\notg{\ty}} \\
+  \notg{\ty} & \in & 2^{\notg{t}}\\
+\end{array}& \qquad
+\begin{array}{rcl}
+  \notg{\Gamma} &::=& \varnothing \mid \notg\Gamma; e : \notg{\ty}\\
+  \notg\Delta &::=& \varnothing \mid \notg\Delta; e : \ity{e}{\notg{V}}\\
+  \notg{X} &\in& 2^{e}
+\end{array}
+\end{array}
+$$
+
+\begin{mathpar}
+  \inferrule
+      {\notg{\phi_1} \redx \phi_1 \\ \notg{\phi_2} \redx \phi_2}     
+      {\notg{\phi_1} \ftimes \notg{\phi_2} \redx \phi_1 \ftimes \phi_2}
+
+  \inferrule
+      {\notg{\phi_1} \redx \phi_1 \\ \notg{\phi_2} \redx \phi_2}
+      {\notg{\phi_1} \eop \notg{\phi_2} \redx \phi_1 \eop \phi_2}
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\eqs_2} \redx \eqs_2 }
+      {\notg{\eqs_1} \wedge \notg{\eqs_2} \redx \eqs_1 \wedge \eqs_2}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {e \redx x \\ \notg{\ty} \redx \ty}
+      {\cty{e}{\notg{\ty}} \redx \cty{x}{\ty}}
+      
+  \inferrule
+      {\notg{t_1} \redx t_1 \\ \cdots \\ \notg{t_n} \redx t_n}
+      {\setit{\notg{t_1},\ldots,\notg{t_n}} \redx \setit{ t_1,\ldots,t_n }}
+
+  \inferrule
+      {\notg{\Gamma} \redx \Gamma \\ e \redx x \\ \notg{\ty} \redx \ty }
+      {\notg{\Gamma}; e : \notg{\ty} \redx \Gamma; x : \ty }
+
+  \inferrule
+      {\notg{\Delta} \redx \Delta \\ e_1 \redx x  \\ e_2 \redx \cid \\ \notg{V} \redx V}
+      {\notg{\Delta}; e_1 : \ity{e_2}{\notg{V}} \redx \Delta; x : \ity{\cid}{V} }
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\Gamma} \redx \\ \notg{R} \redx R
+        \\ \notg{\Delta} \redx \Delta \\ \notg{\eqs_2} \redx \eqs_2}
+      {\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}} \redx
+        \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}}
+\end{mathpar}
+    
+\end{fpfig}
+}
