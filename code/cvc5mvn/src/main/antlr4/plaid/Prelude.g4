@@ -12,8 +12,9 @@ cmdfunc : ident '(' (ident (',' ident)*)? ')' '{' command '}' #CommandFunc ;
 expr
     : expr '.' ident #FieldSelectExpr
     | expr '@' expr #AtExpr
+    | '-' expr #MinusExpr
     | expr '*' expr #TimesExpr
-    | expr pmop expr #PlusMinusExpr
+    | expr '+' expr #PlusExpr
     | expr '++' expr #ConcatExpr
     | '(' expr ')' #ParenPExpr
     | 'let' ident '=' expr 'in' expr #LetExpr

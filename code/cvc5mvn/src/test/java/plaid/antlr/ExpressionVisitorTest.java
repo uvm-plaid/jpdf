@@ -9,6 +9,7 @@ import plaid.ast.Identifier;
 import plaid.ast.LetExpr;
 import plaid.ast.MessageExpr;
 import plaid.ast.MinusExpr;
+import plaid.ast.Node;
 import plaid.ast.Num;
 import plaid.ast.OutputExpr;
 import plaid.ast.PlusExpr;
@@ -58,16 +59,12 @@ public class ExpressionVisitorTest {
     }
 
     /**
-     * Subtraction and addition have equal precedence.
+     * Negation happens before party index.
      */
     @Test
-    public void additionAssoc() {
-        assertEquals(
-                new PlusExpr(new MinusExpr(new Num(3), new Num(2)), new Num(1)),
-                ast("3 - 2 + 1"));
-        assertEquals(
-                new MinusExpr(new PlusExpr(new Num(3), new Num(2)), new Num(1)),
-                ast("3 + 2 - 1"));
+    public void minusFirst() {
+        Node expr = ast("-m[z]@1");
+        assertEquals(new MinusExpr(new MessageExpr(new Identifier("z"), new Num(1))), expr);
     }
 
     /**

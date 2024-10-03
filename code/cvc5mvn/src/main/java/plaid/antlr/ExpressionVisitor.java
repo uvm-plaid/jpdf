@@ -2,6 +2,8 @@ package plaid.antlr;
 
 import plaid.PreludeBaseVisitor;
 import plaid.PreludeParser.FunctionCallExprContext;
+import plaid.PreludeParser.MinusExprContext;
+import plaid.PreludeParser.PlusExprContext;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldExpr;
 import plaid.ast.FieldSelectExpr;
@@ -23,21 +25,20 @@ import plaid.ast.TimesExpr;
 import java.util.stream.Collectors;
 
 import static plaid.PreludeParser.AtExprContext;
-import static plaid.PreludeParser.FieldExprContext;
-import static plaid.PreludeParser.LetExprContext;
-import static plaid.PreludeParser.IdentExprContext;
 import static plaid.PreludeParser.ConcatExprContext;
+import static plaid.PreludeParser.FieldExprContext;
 import static plaid.PreludeParser.FieldSelectExprContext;
+import static plaid.PreludeParser.IdentExprContext;
+import static plaid.PreludeParser.LetExprContext;
 import static plaid.PreludeParser.MessageExprContext;
+import static plaid.PreludeParser.NumContext;
 import static plaid.PreludeParser.OutputExprContext;
 import static plaid.PreludeParser.ParenPExprContext;
-import static plaid.PreludeParser.PlusMinusExprContext;
 import static plaid.PreludeParser.PublicExprContext;
 import static plaid.PreludeParser.RandomExprContext;
 import static plaid.PreludeParser.SecretExprContext;
 import static plaid.PreludeParser.StrContext;
 import static plaid.PreludeParser.TimesExprContext;
-import static plaid.PreludeParser.NumContext;
 
 public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
@@ -124,10 +125,13 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
     }
 
     @Override
-    public PreludeExpression visitPlusMinusExpr(PlusMinusExprContext ctx) {
-        PreludeExpression e0 = visit(ctx.expr(0));
-        PreludeExpression e1 = visit(ctx.expr(1));
-        return ctx.pmop().getText().equals("+") ? new PlusExpr(e0, e1) : new MinusExpr(e0, e1);
+    public PlusExpr visitPlusExpr(PlusExprContext ctx) {
+        return new PlusExpr(visit(ctx.expr(0)), visit(ctx.expr(1)));
+    }
+
+    @Override
+    public MinusExpr visitMinusExpr(MinusExprContext ctx) {
+        return new MinusExpr(visit(ctx.expr()));
     }
 
     @Override

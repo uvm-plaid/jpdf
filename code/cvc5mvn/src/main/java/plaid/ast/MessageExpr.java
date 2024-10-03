@@ -25,12 +25,12 @@ public class MessageExpr implements MemoryExpr {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MessageExpr that = (MessageExpr) o;
-        return Objects.equals(e, that.e);
+        return Objects.equals(e, that.e) && Objects.equals(i, that.i);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(e);
+        return Objects.hash(e, i);
     }
 
     @Override
