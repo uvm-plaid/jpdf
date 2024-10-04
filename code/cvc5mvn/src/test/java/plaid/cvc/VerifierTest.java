@@ -23,4 +23,20 @@ public class VerifierTest {
         assertFalse(Verifier.verify("out@1 := 1; out@1 := 2"));
     }
 
+    /**
+     * Verifies a protocol that has an assertion.
+     */
+    @Test
+    public void assertionProtocol() {
+        assertTrue(Verifier.verify("out@1 := 1; assert (out = 1)@1"));
+    }
+
+    /**
+     * Fails to verify a protocol that has a contradiction caused by an assertion.
+     */
+    @Test
+    public void failAssertionProtocol() {
+        assertFalse(Verifier.verify("out@1 := 1; assert (out = 2)@1"));
+    }
+
 }
