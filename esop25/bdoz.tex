@@ -1,0 +1,52 @@
+\begin{fpfig}[t]{2-party BDOZ circuit library: sum gates and secure opening.}{fig-bdozsum}
+{\footnotesize
+\begin{verbatimtab}
+  _open(x,i1,i2){
+    m[x++"exts"]@i1 := m[x++"s"]@i2;
+    m[x++"extm"]@i1 := m[x++"m"]@i2;
+    assert(m[x++"extm"] == m[x++"k"] + (m["delta"] * m[x++"exts"]));
+    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i2
+  }
+  
+  pre: { m[x++"m"]@i2 == m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"])@i2 /\
+         m[y++"m"]@i2 == m[y++"k"]@i1 + (m["delta"]@i1 * m[y++"s"])@i2 }
+  _sum(z, x, y,i1,i2) {
+      m[z++"s"]@i2 := (m[x++"s"] + m[y++"s"])@i2;
+      m[z++"m"]@i2 := (m[x++"m"] + m[y++"m"])@i2;
+      m[z++"k"]@i1 := (m[x++"k"] + m[y++"k"])@i1
+  }
+  post: { m[z++"m"]@i2 == m[z++"k"]@i1 + (m["delta"]@i1 * m[z++"s"]@i2 } 
+  
+  sum(z,x,y) { _sum(z,x,y,1,2);_sum(z,x,y,2,1) }
+
+  open(x) { _open(x,1,2); _open(x,2,1) }
+\end{verbatimtab}
+}
+\end{fpfig}
+
+\begin{fpfig}[t]{2-party BDOZ circuit library: multiplication gates.}{fig-bdozmult}
+{\footnotesize
+\begin{verbatimtab}
+  _mult1(z, x, y) {
+      m[z++"s"]@1 :=
+        (m[z++"bs"] * m[z++"d"] + m[z++"as"] * m[z++"e"] + m[z++"cs"])@1;
+      m[z++"m"]@1 :=
+        (m[z++"bm"] * m[z++"d"] + m[z++"am"] * m[z++"e"] + m[z++"cm"])@1;
+      m[z++"k"]@2 :=
+        (m[z++"bk"] * m[z++"d"] + m[z++"ak"] * m[z++"e"] + m[z++"ck"])@2;    
+  }
+  post: { m[z++"m"]@2 == m[z++"k"]@1 + (m["delta"]@1 * m[z++"s"]@1 }
+
+  mult(z,x,y) {
+      sum(z++"a", x, z++"d");
+      open(z++"d");
+      sum(z++"b", y, z++"e");
+      open(z++"e"); 
+      _mult1(z,x,y); _mult2(z,x,y)
+  }
+  post: {  m[z++"s"]@1 + m[z++"s"]@2 ==
+          (m[x++"s"]@1 + m[x++"s"]@2) * (m[y++"s"]@1 + m[y++"s"]@2)} 
+  
+\end{verbatimtab}
+}
+\end{fpfig}
