@@ -116,23 +116,32 @@ axiomatized in Figure \ref{fig-cheatj}.
 \begin{definition}
   Given $H,C$ and $\prog$ with $\views(\prog) = V$ and $\secrets(\prog) = S$,
   $\adversary$, and $\store \in \aruns(\prog)$, we say $\store$ is
-  \emph{abberant} if $\neg\exists \store' \in \runs(\prog) .
-  \store_{S_H \cup V} = \store'_{S_H \cup V}$, and if
-   $\neg\exists \store' \in \runs(\prog) .
-  \store_{S_H \cup \{ x \}} = \store'_{S_H \cup \{ x \}}$ we say
-  any $x \in V$ \emph{has an abberation}.
+  \emph{aberrant through $V' \subseteq V$} if $\neg\exists \store' \in \runs(\prog) .
+  \store_{S_H \cup V'} = \store'_{S_H \cup V'}$, and if there exists
+  such $\adversary$ and $\store$ we say any
+  $x \in V'$ is \emph{in an aberration}.
 \end{definition}
 
 \begin{lemma}
   If $\prog$ does not have integrity for some $H,C$, then it has
-  abberant $\store \in \aruns(\prog)$ for some $\adversary$. 
+  aberrant $\store \in \aruns(\prog)$ for some $\adversary$. 
+\end{lemma}
+
+\begin{lemma}
+  Given $\prog$ and $H,C$, if $x$ is in an aberration then one of
+  the two inductively defined conditions holds:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item There exists $\xassign{x}{\be}{\cid} \in \prog$ with $\cid \in C$.
+  \item There exists $\xassign{x}{\be}{\cid} \in \prog$ with $\cid \in H$ and
+    $x' \in \vars(\be)$ such that $x'$ is in an aberration.
+  \end{enumerate}
 \end{lemma}
 
 \begin{lemma}
   Given pre-processing predicate $\eqspre$ and protocol $\prog$ with
   $\views(\prog) = V$, if 
   $\ipj{\eqs}{\prog}{\Delta}$ is valid
-  and $x\in V$ has an abberation for some $H,C$,
+  and $x\in V$ has an aberration for some $H,C$,
   then $\cheatj{\Delta}{H,C}{\seclev}$ and $\seclev(x) = \lolab$.
 \end{lemma}
 
