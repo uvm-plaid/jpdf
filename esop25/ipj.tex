@@ -111,13 +111,15 @@ whether this impacts integrity, which we accomplish through
 the inductively defined rewrite relation $\cheatj{\Delta}{H,C}{\seclev}$,
 axiomatized in Figure \ref{fig-cheatj}.
 
-\subsubsection{Type Safety}
+\subsubsection{Type Soundness}
 
 \begin{definition}
   Given $H,C$ and $\prog$ with $\views(\prog) = V$ and $\secrets(\prog) = S$,
   $\adversary$, and $\store \in \aruns(\prog)$, we say $\store$ is
   \emph{abberant} if $\neg\exists \store' \in \runs(\prog) .
-  \store_{S_H \cup V} = \store'_{S_H \cup V}$, in which case we say
+  \store_{S_H \cup V} = \store'_{S_H \cup V}$, and if
+   $\neg\exists \store' \in \runs(\prog) .
+  \store_{S_H \cup \{ x \}} = \store'_{S_H \cup \{ x \}}$ we say
   any $x \in V$ \emph{has an abberation}.
 \end{definition}
 
@@ -134,12 +136,12 @@ axiomatized in Figure \ref{fig-cheatj}.
   then $\cheatj{\Delta}{H,C}{\seclev}$ and $\seclev(x) = \lolab$.
 \end{lemma}
 
-Our main type safety result for integrity is then given as follows.
+Our main type soundness result for integrity is then given as follows.
 \begin{theorem}
   Given pre-processing predicate $\eqspre$ and protocol $\prog$ with
   $\views(\prog) = V$, if
   $\ipj{\eqs}{\prog}{\Delta}$ is valid
   and for all $H,C$ with $\cheatj{\Delta}{H,C}{\seclev}$ 
   we have $\seclev(x) = \hilab$ for all $x \in \houtputs$, then $\prog$
-  has integrity.
+  has integrity for all $H,C$.
 \end{theorem}

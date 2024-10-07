@@ -116,7 +116,7 @@ this relation is to determine if
 $\leakj{\Gamma}{C}{\setit{\sx{w}{\cid}}}$ with $\cid \in H$-- that is,
 if the adversary may observe dependencies on honest secrets.
 
-\subsubsection{Type Safety}
+\subsubsection{Type Soundness}
 
 \cnote{Define (conditional) inputs in hyperproperties section.}
 
@@ -157,10 +157,12 @@ if the adversary may observe dependencies on honest secrets.
 
     \eqj{R_1}{\eqs}{\toeq{\elab{\be}{\cid}}}{\ty_0}
   \end{mathpar}
-  are both valid, and by the induction hypothesis $\Gamma_0$ is sound for $\prog_0$.     
+  are both valid, and by the induction hypothesis $\Gamma_0$ is sound for $\prog_0$.
+  We can then proceed by a second induction on the derivation of $\ty_0$, where there
+  are two subcases. XXX
 \end{proof}
 
-Our main type safety result combines typing and leakage judgements,
+Our main type soundness result combines typing and leakage judgements,
 and guarantees gradual release of protocols-- that is, that adversarial
 messages reflect no dependencies on honest secrets.
 \cnote{Need to define gradual release... should probably have a section
