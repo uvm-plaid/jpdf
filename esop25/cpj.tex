@@ -143,7 +143,10 @@ if the adversary may observe dependencies on honest secrets.
 \end{lemma}
 \begin{proof}
   Unrolling Definition \ref{definition-sound}, proceed by induction on $M'$.
-  In case $M' = \varnothing$ the result follows trivially. Otherwise XXX
+  In case $M' = \varnothing$ the result follows trivially. Otherwise
+  $M' = M_0 \cup \{ \mx{w}{\cid} \}$ and wlog $\Gamma = \Gamma_0; \mx{w}{\cid} : \ty_0$
+  and $\prog = \prog_0;\xassign{\mx{w}{\cid}{\be}{\cid_0}$, where
+    $\cpj{R_0}{\eqs}{\eqspre \wedge \toeq{\prog_0}}{\Gamma_0}$ is valid.    
 \end{proof}
 
 Our main type safety result combines typing and leakage judgements,
@@ -153,11 +156,11 @@ messages reflect no dependencies on honest secrets.
   where we summarize hyperproperties.}
 \begin{theorem}
   Given $\prog$ with $\views(\prog) = M \cup P$, if $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$
-  is valid and there exists no $H,C$ such that $\leakj{\Gamma}{M_C}{T}$ with $T$ closed
-  and $S_H \cap T \ne \varnothing$, then $\prog$ satisfies gradual release.
+  is valid and for all $H,C$ we have $\leakj{\Gamma}{M_C}{T}$ with $T$ closed
+  and $S_H \cap T = \varnothing$, then $\prog$ satisfies gradual release.
 \end{theorem}
 \begin{proof}
-  Immediate by Lemma \ref{lemma-cpjsound} and definition of gradual release.
+  Immediate by Lemma \ref{lemma-cpjsound}. \qed
 \end{proof}
 
 \leakjfig
