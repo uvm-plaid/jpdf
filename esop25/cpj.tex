@@ -116,16 +116,49 @@ this relation is to determine if
 $\leakj{\Gamma}{C}{\setit{\sx{w}{\cid}}}$ with $\cid \in H$-- that is,
 if the adversary may observe dependencies on honest secrets.
 
+\subsubsection{Type Safety}
+
+\cnote{Define (conditional) inputs in hyperproperties section.}
+
+\begin{definition}
+  \label{definition-sound}
+  Given $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
+  and $\flips(\prog) = R$, we say that
+  \emph{$\Gamma$ is sound for $\prog$} iff for all $M' \subseteq M$
+      and $X \subseteq S \cup R$, the following
+      conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+    \item  if $X$ are inputs to $M'$ then
+      there exists $\ty$ with $\leakj{\Gamma}{M'}{\ty}$ and $X \subseteq \ty$.
+    \item  for all  $R' \subseteq R$, if
+      $X$ are $R'$ are conditional inputs to $M'$ then $\leakj{\Gamma}{M'}{\ty}$
+      and $\leakclose{\Gamma}{\ty \cup R'}{\ty'}$ and $X \subseteq \ty'$.
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}
+  \label{lemma-cpjsound}
+  If $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid then $\Gamma$ is
+  sound for $\prog$.
+\end{lemma}
+\begin{proof}
+  Unrolling Definition \ref{definition-sound}, proceed by induction on $M'$.
+  In case $M' = \varnothing$ the result follows trivially. Otherwise XXX
+\end{proof}
+
 Our main type safety result combines typing and leakage judgements,
 and guarantees gradual release of protocols-- that is, that adversarial
 messages reflect no dependencies on honest secrets.
 \cnote{Need to define gradual release... should probably have a section
   where we summarize hyperproperties.}
 \begin{theorem}
-  If $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid and there exists no $H,C$ 
-  and  $\sx{w}{\cid}$ for $\cid \in H$ with $\leakj{\Gamma}{C}{\setit{\sx{w}{\cid}}}$,
-  then $\prog$ satisfies gradual release.
+  Given $\prog$ with $\views(\prog) = M \cup P$, if $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$
+  is valid and there exists no $H,C$ such that $\leakj{\Gamma}{M_C}{T}$ with $T$ closed
+  and $S_H \cap T \ne \varnothing$, then $\prog$ satisfies gradual release.
 \end{theorem}
+\begin{proof}
+  Immediate by Lemma \ref{lemma-cpjsound} and definition of gradual release.
+\end{proof}
 
 \leakjfig
 
