@@ -44,8 +44,7 @@ ident : IDENTIFIER ;
 /* Lexer Rules */
 // We define value to be any integer
 VALUE : [0-9]+;
-// We define identifier to match any combination of uppercase, lowercase, and integer
-IDENTIFIER : [a-zA-Z0-9]+;
+IDENTIFIER : ('_'|'a'..'z'|'A'..'Z') ('_'|'a'..'z'|'A'..'Z'|'0'..'9')* ;
 // We define string to match double quotes
 STRING : '"' ~('"')+ '"';
 // We represent a whitespace token, ignored by skip

@@ -199,4 +199,20 @@ public class ExpressionVisitorTest {
                 new Identifier("b"), new Num(1))), ast("{a=0; b=1}"));
     }
 
+    /**
+     * Identifiers can be mixed case.
+     */
+    @Test
+    public void mixedCaseIdentifiers() {
+        assertEquals(new Identifier("aA"), ast("aA"));
+    }
+
+    /**
+     * Identifiers can start with underscores.
+     */
+    @Test
+    public void underscoreIdentifiers() {
+        assertEquals(new Identifier("_1"), ast("_1"));
+    }
+
 }
