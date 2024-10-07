@@ -429,7 +429,7 @@ $$
 
   \inferrule[Encode]
             {e_1 \redx w \\ e_2 \redx \cid \\ \notg{\phi} \redx \phi \\
-              \eqs \models \toeq{\elab{\be}{\cid}} \eop \phi\\
+              \eqs \models \mx{w}{\cid} \eop \phi\\
               \atj{\phi}{R}{\ty}}
             {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(\mx{w}{\cid}:\ty)}{R}{\varnothing}{\eqs}}
 
