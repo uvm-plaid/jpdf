@@ -120,6 +120,12 @@ if the adversary may observe dependencies on honest secrets.
 
 \cnote{Define (conditional) inputs in hyperproperties section.}
 
+\begin{lemma}
+  \label{lemma-eqsprogsound}
+  If $\toeq{\prog} \models \eqs$ and $\eqs \models \eqs'$, then
+  for all $\store \in \runs(\prog)$ we have $\store \models \eqs'$.
+\end{lemma}
+
 \begin{definition}
   \label{definition-sound}
   Given $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
@@ -145,8 +151,13 @@ if the adversary may observe dependencies on honest secrets.
   Unrolling Definition \ref{definition-sound}, proceed by induction on $M'$.
   In case $M' = \varnothing$ the result follows trivially. Otherwise
   $M' = M_0 \cup \{ \mx{w}{\cid} \}$ and wlog $\Gamma = \Gamma_0; \mx{w}{\cid} : \ty_0$
-  and $\prog = \prog_0;\xassign{\mx{w}{\cid}}{\be}{\cid_0}$, where
-  $\cpj{R_0}{\eqs}{\eqspre \wedge \toeq{\prog_0}}{\Gamma_0}$ is valid.    
+  and $\prog = \prog_0;\xassign{\mx{w}{\cid}}{\be}{\cid_0}$, where $R = R_0;R_1$ and:
+  \begin{mathpar}
+    \cpj{R_0}{\eqs}{\eqspre \wedge \toeq{\prog_0}}{\Gamma_0}
+
+    \eqj{R_1}{\eqs}{\toeq{\elab{\be}{\cid}}}{\ty_0}
+  \end{mathpar}
+  are both valid, and by the induction hypothesis $\Gamma_0$ is sound for $\prog_0$.     
 \end{proof}
 
 Our main type safety result combines typing and leakage judgements,
