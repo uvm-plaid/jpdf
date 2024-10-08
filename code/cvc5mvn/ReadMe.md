@@ -1,4 +1,5 @@
 # Prelude-Overture
+
 -----
 ## Overview
 - This is source codes for Prelude-Overture project.
@@ -25,6 +26,10 @@
 - CVC5 should be also installed, and then environment variable (CVC5_LIB_PATH) for CVC5 library path should be added in `pom.xml`.
 - `mvn exec:exec` runs main test, which is in /src/main/java/plaid/App.java.
 - `mvn test exec:exec` runs the main test along with unit tests.
+
+-------
+## Things that should be true but we aren't currently checking
+- Left side of assignments in overture should be memory expressions
 
 -------
 ## License

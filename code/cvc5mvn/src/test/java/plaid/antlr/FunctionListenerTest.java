@@ -6,7 +6,6 @@ import org.junit.Test;
 import plaid.ast.AssignCommand;
 import plaid.ast.CommandFunction;
 import plaid.ast.ExprFunction;
-import plaid.ast.FunctionCallCommand;
 import plaid.ast.Identifier;
 import plaid.ast.Num;
 import plaid.ast.OutputExpr;
@@ -64,20 +63,20 @@ public class FunctionListenerTest {
         CommandFunction f = new CommandFunction(
                 new Identifier("f"),
                 List.of(),
-                new AssignCommand(new OutputExpr(new Num(1)), new Num(2)));
+                new AssignCommand(new OutputExpr(), new Num(2)));
 
         CommandFunction g = new CommandFunction(
                 new Identifier("g"),
                 List.of(new Identifier("x")),
-                new AssignCommand(new OutputExpr(new Num(1)), new Num(2)));
+                new AssignCommand(new OutputExpr(), new Num(2)));
 
         CommandFunction h = new CommandFunction(
                 new Identifier("h"),
                 List.of(new Identifier("x"), new Identifier("y")),
-                new AssignCommand(new OutputExpr(new Num(1)), new Num(2)));
+                new AssignCommand(new OutputExpr(), new Num(2)));
 
         assertFunctions(
-                "cmdfunctions: f() { out@1 := 2 } g(x) { out@1 := 2 } h(x, y) { out@1 := 2 }",
+                "cmdfunctions: f() { out := 2 } g(x) { out := 2 } h(x, y) { out := 2 }",
                 List.of(),
                 List.of(f, g, h));
     }
@@ -95,10 +94,10 @@ public class FunctionListenerTest {
         CommandFunction g = new CommandFunction(
                 new Identifier("g"),
                 List.of(),
-                new AssignCommand(new OutputExpr(new Num(1)), new Num(2)));
+                new AssignCommand(new OutputExpr(), new Num(2)));
 
         assertFunctions(
-                "exprfunctions: f() { 3 } cmdfunctions: g() { out@1 := 2 }",
+                "exprfunctions: f() { 3 } cmdfunctions: g() { out := 2 }",
                 List.of(f),
                 List.of(g));
     }

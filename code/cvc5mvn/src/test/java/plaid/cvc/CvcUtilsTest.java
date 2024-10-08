@@ -22,7 +22,7 @@ public class CvcUtilsTest {
     @Test(expected = IllegalArgumentException.class)
     public void nonMemNames() {
         MemoryExpr other = List::of;
-        CvcUtils.getCvcName(other);
+        CvcUtils.getCvcName(other, 1);
     }
 
     /**
@@ -30,11 +30,11 @@ public class CvcUtilsTest {
      */
     @Test
     public void memNames() {
-        assertEquals("m_x_4", CvcUtils.getCvcName(new MessageExpr(new Str("x"), new Num(4))));
-        assertEquals("o_4", CvcUtils.getCvcName(new OutputExpr(new Num(4))));
-        assertEquals("p_x", CvcUtils.getCvcName(new PublicExpr(new Str("x"))));
-        assertEquals("r_x_4", CvcUtils.getCvcName(new RandomExpr(new Str("x"), new Num(4))));
-        assertEquals("s_x_4", CvcUtils.getCvcName(new SecretExpr(new Str("x"), new Num(4))));
+        assertEquals("m_x_4", CvcUtils.getCvcName(new MessageExpr(new Str("x")), 4));
+        assertEquals("o_4", CvcUtils.getCvcName(new OutputExpr(), 4));
+        assertEquals("p_x", CvcUtils.getCvcName(new PublicExpr(new Str("x")), 4));
+        assertEquals("r_x_4", CvcUtils.getCvcName(new RandomExpr(new Str("x")), 4));
+        assertEquals("s_x_4", CvcUtils.getCvcName(new SecretExpr(new Str("x")), 4));
     }
 
     /**

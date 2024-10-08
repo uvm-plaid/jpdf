@@ -1,8 +1,8 @@
 package plaid.ast;
 
+import java.util.List;
 import java.util.Objects;
 
-@Deprecated
 public class AtExpr implements PreludeExpression{
     private final PreludeExpression e1;
     private final PreludeExpression e2;
@@ -35,6 +35,7 @@ public class AtExpr implements PreludeExpression{
 
     @Override
     public Iterable<Node> children() {
-        throw new UnsupportedOperationException();
+        return List.of(e1, e2);
     }
+
 }

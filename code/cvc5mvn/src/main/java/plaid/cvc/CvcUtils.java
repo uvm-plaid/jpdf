@@ -32,13 +32,13 @@ public class CvcUtils {
         }
     }
 
-    public static String getCvcName(MemoryExpr expr) {
+    public static String getCvcName(MemoryExpr expr, Integer partyIndex) {
         return switch (expr) {
-            case MessageExpr mem -> "m_" + toString(mem.getE()) + "_" + toInt(mem.getI());
-            case OutputExpr mem -> "o_" + toInt(mem.getI());
+            case MessageExpr mem -> "m_" + toString(mem.getE()) + "_" + partyIndex;
+            case OutputExpr ignored -> "o_" + partyIndex;
             case PublicExpr mem -> "p_" + toString(mem.getE());
-            case RandomExpr mem -> "r_" + toString(mem.getE()) + "_" + toInt(mem.getI());
-            case SecretExpr mem -> "s_" + toString(mem.getE()) + "_" + toInt(mem.getI());
+            case RandomExpr mem -> "r_" + toString(mem.getE()) + "_" + partyIndex;
+            case SecretExpr mem -> "s_" + toString(mem.getE()) + "_" + partyIndex;
             default -> throw new IllegalArgumentException("Must be memory, found " + expr.getClass().getName());
         };
     }

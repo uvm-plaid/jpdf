@@ -1,6 +1,7 @@
 package plaid.antlr;
 
 import org.junit.Test;
+import plaid.ast.AtExpr;
 import plaid.ast.ConcatExpr;
 import plaid.ast.FieldExpr;
 import plaid.ast.FieldSelectExpr;
@@ -64,7 +65,7 @@ public class ExpressionVisitorTest {
     @Test
     public void minusFirst() {
         Node expr = ast("-m[z]@1");
-        assertEquals(new MinusExpr(new MessageExpr(new Identifier("z"), new Num(1))), expr);
+        assertEquals(new MinusExpr(new AtExpr(new MessageExpr(new Identifier("z")), new Num(1))), expr);
     }
 
     /**
@@ -96,15 +97,15 @@ public class ExpressionVisitorTest {
     }
 
     /**
-     * Parses memory expressions with index if needed.
+     * Parses memory expressions.
      */
     @Test
     public void memoryExpr() {
-        assertEquals(new OutputExpr(new Num(1)), ast("out@1"));
-        assertEquals(new SecretExpr(new Str("x"), new Num(1)), ast("s[\"x\"]@1"));
-        assertEquals(new MessageExpr(new Str("x"), new Num(1)), ast("m[\"x\"]@1"));
-        assertEquals(new RandomExpr(new Str("x"), new Num(1)), ast("r[\"x\"]@1"));
-        assertEquals(new PublicExpr(new Str("x")), ast("p[\"x\"]@1"));
+        assertEquals(new OutputExpr(), ast("out"));
+        assertEquals(new SecretExpr(new Str("x")), ast("s[\"x\"]"));
+        assertEquals(new MessageExpr(new Str("x")), ast("m[\"x\"]"));
+        assertEquals(new RandomExpr(new Str("x")), ast("r[\"x\"]"));
+        assertEquals(new PublicExpr(new Str("x")), ast("p[\"x\"]"));
     }
 
     /**
@@ -114,48 +115,8 @@ public class ExpressionVisitorTest {
     public void partyIndexSiblings() {
         PreludeExpression expr = ast("s[\"y\"]@2 + s[\"x\"]@1");
         assertEquals(new PlusExpr(
-                new SecretExpr(new Str("y"), new Num(2)),
-                new SecretExpr(new Str("x"), new Num(1))), expr);
-    }
-
-    /**
-     * Party indexes must not be ambiguous.
-     */
-    @Test(expected = IllegalStateException.class)
-    public void partyIndexesDoNotStack() {
-        ast("(s[\"y\"] + s[\"x\"]@1)@2");
-    }
-
-    /**
-     * Party index required for memory expression.
-     */
-    @Test(expected = IllegalStateException.class)
-    public void memoryPartyIndexRequired() {
-        ast("m[\"y\"]");
-    }
-
-    /**
-     * Party index required for secret expression.
-     */
-    @Test(expected = IllegalStateException.class)
-    public void secretPartyIndexRequired() {
-        ast("s[\"y\"]");
-    }
-
-    /**
-     * Party index required for random expression.
-     */
-    @Test(expected = IllegalStateException.class)
-    public void randomPartyIndexRequired() {
-        ast("r[\"y\"]");
-    }
-
-    /**
-     * Party index required for output expression.
-     */
-    @Test(expected = IllegalStateException.class)
-    public void outputPartyIndexRequired() {
-        ast("out");
+                new AtExpr(new SecretExpr(new Str("y")), new Num(2)),
+                new AtExpr(new SecretExpr(new Str("x")), new Num(1))), expr);
     }
 
     /**

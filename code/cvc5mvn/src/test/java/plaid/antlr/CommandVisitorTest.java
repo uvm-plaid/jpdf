@@ -3,6 +3,7 @@ package plaid.antlr;
 import org.junit.Test;
 import plaid.ast.AssertCommand;
 import plaid.ast.AssignCommand;
+import plaid.ast.AtExpr;
 import plaid.ast.CommandList;
 import plaid.ast.FunctionCallCommand;
 import plaid.ast.Identifier;
@@ -28,7 +29,7 @@ public class CommandVisitorTest {
      */
     @Test
     public void assignCommand() {
-        assertEquals(new AssignCommand(new OutputExpr(new Num(1)), new Num(3)), ast("out@1 := 3"));
+        assertEquals(new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3)), ast("out@1 := 3"));
     }
 
     /**
@@ -53,8 +54,8 @@ public class CommandVisitorTest {
     @Test
     public void assertCommand() {
         assertEquals(new AssertCommand(
-                new MessageExpr(new Str("x"), new Num(5)),
-                new MessageExpr(new Str("y"), new Num(5))), ast("assert (m[\"x\"] = m[\"y\"])@5"));
+                new AtExpr(new MessageExpr(new Str("x")), new Num(5)),
+                new AtExpr(new MessageExpr(new Str("y")), new Num(5))), ast("assert (m[\"x\"] = m[\"y\"])@5"));
     }
 
     /**
@@ -66,7 +67,7 @@ public class CommandVisitorTest {
         assertEquals(new LetCommand(
                 new Identifier("x"),
                 new Num(4),
-                new AssignCommand(new OutputExpr(new Num(1)), new Identifier("x"))), command);
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x"))), command);
     }
 
     /**
@@ -79,8 +80,8 @@ public class CommandVisitorTest {
                 new Identifier("x"),
                 new Num(4),
                 new CommandList(List.of(
-                    new AssignCommand(new OutputExpr(new Num(1)), new Identifier("x")),
-                    new AssignCommand(new OutputExpr(new Num(2)), new Identifier("x"))))), command);
+                    new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")),
+                    new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x"))))), command);
     }
 
     /**
@@ -90,8 +91,8 @@ public class CommandVisitorTest {
     public void commandList() {
         PreludeCommand command = ast("out@1 := x; out@2 := x");
         assertEquals(new CommandList(List.of(
-                new AssignCommand(new OutputExpr(new Num(1)), new Identifier("x")),
-                new AssignCommand(new OutputExpr(new Num(2)), new Identifier("x")))), command);
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")),
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x")))), command);
     }
 
 }

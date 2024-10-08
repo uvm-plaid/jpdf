@@ -5,10 +5,13 @@ import io.github.cvc5.Sort;
 import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
 import org.junit.Test;
+import plaid.antlr.Loader;
 import plaid.ast.AssertCommand;
 import plaid.ast.AssignCommand;
+import plaid.ast.AtExpr;
 import plaid.ast.CommandList;
-import plaid.ast.MemoryExpr;
+import plaid.ast.FunctionCallCommand;
+import plaid.ast.Identifier;
 import plaid.ast.MessageExpr;
 import plaid.ast.Num;
 import plaid.ast.OutputExpr;
@@ -26,6 +29,66 @@ import static org.junit.Assert.assertNotNull;
 public class TermFactoryTest {
 
     /**
+     * Party indexes must not be ambiguous.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void partyIndexesDoNotStack() throws CVC5ApiException {
+        PreludeExpression expr = Loader.toExpression("(s[\"y\"] + s[\"x\"]@1)@2");
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        factory.toTerm(expr);
+    }
+
+    /**
+     * Party index required for memory expression.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void memoryPartyIndexRequired() throws CVC5ApiException {
+        PreludeExpression expr = Loader.toExpression("m[\"y\"]");
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        factory.toTerm(expr);
+    }
+
+    /**
+     * Party index required for secret expression.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void secretPartyIndexRequired() throws CVC5ApiException {
+        PreludeExpression expr = Loader.toExpression("s[\"y\"]");
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        factory.toTerm(expr);
+    }
+
+    /**
+     * Party index required for random expression.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void randomPartyIndexRequired() throws CVC5ApiException {
+        PreludeExpression expr = Loader.toExpression("r[\"y\"]");
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        factory.toTerm(expr);
+    }
+
+    /**
+     * Party index required for output expression.
+     */
+    @Test(expected = IllegalStateException.class)
+    public void outputPartyIndexRequired() throws CVC5ApiException {
+        PreludeExpression expr = Loader.toExpression("out");
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        factory.toTerm(expr);
+    }
+
+    /**
      * Creates terms for all commands in a list.
      */
     @Test
@@ -34,8 +97,8 @@ public class TermFactoryTest {
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
         Collection<Term> terms = factory.toTerms(new CommandList(List.of(
-                new AssertCommand(new OutputExpr(new Num(1)), new Num(3)),
-                new AssignCommand(new OutputExpr(new Num(1)), new Num(3))
+                new AssertCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3)),
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3))
         )));
         assertEquals(2, terms.size());
     }
@@ -61,9 +124,9 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        MessageExpr mem = new MessageExpr(new Str("x"), new Num(3));
+        PreludeExpression mem = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
         PreludeExpression expr = new PlusExpr(new Num(6), mem);
-        factory.createConstants(expr);
+        factory.toTerm(expr);
 
         Collection<Memory> memories = factory.getMemories();
         assertEquals(1, memories.size());
@@ -77,16 +140,17 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        MessageExpr expr = new MessageExpr(new Str("x"), new Num(3));
-        factory.createConstants(expr);
+        PreludeExpression expr = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        factory.toTerm(expr);
 
         Collection<Memory> memories = factory.getMemories();
         assertEquals("One memory", 1, memories.size());
 
         Memory mem = factory.getMemories().iterator().next();
         assertEquals("Name based on expression", "m_x_3", mem.name());
+        assertEquals("Party index captured", Integer.valueOf(3), mem.partyIndex());
 
-        MessageExpr twin = new MessageExpr(new Str("x"), new Num(3));
+        PreludeExpression twin = new MessageExpr(new Str("x"));
         assertEquals("Identical expression equality", twin, mem.node());
     }
 
@@ -98,10 +162,10 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        MemoryExpr expr1 = new MessageExpr(new Str("x"), new Num(3));
-        factory.createConstants(expr1);
-        MemoryExpr expr2 = new RandomExpr(new Str("y"), new Num(5));
-        factory.createConstants(expr2);
+        PreludeExpression expr1 = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        factory.toTerm(expr1);
+        PreludeExpression expr2 = new AtExpr(new RandomExpr(new Str("y")), new Num(5));
+        factory.toTerm(expr2);
 
         Collection<Memory> memories = factory.getMemories();
         assertEquals("Two memories", 2, memories.size());
@@ -115,13 +179,24 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        MemoryExpr expr = new MessageExpr(new Str("x"), new Num(3));
-        factory.createConstants(expr);
-        MemoryExpr twin = new MessageExpr(new Str("x"), new Num(3));
-        factory.createConstants(twin);
+        PreludeExpression expr = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        factory.toTerm(expr);
+        PreludeExpression twin = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        factory.toTerm(twin);
 
         Collection<Memory> memories = factory.getMemories();
         assertEquals(1, memories.size());
+    }
+
+    /**
+     * Fails if encounters a command that is not part of overture.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void nonOvertureCommand() throws CVC5ApiException {
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        factory.toTerms(new FunctionCallCommand(new Identifier("f"), List.of()));
     }
 
 }
