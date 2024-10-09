@@ -1,8 +1,6 @@
 \section{Integrity Types}
 \label{section-ipj}
 
-\subsection{BDOZ MAC Integrity}
-
 In a malicious setting, detecting cheating by adding
 information-theoretic secure MAC codes to shares is a fundamental
 technique pioneered in systems such as BDOZ and SPDZ
@@ -29,7 +27,7 @@ simplicity, in general $m$ and $k$ can be in extensions of
 $\mathbb{F}_p$.
 
 As in \cite{skalka-near-ppdp24}, we use $\macgv{\mesg{w}}$ to refer to
-secret-shared values reconstructed with addition\cnote{needed?}, and by
+secret-shared values reconstructed with addition, and by
 convention each share of $\macgv{\mesg{w}}$ is represented as
 $\elab{\mesg{w\ttt{s}}}{\cid}$, the MAC of which is represented as a
 $\elab{\mesg{w\ttt{m}}}{\cid}$ for all $\cid$, and each client holds a
@@ -48,18 +46,17 @@ $$
 \ipjfig
 
 The integrity of values during protocol executions depends on the
-partitioning $H,C$, since any value received from a member of
-$C$ is initially considered to be low integrity. But as for
-confidentiality types, we want our basic type analysis to be
-generalizable to arbitrary $H,C$\cnote{Add related text to that
-  section.}. So integrity type judgements are of the form
+partitioning $H,C$, since any value received from a member of $C$ is
+initially considered to be low integrity. But as for confidentiality
+types, we want our basic type analysis to be generalizable to
+arbitrary $H,C$. So integrity type judgements are of the form
 $\ipj{\eqs}{\prog}{\Delta}$, where $\eqs$ plays a similar role as in
 confidentiality types, as a possibly weakened expression of algebraic
 properties of $\prog$, and encironments $\Delta$ record integrity
 information. Environments are ordered lists, since order of evaluation
-is important for tracking integrity-- validating low
-integrity information through MAC checking allows \emph{subsequent}
-treatment of it as high integrity, but not \emph{before}.
+is important for tracking integrity-- validating low integrity
+information through MAC checking allows \emph{subsequent} treatment of
+it as high integrity, but not \emph{before}.
 
 The typing of protocols depends on a type judgement for expressions
 of the form $\itj{\cid}{\be}{\ity{\cid}{V}}$, which records
