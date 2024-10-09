@@ -65,8 +65,10 @@ of $X$ owned by any client $\cid \in I$, in particular we write $X_H$
 and $X_C$ to denote the subsets belonging to honest and corrupt
 parties, respectively.
 \end{definition}
-An example of a $\minicat$ protocol, for additive secret
-sharing, is discussed in Section \ref{section-smt-toeq}.
+An example of a $\minicat$ protocol, for additive secret sharing, is
+discussed in Section \ref{section-smt-toeq}.  We disallow overwriting
+of variables, since assignment is intended to represent distinct
+message sends.
 
 \subsection{Semantics}
 \label{section-lang-semantics}
@@ -184,10 +186,13 @@ and/or MACed share distributions as in BDOZ/SPDZ
 \cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3}. We define
 $\runs(\prog)$ as the set of final memories resulting from execution
 of $\prog$ given any initial memory, possibly augmented with a
-preprocessed memory (a memory that satsfies a predicate
-$\preproc$), and $\aruns(\prog)$ is the analog in the malicious
-setting. This formulation will be fundamental to our consideration
-of probability distributions and hyperproperties of protocols.
+preprocessed memory (a memory that satsfies a predicate $\preproc$),
+and $\aruns(\prog)$ is the analog in the malicious setting. Since we
+constrain programs to not overwrite any variable, we are assured that
+final memories contain both a complete record of all initial secrets
+as well as views resulting from communicated information. This
+formulation will be fundamental to our consideration of probability
+distributions and hyperproperties of protocols.
 %In this
 %setting, given a program $\prog$ with $\iov(\prog) = S \cup V$ and
 %$\flips(\prog) = F$ we will consider all $\store \in \mems(S \cup V
