@@ -65,8 +65,8 @@ of $X$ owned by any client $\cid \in I$, in particular we write $X_H$
 and $X_C$ to denote the subsets belonging to honest and corrupt
 parties, respectively.
 \end{definition}
-
-\cnote{Add comments about OT.}
+An example of a $\minicat$ protocol, for additive secret
+sharing, is discussed in Section \ref{section-smt-toeq}.
 
 \subsection{Semantics}
 \label{section-lang-semantics}
@@ -77,20 +77,18 @@ parties, respectively.
 provide random tape and secret inputs to protocols, and also record
 message sends, public broadcast, and client outputs.
 \begin{definition}
-  Memories $\store$
-are finite (partial) mappings from variables $x$ to values $v \in
-\mathbb{F}_p$.  The \emph{domain} of a memory is written
+Memories $\store$ are finite (partial) mappings from variables $x$ to
+values $v \in \mathbb{F}_p$.  The \emph{domain} of a memory is written
 $\dom(\store)$ and is the finite set of variables on which the memory
 is defined.  We write $\store\{ x \mapsto v\}$ for
 $x\not\in\dom(\store)$ to denote the memory $\store'$ such that
 $\store'(x) = v$ and otherwise $\store'(y) = \store(y)$ for all $y \in
 \dom(\store)$. We write $\store \subseteq \store'$ iff $\dom(\store)
 \subseteq \dom(\store')$ and $\store(x) = \store'(x)$ for all $x \in
-\dom(\store)$. Given any $\store$ and $\store'$ with
-$\store(x) = \store'(x)$ for all $x \in \dom(\store) \cap \dom(\store')$,
-we write $\store \uplus \store'$ to denote the memory
-with domain $X = \dom(\store) \cup \dom(\store')$ such
-that:
+\dom(\store)$. Given any $\store$ and $\store'$ with $\store(x) =
+\store'(x)$ for all $x \in \dom(\store) \cap \dom(\store')$, we write
+$\store \uplus \store'$ to denote the memory with domain $X =
+\dom(\store) \cup \dom(\store')$ such that:
 $$
 \forall x \in X .
 (\store \uplus \store')(x) =
@@ -110,8 +108,8 @@ memories to particular subsets of their domain:
   \mems(X) \defeq \{ \store \mid \dom(\store) = X \}
   $$
 \end{definition}
-So for example, given a protocol $\prog$, the set of all random tapes for
-$\prog$ is $\mems(\flips(\prog))$, and the memory $\store_{\secrets(\prog)}$
+So for example, the set of all random tapes for
+for a protocol $\prog$ is $\mems(\flips(\prog))$, and the memory $\store_{\secrets(\prog)}$
 is $\store$ restricted to the secrets in $\prog$.
 %We let $\stores$ range
 %over sets of memories with the same domain, and abusing notation
@@ -130,6 +128,20 @@ reduction relation $\redx$ to evaluate commands. Reduction is a mapping
 fromon \emph{configurations} $(\store,\prog)$ to final stores
 where all three command forms- message send, broadcast, and
 output- are implemented as updates to the memory $\store$. 
+
+
+\paragraph{Oblivious Transfer} A passive secure oblivious transfer (OT) protocol
+based on previous work \cite{barthe2019probabilistic} can be defined
+in $\minicat$, albeit assuming some shared randomness. Alternatively,
+a simple passive secure OT can be defined with the addition of public
+key cryptography as a primitive. But given the diversity of approaches
+to OT, we instead assume that OT is abstract with respect to its
+implementation, where calls to OT in $\mathbb{F}_2$ are of the form
+$\OT{\elab{\be_1}{\cid}}{\be_2}{\be_3}$ -- given a \emph{choice bit}
+$\be_1$ provided by a receiver $\cid$, the sender sends either $\be_2$
+or $\be_3$.  Critically, the sender learns nothing about $\be_1$ and
+the receiver learns nothing about the unselected value. We return to
+the formal interpretation of OT in Section \ref{section-smt}.
 
 \subsection{$\minicat$ Adversarial Semantics}
   
@@ -160,3 +172,52 @@ is sufficient to capture MAC checking and support integrity in protocols.
 The big-step adversarial semantics relation $\aredx$ is then defined
 in Figure \ref{fig-minicat-aredx} as a mapping from configurations to
 $\stores$ or $\bot$.
+
+\subsubsection{Protocol Runs}
+
+Our semantics require that random tapes contain values for all program
+values $\elab{\flip{w}}{\cid}$ sampled from a uniform distribution
+over $\mathbb{F}_p$. Input memories also contain input secret values
+and possibly other initial view elements as a result of
+pre-processing, e.g., Beaver triples for efficient multiplication,
+and/or MACed share distributions as in BDOZ/SPDZ
+\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3}. We define
+$\runs(\prog)$ as the set of final memories resulting from execution
+of $\prog$ given any initial memory, possibly augmented with a
+preprocessed memory (a memory that satsfies a predicate
+$\preproc$), and $\aruns(\prog)$ is the analog in the malicious
+setting. This formulation will be fundamental to our consideration
+of probability distributions and hyperproperties of protocols.
+%In this
+%setting, given a program $\prog$ with $\iov(\prog) = S \cup V$ and
+%$\flips(\prog) = F$ we will consider all $\store \in \mems(S \cup V
+%\cup F)$ such that $ \config{\store_{S \cup F}}{\prog} \redxs
+%\config{\store_}{\varnothing} $ to be equally probable, establishing
+%the basic distribution of the program. %From this, we can immediately
+%derive the marginal distribution of $S \cup V$ to reason about
+%dependencies between secrets and views.
+\begin{definition}
+  \label{def-runs}
+  Given $\prog$ with $\secrets(\prog) = S$ and $\flips(\prog) = R$ and
+  predicate $\preproc$ on memories, define:
+  $$
+  \begin{array}{c}
+    \runs(\prog) \defeq 
+    \{ \store \mid \exists \store_1 \in \mems(S \cup R) . 
+    \exists \store_2 . \preproc(\store_2) \wedge
+    %(\dom(\store) = \iov(\prog) \cup R) \wedge
+    (\store_1 \uplus \store_2,\prog) \redxs \store \}
+  \end{array}
+  $$
+  And similarly for any $\adversary$ define:
+  $$
+  \begin{array}{c}
+    \aruns(\prog) \defeq 
+    \{ \store \mid \exists \store_1 \in \mems(S \cup R) . 
+    \exists \store_2 . \preproc(\store_2) \wedge
+    %(\dom(\store) = \iov(\prog) \cup R) \wedge
+    (\store_1 \uplus \store_2,\prog) \aredxs \store \}
+  \end{array}
+  $$
+\end{definition}
+

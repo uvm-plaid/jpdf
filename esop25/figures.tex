@@ -16,27 +16,35 @@ $$}
 \begin{fpfig}[t]{Semantics of $\minicat$ expressions (T) and programs (B).}{fig-minicat-redx}
 \small{
  $$
-  %\begin{array}{c@{\hspace{5mm}}c}
+  \begin{array}{c@{\hspace{5mm}}c}
   \begin{array}{rcl}
     \lcod{\store, v}{\cid} &=& v\\
     \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
     \lcod{\store, \be_1 \fminus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fminus \lcod{\store, \be_2}{\cid}}\\ 
     \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
-  %\end{array} 
-  %\begin{array}{rcl}
+  \end{array} & 
+  \begin{array}{rcl}
     \lcod{\store, \flip{w}}{\cid} &=& \store(\elab{\flip{w}}{\cid})\\
     \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
     \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
     \lcod{\store, \rvl{w}}{\cid} &=& \store(\rvl{w})\\
-    \lcod{\store, \OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2} &=&
-    \begin{cases}
-      \lcod{\store,\be_2}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 0 \\
-      \lcod{\store,\be_3}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 1 \\
-    \end{cases}
+    %\lcod{\store, \OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2} &=&
+    %\begin{cases}
+    %  \lcod{\store,\be_2}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 0 \\
+    %  \lcod{\store,\be_3}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 1 \\
+    %\end{cases}
   \end{array}
-  %\end{array}
+  \end{array}
   $$
 
+  %$$
+  %\lcod{\store, \OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2} =
+  %  \begin{cases}
+  %    \lcod{\store,\be_2}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 0 \\
+  %    \lcod{\store,\be_3}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 1 \\
+  %  \end{cases}
+  %$$
+  %
 \begin{mathpar}
   (\store, \xassign{x}{\be}{\cid}) \redx \extend{\store}{x}{\lcod{\store,\be}{\cid}}
   
