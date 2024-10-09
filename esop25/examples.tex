@@ -1,11 +1,123 @@
 \section{Extended Examples}
 
+We consider several examples that illustrate the versatility of the $\TirName{Encode}$
+typing rule for confidentiality, the use of postconditions for correctness,
+and the use of both pre-~and postconditions for integrity. 
+
 \subsection{Confidentiality Examples}
+
+The $\ttt{encode}$ function example in Section \ref{section-metalangty}
+illustrates the use of type annotations to track confidentiality. In
+2-party Yao's Garbled Circuits (YGC), a \emph{garbler} prepares a circuit encoding
+that is shared with a \emph{evaluator}, and the $\ttt{encode}$ function
+defines the method the garbler uses to share their input secret encodings
+with the evaluator. The example illustrates how confidentiality is reflected
+in its (cipher)type.
+
+
+
+In the 2-party GMW protocol \cite{evans2018pragmatic}, another garbled
+binary circuit protocol, values $v$ are encoded as reconstructive
+shares $v_1$ and $v_2$ held by each party with $v = v_1 \fplus v_2$.
+We will follow the convention that shared values are identified by
+strings $w$ and encoded as shares $\mx{w}{1}$ and $\mx{w}{2}$.  As for
+YGC, ciphertypes reflect the confidentiality of GMW input encodings as
+defined in the $\ttt{encodegmw}$ function in Figure \ref{fig-gmw}. No
+programmer annotation is needed given the syntax of the function
+body. More interestingly, the $\ttt{andgmw}$ gate definition shows how
+a programmer hint can express the relevant confidentiality property of
+the output share $\mx{z}{2}$ on client 2. The non-trivial equivalence
+can be verified by SMT once during verification, and subsequently
+confidentiality is expressed in the dependent type of the function
+(as for $\ttt{encode}$).
+
+Note also that the $\ttt{andgmw}$ function is decorated with a
+postcondition that expresses the correctness property of the
+function. Although not strictly necessary for confidentiality, this
+annotation can at least help eliminate bugs, and also can be used
+compositionally for whole-program correctness properties. As for
+confidentiality hints, this postcondition needs to be verified only
+once at the point of definition and subsequently is guaranteed to hold
+for any application.
 
 \input{gmw}
 
+In the 2-party GMW protocol \cite{evans2018pragmatic}, another garbled
+binary circuit protocol, values $v$ are encoded as reconstructive
+shares $v_1$ and $v_2$ held by each party with $v = v_1 \fplus v_2$.
+We will follow the convention that shared values are identified by
+strings $w$ and encoded as shares $\mx{w}{1}$ and $\mx{w}{2}$.  As for
+YGC, ciphertypes reflect the confidentiality of GMW input encodings as
+defined in the $\ttt{encodegmw}$ function in Figure \ref{fig-gmw}. No
+programmer annotation is needed given the syntax of the function
+body. More interestingly, the $\ttt{andgmw}$ gate definition shows how
+a programmer hint can express the relevant confidentiality property of
+the output share $\mx{z}{2}$ on client 2. The non-trivial equivalence
+can be verified by SMT once during verification, and subsequently
+confidentiality is expressed in the dependent type of the function
+(as for $\ttt{encode}$).
+
+Note also that the $\ttt{andgmw}$ function is decorated with a
+postcondition that expresses the correctness property of the
+function. Although not strictly necessary for confidentiality, this
+annotation can at least help eliminate bugs, and also can be used
+compositionally for whole-program correctness properties. As for
+confidentiality hints, this postcondition needs to be verified only
+once at the point of definition and subsequently is guaranteed to hold
+for any application.
+
+\subsubsection{Integrity Examples}
+
 \input{bdoz}
 
+We can capture both the preliminary distribution of Beaver triples and
+BDOZ shares as a pre-processing predicate that establishes conditions
+for initial memories (see Definition \ref{def-aprogtt}).  Here we
+assume two input secrets $\elab{\secret{x}}{1}$ and
+$\elab{\secret{y}}{2}$ and a single Beaver Triple to compute
+$\elab{\secret{x}}{1} \ftimes \elab{\secret{y}}{2}$, but we can extend
+this for additional gates.  As for GMW, we use
+$\macgv{\mesg{w}}$\cnote{need to update this} to refer to
+secret-shared values reconstructed with addition, but for BDOZ by
+convention each share of $\macgv{\mesg{w}}$ is represented as
+$\elab{\mesg{w\ttt{s}}}{\cid}$, the MAC of which is represented as a
+$\elab{\mesg{w\ttt{m}}}{\cid}$ for all $\cid$, and each client holds a
+key $\elab{\mesg{w\ttt{k}}}{\cid}$ for authentication of the other's
+share.
+$$
+\begin{array}{l}
+\mx{\ttt{"xs"}}{2} \eop \sx{\ttt{"x"}}{1} \fplus \rx{\ttt{"x"}}{1} \wedge 
+\mx{\ttt{"xs"}}{1} \eop \rx{\ttt{"x"}}{1} \wedge \\
+\mx{\ttt{"ys"}}{1} \eop \sx{\ttt{"y"}}{2} \fplus \rx{\ttt{"y"}}{2} \wedge 
+\mx{\ttt{"ys"}}{2} \eop \rx{\ttt{"y"}}{2} 
+\end{array}
+$$
+
+$$
+\begin{array}{l}
+\mx{\ttt{"delta"}}{1} \eop \rx{\ttt{"delta"}}{1} \wedge
+\mx{\ttt{"xk"}}{1} \eop \rx{\ttt{"xk"}}{1} \wedge\\
+\mx{\ttt{"xm"}}{2} \eop \mx{\ttt{"xk"}}{1} \fplus (\mx{\ttt{"delta"}}{1} * \mx{"xs"}{2})
+\end{array}
+$$
+
+$$
+\begin{array}{l}
+\mx{\ttt{"g1as"}}{1} \eop \rx{\ttt{"g1as"}}{1} \wedge 
+\mx{\ttt{"g1bs"}}{1} \eop \rx{\ttt{"g1bs"}}{1} \wedge\\
+\mx{\ttt{"g1as"}}{2} \eop \rx{\ttt{"g1as"}}{2} \wedge 
+\mx{\ttt{"g1bs"}}{2} \eop \rx{\ttt{"g1bs"}}{2} \wedge\\
+\mx{\ttt{"g1cs"}}{1} \fplus \mx{\ttt{"g1cs"}}{2} \eop \\
+\quad (\mx{\ttt{"g1as"}}{1} \fplus \mx{\ttt{"g1bs"}}{2}) \ftimes
+      (\mx{\ttt{"g1bs"}}{1} \fplus \mx{\ttt{"g1bs"}}{2}) 
+\end{array}
+$$
+
+
+%%%%%%%%%%%%%%%%%%
+%%% ARCHIVAL BELOW
+%%%%%%%%%%%%%%%%%%
+\begin{comment}
 \begin{verbatimtab}
 andtableygc(g,x,y)
 {
@@ -156,3 +268,4 @@ out@1 := p[o]@1
 \end{verbatimtab}
 
 
+\end{comment}

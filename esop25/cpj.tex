@@ -26,7 +26,8 @@ $$
 we want the type of $\mx{w}{1}$ to be an ``encrypted'' type
 that is by itself independent of $\sx{w}{2}$. However, we also
 want to track the dependence of $\mx{w}{2}$ and $\rx{w}{2}$.
-In short, we assign $\mx{w}{1}$ a ``ciphertext type'':
+In short, we assign $\mx{w}{1}$ a ``ciphertext type'', aka
+a \emph{ciphertype}:
 $$
 \mx{w}{1} : \cty{\rx{w}{2}}{\setit{\sx{w}{2}}}
 $$
@@ -56,7 +57,7 @@ and letting this protocol be $\prog$ the following is valid:
 %\toeq{\xassign{\mx{w}{1}}{\OT{\secret{w}}{1}{\neg\flip{w}}{\flip{w}}}{2}}
    \toeq{\prog} \models \mx{w}{1} \eop \neg\sx{w}{2} \fplus \rx{w}{2}
 \end{mathpar}
-This allows us to assign the same ciphertext type to $\mx{w}{1}$ as
+This allows us to assign the same ciphertype to $\mx{w}{1}$ as
 above-- that is, $\cty{\rx{w}{2}}{\setit{\sx{w}{2}}}$. Leveraging the
 equivalence this way has been previously well-studied
 \cite{barthe2019probabilistic}.  Since this is a one-time-pad scheme,
@@ -70,7 +71,7 @@ The syntax of types $\ty$ and type environments $\Gamma$ are presented
 in Figure \ref{fig-cpj}\cnote{need to fix set notations}. We also
 define type judgements for expressions and programs by direct
 interpretation as terms $\phi$ and constraints $\eqs$ respectively,
-via the encoding $\toeq{cdot}$. The \TirName{Encode} rule captures
+via the encoding $\toeq{\cdot}$. The \TirName{Encode} rule captures
 the use ``fresh'' samples for encryption discussed above. Derivations
 enforce linearity by requiring that variables used for encryption
 are added to judgements, and guaranteed to not be used elsewhere

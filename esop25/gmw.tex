@@ -22,7 +22,12 @@ andgmw(z, x, y) {
 }
 post:
 {  m[z]@1 xor m[z]@2 == (m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2) }
+\end{verbatimtab}
+}
+\end{fpfig}
 
+
+\begin{comment}
 xorgmw(z, x, y) {
         m[z]@1 := (m[x] + m[y])@1; m[z]@2 := (m[x] + m[y])@2
 }
@@ -32,6 +37,4 @@ decodegmw(z) {
         out@1 := (p["1"] + p["2"])@1;
         out@2 := (p["1"] + p["2"])@2
 }
-\end{verbatimtab}
-}
-\end{fpfig}
+\end{comment}
