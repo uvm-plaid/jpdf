@@ -8,7 +8,8 @@ perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
 In our type system for confidentiality, we aim to approximate
 distributions by tracking which program variables an expression
 may depend on. But we also want to capture this fundamental mechanism
-of encryption.
+of encryption. As we will show, SMT can be used in this and
+other contexts to support confidentiality properties of protocols.
 
 For example, given some string $y$ and a message send such as:
 $$
@@ -40,11 +41,10 @@ Of course, there are other methods for encrypting values in MPC
 protocols-- but we can observe that many are algebraically equivalent
 to this fundamental schema. For example, in Yao's Garbled Circuits
 (YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents encrypted wire
-values as a random sample (for 1) or its negation (for 0), and the
-``evaluator'' obtains the wire value for its input via OT. The
-evaluator shares the initial encrypted wire value of one of its input
-secrets as a selection bit-- assuming that client 2 is the garbler and
-client 1 is the evaluator, we can write this as:
+values as a random sample (for 1) or its negation (for 0), and shares
+its secret input encoding with the ``evaluator'' by using
+it as a selection bit. That is, assuming that client 2 is the garbler and
+client 1 is the evaluator, we can define:
 $$
 \xassign{\mx{w}{1}}{\mux{\secret{w}}{\neg\flip{w}}{\flip{w}}}{2}
 $$
@@ -68,23 +68,24 @@ use a form of type linearity to this end.
 \cpjfig
 
 The syntax of types $\ty$ and type environments $\Gamma$ are presented
-in Figure \ref{fig-cpj}\cnote{need to fix set notations}. We also
+in Figure \ref{fig-cpj}. We also
 define type judgements for expressions and programs by direct
 interpretation as terms $\phi$ and constraints $\eqs$ respectively,
 via the encoding $\toeq{\cdot}$. The \TirName{Encode} rule captures
 the use ``fresh'' samples for encryption discussed above. Derivations
 enforce linearity by requiring that variables used for encryption
 are added to judgements, and guaranteed to not be used elsewhere
-via a form of union that ensures disjointness of combined sets. 
+via a form of union that ensures disjointness of combined sets:
 \begin{definition}
-  $R_1;R_2 = R_1 \cup R_2$ iff $R_1 \cap R_2 = \varnothing$.
+  $R_1;R_2 = R_1 \cup R_2$ if $R_1 \cap R_2 = \varnothing$ and is otherwise
+  undefined.
 \end{definition}
 The \TirName{DepTy} rule handles all other syntactic forms and just
 records the dependencies on variables in the term.  The \TirName{Send}
 rule records the types of messages, reveals, and outputs in
 enviroments, and the \TirName{Seq} rule combines the types of
 sequenced programs.  Given this we define validity of program type
-judgements as follows. \cnote{Define $\eqspre$.}
+judgements as follows. 
 \begin{definition}
   Given preprocessing predicate $\eqspre$ and protocol $\prog$ we say
   $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is \emph{valid} iff it is derivable and
