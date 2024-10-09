@@ -56,7 +56,10 @@ properties of $\prog$, and encironments $\Delta$ record integrity
 information. Environments are ordered lists, since order of evaluation
 is important for tracking integrity-- validating low integrity
 information through MAC checking allows \emph{subsequent} treatment of
-it as high integrity, but not \emph{before}.
+it as high integrity, but not \emph{before}. Note that MAC checking is
+\emph{not} a form of endorsement as it is usually defined (as a dual
+of declassification \cite{sabelfeld2009declassification}), since a
+successful check guarantees no deviation from the protocol.
 
 The typing of protocols depends on a type judgement for expressions
 of the form $\itj{\cid}{\be}{\ity{\cid}{V}}$, which records
@@ -70,14 +73,14 @@ the following judgement is valid:
 $$
 \ipj{\toeq{\prog}}{\prog}{(\mx{w}{1} : \ity{2}{\varnothing}; \rvl{w} : \ity{1}{\mx{w}{1}})}
 $$
-More formally, we defined validity as follows:
+More formally, we define validity as follows:
 \begin{definition}
   Given pre-processing predicate $\eqspre$ and protocol $\prog$, 
   we say $\ipj{\eqs}{\prog}{\Delta}$ is \emph{valid}
   iff it is derivable and $\eqspre \wedge \toeq{\prog} \models E$.
 \end{definition}
 
-In the above example, note that environment implicitly records
+In the above example, note that the environment implicitly records
 that $\rvl{w}$ depends on data from client 1, which in turn
 depends on data from client 2. The rule for MAC
 checking allows an overwrite of the dependency. We explore
@@ -101,12 +104,14 @@ messages to the integrity level of the owner.
   if $\cid \in H$  and $\lolab$
   otherwise for all $\mx{w}{\cid}$.
 \end{definition}
-During execution of a protocol, the integrity of messages and reveals
-affected by values sent by other parties, as recorded in $\Delta$
-obtained from its typing. We additionally need to determine
-whether this impacts integrity, which we accomplish through
+But the values of messages and reveals may be
+affected by values sent by other parties, which is
+recorded in the $\Delta$ obtained from its typing. To determine
+whether this impacts integrity for any given $H,C$, we apply
 the inductively defined rewrite relation $\cheatj{\Delta}{H,C}{\seclev}$,
-axiomatized in Figure \ref{fig-cheatj}.
+axiomatized in Figure \ref{fig-cheatj}. The composition
+of typing and this latter rewriting obtains essentially
+a traditional taint analysis, modulo MAC checking. 
 
 \subsubsection{Type Soundness}
 
