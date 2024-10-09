@@ -27,11 +27,10 @@ express properties of shared values via constraints.
 
 \begin{fpfig}[t]{Syntax of constraints and memory application extended to
   SMT expressions}{fig-eqs}
-\small{
 $$
 \begin{array}{rcl}
-  \phi &::=& x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
-  \eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
+  \phi ::= x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi  \qquad
+  \eqs ::= \phi \eop \phi \mid \eqs \wedge \eqs 
 \end{array}
 $$
 
@@ -41,7 +40,7 @@ $$
   \store(\phi_1 \ftimes \phi_2) = \cod{\store(\phi_1) \ftimes \store(\phi_2)}
   
   \store(\phi_1 \fminus \phi_2) = \cod{\store(\phi_1) \fminus \store(\phi_2)}
-\end{mathpar}}
+\end{mathpar}
 \end{fpfig}
 
 This language of constraints has a direct interpretation in the Finite
@@ -82,7 +81,6 @@ applied in SMT systems to implement our notion of entailment.
 
   \toeq{\elab{\be_1 \ftimes \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \ftimes \toeq{\elab{\be_1}{\cid}}
 \end{mathpar}
-
 \begin{mathpar}
   \toeq{\xassign{x}{\be}{\cid}} = x \eop \toeq{\elab{\be}{\cid}}
   
@@ -110,23 +108,28 @@ is:
   (\toeq{\elab{\be_1}{\cid_1}} \ftimes \toeq{\elab{\be_3}{\cid_2}}) \fplus
   (\neg\toeq{\elab{\be_1}{\cid_1}} \ftimes \toeq{\elab{\be_2}{\cid_2}}) 
 \end{mathpar}
-The correctness of this interpretation is characterized as follows.  
+In general we will assume that any preprocessing predicate is defined
+via a constraint $\eqspre$, i.e., $\preproc(\store) \iff \store
+\models \eqspre$ for all $\store$.  The correctness of the
+SMT interpretation of programs is characterized as follows.
 \begin{theorem}
   $\store$ is a model of $\eqspre \wedge \toeq{\prog}$ iff $\store \in \runs(\prog)$.
-  \cnote{Need to define $\runs$ somewhere.}
 \end{theorem}
 
 \subsubsection{Example: Correctness of 3-Party Addition}
 Consider the following 3-party additive secret sharing protocol.
-
+{\footnotesize
 $$
+\begin{array}{c@{\qquad}c}
 \begin{array}{lll}
   \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip \fminus \flip{x})}{1} \\ 
   \elab{\mesg{s1}}{3} &:=& \elab{\flip{x}}{1} \\ 
   \elab{\mesg{s2}}{1} &:=& \elab{(\secret{2} \fminus \locflip \fminus \flip{x})}{2} \\ 
   \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
   \elab{\mesg{s3}}{1} &:=& \elab{(\secret{3} \fminus \locflip \fminus \flip{x})}{3} \\ 
-  \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3}\\
+  \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3}
+\end{array} & 
+\begin{array}{lll}
   \rvl{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
   \rvl{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
   \rvl{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} \\
@@ -134,7 +137,8 @@ $$
   \out{2} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{2}\\
   \out{3} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{3}
 \end{array}
-$$
+\end{array}
+$$}
 Letting $\prog$ be this protocol, we can verify correctness
 as follows-- the output is the sum of the three input secrets:
 $$
