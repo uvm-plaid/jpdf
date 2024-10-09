@@ -7,6 +7,8 @@ and the use of both pre-~and postconditions for integrity.
 
 \subsection{Confidentiality Examples}
 
+\input{gmw}
+
 The $\ttt{encode}$ function example in Section \ref{section-metalangty}
 illustrates the use of type annotations to track confidentiality. In
 2-party Yao's Garbled Circuits (YGC), a \emph{garbler} prepares a circuit encoding
@@ -16,9 +18,9 @@ with the evaluator. The example illustrates how confidentiality is reflected
 in its (cipher)type.
 
 In the 2-party GMW protocol \cite{evans2018pragmatic}, another garbled
-binary circuit protocol, values $v$ are encoded as reconstructive
-shares $v_1$ and $v_2$ held by each party with $v = v_1 \fplus v_2$.
-We will follow the convention that shared values are identified by
+binary circuit protocol, values are encrypted in a manner similar
+to BDOZ as described in Section \ref{section-ipj}. In our definition
+of GMW we use the convention that shared values $\macgv{w}$ are identified by
 strings $w$ and encoded as shares $\mx{w}{1}$ and $\mx{w}{2}$.  As for
 YGC, ciphertypes reflect the confidentiality of GMW input encodings as
 defined in the $\ttt{encodegmw}$ function in Figure \ref{fig-gmw}. No
@@ -39,68 +41,63 @@ confidentiality hints, this postcondition needs to be verified only
 once at the point of definition and subsequently is guaranteed to hold
 for any application.
 
-\input{gmw}
-
-In the 2-party GMW protocol \cite{evans2018pragmatic}, another garbled
-binary circuit protocol, values $v$ are encoded as reconstructive
-shares $v_1$ and $v_2$ held by each party with $v = v_1 \fplus v_2$.
-We will follow the convention that shared values are identified by
-strings $w$ and encoded as shares $\mx{w}{1}$ and $\mx{w}{2}$.  As for
-YGC, ciphertypes reflect the confidentiality of GMW input encodings as
-defined in the $\ttt{encodegmw}$ function in Figure \ref{fig-gmw}. No
-programmer annotation is needed given the syntax of the function
-body. More interestingly, the $\ttt{andgmw}$ gate definition shows how
-a programmer hint can express the relevant confidentiality property of
-the output share $\mx{z}{2}$ on client 2. The non-trivial equivalence
-can be verified by SMT once during verification, and subsequently
-confidentiality is expressed in the dependent type of the function
-(as for $\ttt{encode}$).
-
-Note also that the $\ttt{andgmw}$ function is decorated with a
-postcondition that expresses the correctness property of the
-function. Although not strictly necessary for confidentiality, this
-annotation can at least help eliminate bugs, and also can be used
-compositionally for whole-program correctness properties. As for
-confidentiality hints, this postcondition needs to be verified only
-once at the point of definition and subsequently is guaranteed to hold
-for any application.
-
-\subsubsection{Integrity Examples}
+\subsection{Integrity Examples}
 
 \input{bdoz}
 
-We can capture both the preliminary distribution of Beaver triples and
-BDOZ shares as a pre-processing predicate that establishes conditions
-for initial memories (see Definition \ref{def-aprogtt}).  Here we
-assume two input secrets $\elab{\secret{x}}{1}$ and
-$\elab{\secret{y}}{2}$ and a single Beaver Triple to compute
-$\elab{\secret{x}}{1} \ftimes \elab{\secret{y}}{2}$, but we can extend
-this for additional gates.  As for GMW, we use
-$\macgv{\mesg{w}}$\cnote{need to update this} to refer to
-secret-shared values reconstructed with addition, but for BDOZ by
-convention each share of $\macgv{\mesg{w}}$ is represented as
-$\elab{\mesg{w\ttt{s}}}{\cid}$, the MAC of which is represented as a
-$\elab{\mesg{w\ttt{m}}}{\cid}$ for all $\cid$, and each client holds a
-key $\elab{\mesg{w\ttt{k}}}{\cid}$ for authentication of the other's
-share.
-$$
+Returning to the example of malicious-secure 2-party BDOZ arithmetic
+circuits begun in Section \ref{section-ipj}, in Figure \ref{fig-bdozsum} we
+define $\ttt{sum}$ and $\ttt{open}$ functions. The latter implements
+``secure opening''-- each party sends it's local share of a
+global value $\macgv{w}$ along with its MAC to the other party,
+which is authenticated via the $\macbdoz{w}$ check (in \ttt{\_open}),
+and then each party reconstructs $\macgv{w}$. 
+
+The $\ttt{sum}$ function implements an addition gate. Note that this
+is done non-interactively-- each party just sums its local shares
+of the two values. The pre- and postcondition annotations
+on $\ttt{sum}$ express the additive homomorphism associated
+with this encryption scheme-- the sum of MACs of the input
+shares is a valid MAC for the output share on each client,
+which can be checked using the sum of keys of the input shares. 
+
+In BDOZ a pre-processing phase is assumed where initial input secrets
+are shared along with their associated MACs and keys. This can be
+expressed in $\eqspre$ for input secrets $\sx{\ttt{"x"}}{1}$ and
+$\sx{\ttt{"y"}}{2}$, for example, which would subsume the following
+constraints on shares:
+{\footnotesize$$
 \begin{array}{l}
-\mx{\ttt{"xs"}}{2} \eop \sx{\ttt{"x"}}{1} \fplus \rx{\ttt{"x"}}{1} \wedge 
+\mx{\ttt{"xs"}}{2} \eop \sx{\ttt{"x"}}{1} \fminus \rx{\ttt{"x"}}{1} \wedge 
 \mx{\ttt{"xs"}}{1} \eop \rx{\ttt{"x"}}{1} \wedge \\
-\mx{\ttt{"ys"}}{1} \eop \sx{\ttt{"y"}}{2} \fplus \rx{\ttt{"y"}}{2} \wedge 
+\mx{\ttt{"ys"}}{1} \eop \sx{\ttt{"y"}}{2} \fminus \rx{\ttt{"y"}}{2} \wedge 
 \mx{\ttt{"ys"}}{2} \eop \rx{\ttt{"y"}}{2} 
 \end{array}
-$$
-
-$$
+$$}
+and the following constraint on keys and MACs for authentication
+of $\sx{\ttt{"x"}}{1}$ (and similarly for $\sx{\ttt{"y"}}{2}$):
+{\footnotesize$$
 \begin{array}{l}
 \mx{\ttt{"delta"}}{1} \eop \rx{\ttt{"delta"}}{1} \wedge
 \mx{\ttt{"xk"}}{1} \eop \rx{\ttt{"xk"}}{1} \wedge\\
 \mx{\ttt{"xm"}}{2} \eop \mx{\ttt{"xk"}}{1} \fplus (\mx{\ttt{"delta"}}{1} * \mx{\ttt{"xs"}}{2})
 \end{array}
-$$
+$$}
+Given this, a malicious secure opening of $\sx{\ttt{"x"}}{1} +
+\sx{\ttt{"y"}}{2}$ would be obtained as
+$\ttt{sum}(\ttt{"z"},\ttt{"x"},\ttt{"y"}); \ttt{open}(\ttt{"z"})$.
 
-$$
+A common approach to implementing multiplication gates in a BDOZ
+setting is to use \emph{Beaver Triples}. Recall that Beaver triples
+are values $a,b,c$ with $\fcod{a * b} = c$, unique per multiplication
+gate, that are secret shared with clients during pre-processing.
+In our encoding we assume the additional convention that each gate
+output identifier distinguishes the Beaver triple, so for
+example the share of the $a$ value for a gate $\ttt{"g1"}$
+is identified by $\ttt{"g1as"}$, etc., and $\eqspre$ would
+subsume the following constraints for the $a,b,c$ values of
+gate $\ttt{"g1"}$.
+{\footnotesize$$
 \begin{array}{l}
 \mx{\ttt{"g1as"}}{1} \eop \rx{\ttt{"g1as"}}{1}\ \wedge 
 \mx{\ttt{"g1bs"}}{1} \eop \rx{\ttt{"g1bs"}}{1}\ \wedge\\
@@ -111,11 +108,26 @@ $$
 \qquad\phantom{(}(\mx{\ttt{"g1bs"}}{1} \fplus \mx{\ttt{"g1bs"}}{2})) \fminus \rx{\ttt{"g1cs"}}{2}\ \wedge\\
 \mx{\ttt{"g1cs"}}{2} \eop \rx{\ttt{"g1cs"}}{2}
 \end{array}
-$$
+$$}
+The definition of the $\ttt{mult}$ gate is presented in Figure
+\ref{fig-bdozmult}, where we present just client 1's side of the
+protocol $\ttt{\_mult1}$ (client 2's side is nearly symmetric but with
+a small variation-- refer to
+\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3} for more
+details).  We could call this function on input secrets
+$\sx{\ttt{"x"}}{1}$ and $\sx{\ttt{"y"}}{2}$ in gate $\ttt{"g1"}$ as
+$\ttt{mult}(\ttt{"g1"},\ttt{"x"},\ttt{"y"})$, for example, or embed
+this gate internally in a circuit.
 
-$$
-\ttt{mult}(\ttt{"g1"},\ttt{"x"},\ttt{"y"})
-$$
+As for $\ttt{\_sum}$, the postcondition of the $\ttt{\_mult1}$
+function expresses the relevant semi-homorphic encryption property of
+the resulting share, MAC, and key after gate execution-- specifically,
+it preserves the BDOZ authentication property. The precondition that
+input shares must possess this property is enforced by the two calls
+to $\ttt{sum}$ within the body of $\ttt{mult}$ and need not be made
+explicit. Finally, the postcondition of $\ttt{mult}$ expresses the
+correctness property of the multiplication gate.
+
 
 %%%%%%%%%%%%%%%%%%
 %%% ARCHIVAL BELOW
