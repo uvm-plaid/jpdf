@@ -127,6 +127,7 @@ if the adversary may observe dependencies on honest secrets.
 \end{definition}
 
 \begin{lemma}
+  \label{lemma-interference}
   Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$,
   for all $x \in S \cup R$ and $M \subseteq V$ exactly one of the following conditions holds:
   \begin{enumerate}[\hspace{5mm}i.]
@@ -211,7 +212,7 @@ messages reflect no dependencies on honest secrets.
   and $S_H \cap T = \varnothing$, then $\prog$ satisfies gradual release.
 \end{theorem}
 \begin{proof}
-  Immediate by Lemma \ref{lemma-cpjsound}. \qed
+  Immediate by Lemmas \ref{lemma-cpjsound} and \ref{lemma-interference}. \qed
 \end{proof}
 
 \leakjfig
