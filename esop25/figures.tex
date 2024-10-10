@@ -400,16 +400,17 @@ $$
 \begin{fpfig}[t]{Evaluation of expressions within types and constraints.}{fig-notg}
 $$
 \begin{array}{cc}
-\begin{array}{rcl}
-  \notg{\phi} &::=& e \mid \notg{\phi} \fplus \notg{\phi} \mid \notg{\phi} \fminus \notg{\phi} \mid \notg{\phi} \ftimes \notg{\phi} \\
+  \begin{array}{rcl}
+    \notg{x} &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\
+  \notg{\phi} &::=& \notg{x} \mid \notg{\phi} \fplus \notg{\phi} \mid \notg{\phi} \fminus \notg{\phi} \mid \notg{\phi} \ftimes \notg{\phi} \\
   \notg{\eqs} &::=& \notg{\phi} \eop \notg{\phi} \mid \notg{\eqs} \wedge \notg{\eqs} \\
-  \notg{t} &::=& e \mid \cty{e}{\notg{\ty}} \\
-  \notg{\ty} & \in & 2^{\notg{t}}\\
+  \notg{X} &\in& 2^{\notg{x}}
 \end{array}& \qquad
 \begin{array}{rcl}
+  \notg{t} &::=& e \mid \cty{e}{\notg{\ty}} \\
+  \notg{\ty} & \in & 2^{\notg{t}}\\
   \notg{\Gamma} &::=& \varnothing \mid \notg\Gamma; e : \notg{\ty}\\
-  \notg\Delta &::=& \varnothing \mid \notg\Delta; e : \ity{e}{\notg{V}}\\
-  \notg{X} &\in& 2^{e}
+  \notg\Delta &::=& \varnothing \mid \notg\Delta; e : \ity{e}{\notg{V}}
 \end{array}
 \end{array}
 $$
