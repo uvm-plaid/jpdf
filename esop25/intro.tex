@@ -38,18 +38,35 @@ complementary to high-level language design.
 
 \subsection{Overview and Contributions}
 
-\begin{enumerate}
-\item A \textbf{low-level language} for defining MPC primitives
-  (Section \ref{section-lang}) with an associated \textbf{metalanguage}
-  to ease programming (Section \ref{section-metalang})\footnote{By metalanguage
-  we mean a multi-stage aka metaprogramming language where code is a value, as
-  in, e.g., MetaML \cite{TAHA2000211}.}. 
-\item A \textbf{fully-automated verification method} for low-level MPC
-  primitives in $\mathbb{F}_2$ (Section \ref{section-bruteforce}).
-\item A \textbf{partially-automated verification method} for
-  MPC protocols, which leverages automated proofs for
-  low-level primitives (Section \ref{section-example-gmw}).
+Our work is based on the $\metaprot$/$\minicat$ framework developed in
+previous work \cite{skalka-near-ppdp24}. In Section \ref{section-lang}
+we recall the $\minicat$ language model and key definitions. In
+Section \ref{section-model} we recall formulations of program distributions,
+and key probabilistic hyperproperties of MPC in $\minicat$. On this
+basis we make the following contributions:
+\begin{enumerate}[i.]
+\item In Section \ref{section-smt}, an interpretation of protocols in
+  $\minicat$ as SMT constraints (Theorem \ref{theorem-toeq}) and
+  methodology for verifying correctness properties.
+\item In Section \ref{section-cpj}, a confidentiality type system for
+  $\minicat$ protocols with a soundness property guaranteeing that
+  information is released only through explicit declassifications
+  (Theorem \ref{theorem-cpj}).
+\item In Section \ref{section-ipj}, an integrity type system for
+  $\minicat$ protocols with a soundness property guaranteeing
+  robustness in malicious settings (Theorem \ref{theorem-ipj}).
+\item In Section \ref{section-metalang}, a dependent Hoare type system and
+  algorithm for the $\metaprot$ language that is sound for the
+  confidentiality and integrity type systems (Theorem
+  \ref{theorem-mtj}), with independently verified, compositional $\Pi$
+  types for functions.
 \end{enumerate}
+In all cases, our type systems are boosted by verification mechanisms
+provided by satisfiability modulo finite fields \cite{SMFF}. In
+Section \ref{section-examples} we develop and discuss extended example
+applications of our type analyses to real protocols including
+the Goldreich-Micali-Wigderson (GMW), Bendlin-Damgard-Orland-Zakarias
+(BDOZ), and Yao's Garbled Circuits (YGC) protocols.
 
 \subsection{Related Work}
 \label{section-related-work}
@@ -75,8 +92,6 @@ development in each dimension.
 % hyperproperties, and whether they consider passive and/or malicious
 % security models.
 
-\compwrapfig
-
 As mentioned above, several high-level languages have been developed
 for writing MPC applications, and frequently exploit the connection
 between hyperproperties and MPC security. Previous work on analysis
@@ -99,6 +114,8 @@ through orchestration \cite{viaduct-UC}. However, these high level
 languages lack probabilistic features and other abstractions of
 low-level protocols, the implementation and security of which are
 typically assumed as a selection of library components.
+
+\compwrapfig
 
 Various related low-level languages with probabilistic features have
 also been developed. The $\lambda_{\mathrm{obliv}}$ language

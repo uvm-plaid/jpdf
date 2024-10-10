@@ -1,4 +1,5 @@
 \section{Compositional Type Verification in $\metaprot$}
+\label{section-metalang}
 
 Practical MPC computations protocols are
 typically composed of compositional units. Examples include GMW circuits
@@ -230,6 +231,7 @@ confidentiality and integrity typings. Since these typings
 imply security hyperproperties of confidentiality and integrity,
 $\metaprot$ type checking implicitly enforces them.
 \begin{theorem}[Soundness of $\metaprot$ type checking]
+  \label{theorem-mtj}
   Given preprocessing predicate $\eqspre$, program $\instr$, and verified $\tsig$, if
   the judgement: $$\mtj{\instr}{\eqspre}{\Gamma}{R}{\Delta}{\eqs}$$ is derivable then
   $\instr \redx \prog$ and:

@@ -161,7 +161,7 @@ if the adversary may observe dependencies on honest secrets.
   \end{mathpar}
   are both valid, and by the induction hypothesis $\Gamma_0$ is sound for $\prog_0$.
   We can then proceed by a second induction on the derivation of $\ty_0$, where there
-  are two subcases. XXX
+  are two subcases. \cnote{complete me.}
 \end{proof}
 
 Our main type soundness result combines typing and leakage judgements,
@@ -170,6 +170,7 @@ messages reflect no dependencies on honest secrets.
 \cnote{Need to define gradual release... should probably have a section
   where we summarize hyperproperties.}
 \begin{theorem}
+  \label{theorem-cpj}
   Given $\prog$ with $\views(\prog) = M \cup P$, if $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$
   is valid and for all $H,C$ we have $\leakj{\Gamma}{M_C}{T}$ with $T$ closed
   and $S_H \cap T = \varnothing$, then $\prog$ satisfies gradual release.
