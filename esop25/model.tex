@@ -1,0 +1,246 @@
+\section{Security Model}
+\label{section-model}
+
+MPC protocols are intended to implement some \emph{ideal
+functionality} $\idealf$ with per-client outputs. In the $\minifed$
+setting, Given a protocol $\prog$ that implements $\idealf$, with
+$\iov(\prog) = S \cup M \cup P \cup O$, the domain of $\idealf$ is
+$\mems(S)$ and its range is $\mems(O)$. Security in the MPC setting
+means that, given $\store \in \mems(S)$, a secure protocol $\prog$
+does not reveal any more information about honest secrets $\store_H$
+to parties in $C$ beyond what is implicitly declassified by
+$\idealf(\sigma)$. Security comes in \emph{passive} and
+\emph{malicious} flavors, wherein the adversary either follows the
+rules or not, respectively. Characterization of both real world
+protocol execution and simulation is defined probabilistically.  In
+this work we will focus on the enforcement of hyperproperties of
+passive and malicious security developed in related work
+\cite{skalka-near-ppdp24}, that were shown to be sound for real/ideal
+security properties that are traditionally used for MPC.  As in that
+work we use probability mass functions to express joint dependencies
+between input and output variables, as a metric of information
+leakage.
+
+\subsection{Probability Mass Functions (pmfs)} 
+
+Whereas pmfs typically map \emph{realizations} of variables in a joint
+distribution to values in $[0..1]$, for convenience and following
+\cite{barthe2019probabilistic,skalka-near-ppdp24} we use memories to
+represent realizations, so for example given a pmf $\pmf$ over
+variables $\{ \sx{x}{1}, \mx{y}{2} \}$ we write $\pmf(\{
+\elab{\secret{x}}{1} \mapsto 0, \elab{\mesg{y}}{2} \mapsto 1 \})$ to
+denote the (joint) probability that $\elab{\secret{x}}{1} = 0 \wedge
+\elab{\mesg{y}}{2} = 1$. Recall from Section
+\ref{section-lang-semantics} that $\uplus$ denotes the combination of
+memories, so for example $\{ \elab{\secret{x}}{1} \mapsto 0\} \uplus
+\{\elab{\mesg{y}}{2} \mapsto 1 \} = \{ \elab{\secret{x}}{1} \mapsto 0,
+\elab{\mesg{y}}{2} \mapsto 1 \}$.
+\begin{definition}
+  A \emph{probability mass function} $\pmf$ is a function
+  mapping memories in $\mems(X)$ for given variables $X$ to
+  values in $\mathbb{R}$ such that:
+  $$
+  \sum_{\store \in \mems(X)} \pmf(\store) \  = \ 1
+  $$
+  %The \emph{support} of a distribution is the set of realizations
+  %of random variables with non-zero probability:
+  %$\support(\pmf) \defeq \{ (v_1,\ldots,v_n) \mid
+  %\pmf(\{ x_1 \mapsto v_1, \ldots, x_n \mapsto v_n\}) > 0 \} $
+\end{definition}
+%To recover succinct and familiar notation, we may omit the domain of a
+%distribution when it is clear from an application context-
+%i.e., we allow the following sugaring:
+%$$
+%\pdf{}(\store) \defeq \pdf{\dom(\store)}(\store)
+%$$
+Now, we can define a notion of marginal and conditional
+distributions as follows, which are standard for discrete
+probability mass functions. 
+\begin{definition}
+  Given $\pmf$ with $\dom(\pmf) = \mems(X_2)$, the \emph{marginal distribution}
+  of variables $X_1 \subseteq X_2$ in $\pmf$ is denoted $\margd{\pmf}{X_1}$ and defined as follows:
+  $$
+  \forall \store \in \mems(X_1) \quad . \quad \margd{\pmf}{X_1}(\store) \defeq
+  \sum_{\store' \in \mems(X_2-X_1)} \pmf(\store \uplus \store')
+  $$
+\end{definition}
+
+\begin{definition}
+  Given $\pmf$, the \emph{conditional distribution}
+  of $X_1$ given $X_2$ where $X_1 \cup X_2 \subseteq \dom(\pmf)$ and $X_1 \cap X_2 = \varnothing$
+  is denoted $\condd{\pmf}{X_1}{X_2}$ and defined as follows:
+  $$
+  \forall \store \in \mems(X_1 \cup X_2)\ .\ 
+  \condd{\pmf}{X_1}{X_2}(\store) \defeq
+  \begin{cases}
+    0 \text{\ if\ } \margd{\pmf}{X_2}(\store_{X_2}) = 0\\
+    \margd{\pmf}{X_1 \cup X_2}(\store) / \margd{\pmf}{X_2}(\store_{X_2})\ \text{\ o.w.}
+  \end{cases}
+  $$
+\end{definition}
+We also define some convenient syntactic sugarings. The first will allow us to
+compare marginal distributions under different realization conditions
+(as in, e.g., Definition \ref{definition-NIMO}), the others are standard.
+\begin{definition}
+  Given $\pmf$, for all $\store_1 \in \mems(X_1)$ and $\store_2 \in \mems(X_2)$ define:
+  \begin{enumerate}
+  \item $\condd{\pmf}{X_1}{\store_2}(\store_1) \defeq \condd{\pmf}{X_1}{X_2}(\store_1 \uplus \store_2)$
+  \item $\pmf(\store_1)  \defeq \margd{\pmf}{X_1}(\store_1)$ 
+  \item $\pmf(\store_1|\store_2) \defeq \condd{\pmf}{X_1}{X_2}(\store_1 \uplus \store_2)$
+  \end{enumerate}
+\end{definition}
+As in previous work \cite{darais2019language,barthe2019probabilistic,skalka-near-ppdp24}, 
+probabilistic independence, aka separation, is an important concept and we adopt the
+following standard notation to express separation:
+\begin{definition}
+%  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
+%  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
+  We write $\sep{\pmf}{X_1}{X_2}$ iff for all
+    $\store \in \mems(X_1 \cup X_2)$ we have
+  $\margd{\pmf}{X_1 \cup X_2}(\store) =
+  \pmf(\store_{X_1}) * \pmf(\store_{X_2})$
+\end{definition}
+
+\subsection{Basic Distribution of a Protocol}
+
+We treat all elements of $\runs(\prog)$ as equally likely.  This
+establishes the basic program distribution that can be marginalized
+and conditioned to quantify input/output information dependencies.
+%In this
+%setting, given a program $\prog$ with $\iov(\prog) = S \cup V$ and
+%$\flips(\prog) = F$ we will consider all $\store \in \mems(S \cup V
+%\cup F)$ such that $ \config{\store_{S \cup F}}{\prog} \redxs
+%\config{\store_}{\varnothing} $ to be equally probable, establishing
+%the basic distribution of the program. %From this, we can immediately
+%derive the marginal distribution of $S \cup V$ to reason about
+%dependencies between secrets and views.
+\begin{definition}
+  \label{def-progtt}
+  \label{def-progd}
+  \label{definition-progd}
+  The \emph{basic distribution of $\prog$}, written $\progtt(\prog)$, is
+  defined such that for all $\store \in \mems(\vars(\prog))$:
+  $$
+  \progtt(\prog)(\store) =  1 / |\runs(\prog)| \ \text{if}\ \store \in \runs(\prog), \text{otherwise}\ 0
+  $$
+  For any $\adversary$ the basic \emph{$\adversary$ distribution of $\prog$}, written
+  $\progtt(\prog,\adversary)$, is
+  defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
+  $$
+  \progtt(\prog,\adversary)(\store) =  1 / |\botruns(\prog)| \ \text{if}\ \store \in \botruns(\prog), \text{otherwise}\ 0
+  $$
+  where $\botruns$ pads out undefined views and outputs with $\bot$:
+  $$
+  \begin{array}{c}
+    \botruns(\prog) \defeq \\
+    \{ \store\{ x_1 \mapsto \bot, \ldots, x_n \mapsto \bot \} \mid 
+    \store \in \aruns(\prog) \wedge \{ x_1,\ldots,x_n\} = (V \cup O) - \dom(\store) \}
+  \end{array}
+  $$
+\end{definition}
+
+
+\subsection{Honest and Corrupt Views}
+
+Information about honest secrets can be revealed to corrupt clients
+through messages sent from honest to corrupt clients, and through
+publicly broadcast information from honest clients. Dually,
+corrupt clients can impact protocol integrity through the messages
+sent from corrupt to honest clients, and through publicly broadcast information
+from corrupt clients. We call the former \emph{corrupt views}, and
+the latter \emph{honest views}. Generally we let $V$ range over sets
+of views.
+\begin{definition}[Corrupt and Honest Views]
+  We let $V$ range over \emph{views} which are sets of messages
+  and reveals. Given a program $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$,
+  define $\views(\prog) \defeq M \cup P$, and define $\houtputs$ as
+  the messages and reveals in $V = M \cup P$ sent from honest to corrupt
+  parties, called \emph{corrupt views}:
+  $$
+  \begin{array}{lcl}
+    \houtputs & \defeq
+        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in H \ \}\ \cup \\
+      & & \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
+           \prog \wedge \cid \in C \wedge \cid' \in H \ \} 
+  \end{array}
+  $$
+  and similarly define $\cinputs$ as the subset of $V$ sent from corrupt to honest
+  parties, called \emph{honest views}:
+  $$
+  \begin{array}{lcl}
+    \cinputs &  \defeq
+        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in C \ \} \ \cup\\
+      & & \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
+              \prog \wedge \cid \in H \wedge \cid' \in C \ \}
+  \end{array}
+  $$
+\end{definition}
+
+\subsection{Hyperproperties of Confidentiality and Integrity}
+
+Here we restate hyperproperties developed in previous work
+\cite{skalka-near-ppdp24}, to which the reader is referred for a more
+thorough discussion of their relation to real/ideal security.  As
+usual, using hyperproperties for security semantics eases proofs of
+correctness for our type systems.
+
+\subsubsection{Confidentiality}
+
+Since MPC protocols release some information about secrets through
+outputs of $\idealf$, they do not enjoy strict noninterference.
+Public reveals and protocol outputs are fundamentally forms of
+declassification. But the following property of probabilistic
+noninterference \emph{conditioned on output} is sound for passive
+security \cite{skalka-near-ppdp24}.
+\begin{definition}[Noninterference modulo output]
+  \label{definition-NIMO}
+  We say that a program $\prog$ with $\iov(\prog) = S \cup V \cup O$
+  satisfies \emph{noninterference modulo output}
+  iff for all $H$ and $C$ and $\store_1 \in \mems(S_C \cup O)$ and $\store_2 \in \mems(\houtputs)$
+  we have:
+  $$
+  \condd{\progtt(\prog)}{S_H}{\store_1} = \condd{\progtt(\prog)}{S_H}{\store_1 \uplus \store_2}
+ $$
+\end{definition}
+This conditional noninterference property implies that
+corrupt views give the adversary no better chance of guessing honest
+secrets than just the output and corrupt inputs do.
+
+In practice, MPC protocols typically satisfy a \emph{gradual
+release} property \cite{sabelfeld2009declassification}, where messages
+exchanged remain probabilistically separable from secrets, with only
+declassification events (reveals and outputs) releasing information
+about honest secrets.  
+\begin{definition}
+  Given $H,C$, a protocol $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
+  satisfies \emph{gradual release} iff
+  $\sep{\progtt(\prog)}{M_C}{S_H}$.
+\end{definition}
+
+\subsubsection{Integrity}
+
+\emph{Integrity} is an important hyperproperty in security models that
+admit malicious adversaries. Consistent with formulations in
+deterministic settings, we define protocol integrity as the
+preservation of high equivalence (of secrets and views). Intuitively,
+this property says that any adversarial strategy either ``mimics'' a
+passive strategy with some choice of inputs or causes an abort.
+\begin{definition}[Integrity]
+  \label{def-integrity}
+  We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
+  \emph{integrity} iff for all $H$, $C$, and $\adversary$,
+  if $\store \in \aruns(\prog)$ 
+  then there exists $\store' \in \mems(S)$ with $\store_{S_H} = \store'_{S_H} $ and:
+    $$
+    \condd{\progtt(\prog,\adversary)}{X}{\store_{S_H \cup \cinputs}} =
+    \condd{\progtt(\prog)}{X}{\store'}
+    $$ 
+  where $X \defeq (\houtputs \cup O_H) \cap \dom(\store)$. 
+\end{definition}
+As demonstrated in previous work \cite{skalka-near-ppdp24}, integrity
+plus noninteference modulo output implies malicious security in the
+real/ideal model, and integrity plus gradual release is a
+probabilistic form of robust declassification
+\cite{sabelfeld2009declassification}.
+
+
