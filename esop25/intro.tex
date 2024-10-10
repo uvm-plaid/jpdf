@@ -11,25 +11,15 @@ integrity properties incorporated into models such as real/ideal (aka
 simulator) security and universal composability (UC), developed
 primarily by the cryptography community \cite{evans2018pragmatic}.
 Related proof methods are well-studied \cite{Lindell2017} but mostly
-manual. Somewhat independently, a significant body of work in
-programming languages has focused on definition and enforcement of
-confidentiality and integrity \emph{hyperproperties}
-\cite{10.5555/1891823.1891830} such as noninterference and gradual
-release \cite{4223226,sabelfeld2009declassification}. Following a
-tradition of connecting cryptographic and PL-based security models
-\cite{10.1007/3-540-44929-9_1,10.1145/3571740}, recent work has also
-recognized connections between MPC security models and hyperproperties
-of, e.g., noninterference \cite{8429300}, and even leveraged these
-connections to enforce MPC security through mechanisms such as
-security types \cite{10.1145/3453483.3454074}. Major benefits of this
-connection in an MPC setting include better language abstractions for
-defining protocols and for mechanization and even automation of
-security proofs.  The goal of this paper is to develop a PL model for
-defining a variety of low-level probabilistic MPC protocols, to
-formulate a collection of confidentiality and integrity
-hyperproperties for our model with familiar information flow analogs,
-and to show how these properties can be leveraged for improved proof
-automation.
+manual. To support automated reasoning, recent work has reformulated
+MPC security semantics as \emph{hyperproperties}
+\cite{8429300,10.1145/3453483.3454074,skalka-near-ppdp24}.
+Separately, recent research in the SMT community has developed
+theories of finite fields \cite{SMFF} with clear relevance to
+verification of cryptographic schemes that rely on field
+arithmetic. The goal of this paper is to combine these two approaches
+in an automated type system for verifying correctness and security
+properties of MPC protocols.
 
 The distinction between high- and low-level languages for MPC is
 important. High-level languages such as Wysteria
@@ -46,34 +36,8 @@ programming and protocol verification remains a distinct challenge and both
 critical to the general challenge of PL design for MPC and
 complementary to high-level language design.
 
-The connection between information flow hyperproperties and MPC
-security is also complicated especially at a low level.  MPC protocols
-involve communication between a group of distributed clients called a
-\emph{federation} that collaboratively compute and publish the result
-of some known \emph{ideal functionality} $\idealf$, maintaining
-confidentiality of inputs to $\idealf$ without the use of a trusted
-third party. However, since the outputs of $\idealf$ are public, some
-information about inputs is inevitably leaked. Thus, the ideal
-functionality establishes a declassification policy
-\cite{sabelfeld2009declassification}, which is more difficult to
-enforce than pure noninterference.  And subtleties of, e.g.,
-semi-homomorphic encryption are central to both confidentiality and
-integrity properties of protocols and similarly difficult to track
-with coarse-grained security types alone.
-
-Nevertheless, as previous authors have observed
-\cite{5a51987acaa84c43bb4bf5bcc7d01683}, low-level protocol design
-patterns such as secret sharing and circuit gate structure have
-compositional properties that can be independently verified and then
-leveraged in larger proof contexts. We contribute to this line of work
-by developing an automated verification technique for subprotocols and
-show how it can be integrated as a tactic in a larger security proof.
-
 \subsection{Overview and Contributions}
 
-In summary, our work provides a complete methodology for end-to-end verification
-of MPC protocols via three components:
-%
 \begin{enumerate}
 \item A \textbf{low-level language} for defining MPC primitives
   (Section \ref{section-lang}) with an associated \textbf{metalanguage}
@@ -86,60 +50,12 @@ of MPC protocols via three components:
   MPC protocols, which leverages automated proofs for
   low-level primitives (Section \ref{section-example-gmw}).
 \end{enumerate}
-%
-As part of this methodology, we also develop hyperproperties that
-encode MPC security that may be of independent interest. The complete
-methodology enables the verification of real-world MPC protocols like
-GMW~\cite{goldreich2019play}. 
-
-\paragraph{Language design.} In Section \ref{section-lang} we
-develop a new probabilistic programming language $\minifed$ for
-defining synchronous distributed protocols over an arbitrary
-arithmetic field. The syntax and semantics provides a succinct account
-of synchronous messaging between protocol \emph{clients}. In Section
-\ref{section-metalang} we define a metalanguage $\metaprot$ that
-dynamically generates $\minifed$ protocols. It is able to express
-important low-level abstractions, as we illustrate via implementations
-of protocols including Shamir addition (Section \ref{section-lang}),
-GMW boolean circuits (Section \ref{section-example-gmw}), and Beaver
-Triple multiplication gates with BDOZ authentication (Section
-\ref{section-example-bdoz}).
-
-\testcompfig
-
-\paragraph{Hyperproperty formulation.} In Section \ref{section-model} we
-develop our formalism for expressing the joint probability mass function of
-program variables, and give standard definitions of passive and
-malicious real/ideal security in our model. In Section
-\ref{section-hyper}, we formulate a variety of familiar information
-flow properties in our probabilistic setting, including conditional
-noninterference, gradual release, and robust declassification, and
-consider the relation between these and real/ideal security.  While it
-has been previously shown that probabilistic conditional
-noninterference is sound for passive security, we formulate new
-properties of integrity which, paired with passive security, imply
-malicious security (Theorem \ref{theorem-integrity}). We observe
-in Section \ref{section-example-bdoz} that authentication mechanisms
-such as BDOZ/SPDZ style MACs enforce a strictly weaker property
-of ``cheating detection'' (Lemma \ref{lemma-cheating}). 
-
-\paragraph{Fully and partially automated verification.} In Section
-\ref{section-bruteforce} we develop a method for automatically
-computing the probability mass function (pmf) of $\minifed$ protocols
-in $\mathbb{F}_2$, that can be automatically queried to enforce
-hyperproperties of security. This method is perfectly accurate but has
-high complexity; we show this can be partially mitigated by conversion
-of protocols in $\mathbb{F}_2$ to stratified Datalog which is amenable
-to HPC acceleration. Furthermore, in Section \ref{section-example-gmw}
-we consider in detail how this automated technique can be used as a
-local automated tactic for proving security in arbitrarily large GMW
-circuits using conditional probabilistic independence as in
-\cite{li2023lilac} (Lemmas \ref{lemma-gmwtactic} and
-\ref{lemma-gmwinvariant} and Theorem \ref{theorem-gmw}).
 
 \subsection{Related Work}
 \label{section-related-work}
 
+\cnote{This sections needs updating with, including with
+  \cite{skalka-near-ppdp24,SMFF}}.
 Our main focus is on PL design and automated and semi-automated
 reasoning about security properties of low-level MPC protocols. Prior
 work has considered \textbf{automated} verification of
@@ -148,7 +64,7 @@ work has considered \textbf{automated} verification of
 automation and low-level support we consider.
 %
 We summarize this comparison in Figure
-\ref{fig-comp}, with the caveat that works vary in the degree of
+\ref{fig-comp-wrap}, with the caveat that works vary in the degree of
 development in each dimension.
 
 % We consider related systems in several
@@ -157,7 +73,9 @@ development in each dimension.
 % conditional probabilities which are central to real/ideal security,
 % whether they consider MPC security through the lens of
 % hyperproperties, and whether they consider passive and/or malicious
-% security models. 
+% security models.
+
+\compwrapfig
 
 As mentioned above, several high-level languages have been developed
 for writing MPC applications, and frequently exploit the connection
