@@ -68,7 +68,8 @@ use a form of type linearity to this end.
 \cpjfig
 
 The syntax of types $\ty$ and type environments $\Gamma$ are presented
-in Figure \ref{fig-cpj}. We also
+in Figure \ref{fig-cpj}\footnote{In general we use $2^{\chi}$ to denote
+the powerset of terms in any grammatical sort $\chi$.}. We also
 define type judgements for expressions and programs by direct
 interpretation as terms $\phi$ and constraints $\eqs$ respectively,
 via the encoding $\toeq{\cdot}$. The \TirName{Encode} rule captures
@@ -120,27 +121,46 @@ if the adversary may observe dependencies on honest secrets.
 
 \subsubsection{Type Soundness}
 
-\cnote{Define (conditional) inputs in hyperproperties section.}
+\begin{definition}
+  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$, we say that
+  $X \subseteq S \cup \flips(\prog)$ \emph{interfere with} 
+  $M \subseteq V$ iff $\progd{\prog} \not\vdash X * M$.
+\end{definition}
 
 \begin{lemma}
-  \label{lemma-eqsprogsound}
-  If $\toeq{\prog} \models \eqs$ and $\eqs \models \eqs'$, then
-  for all $\store \in \runs(\prog)$ we have $\store \models \eqs'$.
+  \label{lemma-interference}
+  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$,
+  for all $x \in S \cup R$ and $M \subseteq V$ exactly one of the following conditions holds:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item $\setit{x}$ interferes with $M$.
+  \item There exists $X \subseteq S \cup R$ such that $\setit{x} \cup X$ interferes
+    with $M$ but neither $X$ nor $\setit{x}$ alone do, in which case we say
+    that $\setit{x}$ interferes with $M$ conditionally on $X$.
+  \item Neither condition (i) nor (ii) hold.
+  \end{enumerate}
 \end{lemma}
+
+%\begin{lemma}
+%  \label{lemma-eqsprogsound}
+%  If $\toeq{\prog} \models \eqs$ and $\eqs \models \eqs'$, then
+%  for all $\store \in \runs(\prog)$ we have $\store \models \eqs'$.
+%\end{lemma}
 
 \begin{definition}
   \label{definition-sound}
   Given $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
   and $\flips(\prog) = R$, we say that
   \emph{$\Gamma$ is sound for $\prog$} iff for all $M' \subseteq M$
-      and $X \subseteq S \cup R$, the following
+      and $x \in S \cup R$, the following
       conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-    \item  if $X$ are inputs to $M'$ then
-      there exists $\ty$ with $\leakj{\Gamma}{M'}{\ty}$ and $X \subseteq \ty$.
-    \item  for all  $R' \subseteq R$, if
-      $X$ are $R'$ are conditional inputs to $M'$ then $\leakj{\Gamma}{M'}{\ty}$
-      and $\leakclose{\Gamma}{\ty \cup R'}{\ty'}$ and $X \subseteq \ty'$.
+    \item  if $\setit{x}$ interferes with $M'$ then
+      there exists $\ty$ with $\leakj{\Gamma}{M'}{\ty}$ and $x \in \ty$.
+    \item  if there exists  $X \subseteq S \cup R$ such that
+      $\setit{x}$ interferes with $M'$ conditionally on $X$,
+      then $\leakj{\Gamma}{M'}{\ty}$ and
+      $\leakclose{\Gamma}{\ty \cup X}{\ty'}$ and
+      $\setit{x} \in \ty'$.
   \end{enumerate}
 \end{definition}
 
@@ -161,14 +181,31 @@ if the adversary may observe dependencies on honest secrets.
   \end{mathpar}
   are both valid, and by the induction hypothesis $\Gamma_0$ is sound for $\prog_0$.
   We can then proceed by a second induction on the derivation of $\ty_0$, where there
-  are two subcases. \cnote{complete me.}
+  are two subcases defined by the $\TirName{DepTy}$ and $\TirName{Encode}$ rules.
+  In the former case the result is immediate since all variables occuring in
+  $\toeq{\elab{\be}{\cid}}$ are elements of $\ty_0$ by definition. In the latter case,
+  we have:
+  \begin{mathpar}
+    \eqs \models \toeq{\elab{\be}{\cid}} \eop \phi' \fminus \rx{w}{\cid}
+
+    \ty_0 = \cty{\rx{w}{\cid}}{\ty_1}
+
+    R_1 = R_2;\setit{\rx{w}{\cid}}
+
+    \eqj{R_2}{\eqs}{R_2}{\ty_1}
+  \end{mathpar}
+  These facts imply that $\rx{w}{\cid}$ is used as a one-time-pad to encode
+  $\phi$ and introduces interference conditional on $\rx{w}{\cid}$
+  \cite{barthe2019probabilistic}. Observing that:
+  $$
+  \leakclose{\Gamma}{\setit{\cty{\rx{w}{\cid}}{\ty_1}, \rx{w}{\cid}}}{\ty'}
+  $$
+  The result in this subcase follows by the (second) induction hypothesis. \qed
 \end{proof}
 
 Our main type soundness result combines typing and leakage judgements,
 and guarantees gradual release of protocols-- that is, that adversarial
 messages reflect no dependencies on honest secrets.
-\cnote{Need to define gradual release... should probably have a section
-  where we summarize hyperproperties.}
 \begin{theorem}
   \label{theorem-cpj}
   Given $\prog$ with $\views(\prog) = M \cup P$, if $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$
@@ -176,7 +213,7 @@ messages reflect no dependencies on honest secrets.
   and $S_H \cap T = \varnothing$, then $\prog$ satisfies gradual release.
 \end{theorem}
 \begin{proof}
-  Immediate by Lemma \ref{lemma-cpjsound}. \qed
+  Immediate by Lemmas \ref{lemma-cpjsound} and \ref{lemma-interference}. \qed
 \end{proof}
 
 \leakjfig
