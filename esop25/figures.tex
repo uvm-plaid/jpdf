@@ -1,3 +1,57 @@
+\newcommand{\testcompfig}
+{
+  \begin{wrapfigure}{r}{0cm}
+    \begin{tabular}{lccccccc}
+      & 
+      \begin{sideways} probabilistic language \end{sideways} &
+      \begin{sideways} probabilistic conditioning \end{sideways} & 
+      \begin{sideways} low-level protocols \end{sideways} & 
+      \begin{sideways} passive security \end{sideways} & 
+      \begin{sideways} malicious security \end{sideways}& 
+      \begin{sideways} hyperproperties \end{sideways}& 
+      \begin{sideways} automation \end{sideways}\\\hline\hline
+      Haskell EDSL \cite{6266151} & \checkmark &  & \checkmark  & \checkmark & & \checkmark & \checkmark \\\hline
+      MPC in SecreC \cite{almeida2018enforcing} & \checkmark & \checkmark &   & \checkmark & & \checkmark & \checkmark \\\hline
+      $\lambda_{\text{obliv}}$ \cite{darais2019language} & \checkmark & & \checkmark & & & \checkmark & \checkmark \\\hline
+      PSL \cite{barthe2019probabilistic} & \checkmark & & \checkmark & & & & \\\hline
+      Lilac \cite{li2023lilac} & \checkmark & \checkmark & & & & & \\\hline
+      Wys$^*$ \cite{wysstar} & & & & \checkmark & & \checkmark & \checkmark\\\hline
+      Viaduct \cite{10.1145/3453483.3454074,viaduct-UC} & & & & \checkmark & \checkmark & \checkmark & \checkmark\\\hline
+      MPC in EasyCrypt \cite{8429300} &  \checkmark &  \checkmark &  \checkmark & \checkmark & \checkmark & \checkmark & \\\hline
+      $\metaprot$/$\minifed$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark\\
+      \hline
+    \end{tabular}
+    \caption{Comparison of systems for verification of MPC security in PLs.}
+    \label{fig-comp}
+  \end{wrapfigure}
+}
+
+\newcommand{\compfig}
+{
+  \begin{fpfig}[t]{Comparison of systems for verification of MPC security in PLs.}{fig-comp}
+    \begin{tabular}{lccccccc}
+      & 
+      \begin{sideways} probabilistic language \end{sideways} &
+      \begin{sideways} probabilistic conditioning \end{sideways} & 
+      \begin{sideways} low-level protocols \end{sideways} & 
+      \begin{sideways} passive security \end{sideways} & 
+      \begin{sideways} malicious security \end{sideways}& 
+      \begin{sideways} hyperproperties \end{sideways}& 
+      \begin{sideways} automation \end{sideways}\\\hline\hline
+      Haskell EDSL \cite{6266151} & \checkmark &  & \checkmark  & \checkmark & & \checkmark & \checkmark \\\hline
+      MPC in SecreC \cite{almeida2018enforcing} & \checkmark & \checkmark &   & \checkmark & & \checkmark & \checkmark \\\hline
+      $\lambda_{\text{obliv}}$ \cite{darais2019language} & \checkmark & & \checkmark & & & \checkmark & \checkmark \\\hline
+      PSL \cite{barthe2019probabilistic} & \checkmark & & \checkmark & & & & \\\hline
+      Lilac \cite{li2023lilac} & \checkmark & \checkmark & & & & & \\\hline
+      Wys$^*$ \cite{wysstar} & & & & \checkmark & & \checkmark & \checkmark\\\hline
+      Viaduct \cite{10.1145/3453483.3454074,viaduct-UC} & & & & \checkmark & \checkmark & \checkmark & \checkmark\\\hline
+      MPC in EasyCrypt \cite{8429300} &  \checkmark &  \checkmark &  \checkmark & \checkmark & \checkmark & \checkmark & \\\hline
+      $\metaprot$/$\minifed$ & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark\\
+      \hline
+    \end{tabular}
+  \end{fpfig}
+}
+
 \newcommand{\minicatsyntaxfig}{
 \begin{fpfig}[t]{Syntax of $\minicat$}{fig-minicat-syntax}
 \small{
