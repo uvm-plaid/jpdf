@@ -48,4 +48,12 @@ public class LetExpr implements PreludeExpression{
         return List.of(y, e1, e2);
     }
 
+    @Override
+    public String toString() {
+        return "LetExpr{" +
+                "y=" + y +
+                ", e1=" + e1 +
+                ", e2=" + e2 +
+                '}';
+    }
 }

@@ -38,4 +38,11 @@ public class AtExpr implements PreludeExpression{
         return List.of(e1, e2);
     }
 
+    @Override
+    public String toString() {
+        return "AtExpr{" +
+                "e1=" + e1 +
+                ", e2=" + e2 +
+                '}';
+    }
 }

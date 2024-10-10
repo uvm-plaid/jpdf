@@ -33,4 +33,10 @@ public class Identifier implements PreludeExpression {
         return List.of();
     }
 
+    @Override
+    public String toString() {
+        return "Identifier{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

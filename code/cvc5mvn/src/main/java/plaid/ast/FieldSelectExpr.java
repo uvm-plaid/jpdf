@@ -38,4 +38,11 @@ public class FieldSelectExpr implements PreludeExpression{
         return List.of(e, l);
     }
 
+    @Override
+    public String toString() {
+        return "FieldSelectExpr{" +
+                "e=" + e +
+                ", l=" + l +
+                '}';
+    }
 }

@@ -33,4 +33,10 @@ public class CommandList implements PreludeCommand{
         return new ArrayList<>(commands);
     }
 
+    @Override
+    public String toString() {
+        return "CommandList{" +
+                "commands=" + commands +
+                '}';
+    }
 }

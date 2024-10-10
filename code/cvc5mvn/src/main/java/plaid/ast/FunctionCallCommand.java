@@ -42,4 +42,11 @@ public class FunctionCallCommand implements PreludeCommand{
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "FunctionCallCommand{" +
+                "fname=" + fname +
+                ", functionCalls=" + functionCalls +
+                '}';
+    }
 }

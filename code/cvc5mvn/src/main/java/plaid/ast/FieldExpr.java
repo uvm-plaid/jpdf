@@ -38,4 +38,11 @@ public class FieldExpr implements PreludeExpression{
         result.addAll(elements.values());
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "FieldExpr{" +
+                "elements=" + elements +
+                '}';
+    }
 }

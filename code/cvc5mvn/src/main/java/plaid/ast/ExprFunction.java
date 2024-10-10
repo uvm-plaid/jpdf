@@ -50,4 +50,12 @@ public class ExprFunction implements PreludeFunction{
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "ExprFunction{" +
+                "fname=" + fname +
+                ", y=" + y +
+                ", e=" + e +
+                '}';
+    }
 }

@@ -38,4 +38,11 @@ public class AssertCommand implements  PreludeCommand{
         return List.of(e1, e2);
     }
 
+    @Override
+    public String toString() {
+        return "AssertCommand{" +
+                "e1=" + e1 +
+                ", e2=" + e2 +
+                '}';
+    }
 }

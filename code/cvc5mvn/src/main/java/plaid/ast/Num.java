@@ -34,4 +34,11 @@ public class Num implements OvertureExpression {
         return List.of();
     }
 
+
+    @Override
+    public String toString() {
+        return "Num{" +
+                "num=" + num +
+                '}';
+    }
 }

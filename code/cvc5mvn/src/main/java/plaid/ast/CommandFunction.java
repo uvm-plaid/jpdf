@@ -50,4 +50,12 @@ public class CommandFunction implements PreludeFunction{
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "CommandFunction{" +
+                "fname=" + fname +
+                ", y=" + y +
+                ", c=" + c +
+                '}';
+    }
 }

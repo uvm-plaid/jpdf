@@ -33,4 +33,10 @@ public class MinusExpr implements PreludeExpression {
         return List.of(e);
     }
 
+    @Override
+    public String toString() {
+        return "MinusExpr{" +
+                "e=" + e +
+                '}';
+    }
 }

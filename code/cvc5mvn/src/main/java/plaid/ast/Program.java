@@ -22,6 +22,23 @@ public class Program implements Node {
         return exprFunctions;
     }
 
+    public ExprFunction resolveExprFunction(PreludeExpression functionName){
+        for (ExprFunction exprFunction : exprFunctions) {
+            if(exprFunction.getFname().equals(functionName)){
+                return exprFunction;
+            }
+        }
+        return null;
+    }
+
+    public CommandFunction resolveCommandFunction(PreludeExpression functionName){
+        for (CommandFunction commandFunction : commandFunctions) {
+            if(commandFunction.getFname().equals(functionName)){
+                return commandFunction;
+            }
+        }
+        return null;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -43,4 +60,11 @@ public class Program implements Node {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "Program{" +
+                "commandFunctions=" + commandFunctions +
+                ", exprFunctions=" + exprFunctions +
+                '}';
+    }
 }

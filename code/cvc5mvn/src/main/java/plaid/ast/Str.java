@@ -33,4 +33,10 @@ public class Str extends Value {
         return List.of();
     }
 
+    @Override
+    public String toString() {
+        return "Str{" +
+                "str='" + str + '\'' +
+                '}';
+    }
 }

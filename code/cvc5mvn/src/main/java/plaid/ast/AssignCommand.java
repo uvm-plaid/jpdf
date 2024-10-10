@@ -38,4 +38,11 @@ public class AssignCommand implements PreludeCommand{
         return List.of(e1, e2);
     }
 
+    @Override
+    public String toString() {
+        return "AssignCommand{" +
+                "e1=" + e1 +
+                ", e2=" + e2 +
+                '}';
+    }
 }
