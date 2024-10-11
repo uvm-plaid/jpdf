@@ -4,8 +4,8 @@
   _open(x,i1,i2){
     m[x++"exts"]@i1 := m[x++"s"]@i2;
     m[x++"extm"]@i1 := m[x++"m"]@i2;
-    assert(m[x++"extm"] == m[x++"k"] + (m["delta"] * m[x++"exts"]));
-    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i2
+    assert(m[x++"extm"] = m[x++"k"] + (m["delta"] * m[x++"exts"]))@i1;
+    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
   }
   
   pre: { m[x++"m"]@i2 == m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"])@i2 /\
@@ -33,7 +33,7 @@
       m[z++"m"]@1 :=
         (m[z++"bm"] * m[z++"d"] + m[z++"am"] * m[z++"e"] + m[z++"cm"])@1;
       m[z++"k"]@2 :=
-        (m[z++"bk"] * m[z++"d"] + m[z++"ak"] * m[z++"e"] + m[z++"ck"])@2;    
+        (m[z++"bk"] * m[z++"d"] + m[z++"ak"] * m[z++"e"] + m[z++"ck"])@2    
   }
   post: { m[z++"m"]@2 == m[z++"k"]@1 + (m["delta"]@1 * m[z++"s"]@1 }
 
