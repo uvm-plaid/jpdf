@@ -116,26 +116,26 @@ a traditional taint analysis, modulo MAC checking.
 \subsubsection{Type Soundness}
 
 \begin{definition}
-  Given $H,C$ and $\prog$ with $\views(\prog) = V$ and $\secrets(\prog) = S$,
-  $\adversary$, and $\store \in \aruns(\prog)$, we say $\store$ is
-  \emph{aberrant through $V' \subseteq V$} if $\neg\exists \store' \in \runs(\prog) .
-  \store_{S_H \cup V'} = \store'_{S_H \cup V'}$, and if there exists
-  such $\adversary$ and $\store$ we say any
-  $x \in V'$ is \emph{in an aberration}.
+  Given $H,C$ and $\prog$ with $\secrets(\prog) = S$ and $x \in \views(\prog)$,
+  we say $x$ has an \emph{aberration} iff
+  $\exists \adversary, \store \in \botruns(\prog)$ such that $\store(x) \ne \bot$
+  and $\neg\exists \store' \in \runs(\prog) .
+  \store_{S_H \cup \setit{x}} = \store'_{S_H \cup \setit{x}}$.
 \end{definition}
 
 \begin{lemma}
-  If $\prog$ does not have integrity for some $H,C$, then it has
-  aberrant $\store \in \aruns(\prog)$ for some $\adversary$. 
+  If $\prog$ with $\views(\prog) = V$ does not have integrity for some
+  $H,C$, then there exists $x \in \houtputs$ with an
+  aberration.
 \end{lemma}
 
 \begin{lemma}
-  Given $\prog$ and $H,C$, if $x$ is in an aberration then one of
+  Given $\prog$ and $H,C$, if $x$ has an aberration then one of
   the two inductively defined conditions holds:
   \begin{enumerate}[\hspace{5mm}i.]
   \item There exists $\xassign{x}{\be}{\cid} \in \prog$ with $\cid \in C$.
   \item There exists $\xassign{x}{\be}{\cid} \in \prog$ with $\cid \in H$ and
-    $x' \in \vars(\be)$ such that $x'$ is in an aberration.
+    $x' \in \vars(\be)$ such that $x'$ has an aberration.
   \end{enumerate}
 \end{lemma}
 
@@ -143,7 +143,7 @@ a traditional taint analysis, modulo MAC checking.
   Given pre-processing predicate $\eqspre$ and protocol $\prog$ with
   $\views(\prog) = V$, if 
   $\ipj{\eqs}{\prog}{\Delta}$ is valid
-  and $x\in V$ has an aberration for some $H,C$,
+  and $x$ has an aberration for some $H,C$,
   then $\cheatj{\Delta}{H,C}{\seclev}$ and $\seclev(x) = \lolab$.
 \end{lemma}
 
