@@ -13,9 +13,19 @@ confidentiality and integrity properties.
 
 \subsection{Constraint Satisfiability Modulo Finite Fields}
 
-In Figure \ref{fig-eqs} we define a syntax of SMT-style constraints
-$\eqs$, where constraint terms $\phi$ are similar to expressions $\be$
-except the can ``cross party lines''. This turns out to be very useful
+We introduce the following syntax of SMT-style constraints
+for $\minicat$:
+$$
+\begin{array}{rcl}
+  \phi ::= x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi  \qquad
+  \eqs ::= \phi \eop \phi \mid \eqs \wedge \eqs \mid \neg\eqs
+\end{array}
+$$
+%
+%In Figure \ref{fig-eqs} we define a syntax of SMT-style constraints
+%$\eqs$, where
+Note that constraint terms $\phi$ are similar to expressions $\be$
+except that $\phi$ can ``cross party lines''. This turns out to be very useful
 to express correctness properties-- for example, in the
 Goldreich-Micali-Wigderson (GMW) protocol wire values in circuits are
 represented by reconstructive shares \cite{evans2018pragmatic}.  If by
@@ -25,44 +35,39 @@ value can be expressed as $\mx{n}{1} + \mx{n}{2}$.  So, while summing
 values across clients is disallowed in $\minicat$ protocols, we can
 express properties of shared values via constraints.
 
-\begin{fpfig}[t]{Syntax of constraints and memory application extended to
-  SMT expressions}{fig-eqs}
-$$
-\begin{array}{rcl}
-  \phi ::= x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi  \qquad
-  \eqs ::= \phi \eop \phi \mid \eqs \wedge \eqs 
-\end{array}
-$$
+%\begin{fpfig}[t]{Syntax of constraints}{fig-eqs}
+%$$
+%\begin{array}{rcl}
+%  \phi ::= x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi  \qquad
+%  \eqs ::= \phi \eop \phi \mid \eqs \wedge \eqs \mid \neg\eqs
+%\end{array}
+%$$
+%
+%\begin{mathpar}
+%  \store(\phi_1 \fplus \phi_2) = \cod{\store(\phi_1) \fplus \store(\phi_2)}
+%  
+%  \store(\phi_1 \ftimes \phi_2) = \cod{\store(\phi_1) \ftimes \store(\phi_2)}
+%  
+%  \store(\phi_1 \fminus \phi_2) = \cod{\store(\phi_1) \fminus \store(\phi_2)}
+%\end{mathpar}
+%\end{fpfig}
 
-\begin{mathpar}
-  \store(\phi_1 \fplus \phi_2) = \cod{\store(\phi_1) \fplus \store(\phi_2)}
-  
-  \store(\phi_1 \ftimes \phi_2) = \cod{\store(\phi_1) \ftimes \store(\phi_2)}
-  
-  \store(\phi_1 \fminus \phi_2) = \cod{\store(\phi_1) \fminus \store(\phi_2)}
-\end{mathpar}
-\end{fpfig}
-
-This language of constraints has a direct interpretation in the Finite
+This language of constraints has an obvious direct interpretation in the Finite
 Fields theory of cvc5 \cite{SMFF}. We can leverage this to implement a
 critical \emph{entailment} property, written $\eqs_1 \models \eqs_2$.
-Our entailment relation is based on model satisfiability in a standard
-sense, except we represent models as memories $\store$. To this end
-we extend application of memories to terms $\store(\phi)$ in
-Figure \ref{fig-eqs}, and we formally define entailment as follows.
+Our entailment relation is based on satisfiability in a standard
+sense, where we represent models as memories $\store$ (mappings
+from variables to values).
 \begin{definition}
-  Given $\eqs$ of the form $\phi_1 \eop \phi_1' \wedge \cdots \wedge \phi_n \eop
-  \phi_n'$ and $\store$, we say that $\store$ is a \emph{model} of
-  $\eqs$, written $\store \models \eqs$, iff $\store(\phi_i) =
-  \store(\phi_i')$ for all $1 \le i \le n$. We write $\eqs_1 \models
+  We write $\store \models \eqs$ if $\store$ satisfies, aka is a model
+  of, $\eqs$. We write $\eqs_1 \models
   \eqs_2$ iff  $\store \models E_1$ implies $\store \models
   E_2$ for all $\store$, and note this relation is reflexive and transitive.
 \end{definition}
-
-Given this Definition, the following Theorem is well-known and commonly
-applied in SMT systems to implement our notion of entailment. 
+Given this Definition, the following Theorem is well-known and a fundamental
+technique in SMT to implement our (common) notion of entailment. 
 \begin{theorem}
-  $\eqs \models \phi \eop \phi'$ iff $\eqs \wedge \phi \not\eop \phi'$ is
+  $\eqs \models \eqs'$ iff $\eqs \wedge \neg\eqs'$ is
   not satisfiable.
 \end{theorem}
 

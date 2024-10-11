@@ -487,6 +487,7 @@ $$
 \begin{mathpar}
   \inferrule[Sig]
             {\codebase(f) = y_1,\ldots,y_n, \instr \\
+              \fresh(\mv_1,\ldots,\mv_n) \\\\
               %\subn = [\mv_1/y_1]\cdots[\mv_n/y_n] \\
               (\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}})[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx
                     \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2} \\

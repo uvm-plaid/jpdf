@@ -144,6 +144,7 @@ The following Lemma establishes correctness of algorithmic confidentiality
 type checking, and makes explicit that SMT checking is eliminated in the
 judgement.
 \begin{lemma}
+  \label{lemma-atj-sound}
   If $\atj{\toeq{\phi}}{R}{\ty}$ then $\eqj{R}{\eqs}{\phi}{\ty}$ for any $\eqs$.
 \end{lemma}
 
@@ -213,8 +214,10 @@ of the given function type and instantiate the type and postconditions
 with the given expression arguments.  The \TirName{Sig} rule we
 specify how to verify $\Pi$ types for functions. Note that the values
 $\mv_1,\ldots,\mv_n$ chosen to instantiate the function parameters are
-chosen arbitrarily\cnote{Might need to be a little more careful about
-  this}.
+chosen ``fresh'', meaning that any strings and client identifiers
+occurring as substrings in $\mv_1,\ldots,\mv_n$ are unique and
+not used in any program source code. This ensures generality
+of verification as demonstrated in Lemma \ref{lemma-eqs-notg}.
 
 We allow the programmer to specify a type signature $\tsig$ that
 maps functions in $\codebase$ to valid dependent Hoare
@@ -222,8 +225,66 @@ typings. Define:
 \begin{definition}
   $\tsig$ is \emph{verified} iff $f : \tsig(f)$ is valid for all $f \in \dom(\tsig)$.
 \end{definition}
-In practice, the programmer only needs to specify pre-~and post-conditions,
-since the rest of the type is reconstructed by type checking.
+In practice, to define $\tsig$ the programmer only needs to specify
+pre-~and postconditions, as we illustrate in Section
+\ref{section-examples}, since the rest of the type is reconstructed by
+type checking.
+
+\subsection{Type Checking Soundness}
+
+\begin{lemma}
+  \label{lemma-fresh}
+  Given $w$ and $\cid$ with $\fresh(w,\cid)$, if $\notg{\eqs}[w/y_1,\cid/y_n]$
+  is not satisfiable, then there exists no $w',\cid'$ such that
+  $\notg{\eqs}[w'/y_1,\cid'/y_n]$ is satisifiable.
+\end{lemma}
+
+\begin{proof}
+  Let $\eqs = \notg{\eqs}[w/y_1,\cid/y_n]$ and $\eqs' =
+  \notg{\eqs}[w'/y_1,\cid'/y_n]$. If $w',\cid'$ are fresh or chosen
+  such that $\eqs'$ is an $\alpha$-renaming of $\eqs$, the result is
+  immediate.  Otherwise, it must be the case that at least two
+  distinct variables $x_1$ and $x_2$ in $\eqs$ are renamed as a single
+  variable $x$ in $\eqs'$, given freshness of $w,\cid$. Let
+  $\mathit{rename}$ be the function that maps variables in $\eqs$ to
+  variables in $\eqs'$ such that $\mathit{rename}(\eqs) = \eqs'$. Let
+  $\store'$ be a model of $\eqs'$, and define $\store$ such that:
+  $$
+  \store(x) \defeq \store'(\mathit{rename}(x)) 
+  $$
+  Then $\store$ must be a model of $\eqs$, which is a contradiction. \qed
+\end{proof}
+
+\begin{lemma}
+  \label{lemma-eqs-notg}
+  For all $\fresh(\mv_1,\ldots,\mv_n)$, $\notg{E_1}$, $\notg{E_2}$, assuming: 
+  \begin{mathpar}
+    \notg{\eqs_1}[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx \eqs_1
+
+    \notg{\eqs_2}[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx \eqs_2
+
+    E_1 \models E_2
+  \end{mathpar}
+  then there exists no $\mv_1',\ldots,\mv_n'$ such that:
+    \begin{mathpar}
+    \notg{\eqs_1}[\mv_1'/y_1]\cdots[\mv_n'/y_n]  \redx \eqs_1
+
+    \notg{\eqs_2}[\mv_1'/y_1]\cdots[\mv_n'/y_n]  \redx \eqs_2
+
+    E_1' \not\models E_2'
+  \end{mathpar}  
+\end{lemma}
+
+\begin{proof}
+  Given the assumptions, suppose that $E_1' \not\models E_2'$
+  is an $\alpha$-renaming of $E_1 \models E_2$. In this
+  case the consequence follows immediately. Otherwise,
+  suppose on the contrary we can witness
+  $E_1' \not\models E_2'$. By definition this means that
+  $E_1' \wedge \neg E_2'$ is satisfiable
+  but $E_1 \wedge \neg E_2$ is not, which is a contradiction
+  by Lemma \ref{lemma-eqs-notg}. \qed 
+\end{proof}
 
 The following Theorem establishes our main result, which
 is the $\metaprot$ type checking is sound with respect to both
@@ -240,3 +301,11 @@ $\metaprot$ type checking implicitly enforces them.
   \item $\ipj{\eqs}{\prog}{\Delta}$ is valid.
   \end{enumerate}
 \end{theorem}
+
+\begin{proof}
+  (Sketch) The result follows by induction on derivation of the
+  main type judgement for $\instr$. The \TirName{Mesg} case follows
+  by Lemma \ref{lemma-atj-sound}. The \TirName{Encode} and \TirName{App}
+  cases follow by definition of the \TirName{Sig} rule and Lemma
+  \ref{lemma-eqs-notg}. 
+\end{proof}
