@@ -116,11 +116,13 @@ a traditional taint analysis, modulo MAC checking.
 \subsubsection{Type Soundness}
 
 \begin{definition}
-  Given $H,C$ and $\prog$ with $\secrets(\prog) = S$ and $x \in \views(\prog)$,
-  we say $x$ has an \emph{aberration} iff
-  $\exists \adversary, \store \in \botruns(\prog)$ such that $\store(x) \ne \bot$
-  and $\neg\exists \store' \in \runs(\prog) .
-  \store_{S_H \cup \setit{x}} = \store'_{S_H \cup \setit{x}}$.
+  Given $H,C$ and $\prog$ with $\iov(\prog) = S \cup V \cup O$,
+  we say $x \in V \cup O$ has an \emph{aberration} iff
+  $\exists \adversary, \store \in \botruns(\prog)$ such that
+  $\store(x) \ne \bot$ and $\neg\exists \store' \in \runs(\prog)$
+  with  $\store_{S_H} = \store'_{S_H}$ and
+  $\store(x) = \lcod{\store',\be}{\cid}$ where
+  $\xassign{x}{\be}{\cid} \in \prog$.
 \end{definition}
 
 \begin{lemma}
@@ -150,10 +152,10 @@ a traditional taint analysis, modulo MAC checking.
 Our main type soundness result for integrity is then given as follows.
 \begin{theorem}
   \label{theorem-ipj}
-  Given pre-processing predicate $\eqspre$ and protocol $\prog$ with
-  $\views(\prog) = V$, if
+  Given  $\eqspre$ and $\prog$ with
+  $\iov(\prog) = S \cup V \cup O$, if
   $\ipj{\eqs}{\prog}{\Delta}$ is valid
   and for all $H,C$ with $\cheatj{\Delta}{H,C}{\seclev}$ 
-  we have $\seclev(x) = \hilab$ for all $x \in \houtputs$, then $\prog$
+  we have $\seclev(x) = \hilab$ for all $x \in \houtputs \cup O_H$, then $\prog$
   has integrity for all $H,C$.
 \end{theorem}

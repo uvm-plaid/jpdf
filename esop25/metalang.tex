@@ -34,6 +34,8 @@ evaluation. The syntax also supports definitions of functions that
 compute values $\mv$ and, as a distinct form, functions that compute
 protocols.  Formally, we consider a complete metaprogram to include
 both a codebase and a ``main'' program that uses the codebase.
+We disallow recursion, mainly to guarantee decidability
+of type dependence (Section \ref{section-metalangty}).
 \begin{definition}
 A \emph{codebase} $\codebase$ is a list of function 
 declarations. We write $ \codebase(f) = y_1,\ldots,y_n,\ e$
@@ -250,7 +252,7 @@ type checking.
   variables in $\eqs'$ such that $\mathit{rename}(\eqs) = \eqs'$. Let
   $\store'$ be a model of $\eqs'$, and define $\store$ such that:
   $$
-  \store(x) \defeq \store'(\mathit{rename}(x)) 
+  \forall x \in \dom(\vars(E)) . \store(x) \defeq \store'(\mathit{rename}(x)) 
   $$
   Then $\store$ must be a model of $\eqs$, which is a contradiction. \qed
 \end{proof}
