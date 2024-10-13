@@ -89,16 +89,17 @@ compare marginal distributions under different realization conditions
   \item $\pmf(\store_1|\store_2) \defeq \condd{\pmf}{X_1}{X_2}(\store_1 \uplus \store_2)$
   \end{enumerate}
 \end{definition}
-As in previous work \cite{darais2019language,barthe2019probabilistic,skalka-near-ppdp24}, 
+As in previous work \cite{darais2019language,barthe2019probabilistic,skalka-near-ppdp24,li2023lilac}, 
 probabilistic independence, aka separation, is an important concept and we adopt the
-following standard notation to express separation:
+following standard notation to express conditional and unconditional separation:
 \begin{definition}
 %  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
 %  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
-  We write $\sep{\pmf}{X_1}{X_2}$ iff for all
-    $\store \in \mems(X_1 \cup X_2)$ we have
-  $\margd{\pmf}{X_1 \cup X_2}(\store) =
-  \pmf(\store_{X_1}) * \pmf(\store_{X_2})$
+  We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
+    $\store \in \mems(X_1 \cup X_2)$ and $\store' \in \mems(X_3)$ we have
+  $\margd{\pmf}{X_1 \cup X_2}(\store|\store') =
+  \pmf(\store_{X_1}|\store') * \pmf(\store_{X_2}|\store')$. If $X_1$ is empty
+  we write $\sep{\pmf}{X_2}{X_3}$.
 \end{definition}
 
 \subsection{Basic Distribution of a Protocol}

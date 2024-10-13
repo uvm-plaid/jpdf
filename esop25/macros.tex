@@ -400,9 +400,12 @@
 \newcommand{\detx}[1]{\mathbf{D}(#1)}
 \newcommand{\unix}[1]{\mathbf{U}(#1)}
 \newcommand{\sep}[3]{#1 \vdash #2 * #3}
+\newcommand{\notsep}[3]{#1 \not\vdash #2 * #3}
 \newcommand{\condp}[3]{#1|#2 \vdash #3}
+\newcommand{\notcondp}[3]{#1|#2 \not\vdash #3}
 \newcommand{\conddetx}[3]{\condp{#1}{#2}{\detx{#3}}}
 \newcommand{\condsep}[4]{\condp{#1}{#2}{#3 * #4}}
+\newcommand{\notcondsep}[4]{\notcondp{#1}{#2}{#3 * #4}}
 \newcommand{\condunix}[3]{\condp{#1}{#2}{\unix{#3}}}
 \newcommand{\gtab}{\mathit{table}}
 \newcommand{\vdefs}{\mathit{vdefs}}

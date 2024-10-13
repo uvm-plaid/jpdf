@@ -121,22 +121,23 @@ if the adversary may observe dependencies on honest secrets.
 
 \subsubsection{Type Soundness}
 
-\begin{definition}
-  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$, we say that
-  $X \subseteq S \cup \flips(\prog)$ \emph{interfere with} 
-  $M \subseteq V$ iff $\progd(\prog) \not\vdash X * M$.
-\end{definition}
+%\begin{definition}
+%  Given $\prog$ and $X_1,X_2 \subseteq \vars{\prog}$, we say that
+%  $X_1$ \emph{interferes with} $X_2$
+%  iff $\progd(\prog) \not\vdash X_1 * X_2$.
+%\end{definition}
 
 \begin{lemma}
   \label{lemma-interference}
   Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$,
   for all $x \in S \cup R$ and $M \subseteq V$ exactly one of the following conditions holds:
   \begin{enumerate}[\hspace{5mm}i.]
-  \item $\setit{x}$ interferes with $M$.
-  \item There exists $X \subseteq S \cup R$ such that $\setit{x} \cup X$ interferes
-    with $M$ but neither $X$ nor $\setit{x}$ alone do, in which case we say
-    that $\setit{x}$ interferes with $M$ conditionally on $X$.
-  \item Neither condition (i) nor (ii) hold.
+  \item $\notsep{\progd(\prog)}{\setit{x}}{M}$
+  \item There exists $X \subseteq S \cup R$ such that
+    $\notsep{\progd(\prog)}{\setit{x} \cup X}{M}$ while
+    $\sep{\progd(\prog)}{\setit{x}}{M}$ and $\sep{\progd(\prog)}{X}{M}$,
+    in which case we say that $x$ encodes $X$ in $M$
+  \item Neither condition (i) nor (ii) hold, implying $\sep{\progd(\prog)}{\setit{x}}{M}$.
   \end{enumerate}
 \end{lemma}
 
@@ -154,10 +155,10 @@ if the adversary may observe dependencies on honest secrets.
       and $x \in S \cup R$, the following
       conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-    \item  if $\setit{x}$ interferes with $M'$ then
-      there exists $\ty$ with $\leakj{\Gamma}{M'}{\ty}$ and $x \in \ty$.
+  \item  if $\notsep{\progd(\prog)}{\setit{x}}{M'}$
+    there exists $\ty$ with $\leakj{\Gamma}{M'}{\ty}$ and $x \in \ty$.
     \item  if there exists  $X \subseteq S \cup R$ such that
-      $\setit{x}$ interferes with $M'$ conditionally on $X$,
+      $\setit{x}$ encodes $X$ in $M'$, 
       then $\leakj{\Gamma}{M'}{\ty}$ and
       $\leakclose{\Gamma}{\ty \cup X}{\ty'}$ and
       $x \in \ty'$.
@@ -195,7 +196,7 @@ if the adversary may observe dependencies on honest secrets.
     \eqj{R_2}{\eqs}{R_2}{\ty_1}
   \end{mathpar}
   These facts imply that $\rx{w}{\cid}$ is used as a one-time-pad to encode
-  $\phi$ and introduces interference conditional on $\rx{w}{\cid}$
+  $\vars{\phi}$ in $M'$ 
   \cite{barthe2019probabilistic}. Observing that:
   $$
   \leakclose{\Gamma}{\setit{\cty{\rx{w}{\cid}}{\ty_1}, \rx{w}{\cid}}}{\ty'}
