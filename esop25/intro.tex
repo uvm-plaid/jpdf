@@ -80,18 +80,11 @@ the Goldreich-Micali-Wigderson (GMW), Bendlin-Damgard-Orland-Zakarias
 \subsection{Related Work}
 \label{section-related-work}
 
-\cnote{This sections needs updating with, including with
-  \cite{skalka-near-ppdp24,SMFF}}.
-Our main focus is on PL design and automated and semi-automated
-reasoning about security properties of low-level MPC protocols. Prior
-work has considered \textbf{automated} verification of
-\textbf{high-level} protocols and \textbf{manual} verification of
-\textbf{low-level} protocols---but none offers the combination of
-automation and low-level support we consider.
-%
-We summarize this comparison in Figure
-\ref{fig-comp-wrap}, with the caveat that works vary in the degree of
-development in each dimension.
+The goal of the $\minicat/\metaprot$ framework is to automate
+correctness and security verification of low-level protocols.  Other
+prior work has considered automated verification of high-level
+protocols and manual verification of low-level protocols.  We
+summarize this comparison in Figure \ref{fig-comp-wrap}.
 
 % We consider related systems in several
 % dimensions, including whether they are aimed at low-level design with
@@ -101,47 +94,53 @@ development in each dimension.
 % hyperproperties, and whether they consider passive and/or malicious
 % security models.
 
-As mentioned above, several high-level languages have been developed
-for writing MPC applications, and frequently exploit the connection
-between hyperproperties and MPC security. Previous work on analysis
-for the SecreC language
-\cite{almeida2018enforcing,10.1145/2637113.2637119} is concerned with
-properties of complex MPC circuits, in particular a user-friendly
-specification and automated enforcement of declassification bounds in
-programs that use MPC in subprograms. The Wys$^\star$ language
-\cite{wysstar}, based on Wysteria \cite{rastogi2014wysteria}, has
-similar goals and includes a trace-based semantics for reasoning about
-the interactions of MPC protocols. Their compiler also guarantees that
-underlying multi-threaded protocols enforce the single-threaded source
-language semantics. These two lines of work were focused on passive
-security. The Viaduct language
-\cite{10.1145/3453483.3454074} has a well-developed
-information flow type system that automatically enforces both
-confidentiality and integrity through hyperproperties such as robust
-declassification, in addition to rigorous compilation guarantees
-through orchestration \cite{viaduct-UC}. However, these high level
-languages lack probabilistic features and other abstractions of
-low-level protocols, the implementation and security of which are
-typically assumed as a selection of library components.
+The most closely related work is \cite{skalka-near-ppdp24}, where
+foundations for $\minicat/\metaprot$ are introduced including a
+verification algorithm. However, this algorithm only works for
+$\mathbb{F}_2$-- e.g., binary circuits-- and does not scale due to
+exponential complexity, necessitating semi-automated proof
+techniqued. In contrast, our type systems scale to arbitrary prime
+fields and whole program analysis for larger circuits (protocols). So
+our work is a significant advancement of $\minicat/\metaprot$.  Out
+work is also closely related to satisfiability modulo finite fields
+\cite{SMFF} but only in the sense that we apply their method as we
+discuss in Section \ref{section-smt} and subsequently.
+
+Other low-level languages with probabilistic features for privacy
+preserving protocols have been proposed. The
+$\lambda_{\mathrm{obliv}}$ language \cite{darais2019language} uses a
+type system to automatically enforce so-called probabilistic trace
+obliviousness.  But similar to previous work on oblivious data
+structures \cite{10.1145/3498713}, obliviousness is related to pure
+noninterference, not the relaxed form related to passive MPC
+security. The Haskell-based security type system in \cite{6266151}
+enforces a version of noninterference that is sound for passive
+security, but does not consider malicious security. And properties of
+real/ideal passive and malicious security for a probabilistic language
+have been (manually) formulated in EasyCrypt \cite{8429300}.
 
 \compwrapfig
 
-Various related low-level languages with probabilistic features have
-also been developed. The $\lambda_{\mathrm{obliv}}$ language
-\cite{darais2019language} uses a type system to automatically
-enforce so-called probabilistic trace obliviousness.  But similar to
-previous work on oblivious data structures \cite{10.1145/3498713},
-obliviousness is related to pure noninterference, not the relaxed form
-related to passive MPC security. The Haskell-based security type
-system in \cite{6266151} enforces a version of noninterference that is
-sound for passive security, but does not verify the correctness of
-declassifications and does not consider malicious security. And
-properties of real/ideal passive and malicious security for a
-probabilistic language have been formulated in EasyCrypt
-\cite{8429300}-- though their proof methods, while mechanized, are
-fully manual, and their formulation of malicious security is not as
-clearly related to robust declassification as is the one we present in
-Section \ref{section-hyper}.
+Several high-level languages have been developed for writing MPC
+applications. Previous work on analysis for the
+SecreC language \cite{almeida2018enforcing,10.1145/2637113.2637119} is
+concerned with properties of complex MPC circuits, in particular a
+user-friendly specification and automated enforcement of
+declassification bounds in programs that use MPC in subprograms. The
+Wys$^\star$ language \cite{wysstar}, based on Wysteria
+\cite{rastogi2014wysteria}, has similar goals and includes a
+trace-based semantics for reasoning about the interactions of MPC
+protocols. Their compiler also guarantees that underlying
+multi-threaded protocols enforce the single-threaded source language
+semantics. These two lines of work were focused on passive
+security. The Viaduct language \cite{10.1145/3453483.3454074} has a
+well-developed information flow type system that automatically
+enforces both confidentiality and integrity through hyperproperties
+such as robust declassification, in addition to rigorous compilation
+guarantees through orchestration \cite{viaduct-UC}. However, these
+high level languages lack probabilistic features and other
+abstractions of low-level protocols, the implementation and security
+of which are typically assumed as a selection of library components.
 
 Program logics for probabilistic languages and specifically reasoning
 about properties such as joint probabilistic independence is also
@@ -150,18 +149,7 @@ important related work. Probabilistic Separation Logic (PSL)
 reasoning about probabilistic independence (aka separation) in
 programs, and they consider several (hyper)properties, such as perfect
 secrecy of one-time-pads and indistinguishability in secret sharing,
-that are critical to MPC. However, their methods are manual, and
-don't include conditional independence (separation). This
-latter issue has been addressed in Lilac \cite{li2023lilac}. The
-application of Lilac-style reasoning to MPC protocols has not
-previously been explored, as we do in Section
-\ref{section-example-gmw}.
-
-Our work also shares many ideas with probabilistic programming
-languages designed to perform (exact or approximate) statistical
-inference~\cite{holtzen2020scaling,carpenter2017stan,wood2014new,bingham2019pyro,albarghouthi2017fairsquare,de2007problog,pfeffer2009figaro,saad2021sppl}. Our setting, however, requires
-verifying properties beyond inference, including conditional
-statistical independence. Recent work by Li et al.~\cite{li2023lilac} proposes a
-manual approach for proving such properties, but does not provide
-automation.
+that are critical to MPC. Lilac \cite{li2023lilac} extends this line
+of work with formalisms for reasoning about conditional independence,
+which is critical for MPC \cite{skalka-near-ppdp24}.
 
