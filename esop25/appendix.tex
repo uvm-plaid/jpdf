@@ -8,6 +8,9 @@
 %  iff $\progd(\prog) \not\vdash X_1 * X_2$.
 %\end{definition}
 
+The following Lemma enumerates critical properties of dependence of
+views on input secrets and random variables, and follows by standard
+properties of pmfs.
 \begin{lemma}
   \label{lemma-interference}
   Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$,
@@ -28,6 +31,8 @@
 %  for all $\store \in \runs(\prog)$ we have $\store \models \eqs'$.
 %\end{lemma}
 
+The following Definition characterizes the crucial representation invariant
+preserved by confidentiality type checking. 
 \begin{definition}
   \label{definition-sound}
   Given $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
@@ -45,7 +50,7 @@
       $x \in \ty'$.
   \end{enumerate}
 \end{definition}
-
+Now we can prove that this invariant is preserved by type checking.
 \begin{lemma}
   \label{lemma-cpjsound}
   If $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid then $\Gamma$ is
@@ -84,13 +89,17 @@
   $$
   The result in this subcase follows by the (second) induction hypothesis. \qed
 \end{proof}
-
+On the basis of the above, proving the main result is straightforward.
 \begin{proof}[Theorem \ref{theorem-cpj}]
   Immediate by Lemmas \ref{lemma-cpjsound} and \ref{lemma-interference}. \qed
 \end{proof}
 
 \subsubsection{Integrity Type Soundness}
 
+A key observation is that, to undermine integrity adversarial strategies
+must be different from passive strategies, in particular at least one
+adversarial input must be different than any used in a passive strategy
+(an abberation). 
 \begin{definition}
   Given $H,C$ and $\prog$ with $\iov(\prog) = S \cup V \cup O$,
   we say $x \in V \cup O$ has an \emph{aberration} iff
@@ -100,8 +109,11 @@
   $\store(x) = \lcod{\store',\be}{\cid}$ where
   $\xassign{x}{\be}{\cid} \in \prog$.
 \end{definition}
-
+It is straightforward to prove that if an abberation can
+exist, then it will be assigned $\lolab$ integrity in our
+analysis. 
 \begin{lemma}
+  \label{lemma-aberration-low}
   Given protocol $\prog$ with
   $\views(\prog) = V$, if 
   $\ipj{\eqs}{\prog}{\Delta}$ is valid
@@ -109,8 +121,19 @@
   aberration for some $H,C$, then $\cheatj{\Delta}{H,C}{\seclev}$
   and $\seclev(x) = \lolab$.
 \end{lemma}
-
+\begin{proof}
+  Given $H,C$, \emph{every} adversarial input is assigned $\lolab$
+  integrity by definition of the $\TirName{Mesg}$ rule and the
+  \emph{leak} judgement.  The exception to this is messages that pass
+  the $\TirName{MAC}$ check-- success of this check guarantees that
+  the message is \emph{not} an aberration, so it can safely be
+  switched to $\hilab$ integrity. \qed
+\end{proof}
+The following Lemma follows trivially by Definition \ref{def-integrity},
+since without an aberration adversarial inputs are the same as some passive
+strategy.
 \begin{lemma}
+  \label{lemma-undermined-logic}
   If $\prog$ with $\iov(\prog) = S \cup V \cup O$ does not have
   integrity for some $H,C$, then there exists $\setit{x} \cup V'
   \subseteq \cinputs$ where $\setit{x}$ has an aberration and
@@ -118,6 +141,7 @@
 \end{lemma}
 
 \begin{lemma}
+  \label{lemma-undermined}
   Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and
   $\ipj{\eqs}{\prog}{\Delta}$ valid for some $\eqs$.  For all $x \in
   \cinputs$ with an aberration, if
@@ -125,9 +149,29 @@
   then there exists $y \in \houtputs \cup O_H$ such that
   $\cheatj{\Delta}{H,C}{\seclev}$ and $\seclev(y) = \lolab$.
 \end{lemma}
+\begin{proof}
+  By Lemma \ref{lemma-aberration-low} and definition of the
+  confidentiality type analysis, since if $\setit{x} \cup V'$
+  interferes with $\houtputs \cup O_H$ then $\setit{x}$
+  must occur in the definition of some $y \in \houtputs \cup O_H$,
+  yielding $\seclev(y) = \lolab$ in the integrity label assignment
+  judgement defined in Figure \ref{fig-cheatj}. \qed
+\end{proof}
+On the basis of the above we can prove our main result. 
+\begin{proof}[Theorem \ref{theorem-ipj}]
+  By Lemmas \ref{lemma-undermined} and \ref{lemma-undermined-logic}. \qed
+\end{proof}
 
 \subsection{Type Checking Soundness}
 
+Soundness of the $\metaprot$ type analysis follows mostly by a
+straightforward mapping to the confidentiality and integrity type
+systems. The most interesting rules are signature verification
+($\TirName{Sig}$) and function application ($\TirName{App}$). 
+Here the result hinges on the selection of ``fresh'' variables
+that guarantee generalization of constraint entailment.
+First we obtain a key result about instantiation and
+satisfiability of constraints. 
 \begin{lemma}
   \label{lemma-fresh}
   Given $w$ and $\cid$ with $\fresh(w,\cid)$, if $\notg{\eqs}[w/y_1,\cid/y_n]$
@@ -150,7 +194,8 @@
   $$
   Then $\store$ must be a model of $\eqs$, which is a contradiction. \qed
 \end{proof}
-
+Now we can extend the preceding Lemma to constraint entailment,
+incorporating evaluation of expressions withing constraints. 
 \begin{lemma}
   \label{lemma-eqs-notg}
   For all $\fresh(\mv_1,\ldots,\mv_n)$, $\notg{E_1}$, $\notg{E_2}$, assuming: 
@@ -181,8 +226,7 @@
   but $E_1 \wedge \neg E_2$ is not, which is a contradiction
   by Lemma \ref{lemma-fresh}. \qed 
 \end{proof}
-
-
+Now we can consider the main result.
 \begin{proof}[Theorem \ref{theorem-mtj}]
   (Sketch) The result follows by induction on derivation of the
   main type judgement for $\instr$. The \TirName{Mesg} case follows
