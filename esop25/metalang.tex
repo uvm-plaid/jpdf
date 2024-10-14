@@ -3,12 +3,16 @@
 
 The $\metaprot$ language \cite{skalka-near-ppdp24} includes structured
 data and function definitions for defining composable protocol
-elements at a higher level of abstraction.  The $\metaprot$ language
-is a \emph{metalanguage} aka metaprogramming language, where a
-$\fedprot$ protocols is the result of computation. In addition to
-these declarative benefits of $\metaprot$, component definitions
-support compositional verification of larger protocols as we will
-discuss with extended examples in Section \ref{section-examples}.
+elements at a higher level of abstraction than $\minicat$.  The
+$\metaprot$ language is a \emph{metalanguage} aka metaprogramming
+language, where a $\fedprot$ protocols is the result of
+computation. In addition to these declarative benefits of $\metaprot$,
+component definitions support compositional verification of larger
+protocols. Separate verification of well-designed components results
+in confidentiality and integrity properties to be recorded in their
+types, allowing for significant reduction of SMT verification in whole
+program analysis, as we will discuss with extended examples in Section
+\ref{section-examples}.
 
 \metaprotsyntaxfig
 
@@ -23,7 +27,7 @@ values. $\metaprot$ \emph{instruction} forms allow dynamic
 construction of $\minicat$ protocols $\prog$, incorporating expression
 evaluation. The syntax also supports definitions of functions that
 compute values $\mv$ and, as a distinct form, functions that compute
-protocols.  Formally, we consider a complete metaprogram to include
+protocols $\prog$.  Formally, we consider a complete metaprogram to include
 both a codebase and a ``main'' program that uses the codebase.
 We disallow recursion, mainly to guarantee decidability
 of type dependence (Section \ref{section-metalangty}).
@@ -59,16 +63,15 @@ category $\notg{\phi}$, to the next Section.
 Our first goal in the $\metaprot$ type theory is to define an
 algorithmic system that is sound for both confidentiality and
 integrity typings as defined in Sections \ref{section-cpj} and
-\ref{section-ipj}. Returning to the example in Section
-\ref{section-cpj}, note that the key equivalence of the $\ttt{mux}$
-expression with a one-time-pad encryption we observe there
-is not trivial. To ensure that this sort of equivalence
-can be picked up by the type system, we introduce a
-an annotation form that allows the programmer to provide
-the needed hint.
+\ref{section-ipj}. Returning to the YGC secret encoding example in
+Section \ref{section-cpj}, note that the key equivalence of the
+$\ttt{mux}$ expression with a one-time-pad encryption we observe there
+is not trivial. To ensure that this sort of equivalence can be picked
+up by the type system, we introduce an $\ttt{as}$ annotation form that
+allows the programmer to provide the needed hint.
 
 Consider the following $\ttt{encode}$ function definition that
-generalizes this encoding for any identifier $y$ and sender, receiver
+generalizes this YGC encoding for any identifier $y$ and sender, receiver
 pair $s,r$. The second line in the body is a hint that
 the message $\mx{y}{r}$ can be considered equivalent to
 $\neg\sx{y}{s} \fplus \rx{y}{s}$:
@@ -90,8 +93,9 @@ $\ttt{encode}$ example, type checking in our systems only requires the
 hint to be verified once, with the guarantee that $\ttt{encode}$ can
 be applied anywhere without needing to re-verify the hint in
 application instances. To verify the hint in $\ttt{encode}$, we can
-just choose arbitrary values $w,\cid_1,\cid_2$ for $y$, $s$, and $r$,
-evaluate $\ttt{encode}(w,\cid_1,\cid_2) \redx \prog$, and then verify:
+just choose arbitrary ``fresh'' values $w,\cid_1,\cid_2$ for $y$, $s$,
+and $r$, evaluate $\ttt{encode}(w,\cid_1,\cid_2) \redx \prog$, and
+then verify:
 $$\toeq{\prog} \models \mx{w}{\cid_2} \eop
 \neg\sx{w}{\cid_1} \fplus \rx{w}{\cid_1}$$ 
 Since $\ttt{encode}$ is closed, validity is guaranteed for
@@ -118,6 +122,8 @@ non-trivial, and typical circuits can use up to thousands of gates,
 this has significant practical benefits by greatly reducing SMT overhead
 in whole-program analysis.
 
+\atjfig
+
 \subsubsection{$\minicat$ expression type algorithm.}
 
 A core element of $\metaprot$ type checking is type checking
@@ -125,13 +131,11 @@ of $\minicat$ expressions. The integrity type system presented in Section
 \ref{section-ipj} is already algorithmic and ready to use. But confidentiality
 typing presented in Section \ref{section-cpj} is not syntax-directed
 due to the \TirName{Encode} rule. But as described above, by introducing
-hint annotations we can ``cast'' any relevant expression form into
+hint annotations we can ``coerce'' any relevant expression form into
 the simplest equivalent syntactic form for one-time-pad encoding.
 Thus, in Figure \ref{fig-atj} we present the algorithm for
 confidentiality type judgements, where we eliminate the need for
 integrated SMT solving by assuming this sort of casting. 
-
-\atjfig
 
 The following Lemma establishes correctness of algorithmic confidentiality
 type checking, and makes explicit that SMT checking is eliminated in the
@@ -147,7 +151,7 @@ Hoare-style types for instructions have the following form:
 $$
 \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}
 $$
-Here, $\eqs_1$ and $\eqs_2$ are the pre- and post- conditions
+Here, $\eqs_1$ and $\eqs_2$ are the pre- and postconditions
 respectively, $\Gamma$ is the confidentiality type environment of the
 protocol resulting from execution of the instruction, which is sound
 wrt confidentiality typing, $R$ are the one-time-pads consumed in the
@@ -173,7 +177,7 @@ For example, here is a valid typing of $\ttt{encode}$.  It says that
 under any precondition, evaluating $\ttt{encode}$ results in a cipher
 type for the encoded message $\mx{x}{r}$, which consumes the
 one-time-pad $\rx{x}{s}$, and the integrity of $\mx{x}{r}$ is
-determined by the integrity of $\rx{x}{s}$ and $\sx{x}{s}$. The
+determined by the security level of $s$. The
 postcondition expresses the key confidentiality property of
 $\mx{x}{r}$, but also may be practically useful for correctness
 properties since it is a simpler expression form than the $\ttt{mux}$
@@ -181,8 +185,8 @@ form:
 $$
 \ttt{encode} :
 \begin{array}[t]{ll}
-  \Pi x,s,r . & \{ \} \quad \mx{x}{r} : \cty{\rx{x}{s}}{\sx{x}{s}}, \{ \rx{x}{s} \} \\
-  & \phantom{\{ \}} \quad \mx{x}{r} : \ity{s}{\{ \rx{x}{s}, \sx{x}{s} \}} \\
+  \Pi x,s,r . & \{ \}\quad \mx{x}{r} : \cty{\rx{x}{s}}{\sx{x}{s}}, \{ \rx{x}{s} \} \ \cdot\\
+  & \phantom{\{ \}} \quad \mx{x}{r} : \ity{s}{\setit{}} \\
   & \{ \mx{x}{r} \eop \neg\sx{y}{s} \fplus \rx{y}{s} \}
 \end{array}
 $$
@@ -196,21 +200,22 @@ of the precondition instance, but not the postcondition instance.
 
 We equate types up to evaluation of subexpressions as defined in
 Figure \ref{fig-notg}. Since expression evaluation is total we can
-just evaluate types of closed instructions, which have closed types,
-to obtain Hoare typings for instructions. In Figure \ref{fig-mtj} we
-define the type derivation rules for $\metaprot$. In the
-\TirName{Mesg} rule we use algorithmic confidentiality and integrity
-type checking in a straightforward manner.  In the \TirName{Encode}
-rule, we verify the hint given in the type annotation, and then use it
-for type checking.  In the \TirName{App} rule we verify preconditions
-of the given function type and instantiate the type and postconditions
-with the given expression arguments.  The \TirName{Sig} rule we
-specify how to verify $\Pi$ types for functions. Note that the values
-$\mv_1,\ldots,\mv_n$ chosen to instantiate the function parameters are
-chosen ``fresh'', meaning that any strings and client identifiers
-occurring as substrings in $\mv_1,\ldots,\mv_n$ are unique and
-not used in any program source code. This ensures generality
-of verification as demonstrated in Lemma \ref{lemma-eqs-notg}.
+just evaluate types of closed instructions, which are guaranteed to
+have closed types, to obtain Hoare typings for instructions. In Figure
+\ref{fig-mtj} we define the type derivation rules for $\metaprot$. In
+the \TirName{Mesg} rule we use algorithmic confidentiality and
+integrity type checking in a straightforward manner.  In the
+\TirName{Encode} rule, we verify the hint given in the type
+annotation, and then use it for type checking.  In the \TirName{App}
+rule we verify preconditions of the given function type and
+instantiate the type and postconditions with the given expression
+arguments.  The \TirName{Sig} rule we specify how to verify $\Pi$
+types for functions. Note that the values $\mv_1,\ldots,\mv_n$ chosen
+to instantiate the function parameters are chosen ``fresh'', meaning
+that any strings and client identifiers occurring as substrings in
+$\mv_1,\ldots,\mv_n$ are unique and not used in any program source
+code. This ensures generality of verification as demonstrated in Lemma
+\ref{lemma-eqs-notg} in the Appendix.
 
 We allow the programmer to specify a type signature $\tsig$ that
 maps functions in $\codebase$ to valid dependent Hoare
@@ -223,67 +228,12 @@ pre-~and postconditions, as we illustrate in Section
 \ref{section-examples}, since the rest of the type is reconstructed by
 type checking.
 
-\subsection{Type Checking Soundness}
-
-\begin{lemma}
-  \label{lemma-fresh}
-  Given $w$ and $\cid$ with $\fresh(w,\cid)$, if $\notg{\eqs}[w/y_1,\cid/y_n]$
-  is not satisfiable, then there exists no $w',\cid'$ such that
-  $\notg{\eqs}[w'/y_1,\cid'/y_n]$ is satisifiable.
-\end{lemma}
-
-\begin{proof}
-  Let $\eqs = \notg{\eqs}[w/y_1,\cid/y_n]$ and $\eqs' =
-  \notg{\eqs}[w'/y_1,\cid'/y_n]$. If $w',\cid'$ are fresh or chosen
-  such that $\eqs'$ is an $\alpha$-renaming of $\eqs$, the result is
-  immediate.  Otherwise, it must be the case that at least two
-  distinct variables $x_1$ and $x_2$ in $\eqs$ are renamed as a single
-  variable $x$ in $\eqs'$, given freshness of $w,\cid$. Let
-  $\mathit{rename}$ be the function that maps variables in $\eqs$ to
-  variables in $\eqs'$ such that $\mathit{rename}(\eqs) = \eqs'$. Let
-  $\store'$ be a model of $\eqs'$, and define $\store$ such that:
-  $$
-  \forall x \in \dom(\vars(E)) . \store(x) \defeq \store'(\mathit{rename}(x)) 
-  $$
-  Then $\store$ must be a model of $\eqs$, which is a contradiction. \qed
-\end{proof}
-
-\begin{lemma}
-  \label{lemma-eqs-notg}
-  For all $\fresh(\mv_1,\ldots,\mv_n)$, $\notg{E_1}$, $\notg{E_2}$, assuming: 
-  \begin{mathpar}
-    \notg{\eqs_1}[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx \eqs_1
-
-    \notg{\eqs_2}[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx \eqs_2
-
-    E_1 \models E_2
-  \end{mathpar}
-  then there exists no $\mv_1',\ldots,\mv_n'$ such that:
-    \begin{mathpar}
-    \notg{\eqs_1}[\mv_1'/y_1]\cdots[\mv_n'/y_n]  \redx \eqs_1
-
-    \notg{\eqs_2}[\mv_1'/y_1]\cdots[\mv_n'/y_n]  \redx \eqs_2
-
-    E_1' \not\models E_2'
-  \end{mathpar}  
-\end{lemma}
-
-\begin{proof}
-  Given the assumptions, suppose that $E_1' \not\models E_2'$
-  is an $\alpha$-renaming of $E_1 \models E_2$. In this
-  case the consequence follows immediately. Otherwise,
-  suppose on the contrary we can witness
-  $E_1' \not\models E_2'$. By definition this means that
-  $E_1' \wedge \neg E_2'$ is satisfiable
-  but $E_1 \wedge \neg E_2$ is not, which is a contradiction
-  by Lemma \ref{lemma-fresh}. \qed 
-\end{proof}
-
-The following Theorem establishes our main result, which
-is the $\metaprot$ type checking is sound with respect to both
-confidentiality and integrity typings. Since these typings
-imply security hyperproperties of confidentiality and integrity,
-$\metaprot$ type checking implicitly enforces them.
+The following Theorem establishes our main result, that the
+$\metaprot$ type checking is sound with respect to both
+confidentiality and integrity typings. Since these typings imply
+security hyperproperties of confidentiality and integrity, $\metaprot$
+type checking implicitly enforces them. Proof details are given in the
+Appendix.
 \begin{theorem}[Soundness of $\metaprot$ type checking]
   \label{theorem-mtj}
   Given preprocessing predicate $\eqspre$, program $\instr$, and verified $\tsig$, if
@@ -295,10 +245,3 @@ $\metaprot$ type checking implicitly enforces them.
   \end{enumerate}
 \end{theorem}
 
-\begin{proof}
-  (Sketch) The result follows by induction on derivation of the
-  main type judgement for $\instr$. The \TirName{Mesg} case follows
-  by Lemma \ref{lemma-atj-sound}. The \TirName{Encode} and \TirName{App}
-  cases follow by definition of the \TirName{Sig} rule and Lemma
-  \ref{lemma-eqs-notg}. 
-\end{proof}
