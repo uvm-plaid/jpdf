@@ -1,23 +1,14 @@
 \section{Compositional Type Verification in $\metaprot$}
 \label{section-metalang}
 
-Practical MPC computations protocols are
-typically composed of compositional units. Examples include GMW circuits
-and Yao's Garbled Circuits (YGC), that are composed of so-called
-garbled gates. Languages such as Fairplay \cite{269581} provide gates as
-units of abstraction that are ``wired'' together by the programmer to
-generate a complete circuit.
-
-The $\fedprot$ language is low-level and does not include abstractions
-for defining composable elements. So in this Section we introduce the
-$\metaprot$ language that includes structured data and function
-definitions for defining composable protocol elements at a higher
-level of abstraction.  The $\metaprot$ language is a
-\emph{metalanguage}, where $\fedprot$ protocols are the residuum of
-computation. In addition to these declarative benefits of $\metaprot$,
-component definitions support compositional verification of larger
-protocols as we will discuss with examples in Section
-\ref{section-examples}.
+The $\metaprot$ language \cite{skalka-near-ppdp24} includes structured
+data and function definitions for defining composable protocol
+elements at a higher level of abstraction.  The $\metaprot$ language
+is a \emph{metalanguage} aka metaprogramming language, where a
+$\fedprot$ protocols is the result of computation. In addition to
+these declarative benefits of $\metaprot$, component definitions
+support compositional verification of larger protocols as we will
+discuss with extended examples in Section \ref{section-examples}.
 
 \metaprotsyntaxfig
 
