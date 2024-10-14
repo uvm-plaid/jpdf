@@ -1,0 +1,127 @@
+\section*{Appendix}
+
+\subsubsection{Confidentiality Type Soundness}
+
+%\begin{definition}
+%  Given $\prog$ and $X_1,X_2 \subseteq \vars{\prog}$, we say that
+%  $X_1$ \emph{interferes with} $X_2$
+%  iff $\progd(\prog) \not\vdash X_1 * X_2$.
+%\end{definition}
+
+\begin{lemma}
+  \label{lemma-interference}
+  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\flips(\prog) = R$,
+  for all $x \in S \cup R$ and $M \subseteq V$ exactly one of the following conditions holds:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item $\notsep{\progd(\prog)}{\setit{x}}{M}$
+  \item There exists $X \subseteq S \cup R$ such that
+    $\notsep{\progd(\prog)}{\setit{x} \cup X}{M}$ while
+    $\sep{\progd(\prog)}{\setit{x}}{M}$ and $\sep{\progd(\prog)}{X}{M}$,
+    and we say that $x$ encodes $X$ in $M$.
+  \item Neither condition (i) nor (ii) hold, implying $\sep{\progd(\prog)}{\setit{x}}{M}$.
+  \end{enumerate}
+\end{lemma}
+
+%\begin{lemma}
+%  \label{lemma-eqsprogsound}
+%  If $\toeq{\prog} \models \eqs$ and $\eqs \models \eqs'$, then
+%  for all $\store \in \runs(\prog)$ we have $\store \models \eqs'$.
+%\end{lemma}
+
+\begin{definition}
+  \label{definition-sound}
+  Given $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
+  and $\flips(\prog) = R$, we say that
+  \emph{$\Gamma$ is sound for $\prog$} iff for all $M' \subseteq M$
+      and $x \in S \cup R$, the following
+      conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item  if $\notsep{\progd(\prog)}{\setit{x}}{M'}$
+    there exists $\ty$ with $\leakj{\Gamma}{M'}{\ty}$ and $x \in \ty$.
+    \item  if there exists  $X \subseteq S \cup R$ such that
+      $\setit{x}$ encodes $X$ in $M'$, 
+      then $\leakj{\Gamma}{M'}{\ty}$ and
+      $\leakclose{\Gamma}{\ty \cup X}{\ty'}$ and
+      $x \in \ty'$.
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}
+  \label{lemma-cpjsound}
+  If $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid then $\Gamma$ is
+  sound for $\prog$.
+\end{lemma}
+\begin{proof}
+  Unrolling Definition \ref{definition-sound}, proceed by induction on $M'$.
+  In case $M' = \varnothing$ the result follows trivially. Otherwise
+  $M' = M_0 \cup \{ \mx{w}{\cid} \}$ and wlog $\Gamma = \Gamma_0; \mx{w}{\cid} : \ty_0$
+  and $\prog = \prog_0;\xassign{\mx{w}{\cid}}{\be}{\cid_0}$, where $R = R_0;R_1$ and:
+  \begin{mathpar}
+    \cpj{R_0}{\eqs}{\eqspre \wedge \toeq{\prog_0}}{\Gamma_0}
+
+    \eqj{R_1}{\eqs}{\toeq{\elab{\be}{\cid}}}{\ty_0}
+  \end{mathpar}
+  are both valid, and by the induction hypothesis $\Gamma_0$ is sound for $\prog_0$.
+  We can then proceed by a second induction on the derivation of $\ty_0$, where there
+  are two subcases defined by the $\TirName{DepTy}$ and $\TirName{Encode}$ rules.
+  In the former case the result is immediate since all variables occuring in
+  $\toeq{\elab{\be}{\cid}}$ are elements of $\ty_0$ by definition. In the latter case,
+  we have:
+  \begin{mathpar}
+    \eqs \models \toeq{\elab{\be}{\cid}} \eop \phi' \fminus \rx{w}{\cid}
+
+    \ty_0 = \cty{\rx{w}{\cid}}{\ty_1}
+
+    R_1 = R_2;\setit{\rx{w}{\cid}}
+
+    \eqj{R_2}{\eqs}{R_2}{\ty_1}
+  \end{mathpar}
+  These facts imply that $\rx{w}{\cid}$ is used as a one-time-pad to encode
+  $\vars(\phi)$ in $M'$ 
+  \cite{barthe2019probabilistic}. Observing that:
+  $$
+  \leakclose{\Gamma}{\setit{\cty{\rx{w}{\cid}}{\ty_1}, \rx{w}{\cid}}}{\ty'}
+  $$
+  The result in this subcase follows by the (second) induction hypothesis. \qed
+\end{proof}
+
+\begin{proof}[Theorem \ref{theorem-cpj}]
+  Immediate by Lemmas \ref{lemma-cpjsound} and \ref{lemma-interference}. \qed
+\end{proof}
+
+\subsubsection{Integrity Type Soundness}
+
+\begin{definition}
+  Given $H,C$ and $\prog$ with $\iov(\prog) = S \cup V \cup O$,
+  we say $x \in V \cup O$ has an \emph{aberration} iff
+  $\exists \adversary, \store \in \botruns(\prog)$ such that
+  $\store(x) \ne \bot$ and $\neg\exists \store' \in \runs(\prog)$
+  with  $\store_{S_H} = \store'_{S_H}$ and
+  $\store(x) = \lcod{\store',\be}{\cid}$ where
+  $\xassign{x}{\be}{\cid} \in \prog$.
+\end{definition}
+
+\begin{lemma}
+  Given protocol $\prog$ with
+  $\views(\prog) = V$, if 
+  $\ipj{\eqs}{\prog}{\Delta}$ is valid
+  for some $\eqs$ and $x \in \cinputs$ has an
+  aberration for some $H,C$, then $\cheatj{\Delta}{H,C}{\seclev}$
+  and $\seclev(x) = \lolab$.
+\end{lemma}
+
+\begin{lemma}
+  If $\prog$ with $\iov(\prog) = S \cup V \cup O$ does not have
+  integrity for some $H,C$, then there exists $\setit{x} \cup V'
+  \subseteq \cinputs$ where $\setit{x}$ has an aberration and
+  $\notcondsep{\progd(\prog)}{S_H}{\setit{x} \cup V'}{\houtputs \cup O_H}$.
+\end{lemma}
+
+\begin{lemma}
+  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and
+  $\ipj{\eqs}{\prog}{\Delta}$ valid for some $\eqs$.  For all $x \in
+  \cinputs$ with an aberration, if
+  $\notcondsep{\progd(\prog)}{S_H}{\setit{x} \cup V'}{\houtputs \cup O_H}$
+  then there exists $y \in \houtputs \cup O_H$ such that
+  $\cheatj{\Delta}{H,C}{\seclev}$ and $\seclev(y) = \lolab$.
+\end{lemma}

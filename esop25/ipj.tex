@@ -1,30 +1,35 @@
 \section{Integrity Types}
 \label{section-ipj}
 
-In a malicious setting, detecting cheating by adding
-information-theoretic secure MAC codes to shares is a fundamental
-technique pioneered in systems such as BDOZ and SPDZ
-\cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3}.  These protocols
-assume a pre-processing phase that distributes shares with MAC codes
-to clients.  This integrates well with pre-processed Beaver Triples to
-implement malicious secure, and relatively efficient, multiplication
-\cite{evans2018pragmatic}.
+Our integrity type system is essentially a taint analysis, with
+machinery to allow consideration of any $H,C$ partitioning.  We also
+include rules to consider MAC codes to prevent cheating. We consider a
+semi-homomorphic encryption scheme that is used in BDOZ and SPDZ
+\cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3} and is applicable
+to various species of circuits. However other MAC schemes could be
+considered with a modified derivation rule incorporated with our taint
+analysis framework. BDOZ/SPDZ assumes a pre-processing phase that
+distributes shares with MAC codes to clients.  This integrates well
+with pre-processed Beaver Triples to implement malicious secure, and
+relatively efficient, multiplication \cite{evans2018pragmatic}.
 
-A field value $v$ is secret shared among 2 clients in BDOZ with
-accompanying MAC values.  Each client $\cid$ gets a pair of values
-$(v_\cid,m_\cid)$, where $v_\cid$ is a share of $v$ reconstructed by
-addition, i.e., $v = \fcod{v_1 \fplus v_2}$, and $m_\cid$ is a MAC of
-$v_\cid$.  More precisely, $m_\cid = k + (k_\Delta * v_\cid)$ where
-\emph{keys} $k$ and $k_\Delta$ are known only to $\cid' \ne \cid$ and
-$k_\Delta$. The \emph{local key} $k$ is unique per MAC, while the
-\emph{global key} $k_\Delta$ is common to all MACs authenticated by
-$\cid'$. This is a semi-homomorphic encryption scheme that supports
-addition of shares and multiplication of shares by a constant-- for
-more details the reader is referred to Orsini
-\cite{10.1007/978-3-030-68869-1_3}. We note that while we restrict
-values $v$, $m$, and $k$ to the same field in this presentation for
-simplicity, in general $m$ and $k$ can be in extensions of
-$\mathbb{F}_p$.
+In BDOZ, a field value $v$ is secret shared among 2 clients 
+with accompanying MAC values.  Each client $\cid$ gets a pair of
+values $(v_\cid,m_\cid)$, where $v_\cid$ is a share of $v$
+reconstructed by addition, i.e., $v = \fcod{v_1 \fplus v_2}$, and
+$m_\cid$ is a MAC of $v_\cid$.  More precisely, $m_\cid = k +
+(k_\Delta * v_\cid)$ where \emph{keys} $k$ and $k_\Delta$ are known
+only to $\cid' \ne \cid$ and $k_\Delta$. The \emph{local key} $k$ is
+unique per MAC, while the \emph{global key} $k_\Delta$ is common to
+all MACs authenticated by $\cid'$. This is a semi-homomorphic
+encryption scheme that supports addition of shares and multiplication
+of shares by a constant-- for more details the reader is referred to
+Orsini \cite{10.1007/978-3-030-68869-1_3}. We note that while we
+restrict values $v$, $m$, and $k$ to the same field in this
+presentation for simplicity, in general $m$ and $k$ can be in
+extensions of $\mathbb{F}_p$.
+
+\ipjfig
 
 As in \cite{skalka-near-ppdp24}, we use $\macgv{\mesg{w}}$ to refer to
 secret-shared values reconstructed with addition, and by
@@ -43,28 +48,28 @@ $$
 
 \subsection{Typing and Integrity Labeling}
 
-\ipjfig
-
 The integrity of values during protocol executions depends on the
 partitioning $H,C$, since any value received from a member of $C$ is
 initially considered to be low integrity. But as for confidentiality
 types, we want our basic type analysis to be generalizable to
-arbitrary $H,C$. So integrity type judgements are of the form
-$\ipj{\eqs}{\prog}{\Delta}$, where $\eqs$ plays a similar role as in
-confidentiality types, as a possibly weakened expression of algebraic
-properties of $\prog$, and encironments $\Delta$ record integrity
-information. Environments are ordered lists, since order of evaluation
-is important for tracking integrity-- validating low integrity
-information through MAC checking allows \emph{subsequent} treatment of
-it as high integrity, but not \emph{before}. Note that MAC checking is
-\emph{not} a form of endorsement as it is usually defined (as a dual
-of declassification \cite{sabelfeld2009declassification}), since a
-successful check guarantees no deviation from the protocol.
+arbitrary $H,C$. So integrity type judgements, defined in Figure
+\ref{fig-ipj}, are of the form $\ipj{\eqs}{\prog}{\Delta}$, where
+$\eqs$ plays a similar role as in confidentiality types, as a possibly
+weakened expression of algebraic properties of $\prog$, and
+environments $\Delta$ record dependency information that can be
+specialized to a given $H,C$. Integrity environments are ordered lists
+since order of evaluation is important for tracking integrity--
+validating low integrity information through MAC checking allows
+subsequent treatment of it as high integrity, but not before. Note
+that MAC checking is \emph{not} a form of endorsement as it is usually
+defined (as a dual of declassification
+\cite{sabelfeld2009declassification}), since a successful check
+guarantees no deviation from the protocol.
 
 The typing of protocols depends on a type judgement for expressions
-of the form $\itj{\cid}{\be}{\ity{\cid}{V}}$, which records
+of the form $\itj{\cid}{\be}{V}$, which records
 messages and reveals $V$ used in the construction of $\be$.
-In an assignment, this source is recorded in $\Delta$-- so for
+This source is recorded in $\Delta$ for message sends-- so for
 example, for some string $w$ letting:
 $$
 \prog\ \defeq\ (\xassign{\mx{w}{1}}{\secret{w} - \flip{w}}{2};\ \rvl{w} := \mx{w}{1})
@@ -104,62 +109,13 @@ messages to the integrity level of the owner.
   if $\cid \in H$  and $\lolab$
   otherwise for all $\mx{w}{\cid}$.
 \end{definition}
-But the values of messages and reveals may be
-affected by values sent by other parties, which is
-recorded in the $\Delta$ obtained from its typing. To determine
-whether this impacts integrity for any given $H,C$, we apply
-the inductively defined rewrite relation $\cheatj{\Delta}{H,C}{\seclev}$,
-axiomatized in Figure \ref{fig-cheatj}. The composition
-of typing and this latter rewriting obtains essentially
-a traditional taint analysis, modulo MAC checking. 
-
-\subsubsection{Type Soundness}
-
-\begin{definition}
-  Given $H,C$ and $\prog$ with $\iov(\prog) = S \cup V \cup O$,
-  we say $x \in V \cup O$ has an \emph{aberration} iff
-  $\exists \adversary, \store \in \botruns(\prog)$ such that
-  $\store(x) \ne \bot$ and $\neg\exists \store' \in \runs(\prog)$
-  with  $\store_{S_H} = \store'_{S_H}$ and
-  $\store(x) = \lcod{\store',\be}{\cid}$ where
-  $\xassign{x}{\be}{\cid} \in \prog$.
-\end{definition}
-
-\begin{lemma}
-  Given protocol $\prog$ with
-  $\views(\prog) = V$, if 
-  $\ipj{\eqs}{\prog}{\Delta}$ is valid
-  for some $\eqs$ and $x \in \cinputs$ has an
-  aberration for some $H,C$, then $\cheatj{\Delta}{H,C}{\seclev}$
-  and $\seclev(x) = \lolab$.
-\end{lemma}
-
-\begin{lemma}
-  If $\prog$ with $\iov(\prog) = S \cup V \cup O$ does not have
-  integrity for some $H,C$, then there exists $\setit{x} \cup V'
-  \subseteq \cinputs$ where $\setit{x}$ has an aberration and
-  $\notcondsep{\progd(\prog)}{S_H}{\setit{x} \cup V'}{\houtputs \cup O_H}$.
-\end{lemma}
-
-\begin{lemma}
-  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and
-  $\ipj{\eqs}{\prog}{\Delta}$ valid for some $\eqs$.  For all $x \in
-  \cinputs$ with an aberration, if
-  $\notcondsep{\progd(\prog)}{S_H}{\setit{x} \cup V'}{\houtputs \cup O_H}$
-  then there exists $y \in \houtputs \cup O_H$ such that
-  $\cheatj{\Delta}{H,C}{\seclev}$ and $\seclev(y) = \lolab$.
-\end{lemma}
-
-%\begin{lemma}
-%  Given $\prog$ and $H,C$, if $x$ has an aberration then one of
-%  the two inductively defined conditions holds:
-%  \begin{enumerate}[\hspace{5mm}i.]
-%  \item There exists $\xassign{x}{\be}{\cid} \in \prog$ with $\cid \in C$.
-%  \item There exists $\xassign{x}{\be}{\cid} \in \prog$ with $\cid \in H$ and
-%    $x' \in \vars(\be)$ such that $x'$ has an aberration.
-%  \end{enumerate}
-%\end{lemma}
-
+But the values of messages and reveals may be affected by values sent
+by other parties, which is recorded in the $\Delta$ obtained from its
+typing. To determine whether this impacts integrity for any given
+$H,C$, we apply the inductively defined rewrite relation
+$\cheatj{\Delta}{H,C}{\seclev}$, axiomatized in Figure
+\ref{fig-cheatj}. The composition of typing and this latter rewriting
+obtains essentially a traditional taint analysis, modulo MAC checking.
 Our main type soundness result for integrity is then given as follows.
 \begin{theorem}
   \label{theorem-ipj}
