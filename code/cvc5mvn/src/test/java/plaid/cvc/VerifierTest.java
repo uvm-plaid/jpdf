@@ -39,4 +39,18 @@ public class VerifierTest {
         assertFalse(Verifier.verify("out@1 := 1; assert (out = 2)@1"));
     }
 
+    @Test
+    public void twoPartyAddition() {
+        String protocol = """
+                m["s"]@2 := (s["x"] + -r["1"])@1;
+                m["s"]@1 := (s["y"] + -r["2"])@2;
+                p["1"] := (m["s"] + r["1"])@1;
+                p["2"] := (m["s"] + r["2"])@2;
+                out@1 := (p["1"] + p["2"])@1;
+                out@2 := (p["1"] + p["2"])@2
+                """;
+
+        assertTrue(Verifier.verify(protocol));
+    }
+
 }
