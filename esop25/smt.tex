@@ -52,12 +52,12 @@ express properties of shared values via constraints.
 %\end{mathpar}
 %\end{fpfig}
 
-This language of constraints has an obvious direct interpretation in the Finite
-Fields theory of cvc5 \cite{SMFF}. We can leverage this to implement a
-critical \emph{entailment} property, written $\eqs_1 \models \eqs_2$.
-Our entailment relation is based on satisfiability in a standard
-sense, where we represent models as memories $\store$ (mappings
-from variables to values).
+This language of constraints has an obvious direct interpretation in
+Satisfiability Modulo Finite Fields \cite{SMFF}. We can leverage this
+to implement a critical \emph{entailment} property, written $\eqs_1
+\models \eqs_2$.  Our entailment relation is based on satisfiability
+in a standard sense, where we represent models as memories $\store$
+(mappings from variables to values).
 \begin{definition}
   We write $\store \models \eqs$ iff $\store$ satisfies, aka is a model
   of, $\eqs$. We write $\eqs_1 \models
