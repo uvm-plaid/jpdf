@@ -133,7 +133,10 @@ it preserves the BDOZ authentication property. The precondition that
 input shares must possess this property is enforced by the two calls
 to $\ttt{sum}$ within the body of $\ttt{mult}$ and need not be made
 explicit. Finally, the postcondition of $\ttt{mult}$ expresses the
-correctness property of the multiplication gate.
+correctness property of the multiplication gate. In any case,
+integrity of a circuit constructed from the $\ttt{sum}$ and
+$\ttt{mult}$ library functions will require little and
+scalable MPC verification.
 
 %%%%%%%%%%%%%%%%%%
 %%% ARCHIVAL BELOW
