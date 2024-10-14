@@ -66,10 +66,10 @@ of $X$ owned by any client $\cid \in I$, in particular we write $X_H$
 and $X_C$ to denote the subsets belonging to honest and corrupt
 parties, respectively.
 \end{definition}
-An example of a $\minicat$ protocol, for additive secret sharing, is
-discussed in Section \ref{section-smt-toeq}.  We disallow overwriting
-of variables, since assignment is intended to represent distinct
-message sends.
+In all cases we disallow overwriting of variables, since assignment is
+intended to represent distinct message sends. An example of a
+$\minicat$ protocol, for additive secret sharing, is discussed in
+Section \ref{section-smt-toeq}.
 
 \subsection{Semantics}
 \label{section-lang-semantics}
@@ -128,7 +128,7 @@ Thus, we denote interpretation of expressions $\be$ computed on a
 client $\cid$ as $\lcod{\store,\be}{\cid}$. This interpretation is
 defined in Figure \ref{fig-minicat-redx}, along with the big-step
 reduction relation $\redx$ to evaluate commands. Reduction is a mapping
-fromon \emph{configurations} $(\store,\prog)$ to final stores
+from \emph{configurations} $(\store,\prog)$ to final stores
 where all three command forms- message send, broadcast, and
 output- are implemented as updates to the memory $\store$. 
 
@@ -139,11 +139,12 @@ in $\minicat$, albeit assuming some shared randomness. Alternatively,
 a simple passive secure OT can be defined with the addition of public
 key cryptography as a primitive. But given the diversity of approaches
 to OT, we instead assume that OT is abstract with respect to its
-implementation, where calls to OT in $\mathbb{F}_2$ are of the form
-$\OT{\be_1}{\cid}{\be_2}{\be_3}$ -- given a \emph{choice bit}
-$\be_1$ provided by a receiver $\cid$, the sender sends either $\be_2$
-or $\be_3$.  Critically, the sender learns nothing about $\be_1$ and
-the receiver learns nothing about the unselected value. We return to
+implementation, and any use is of the form
+$\mx{w}{\cid_1} := \elab{\OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2}$ --
+given a \emph{choice bit} $\be_1$ provided by a receiver $\cid_1$, the
+sender $\cid_2$ sends either $\be_2$
+or $\be_3$.  Critically, $\cid_2$ learns nothing about $\be_1$ and
+$\cid_1$ learns nothing about the unselected value. We return to
 the formal interpretation of OT in Section \ref{section-smt}.
 
 \subsection{$\minicat$ Adversarial Semantics}

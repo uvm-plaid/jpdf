@@ -23,8 +23,8 @@ leakage.
 
 \subsection{Probability Mass Functions (pmfs)} 
 
-Whereas pmfs typically map \emph{realizations} of variables in a joint
-distribution to values in $[0..1]$, for convenience and following
+Pmfs map \emph{realizations} of variables in a joint
+distribution to values in $[0..1]$. For convenience and following
 \cite{barthe2019probabilistic,skalka-near-ppdp24} we use memories to
 represent realizations, so for example given a pmf $\pmf$ over
 variables $\{ \sx{x}{1}, \mx{y}{2} \}$ we write $\pmf(\{
@@ -97,7 +97,7 @@ following standard notation to express conditional and unconditional separation:
 %  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
   We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
     $\store \in \mems(X_1 \cup X_2)$ and $\store' \in \mems(X_3)$ we have
-  $\margd{\pmf}{X_1 \cup X_2}(\store|\store') =
+  $\pmf(\store|\store') =
   \pmf(\store_{X_1}|\store') * \pmf(\store_{X_2}|\store')$. If $X_1$ is empty
   we write $\sep{\pmf}{X_2}{X_3}$.
 \end{definition}
@@ -149,8 +149,8 @@ publicly broadcast information from honest clients. Dually,
 corrupt clients can impact protocol integrity through the messages
 sent from corrupt to honest clients, and through publicly broadcast information
 from corrupt clients. We call the former \emph{corrupt views}, and
-the latter \emph{honest views}. Generally we let $V$ range over sets
-of views.
+the latter \emph{honest views}. We let $V$ range over sets
+of views, i.e., subsets of $M \cup P$.
 \begin{definition}[Corrupt and Honest Views]
   We let $V$ range over \emph{views} which are sets of messages
   and reveals. Given a program $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$,
@@ -181,8 +181,8 @@ of views.
 
 Here we restate hyperproperties developed in previous work
 \cite{skalka-near-ppdp24}, to which the reader is referred for a more
-thorough discussion of their relation to real/ideal security.  As
-usual, using hyperproperties for security semantics eases proofs of
+thorough discussion of their relation to real/ideal security. Using
+hyperproperties for security semantics eases proofs of
 correctness for our type systems.
 
 \subsubsection{Confidentiality}
@@ -238,10 +238,9 @@ passive strategy with some choice of inputs or causes an abort.
     $$ 
   where $X \defeq (\houtputs \cup O_H) \cap \dom(\store)$. 
 \end{definition}
-As demonstrated in previous work \cite{skalka-near-ppdp24}, integrity
-plus noninteference modulo output implies malicious security in the
-real/ideal model, and integrity plus gradual release is a
-probabilistic form of robust declassification
+Integrity plus noninteference modulo output implies malicious security
+in the real/ideal model \cite{skalka-near-ppdp24}, and integrity plus
+gradual release is a probabilistic form of robust declassification
 \cite{sabelfeld2009declassification}.
 
 
