@@ -102,7 +102,7 @@ Since $\ttt{encode}$ is closed, validity is guaranteed for
 any instance of $y$, $s$, and $r$.
 
 We generalize these benefits of compositional verification by allowing
-pre- and post-condition annotations on $\metaprot$ functions. For
+pre-~and postcondition annotations on $\metaprot$ functions. For
 example, consider a GMW-style, 2-party ``and-gate'' function
 $\ttt{andgmw}(x,y,z)$. In this protocol, each party $\cid
 \in \{1,2\}$ holds an additive secret share $\mx{x}{\cid}$ of
@@ -114,7 +114,7 @@ $$
 We provide details of $\ttt{andgmw}$ and other GMW protocol
 elements in Section \ref{section-examples}.  Our point now is that,
 similarly to the $\ttt{encode}$ example, we can verify this
-post-condition once as a correctness property for $\ttt{andgmw}$, and
+postcondition once as a correctness property for $\ttt{andgmw}$, and
 then integrate instances of it into circuit correctness properties
 with the guarantee that each instance also holds for any
 $\ttt{andgmw}$ gate.  Since the program logic of $\ttt{andgmw}$ is
@@ -155,7 +155,7 @@ Here, $\eqs_1$ and $\eqs_2$ are the pre- and postconditions
 respectively, $\Gamma$ is the confidentiality type environment of the
 protocol resulting from execution of the instruction, which is sound
 wrt confidentiality typing, $R$ are the one-time-pads consumed in the
-confidentialty typing, and $\Delta$ is the sound integrity type
+confidentiality typing, and $\Delta$ is the sound integrity type
 environment.
 
 \notgfig
@@ -168,7 +168,7 @@ $$
 \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}
 $$
 where $y_1,\ldots,y_n$ range over values $\mv$ and each of
-$\notg{\eqs_1}$ etc.~may contain expressions with free occurences
+$\notg{\eqs_1}$ etc.~may contain expressions with free occurrences
 of $y_1,\ldots,y_n$-- the syntax of these forms is in Figure
 \ref{fig-notg}. These $\Pi$ types are assigned to functions
 and instantiated at application points. 

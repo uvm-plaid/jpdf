@@ -80,7 +80,7 @@ union that ensures disjointness of combined sets:
 The \TirName{DepTy} rule handles all cases and just records the
 dependencies on variables in the term, a conservative approximation of
 dependencies.  The \TirName{Send} rule records the types of messages,
-reveals, and outputs in enviroments, and the \TirName{Seq} rule
+reveals, and outputs in environments, and the \TirName{Seq} rule
 combines the types of sequenced programs.  Given this we define
 validity of program type judgements as follows.
 \begin{definition}
@@ -98,7 +98,7 @@ Given a valid typing, we can leverage structural type information to
 conservatively approximate the information accessible by the
 adversary who has control over all corrupt clients in $C$ given
 a partitioning $H,C$. In particular, if the adversary has access to an
-encypted value and another value that is dependent on its one-time-pad
+encrypted value and another value that is dependent on its one-time-pad
 key-- i.e., access to values with types of the forms:
 $$
 \setit{\cty{\rx{w}{\cid}}{\ty}} \qquad \setit{\rx{w}{\cid}, \ldots} 
@@ -131,7 +131,7 @@ provided in an Appendix.
 It is important to recall from \cite{skalka-near-ppdp24} that gradual
 release does \emph{not} imply passive security, since it only concerns
 adversarial messages, but not public reveals of outputs where
-dependencies on input secrects can occur even in secure
+dependencies on input secrets can occur even in secure
 protocols. Nevertheless, gradual release is an important
 confidentiality property for MPC (and other distributed) protocols.
 

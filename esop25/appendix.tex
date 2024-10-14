@@ -69,7 +69,7 @@ Now we can prove that this invariant is preserved by type checking.
   are both valid, and by the induction hypothesis $\Gamma_0$ is sound for $\prog_0$.
   We can then proceed by a second induction on the derivation of $\ty_0$, where there
   are two subcases defined by the $\TirName{DepTy}$ and $\TirName{Encode}$ rules.
-  In the former case the result is immediate since all variables occuring in
+  In the former case the result is immediate since all variables occurring in
   $\toeq{\elab{\be}{\cid}}$ are elements of $\ty_0$ by definition. In the latter case,
   we have:
   \begin{mathpar}
@@ -99,7 +99,7 @@ On the basis of the above, proving the main result is straightforward.
 A key observation is that, to undermine integrity adversarial strategies
 must be different from passive strategies, in particular at least one
 adversarial input must be different than any used in a passive strategy
-(an abberation). 
+(an aberration). 
 \begin{definition}
   Given $H,C$ and $\prog$ with $\iov(\prog) = S \cup V \cup O$,
   we say $x \in V \cup O$ has an \emph{aberration} iff
@@ -109,7 +109,7 @@ adversarial input must be different than any used in a passive strategy
   $\store(x) = \lcod{\store',\be}{\cid}$ where
   $\xassign{x}{\be}{\cid} \in \prog$.
 \end{definition}
-It is straightforward to prove that if an abberation can
+It is straightforward to prove that if an aberration can
 exist, then it will be assigned $\lolab$ integrity in our
 analysis. 
 \begin{lemma}
@@ -176,7 +176,7 @@ satisfiability of constraints.
   \label{lemma-fresh}
   Given $w$ and $\cid$ with $\fresh(w,\cid)$, if $\notg{\eqs}[w/y_1,\cid/y_n]$
   is not satisfiable, then there exists no $w',\cid'$ such that
-  $\notg{\eqs}[w'/y_1,\cid'/y_n]$ is satisifiable.
+  $\notg{\eqs}[w'/y_1,\cid'/y_n]$ is satisfiable.
 \end{lemma}
 
 \begin{proof}
@@ -195,7 +195,7 @@ satisfiability of constraints.
   Then $\store$ must be a model of $\eqs$, which is a contradiction. \qed
 \end{proof}
 Now we can extend the preceding Lemma to constraint entailment,
-incorporating evaluation of expressions withing constraints. 
+incorporating evaluation of expressions within constraints. 
 \begin{lemma}
   \label{lemma-eqs-notg}
   For all $\fresh(\mv_1,\ldots,\mv_n)$, $\notg{E_1}$, $\notg{E_2}$, assuming: 
