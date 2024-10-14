@@ -80,18 +80,18 @@ technique in SMT to implement our (common) notion of entailment.
 \begin{mathpar}
   \toeq{x} = x
 
-  \toeq{\elab{\be_1 \fplus \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \fplus \toeq{\elab{\be_1}{\cid}}
+  \toeq{\elab{\be_1 \fplus \be_2}{\cid}} = (\toeq{\elab{\be_2}{\cid}} \fplus \toeq{\elab{\be_1}{\cid}})
 
-  \toeq{\elab{\be_1 \fminus \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \fminus \toeq{\elab{\be_1}{\cid}}
+  \toeq{\elab{\be_1 \fminus \be_2}{\cid}} = (\toeq{\elab{\be_2}{\cid}} \fminus \toeq{\elab{\be_1}{\cid}})
 
-  \toeq{\elab{\be_1 \ftimes \be_2}{\cid}} = \toeq{\elab{\be_2}{\cid}} \ftimes \toeq{\elab{\be_1}{\cid}}
+  \toeq{\elab{\be_1 \ftimes \be_2}{\cid}} = (\toeq{\elab{\be_2}{\cid}} \ftimes \toeq{\elab{\be_1}{\cid}})
 \end{mathpar}
 \begin{mathpar}
-  \toeq{\xassign{x}{\be}{\cid}} = x \eop \toeq{\elab{\be}{\cid}}
+  \toeq{\xassign{x}{\be}{\cid}} = (x \eop \toeq{\elab{\be}{\cid}})
   
-  \toeq{\elab{\assert{\be_1 = \be_2}}{\cid}} =  \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}
+  \toeq{\elab{\assert{\be_1 = \be_2}}{\cid}} =  (\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}})
 
-  \toeq{\prog_1;\prog_2} = \toeq{\prog_1} \wedge \toeq{\prog_2} 
+  \toeq{\prog_1;\prog_2} = (\toeq{\prog_1} \wedge \toeq{\prog_2})
 \end{mathpar}}
 \end{fpfig}
 
