@@ -1,37 +1,44 @@
 \section{Extended Examples}
 \label{section-examples}
 
-We consider examples that illustrate the versatility of the
+In Section \ref{section-smt} we gave the example of 3-party additive
+sharing for any field $\fieldp{p}$. In Sections \ref{section-ipj} and
+\ref{section-metalangty} we discussed the example of YGC input encoding.
+Now we consider examples that illustrate the versatility of the
 $\TirName{Encode}$ typing rule for confidentiality, the use of
 postconditions for correctness, and the use of both pre-~and
 postconditions for integrity.
+
+Using the Satisfiability Modulo Fields theory in cvc5 on an Apple M1
+processor, we have verified correctness of additive sharing protocols
+in fields up to size $\fieldp{2^{31} - 1}$ (an approximation of 32-bit
+integers) which takes ~16ms to compute for 3 parties and not
+significantly more than for, e.g., $\fieldp{2}$. We have also verified
+the semi-homorphic encryption properties leveraged in the BDOZ circuit
+library functions (Figures \ref{fig-bdozsum} and \ref{fig-bdozmult}) in
+fields up to size $\fieldp{2^{31} - 1}$ which takes \cnote{TBD}ms for the
+property used for the postcondition of the $\ttt{mult}$ gate. This is
+categorically better performance than could be achieved using previous
+brute-force methods in $\fieldp{2}$ \cite{skalka-near-ppdp24}.
 
 \subsection{Confidentiality Examples}
 
 \input{gmw}
 
-The $\ttt{encode}$ function example in Section \ref{section-metalangty}
-illustrates the use of type annotations to track confidentiality. In
-2-party Yao's Garbled Circuits (YGC), a \emph{garbler} prepares a circuit encoding
-that is shared with a \emph{evaluator}, and the $\ttt{encode}$ function
-defines the method the garbler uses to share their input secret encodings
-with the evaluator. The example illustrates how confidentiality is reflected
-in its (cipher)type.
-
 In the 2-party GMW protocol \cite{evans2018pragmatic}, another garbled
-binary circuit protocol, values are encrypted in a manner similar
-to BDOZ as described in Section \ref{section-ipj}. In our definition
-of GMW we use the convention that shared values $\macgv{w}$ are identified by
-strings $w$ and encoded as shares $\mx{w}{1}$ and $\mx{w}{2}$.  As for
-YGC, ciphertypes reflect the confidentiality of GMW input encodings as
-defined in the $\ttt{encodegmw}$ function in Figure \ref{fig-gmw}. No
-programmer annotation is needed given the syntax of the function
-body. More interestingly, the $\ttt{andgmw}$ gate definition shows how
-a programmer hint can express the relevant confidentiality property of
-the output share $\mx{z}{2}$ on client 2. The non-trivial equivalence
-can be verified by SMT once during verification, and subsequently
-confidentiality is expressed in the dependent type of the function
-(as for $\ttt{encode}$).
+binary circuit protocol, values are encrypted in a manner similar to
+BDOZ as described in Section \ref{section-ipj}. In our definition of
+GMW we use the convention that shared values $\macgv{\mesg{w}}$ are
+identified by strings $w$ and encoded as shares $\mx{w}{1}$ and
+$\mx{w}{2}$.  As for YGC, ciphertypes reflect the confidentiality of
+GMW input encodings as defined in the $\ttt{encodegmw}$ function in
+Figure \ref{fig-gmw}. No programmer annotation is needed given the
+syntax of the function body. More interestingly, the $\ttt{andgmw}$
+gate definition shows how a programmer hint can express the relevant
+confidentiality property of the output share $\mx{z}{2}$ on client
+2. The non-trivial equivalence can be verified by SMT once during
+verification, and subsequently confidentiality is expressed in the
+dependent type of the function (as for $\ttt{encode}$).
 
 Note also that the $\ttt{andgmw}$ function is decorated with a
 postcondition that expresses the correctness property of the
@@ -50,9 +57,9 @@ Returning to the example of malicious-secure 2-party BDOZ arithmetic
 circuits begun in Section \ref{section-ipj}, in Figure \ref{fig-bdozsum} we
 define $\ttt{sum}$ and $\ttt{open}$ functions. The latter implements
 ``secure opening''-- each party sends it's local share of a
-global value $\macgv{w}$ along with its MAC to the other party,
+global value $\macgv{\mesg{w}}$ along with its MAC to the other party,
 which is authenticated via the $\macbdoz{w}$ check (in \ttt{\_open}),
-and then each party reconstructs $\macgv{w}$. 
+and then each party reconstructs $\macgv{\mesg{w}}$. 
 
 The $\ttt{sum}$ function implements an addition gate. Note that this
 is done non-interactively-- each party just sums its local shares
@@ -65,7 +72,7 @@ which can be checked using the sum of keys of the input shares.
 In BDOZ a pre-processing phase is assumed where initial input secrets
 are shared along with their associated MACs and keys. This can be
 expressed in $\eqspre$ for input secrets $\sx{\ttt{"x"}}{1}$ and
-$\sx{\ttt{"y"}}{2}$, for example, which would subsume the following
+$\sx{\ttt{"y"}}{2}$, for example, which subsume the following
 constraints on shares:
 {\footnotesize$$
 \begin{array}{l}
@@ -90,15 +97,14 @@ $\ttt{sum}(\ttt{"z"},\ttt{"x"},\ttt{"y"}); \ttt{open}(\ttt{"z"})$.
 
 A common approach to implementing multiplication gates in a BDOZ
 setting is to use \emph{Beaver Triples}. Recall that Beaver triples
-are values $a,b,c$ with $\fcod{a * b} = c$, unique per multiplication
-gate, that are secret shared with clients during pre-processing.
-In our encoding we assume the additional convention that each gate
-output identifier distinguishes the Beaver triple, so for
-example the share of the $a$ value for a gate $\ttt{"g1"}$
-is identified by $\ttt{"g1as"}$, etc., and $\eqspre$ would
-subsume the following constraints for the $a,b,c$ values of
-gate $\ttt{"g1"}$.
-{\footnotesize$$
+are values $a,b,c$ with $a$ and $b$ chosen randomly and $c = a * b$,
+unique per multiplication gate, that are secret shared with clients
+during pre-processing.  In our encoding we assume the additional
+convention that each gate output identifier distinguishes the Beaver
+triple, so for example the share of the $a$ value for a gate
+$\ttt{"g1"}$ is identified by $\ttt{"g1as"}$, etc., and $\eqspre$
+subsumes the following constraints for the $a,b,c$ values of gate
+$\ttt{"g1"}$.  {\footnotesize$$
 \begin{array}{l}
 \mx{\ttt{"g1as"}}{1} \eop \rx{\ttt{"g1as"}}{1}\ \wedge 
 \mx{\ttt{"g1bs"}}{1} \eop \rx{\ttt{"g1bs"}}{1}\ \wedge\\
