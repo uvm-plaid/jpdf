@@ -461,16 +461,21 @@ $$
 \begin{fpfig}[t]{$\metaprot$ type derivation rules.}{fig-mtj}
 \begin{mathpar}
   \inferrule[Mesg]
-            {e_1 \redx x \\ e_2 \redx \be \\ e_3 \redx \cid \\ \atj{\toeq{\elab{\be}{\cid}}}{R}{\ty} \\
+            {\assign{e_1}{e_2} \redx \xassign{x}{\be}{\cid}  \\ \atj{\toeq{\elab{\be}{\cid}}}{R}{\ty} \\
               \itj{\cid}{\be}{V}}
-            {\mtj{\xassign{e_1}{e_2}{e_3}}{\eqs}{(x:\ty)}{R}{(x : \ity{\cid}{V})}{\eqs \wedge x \eop \toeq{\elab{\be}{\cid}}}}
+            {\mtj{\assign{e_1}{e_2}}{\eqs}{(x:\ty)}{R}{(x : \ity{\cid}{V})}{\eqs \wedge x \eop \toeq{\elab{\be}{\cid}}}}
 
   \inferrule[Encode]
-            {e_1 \redx w \\ e_2 \redx \cid \\ \notg{\phi} \redx \phi \\
-              \eqs \models \mx{w}{\cid} \eop \phi\\
+            {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
+              \eqs \models x \eop \phi\\
               \atj{\phi}{R}{\ty}}
-            {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(\mx{w}{\cid}:\ty)}{R}{\varnothing}{\eqs}}
+            {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(x : \ty)}{R}{\varnothing}{\eqs}}
 
+  \inferrule[Assert]
+            {\elab{\assert{e_1 = e_2}}{e_3} \redx \elab{\assert{\be_1 = \be_2}}{\cid} \\
+             \ipj{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Delta}}
+            {\mtj{\elab{\assert{e_1 = e_2}}{e_3}}{\eqs}{\varnothing}{\varnothing}{\Delta}{\eqs}}
+            
   \inferrule[App]
             {\tsig(f) = \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}} \\
               e_1 \redx \mv_1\ \cdots\ e_n \redx \mv_n \\
