@@ -104,10 +104,10 @@ That is, given $\prog$, program annotations or other cues can be used
 to find a minimal $\eqs$ with $\toeq{\prog} \models \eqs$ for verifying
 correctness and security.
 
-The mapping $\toeq{\cdot}$ from programs $\prog$ to contraints
-is defined in Figure \ref{fig-toeq}. The interpretion of OT is ommitted
-from this figure which is general-- for $\mathbb{F}_2$ the interpretation
-is:
+The mapping $\toeq{\cdot}$ from programs $\prog$ to contraints is
+defined in Figure \ref{fig-toeq}. The interpretion of OT is ommitted
+from this figure which is general. For $\mathbb{F}_2$ (where we allow
+negation $\neg$ of expressions) the interpretation is:
 \begin{mathpar}
   \toeq{\elab{\OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2}} =
   (\toeq{\elab{\be_1}{\cid_1}} \ftimes \toeq{\elab{\be_3}{\cid_2}}) \fplus
