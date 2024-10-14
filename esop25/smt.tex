@@ -6,7 +6,7 @@ $\mathbb{F}_2$ can be implemented with Datalog
 \cite{skalka-near-ppdp24}, which is a form of constraint
 programming. In this paper we extend this idea to arbitrary prime
 fields by using a more general form of SMT constraint programming,
-specifically Satisfiability Modulo Finite Fields \cite{SMFF}. As we
+Satisfiability Modulo Finite Fields \cite{SMFF}. As we
 will show in subsequent sections, this interpretation supports
 correctness guarantees, and also static type analyses for enforcing
 confidentiality and integrity properties.
@@ -25,7 +25,7 @@ $$
 %In Figure \ref{fig-eqs} we define a syntax of SMT-style constraints
 %$\eqs$, where
 Note that constraint terms $\phi$ are similar to expressions $\be$
-except that $\phi$ can ``cross party lines''. This turns out to be very useful
+except that $\phi$ can ``cross party lines''. This is needed
 to express correctness properties-- for example, in the
 Goldreich-Micali-Wigderson (GMW) protocol wire values in circuits are
 represented by reconstructive shares \cite{evans2018pragmatic}.  If by
