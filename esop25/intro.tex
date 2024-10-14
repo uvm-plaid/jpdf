@@ -1,44 +1,38 @@
 \section{Introduction}
 
-Secure Multi-Party Computation (MPC) protocols support data privacy in
-important modern, distributed applications such as privacy-preserving
-machine learning
+Data privacy is a critical concern in distributed applications
+including privacy-preserving machine learning
 \cite{li2021privacy,knott2021crypten,koch2020privacy,liu2020privacy}
-and Zero-Knowledge proofs in blockchains
+blockchains
 \cite{ishai2009zero,lu2019honeybadgermpc,gao2022symmeproof,tomaz2020preserving}.
-The security semantics of MPC include both confidentiality and
-integrity properties incorporated into models such as real/ideal (aka
-simulator) security and universal composability (UC), developed
-primarily by the cryptography community \cite{evans2018pragmatic}.
-Related proof methods are well-studied \cite{Lindell2017} but mostly
-manual. To support automated reasoning, recent work has reformulated
-MPC security semantics as \emph{hyperproperties}
-\cite{8429300,10.1145/3453483.3454074,skalka-near-ppdp24}.
-Separately, recent research in the SMT community has developed
-theories of finite fields \cite{SMFF} with clear relevance to
-verification of cryptographic schemes that rely on field
-arithmetic. The goal of this paper is to combine these two approaches
-in an automated type system for verifying correctness and security
-properties of MPC protocols.
+Secure multiparty computation (MPC) is a key software-based enabling
+technology for these applications. MPC include both confidentiality
+and integrity properties, formulated as real/ideal (aka simulator)
+security and universal composability (UC) \cite{evans2018pragmatic},
+with well-studied manual proof methods \cite{Lindell2017}.  MPC
+security semantics has also been reformulated as
+\emph{hyperproperties}
+\cite{8429300,10.1145/3453483.3454074,skalka-near-ppdp24} to support
+automated language-based proof methods. And recent research in the SMT
+community has developed theories of finite fields \cite{SMFF} with
+clear relevance to verification of cryptographic schemes that rely on
+field arithmetic. The goal of this paper is to combine these two
+approaches in an automated type system for verifying correctness and
+security properties of MPC protocols.
 
-The distinction between high- and low-level languages for MPC is
-important. High-level languages such as Wysteria
-\cite{rastogi2014wysteria} and Viaduct \cite{10.1145/3453483.3454074}
-are designed to provide effective programming of full
-applications. These language designs incorporate sophisticated
-verified compilation techniques such as orchestration
-\cite{viaduct-UC} to guarantee high-level security properties, and
-they rely on \emph{libraries} of low-level MPC protocols, such as
-binary and arithmetic circuits. These low-level protocols encapsulate
-abstractions such as secret sharing and semi-homomorphic encryption,
-and must be verified by hand. So, low-level MPC
-programming and protocol verification remains a distinct challenge and both
-critical to the general challenge of PL design for MPC and
-complementary to high-level language design.
+Our focus is on low-level MPC protocols. Previous high-level
+MPC-enabled languages such as Wysteria \cite{rastogi2014wysteria} and
+Viaduct \cite{10.1145/3453483.3454074} are designed to provide
+effective programming of full applications, and incorporate
+sophisticated compilation techniques such as orchestration
+\cite{viaduct-UC} to guarantee high-level security properties. But
+these approaches rely on \emph{libraries} of low-level MPC protocols,
+such as binary and arithmetic circuits. These low-level protocols are
+probabilistic, encapsulate abstractions such as secret sharing and
+semi-homomorphic encryption, and are complementary to high-level
+language design.
 
 \subsection{Overview and Contributions}
-
-
 
 Our work is based on the $\metaprot$/$\minicat$ framework developed in
 previous work \cite{skalka-near-ppdp24}. The prior work developed the 
