@@ -15,10 +15,17 @@ public class Verifier {
         return verify(Loader.toCommand(src));
     }
 
+    public static boolean verify(String src, int order) {
+        return verify(Loader.toCommand(src), order);
+    }
+
     public static boolean verify(PreludeCommand command) {
+        return verify(command, 7);
+    }
+
+    public static boolean verify(PreludeCommand command, int order) {
         TermManager termManager = new TermManager();
-        // TODO Do we need to parameterize the sort?
-        Sort sort = mkFiniteFieldSort(termManager, "7", 10);
+        Sort sort = mkFiniteFieldSort(termManager, Integer.toString(order), 10);
         Solver solver = new Solver(termManager);
         TermFactory termFactory = new TermFactory(termManager, sort);
         termFactory.toTerms(command).forEach(solver::assertFormula);

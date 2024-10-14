@@ -50,7 +50,7 @@ public class VerifierTest {
                 out@2 := (p["1"] + p["2"])@2
                 """;
 
-        assertTrue(Verifier.verify(protocol));
+        assertTrue(Verifier.verify(protocol, 2147483647));
     }
 
 }
