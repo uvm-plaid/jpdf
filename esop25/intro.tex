@@ -38,12 +38,27 @@ complementary to high-level language design.
 
 \subsection{Overview and Contributions}
 
+
+
 Our work is based on the $\metaprot$/$\minicat$ framework developed in
-previous work \cite{skalka-near-ppdp24}. In Section \ref{section-lang}
-we recall the $\minicat$ language model and key definitions. In
+previous work \cite{skalka-near-ppdp24}. The prior work developed the 
+language and semantics, plus two mechanisms for verifying security: an
+automated approach for protocols in $\mathbb{F}_2$ (the binary field),
+based on enumerating all possible executions of the protocol, that scales 
+only to very small protocols; and a manual approach based on a program logic.
+%
+In Section \ref{section-lang} we recall the $\minicat$ language model and key definitions. In
 Section \ref{section-model} we recall formulations of program distributions,
-and key probabilistic hyperproperties of MPC in $\minicat$. On this
-basis we make the following contributions:
+and key probabilistic hyperproperties of MPC in $\minicat$. 
+
+Together, our contributions \emph{automate} the verification of security
+properties in $\metaprot$/$\minicat$. In this work, we build on~\cite{skalka-near-ppdp24}
+by developing automatic verification approaches that work for arbitrary
+finite fields and scale to large protocols. To accomplish this, we develop new
+type systems for compositional verification, and use SMT to automate the checks
+that were accomplished by enumeration in prior work. Specifically, we make the
+following contributions:
+%
 \begin{enumerate}[i.]
 \item In Section \ref{section-smt}, an interpretation of protocols in
   $\minicat$ as SMT constraints (Theorem \ref{theorem-toeq}) and
