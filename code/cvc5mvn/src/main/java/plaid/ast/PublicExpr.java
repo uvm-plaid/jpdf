@@ -9,4 +9,8 @@ public record PublicExpr(PreludeExpression getE) implements MemoryExpr {
         return List.of(getE);
     }
 
+    @Override
+    public String prettyPrint(){
+        return "p[\"" + getE().prettyPrint() + "\"]";
+    }
 }

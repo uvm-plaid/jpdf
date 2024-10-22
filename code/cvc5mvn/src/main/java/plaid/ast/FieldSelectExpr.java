@@ -45,4 +45,9 @@ public class FieldSelectExpr implements PreludeExpression{
                 ", l=" + l +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
+    }
 }

@@ -46,4 +46,9 @@ public class TimesExpr implements PreludeExpression{
                 ", e2=" + e2 +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        return "(" + e1.prettyPrint() + "*" + e2.prettyPrint() + ")";
+    }
 }

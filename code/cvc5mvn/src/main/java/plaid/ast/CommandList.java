@@ -39,4 +39,16 @@ public class CommandList implements PreludeCommand{
                 "commands=" + commands +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < commands.size(); i++){
+            sb.append(commands.get(i).prettyPrint());
+            if(i != commands.size()-1){
+                sb.append("; ");
+            }
+        }
+        return sb.toString();
+    }
 }

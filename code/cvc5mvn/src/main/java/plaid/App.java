@@ -16,6 +16,19 @@ import javax.swing.JPanel;
 
 public class App 
 {
+    public static void main( String[] args ) throws Exception {
+        String path = args[0];
+        // prelude demo
+        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/java/plaid/confidentiality_example.txt");
+        InputStream inputStream = new FileInputStream(file);
+        PrintStream outputStream = new PrintStream("parse tree for " + file.getName());
+        outputStream.println(preludeParseTree(inputStream));
+        inputStream.close();
+        outputStream.close();
+
+
+    } // main()
+
     // allow arbitrary Prelude source code files to be input
     // return a parse tree
     public static String preludeParseTree(InputStream in) throws Exception{
@@ -44,7 +57,7 @@ public class App
 //        frame.pack();
 //        frame.setVisible(true);
         return pc.toStringTree(parser);
-    }
+    } // preludeParseTree()
 
     // return memories in an overture program
     public static Map<String, Term> createLookup(Iterable<Memory> memories){
@@ -100,16 +113,6 @@ public class App
 //        System.out.println(r_unsat);
     }
 
-    public static void main( String[] args ) throws Exception
-    {
-        String path = args[0];
-        // prelude demo
-        File file = new File("/home/yyeh/jpdf/code/cvc5mvn/src/main/java/plaid/confidentiality_example.txt");
-        InputStream inputStream = new FileInputStream(file);
-        PrintStream outputStream = new PrintStream("parse tree for " + file.getName());
-        outputStream.println(preludeParseTree(inputStream));
-        inputStream.close();
-        outputStream.close();
 
         /*
         //2-party addition
@@ -320,5 +323,5 @@ public class App
         */
 
 
-    }
+
 }

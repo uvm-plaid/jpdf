@@ -58,4 +58,17 @@ public class CommandFunction implements PreludeFunction{
                 ", c=" + c +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
+//        StringBuilder sb = new StringBuilder();
+//        for(int i = 0; i < y.size(); i++){
+//            sb.append(y.get(i).prettyPrint());
+//            if(i != y.size() - 1){
+//                sb.append(" , " );
+//            }
+//        }
+//        return fname.prettyPrint() + "(" + sb + ")" + "{" + c.prettyPrint() + "}" + "\n";
+    }
 }

@@ -13,4 +13,8 @@ public record LetCommand(
         return List.of(identifier, expr, command);
     }
 
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
+    }
 }

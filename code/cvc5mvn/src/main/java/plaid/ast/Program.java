@@ -31,6 +31,11 @@ public class Program implements Node {
         return null;
     }
 
+    /**
+     * return command function that has the same function name as input functionName
+     * @param functionName
+     * @return
+     */
     public CommandFunction resolveCommandFunction(PreludeExpression functionName){
         for (CommandFunction commandFunction : commandFunctions) {
             if(commandFunction.getFname().equals(functionName)){
@@ -66,5 +71,10 @@ public class Program implements Node {
                 "commandFunctions=" + commandFunctions +
                 ", exprFunctions=" + exprFunctions +
                 '}';
+    }
+
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
     }
 }

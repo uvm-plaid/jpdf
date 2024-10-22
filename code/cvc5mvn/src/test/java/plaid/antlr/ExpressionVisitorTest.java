@@ -176,4 +176,8 @@ public class ExpressionVisitorTest {
         assertEquals(new Identifier("_1"), ast("_1"));
     }
 
+    @Test
+    public void identifierEquality() {
+        assertEquals(new Identifier("r11"), new Identifier("r11"));
+    }
 }

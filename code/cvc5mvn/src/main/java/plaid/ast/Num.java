@@ -41,4 +41,9 @@ public class Num implements OvertureExpression {
                 "num=" + num +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        return String.valueOf(num);
+    }
 }

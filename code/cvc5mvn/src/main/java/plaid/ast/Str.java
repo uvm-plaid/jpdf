@@ -3,7 +3,7 @@ package plaid.ast;
 import java.util.List;
 import java.util.Objects;
 
-public class Str extends Value {
+public class Str implements PreludeExpression {
 
     private final String str;
 
@@ -38,5 +38,10 @@ public class Str extends Value {
         return "Str{" +
                 "str='" + str + '\'' +
                 '}';
+    }
+
+    @Override
+    public String prettyPrint(){
+        return getStr();
     }
 }

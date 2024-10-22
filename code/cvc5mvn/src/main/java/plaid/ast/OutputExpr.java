@@ -9,4 +9,8 @@ public record OutputExpr() implements MemoryExpr {
         return List.of();
     }
 
+    @Override
+    public String prettyPrint(){
+        return "out";
+    }
 }

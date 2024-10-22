@@ -45,4 +45,10 @@ public class FieldExpr implements PreludeExpression{
                 "elements=" + elements +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
+    }
+
 }

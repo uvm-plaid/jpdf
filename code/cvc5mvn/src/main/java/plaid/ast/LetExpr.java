@@ -56,4 +56,9 @@ public class LetExpr implements PreludeExpression{
                 ", e2=" + e2 +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
+    }
 }

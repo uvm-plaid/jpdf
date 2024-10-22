@@ -58,4 +58,9 @@ public class ExprFunction implements PreludeFunction{
                 ", e=" + e +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
+    }
 }

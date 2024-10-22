@@ -39,4 +39,9 @@ public class Identifier implements PreludeExpression {
                 "name='" + name + '\'' +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
+    }
 }

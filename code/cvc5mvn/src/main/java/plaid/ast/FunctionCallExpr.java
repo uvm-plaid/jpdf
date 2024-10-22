@@ -42,4 +42,9 @@ public class FunctionCallExpr implements PreludeExpression{
         return result;
     }
 
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
+    }
+
 }

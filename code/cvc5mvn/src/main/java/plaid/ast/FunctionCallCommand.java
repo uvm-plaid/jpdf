@@ -6,19 +6,19 @@ import java.util.Objects;
 
 public class FunctionCallCommand implements PreludeCommand{
     private final Identifier fname;
-    private final List<PreludeExpression> functionCalls;
+    private final List<PreludeExpression> parameters;
 
-    public FunctionCallCommand(Identifier fname, List<PreludeExpression> functionCalls){
+    public FunctionCallCommand(Identifier fname, List<PreludeExpression> parameters){
         this.fname = fname;
-        this.functionCalls = functionCalls;
+        this.parameters = parameters;
     }
 
     public Identifier getFname() {
         return fname;
     }
 
-    public List<PreludeExpression> getFunctionCalls() {
-        return functionCalls;
+    public List<PreludeExpression> getParameters() {
+        return parameters;
     }
 
     @Override
@@ -26,19 +26,19 @@ public class FunctionCallCommand implements PreludeCommand{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FunctionCallCommand that = (FunctionCallCommand) o;
-        return Objects.equals(fname, that.fname) && Objects.equals(functionCalls, that.functionCalls);
+        return Objects.equals(fname, that.fname) && Objects.equals(parameters, that.parameters);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fname, functionCalls);
+        return Objects.hash(fname, parameters);
     }
 
     @Override
     public Iterable<Node> children() {
         List<Node> result = new ArrayList<>();
         result.add(fname);
-        result.addAll(functionCalls);
+        result.addAll(parameters);
         return result;
     }
 
@@ -46,7 +46,12 @@ public class FunctionCallCommand implements PreludeCommand{
     public String toString() {
         return "FunctionCallCommand{" +
                 "fname=" + fname +
-                ", functionCalls=" + functionCalls +
+                ", functionCalls=" + parameters +
                 '}';
+    }
+
+    @Override
+    public String prettyPrint(){
+        throw new UnsupportedOperationException();
     }
 }

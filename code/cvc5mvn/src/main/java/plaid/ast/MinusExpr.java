@@ -39,4 +39,9 @@ public class MinusExpr implements PreludeExpression {
                 "e=" + e +
                 '}';
     }
+
+    @Override
+    public String prettyPrint(){
+        return "(" +  "-" + e.prettyPrint() + ")";
+    }
 }

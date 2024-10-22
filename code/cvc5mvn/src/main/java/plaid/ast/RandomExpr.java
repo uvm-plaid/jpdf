@@ -9,4 +9,8 @@ public record RandomExpr(PreludeExpression getE) implements MemoryExpr {
         return List.of(getE);
     }
 
+    @Override
+    public String prettyPrint(){
+        return "r[\"" + getE().prettyPrint() + "\"]";
+    }
 }

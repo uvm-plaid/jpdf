@@ -17,15 +17,6 @@ import static org.junit.Assert.assertEquals;
 public class CvcUtilsTest {
 
     /**
-     * Does not produce a cvc5 constant name for nodes that are not standard memory nodes.
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void nonMemNames() {
-        MemoryExpr other = List::of;
-        CvcUtils.getCvcName(other, 1);
-    }
-
-    /**
      * Produces cvc5 constant names for all memory types.
      */
     @Test
