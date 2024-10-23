@@ -28,6 +28,7 @@ expr
     | ident #IdentExpr
     | STRING #Str
     | VALUE #Num
+    | 'OT' '(' expr '@' expr ',' expr ',' expr ')' #OTExpr
     ;
 
 command
