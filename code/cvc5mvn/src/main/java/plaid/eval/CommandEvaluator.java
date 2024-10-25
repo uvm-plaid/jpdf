@@ -56,13 +56,6 @@ public class CommandEvaluator {
                 PreludeExpression v = expressionEvaluator.toOverture(letCommand.expr());
 
                 // let y = v in c
-                // andgmw(z, x, y) {
-                //   let table = andtablegmw(x,y,z) in
-                //   m[x]@1 := m[x]@2;
-                //   m[y]@1 := m[y]@2;
-                //   m[z]@2 := mux4(m[x], m[y], table.row1, table.row2, table.row3, table.row4)@1;
-                //   m[z]@1 := r[z]@1
-                //}
                 Map<Identifier, PreludeExpression> binding = new HashMap<>(expressionEvaluator.binding_list.getLast());
                 binding.put(letCommand.identifier(), v);
                 expressionEvaluator.binding_list.addLast(binding);

@@ -64,7 +64,7 @@ public class ExpressionEvaluatorTest {
      * expression in let area should evaluate to value before substitution
      */
     @Test
-    public void LetExprEval(){
+    public void evalLetExpr(){
         PreludeExpression letExpr = Loader.toExpression("let y = 3 in let x = y + 1 in x + y ");
         ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), List.of()));
         PreludeExpression result = expressionEvaluator.toOverture(letExpr);
@@ -72,14 +72,17 @@ public class ExpressionEvaluatorTest {
     }
 
     /**
-     * TODO: test shadowing; let x = 3 in let x = 5 in x + 3;
+     * evaluator should support shadowing
      */
-
+    @Test
+    public void evalShadowing() {
+        assertEquals(new PlusExpr(new Num(5), new Num(3)) , eval("let x = 3 in let x = 5 in x+3", List.of()));
+    }
     /**
      * evaluate function call (with let expr, field expr, field selection)
      */
     @Test
-    public void functionCallEval(){
+    public void evalfunctionCall(){
 
         List<Identifier> parameters = List.of(new Identifier("x"), new Identifier("y"), new Identifier("z"));
         PreludeExpression expr =

@@ -1,10 +1,13 @@
 package plaid.eval;
 
+import io.github.cvc5.CVC5ApiException;
+import io.github.cvc5.Sort;
+import io.github.cvc5.TermManager;
 import org.junit.Test;
 import plaid.antlr.Loader;
-import plaid.ast.PreludeCommand;
-import plaid.ast.Program;
-import plaid.ast.CommandList;
+import plaid.ast.*;
+import plaid.cvc.TermFactory;
+import plaid.cvc.Verifier;
 
 import java.util.List;
 
@@ -16,7 +19,7 @@ public class ProgramEvaluatorTest {
      * test confidentiality example
      */
     @Test
-    public void testConfidentiality(){
+    public void testConfidentiality() throws CVC5ApiException {
         String program = """
                 exprfunctions: 
                 not(x){
@@ -121,12 +124,11 @@ public class ProgramEvaluatorTest {
 
         assertEquals(expected_output, actual_output);
 
+        // test cvc5 (semantic equality)
+        Verifier.verify(actual_output);
+        Verifier.verify(expected_output);
+
     }
-
-
-
-
-
 }
 
 

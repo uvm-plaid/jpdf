@@ -26,4 +26,11 @@ public class Verifier {
         return result.isSat();
     }
 
+    public static boolean entails(PreludeCommand c1, PreludeCommand c2) {
+        return verify(c1) && !verify(c2);
+    }
+
+    public static boolean equivalent(PreludeCommand c1, PreludeCommand c2) {
+        return entails(c1, c2) && entails(c2, c1);
+    }
 }
