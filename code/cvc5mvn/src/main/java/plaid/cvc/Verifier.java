@@ -1,16 +1,20 @@
 package plaid.cvc;
 
-import io.github.cvc5.Result;
-import io.github.cvc5.Solver;
-import io.github.cvc5.Sort;
-import io.github.cvc5.TermManager;
+import io.github.cvc5.*;
 import plaid.antlr.Loader;
 import plaid.ast.PreludeCommand;
+
+import java.util.Collection;
 
 import static plaid.cvc.CvcUtils.mkFiniteFieldSort;
 
 public class Verifier {
-
+    public static Collection<Term> toCVC5(PreludeCommand c, String primeNum){
+        TermManager termManager = new TermManager();
+        Sort sort = mkFiniteFieldSort(termManager, primeNum, 10);
+        TermFactory termFactory = new TermFactory(termManager, sort);
+        return termFactory.toTerms(c);
+    }
     public static boolean verify(String src) {
         return verify(Loader.toCommand(src));
     }
@@ -26,11 +30,17 @@ public class Verifier {
         return result.isSat();
     }
 
-    public static boolean entails(PreludeCommand c1, PreludeCommand c2) {
-        return verify(c1) && !verify(c2);
-    }
+//    // when E1 entails E2, there doesn't exist a model that entails E1 and not E2
+//    public static boolean entails(PreludeCommand c1, PreludeCommand c2) {
+//        return !satisfy(toCVC5(c1, "7") && toCVC5(c2, "7"));
+//    }
 
-    public static boolean equivalent(PreludeCommand c1, PreludeCommand c2) {
-        return entails(c1, c2) && entails(c2, c1);
-    }
+//    public static boolean verify(String c, String prop){
+//
+//    }
+
+
+//    public static boolean equivalent(PreludeCommand c1, PreludeCommand c2) {
+//        return entails(c1, c2) && entails(c2, c1);
+//    }
 }
