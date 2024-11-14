@@ -97,7 +97,7 @@ public class TermFactoryTest {
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
         Collection<Term> terms = factory.toTerms(new CommandList(List.of(
-                new AssertCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3)),
+                new AssertCommand(new OutputExpr(), new Num(1), new Num(3)),
                 new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3))
         )));
         assertEquals(2, terms.size());

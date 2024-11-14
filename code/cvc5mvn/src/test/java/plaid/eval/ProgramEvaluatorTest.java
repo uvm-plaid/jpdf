@@ -73,7 +73,7 @@ public class ProgramEvaluatorTest {
                     xorgmw("g2","g1","y");
                     decodegmw("g2")
                 }
-
+                
                 """;
         Program src = Loader.toProgram(program);
         ProgramEvaluator programEvaluator = new ProgramEvaluator(src);
@@ -125,8 +125,19 @@ public class ProgramEvaluatorTest {
         assertEquals(expected_output, actual_output);
 
         // test cvc5 (semantic equality)
-        Verifier.verify(actual_output);
-        Verifier.verify(expected_output);
+        // property for andgmw => m[z]@1 xor m[z]@2 == (m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2)
+
+        String proposition = "m[z]@1 + m[z]@2 == (m[x]@1 + m[x]@2) * (m[y]@1 + m[y]@2)";
+        // m["g1"]@1 + m["g1"]@2 == (m["x"]@1 + m["x"]@2) * (m["z"]@1 + m["z"]@2)
+
+        // r["g1"]@1 + (((((m["x"] * m["z"]) * (r["g1"] + ((m["x"] + 0) * (m["z"] + 0)))) +
+        //                        (((m["x"]+1) * m["z"]) * (r["g1"] + ((m["x"] + 0) * (m["z"] + 1))))) +
+        //                        ((m["x"] * (m["z"]+1)) * (r["g1"] + ((m["x"] + 1) * (m["z"] + 0))))) +
+        //                        (((m["x"]+1) * (m["z"]+1)) * (r["g1"] + ((m["x"] + 1) * (m["z"] + 1)))))@1;
+        // == (m["x"]@1 + m["x"]@2) * (m["z"]@1 + m["z"]@2)
+
+        Verifier.entails(actual_output, Loader.toCommand(proposition));
+        Verifier.entails(expected_output, Loader.toCommand(proposition));
 
     }
 }

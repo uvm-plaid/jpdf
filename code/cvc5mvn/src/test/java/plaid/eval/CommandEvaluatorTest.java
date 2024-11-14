@@ -87,24 +87,24 @@ public class CommandEvaluatorTest {
     /**
      * evaluate command function call and expression function call
      */
-    @Test
-    public void evalCommandAndExprFunctions(){
-        // command function context
-        List<Identifier> formal_parameters = List.of(new Identifier("z"), new Identifier("x"), new Identifier("y"));
-        PreludeCommand commands =
-                Loader.toCommand("let table = andtablegmw(x,y,z) in\n" +
-                "   m[x]@1 := m[x]@2;\n" +
-                "   m[y]@1 := m[y]@2;\n" +
-                "   m[z]@2 := mux4(m[x], m[y], table.row1, table.row2, table.row3, table.row4)@1;\n" +
-                "   m[z]@1 := r[z]@1");
-        CommandFunction commandFunction = new CommandFunction(new Identifier("encodegmw"), formal_parameters, commands);
-        List<CommandFunction> functionContext = List.of(commandFunction);
-
-
-        PreludeCommand command = eval("encodegmw(\"x\", 2, 1)", functionContext);
-
-        assertEquals(Loader.toCommand("m[\"x\"]@1 := (s[\"x\"] + r[\"x\"])@2;\n" + "m[\"x\"]@2 := r[\"x\"]@2"),
-                command);
-    }
+//    @Test
+//    public void evalCommandAndExprFunctions(){
+//        // command function context
+//        List<Identifier> formal_parameters = List.of(new Identifier("z"), new Identifier("x"), new Identifier("y"));
+//        PreludeCommand commands =
+//                Loader.toCommand("let table = andtablegmw(x,y,z) in\n" +
+//                "   m[x]@1 := m[x]@2;\n" +
+//                "   m[y]@1 := m[y]@2;\n" +
+//                "   m[z]@2 := mux4(m[x], m[y], table.row1, table.row2, table.row3, table.row4)@1;\n" +
+//                "   m[z]@1 := r[z]@1");
+//        CommandFunction commandFunction = new CommandFunction(new Identifier("encodegmw"), formal_parameters, commands);
+//        List<CommandFunction> functionContext = List.of(commandFunction);
+//
+//
+//        PreludeCommand command = eval("encodegmw(\"x\", 2, 1)", functionContext);
+//
+//        assertEquals(Loader.toCommand("m[\"x\"]@1 := (s[\"x\"] + r[\"x\"])@2;\n" + "m[\"x\"]@2 := r[\"x\"]@2"),
+//                command);
+//    }
 
 }

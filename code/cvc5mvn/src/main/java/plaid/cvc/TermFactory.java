@@ -47,10 +47,28 @@ public class TermFactory {
     public Collection<Term> toTerms(PreludeCommand command) {
         return switch (command) {
             case CommandList x -> x.getCommands().stream().flatMap(y -> toTerms(y).stream()).toList();
-            case AssertCommand x -> List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.getE1()), toTerm(x.getE2())));
+            case AssertCommand x -> {
+                Integer partyIndex = getPartyIndex(x);
+                yield List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.getE1(), partyIndex), toTerm(x.getE2(), partyIndex)));
+            }
             case AssignCommand x -> List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.getE1()), toTerm(x.getE2())));
             default -> throw new IllegalArgumentException("Not an overture command " + command.getClass().getName());
         };
+    }
+
+    public static Integer getPartyIndex(PreludeCommand command) {
+        if (command instanceof AssertCommand) {
+            PreludeExpression indexExpr = ((AssertCommand) command).getE3();
+            return ((Num) indexExpr).getNum();
+        }
+        return null;
+    }
+
+    public Term toTerm(PreludeExpression expr, Integer partyIndex) {
+        this.partyIndex = partyIndex;
+        Term result = toTerm(expr);
+        this.partyIndex = null;
+        return result;
     }
 
     public Term toTerm(PreludeExpression expr) {
