@@ -54,8 +54,10 @@ public class CommandVisitorTest {
     @Test
     public void assertCommand() {
         assertEquals(new AssertCommand(
-                new AtExpr(new MessageExpr(new Str("x")), new Num(5)),
-                new AtExpr(new MessageExpr(new Str("y")), new Num(5))), ast("assert (m[\"x\"] = m[\"y\"])@5"));
+                new MessageExpr(new Str("x")),
+                new MessageExpr(new Str("y")),
+                new Num(5)),
+                ast("assert (m[\"x\"] = m[\"y\"])@5"));
     }
 
     /**

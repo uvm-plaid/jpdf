@@ -53,14 +53,14 @@ public class CommandEvaluator {
             case LetCommand letCommand -> {
                 // let y = e in c
                 // evaluate e
-                PreludeExpression v = expressionEvaluator.toOverture(letCommand.expr());
+                PreludeExpression v = expressionEvaluator.toOverture(letCommand.getE());
 
                 // let y = v in c
                 Map<Identifier, PreludeExpression> binding = new HashMap<>(expressionEvaluator.binding_list.getLast());
-                binding.put(letCommand.identifier(), v);
+                binding.put(letCommand.getY(), v);
                 expressionEvaluator.binding_list.addLast(binding);
 
-                PreludeCommand result = evalInstruction(letCommand.command());
+                PreludeCommand result = evalInstruction(letCommand.getC());
                 expressionEvaluator.binding_list.removeLast();
                 yield result;
             }
@@ -76,7 +76,7 @@ public class CommandEvaluator {
             }
 
             case AssertCommand assertCommand ->
-                    new AssertCommand(expressionEvaluator.toOverture(assertCommand.getE1()), expressionEvaluator.toOverture(assertCommand.getE2()));
+                    new AssertCommand(expressionEvaluator.toOverture(assertCommand.getE1()), expressionEvaluator.toOverture(assertCommand.getE2()), expressionEvaluator.toOverture(assertCommand.getE3()));
 
             default -> throw new IllegalArgumentException("Bad instruction");
 

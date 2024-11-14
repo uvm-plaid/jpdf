@@ -34,10 +34,10 @@ public class CommandVisitor extends PreludeBaseVisitor<PreludeCommand> {
 
     @Override
     public AssertCommand visitAssertCommand(AssertCommandContext ctx) {
-        PreludeExpression partyIndex = Loader.toExpression(ctx.expr(2));
         return new AssertCommand(
-                new AtExpr(Loader.toExpression(ctx.expr(0)), partyIndex),
-                new AtExpr(Loader.toExpression(ctx.expr(1)), partyIndex));
+                Loader.toExpression(ctx.expr(0)),
+                Loader.toExpression(ctx.expr(1)),
+                Loader.toExpression(ctx.expr(2)));
     }
 
     @Override
