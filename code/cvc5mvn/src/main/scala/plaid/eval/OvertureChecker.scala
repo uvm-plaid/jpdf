@@ -73,6 +73,7 @@ object OvertureChecker {
 
   private def assertAtsNotNested(n: Node) = recurse(n, {
     case AssertCommand(e1, e2, _) => freeFromAts(e1) && freeFromAts(e2)
+    case _ => true
   })
 
   def checkOverture(protocol: CommandList): Boolean =
