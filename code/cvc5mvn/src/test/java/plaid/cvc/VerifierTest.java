@@ -1,5 +1,6 @@
 package plaid.cvc;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -50,7 +51,7 @@ public class VerifierTest {
                 out@2 := (p["1"] + p["2"])@2
                 """;
 
-        assertTrue(Verifier.verify(protocol, 2147483647));
+        assertTrue(Verifier.satisfies(protocol));
     }
 
 }

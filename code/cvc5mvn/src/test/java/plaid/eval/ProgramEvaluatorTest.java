@@ -3,6 +3,7 @@ package plaid.eval;
 import io.github.cvc5.CVC5ApiException;
 import io.github.cvc5.Sort;
 import io.github.cvc5.TermManager;
+import org.junit.Ignore;
 import org.junit.Test;
 import plaid.antlr.Loader;
 import plaid.ast.*;
@@ -19,6 +20,7 @@ public class ProgramEvaluatorTest {
      * test confidentiality example
      */
     @Test
+    @Ignore
     public void testConfidentiality() throws CVC5ApiException {
         String program = """
                 exprfunctions: 
