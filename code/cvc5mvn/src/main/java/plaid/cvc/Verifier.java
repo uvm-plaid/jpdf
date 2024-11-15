@@ -6,6 +6,7 @@ import plaid.ast.AssertCommand;
 import plaid.ast.Num;
 import plaid.ast.PreludeCommand;
 import plaid.ast.PreludeExpression;
+import plaid.eval.OvertureChecker;
 
 import java.util.Collection;
 
@@ -18,6 +19,9 @@ public class Verifier {
     }
 
     public static boolean satisfies(PreludeCommand command) {
+        if (!OvertureChecker.checkOverture(command)) {
+            System.out.println("Not a valid overture protocol");
+        }
         TermManager termManager = new TermManager();
         // TODO Do we need to parameterize the sort?
         Sort sort = mkFiniteFieldSort(termManager, "7", 10);
