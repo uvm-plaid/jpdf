@@ -13,7 +13,7 @@ public class VerifierTest {
      */
     @Test
     public void verifyCorrectProtocol() {
-        assertTrue(Verifier.satisfies("out@1 := 1; out@2 := 2"));
+        assertTrue(Verifier.satisfies("out@1 := 1@1; out@2 := 2@2"));
     }
 
     /**
@@ -21,7 +21,7 @@ public class VerifierTest {
      */
     @Test
     public void failIncorrectProtocol() {
-        assertFalse(Verifier.satisfies("out@1 := 1; out@1 := 2"));
+        assertFalse(Verifier.satisfies("out@1 := 1@1; out@1 := 2@1"));
     }
 
     /**
@@ -29,7 +29,7 @@ public class VerifierTest {
      */
     @Test
     public void assertionProtocol() {
-        assertTrue(Verifier.satisfies("out@1 := 1; assert (out = 1)@1"));
+        assertTrue(Verifier.satisfies("out@1 := 1@1; assert (out = 1)@1"));
     }
 
     /**
@@ -37,7 +37,7 @@ public class VerifierTest {
      */
     @Test
     public void failAssertionProtocol() {
-        assertFalse(Verifier.satisfies("out@1 := 1; assert (out = 2)@1"));
+        assertFalse(Verifier.satisfies("out@1 := 1@1; assert (out = 2)@1"));
     }
 
     @Test

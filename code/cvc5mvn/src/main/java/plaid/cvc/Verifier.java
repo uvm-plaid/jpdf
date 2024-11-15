@@ -20,7 +20,7 @@ public class Verifier {
 
     public static boolean satisfies(PreludeCommand command) {
         if (!OvertureChecker.checkOverture(command)) {
-            System.out.println("Not a valid overture protocol");
+            throw new IllegalArgumentException("Not a valid overture protocol");
         }
         TermManager termManager = new TermManager();
         // TODO Do we need to parameterize the sort?
