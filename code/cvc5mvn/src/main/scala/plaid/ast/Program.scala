@@ -3,8 +3,6 @@ import java.{lang, util}
 import scala.jdk.CollectionConverters._
 
 case class Program(getCommandFunctions: java.util.List[CommandFunction], getExprFunctions: java.util.List[ExprFunction]) extends Node{
-  override def children(): lang.Iterable[Node] = new util.ArrayList[Node]()
-
   override def prettyPrint(): String = throw new UnsupportedOperationException()
 
   def resolveExprFunction(functionName : PreludeExpression):ExprFunction = {
