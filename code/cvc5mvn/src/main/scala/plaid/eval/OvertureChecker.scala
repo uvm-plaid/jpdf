@@ -21,8 +21,26 @@ object OvertureChecker {
     case SecretExpr(e) => Iterable(e)
     case Str(_) => Iterable()
     case TimesExpr(e1, e2) => Iterable(e1, e2)
-    // TODO If we add non-overture nodes, make sure overture protocols contain only overture nodes separately!
+    // TODO Add other kinds of nodes and externalize
   }
+
+  private def overtureNodeTypes(n: Node) = recurse(n, {
+    case AssertCommand(_, _, _) => true
+    case AssignCommand(_, _) => true
+    case AtExpr(_, _) => true
+    case CommandList(_) => true
+    case MessageExpr(_) => true
+    case MinusExpr(_) => true
+    case Num(_) => true
+    case OutputExpr() => true
+    case PlusExpr(_, _) => true
+    case PublicExpr(_) => true
+    case RandomExpr(_) => true
+    case SecretExpr(_) => true
+    case Str(_) => true
+    case TimesExpr(_, _) => true
+    case _ => false
+  })
 
   private def recurse(n: Node, f: Node => Boolean): Boolean =
     f(n) && children(n).forall(c => recurse(c, f))
@@ -76,7 +94,8 @@ object OvertureChecker {
     case _ => true
   })
 
-  def checkOverture(protocol: CommandList): Boolean =
+  def checkOverture(protocol: PreludeCommand): Boolean =
+    overtureNodeTypes(protocol) &&
     partyIndexesAreNumbers(protocol) &&
     memoryIndexesAreStrings(protocol) &&
     assignmentAtsCoverRight(protocol) &&
