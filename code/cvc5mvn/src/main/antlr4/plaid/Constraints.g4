@@ -1,22 +1,24 @@
 grammar Constraints;
 
-constraintsection : 'constraints:' constraintExpr* EOF;
+constraints : 'constraints:' constraintsExpr* EOF;
 
-constraintExpr
-    : constraintTerms '==' constraintTerms #AssertConstraintExpr
-    | constraintExpr 'AND' constraintExpr #AndConstraintExpr
-    | 'NOT' constraintExpr #NotConstraintExpr
+constraintsExpr
+    : '(' constraintsExpr ')' #ParenConstraintsExpr
+    | constraintsTerm '==' constraintsTerm #EqualConstraintsExpr
+    | constraintsExpr 'AND' constraintsExpr #AndConstraintsExpr
+    | 'NOT' constraintsExpr #NotConstraintsExpr
     ;
 
-constraintTerms
-    : constraintTerms '+' constraintTerms #PlusConstraintTerm
-    | constraintTerms '-' constraintTerms #MinusConstraintTerm
-    | constraintTerms '*' constraintTerms #TimesConstraintTerm
-    | 's' '[' STRING ']' '@' VALUE #SecretConstraintTerm
-    | 'r' '[' STRING ']'  '@' VALUE #RandomConstraintTerm
-    | 'm' '[' STRING ']' '@' VALUE #MessageConstraintTerm
-    | 'p' '[' STRING ']' '@' VALUE #PublicConstraintTerm
-    | 'out' '@' VALUE #OutputConstraintTerm
+constraintsTerm
+    : '(' constraintsTerm ')' #ParenConstraintsTerm
+    | constraintsTerm '*' constraintsTerm #TimesConstraintsTerm
+    | constraintsTerm '+' constraintsTerm #PlusConstraintsTerm
+    | '-' constraintsTerm #MinusConstraintsTerm
+    | 's' '[' STRING ']' '@' VALUE #SecretConstraintsTerm
+    | 'r' '[' STRING ']'  '@' VALUE #RandomConstraintsTerm
+    | 'm' '[' STRING ']' '@' VALUE #MessageConstraintsTerm
+    | 'p' '[' STRING ']' #PublicConstraintsTerm
+    | 'out' '@' VALUE #OutputConstraintsTerm
     ;
 
 STRING : '"' ~('"')+ '"';

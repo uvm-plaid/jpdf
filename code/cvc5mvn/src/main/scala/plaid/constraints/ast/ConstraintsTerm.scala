@@ -1,5 +1,5 @@
 package plaid.constraints.ast
 
-trait Node {
+trait ConstraintsTerm extends Node{
   def prettyPrint() : String
 }

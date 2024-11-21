@@ -6,21 +6,11 @@ import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
 import org.junit.Test;
 import plaid.antlr.Loader;
-import plaid.ast.AssertCommand;
-import plaid.ast.AssignCommand;
-import plaid.ast.AtExpr;
-import plaid.ast.CommandList;
-import plaid.ast.FunctionCallCommand;
-import plaid.ast.Identifier;
-import plaid.ast.MessageExpr;
-import plaid.ast.Num;
-import plaid.ast.OutputExpr;
-import plaid.ast.PlusExpr;
-import plaid.ast.PreludeExpression;
-import plaid.ast.RandomExpr;
-import plaid.ast.Str;
+import plaid.ast.*;
+import plaid.constraints.ast.*;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -103,6 +93,33 @@ public class TermFactoryTest {
         assertEquals(2, terms.size());
     }
 
+
+    /**
+     * Creates term for constraints corresponding to all commands in a list.
+     */
+    @Test
+    public void constraintsFromCommandListTerms() throws CVC5ApiException {
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        Collection<Term> terms = factory.toTerms(new CommandList(List.of(
+                new AssignCommand(new AtExpr(new MessageExpr(new Str("foo")), new Num(1)), new Num(3)),
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3))
+        )));
+        assertEquals(2, terms.size());
+
+        // creates cvc5 terms for constraints containing the same memories
+//        Iterator<Memory> mems = factory.getMemories().iterator();
+//        Memory mem1 = mems.next();
+//        Memory mem2 = mems.next();
+//    
+//        assertEquals(mem1.term(), factory.constraintsToTerm(new MessageConstraintsTerm("foo", 1)));
+//        assertEquals(mem2.term(), factory.constraintsToTerm(new OutputConstraintTerm(1)));
+        
+        // create complex terms for constraints containing the same memories
+        System.out.println(factory.constraintsToTerm(new PlusConstraintsTerm(new MessageConstraintsTerm("foo", 1), new OutputConstraintTerm(1))));
+    }
+    
     /**
      * Converts numbers to finite field terms.
      */
@@ -151,6 +168,7 @@ public class TermFactoryTest {
         assertEquals("Party index captured", Integer.valueOf(3), mem.partyIndex());
 
         PreludeExpression twin = new MessageExpr(new Str("x"));
+        // TODO: why do we want m["x"] to be equal to "m["x"]@3?
         assertEquals("Identical expression equality", twin, mem.node());
     }
 
@@ -171,6 +189,52 @@ public class TermFactoryTest {
         assertEquals("Two memories", 2, memories.size());
     }
 
+    /**
+     * creates equal constraints expr with registered two distinct memory nodes 
+     */
+    @Test
+    public void equalConstraintsFromRegisterDistinctMemories() throws CVC5ApiException {
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        PreludeExpression expr1 = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        factory.toTerm(expr1);
+        PreludeExpression expr2 = new AtExpr(new RandomExpr(new Str("y")), new Num(5));
+        factory.toTerm(expr2);
+
+        Collection<Memory> memories = factory.getMemories();
+        assertEquals("Two memories", 2, memories.size());
+        System.out.println(factory.constraintsToTerm(new EqualConstraintsExpr(new MessageConstraintsTerm("x", 3), new RandomConstraintsTerm("y", 5))));
+    }
+    
+    // And, Not, Multiple constraints expr (constraintsToTerms), illegal constraints expressions
+    /**
+     * creates And and Not constraints expr with registered two distinct memory nodes 
+     */
+    @Test
+    public void constraintsExprFromRegisterDistinctMemories() throws CVC5ApiException {
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        PreludeExpression expr1 = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        factory.toTerm(expr1);
+        PreludeExpression expr2 = new AtExpr(new RandomExpr(new Str("y")), new Num(5));
+        factory.toTerm(expr2);
+        PreludeExpression expr3 = new AtExpr(new SecretExpr(new Str("z")), new Num(1));
+        factory.toTerm(expr3);
+        PreludeExpression expr4 = new PublicExpr(new Str("1"));
+        factory.toTerm(expr4);
+        
+        Collection<Memory> memories = factory.getMemories();
+        assertEquals("Four memories", 4, memories.size());
+        ConstraintsExpr constraintsExpr1 = new EqualConstraintsExpr(new MessageConstraintsTerm("x", 3), new RandomConstraintsTerm("y", 5));
+        ConstraintsExpr constraintsExpr2 = new EqualConstraintsExpr(new SecretConstraintsTerm("z", 1), new PublicConstraintsTerm("1"));
+        System.out.println(factory.constraintsToTerm(new AndConstraintsExpr(constraintsExpr1, constraintsExpr2)));
+        System.out.println(factory.constraintsToTerm(new NotConstraintsExpr(constraintsExpr1)));
+        System.out.println(factory.constraintsToTerm(new NotConstraintsExpr(new AndConstraintsExpr(constraintsExpr1, constraintsExpr2))));
+        
+    }
+    
     /**
      * Does not register a new cvc5 term if one already exists for the memory.
      */

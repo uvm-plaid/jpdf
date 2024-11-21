@@ -2,7 +2,6 @@ package plaid.eval;
 
 import org.junit.Test;
 import plaid.antlr.Loader;
-import plaid.ast.Node;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
