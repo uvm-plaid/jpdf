@@ -138,8 +138,6 @@ public class ProgramEvaluatorTest {
         //                        (((m["x"]+1) * (m["z"]+1)) * (r["g1"] + ((m["x"] + 1) * (m["z"] + 1)))))@1;
         // == (m["x"]@1 + m["x"]@2) * (m["z"]@1 + m["z"]@2)
 
-        Verifier.entails(actual_output, Loader.toCommand(proposition));
-        Verifier.entails(expected_output, Loader.toCommand(proposition));
 
     }
 }

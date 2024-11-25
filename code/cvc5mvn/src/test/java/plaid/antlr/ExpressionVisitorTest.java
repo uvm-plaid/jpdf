@@ -57,6 +57,7 @@ public class ExpressionVisitorTest {
     public void multiplyFirst() {
         PreludeExpression expr = ast("3 + 2 * 9");
         assertEquals(new PlusExpr(new Num(3), new TimesExpr(new Num(2), new Num(9))), expr);
+
     }
 
     /**

@@ -12,7 +12,7 @@ public class ConstraintsVisitorTest {
      * converts constraints src code into ast
      */
     private Constraints ast(String src){
-        return ConstraintsLoader.toConstraints(src);
+        return ConstraintsLoader.toConstraint(src);
     }
 
     /**

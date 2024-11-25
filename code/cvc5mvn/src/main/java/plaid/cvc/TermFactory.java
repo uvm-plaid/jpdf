@@ -17,6 +17,7 @@ import plaid.ast.TimesExpr;
 import plaid.constraints.ast.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static plaid.cvc.ConstraintsCvcUtils.getConstraintsCvcName;
 import static plaid.cvc.CvcUtils.getCvcName;
@@ -146,8 +147,8 @@ public class TermFactory {
     /**
      * translate constraints expressions to CVC5 Terms
      */
-    public List<Term> constraintsToTerms(Constraints constraints){
-        return constraints.constraints().stream().flatMap(y -> Arrays.stream(constraintsToTerm(y).getSequenceValue())).toList();
+    public List<Term> constraintsToTerms(Constraints constraintsList){
+        return constraintsList.constraints().stream().map(this::constraintsToTerm).collect(Collectors.toList());
     } 
     
     /**
@@ -165,7 +166,7 @@ public class TermFactory {
     /**
      * translate constraints term to CVC5 term
      */
-    public Term constraintsToTerm(ConstraintsTerm term){
+    public Term constraintsToTerm(ConstraintsTerm term)  {
         return switch (term) {
             case MessageConstraintsTerm x -> lookup(x);
             case PublicConstraintsTerm x -> lookup(x);
@@ -175,7 +176,7 @@ public class TermFactory {
             case MinusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e()), minusOne);
             case PlusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_ADD, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
             case TimesConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
-            default -> throw new IllegalArgumentException("cannot convert " + term.getClass().getName() + " to CVC5 term");
+            default -> throw new NoSuchElementException(term.getClass().getName() + " this CVC5 term is not defined");
         };
     }
 }

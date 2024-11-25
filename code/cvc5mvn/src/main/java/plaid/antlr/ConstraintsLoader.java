@@ -72,8 +72,8 @@ public class ConstraintsLoader {
      * @param src constraints
      * @return abstract syntax tree
      */
-    public static Constraints toConstraints(String src){
-        return toConstraints(createParser(src).constraints());
+    public static Constraints toConstraint(String src){
+        return toConstraint(createParser(src).constraints());
     }
 
     /**
@@ -81,7 +81,7 @@ public class ConstraintsLoader {
      * @param ctx constraints context
      * @return abstract syntax tree
      */
-    public static Constraints toConstraints(ConstraintsContext ctx){
+    public static Constraints toConstraint(ConstraintsContext ctx){
         return new Constraints(ctx.constraintsExpr().stream().map(ConstraintsLoader::toExpr).toList());
     }
 }
