@@ -1,3 +1,6 @@
+## NOTE for chris: use /Users/ceskalka/csl/smt-tutorial/bin/activate, and make
+## sure PYTHONPATH has been exported as in ~/.zsh
+
 from cvc5.pythonic import *
 import time
 
@@ -90,3 +93,44 @@ print(f"check 2 (3 party sum): { stop_c2 - start_c2:0.6f} seconds")
 print(f"check 3 (BDOZ sum HE): { stop_c3 - start_c3:0.6f} seconds")
 
 print(f"check 4 (BDOZ mult HE): { stop_c4 - start_c4:0.6f} seconds")
+
+# andgmw gate in overture
+
+s.resetAssertions()
+
+mx1, mx2, mx21, my1, my2, my21, mz1, mz2 = FiniteFieldElems('mx1 mx2 mx21 my1 my2 my21 mz1 mz2', 2)
+b1, b2, b3, b4, rz1 =  FiniteFieldElems('b1, b2, b3, b4, rz1', 2)
+
+s.add(mx21 == mx2)
+s.add(my21 == my2)
+s.add(b1 == rz1 + ((mx1 + 0) * (my1 + 0)))
+s.add(b2 == rz1 + ((mx1 + 0) * (my1 + 1)))
+s.add(b3 == rz1 + ((mx1 + 1) * (my1 + 0)))
+s.add(b4 == rz1 + ((mx1 + 1) * (my1 + 1)))
+s.add(mz2 ==
+       ((mx21 * my21) * b4) +
+       ((mx21 * (my21 + 1)) * b3) +
+       (((mx21 + 1) * my21) * b2) +
+       (((mx21 + 1) * (my21 + 1)) * b1))
+s.add(mz1 == rz1)
+
+# This is the correctness property of the gate.
+s.check(mz1 + mz2 != (mx1 + mx2) * (my1 + my2))
+
+s.resetAssertions()
+
+## This version more directly maps to prelude version
+
+mx1, mx2, mx21, my1, my2, my21, mz1, mz2, rz1 = FiniteFieldElems('mx1 mx2 mx21 my1 my2 my21 mz1 mz2 rz1', 2)
+
+s.add(mx21 == mx2)
+s.add(my21 == my2)
+s.add(mz2 ==
+       ((mx21 * my21) * rz1 + ((mx1 + 1) * (my1 + 1))) +
+       ((mx21 * (my21 + 1)) * rz1 + ((mx1 + 1) * (my1 + 0))) +
+       (((mx21 + 1) * my21) * rz1 + ((mx1 + 0) * (my1 + 1))) +
+       (((mx21 + 1) * (my21 + 1)) * rz1 + ((mx1 + 0) * (my1 + 0))))
+s.add(mz1 == rz1)
+
+# This is the correctness property of the gate.
+s.check(mz1 + mz2 != (mx1 + mx2) * (my1 + my2))
