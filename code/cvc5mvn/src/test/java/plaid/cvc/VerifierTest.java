@@ -179,10 +179,10 @@ public class VerifierTest {
                 }
                 
                 mux4(s1, s2, b1, b2, b3, b4){
-                    ((s1 * s2) * b4) +
-                    ((not(s1) * s2) * b3) +
-                    ((s1 * not(s2)) * b2) +
-                    ((not(s1) * not(s2)) * b1)
+                     ((s1 * s2) * b4) +
+                     ((s1 * not(s2)) * b3) +
+                     ((not(s1) * s2) * b2) +
+                     ((not(s1) * not(s2)) * b1)
                 }
                 
                 andtablegmw(x, y, z) {
@@ -191,14 +191,14 @@ public class VerifierTest {
                     let r01 = r[z] + (m[x] + 0) * (m[y] + 1) in
                     let r00 = r[z] + (m[x] + 0) * (m[y] + 0) in
                     { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
-                }  
+                }
                 
                 cmdfunctions:
                 andgmw(z, x, y) {
                     let table = andtablegmw(x,y,z) in
-                    m[x]@1 := m[x]@2;
-                    m[y]@1 := m[y]@2;
-                    m[z]@2 := mux4(m[x], m[y], table.row4, table.row3, table.row2, table.row1)@1;
+                    m[x ++ "2"]@1 := m[x]@2;
+                    m[y ++ "2"]@1 := m[y]@2;
+                    m[z]@2 := mux4(m[x ++ "2"], m[y ++ "2"], table.row4, table.row3, table.row2, table.row1)@1;
                     m[z]@1 := r[z]@1
                 }
                 
@@ -206,14 +206,16 @@ public class VerifierTest {
                 """;
         // evaluate the program to overture protocol
         PreludeCommand protocol = evaluates(program);
+        protocol.prettyPrint();
 
         String evaluated_protocol = """
-                m["x"]@1 := m["x"]@2;
-                m["z"]@1 := m["z"]@2;
-                m["g1"]@2 := (((((m["x"] * m["z"]) * (r["g1"] + ((m["x"] + 0) * (m["z"] + 0)))) +
-                        (((m["x"]+1) * m["z"]) * (r["g1"] + ((m["x"] + 0) * (m["z"] + 1))))) +
-                        ((m["x"] * (m["z"]+1)) * (r["g1"] + ((m["x"] + 1) * (m["z"] + 0))))) +
-                        (((m["x"]+1) * (m["z"]+1)) * (r["g1"] + ((m["x"] + 1) * (m["z"] + 1)))))@1;
+                m["x2"]@1 := m["x"]@2;
+                m["z2"]@1 := m["z"]@2;
+                m["g1"]@2 :=
+                (((((m["x2"] * m["z2"]) * (r["g1"] + ((m["x"] + 1) * (m["z"] + 1)))) +
+                   ((m["x2"] * (m["z2"] + 1)) * (r["g1"] + ((m["x"] + 1) * (m["z"] + 0))))) +
+                   (((m["x2"] + 1) * m["z2"]) * (r["g1"] + ((m["x"] + 0) * (m["z"] + 1))))) +
+                   (((m["x2"] + 1) * (m["z2"] + 1)) * (r["g1"] + ((m["x"] + 0) * (m["z"] + 0)))))@1;
                 m["g1"]@1 := r["g1"]@1
                 """;
 
@@ -261,16 +263,4 @@ public class VerifierTest {
 }
 
 
-// TODO: what we want to test
-// Prelude Command
 
-
-// Overture Protocol
-
-
-// proposition
-
-
-// evaluate prelude command
-// convert overture protocol into cvc5 language
-// convert constraint (proposition) into cvc5 language
