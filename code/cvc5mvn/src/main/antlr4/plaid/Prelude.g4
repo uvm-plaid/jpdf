@@ -3,8 +3,8 @@ grammar Prelude;
 
 program : exprfuncsection? cmdfuncsection? EOF;
 
-exprfuncsection : 'exprfunctions:' exprfunc* ;
-exprfunc : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc ;
+exprfuncsection : 'exprfunctions:' exprfunction* ;
+exprfunction : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc ;
 
 cmdfuncsection : 'cmdfunctions:' cmdfunc* ;
 cmdfunc : ident '(' (ident (',' ident)*)? ')' '{' command '}' #CommandFunc ;
