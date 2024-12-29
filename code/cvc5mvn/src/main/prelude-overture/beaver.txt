@@ -28,18 +28,19 @@ mult(z,x,y) {
 }
 
 main(){
+    sum("z","x","y");
+    open("z");
+    
     m["kc"]@2 := (m["ka"] * m["kb"])@2;
     m["kas"]@1 := (m["ka"] + -(m["kas"]))@2;
     m["kbs"]@1 := (m["kb"] + -(m["kbs"]))@2;
     m["kcs"]@1 := (m["kc"] + -(m["kcs"]))@2;
-    sum("z","x","y");
-    open("z");
+
     mult("k","i","j");
     open("k")
 }
 
 constraints: (
 m["z"]@1 == ((m["xs"]@1 + m["xs"]@2) + (m["ys"]@1 + m["ys"]@2)) AND
-(m["kcs"]@1 + m["kcs"]@2) == ((m["kas"]@1 + m["kas"]@2) * (m["kbs"]@1 + m["kbs"]@2)) AND
 m["k"]@1 == ((m["is"]@1 + m["is"]@2) * (m["js"]@1 + m["js"]@2))
 )
