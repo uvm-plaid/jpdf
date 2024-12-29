@@ -11,18 +11,14 @@ _open(x,i1,i2){
 
 open(x) { _open(x,1,2); _open(x,2,1) }
 
-_sum(z, x, y,i1,i2){
-    m[z++"s"]@i2 := (m[x++"s"] + m[y++"s"])@i2
+_sum(z, x, y, i){
+    m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i
 }
 
-sum(z,x,y){ _sum(z,x,y,1,2); _sum(z,x,y,2,1) }
+sum(z,x,y){ _sum(z,x,y,1); _sum(z,x,y,2) }
 
-_mult1(z, x, y) {
-    m[z++"s"]@1 := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@1
-}
-
-_mult2(z, x, y) {
-    m[z++"s"]@2 := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@2
+_mult(z, x, y, i) {
+    m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i
 }
 
 mult(z,x,y) {
@@ -30,7 +26,7 @@ mult(z,x,y) {
     open(z++"d");
     sum(z++"e", y, z++"b");
     open(z++"e"); 
-    _mult1(z,x,y); _mult2(z,x,y)
+    _mult(z,x,y,1); _mult(z,x,y,2)
 }
 
 main(){
