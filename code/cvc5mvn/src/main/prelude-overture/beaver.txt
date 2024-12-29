@@ -1,7 +1,5 @@
 exprfunctions:
 
-not(x){ x + 1 }
-
 cmdfunctions:
 
 _open(x,i1,i2){
