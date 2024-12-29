@@ -1,0 +1,11 @@
+exprfunctions:
+
+not(x){ x + 1 }
+
+f(x){ m[x]@1 := m["y"]@2 }
+
+cmdfunctions:
+ 
+main(){ m["x"]@1 := not(0)@2 }
+
+constraints: (m["x"]@1 == m["x"]@1)
