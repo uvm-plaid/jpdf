@@ -13,7 +13,7 @@ import java.util.Collection;
 import static plaid.cvc.CvcUtils.mkFiniteFieldSort;
 
 public class Verifier {
-    private static final String order = "2";
+    private static final String order = "7";
     private static final TermManager termManager = new TermManager();
     private static final Sort sort = mkFiniteFieldSort(termManager, order, 10);
     private static final TermFactory termFactory = new TermFactory(termManager, sort);

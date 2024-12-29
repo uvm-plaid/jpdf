@@ -1,0 +1,76 @@
+exprfunctions:
+
+cmdfunctions:
+
+_open(x,i1,i2){
+    m[x++"exts"]@i1 := m[x++"s"]@i2;
+    m[x++"extm"]@i1 := m[x++"m"]@i2;
+    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
+}
+
+open(x) { _open(x,1,2); _open(x,2,1) }
+
+_sum(z, x, y, i){
+    m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i;
+    m[z++"m"]@i := (m[x++"m"] + m[y++"m"])@i;
+    m[z++"k"]@i := (m[x++"k"] + m[y++"k"])@i
+}
+
+sum(z,x,y){ _sum(z,x,y,1); _sum(z,x,y,2) }
+
+_mult(z, x, y, i) {
+    m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i;
+    m[z++"m"]@i := (m[z++"d"] * m[y++"m"] + -m[z++"e"] * m[z++"am"] + m[z++"cm"])@i;
+    m[z++"k"]@i := (m[z++"d"] * m[y++"k"] + -m[z++"e"] * m[z++"ak"] + m[z++"ck"])@i
+}
+
+mult(z,x,y) {
+    sum(z++"d", x, z++"a");
+    open(z++"d");
+    sum(z++"e", y, z++"b");
+    open(z++"e"); 
+    _mult(z,x,y,1); _mult(z,x,y,2)
+}
+
+main(){
+    
+    m["kc"]@2 := (m["ka"] * m["kb"])@2;
+    m["kas"]@1 := (m["ka"] + -m["kas"])@2;
+    m["kbs"]@1 := (m["kb"] + -m["kbs"])@2;
+    m["kcs"]@1 := (m["kc"] + -m["kcs"])@2;
+
+    m["kam"]@2 := (m["kak1"] + (m["delta1"] * m["kas"]))@2;
+    m["kak"]@1 := m["kak1"]@2;
+    m["delta"]@1 := m["delta1"]@2;
+
+    m["kbm"]@2 := (m["kbk1"] + (m["delta1"] * m["kbs"]))@2;
+    m["kbk"]@1 := m["kbk1"]@2;
+
+    m["kcm"]@2 := (m["kck1"] + (m["delta1"] * m["kcs"]))@2;
+    m["kck"]@1 := m["kck1"]@2;
+
+    m["xm"]@2 := (m["xk1"] + (m["delta1"] * m["xs"]))@2;
+    m["xk"]@1 := m["xk1"]@2;
+
+    m["ym"]@2 := (m["yk1"] + (m["delta1"] * m["ys"]))@2;
+    m["yk"]@1 := m["yk1"]@2;
+
+    m["im"]@2 := (m["ik1"] + (m["delta1"] * m["is"]))@2;
+    m["ik"]@1 := m["ik1"]@2;
+
+    m["jm"]@2 := (m["jk1"] + (m["delta1"] * m["js"]))@2;
+    m["jk"]@1 := m["jk1"]@2;
+
+    sum("z","x","y");
+    open("z");
+
+    mult("k","i","j");
+    open("k")
+}
+
+constraints: (
+m["z"]@1 == ((m["xs"]@1 + m["xs"]@2) + (m["ys"]@1 + m["ys"]@2)) AND
+m["k"]@1 == ((m["is"]@1 + m["is"]@2) * (m["js"]@1 + m["js"]@2)) AND
+m["zextm"]@1 == (m["zk"]@1 + m["delta"]@1 * m["zexts"]@1) AND
+m["kextm"]@1 == (m["kk"]@1 + m["delta"]@1 * m["kexts"]@1)
+)
