@@ -32,9 +32,9 @@ main(){
     open("z");
     
     m["kc"]@2 := (m["ka"] * m["kb"])@2;
-    m["kas"]@1 := (m["ka"] + -(m["kas"]))@2;
-    m["kbs"]@1 := (m["kb"] + -(m["kbs"]))@2;
-    m["kcs"]@1 := (m["kc"] + -(m["kcs"]))@2;
+    m["kas"]@1 := (m["ka"] + -m["kas"])@2;
+    m["kbs"]@1 := (m["kb"] + -m["kbs"])@2;
+    m["kcs"]@1 := (m["kc"] + -m["kcs"])@2;
 
     mult("k","i","j");
     open("k")
