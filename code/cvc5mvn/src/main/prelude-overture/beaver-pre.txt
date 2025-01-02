@@ -39,7 +39,7 @@ precondition: (
 m["kc"]@2 == m["ka"]@2 * m["kb"]@2 AND
 m["kas"]@1 + m["kas"]@2 == m["ka"]@2 AND
 m["kbs"]@1 + m["kbs"]@2 == m["kb"]@2 AND
-m["kbs"]@1 + m["kcs"]@2 == m["kc"]@2 
+m["kcs"]@1 + m["kcs"]@2 == m["kc"]@2 
 )
 
 postcondition: (
