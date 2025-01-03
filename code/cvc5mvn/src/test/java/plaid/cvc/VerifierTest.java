@@ -1,6 +1,5 @@
 package plaid.cvc;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -206,7 +205,7 @@ public class VerifierTest {
                 """;
         // evaluate the program to overture protocol
         PreludeCommand protocol = evaluates(program);
-        protocol.prettyPrint();
+        plaid.ScalaFunctions.prettyPrint(protocol);
 
         String evaluated_protocol = """
                 m["x2"]@1 := m["x"]@2;
