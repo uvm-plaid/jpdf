@@ -1,10 +1,13 @@
 package plaid.cvc;
 
+import io.github.cvc5.Sort;
+import io.github.cvc5.TermManager;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static plaid.cvc.CvcUtils.mkFiniteFieldSort;
 
 import plaid.antlr.ConstraintsLoader;
 import plaid.antlr.Loader;
@@ -15,7 +18,10 @@ import plaid.eval.ProgramEvaluator;
 
 public class VerifierTest {
 
-    private final Verifier verifier = new Verifier();
+    private final TermManager termManager = new TermManager();
+    private final Sort sort = mkFiniteFieldSort(termManager, "7", 10);
+    private final TermFactory termFactory = new TermFactory(termManager, sort);
+    private final Verifier verifier = new Verifier(termFactory);
 
     private static PreludeCommand evaluates(String program){
         return evaluates(Loader.toProgram(program));

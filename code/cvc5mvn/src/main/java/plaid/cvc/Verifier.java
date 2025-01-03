@@ -3,9 +3,7 @@ package plaid.cvc;
 import io.github.cvc5.Kind;
 import io.github.cvc5.Result;
 import io.github.cvc5.Solver;
-import io.github.cvc5.Sort;
 import io.github.cvc5.Term;
-import io.github.cvc5.TermManager;
 import plaid.antlr.ConstraintsLoader;
 import plaid.antlr.Loader;
 import plaid.ast.PreludeCommand;
@@ -13,30 +11,26 @@ import plaid.constraints.ast.Constraints;
 
 import java.util.Collection;
 
-import static plaid.cvc.CvcUtils.mkFiniteFieldSort;
-
 public class Verifier {
-    private final String order = "7";
-    private final TermManager termManager = new TermManager();
-    private final Sort sort = mkFiniteFieldSort(termManager, order, 10);
-    private final TermFactory termFactory = new TermFactory(termManager, sort);
+
+    private final TermFactory termFactory;
+
+    public Verifier(TermFactory termFactory) {
+        this.termFactory = termFactory;
+    }
 
     public boolean satisfies(String src) {
         return satisfies(Loader.toCommand(src));
     }
 
-    public TermFactory getTermFactory() {
-        return termFactory;
-    }
-
     public boolean satisfies(PreludeCommand command) {
         Collection<Term> e = termFactory.toTerms(command);
-        Term term = termManager.mkTerm(Kind.AND, e.toArray(new Term[1]));
+        Term term = termFactory.getTermManager().mkTerm(Kind.AND, e.toArray(new Term[1]));
         return satisfies(term);
     }
 
     public boolean satisfies(Term e) {
-        Solver solver = new Solver(termManager);
+        Solver solver = new Solver(termFactory.getTermManager());
         solver.assertFormula(e);
         Result result = solver.checkSat();
         return result.isSat();
@@ -49,10 +43,9 @@ public class Verifier {
      * @return
      */
     public boolean entails(Term e1, Term e2) {
-        Term notE2 = termManager.mkTerm(Kind.NOT, e2);
-        Term e1_entails_notE2 = termManager.mkTerm(Kind.AND, e1, notE2);
+        Term notE2 = termFactory.getTermManager().mkTerm(Kind.NOT, e2);
+        Term e1_entails_notE2 = termFactory.getTermManager().mkTerm(Kind.AND, e1, notE2);
         return !satisfies(e1_entails_notE2);
-
     }
 
     public boolean entails(Collection<Term> e1s, Collection<Term> e2s) {
@@ -109,7 +102,7 @@ public class Verifier {
             return terms.iterator().next();
         }
         else{
-            return termManager.mkTerm(Kind.AND, terms.toArray(new Term[1]));
+            return termFactory.getTermManager().mkTerm(Kind.AND, terms.toArray(new Term[1]));
         }
     }
 }

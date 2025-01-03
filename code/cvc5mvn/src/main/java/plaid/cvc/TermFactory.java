@@ -48,6 +48,10 @@ public class TermFactory {
         }
     }
 
+    public TermManager getTermManager() {
+        return termManager;
+    }
+
     public Collection<Memory> getMemories() {
         return memories;
     }
