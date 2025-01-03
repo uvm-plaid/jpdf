@@ -53,3 +53,4 @@ IDENTIFIER : [_a-zA-Z][_a-zA-Z0-9]*;
 STRING : '"' ~('"')+ '"';
 // We represent a whitespace token, ignored by skip
 WS : [ \t\n\r\f]+ -> skip;
+COMMENT : '//' ~[\r\n]* -> skip;

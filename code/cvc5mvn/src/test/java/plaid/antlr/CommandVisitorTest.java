@@ -97,4 +97,24 @@ public class CommandVisitorTest {
                 new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x")))), command);
     }
 
+    /**
+     * Full line comments prevent commands from being parsed.
+     */
+    @Test
+    public void fullLineComments() {
+        PreludeCommand command = ast("out@1 := x;\n//out@3 := z;\nout@2 := y");
+        assertEquals(new CommandList(List.of(
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")),
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("y")))), command);
+    }
+
+    /**
+     * Full line comments prevent commands from being parsed.
+     */
+    @Test
+    public void partialLineComments() {
+        PreludeCommand command = ast("out@1 := x//@1");
+        assertEquals(new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")), command);
+    }
+
 }

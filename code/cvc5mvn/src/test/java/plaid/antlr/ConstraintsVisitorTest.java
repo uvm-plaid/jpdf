@@ -1,6 +1,13 @@
 package plaid.antlr;
 
 import org.junit.Test;
+import plaid.ast.AssignCommand;
+import plaid.ast.AtExpr;
+import plaid.ast.CommandList;
+import plaid.ast.Identifier;
+import plaid.ast.Num;
+import plaid.ast.OutputExpr;
+import plaid.ast.PreludeCommand;
 import plaid.constraints.ast.*;
 
 import java.util.List;
@@ -29,4 +36,15 @@ public class ConstraintsVisitorTest {
 
         assertEquals(expected_expr, actual_expr);
     }
+
+    /**
+     * Full line comments prevent constraints from being parsed.
+     */
+    @Test
+    public void comments() {
+        Node actual = ast("constraints: out@1 == out@2 // AND out@2 == out@3\n AND out@3 == out@4");
+        Node expected = ast("constraints: out@1 == out@2 AND out@3 == out@4");
+        assertEquals(expected, actual);
+    }
+
 }

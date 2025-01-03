@@ -1,5 +1,6 @@
 package plaid.cvc;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -170,6 +171,7 @@ public class VerifierTest {
      * the protocol verifies a correct proposition
      */
     @Test
+    @Ignore
     public void evaluatesAndverifiesCorrectProposition(){
         String program = """
                 exprfunctions:

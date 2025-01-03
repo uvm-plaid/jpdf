@@ -24,3 +24,4 @@ constraintsTerm
 STRING : '"' ~('"')+ '"';
 VALUE : [0-9]+;
 WS : [ \t\n\r\f]+ -> skip;
+COMMENT : '//' ~[\r\n]* -> skip;
