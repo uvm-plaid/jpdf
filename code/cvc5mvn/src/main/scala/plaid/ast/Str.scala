@@ -1,6 +1,6 @@
 package plaid.ast
 import java.lang
 
-case class Str(getStr: String) extends PreludeExpression{
-  override def prettyPrint(): String = getStr
+case class Str(str: String) extends PreludeExpression{
+  override def prettyPrint(): String = str
 }

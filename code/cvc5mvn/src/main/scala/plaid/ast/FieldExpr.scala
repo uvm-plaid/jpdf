@@ -2,6 +2,6 @@ package plaid.ast
 import java.lang
 
 // TODO: do we have to use immutable Map for case class?
-case class FieldExpr(getElements: java.util.Map[Identifier, PreludeExpression]) extends PreludeExpression{
+case class FieldExpr(elements: java.util.Map[Identifier, PreludeExpression]) extends PreludeExpression{
   override def prettyPrint() : String = throw new UnsupportedOperationException()
 }

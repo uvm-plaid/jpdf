@@ -25,26 +25,26 @@ public class CommandEvaluator {
         return switch(instr) {
 
             case AssignCommand assignCommand ->
-                    new AssignCommand(expressionEvaluator.toOverture(assignCommand.getE1()), expressionEvaluator.toOverture(assignCommand.getE2()));
+                    new AssignCommand(expressionEvaluator.toOverture(assignCommand.e1()), expressionEvaluator.toOverture(assignCommand.e2()));
 
             case FunctionCallCommand functionCall -> {
                 // evaluate actual parameters first
                 List<PreludeExpression> actual_parameters =
-                        functionCall.getParameters().stream().map(expressionEvaluator::toOverture).toList();
+                        functionCall.parameters().stream().map(expressionEvaluator::toOverture).toList();
 
                 // find a function with the same function name
-                CommandFunction function = program.resolveCommandFunction(functionCall.getFname());
+                CommandFunction function = program.resolveCommandFunction(functionCall.fname());
 
                 // map former parameters to actual parameters
                 Map<Identifier, PreludeExpression> bindings = new HashMap<>();
                 for (int i = 0; i < actual_parameters.size(); i++){
-                    bindings.put(function.getY().get(i), actual_parameters.get(i));
+                    bindings.put(function.y().get(i), actual_parameters.get(i));
                 }
 
                 expressionEvaluator.binding_list.add(bindings);
 
                 // evaluate the function body with the actual parameters
-                PreludeCommand result = evalInstruction(function.getC());
+                PreludeCommand result = evalInstruction(function.c());
                 expressionEvaluator.binding_list.removeLast();
 
                 yield result;
@@ -53,21 +53,21 @@ public class CommandEvaluator {
             case LetCommand letCommand -> {
                 // let y = e in c
                 // evaluate e
-                PreludeExpression v = expressionEvaluator.toOverture(letCommand.getE());
+                PreludeExpression v = expressionEvaluator.toOverture(letCommand.e());
 
                 // let y = v in c
                 Map<Identifier, PreludeExpression> binding = new HashMap<>(expressionEvaluator.binding_list.getLast());
-                binding.put(letCommand.getY(), v);
+                binding.put(letCommand.y(), v);
                 expressionEvaluator.binding_list.addLast(binding);
 
-                PreludeCommand result = evalInstruction(letCommand.getC());
+                PreludeCommand result = evalInstruction(letCommand.c());
                 expressionEvaluator.binding_list.removeLast();
                 yield result;
             }
 
             case CommandList commandList -> {
                 List<PreludeCommand> commands = commandList
-                        .getCommands()
+                        .commands()
                         .stream()
                         .map(this::evalInstruction)
                         .toList();
@@ -76,7 +76,7 @@ public class CommandEvaluator {
             }
 
             case AssertCommand assertCommand ->
-                    new AssertCommand(expressionEvaluator.toOverture(assertCommand.getE1()), expressionEvaluator.toOverture(assertCommand.getE2()), expressionEvaluator.toOverture(assertCommand.getE3()));
+                    new AssertCommand(expressionEvaluator.toOverture(assertCommand.e1()), expressionEvaluator.toOverture(assertCommand.e2()), expressionEvaluator.toOverture(assertCommand.e3()));
 
             default -> throw new IllegalArgumentException("Bad instruction");
 

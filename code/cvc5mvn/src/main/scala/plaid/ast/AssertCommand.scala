@@ -1,6 +1,6 @@
 package plaid.ast
 
-case class AssertCommand(getE1: PreludeExpression, getE2: PreludeExpression, getE3: PreludeExpression) extends PreludeCommand{
+case class AssertCommand(e1: PreludeExpression, e2: PreludeExpression, e3: PreludeExpression) extends PreludeCommand{
   override def prettyPrint(): String
-    = "assert" + "(" + getE1.prettyPrint() + "=" + getE2.prettyPrint() + ")" + "@" + getE3.prettyPrint() + "\n"
+    = "assert" + "(" + e1.prettyPrint() + "=" + e2.prettyPrint() + ")" + "@" + e3.prettyPrint() + "\n"
 }

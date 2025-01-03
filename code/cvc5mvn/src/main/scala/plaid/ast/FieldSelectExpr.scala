@@ -1,5 +1,5 @@
 package plaid.ast
 
-case class FieldSelectExpr(getE: PreludeExpression, getL: Identifier) extends PreludeExpression{
+case class FieldSelectExpr(e: PreludeExpression, l: Identifier) extends PreludeExpression{
   override def prettyPrint(): String = throw new UnsupportedOperationException()
 }

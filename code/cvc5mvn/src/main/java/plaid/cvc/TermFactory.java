@@ -24,7 +24,6 @@ import plaid.constraints.ast.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static plaid.cvc.ConstraintsCvcUtils.getConstraintsCvcName;
 import static plaid.cvc.CvcUtils.getCvcName;
 import static plaid.cvc.CvcUtils.mkFiniteFieldElem;
 
@@ -60,20 +59,20 @@ public class TermFactory {
      */
     public Collection<Term> toTerms(PreludeCommand command) {
         return switch (command) {
-            case CommandList x -> x.getCommands().stream().flatMap(y -> toTerms(y).stream()).toList();
+            case CommandList x -> x.commands().stream().flatMap(y -> toTerms(y).stream()).toList();
             case AssertCommand x -> {
                 Integer partyIndex = getPartyIndex(x);
-                yield List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.getE1(), partyIndex), toTerm(x.getE2(), partyIndex)));
+                yield List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1(), partyIndex), toTerm(x.e2(), partyIndex)));
             }
-            case AssignCommand x -> List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.getE1()), toTerm(x.getE2())));
+            case AssignCommand x -> List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1()), toTerm(x.e2())));
             default -> throw new IllegalArgumentException("Not an overture command " + command.getClass().getName());
         };
     }
 
     public static Integer getPartyIndex(PreludeCommand command) {
         if (command instanceof AssertCommand) {
-            PreludeExpression indexExpr = ((AssertCommand) command).getE3();
-            return ((Num) indexExpr).getNum();
+            PreludeExpression indexExpr = ((AssertCommand) command).e3();
+            return ((Num) indexExpr).num();
         }
         return null;
     }
@@ -109,15 +108,15 @@ public class TermFactory {
                 if (partyIndex != null) {
                     throw new IllegalStateException("Party index " + partyIndex + " already active");
                 }
-                partyIndex = CvcUtils.toInt(x.getE2());
-                Term result = toTerm(x.getE1());
+                partyIndex = CvcUtils.toInt(x.e2());
+                Term result = toTerm(x.e1());
                 partyIndex = null;
                 yield result;
             }
-            case Num x -> mkFiniteFieldElem(termManager, Integer.toString(x.getNum()), sort, 10);
-            case PlusExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_ADD, toTerm(x.getE1()), toTerm(x.getE2()));
-            case TimesExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.getE1()), toTerm(x.getE2()));
-            case MinusExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.getE()), minusOne);
+            case Num x -> mkFiniteFieldElem(termManager, Integer.toString(x.num()), sort, 10);
+            case PlusExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_ADD, toTerm(x.e1()), toTerm(x.e2()));
+            case TimesExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e1()), toTerm(x.e2()));
+            case MinusExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e()), minusOne);
             default -> throw new IllegalArgumentException("Cannot convert " + expr.getClass().getName() + " to term");
         };
     }

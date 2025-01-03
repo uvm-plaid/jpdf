@@ -5,8 +5,6 @@ import plaid.ast.Identifier;
 import plaid.ast.PreludeCommand;
 import plaid.ast.Program;
 
-import java.util.List;
-
 public class ProgramEvaluator {
     private final Program program;
     private final CommandEvaluator commandEvaluator;
@@ -19,9 +17,9 @@ public class ProgramEvaluator {
     // evaluate main method (command function)
     public PreludeCommand eval() {
         PreludeCommand commands = null;
-        for (CommandFunction commandFunction : program.getCommandFunctions()) {
-            if (commandFunction.getFname().equals(new Identifier("main"))) {
-                commands = commandFunction.getC();
+        for (CommandFunction commandFunction : program.commandFunctions()) {
+            if (commandFunction.fname().equals(new Identifier("main"))) {
+                commands = commandFunction.c();
 
             }
         }

@@ -1,6 +1,6 @@
 package plaid.ast
 import java.lang
 
-case class SecretExpr(getE: PreludeExpression) extends MemoryExpr{
-  override def prettyPrint(): String = "s[\"" + getE.prettyPrint() + "\"]"
+case class SecretExpr(e: PreludeExpression) extends MemoryExpr{
+  override def prettyPrint(): String = "s[\"" + e.prettyPrint() + "\"]"
 }
