@@ -5,10 +5,11 @@ import plaid.ast.*
 import java.util.stream.Collectors
 
 /**
- * Pretty print provides a human-readable string representation of an AST node.
+ * Provides a human-readable string representation of an AST node and its decedents. Currently only supports node types
+ * used in Overture protocols.
  *
  * @param n The node to represent
- * @return A human-readable string representation of the node
+ * @return Human-readable representation
  */
 def prettyPrint(n: Node): String = n match {
   case AssertCommand(e1, e2, i) => s"assert (${prettyPrint(e1)} = ${prettyPrint(e2)})@${prettyPrint(i)}\n"
