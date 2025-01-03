@@ -1,38 +1,41 @@
 package plaid.cvc;
 
-import io.github.cvc5.*;
+import io.github.cvc5.Kind;
+import io.github.cvc5.Result;
+import io.github.cvc5.Solver;
+import io.github.cvc5.Sort;
+import io.github.cvc5.Term;
+import io.github.cvc5.TermManager;
 import plaid.antlr.ConstraintsLoader;
 import plaid.antlr.Loader;
-import plaid.ast.*;
+import plaid.ast.PreludeCommand;
 import plaid.constraints.ast.Constraints;
-import plaid.eval.OvertureChecker;
-import plaid.eval.ProgramEvaluator;
 
 import java.util.Collection;
 
 import static plaid.cvc.CvcUtils.mkFiniteFieldSort;
 
 public class Verifier {
-    private static final String order = "7";
-    private static final TermManager termManager = new TermManager();
-    private static final Sort sort = mkFiniteFieldSort(termManager, order, 10);
-    private static final TermFactory termFactory = new TermFactory(termManager, sort);
+    private final String order = "7";
+    private final TermManager termManager = new TermManager();
+    private final Sort sort = mkFiniteFieldSort(termManager, order, 10);
+    private final TermFactory termFactory = new TermFactory(termManager, sort);
 
-    public static boolean satisfies(String src) {
+    public boolean satisfies(String src) {
         return satisfies(Loader.toCommand(src));
     }
 
-    public static TermFactory getTermFactory() {
+    public TermFactory getTermFactory() {
         return termFactory;
     }
 
-    public static boolean satisfies(PreludeCommand command) {
+    public boolean satisfies(PreludeCommand command) {
         Collection<Term> e = termFactory.toTerms(command);
         Term term = termManager.mkTerm(Kind.AND, e.toArray(new Term[1]));
         return satisfies(term);
     }
 
-    public static boolean satisfies(Term e) {
+    public boolean satisfies(Term e) {
         Solver solver = new Solver(termManager);
         solver.assertFormula(e);
         Result result = solver.checkSat();
@@ -45,14 +48,14 @@ public class Verifier {
      * @param e2
      * @return
      */
-    public static boolean entails(Term e1, Term e2) {
+    public boolean entails(Term e1, Term e2) {
         Term notE2 = termManager.mkTerm(Kind.NOT, e2);
         Term e1_entails_notE2 = termManager.mkTerm(Kind.AND, e1, notE2);
         return !satisfies(e1_entails_notE2);
 
     }
 
-    public static boolean entails(Collection<Term> e1s, Collection<Term> e2s) {
+    public boolean entails(Collection<Term> e1s, Collection<Term> e2s) {
         return entails(joinWithAnd(e1s), joinWithAnd(e2s));
     }
 
@@ -62,7 +65,7 @@ public class Verifier {
      * @param src2 String type of Constraints
      * @return true/false
      */
-    public static boolean verifies(String src1, String src2){
+    public boolean verifies(String src1, String src2){
         return verifies(Loader.toCommand(src1), ConstraintsLoader.toConstraint(src2));
     }
 
@@ -72,14 +75,14 @@ public class Verifier {
      * @param proposition Constraints
      * @return true/false
      */
-    public static boolean verifies(PreludeCommand command, Constraints proposition){
+    public boolean verifies(PreludeCommand command, Constraints proposition){
         Collection<Term> e1s = termFactory.toTerms(command);
         Collection<Term> e2s = termFactory.constraintsToTerms(proposition);
 
         return entails(e1s, e2s);
     }
 
-    public static boolean equivalent(String src1, String src2){
+    public boolean equivalent(String src1, String src2){
         return equivalent(Loader.toCommand(src1), Loader.toCommand(src2));
     }
 
@@ -89,7 +92,7 @@ public class Verifier {
      * @param c2 Overture
      * @return true/false
      */
-    public static boolean equivalent(PreludeCommand c1, PreludeCommand c2) {
+    public boolean equivalent(PreludeCommand c1, PreludeCommand c2) {
         Collection<Term> e1s = termFactory.toTerms(c1);
         Collection<Term> e2s = termFactory.toTerms(c2);
 
@@ -101,7 +104,7 @@ public class Verifier {
      * @param terms Collection<Term>>
      * @return term
      */
-    private static Term joinWithAnd(Collection<Term> terms){
+    private Term joinWithAnd(Collection<Term> terms){
         if(terms.size() == 1){
             return terms.iterator().next();
         }

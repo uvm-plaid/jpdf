@@ -45,7 +45,8 @@ public class App implements Runnable {
         String[] postcondParts = content.split("postcondition:");
         String[] allParts = content.split("precondition:|postcondition:");
         String program = allParts[0];
-        TermFactory tf = Verifier.getTermFactory();
+        Verifier verifier = new Verifier();
+        TermFactory tf = verifier.getTermFactory();
 
         PreludeCommand protocol = evaluates(program);
         Collection<Term> overtureTerms = tf.toTerms(protocol);
@@ -63,14 +64,14 @@ public class App implements Runnable {
             System.exit(1);
         }
 
-        if (!Verifier.satisfies(protocol)) {
+        if (!verifier.satisfies(protocol)) {
             System.out.println("Protocol is not satisfiable");
             System.exit(1);
         }
         System.out.println("Protocol is satisfiable");
 
         Collection<Term> premises = Stream.concat(overtureTerms.stream(), preconditionTerms.stream()).toList();
-        if (!Verifier.entails(premises, postconditionTerms)) {
+        if (!verifier.entails(premises, postconditionTerms)) {
             System.out.println("Protocol and precondition do not entail postcondition");
             System.exit(1);
         }

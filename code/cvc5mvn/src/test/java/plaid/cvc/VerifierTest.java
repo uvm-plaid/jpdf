@@ -14,6 +14,9 @@ import plaid.constraints.ast.Constraints;
 import plaid.eval.ProgramEvaluator;
 
 public class VerifierTest {
+
+    private final Verifier verifier = new Verifier();
+
     private static PreludeCommand evaluates(String program){
         return evaluates(Loader.toProgram(program));
     }
@@ -28,7 +31,7 @@ public class VerifierTest {
      */
     @Test
     public void satisfiesCorrectProtocol() {
-        assertTrue(Verifier.satisfies("out@1 := 1@1; out@2 := 2@2"));
+        assertTrue(verifier.satisfies("out@1 := 1@1; out@2 := 2@2"));
     }
 
     /**
@@ -36,7 +39,7 @@ public class VerifierTest {
      */
     @Test
     public void failIncorrectProtocol() {
-        assertFalse(Verifier.satisfies("out@1 := 1@1; out@1 := 2@1"));
+        assertFalse(verifier.satisfies("out@1 := 1@1; out@1 := 2@1"));
     }
 
     /**
@@ -44,7 +47,7 @@ public class VerifierTest {
      */
     @Test
     public void assertionProtocol() {
-        assertTrue(Verifier.satisfies("out@1 := 1@1; assert (out = 1)@1"));
+        assertTrue(verifier.satisfies("out@1 := 1@1; assert (out = 1)@1"));
     }
 
     /**
@@ -52,7 +55,7 @@ public class VerifierTest {
      */
     @Test
     public void failAssertionProtocol() {
-        assertFalse(Verifier.satisfies("out@1 := 1@1; assert (out = 2)@1"));
+        assertFalse(verifier.satisfies("out@1 := 1@1; assert (out = 2)@1"));
     }
 
     @Test
@@ -69,8 +72,8 @@ public class VerifierTest {
         String proposition = """
                 constraints: (out@1 == s["x"]@1 + s["y"]@2) AND (out@2 == s["x"]@1 + s["y"]@2)
                 """;
-        assertTrue(Verifier.satisfies(protocol));
-        assertTrue(Verifier.verifies(protocol, proposition));
+        assertTrue(verifier.satisfies(protocol));
+        assertTrue(verifier.verifies(protocol, proposition));
     }
 
 
@@ -87,7 +90,7 @@ public class VerifierTest {
                 constraints: r["x"]@1 == m["x"]@3
                 """;
 
-        assertTrue(Verifier.verifies(protocol, proposition));
+        assertTrue(verifier.verifies(protocol, proposition));
     }
 
     /**
@@ -125,10 +128,10 @@ public class VerifierTest {
                 out@2 == s["1"]@1 + s["2"]@2 + s["3"]@3 AND
                 out@3 == s["1"]@1 + s["2"]@2 + s["3"]@3
                 """;
-        assertTrue(Verifier.verifies(protocol, proposition_1));
-        assertTrue(Verifier.verifies(protocol, proposition_2));
-        assertTrue(Verifier.verifies(protocol, proposition_3));
-        assertTrue(Verifier.verifies(protocol, proposition_4));
+        assertTrue(verifier.verifies(protocol, proposition_1));
+        assertTrue(verifier.verifies(protocol, proposition_2));
+        assertTrue(verifier.verifies(protocol, proposition_3));
+        assertTrue(verifier.verifies(protocol, proposition_4));
 
         String proposition_5 = """
                 constraints:
@@ -139,8 +142,8 @@ public class VerifierTest {
         String proposition_6 = """
                 constraints: out@2 == s["1"]@1 + s["2"]@2 + r["x"]@3
                 """;
-        assertFalse(Verifier.verifies(protocol, proposition_5));
-        assertFalse(Verifier.verifies(protocol, proposition_6));
+        assertFalse(verifier.verifies(protocol, proposition_5));
+        assertFalse(verifier.verifies(protocol, proposition_6));
     }
 
     /**
@@ -160,8 +163,8 @@ public class VerifierTest {
                 constraints: r["loc"]@1 == m["x"]@3
                 """;
 
-        assertFalse(Verifier.verifies(protocol, proposition_1));
-        assertFalse(Verifier.verifies(protocol, proposition_2));
+        assertFalse(verifier.verifies(protocol, proposition_1));
+        assertFalse(verifier.verifies(protocol, proposition_2));
 
     }
 
@@ -227,7 +230,7 @@ public class VerifierTest {
 
         Constraints proposition = ConstraintsLoader.toConstraint(proposition_src);
         //assertTrue(Verifier.verifies(evaluated_protocol, proposition_src));
-        assertTrue(Verifier.verifies(protocol, proposition));
+        assertTrue(verifier.verifies(protocol, proposition));
     }
 
 
@@ -244,7 +247,7 @@ public class VerifierTest {
                 m["x"]@3 := r["x"]@1;
                 m["x"]@2 := (s["x"] + r["x"] + r["loc"])@1
                 """;
-        assertTrue(Verifier.equivalent(protocol_1, protocol_2));
+        assertTrue(verifier.equivalent(protocol_1, protocol_2));
     }
 
     /**
@@ -259,7 +262,7 @@ public class VerifierTest {
         String protocol_2 = """
                 r["x"]@1 := m["x"]@3
                 """;
-        assertFalse(Verifier.equivalent(protocol_1, protocol_2));
+        assertFalse(verifier.equivalent(protocol_1, protocol_2));
     }
 }
 
