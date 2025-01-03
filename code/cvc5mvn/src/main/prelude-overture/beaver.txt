@@ -40,7 +40,7 @@ main(){
     open("k")
 }
 
-constraints: (
+postcondition: (
 m["z"]@1 == ((m["xs"]@1 + m["xs"]@2) + (m["ys"]@1 + m["ys"]@2)) AND
 m["k"]@1 == ((m["is"]@1 + m["is"]@2) * (m["js"]@1 + m["js"]@2))
 )

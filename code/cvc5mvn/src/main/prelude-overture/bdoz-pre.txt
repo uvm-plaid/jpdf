@@ -1,5 +1,3 @@
-exprfunctions:
-
 cmdfunctions:
 
 _open(x,i1,i2){
@@ -33,40 +31,26 @@ mult(z,x,y) {
 }
 
 main(){
-    
-    m["kc"]@2 := (m["ka"] * m["kb"])@2;
-    m["kas"]@1 := (m["ka"] + -m["kas"])@2;
-    m["kbs"]@1 := (m["kb"] + -m["kbs"])@2;
-    m["kcs"]@1 := (m["kc"] + -m["kcs"])@2;
-
-    m["kam"]@2 := (m["kak1"] + (m["delta1"] * m["kas"]))@2;
-    m["kak"]@1 := m["kak1"]@2;
-    m["delta"]@1 := m["delta1"]@2;
-
-    m["kbm"]@2 := (m["kbk1"] + (m["delta1"] * m["kbs"]))@2;
-    m["kbk"]@1 := m["kbk1"]@2;
-
-    m["kcm"]@2 := (m["kck1"] + (m["delta1"] * m["kcs"]))@2;
-    m["kck"]@1 := m["kck1"]@2;
-
-    m["xm"]@2 := (m["xk1"] + (m["delta1"] * m["xs"]))@2;
-    m["xk"]@1 := m["xk1"]@2;
-
-    m["ym"]@2 := (m["yk1"] + (m["delta1"] * m["ys"]))@2;
-    m["yk"]@1 := m["yk1"]@2;
-
-    m["im"]@2 := (m["ik1"] + (m["delta1"] * m["is"]))@2;
-    m["ik"]@1 := m["ik1"]@2;
-
-    m["jm"]@2 := (m["jk1"] + (m["delta1"] * m["js"]))@2;
-    m["jk"]@1 := m["jk1"]@2;
-
     sum("z","x","y");
     open("z");
 
     mult("k","i","j");
     open("k")
 }
+
+precondition: (
+m["kc"]@3 == m["ka"]@3 * m["kb"]@3 AND
+m["kas"]@1 + m["kas"]@2 == m["ka"]@3 AND
+m["kbs"]@1 + m["kbs"]@2 == m["kb"]@3 AND
+m["kcs"]@1 + m["kcs"]@2 == m["kc"]@3 AND
+m["kam"]@2 == m["kak"]@1 + (m["delta"]@1 * m["kas"]@2) AND
+m["kbm"]@2 == m["kbk"]@1 + (m["delta"]@1 * m["kbs"]@2) AND
+m["kcm"]@2 == m["kck"]@1 + (m["delta"]@1 * m["kcs"]@2) AND
+m["xm"]@2 == m["xk"]@1 + (m["delta"]@1 * m["xs"]@2) AND
+m["ym"]@2 == m["yk"]@1 + (m["delta"]@1 * m["ys"]@2) AND
+m["im"]@2 == m["ik"]@1 + (m["delta"]@1 * m["is"]@2) AND
+m["jm"]@2 == m["jk"]@1 + (m["delta"]@1 * m["js"]@2) 
+)
 
 postcondition: (
 m["z"]@1 == ((m["xs"]@1 + m["xs"]@2) + (m["ys"]@1 + m["ys"]@2)) AND
