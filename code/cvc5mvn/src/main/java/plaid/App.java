@@ -1,17 +1,23 @@
 package plaid;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.util.Scanner;
-import org.antlr.v4.runtime.*;
+import io.github.cvc5.Term;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import plaid.antlr.ConstraintsLoader;
 import plaid.antlr.Loader;
 import plaid.ast.PreludeCommand;
 import plaid.ast.Program;
 import plaid.constraints.ast.Constraints;
+import plaid.cvc.TermFactory;
 import plaid.cvc.Verifier;
 import plaid.eval.OvertureChecker;
 import plaid.eval.ProgramEvaluator;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Collection;
+import java.util.Scanner;
+import java.util.stream.Stream;
 
 
 public class App {
@@ -21,22 +27,40 @@ public class App {
         // separate prelude source code and constraints
         File file = new File(new Scanner(System.in).nextLine());
         String content = Files.readString(file.toPath());
-        String[] parts = content.split("constraints:");
-        String program = parts[0];
-        String constraints =  "constraints:" + parts[1];
+        String[] precondParts = content.split("precondition:");
+        String[] postcondParts = content.split("postcondition:");
+        String[] allParts = content.split("precondition:|postcondition:");
+        String program = allParts[0];
+        TermFactory tf = Verifier.getTermFactory();
 
-        // evaluate prelude program to Overture protocol
         PreludeCommand protocol = evaluates(program);
-        // check if the protocol is valid
-        if(OvertureChecker.checkOverture(protocol)){
-            // convert constraints into ast
-            Constraints proposition = ConstraintsLoader.toConstraint(constraints);
-            System.out.println(Verifier.verifies(protocol, proposition));
-        }
-        else{
-            throw new IllegalArgumentException("Not a valid overture protocol");
+        Collection<Term> overtureTerms = tf.toTerms(protocol);
+
+        String preconditionSource = precondParts.length > 1 ? allParts[1] : "";
+        Constraints preconditionAst = ConstraintsLoader.toConstraint("constraints:" + preconditionSource);
+        Collection<Term> preconditionTerms = tf.constraintsToTerms(preconditionAst);
+
+        String postconditionSource = postcondParts.length > 1 ? postcondParts[1] : "";
+        Constraints postconditionAst = ConstraintsLoader.toConstraint("constraints:" + postconditionSource);
+        Collection<Term> postconditionTerms = tf.constraintsToTerms(postconditionAst);
+
+        if (!OvertureChecker.checkOverture(protocol)) {
+            System.out.println("Overture protocol is invalid");
+            System.exit(1);
         }
 
+        if (!Verifier.satisfies(protocol)) {
+            System.out.println("Protocol is not satisfiable");
+            System.exit(1);
+        }
+        System.out.println("Protocol is satisfiable");
+
+        Collection<Term> premises = Stream.concat(overtureTerms.stream(), preconditionTerms.stream()).toList();
+        if (!Verifier.entails(premises, postconditionTerms)) {
+            System.out.println("Protocol and precondition do not entail postcondition");
+            System.exit(1);
+        }
+        System.out.println("Protocol and precondition entail postcondition");
     } // main()
 
 

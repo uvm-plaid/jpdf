@@ -6,12 +6,17 @@ import plaid.ast.AssignCommand;
 import plaid.ast.AtExpr;
 import plaid.ast.CommandList;
 import plaid.ast.MemoryExpr;
+import plaid.ast.MessageExpr;
 import plaid.ast.MinusExpr;
 import plaid.ast.Num;
+import plaid.ast.OutputExpr;
 import plaid.ast.PlusExpr;
 import plaid.ast.PreludeCommand;
 import plaid.ast.PreludeExpression;
 import plaid.ast.PublicExpr;
+import plaid.ast.RandomExpr;
+import plaid.ast.SecretExpr;
+import plaid.ast.Str;
 import plaid.ast.TimesExpr;
 
 import plaid.constraints.ast.*;
@@ -139,9 +144,15 @@ public class TermFactory {
     /**
      * for constraints terms, looks up the memory set with CVC5 name and return its CVC5 term
      */
-    public Term lookup(ConstraintsTerm term){
-        String name = getConstraintsCvcName(term);
-        return memories.stream().filter(x -> x.name().equals(name)).findFirst().get().term();
+    public Term lookupOrCreate(ConstraintsTerm term){
+        return switch(term) {
+            case MessageConstraintsTerm mem -> lookupOrCreate(new MessageExpr(new Str(mem.w())), mem.i());
+            case RandomConstraintsTerm mem -> lookupOrCreate(new RandomExpr(new Str(mem.w())), mem.i());
+            case SecretConstraintsTerm mem -> lookupOrCreate(new SecretExpr(new Str(mem.w())), mem.i());
+            case PublicConstraintsTerm mem -> lookupOrCreate(new PublicExpr(new Str(mem.w())), null);
+            case OutputConstraintTerm mem -> lookupOrCreate(new OutputExpr(), mem.i());
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     /**
@@ -168,11 +179,11 @@ public class TermFactory {
      */
     public Term constraintsToTerm(ConstraintsTerm term)  {
         return switch (term) {
-            case MessageConstraintsTerm x -> lookup(x);
-            case PublicConstraintsTerm x -> lookup(x);
-            case RandomConstraintsTerm x -> lookup(x);
-            case OutputConstraintTerm x -> lookup(x);
-            case SecretConstraintsTerm x -> lookup(x);
+            case MessageConstraintsTerm x -> lookupOrCreate(x);
+            case PublicConstraintsTerm x -> lookupOrCreate(x);
+            case RandomConstraintsTerm x -> lookupOrCreate(x);
+            case OutputConstraintTerm x -> lookupOrCreate(x);
+            case SecretConstraintsTerm x -> lookupOrCreate(x);
             case MinusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e()), minusOne);
             case PlusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_ADD, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
             case TimesConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));

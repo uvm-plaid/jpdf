@@ -22,6 +22,10 @@ public class Verifier {
         return satisfies(Loader.toCommand(src));
     }
 
+    public static TermFactory getTermFactory() {
+        return termFactory;
+    }
+
     public static boolean satisfies(PreludeCommand command) {
         Collection<Term> e = termFactory.toTerms(command);
         Term term = termManager.mkTerm(Kind.AND, e.toArray(new Term[1]));
@@ -48,6 +52,10 @@ public class Verifier {
 
     }
 
+    public static boolean entails(Collection<Term> e1s, Collection<Term> e2s) {
+        return entails(joinWithAnd(e1s), joinWithAnd(e2s));
+    }
+
     /**
      * check if an overture protocol entails a proposition
      * @param src1 String type of Overture
@@ -68,7 +76,7 @@ public class Verifier {
         Collection<Term> e1s = termFactory.toTerms(command);
         Collection<Term> e2s = termFactory.constraintsToTerms(proposition);
 
-        return entails(joinWithAnd(e1s), joinWithAnd(e2s));
+        return entails(e1s, e2s);
     }
 
     public static boolean equivalent(String src1, String src2){

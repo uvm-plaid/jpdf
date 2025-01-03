@@ -291,20 +291,4 @@ public class TermFactoryTest {
         factory.toTerms(new FunctionCallCommand(new Identifier("f"), List.of()));
     }
 
-    /**
-     * Fails if constraint is not defined in overture
-     */
-    @Test(expected = NoSuchElementException.class)
-    public void nonConstraints() throws CVC5ApiException{
-        TermManager termManager = new TermManager();
-        Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        TermFactory factory = new TermFactory(termManager, sort);
-        PreludeExpression expr = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
-        factory.toTerm(expr);
-        factory.constraintsToTerm(new MessageConstraintsTerm("x", 4));
-    }
-
-    /**
-     * what does  looks like
-     */
 }
