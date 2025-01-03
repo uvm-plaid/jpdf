@@ -3,6 +3,10 @@ package plaid;
 import io.github.cvc5.Term;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 import plaid.antlr.ConstraintsLoader;
 import plaid.antlr.Loader;
 import plaid.ast.PreludeCommand;
@@ -14,19 +18,29 @@ import plaid.eval.OvertureChecker;
 import plaid.eval.ProgramEvaluator;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
-import java.util.Scanner;
 import java.util.stream.Stream;
 
+@Command(name="prelude", version="prelude-dev", mixinStandardHelpOptions=true)
+public class App implements Runnable {
 
-public class App {
-    private static final String order = "2";
+    @Option(names={"--field-size", "-s"}, defaultValue="2", description="Order of the finite field")
+    String fieldSize;
 
-    public static void main(String[] args) throws Exception {
+    @Parameters(paramLabel="<path>", description="Path to a prelude source file")
+    String path;
+
+    public static void main(String[] args) {
+        int exitCode = new CommandLine(new App()).execute(args);
+        System.exit(exitCode);
+    }
+
+    @Override
+    public void run() {
         // separate prelude source code and constraints
-        File file = new File(new Scanner(System.in).nextLine());
-        String content = Files.readString(file.toPath());
+        String content = readSourceCode();
         String[] precondParts = content.split("precondition:");
         String[] postcondParts = content.split("postcondition:");
         String[] allParts = content.split("precondition:|postcondition:");
@@ -61,8 +75,16 @@ public class App {
             System.exit(1);
         }
         System.out.println("Protocol and precondition entail postcondition");
-    } // main()
+    }
 
+    private String readSourceCode() {
+        File file = new File(path);
+        try {
+            return Files.readString(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * evaluate a program source code to Overture
@@ -103,12 +125,5 @@ public class App {
 
         return pc.toStringTree(parser);
     } // preludeParseTree()
-
-
-
-
-
-
-
 
 }

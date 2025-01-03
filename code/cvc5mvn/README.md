@@ -34,10 +34,33 @@
 
 ------
 ## Installation & Running
-- Maven is required to run this project.
-- CVC5 should be also installed, and then environment variable (CVC5_LIB_PATH) for CVC5 library path should be added in `pom.xml`.
-- `mvn exec:exec` runs main test, which is in /src/main/java/plaid/App.java.
-- `mvn test exec:exec` runs the main test along with unit tests.
+
+Maven is required to build this project.
+```
+mvn package
+```
+
+CVC5 needs to be installed to run this project, along with its Java bindings. The path to the CVC5 libraries then need to be added to Java's library path. The actual path will depend on how the CVC5 build was configured.
+
+On MacOS,
+```
+export DYLD_LIBRARY_PATH=/usr/local/lib
+```
+
+On Linux,
+```
+export LD_LIBRARY_PATH=/usr/local/lib
+```
+
+To run the tool on an example,
+```
+java -jar target/prelude.jar src/main/prelude-overture/beaver-pre.txt
+```
+
+Further documentation about supported parameters is available via
+```
+java -jar target/prelude.jar --help
+```
 
 -------
 ## License
