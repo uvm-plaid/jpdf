@@ -16,6 +16,7 @@ _sum(z, x, y, i){
 
 sum(z,x,y){ _sum(z,x,y,1); _sum(z,x,y,2) }
 
+// This clearly illustrates SHE properties of BDOZ MAC.
 _mult(z, x, y, i) {
     m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i;
     m[z++"m"]@i := (m[z++"d"] * m[y++"m"] + -m[z++"e"] * m[z++"am"] + m[z++"cm"])@i;
@@ -39,10 +40,12 @@ main(){
 }
 
 precondition: (
+// These are Beaver triple constraints. Party 3 is a "phantom" just for spec.
 m["kc"]@3 == m["ka"]@3 * m["kb"]@3 AND
 m["kas"]@1 + m["kas"]@2 == m["ka"]@3 AND
 m["kbs"]@1 + m["kbs"]@2 == m["kb"]@3 AND
 m["kcs"]@1 + m["kcs"]@2 == m["kc"]@3 AND
+// These are MAC constraints.
 m["kam"]@2 == m["kak"]@1 + (m["delta"]@1 * m["kas"]@2) AND
 m["kbm"]@2 == m["kbk"]@1 + (m["delta"]@1 * m["kbs"]@2) AND
 m["kcm"]@2 == m["kck"]@1 + (m["delta"]@1 * m["kcs"]@2) AND
