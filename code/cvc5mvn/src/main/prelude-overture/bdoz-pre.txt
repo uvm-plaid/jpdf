@@ -53,7 +53,7 @@ m["kcm"]@2 == m["kck"]@1 + (m["delta"]@1 * m["kcs"]@2) AND
 m["xm"]@2 == m["xk"]@1 + (m["delta"]@1 * m["xs"]@2) AND
 m["ym"]@2 == m["yk"]@1 + (m["delta"]@1 * m["ys"]@2) AND
 m["im"]@2 == m["ik"]@1 + (m["delta"]@1 * m["is"]@2) AND
-m["jm"]@2 == m["jk"]@1 + (m["delta"]@1 * m["js"]@2)
+m["jm"]@2 == m["jk"]@1 + (m["delta"]@1 * m["js"]@2) AND
 
 // These are BDOZ MAC constraints for party 2 verification of party 1.
 m["kam"]@1 == m["kak"]@2 + (m["delta"]@2 * m["kas"]@1) AND
@@ -74,7 +74,7 @@ m["k"]@1 == ((m["is"]@1 + m["is"]@2) * (m["js"]@1 + m["js"]@2)) AND
 
 // party 1 verifications for secure openings of z and k
 m["zextm"]@1 == (m["zk"]@1 + m["delta"]@1 * m["zexts"]@1) AND
-m["kextm"]@1 == (m["kk"]@1 + m["delta"]@1 * m["kexts"]@1)
+m["kextm"]@1 == (m["kk"]@1 + m["delta"]@1 * m["kexts"]@1) AND
 
 // Party 2 verifications for secure openings of z and k
 m["zextm"]@1 == (m["zk"]@1 + m["delta"]@1 * m["zexts"]@1) AND
