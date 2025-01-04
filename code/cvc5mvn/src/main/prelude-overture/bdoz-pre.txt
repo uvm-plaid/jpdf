@@ -16,7 +16,7 @@ _sum(z, x, y, i){
 
 sum(z,x,y){ _sum(z,x,y,1); _sum(z,x,y,2) }
 
- // This clearly illustrates SHE properties of BDOZ MAC.
+// This clearly illustrates SHE properties of BDOZ MAC.
 _mult(z, x, y, i) {
     m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i;
     m[z++"m"]@i := (m[z++"d"] * m[y++"m"] + -m[z++"e"] * m[z++"am"] + m[z++"cm"])@i;
