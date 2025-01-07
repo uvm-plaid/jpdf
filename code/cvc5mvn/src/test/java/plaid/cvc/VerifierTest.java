@@ -8,6 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import plaid.antlr.ConstraintsLoader;
 import plaid.antlr.Loader;
+import plaid.ast.AssignCommand;
 import plaid.ast.PreludeCommand;
 import plaid.ast.Program;
 import plaid.constraints.ast.Constraints;
@@ -304,6 +305,15 @@ public class VerifierTest {
         assertTrue(verifier.entails(falseTerm, Collections.emptyList()));
     }
 
+    /**
+     * Overture protocols with only one command in them can be satisfied.
+     */
+    @Test
+    public void oneCommandProtocolSatisfaction() {
+        PreludeCommand command = Loader.toCommand("out@1 := 1@1");
+        assertTrue(command instanceof AssignCommand);
+        assertTrue(verifier.satisfies(command));
+    }
 }
 
 

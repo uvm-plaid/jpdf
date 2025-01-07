@@ -25,8 +25,7 @@ public class Verifier {
 
     public boolean satisfies(PreludeCommand command) {
         Collection<Term> e = termFactory.toTerms(command);
-        Term term = termFactory.getTermManager().mkTerm(Kind.AND, e.toArray(new Term[1]));
-        return satisfies(term);
+        return satisfies(joinWithAnd(e));
     }
 
     public boolean satisfies(Term e) {
