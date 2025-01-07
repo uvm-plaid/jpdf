@@ -1,20 +1,24 @@
 package plaid.cvc;
 
+import io.github.cvc5.CVC5ApiException;
 import io.github.cvc5.Sort;
+import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static plaid.cvc.CvcUtils.mkFiniteFieldSort;
-
 import plaid.antlr.ConstraintsLoader;
 import plaid.antlr.Loader;
 import plaid.ast.PreludeCommand;
 import plaid.ast.Program;
 import plaid.constraints.ast.Constraints;
 import plaid.eval.ProgramEvaluator;
+
+import java.util.Collection;
+import java.util.Collections;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static plaid.cvc.CvcUtils.mkFiniteFieldSort;
 
 public class VerifierTest {
 
@@ -270,6 +274,36 @@ public class VerifierTest {
                 """;
         assertFalse(verifier.equivalent(protocol_1, protocol_2));
     }
+
+    /**
+     * The truth value when nothing entails some predicate depends on the
+     * truth value of the predicate.
+     */
+    @Test
+    public void nothingEntailsSomething() throws CVC5ApiException {
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        Collection<Term> trueTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1"));
+        assertTrue(verifier.entails(Collections.emptyList(), trueTerm));
+        Collection<Term> falseTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
+        assertFalse(verifier.entails(Collections.emptyList(), falseTerm));
+    }
+
+    /**
+     * The truth value when some predicate entails nothing is always true.
+     */
+    @Test
+    public void somethingEntailsNothing() throws CVC5ApiException {
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        Collection<Term> trueTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1"));
+        assertTrue(verifier.entails(trueTerm, Collections.emptyList()));
+        Collection<Term> falseTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
+        assertTrue(verifier.entails(falseTerm, Collections.emptyList()));
+    }
+
 }
 
 

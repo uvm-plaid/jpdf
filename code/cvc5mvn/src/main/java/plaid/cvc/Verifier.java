@@ -49,7 +49,13 @@ public class Verifier {
     }
 
     public boolean entails(Collection<Term> e1s, Collection<Term> e2s) {
-        return entails(joinWithAnd(e1s), joinWithAnd(e2s));
+        if (e2s.isEmpty()) {
+            return true;
+        } else if (e1s.isEmpty()) {
+            return satisfies(joinWithAnd(e2s));
+        } else {
+            return entails(joinWithAnd(e1s), joinWithAnd(e2s));
+        }
     }
 
     /**
@@ -98,6 +104,7 @@ public class Verifier {
      * @return term
      */
     private Term joinWithAnd(Collection<Term> terms){
+        System.out.println("TERMS = " + terms);
         if(terms.size() == 1){
             return terms.iterator().next();
         }
