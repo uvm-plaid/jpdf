@@ -14,10 +14,10 @@ constraintsTerm
     | constraintsTerm '*' constraintsTerm #TimesConstraintsTerm
     | constraintsTerm '+' constraintsTerm #PlusConstraintsTerm
     | '-' constraintsTerm #MinusConstraintsTerm
-    | 's' '[' STRING ']' '@' VALUE #SecretConstraintsTerm
-    | 'r' '[' STRING ']'  '@' VALUE #RandomConstraintsTerm
-    | 'm' '[' STRING ']' '@' VALUE #MessageConstraintsTerm
-    | 'p' '[' STRING ']' #PublicConstraintsTerm
+    | 's[' STRING ']' '@' VALUE #SecretConstraintsTerm
+    | 'r[' STRING ']'  '@' VALUE #RandomConstraintsTerm
+    | 'm[' STRING ']' '@' VALUE #MessageConstraintsTerm
+    | 'p[' STRING ']' #PublicConstraintsTerm
     | 'out' '@' VALUE #OutputConstraintsTerm
     ;
 
