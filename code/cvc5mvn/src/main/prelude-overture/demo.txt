@@ -7,14 +7,19 @@ mux(s1, b1, b2){ (not(s1) * b1) + (s1 * b2)}
 cmdfunctions:
 
 f(a,b,c){
-  m[a]@1 := m[b] + m[c]@1
+  m[a]@1 := (m[b] + m[c])@1
+}
+
+OT(a,b,c){
+  m[a]@1 := (m[b] + m[c])@1
 }
 
 main(){
   m["x"]@1 := 1@1;
   m["unit"]@1 := 1@1;
   m["zero"]@1 := 0@1;
-  m["y"]@1 := (m["unit"] + m["zero"])@1
+  m["y"]@1 := (m["unit"] + m["zero"])@1;
+  f("x","y","z")
 }
 
 postcondition: ( m["x"]@1 == m["unit"]@1 )
