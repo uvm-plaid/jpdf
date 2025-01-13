@@ -27,7 +27,7 @@ andtable(g,p1,p2){ permute4(p1,p2,r[g],r[g],r[g],not(r[g])) }
 cmdfunctions:
 
 //
-// Hack to workaround lack of primitive OT
+// Hack to work around lack of primitive OT
 //
 ot(x,c,b1,b2,ir,is){
   m[x++"foo"]@is := c@ir;
@@ -35,7 +35,7 @@ ot(x,c,b1,b2,ir,is){
 }
 
 //
-// Hack to workaround lack of primitive OT4
+// Hack to work around lack of primitive OT4
 //
 ot4(x,c1,c2,b1,b2,b3,b4,ir,is){
   m[x++"foo"]@is := c1@ir;
