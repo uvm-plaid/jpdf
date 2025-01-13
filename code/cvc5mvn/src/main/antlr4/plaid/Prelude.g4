@@ -21,10 +21,10 @@ expr
     | '(' expr ')' #ParenPExpr
     | 'let' ident '=' expr 'in' expr #LetExpr
     | ident '(' (expr (',' expr)*)? ')' #FunctionCallExpr
-    | 's' '[' expr ']' #SecretExpr
-    | 'r' '[' expr ']' #RandomExpr
-    | 'm' '[' expr ']' #MessageExpr
-    | 'p' '[' expr ']' #PublicExpr
+    | 's[' expr ']' #SecretExpr
+    | 'r[' expr ']' #RandomExpr
+    | 'm[' expr ']' #MessageExpr
+    | 'p[' expr ']' #PublicExpr
     | 'out' #OutputExpr
     | '{' (flddecl (';' flddecl)*)? '}' #FieldExpr
     | ident #IdentExpr
@@ -35,7 +35,7 @@ expr
 
 command
     : command (';' command) #CommandList
-    | expr ':=' ('(')? expr (')')? #AssignCommand
+    | expr ':=' expr #AssignCommand
     | 'assert' '(' expr '=' expr ')' '@' expr #AssertCommand
     | ident '(' (expr (',' expr)*)? ')' #FunctionCallCommand
     | 'let' ident '=' expr 'in' command #LetCommand
