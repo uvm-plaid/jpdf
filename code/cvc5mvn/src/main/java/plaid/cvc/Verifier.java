@@ -103,7 +103,6 @@ public class Verifier {
      * @return term
      */
     private Term joinWithAnd(Collection<Term> terms){
-        System.out.println("TERMS = " + terms);
         if(terms.size() == 1){
             return terms.iterator().next();
         }

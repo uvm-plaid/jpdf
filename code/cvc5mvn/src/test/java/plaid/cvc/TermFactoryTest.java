@@ -6,15 +6,40 @@ import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
 import org.junit.Test;
 import plaid.antlr.Loader;
-import plaid.ast.*;
-import plaid.constraints.ast.*;
+import plaid.ast.AssertCommand;
+import plaid.ast.AssignCommand;
+import plaid.ast.AtExpr;
+import plaid.ast.CommandList;
+import plaid.ast.FunctionCallCommand;
+import plaid.ast.Identifier;
+import plaid.ast.MessageExpr;
+import plaid.ast.Num;
+import plaid.ast.OutputExpr;
+import plaid.ast.PlusExpr;
+import plaid.ast.PreludeExpression;
+import plaid.ast.PublicExpr;
+import plaid.ast.RandomExpr;
+import plaid.ast.SecretExpr;
+import plaid.ast.Str;
+import plaid.constraints.ast.AndConstraintsExpr;
+import plaid.constraints.ast.Constraints;
+import plaid.constraints.ast.ConstraintsExpr;
+import plaid.constraints.ast.EqualConstraintsExpr;
+import plaid.constraints.ast.MessageConstraintsTerm;
+import plaid.constraints.ast.NotConstraintsExpr;
+import plaid.constraints.ast.OutputConstraintTerm;
+import plaid.constraints.ast.PlusConstraintsTerm;
+import plaid.constraints.ast.PublicConstraintsTerm;
+import plaid.constraints.ast.RandomConstraintsTerm;
+import plaid.constraints.ast.SecretConstraintsTerm;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class TermFactoryTest {
 
@@ -114,7 +139,8 @@ public class TermFactoryTest {
 
         
         // create complex terms for constraints containing the same memories
-        System.out.println(factory.constraintsToTerm(new PlusConstraintsTerm(new MessageConstraintsTerm("foo", 1), new OutputConstraintTerm(1))));
+        // TODO Make assertion about the terms
+        factory.constraintsToTerm(new PlusConstraintsTerm(new MessageConstraintsTerm("foo", 1), new OutputConstraintTerm(1)));
     }
     
     /**
@@ -201,7 +227,8 @@ public class TermFactoryTest {
         assertTrue(memories.stream().anyMatch(x -> x.term().equals(factory.constraintsToTerm(new MessageConstraintsTerm("x", 3)))));
         assertTrue(memories.stream().anyMatch(x -> x.term().equals(factory.constraintsToTerm(new RandomConstraintsTerm("y", 5)))));
 
-        System.out.println(factory.constraintsToTerm(new EqualConstraintsExpr(new MessageConstraintsTerm("x", 3), new RandomConstraintsTerm("y", 5))));
+        // TODO Make assertion about the expression
+        factory.constraintsToTerm(new EqualConstraintsExpr(new MessageConstraintsTerm("x", 3), new RandomConstraintsTerm("y", 5)));
     }
     
     //  illegal constraints expressions
@@ -231,10 +258,11 @@ public class TermFactoryTest {
         assertTrue(memories.stream().anyMatch(x -> x.term().equals(factory.constraintsToTerm(new PublicConstraintsTerm("1")))));
         ConstraintsExpr constraintsExpr1 = new EqualConstraintsExpr(new MessageConstraintsTerm("x", 3), new RandomConstraintsTerm("y", 5));
         ConstraintsExpr constraintsExpr2 = new EqualConstraintsExpr(new SecretConstraintsTerm("z", 1), new PublicConstraintsTerm("1"));
-        System.out.println(factory.constraintsToTerm(new AndConstraintsExpr(constraintsExpr1, constraintsExpr2)));
-        System.out.println(factory.constraintsToTerm(new NotConstraintsExpr(constraintsExpr1)));
 
-        
+        // TODO Make assertion about the expression
+        factory.constraintsToTerm(new AndConstraintsExpr(constraintsExpr1, constraintsExpr2));
+        // TODO Make assertion about the expression
+        factory.constraintsToTerm(new NotConstraintsExpr(constraintsExpr1));
     }
 
     /**
@@ -260,7 +288,8 @@ public class TermFactoryTest {
         ConstraintsExpr constraintsExpr1 = new EqualConstraintsExpr(new MessageConstraintsTerm("x", 3), new RandomConstraintsTerm("y", 5));
         ConstraintsExpr constraintsExpr2 = new EqualConstraintsExpr(new SecretConstraintsTerm("z", 1), new PublicConstraintsTerm("1"));
         Constraints constraints = new Constraints(List.of(new AndConstraintsExpr(new NotConstraintsExpr(constraintsExpr1), constraintsExpr2)));
-        System.out.println(factory.constraintsToTerms(constraints));
+        // TODO Make assertion about the terms
+        factory.constraintsToTerms(constraints);
     }
 
     /**
