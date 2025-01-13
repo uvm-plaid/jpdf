@@ -47,12 +47,16 @@ main(){
   m["x"]@1 := mux(s["x"],r["x"],not(r["x"]))@2;
   m["y"]@1 := 0@2;
   ot("y",s["y"],r["y"],not(r["y"]),1,2);
+  
   let table = andtable("z",r["x"],r["y"]) in 
   ot4("z",m["x"],m["y"],table.v1,table.v2,table.v3,table.v4,1,2);
+
   let decode = permute(r["z"], 0, 1) in 
   ot("out",m["z"],decode.v1,decode.v2,1,2);
+
   out@1 := m["out"]@1;
-  m["unit"]@1 := 1@1
+
+ m["unit"]@1 := 1@1
 }
 
 postcondition: (
