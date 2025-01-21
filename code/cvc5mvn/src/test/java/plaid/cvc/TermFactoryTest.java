@@ -1,26 +1,9 @@
 package plaid.cvc;
 
-import io.github.cvc5.CVC5ApiException;
-import io.github.cvc5.Sort;
-import io.github.cvc5.Term;
-import io.github.cvc5.TermManager;
+import io.github.cvc5.*;
 import org.junit.Test;
 import plaid.antlr.Loader;
-import plaid.ast.AssertCommand;
-import plaid.ast.AssignCommand;
-import plaid.ast.AtExpr;
-import plaid.ast.CommandList;
-import plaid.ast.FunctionCallCommand;
-import plaid.ast.Identifier;
-import plaid.ast.MessageExpr;
-import plaid.ast.Num;
-import plaid.ast.OutputExpr;
-import plaid.ast.PlusExpr;
-import plaid.ast.PreludeExpression;
-import plaid.ast.PublicExpr;
-import plaid.ast.RandomExpr;
-import plaid.ast.SecretExpr;
-import plaid.ast.Str;
+import plaid.ast.*;
 import plaid.constraints.ast.AndConstraintsExpr;
 import plaid.constraints.ast.Constraints;
 import plaid.constraints.ast.ConstraintsExpr;
@@ -319,5 +302,39 @@ public class TermFactoryTest {
         TermFactory factory = new TermFactory(termManager, sort);
         factory.toTerms(new FunctionCallCommand(new Identifier("f"), List.of()));
     }
+
+    /**
+     * CVC5 interpretation for OT
+     */
+    @Test
+    public void OTInterpretation() throws CVC5ApiException{
+        TermManager termManager = new TermManager();
+        
+        Sort sort = termManager.mkFiniteFieldSort("2", 10);
+        
+        TermFactory factory = new TermFactory(termManager, sort);
+        // OT(m["x"]@3, r["y"], m["foo"])@2
+        PreludeExpression expr1 = new AtExpr(new OTExpr(new MessageExpr(new Str("x")), new Num(3), new RandomExpr(new Str("y")), new MessageExpr(new Str("foo"))), new Num(2));
+
+        // create constants
+        Term m_x_3 = termManager.mkConst(sort, "m_x_3");
+        Term r_y_2 = termManager.mkConst(sort, "r_y_2");
+        Term m_foo_2 = termManager.mkConst(sort, "m_foo_2");
+        Term one = termManager.mkFiniteFieldElem("1", sort, 10);
+
+        // create constraints
+        Term select_1 = termManager.mkTerm(Kind.FINITE_FIELD_MULT, m_x_3, m_foo_2);
+        Term not_m_x_3 = termManager.mkTerm(Kind.FINITE_FIELD_ADD, m_x_3, one);
+        Term select_2 = termManager.mkTerm(Kind.FINITE_FIELD_MULT, not_m_x_3, r_y_2);
+        Term ot = termManager.mkTerm(Kind.FINITE_FIELD_ADD, select_1, select_2);
+        
+        // TODO: memory equality
+        //assertEquals(ot, factory.toTerm(expr1));
+        
+    }
+
+
+    
+    
 
 }

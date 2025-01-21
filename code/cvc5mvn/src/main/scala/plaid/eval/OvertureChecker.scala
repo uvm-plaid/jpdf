@@ -21,6 +21,7 @@ object OvertureChecker {
     case SecretExpr(e) => Iterable(e)
     case Str(_) => Iterable()
     case TimesExpr(e1, e2) => Iterable(e1, e2)
+    case OTExpr(e1, i1, e2, e3) => Iterable(e1, i1, e2, e3)
     // TODO Add other kinds of nodes and externalize
   }
 
@@ -39,6 +40,7 @@ object OvertureChecker {
     case SecretExpr(_) => true
     case Str(_) => true
     case TimesExpr(_, _) => true
+    case OTExpr(_, _, _ , _) => true
     case _ => false
   })
 
@@ -51,6 +53,8 @@ object OvertureChecker {
   })
 
   private def partyIndexesAreNumbers(n: Node) = recurse(n, {
+    case OTExpr(_, Num(_), _, _) => true
+    case OTExpr(_, _, _, _) => false
     case AtExpr(_, Num(_)) => true
     case AtExpr(_, _) => false
     case AssertCommand(_, _, Num(_)) => true
@@ -94,6 +98,7 @@ object OvertureChecker {
     case _ => true
   })
 
+
   def checkOverture(protocol: PreludeCommand): Boolean =
     overtureNodeTypes(protocol) &&
     partyIndexesAreNumbers(protocol) &&
@@ -101,6 +106,6 @@ object OvertureChecker {
     assignmentAtsCoverRight(protocol) &&
     assignmentLeftWellFormed(protocol) &&
     outputPartyIndexesMatch(protocol) &&
-    assertAtsNotNested(protocol)
+    assertAtsNotNested(protocol) 
 
 }

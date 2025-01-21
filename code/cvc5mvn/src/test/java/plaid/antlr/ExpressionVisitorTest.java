@@ -1,25 +1,7 @@
 package plaid.antlr;
 
 import org.junit.Test;
-import plaid.ast.AtExpr;
-import plaid.ast.ConcatExpr;
-import plaid.ast.FieldExpr;
-import plaid.ast.FieldSelectExpr;
-import plaid.ast.FunctionCallExpr;
-import plaid.ast.Identifier;
-import plaid.ast.LetExpr;
-import plaid.ast.MessageExpr;
-import plaid.ast.MinusExpr;
-import plaid.ast.Node;
-import plaid.ast.Num;
-import plaid.ast.OutputExpr;
-import plaid.ast.PlusExpr;
-import plaid.ast.PreludeExpression;
-import plaid.ast.PublicExpr;
-import plaid.ast.RandomExpr;
-import plaid.ast.SecretExpr;
-import plaid.ast.Str;
-import plaid.ast.TimesExpr;
+import plaid.ast.*;
 
 import java.util.List;
 import java.util.Map;
@@ -180,5 +162,14 @@ public class ExpressionVisitorTest {
     @Test
     public void identifierEquality() {
         assertEquals(new Identifier("r11"), new Identifier("r11"));
+    }
+
+    /**
+     * Parses OT expression
+     */
+    @Test
+    public void OTExpr(){
+        assertEquals(new OTExpr(new SecretExpr(new Str("foo")), new Num(1), new MessageExpr(new Str("bar")), new MessageExpr(new Str("zoo"))),
+                ast("OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"])"));
     }
 }

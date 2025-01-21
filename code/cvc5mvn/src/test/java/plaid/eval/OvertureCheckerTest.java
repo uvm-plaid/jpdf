@@ -110,4 +110,33 @@ public class OvertureCheckerTest {
         assertFails("(p[\"x\"] + p[\"y\"])@1 := 13@1");
     }
 
+    /**
+     * OT allows nested At expressions
+     */
+    @Test
+    public void OTNestedAtExpr(){
+        assertPasses("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"])@2");
+    }
+
+    /**
+     * OT requires party index for the first subexpression
+     */
+    @Test
+    public void OTPartyIndex(){
+        assertPasses("m[\"x\"]@1 := OT(s[\"foo\"]@3, m[\"bar\"], m[\"zoo\"])@2");
+        assertFails("m[\"x\"]@1 := OT(s[\"foo\"]@j, m[\"bar\"], m[\"zoo\"])@2");
+        assertFails("m[\"x\"]@1 := OT(s[\"foo\"]@y, m[\"bar\"], m[\"zoo\"])@2");
+    }
+
+    /**
+     * OT does not allow non-overture expression as subexpressions
+     */
+    @Test
+    public void OTValidSubExpr(){
+        assertPasses("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\"]+p[\"y\"], m[\"zoo\"])@2");
+        assertPasses("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\"]+-p[\"y\"], m[\"zoo\"])@2");
+        assertFails("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\" ++ \"y\"], m[\"zoo\"])@2");
+        assertPasses("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"]*p[\"y\"])@2");
+
+    }
 }

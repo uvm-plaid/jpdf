@@ -1,27 +1,11 @@
 package plaid.antlr;
 
 import plaid.PreludeBaseVisitor;
+import plaid.PreludeParser;
 import plaid.PreludeParser.FunctionCallExprContext;
 import plaid.PreludeParser.MinusExprContext;
 import plaid.PreludeParser.PlusExprContext;
-import plaid.ast.AtExpr;
-import plaid.ast.ConcatExpr;
-import plaid.ast.FieldExpr;
-import plaid.ast.FieldSelectExpr;
-import plaid.ast.FunctionCallExpr;
-import plaid.ast.Identifier;
-import plaid.ast.LetExpr;
-import plaid.ast.MessageExpr;
-import plaid.ast.MinusExpr;
-import plaid.ast.Num;
-import plaid.ast.OutputExpr;
-import plaid.ast.PlusExpr;
-import plaid.ast.PreludeExpression;
-import plaid.ast.PublicExpr;
-import plaid.ast.RandomExpr;
-import plaid.ast.SecretExpr;
-import plaid.ast.Str;
-import plaid.ast.TimesExpr;
+import plaid.ast.*;
 
 import java.util.stream.Collectors;
 
@@ -40,6 +24,7 @@ import static plaid.PreludeParser.RandomExprContext;
 import static plaid.PreludeParser.SecretExprContext;
 import static plaid.PreludeParser.StrContext;
 import static plaid.PreludeParser.TimesExprContext;
+import static plaid.PreludeParser.OTExprContext;
 
 public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
@@ -137,4 +122,8 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
         return new Identifier(ctx.getText());
     }
 
+    @Override
+    public OTExpr visitOTExpr(OTExprContext ctx) {
+        return new OTExpr(visit(ctx.expr(0)), visit(ctx.expr(1)), visit(ctx.expr(2)), visit(ctx.expr(3)));
+    }
 }

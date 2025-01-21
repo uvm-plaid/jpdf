@@ -1,23 +1,7 @@
 package plaid.cvc;
 
 import io.github.cvc5.*;
-import plaid.ast.AssertCommand;
-import plaid.ast.AssignCommand;
-import plaid.ast.AtExpr;
-import plaid.ast.CommandList;
-import plaid.ast.MemoryExpr;
-import plaid.ast.MessageExpr;
-import plaid.ast.MinusExpr;
-import plaid.ast.Num;
-import plaid.ast.OutputExpr;
-import plaid.ast.PlusExpr;
-import plaid.ast.PreludeCommand;
-import plaid.ast.PreludeExpression;
-import plaid.ast.PublicExpr;
-import plaid.ast.RandomExpr;
-import plaid.ast.SecretExpr;
-import plaid.ast.Str;
-import plaid.ast.TimesExpr;
+import plaid.ast.*;
 
 import plaid.constraints.ast.*;
 
@@ -121,6 +105,14 @@ public class TermFactory {
             case PlusExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_ADD, toTerm(x.e1()), toTerm(x.e2()));
             case TimesExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e1()), toTerm(x.e2()));
             case MinusExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e()), minusOne);
+            case OTExpr x -> {
+                Integer receiver_partyIndex = CvcUtils.toInt(x.i1());
+                Term e1 = lookupOrCreate((MemoryExpr) x.e1(), receiver_partyIndex);
+
+                yield termManager.mkTerm(Kind.FINITE_FIELD_ADD,
+                        termManager.mkTerm(Kind.FINITE_FIELD_MULT, e1, toTerm(x.e3())),
+                        termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_ADD, e1, mkFiniteFieldElem(termManager, "1", sort, 10)), toTerm(x.e2())));
+            }
             default -> throw new IllegalArgumentException("Cannot convert " + expr.getClass().getName() + " to term");
         };
     }
