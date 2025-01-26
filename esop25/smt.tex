@@ -62,7 +62,7 @@ in a standard sense, where we represent models as memories $\store$
   We write $\store \models \eqs$ iff $\store$ satisfies, aka is a model
   of, $\eqs$. We write $\eqs_1 \models
   \eqs_2$ iff  $\store \models E_1$ implies $\store \models
-  E_2$ for all $\store$, and note this relation is reflexive and transitive.
+  E_2$ for all $\store$, and note that this relation is a preorder.
 \end{definition}
 Given this Definition, the following Theorem is well-known and a fundamental
 technique in SMT to implement our (common) notion of entailment. 
@@ -98,7 +98,7 @@ technique in SMT to implement our (common) notion of entailment.
 A central idea of our approach is that we can interpret any protocol
 $\prog$ as a set of equality constraints (denoted $\toeq{\prog}$) and use an SMT
 solver to verify properties relevant to correctness, confidentiality,
-and integrity. Further, we can leverage entailment relation is critical for efficiency--
+and integrity. Further, we can leverage entailment for tractability--
 we can use annotations to obtain a weakened precondition for relevant properties.
 That is, given $\prog$, program annotations or other cues can be used
 to find a minimal $\eqs$ with $\toeq{\prog} \models \eqs$ for verifying

@@ -73,8 +73,10 @@ probability mass functions.
   \forall \store \in \mems(X_1 \cup X_2)\ .\ 
   \condd{\pmf}{X_1}{X_2}(\store) \defeq
   \begin{cases}
-    0 \text{\ if\ } \margd{\pmf}{X_2}(\store_{X_2}) = 0\\
-    \margd{\pmf}{X_1 \cup X_2}(\store) / \margd{\pmf}{X_2}(\store_{X_2})\ \text{\ o.w.}
+    \begin{array}{ll}
+      0 & \text{\ if\ } \margd{\pmf}{X_2}(\store_{X_2}) = 0\\
+      \margd{\pmf}{X_1 \cup X_2}(\store) / \margd{\pmf}{X_2}(\store_{X_2})\ & \text{\ o.w.}
+     \end{array}
   \end{cases}
   $$
 \end{definition}
@@ -179,11 +181,11 @@ of views, i.e., subsets of $M \cup P$.
 
 \subsection{Hyperproperties of Confidentiality and Integrity}
 
-Here we restate hyperproperties developed in previous work
-\cite{skalka-near-ppdp24}, to which the reader is referred for a more
-thorough discussion of their relation to real/ideal security. Using
-hyperproperties for security semantics eases proofs of
-correctness for our type systems.
+In this section we restate hyperproperties developed in previous work
+\cite{skalka-near-ppdp24}. The reader is referred to that paper for a more
+thorough discussion of their relation to real/ideal security. In this
+paper, we leverage that relation to establish security properties in
+our type system.
 
 \subsubsection{Confidentiality}
 
