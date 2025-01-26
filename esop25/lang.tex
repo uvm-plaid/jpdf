@@ -112,7 +112,7 @@ memories to particular subsets of their domain:
   $$
 \end{definition}
 So for example, the set of all random tapes for
-for a protocol $\prog$ is $\mems(\flips(\prog))$, and the memory $\store_{\secrets(\prog)}$
+a protocol $\prog$ is $\mems(\flips(\prog))$, and the memory $\store_{\secrets(\prog)}$
 is $\store$ restricted to the secrets in $\prog$.
 %We let $\stores$ range
 %over sets of memories with the same domain, and abusing notation
@@ -152,7 +152,7 @@ the formal interpretation of OT in Section \ref{section-smt}.
 \minicataredxfig
 
 In the malicious model we assume that corrupt clients are in
-thrall to an adversary $\adversary$ who does not necessarily follow
+thrall to an adversary $\adversary$ that does not necessarily follow
 the rules of the protocol.  We model this by positing a $\arewrite$
 function which is given a corrupt memory $\store_C$ and expression
 $\be$, and returns a rewritten expression that can be interpreted to
@@ -175,7 +175,7 @@ As we will discuss, this form of asserting equality between expressions
 is sufficient to capture MAC checking and support integrity in protocols.
 The big-step adversarial semantics relation $\aredx$ is then defined
 in Figure \ref{fig-minicat-aredx} as a mapping from configurations to
-$\stores$ or $\bot$.
+a store $\store$ or $\bot$.
 
 \subsubsection{Protocol Runs}
 

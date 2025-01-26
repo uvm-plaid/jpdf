@@ -3,7 +3,7 @@
 Data privacy is a critical concern in distributed applications
 including privacy-preserving machine learning
 \cite{li2021privacy,knott2021crypten,koch2020privacy,liu2020privacy}
-blockchains
+and blockchains
 \cite{ishai2009zero,lu2019honeybadgermpc,gao2022symmeproof,tomaz2020preserving}.
 Secure multiparty computation (MPC) is a key software-based enabling
 technology for these applications. MPC protocols provide both confidentiality
@@ -13,7 +13,7 @@ with well-studied manual proof methods \cite{Lindell2017}.  MPC
 security semantics has also been reformulated as
 \emph{hyperproperties}
 \cite{8429300,10.1145/3453483.3454074,skalka-near-ppdp24} to support
-automated language-based proof methods. And recent research in the SMT
+automated language-based proof methods. Recent research in the SMT
 community has developed theories of finite fields \cite{SMFF} with
 clear relevance to verification of cryptographic schemes that rely on
 field arithmetic. The goal of this paper is to combine these two
@@ -101,7 +101,7 @@ $\mathbb{F}_2$-- e.g., binary circuits-- and does not scale due to
 exponential complexity, necessitating semi-automated proof
 techniques. In contrast, our type systems scale to arbitrary prime
 fields and whole program analysis for larger circuits (protocols). So
-our work is a significant advancement of $\minicat/\metaprot$.  Out
+our work is a significant advancement of $\minicat/\metaprot$.  Our
 work is also closely related to Satisfiability Modulo Finite Fields
 \cite{SMFF} but only in the sense that we apply their method as we
 discuss in Section \ref{section-smt} and subsequently.
@@ -150,6 +150,6 @@ reasoning about probabilistic independence (aka separation) in
 programs, and they consider several (hyper)properties, such as perfect
 secrecy of one-time-pads and indistinguishability in secret sharing,
 that are critical to MPC. Lilac \cite{li2023lilac} extends this line
-of work with formalisms for reasoning about conditional independence,
-which is critical for MPC \cite{skalka-near-ppdp24}.
+of work with formalisms for conditional independence which is 
+also particularly important for MPC \cite{skalka-near-ppdp24}.
 
