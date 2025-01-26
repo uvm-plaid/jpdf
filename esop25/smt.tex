@@ -127,7 +127,7 @@ Consider the following 3-party additive secret sharing protocol, where
 each party generates two additive secret shares
 \cite{evans2018pragmatic} for their respective secrets. Each party
 publicly reveals the sums all their shares, and the sum of those is
-the protocol output.  {\footnotesize
+the protocol output for each party.  {\footnotesize
 $$
 \begin{array}{c@{\qquad}c}
 \begin{array}{lll}
@@ -149,7 +149,8 @@ $$
 \end{array}
 $$}
 Letting $\prog$ be this protocol, we can verify correctness
-as follows-- the output is the sum of the three input secrets:
+as follows-- that is, the output sum of all shares is the sum of the
+three input secrets:
 $$
 \toeq{\prog}\ \models\ \out{1} \eop \sx{1}{1} \fplus \sx{2}{2} \fplus \sx{3}{3}
 $$
