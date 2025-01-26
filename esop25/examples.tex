@@ -36,10 +36,11 @@ GMW input encodings as defined in the $\ttt{encodegmw}$ function in
 Figure \ref{fig-gmw}. No programmer annotation is needed given the
 syntax of the function body. More interestingly, the $\ttt{andgmw}$
 gate definition shows how a programmer hint can express the relevant
-confidentiality property of the output share $\mx{z}{2}$ on client
-2. The non-trivial equivalence can be verified by SMT once during
-verification, and subsequently confidentiality is expressed in the
-dependent type of the function (as for $\ttt{encode}$).
+confidentiality property of the output share $\mx{z}{2}$ on client 2,
+using the $\ttt{as}$ casting. The non-trivial equivalence can be
+verified by SMT once during verification, and subsequently
+confidentiality is expressed in the dependent type of the function (as
+for $\ttt{encode}$).
 
 Note also that the $\ttt{andgmw}$ function is decorated with a
 postcondition that expresses the correctness property of the
@@ -60,15 +61,16 @@ define $\ttt{sum}$ and $\ttt{open}$ functions. The latter implements
 ``secure opening''-- each party sends it's local share of a
 global value $\macgv{\mesg{w}}$ along with its MAC to the other party,
 which is authenticated via the $\macbdoz{w}$ check (in \ttt{\_open}),
-and then each party reconstructs $\macgv{\mesg{w}}$. 
+and then each party reconstructs $\macgv{\mesg{w}}$. The preconditions
+of $\ttt{open}$ specify the authentication requirements. 
 
-The $\ttt{sum}$ function implements an addition gate. Note that this
-is done non-interactively-- each party just sums its local shares
+The $\ttt{sum}$ function implements an addition gate. This is
+non-interactive-- each party just sums its local shares
 of the two values. The pre- and postcondition annotations
 on $\ttt{sum}$ express the additive homomorphism associated
 with this encryption scheme-- the sum of MACs of the input
 shares is a valid MAC for the output share on each client,
-which can be checked using the sum of keys of the input shares. 
+which can be checked using the sum of keys of the input shares.
 
 In BDOZ a pre-processing phase is assumed where initial input secrets
 are shared along with their associated MACs and keys. This can be
@@ -92,9 +94,10 @@ of $\sx{\ttt{"x"}}{1}$ (and similarly for $\sx{\ttt{"y"}}{2}$):
 \mx{\ttt{"xm"}}{2} \eop \mx{\ttt{"xk"}}{1} \fplus (\mx{\ttt{"delta"}}{1} * \mx{\ttt{"xs"}}{2})
 \end{array}
 $$}
-Given this, a malicious secure opening of $\sx{\ttt{"x"}}{1} +
+Given these global preconditions, a malicious secure opening of $\sx{\ttt{"x"}}{1} +
 \sx{\ttt{"y"}}{2}$ would be obtained as
-$\ttt{sum}(\ttt{"z"},\ttt{"x"},\ttt{"y"}); \ttt{open}(\ttt{"z"})$.
+$\ttt{sum}(\ttt{"z"},\ttt{"x"},\ttt{"y"}); \ttt{open}(\ttt{"z"})$,
+which type checks.
 
 A common approach to implementing multiplication gates in a BDOZ
 setting is to use \emph{Beaver Triples}. Recall that Beaver triples
@@ -103,42 +106,47 @@ unique per multiplication gate, that are secret shared with clients
 during pre-processing.  In our encoding we assume the additional
 convention that each gate output identifier distinguishes the Beaver
 triple, so for example the share of the $a$ value for a gate
-$\ttt{"g1"}$ is identified by $\ttt{"g1as"}$, etc., and $\eqspre$
-subsumes the following constraints for the $a,b,c$ values of gate
-$\ttt{"g1"}$.  {\footnotesize$$
-\begin{array}{l}
-\mx{\ttt{"g1as"}}{1} \eop \rx{\ttt{"g1as"}}{1}\ \wedge 
-\mx{\ttt{"g1bs"}}{1} \eop \rx{\ttt{"g1bs"}}{1}\ \wedge\\
-\mx{\ttt{"g1as"}}{2} \eop \rx{\ttt{"g1as"}}{2}\ \wedge 
-\mx{\ttt{"g1bs"}}{2} \eop \rx{\ttt{"g1bs"}}{2}\ \wedge\\
-\mx{\ttt{"g1cs"}}{1} \eop \\
-\qquad ((\mx{\ttt{"g1as"}}{1} \fplus \mx{\ttt{"g1bs"}}{2})\ \ftimes\\
-\qquad\phantom{(}(\mx{\ttt{"g1bs"}}{1} \fplus \mx{\ttt{"g1bs"}}{2})) \fminus \rx{\ttt{"g1cs"}}{2}\ \wedge\\
-\mx{\ttt{"g1cs"}}{2} \eop \rx{\ttt{"g1cs"}}{2}
-\end{array}
-$$}
+$\ttt{"g1"}$ is identified by $\ttt{"g1as"}$, etc.
+
+%, and $\eqspre$
+%subsumes the following constraints for the $a,b,c$ values of gate
+%$\ttt{"g1"}$.  {\footnotesize$$
+%\begin{array}{l}
+%\mx{\ttt{"g1as"}}{1} \eop \rx{\ttt{"g1as"}}{1}\ \wedge 
+%\mx{\ttt{"g1bs"}}{1} \eop \rx{\ttt{"g1bs"}}{1}\ \wedge\\
+%\mx{\ttt{"g1as"}}{2} \eop \rx{\ttt{"g1as"}}{2}\ \wedge 
+%\mx{\ttt{"g1bs"}}{2} \eop \rx{\ttt{"g1bs"}}{2}\ \wedge\\
+%\mx{\ttt{"g1cs"}}{1} \eop \\
+%\qquad ((\mx{\ttt{"g1as"}}{1} \fplus \mx{\ttt{"g1bs"}}{2})\ \ftimes\\
+%\qquad\phantom{(}(\mx{\ttt{"g1bs"}}{1} \fplus \mx{\ttt{"g1bs"}}{2})) \fminus \rx{\ttt{"g1cs"}}{2}\ \wedge\\
+%\mx{\ttt{"g1cs"}}{2} \eop \rx{\ttt{"g1cs"}}{2}
+%\end{array}
+%$$}
 
 The definition of the $\ttt{mult}$ gate is presented in Figure
-\ref{fig-bdozmult}, where we present just client 1's side of the
-protocol $\ttt{\_mult1}$ (client 2's side is nearly symmetric but with
-a small variation-- refer to
-\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3} for more
-details).  We could call this function on input secrets
-$\sx{\ttt{"x"}}{1}$ and $\sx{\ttt{"y"}}{2}$ in gate $\ttt{"g1"}$ as
-$\ttt{mult}(\ttt{"g1"},\ttt{"x"},\ttt{"y"})$, for example, or embed
-this gate internally in a circuit.
-
-As for $\ttt{\_sum}$, the postcondition of the $\ttt{\_mult1}$
-function expresses the relevant semi-homomorphic encryption property of
+\ref{fig-bdozmult},
+%where we present just client 1's side of the
+%protocol $\ttt{\_mult1}$ (client 2's side is nearly symmetric but with
+%a small variation-- refer to
+%\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3} for more
+%details).
+%We could call this function on input secrets
+%$\sx{\ttt{"x"}}{1}$ and $\sx{\ttt{"y"}}{2}$ in gate $\ttt{"g1"}$ as
+%$\ttt{mult}(\ttt{"g1"},\ttt{"x"},\ttt{"y"})$, for example, or embed
+%this gate internally in a circuit.
+%
+As for $\ttt{sum}$, the preconditions of $\ttt{mult}$ express
+the expected MAC properties of input shares, as well as the
+expected Beaver Triple property, and its postcondition
+fexpresses the semi-homomorphic encryption property of
 the resulting share, MAC, and key after gate execution-- specifically,
-it preserves the BDOZ authentication property. The precondition that
-input shares must possess this property is enforced by the two calls
-to $\ttt{sum}$ within the body of $\ttt{mult}$ and need not be made
-explicit. Finally, the postcondition of $\ttt{mult}$ expresses the
+it preserves the BDOZ authentication property. Finally, the
+postcondition of $\ttt{mult}$ expresses the
 correctness property of the multiplication gate. In any case,
 integrity of any circuit constructed from the $\ttt{sum}$ and
 $\ttt{mult}$ library functions will require little SMT overhead
-due to compositional verification.
+due to compositional verification, once their pre- and postconditions
+are verified by type checking. 
 
 %%%%%%%%%%%%%%%%%%
 %%% ARCHIVAL BELOW
