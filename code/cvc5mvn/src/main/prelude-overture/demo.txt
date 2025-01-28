@@ -2,7 +2,7 @@ exprfunctions:
 
 not(x){ (x + 1) }
 
-mux(s, b1, b2){ (not(s) * b1) + (s1 * b2)}
+mux(s, b1, b2){ (not(s) * b1) + (s1 * b2) }
 
 cmdfunctions:
 
