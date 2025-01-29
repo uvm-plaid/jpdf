@@ -1,0 +1,129 @@
+\section{Integrity Types}
+\label{section-ipj}
+
+Our integrity type system is essentially a taint analysis, with
+machinery to allow consideration of any $H,C$ partitioning.  We also
+include rules to consider MAC codes to prevent cheating. We consider a
+semi-homomorphic encryption scheme that is used in BDOZ and SPDZ
+\cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3} and is applicable
+to various species of circuits. However other MAC schemes could be
+considered with a modified derivation rule incorporated with our taint
+analysis framework. BDOZ/SPDZ assumes a pre-processing phase that
+distributes shares with MAC codes to clients.  This integrates well
+with pre-processed Beaver Triples to implement malicious secure, and
+relatively efficient, multiplication \cite{evans2018pragmatic}.
+
+In BDOZ, a field value $v$ is secret shared among 2 clients 
+with accompanying MAC values.  Each client $\cid$ gets a pair of
+values $(v_\cid,m_\cid)$, where $v_\cid$ is a share of $v$
+reconstructed by addition, i.e., $v = \fcod{v_1 \fplus v_2}$, and
+$m_\cid$ is a MAC of $v_\cid$.  More precisely, $m_\cid = k +
+(k_\Delta * v_\cid)$ where \emph{keys} $k$ and $k_\Delta$ are known
+only to $\cid' \ne \cid$ and $k_\Delta$. The \emph{local key} $k$ is
+unique per MAC, while the \emph{global key} $k_\Delta$ is common to
+all MACs authenticated by $\cid'$. This is a semi-homomorphic
+encryption scheme that supports addition of shares and multiplication
+of shares by a constant-- for more details the reader is referred to
+Orsini \cite{10.1007/978-3-030-68869-1_3}. We note that while we
+restrict values $v$, $m$, and $k$ to the same field in this
+presentation for simplicity, in general $m$ and $k$ can be in
+extensions of $\mathbb{F}_p$.
+
+\ipjfig
+
+As in \cite{skalka-near-ppdp24}, we use $\macgv{\mesg{w}}$ to refer to
+secret-shared values reconstructed with addition, and by
+convention each share of $\macgv{\mesg{w}}$ is represented as
+$\elab{\mesg{w\ttt{s}}}{\cid}$, the MAC of which is represented as a
+$\elab{\mesg{w\ttt{m}}}{\cid}$ for all $\cid$, and each client holds a
+key $\elab{\mesg{w\ttt{k}}}{\cid}$ for authentication of the other's
+share. Each client also holds a global key $\mesg{\ttt{delta}}$. For
+any such share identified by string $w$, the BDOZ MAC scheme is defined 
+by the equality predicate $\macbdoz{w}$:
+$$
+\macbdoz{w} \defeq
+\mesg{w\ttt{m}} = \mesg{w\ttt{k}} \fplus \ttt{(}\mesg{\ttt{delta}} \ftimes
+\mesg{w\ttt{s}}\ttt{)}
+$$
+
+\subsection{Typing and Integrity Labeling}
+
+The integrity of values during protocol executions depends on the
+partitioning $H,C$, since any value received from a member of $C$ is
+initially considered to be low integrity. But as for confidentiality
+types, we want our basic type analysis to be generalizable to
+arbitrary $H,C$. So integrity type judgements, defined in Figure
+\ref{fig-ipj}, are of the form $\ipj{\eqs}{\prog}{\Delta}$, where
+$\eqs$ plays a similar role as in confidentiality types, as a possibly
+weakened expression of algebraic properties of $\prog$, and
+environments $\Delta$ record dependency information that can be
+specialized to a given $H,C$. Integrity environments are ordered lists
+since order of evaluation is important for tracking integrity--
+validating low integrity information through MAC checking allows
+subsequent treatment of it as high integrity, but not before. Note
+that MAC checking is \emph{not} a form of endorsement as it is usually
+defined (as a dual of declassification
+\cite{sabelfeld2009declassification}), since a successful check
+guarantees no deviation from the protocol.
+
+The typing of protocols depends on a type judgement for expressions
+of the form $\itj{\cid}{\be}{V}$, which records
+messages and reveals $V$ used in the construction of $\be$.
+This source is recorded in $\Delta$ for message sends-- so for
+example, for some string $w$ letting:
+$$
+\prog\ \defeq\ (\xassign{\mx{w}{1}}{\secret{w} - \flip{w}}{2};\ \rvl{w} := \mx{w}{1})
+$$
+the following judgement is valid:
+$$
+\ipj{\toeq{\prog}}{\prog}{(\mx{w}{1} : \ity{2}{\varnothing}; \rvl{w} : \ity{1}{\mx{w}{1}})}
+$$
+More formally, we define validity as follows:
+\begin{definition}
+  Given pre-processing predicate $\eqspre$ and protocol $\prog$, 
+  we say $\ipj{\eqs}{\prog}{\Delta}$ is \emph{valid}
+  iff it is derivable and $\eqspre \wedge \toeq{\prog} \models E$.
+\end{definition}
+
+In the above example, note that the environment implicitly records
+that $\rvl{w}$ depends on data from client 1, which in turn
+depends on data from client 2. The rule for MAC
+checking allows an overwrite of the dependency. We explore
+the application of this in more detail in Section
+\ref{section-examples}.
+
+\cheatjfig
+
+\subsection{Assigning Integrity Labels}
+
+In all cases, we want to determine the integrity level of computed
+values based on assumed partitionings $H,C$. In the previous example,
+we want to say that $\rvl{w}$ has low integrity if either client 1 or
+2 is corrupt.  To this end we define \emph{security labelings}
+$\seclev$ which are mappings from variables $x$ to security levels
+$\latel$. By default, given a partitioning $H,C$ this labeling maps
+messages to the integrity level of the owner.
+\begin{definition}  
+  Given $H,C$,
+  define $\seclev_{H,C}$ such that $\seclev_{H,C}(\mx{w}{\cid} ) = \hilab$
+  if $\cid \in H$  and $\lolab$
+  otherwise for all $\mx{w}{\cid}$.
+\end{definition}
+But the values of messages and reveals may be affected by values sent
+by other parties, which is recorded in the $\Delta$ obtained from its
+typing. To determine whether this impacts integrity for any given
+$H,C$, we apply the inductively defined rewrite relation
+$\cheatj{\Delta}{H,C}{\seclev}$, axiomatized in Figure
+\ref{fig-cheatj}. The composition of typing and this latter rewriting
+obtains essentially a traditional taint analysis, modulo MAC checking.
+Our main type soundness result for integrity is then given as follows.
+Proof details are given in the Appendix.
+\begin{theorem}
+  \label{theorem-ipj}
+  Given  $\eqspre$ and $\prog$ with
+  $\iov(\prog) = S \cup V \cup O$, if
+  $\ipj{\eqs}{\prog}{\Delta}$ is valid
+  and for all $H,C$ with $\cheatj{\Delta}{H,C}{\seclev}$ 
+  we have $\seclev(x) = \hilab$ for all $x \in \houtputs \cup O_H$, then $\prog$
+  has integrity for all $H,C$.
+\end{theorem}

@@ -1,0 +1,249 @@
+\section{Compositional Type Verification in $\metaprot$}
+\label{section-metalang}
+
+The $\metaprot$ language \cite{skalka-near-ppdp24} includes structured
+data and function definitions for defining composable protocol
+elements at a higher level of abstraction than $\minicat$.  The
+$\metaprot$ language is a \emph{metalanguage} aka metaprogramming
+language, where an $\fedprot$ protocol is the result of
+computation. In addition to these declarative benefits of $\metaprot$,
+component definitions support compositional verification of larger
+protocols. Separate verification of well-designed components results
+in confidentiality and integrity properties to be recorded in their
+types, allowing for significant reduction of SMT verification in whole
+program analysis, as we will discuss with extended examples in Section
+\ref{section-examples}.
+
+\metaprotsyntaxfig
+
+\subsection{Syntax and Semantics}
+
+The syntax of $\metaprot$ is defined in Figure
+\ref{fig-metaprotsyntax}.  It includes a syntax of values $\mv$ that
+include client ids $\cid$, identifier strings $w$, expressions $\be$
+in field $\mathbb{F}_p$, record values, and $\minicat$ variables
+$x$. $\metaprot$ expression forms allow dynamic construction of these
+values. $\metaprot$ \emph{instruction} forms allow dynamic
+construction of $\minicat$ protocols $\prog$ that incorporate expression
+evaluation. The syntax also supports definitions of functions that
+compute values $\mv$ and, as a distinct form, functions that compute
+protocols $\prog$.  Formally, we consider a complete metaprogram to include
+both a codebase and a ``main'' program that uses the codebase.
+We disallow recursion, mainly to guarantee decidability
+of type dependence (Section \ref{section-metalangty}).
+\begin{definition}
+A \emph{codebase} $\codebase$ is a list of function 
+declarations. We write $ \codebase(f) = y_1,\ldots,y_n,\ e$
+if $f(y_1,\ldots,y_n) \{ e \} \in \codebase$, and we
+write  $ \codebase(f) = y_1,\ldots,y_n,\ \instr$
+if $f(y_1,\ldots,y_n) \{ \instr \} \in \codebase$.
+%A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
+%codebase and expression $\codebase, e$. We may omit
+%$\codebase$ if it is clear from context.  
+\end{definition}
+
+\metaprotexprsemanticsfig
+
+We define a big-step evaluation relation $\redx$ in Figures
+\ref{fig-metaprotexprsemantics} and \ref{fig-metaprotinstrsemantics}
+for expressions and instructions, respectively.  In this definition we
+write $e[\mv/y]$ and $\instr[\mv/y]$ to denote the substitution of
+$\mv$ for free occurrences of $y$ in $e$ or $\instr$ respectively. The
+rules are mostly standard. Note that we do not include an evaluation
+rule for the form $\eqcast{\mx{e}{e}}{\notg{\phi}}$ which is a type
+annotation that we assume is erased from programs prior to
+evaluation. We defer discussion of this form, as well as the syntactic
+category $\notg{\phi}$, to the next Section.
+
+\metaprotinstrsemanticsfig
+
+\subsection{Dependent Hoare Type Theory}
+\label{section-metalangty}
+
+Our first goal in the $\metaprot$ type theory is to define an
+algorithmic system that is sound for both confidentiality and
+integrity typings as defined in Sections \ref{section-cpj} and
+\ref{section-ipj}. Returning to the YGC secret encoding example in
+Section \ref{section-cpj}, note that the key equivalence of the
+$\ttt{mux}$ expression with a one-time-pad encryption we observe there
+is not trivial. To ensure that this sort of equivalence can be picked
+up by the type system, we introduce an $\ttt{as}$ annotation form that
+allows the programmer to provide the needed hint.
+
+Consider the following $\ttt{encode}$ function definition that
+generalizes this YGC encoding for any identifier $y$ and sender, receiver
+pair $s,r$. The second line in the body is a hint that
+the message $\mx{y}{r}$ can be considered equivalent to
+$\neg\sx{y}{s} \fplus \rx{y}{s}$:
+$$
+\begin{array}{l}
+\ttt{encode}(y,s,r) \{\\
+\quad \xassign{\mx{y}{r}}{\mux{\secret{y}}{\neg\flip{y}}{\flip{y}}}{s};\\
+\quad \eqcast{\mx{y}{r}}{\neg\sx{y}{s} \fplus \rx{y}{s}}\\
+\}
+\end{array}
+$$
+This hint can be validated using SMT, and then the
+syntactic structure of $\neg\sx{y}{s} \fplus \rx{y}{s}$
+allows its immediate interpretation as a one-time-pad encoding.
+
+Our second goal in the $\metaprot$ type system is to minimize the
+amount of SMT solving needed for type verification.  Returning to the
+$\ttt{encode}$ example, type checking in our systems only requires the
+hint to be verified once, with the guarantee that $\ttt{encode}$ can
+be applied anywhere without needing to re-verify the hint in
+application instances. To verify the hint in $\ttt{encode}$, we can
+just choose arbitrary ``fresh'' values $w,\cid_1,\cid_2$ for $y$, $s$,
+and $r$, evaluate $\ttt{encode}(w,\cid_1,\cid_2) \redx \prog$, and
+then verify:
+$$\toeq{\prog} \models \mx{w}{\cid_2} \eop
+\neg\sx{w}{\cid_1} \fplus \rx{w}{\cid_1}$$ 
+Since $\ttt{encode}$ is closed, validity is guaranteed for
+any instance of $y$, $s$, and $r$.
+
+We generalize these benefits of compositional verification by allowing
+pre-~and postcondition annotations on $\metaprot$ functions. For
+example, consider a GMW-style, 2-party ``and-gate'' function
+$\ttt{andgmw}(x,y,z)$. In this protocol, each party $\cid
+\in \{1,2\}$ holds an additive secret share $\mx{x}{\cid}$ of
+values identified by $x$ and $y$, and at the end of the
+protocol each hold a secret share $\mx{z}{\cid}$, where:
+$$
+\mx{z}{1} \fplus \mx{z}{2} \eop (\mx{x}{1} \fplus \mx{x}{2}) \ftimes (\mx{y}{1} \fplus \mx{y}{2})
+$$
+We provide details of $\ttt{andgmw}$ and other GMW protocol
+elements in Section \ref{section-examples}.  Our point now is that,
+similarly to the $\ttt{encode}$ example, we can verify this
+postcondition once as a correctness property for $\ttt{andgmw}$, and
+then integrate instances of it into circuit correctness properties
+with the guarantee that each instance also holds for any
+$\ttt{andgmw}$ gate.  Since the program logic of $\ttt{andgmw}$ is
+non-trivial, and typical circuits can use up to thousands of gates,
+this has significant practical benefits by greatly reducing SMT overhead
+in whole-program analysis.
+
+\atjfig
+
+\subsubsection{$\minicat$ expression type algorithm.}
+
+A core element of $\metaprot$ type checking is type checking
+of $\minicat$ expressions. The integrity type system presented in Section
+\ref{section-ipj} is already algorithmic and ready to use. But confidentiality
+typing presented in Section \ref{section-cpj} is not syntax-directed
+due to the \TirName{Encode} rule. But as described above, by introducing
+hint annotations we can ``coerce'' any relevant expression form into
+the simplest equivalent syntactic form for one-time-pad encoding.
+Thus, in Figure \ref{fig-atj} we present the algorithm for
+confidentiality type judgements, where we eliminate the need for
+integrated SMT solving by assuming this sort of casting. 
+
+The following Lemma establishes correctness of algorithmic confidentiality
+type checking, and makes explicit that SMT checking is eliminated in the
+judgement.
+\begin{lemma}
+  \label{lemma-atj-sound}
+  If $\atj{\toeq{\phi}}{R}{\ty}$ then $\eqj{R}{\eqs}{\phi}{\ty}$ for any $\eqs$.
+\end{lemma}
+
+\subsubsection{Dependent Hoare types for instructions.}
+
+Hoare-style types for instructions have the following form:
+$$
+\hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}
+$$
+Here, $\eqs_1$ and $\eqs_2$ are the pre- and postconditions
+respectively, $\Gamma$ is the confidentiality type environment of the
+protocol resulting from execution of the instruction, which is sound
+wrt confidentiality typing, $R$ are the one-time-pads consumed in the
+confidentiality typing, and $\Delta$ is the sound integrity type
+environment.
+
+\notgfig
+
+To obtain a more complete type system, and to generalize
+function typings, we also introduce a form of type dependency,
+specifically dependence on $\metaprot$ expressions. Dependent
+$\Pi$ types have the form:
+$$
+\dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}
+$$
+where $y_1,\ldots,y_n$ range over values $\mv$ and each of
+$\notg{\eqs_1}$ etc.~may contain expressions with free occurrences
+of $y_1,\ldots,y_n$-- the syntax of these forms is in Figure
+\ref{fig-notg}. These $\Pi$ types are assigned to functions
+and instantiated at application points. 
+
+For example, here is a valid typing of $\ttt{encode}$.  It says that
+under any precondition, evaluating $\ttt{encode}$ results in a cipher
+type for the encoded message $\mx{x}{r}$, which consumes the
+one-time-pad $\rx{x}{s}$, and the integrity of $\mx{x}{r}$ is
+determined by the security level of $s$. The
+postcondition expresses the key confidentiality property of
+$\mx{x}{r}$, but also may be practically useful for correctness
+properties since it is a simpler expression form than the $\ttt{mux}$
+form:
+$$
+\ttt{encode} :
+\begin{array}[t]{ll}
+  \Pi x,s,r . & \{ \}\quad \mx{x}{r} : \cty{\rx{x}{s}}{\sx{x}{s}}, \{ \rx{x}{s} \} \ \cdot\\
+  & \phantom{\{ \}} \quad \mx{x}{r} : \ity{s}{\setit{}} \\
+  & \{ \mx{x}{r} \eop \neg\sx{y}{s} \fplus \rx{y}{s} \}
+\end{array}
+$$
+A key property of this example and our type system generally is that once
+the $\Pi$ type is verified, typing any application of it requires verification
+of the precondition instance, but not the postcondition instance.
+
+\subsection{Algorithmic Type Validity in $\metaprot$}
+
+\mtjfig
+
+We equate types up to evaluation of subexpressions as defined in
+Figure \ref{fig-notg}. Since expression evaluation is total we can
+just evaluate types of closed instructions, which are guaranteed to
+have closed types, to obtain Hoare typings for instructions. In Figure
+\ref{fig-mtj} we define the type derivation rules for $\metaprot$. In
+the \TirName{Mesg} rule we use algorithmic confidentiality and
+integrity type checking in a straightforward manner.  In the
+\TirName{Encode} rule, we verify the hint given in the type
+annotation, and then use it for type checking.  In the \TirName{App}
+rule we verify preconditions of the given function type and
+instantiate the type and postconditions with the given expression
+arguments.  The \TirName{Sig} rule we specify how to verify $\Pi$
+types for functions. Note that the values $\mv_1,\ldots,\mv_n$ chosen
+to instantiate the function parameters are chosen ``fresh'', meaning
+that any strings and client identifiers occurring as substrings in
+$\mv_1,\ldots,\mv_n$ are unique and not used in any program source
+code. This ensures generality of verification as demonstrated in Lemma
+\ref{lemma-eqs-notg} in the Appendix.
+
+\mtjfnfig
+
+We allow the programmer to specify a type signature $\tsig$ that
+maps functions in $\codebase$ to valid dependent Hoare
+typings. Define:
+\begin{definition}
+  $\tsig$ is \emph{verified} iff $f : \tsig(f)$ is valid for all $f \in \dom(\tsig)$.
+\end{definition}
+In practice, to define $\tsig$ the programmer only needs to specify
+pre-~and postconditions, as we illustrate in Section
+\ref{section-examples}, since the rest of the type is reconstructed by
+type checking.
+
+The following Theorem establishes our main result, that the
+$\metaprot$ type checking is sound with respect to both
+confidentiality and integrity typings. Since these typings imply
+security hyperproperties of confidentiality and integrity, $\metaprot$
+type checking implicitly enforces them. Proof details are given in the
+Appendix.
+\begin{theorem}[Soundness of $\metaprot$ type checking]
+  \label{theorem-mtj}
+  Given preprocessing predicate $\eqspre$, program $\instr$, and verified $\tsig$, if
+  the judgement: $$\mtj{\instr}{\eqspre}{\Gamma}{R}{\Delta}{\eqs}$$ is derivable then
+  $\instr \redx \prog$ and:
+  \begin{enumerate}
+  \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid.
+  \item $\ipj{\eqs}{\prog}{\Delta}$ is valid.
+  \end{enumerate}
+\end{theorem}
+
