@@ -124,10 +124,15 @@ SMT interpretation of programs is characterized as follows.
 
 \subsubsection{Example: Correctness of 3-Party Addition}
 Consider the following 3-party additive secret sharing protocol, where
-each party generates two additive secret shares
-\cite{evans2018pragmatic} for their respective secrets. Each party
-publicly reveals the sums all their shares, and the sum of those is
-the protocol output for each party.  {\footnotesize
+each party generates three additive, information theoretically secure
+secret shares by subtracting random field values used as
+one-time-pads. Two shares are communicated to the other clients and
+one remains local. This technique is information-theoretically secure
+\cite{evans2018pragmatic} due to the one-time use of random
+values-- that is, $< 3$ shares reveal nothing about the
+secret, but the sum of all three \emph{is} the secret. Each party
+publicly reveals the sums all their shares and then outputs the sum of the reveals.
+{\footnotesize
 $$
 \begin{array}{c@{\qquad}c}
 \begin{array}{lll}
