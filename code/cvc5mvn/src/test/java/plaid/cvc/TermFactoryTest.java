@@ -1,21 +1,56 @@
 package plaid.cvc;
 
-import io.github.cvc5.*;
-import org.junit.Ignore;
+import io.github.cvc5.CVC5ApiException;
+import io.github.cvc5.Kind;
+import io.github.cvc5.Sort;
+import io.github.cvc5.Term;
+import io.github.cvc5.TermManager;
 import org.junit.Test;
 import plaid.antlr.Loader;
-import plaid.ast.*;
+import plaid.ast.AndConstraintExpr;
+import plaid.ast.AssertCommand;
+import plaid.ast.AssignCommand;
+import plaid.ast.AtExpr;
+import plaid.ast.CommandList;
+import plaid.ast.ConstraintExpr;
+import plaid.ast.EqualConstraintExpr;
+import plaid.ast.FunctionCallCommand;
+import plaid.ast.Identifier;
+import plaid.ast.MessageExpr;
+import plaid.ast.NotConstraintExpr;
+import plaid.ast.Num;
+import plaid.ast.OTExpr;
+import plaid.ast.OutputExpr;
+import plaid.ast.PlusExpr;
+import plaid.ast.PreludeExpression;
+import plaid.ast.RandomExpr;
+import plaid.ast.Str;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 
 public class TermFactoryTest {
+
+    private Map<Term, Integer> mockModel(TermFactory factory, Map<String, Integer> nameBasedModel) {
+        Map<Term, Integer> result = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : nameBasedModel.entrySet()) {
+            Term term = factory
+                    .getMemories()
+                    .stream()
+                    .filter(x -> x.name().equals(entry.getKey()))
+                    .findFirst()
+                    .orElseThrow()
+                    .term();
+
+            result.put(term, entry.getValue());
+        }
+        return result;
+    }
 
     /**
      * Party indexes must not be ambiguous.
@@ -102,7 +137,6 @@ public class TermFactoryTest {
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
         Term term = factory.toTerm(new Num(1));
-        // TODO Understand why the finite field values range from -3 to 3 instead of 0 to 7
         assertNotNull(term.getFiniteFieldValue());
     }
 
@@ -166,20 +200,12 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-
-        // m_foo_3 == out_3
-        factory.constraintToTerm(
-                new EqualConstraintExpr(
-                        new AtExpr(new MessageExpr(new Str("foo")), new Num(3)),
-                        new AtExpr(new OutputExpr(), new Num(3))));
-
-        // TODO: how to assert CVC5 terms constructed by TermFactory are expected?  
-        // creates cvc5 terms for constraints containing the same memories
-        //assertFalse(factory.getMemories().stream().filter(x -> x.term().equals(factory.constraintToTerm(new MessageConstraintsTerm("foo", 1)))).toList().isEmpty());
-        //assertTrue(factory.getMemories().stream().anyMatch(x -> x.term().equals(factory.constraintToTerm(new OutputExpr()))));
-        assertTrue(factory.getMemories().stream().anyMatch(x -> x.name().equals("m_foo_3")));
-        assertTrue(factory.getMemories().stream().anyMatch(x -> x.name().equals("o_3")));
-
+        ConstraintExpr ast = Loader.toConstraintExpression("m[\"foo\"]@3 == 5");
+        Term term = factory.constraintToTerm(ast);
+        Verifier verifier = new Verifier(factory);
+        Map<Term, Integer> actual = verifier.findModelSatisfying(term);
+        Map<String, Integer> expected = Map.of("m_foo_3", 5);
+        assertEquals(mockModel(factory, expected), actual);
     }
    
     /**
@@ -190,19 +216,17 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        
-        factory.constraintToTerm(
-                new AndConstraintExpr(
-                        new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("x")), new Num(3)), new AtExpr(new RandomExpr(new Str("y")), new Num(5))),
-                        new EqualConstraintExpr(new AtExpr(new SecretExpr(new Str("z")), new Num(1)), new PublicExpr(new Str("1"))))
-        );
 
-        // TODO Make assertion about the expression
-//        assertTrue(memories.stream().anyMatch(x -> x.term().equals(factory.constraintsToTerm(new MessageConstraintsTerm("x", 3)))));
-//        assertTrue(memories.stream().anyMatch(x -> x.term().equals(factory.constraintsToTerm(new RandomConstraintsTerm("y", 5)))));
-//        assertTrue(memories.stream().anyMatch(x -> x.term().equals(factory.constraintsToTerm(new SecretConstraintsTerm("z", 1)))));
-//        assertTrue(memories.stream().anyMatch(x -> x.term().equals(factory.constraintsToTerm(new PublicConstraintsTerm("1")))));
-        
+        // m["x"]@3 == r["y"]@5 AND r["y"]@5 == 1
+        ConstraintExpr ast = new AndConstraintExpr(
+                new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("x")), new Num(3)), new AtExpr(new RandomExpr(new Str("y")), new Num(5))),
+                new EqualConstraintExpr(new AtExpr(new RandomExpr(new Str("y")), new Num(5)), new Num(1)));
+
+        Term term = factory.constraintToTerm(ast);
+        Verifier verifier = new Verifier(factory);
+        Map<Term, Integer> actual = verifier.findModelSatisfying(term);
+        Map<String, Integer> expected = Map.of("m_x_3", 1, "r_y_5", 1);
+        assertEquals(mockModel(factory, expected), actual);
     }
 
     /**
@@ -211,21 +235,22 @@ public class TermFactoryTest {
     @Test
     public void notConstraintTerm() throws CVC5ApiException {
         TermManager termManager = new TermManager();
-        Sort sort = termManager.mkFiniteFieldSort("7", 10);
+        Sort sort = termManager.mkFiniteFieldSort("2", 10);
         TermFactory factory = new TermFactory(termManager, sort);
 
-        // NOT(m_foo_3 == out_3)
-        factory.constraintToTerm(
+        // NOT(m_foo_3 == 0)
+        Term term = factory.constraintToTerm(
                 new NotConstraintExpr(
                 new EqualConstraintExpr(
                         new AtExpr(new MessageExpr(new Str("foo")), new Num(3)),
-                        new AtExpr(new OutputExpr(), new Num(3)))));
+                        new Num(0))));
 
-        // TODO: Make assertion about the expression (how to assert CVC5 terms constructed by TermFactory are expected?)  
+        Verifier verifier = new Verifier(factory);
+        Map<Term, Integer> actual = verifier.findModelSatisfying(term);
+        Map<String, Integer> expected = Map.of("m_foo_3", 1);
+        assertEquals(mockModel(factory, expected), actual);
      }
-    
-    
-    
+
     /**
      * creates complex constraint expressions 
      */
@@ -234,14 +259,12 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        PreludeExpression expr1 = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
-        PreludeExpression expr2 = new AtExpr(new RandomExpr(new Str("y")), new Num(5));
-        PreludeExpression expr3 = new AtExpr(new SecretExpr(new Str("z")), new Num(1));
-        PreludeExpression expr4 = new PublicExpr(new Str("1"));
-        
-        factory.constraintToTerm(new AndConstraintExpr(new NotConstraintExpr(new EqualConstraintExpr(expr1, expr2)), new EqualConstraintExpr(expr3, expr4)));
-
-        // TODO Make assertion about the terms
+        ConstraintExpr ast = Loader.toConstraintExpression("out@1 == out@2 + 1 AND out@2 == out@3 + 2 AND out@3 == 4");
+        Term term = factory.constraintToTerm(ast);
+        Verifier verifier = new Verifier(factory);
+        Map<Term, Integer> actual = verifier.findModelSatisfying(term);
+        Map<String, Integer> expected = Map.of("o_3", 4, "o_2", 6, "o_1", 0);
+        assertEquals(mockModel(factory, expected), actual);
     }
 
     /**
@@ -301,9 +324,5 @@ public class TermFactoryTest {
         //assertEquals(ot, factory.toTerm(expr1));
         
     }
-
-
-    
-    
 
 }

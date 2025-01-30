@@ -32,6 +32,14 @@ public class CvcUtils {
         }
     }
 
+    public static String finiteFieldValue(Term term) {
+        try {
+            return term.getFiniteFieldValue();
+        } catch (CVC5ApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String getCvcName(MemoryExpr expr, Integer partyIndex) {
         return switch (expr) {
             case MessageExpr mem -> "m_" + toString(mem.e()) + "_" + partyIndex;

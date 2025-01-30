@@ -9,6 +9,8 @@ import plaid.ast.PreludeCommand;
 import plaid.ast.ConstraintExpr;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Verifier {
 
@@ -27,11 +29,26 @@ public class Verifier {
         return satisfies(joinWithAnd(e));
     }
 
-    public boolean satisfies(Term e) {
+    public Map<Term, Integer> findModelSatisfying(Term term) {
         Solver solver = new Solver(termFactory.getTermManager());
-        solver.assertFormula(e);
+        solver.setOption("produce-models", "true");
+        solver.assertFormula(term);
         Result result = solver.checkSat();
-        return result.isSat();
+        if (!result.isSat()) {
+            return null;
+        }
+        Map<Term, Integer> map = new HashMap<>();
+        int mod = Integer.parseInt(termFactory.getSort().getFiniteFieldSize());
+        for (Memory memory : termFactory.getMemories()) {
+            Term value = solver.getValue(memory.term());
+            int finiteFieldValue = Integer.parseInt(CvcUtils.finiteFieldValue(value));
+            map.put(memory.term(), Math.floorMod(finiteFieldValue, mod));
+        }
+        return map;
+    }
+
+    public boolean satisfies(Term e) {
+        return findModelSatisfying(e) != null;
     }
 
     /**

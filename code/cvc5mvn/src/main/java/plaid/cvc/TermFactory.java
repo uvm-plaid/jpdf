@@ -31,6 +31,10 @@ public class TermFactory {
         }
     }
 
+    public Sort getSort() {
+        return sort;
+    }
+
     public TermManager getTermManager() {
         return termManager;
     }
