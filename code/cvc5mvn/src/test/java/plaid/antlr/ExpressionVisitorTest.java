@@ -172,4 +172,5 @@ public class ExpressionVisitorTest {
         assertEquals(new OTExpr(new SecretExpr(new Str("foo")), new Num(1), new MessageExpr(new Str("bar")), new MessageExpr(new Str("zoo"))),
                 ast("OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"])"));
     }
+    
 }

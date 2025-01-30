@@ -28,4 +28,7 @@ def prettyPrint(n: Node): String = n match {
   case Str(x) => x
   case TimesExpr(e1, e2) => s"(${prettyPrint(e1)} * ${prettyPrint(e2)})}"
   case OTExpr(e1, i1, e2, e3) => s"OT(${prettyPrint(e1)}@${prettyPrint(i1)},${prettyPrint(e2)}, ${prettyPrint(e3)})"
+  case AndConstraintExpr(e1, e2) => s"${prettyPrint(e1)} AND ${prettyPrint(e2)}"
+  case NotConstraintExpr(e) => s"NOT ${prettyPrint(e)}"
+  case EqualConstraintExpr(e1, e2) => s"${prettyPrint(e1)} == ${prettyPrint(e2)}"
 }

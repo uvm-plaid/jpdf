@@ -7,10 +7,10 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import plaid.antlr.ConstraintsLoader;
+
 import plaid.antlr.Loader;
 import plaid.ast.PreludeCommand;
-import plaid.constraints.ast.Constraints;
+import plaid.ast.Program;
 import plaid.cvc.TermFactory;
 import plaid.cvc.Verifier;
 import plaid.eval.OvertureChecker;
@@ -46,22 +46,13 @@ public class App implements Runnable {
         Verifier verifier = new Verifier(termFactory);
 
         // separate prelude source code and constraints
-        String content = readSourceCode();
-        String[] precondParts = content.split("precondition:");
-        String[] postcondParts = content.split("postcondition:");
-        String[] allParts = content.split("precondition:|postcondition:");
-        String program = allParts[0];
-
+        String program = readSourceCode();
+        Program programAST = Loader.toProgram(program);
         PreludeCommand protocol = new ProgramEvaluator(Loader.toProgram(program)).eval();
         Collection<Term> overtureTerms = termFactory.toTerms(protocol);
-
-        String preconditionSource = precondParts.length > 1 ? allParts[1] : "";
-        Constraints preconditionAst = ConstraintsLoader.toConstraint("constraints:" + preconditionSource);
-        Collection<Term> preconditionTerms = termFactory.constraintsToTerms(preconditionAst);
-
-        String postconditionSource = postcondParts.length > 1 ? postcondParts[1] : "";
-        Constraints postconditionAst = ConstraintsLoader.toConstraint("constraints:" + postconditionSource);
-        Collection<Term> postconditionTerms = termFactory.constraintsToTerms(postconditionAst);
+        
+        Term preconditionTerm = programAST.precondition() == null? null : termFactory.constraintToTerm(programAST.precondition());
+        Term postconditionTerm = programAST.postcondition() == null? null:  termFactory.constraintToTerm(programAST.postcondition());
 
         if (!OvertureChecker.checkOverture(protocol)) {
             System.out.println("Overture protocol is invalid");
@@ -74,8 +65,9 @@ public class App implements Runnable {
         }
         System.out.println("Protocol is satisfiable");
 
-        Collection<Term> premises = Stream.concat(overtureTerms.stream(), preconditionTerms.stream()).toList();
-        if (!verifier.entails(premises, postconditionTerms)) {
+        Collection<Term> premises = Stream.concat(overtureTerms.stream(), preconditionTerm==null? Stream.of() : Stream.of(preconditionTerm)).toList();
+        
+        if (postconditionTerm!=null &&  !verifier.entails(premises, postconditionTerm)) {
             System.out.println("Protocol and precondition do not entail postcondition");
             System.exit(1);
         }

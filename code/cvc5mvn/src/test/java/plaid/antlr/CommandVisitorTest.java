@@ -1,18 +1,7 @@
 package plaid.antlr;
 
 import org.junit.Test;
-import plaid.ast.AssertCommand;
-import plaid.ast.AssignCommand;
-import plaid.ast.AtExpr;
-import plaid.ast.CommandList;
-import plaid.ast.FunctionCallCommand;
-import plaid.ast.Identifier;
-import plaid.ast.LetCommand;
-import plaid.ast.MessageExpr;
-import plaid.ast.Num;
-import plaid.ast.OutputExpr;
-import plaid.ast.PreludeCommand;
-import plaid.ast.Str;
+import plaid.ast.*;
 
 import java.util.List;
 
@@ -115,6 +104,15 @@ public class CommandVisitorTest {
     public void partialLineComments() {
         PreludeCommand command = ast("out@1 := x//@1");
         assertEquals(new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")), command);
+    }
+
+    /**
+     * Parses OT expression
+     */
+    @Test
+    public void OTCommand(){
+        assertEquals(new AssignCommand(new AtExpr(new MessageExpr(new Str("x")), new Num(1)) ,new AtExpr(new OTExpr(new SecretExpr(new Str("foo")), new Num(1), new MessageExpr(new Str("bar")), new MessageExpr(new Str("zoo"))), new Num(2))),
+                ast("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"])@2"));
     }
 
 }

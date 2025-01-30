@@ -1,7 +1,7 @@
 // define lexer and parser rules in a single combined grammar file
 grammar Prelude;
 
-program : exprfuncsection? cmdfuncsection? EOF;
+program : exprfuncsection? cmdfuncsection? precondsection? postcondsection? EOF;
 
 exprfuncsection : 'exprfunctions:' exprfunction* ;
 exprfunction : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc ;
@@ -9,7 +9,15 @@ exprfunction : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc ;
 cmdfuncsection : 'cmdfunctions:' cmdfunc* ;
 cmdfunc : ident '(' (ident (',' ident)*)? ')' '{' command '}' #CommandFunc ;
 
+precondsection : 'precondition: (' constraintExpr ')';
+postcondsection : 'postcondition: (' constraintExpr ')';
 
+constraintExpr
+    : '(' constraintExpr ')' #ParenConstraintExpr
+    | expr '==' expr #EqualConstraintExpr
+    | 'NOT' constraintExpr #NotConstraintExpr
+    | constraintExpr 'AND' constraintExpr #AndConstraintExpr
+    ;
 
 expr
     : expr '.' ident #FieldSelectExpr
@@ -20,6 +28,7 @@ expr
     | expr '++' expr #ConcatExpr
     | '(' expr ')' #ParenPExpr
     | 'let' ident '=' expr 'in' expr #LetExpr
+    | 'OT' '(' expr '@' expr ',' expr ',' expr ')' #OTExpr
     | ident '(' (expr (',' expr)*)? ')' #FunctionCallExpr
     | 's[' expr ']' #SecretExpr
     | 'r[' expr ']' #RandomExpr
@@ -30,7 +39,6 @@ expr
     | ident #IdentExpr
     | STRING #Str
     | VALUE #Num
-    | 'OT' '(' expr '@' expr ',' expr ',' expr ')' #OTExpr
     ;
 
 command

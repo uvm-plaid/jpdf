@@ -6,12 +6,12 @@ import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
 import org.junit.Ignore;
 import org.junit.Test;
-import plaid.antlr.ConstraintsLoader;
+
 import plaid.antlr.Loader;
 import plaid.ast.AssignCommand;
+import plaid.ast.ConstraintExpr;
 import plaid.ast.PreludeCommand;
 import plaid.ast.Program;
-import plaid.constraints.ast.Constraints;
 import plaid.eval.ProgramEvaluator;
 
 import java.util.Collection;
@@ -81,7 +81,7 @@ public class VerifierTest {
                 """;
 
         String proposition = """
-                constraints: (out@1 == s["x"]@1 + s["y"]@2) AND (out@2 == s["x"]@1 + s["y"]@2)
+                (out@1 == s["x"]@1 + s["y"]@2) AND (out@2 == s["x"]@1 + s["y"]@2)
                 """;
         assertTrue(verifier.satisfies(protocol));
         assertTrue(verifier.verifies(protocol, proposition));
@@ -98,7 +98,7 @@ public class VerifierTest {
                 m["x"]@3 := r["x"]@1
                 """;
         String proposition = """
-                constraints: r["x"]@1 == m["x"]@3
+                r["x"]@1 == m["x"]@3
                 """;
 
         assertTrue(verifier.verifies(protocol, proposition));
@@ -125,16 +125,15 @@ public class VerifierTest {
                 """;
 
         String proposition_1 = """
-                constraints: out@1 == s["1"]@1 + s["2"]@2 + s["3"]@3
+                out@1 == s["1"]@1 + s["2"]@2 + s["3"]@3
                 """;
         String proposition_2 = """
-                constraints: out@2 == s["1"]@1 + s["2"]@2 + s["3"]@3
+                out@2 == s["1"]@1 + s["2"]@2 + s["3"]@3
                 """;
         String proposition_3 = """
-                constraints: out@3 == s["1"]@1 + s["2"]@2 + s["3"]@3
+                out@3 == s["1"]@1 + s["2"]@2 + s["3"]@3
                 """;
         String proposition_4 = """
-                constraints:
                 out@1 == s["1"]@1 + s["2"]@2 + s["3"]@3 AND
                 out@2 == s["1"]@1 + s["2"]@2 + s["3"]@3 AND
                 out@3 == s["1"]@1 + s["2"]@2 + s["3"]@3
@@ -145,13 +144,12 @@ public class VerifierTest {
         assertTrue(verifier.verifies(protocol, proposition_4));
 
         String proposition_5 = """
-                constraints:
                 out@1 == s["1"]@1 + s["2"]@2 + s["3"]@3 AND
                 out@2 == s["1"]@1 + s["2"]@2 + s["3"]@3 AND
                 (NOT (out@3 == s["1"]@1 + s["2"]@2 + s["3"]@3))
                 """;
         String proposition_6 = """
-                constraints: out@2 == s["1"]@1 + s["2"]@2 + r["x"]@3
+                 out@2 == s["1"]@1 + s["2"]@2 + r["x"]@3
                 """;
         assertFalse(verifier.verifies(protocol, proposition_5));
         assertFalse(verifier.verifies(protocol, proposition_6));
@@ -167,11 +165,11 @@ public class VerifierTest {
                 m["x"]@3 := r["x"]@1
                 """;
         String proposition_1 = """
-                constraints: r["x"]@1 == m["x"]@2
+                r["x"]@1 == m["x"]@2
                 """;
 
         String proposition_2 = """
-                constraints: r["loc"]@1 == m["x"]@3
+                r["loc"]@1 == m["x"]@3
                 """;
 
         assertFalse(verifier.verifies(protocol, proposition_1));
@@ -186,6 +184,7 @@ public class VerifierTest {
      */
     @Test
     @Ignore
+    // TODO 
     public void evaluatesAndverifiesCorrectProposition(){
         String program = """
                 exprfunctions:
@@ -218,6 +217,7 @@ public class VerifierTest {
                 }
                 
                 main(){andgmw("g1","x","z")}
+                
                 """;
         // evaluate the program to overture protocol
         PreludeCommand protocol = evaluates(program);
@@ -236,10 +236,10 @@ public class VerifierTest {
 
         // check if the protocol verifies a correct proposition
         String proposition_src = """
-                constraints: (m["g1"]@1 + m["g1"]@2) == ((m["x"]@1 + m["x"]@2) * (m["z"]@1 + m["z"]@2))
+                (m["g1"]@1 + m["g1"]@2) == ((m["x"]@1 + m["x"]@2) * (m["z"]@1 + m["z"]@2))
                 """;
 
-        Constraints proposition = ConstraintsLoader.toConstraint(proposition_src);
+        ConstraintExpr proposition = Loader.toConstraintExpression(proposition_src);
         //assertTrue(Verifier.verifies(evaluated_protocol, proposition_src));
         assertTrue(verifier.verifies(protocol, proposition));
     }

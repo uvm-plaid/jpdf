@@ -11,7 +11,7 @@ public class CommandEvaluatorTest {
 
     private PreludeCommand eval(String src, List<CommandFunction> commandFunctions){
         PreludeCommand ast = Loader.toCommand(src);
-        CommandEvaluator commandEvaluator = new CommandEvaluator(new Program(commandFunctions, List.of()));
+        CommandEvaluator commandEvaluator = new CommandEvaluator(new Program(commandFunctions, List.of(), null, null));
         return commandEvaluator.evalInstruction(ast);
     }
 
@@ -82,7 +82,7 @@ public class CommandEvaluatorTest {
         assertEquals(Loader.toCommand("m[\"fooexts\"]@1 := m[\"foos\"]@2;\n" +
                 "m[\"fooextm\"]@1 := m[\"foom\"]@2;\n" +
                 "assert(m[\"fooextm\"] = m[\"fook\"] + (m[\"delta\"] * m[\"fooexts\"]))@1;\n" +
-                "m[\"foo\"]@1 := (m[\"fooexts\"] + m[\"foos\"])@1)"), command);
+                "m[\"foo\"]@1 := (m[\"fooexts\"] + m[\"foos\"])@1"), command);
     }
     /**
      * evaluate command function call and expression function call

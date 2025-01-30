@@ -3,14 +3,17 @@ package plaid.antlr;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
 import plaid.PreludeLexer;
 import plaid.PreludeParser;
 import plaid.PreludeParser.CommandContext;
 import plaid.PreludeParser.ExprContext;
 import plaid.PreludeParser.ProgramContext;
+import plaid.PreludeParser.ConstraintExprContext;
 import plaid.ast.PreludeCommand;
 import plaid.ast.PreludeExpression;
 import plaid.ast.Program;
+import plaid.ast.ConstraintExpr;
 
 /**
  * Support for converting Prelude source code into an abstract syntax tree.
@@ -53,6 +56,24 @@ public class Loader {
     }
 
     /**
+     * converts an ANTLR context for Constraint Expr into abstract syntax tree
+     * @param ctx ANTLR context
+     * @return Abstract syntax tree for expressions
+     */
+    public static ConstraintExpr toConstraintExpression(ConstraintExprContext ctx){
+        return new ConstraintExpressionVisitor().visit(ctx);
+    }
+
+    /**
+     * converts Constraint Expr source code into abstract syntax tree
+     * @param src String source code
+     * @return abstract syntax tree
+     */
+    public static ConstraintExpr toConstraintExpression(String src){
+        return toConstraintExpression(createParser(src).constraintExpr());
+    }
+
+    /**
      * Converts an ANTLR4 context into an abstract syntax tree for a command.
      *
      * @param ctx ANTLR4 context
@@ -74,14 +95,16 @@ public class Loader {
 
     /**
      * Converts an ANTLR4 context into an abstract syntax tree for a Prelude program.
-     *
      * @param ctx ANTLR4 context
      * @return Abstract syntax tree for a Prelude program
      */
     public static Program toProgram(ProgramContext ctx) {
         FunctionListener listener = new FunctionListener();
         new ParseTreeWalker().walk(listener, ctx);
-        return new Program(listener.getCommandFunctions(), listener.getExprFunctions());
+        
+        ConstraintExpr precondition =  ctx.precondsection() == null? null : toConstraintExpression(ctx.precondsection().constraintExpr());
+        ConstraintExpr postcondition = ctx.postcondsection() == null? null : toConstraintExpression(ctx.postcondsection().constraintExpr()); 
+        return new Program(listener.getCommandFunctions(), listener.getExprFunctions(), precondition, postcondition);
     }
 
     /**
@@ -93,5 +116,6 @@ public class Loader {
     public static Program toProgram(String src) {
         return toProgram(createParser(src).program());
     }
+
 
 }

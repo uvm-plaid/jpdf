@@ -3,10 +3,9 @@ package plaid.cvc;
 import io.github.cvc5.*;
 import plaid.ast.*;
 
-import plaid.constraints.ast.*;
-
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static plaid.cvc.CvcUtils.getCvcName;
 import static plaid.cvc.CvcUtils.mkFiniteFieldElem;
@@ -136,53 +135,53 @@ public class TermFactory {
         return memory.term();
     }
 
-    /**
-     * for constraints terms, looks up the memory set with CVC5 name and return its CVC5 term
-     */
-    public Term lookupOrCreate(ConstraintsTerm term){
-        return switch(term) {
-            case MessageConstraintsTerm mem -> lookupOrCreate(new MessageExpr(new Str(mem.w())), mem.i());
-            case RandomConstraintsTerm mem -> lookupOrCreate(new RandomExpr(new Str(mem.w())), mem.i());
-            case SecretConstraintsTerm mem -> lookupOrCreate(new SecretExpr(new Str(mem.w())), mem.i());
-            case PublicConstraintsTerm mem -> lookupOrCreate(new PublicExpr(new Str(mem.w())), null);
-            case OutputConstraintTerm mem -> lookupOrCreate(new OutputExpr(), mem.i());
-            default -> throw new IllegalArgumentException();
-        };
-    }
+//    /**
+//     * for constraints terms, looks up the memory set with CVC5 name and return its CVC5 term
+//     */
+//    public Term lookupOrCreate(ConstraintsTerm term){
+//        return switch(term) {
+//            case MessageConstraintsTerm mem -> lookupOrCreate(new MessageExpr(new Str(mem.w())), mem.i());
+//            case RandomConstraintsTerm mem -> lookupOrCreate(new RandomExpr(new Str(mem.w())), mem.i());
+//            case SecretConstraintsTerm mem -> lookupOrCreate(new SecretExpr(new Str(mem.w())), mem.i());
+//            case PublicConstraintsTerm mem -> lookupOrCreate(new PublicExpr(new Str(mem.w())), null);
+//            case OutputConstraintTerm mem -> lookupOrCreate(new OutputExpr(), mem.i());
+//            default -> throw new IllegalArgumentException();
+//        };
+//    }
 
     /**
-     * translate constraints expressions to CVC5 Terms
+     * translate list of constraint expressions to CVC5 Terms
      */
-    public List<Term> constraintsToTerms(Constraints constraintsList){
-        return constraintsList.constraints().stream().map(this::constraintsToTerm).collect(Collectors.toList());
-    } 
+//    public Collection<Term> constraintsToTerms(List<ConstraintExpr> constraints){
+//        return constraints.stream().map(this::constraintToTerm).toList();
+//    }
     
     /**
-     * translate constraints expression to CVC5 Term
+     * translate constraint expressions to CVC5 Term
      */
-    public Term constraintsToTerm(ConstraintsExpr expr){
+    public Term constraintToTerm(ConstraintExpr expr){
         return switch (expr) {
-            case NotConstraintsExpr x -> termManager.mkTerm(Kind.NOT, constraintsToTerm(x.e()));
-            case AndConstraintsExpr x -> termManager.mkTerm(Kind.AND, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
-            case EqualConstraintsExpr x -> termManager.mkTerm(Kind.EQUAL, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
+            case NotConstraintExpr x -> termManager.mkTerm(Kind.NOT, constraintToTerm(x.e()));
+            case AndConstraintExpr x -> termManager.mkTerm(Kind.AND, constraintToTerm(x.e1()), constraintToTerm(x.e2()));
+            case EqualConstraintExpr x -> termManager.mkTerm(Kind.EQUAL, toTerm(x.e1()), toTerm(x.e2()));
             default -> throw new IllegalArgumentException("cannot convert" + expr.getClass().getName() + "into CVC5 term");
         };
     }
 
-    /**
-     * translate constraints term to CVC5 term
-     */
-    public Term constraintsToTerm(ConstraintsTerm term)  {
-        return switch (term) {
-            case MessageConstraintsTerm x -> lookupOrCreate(x);
-            case PublicConstraintsTerm x -> lookupOrCreate(x);
-            case RandomConstraintsTerm x -> lookupOrCreate(x);
-            case OutputConstraintTerm x -> lookupOrCreate(x);
-            case SecretConstraintsTerm x -> lookupOrCreate(x);
-            case MinusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e()), minusOne);
-            case PlusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_ADD, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
-            case TimesConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
-            default -> throw new NoSuchElementException(term.getClass().getName() + " this CVC5 term is not defined");
-        };
+//    /**
+//     * translate constraints term to CVC5 term
+//     */
+//    public Term constraintsToTerm(ConstraintsTerm term)  {
+//        return switch (term) {
+//            case MessageConstraintsTerm x -> lookupOrCreate(x);
+//            case PublicConstraintsTerm x -> lookupOrCreate(x);
+//            case RandomConstraintsTerm x -> lookupOrCreate(x);
+//            case OutputConstraintTerm x -> lookupOrCreate(x);
+//            case SecretConstraintsTerm x -> lookupOrCreate(x);
+//            case MinusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e()), minusOne);
+//            case PlusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_ADD, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
+//            case TimesConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
+//            default -> throw new NoSuchElementException(term.getClass().getName() + " this CVC5 term is not defined");
+//        };
     }
-}
+

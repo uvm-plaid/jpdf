@@ -15,7 +15,7 @@ public class ExpressionEvaluatorTest {
 
     private PreludeExpression eval(String src, List<ExprFunction> exprFunctions){
         PreludeExpression ast = Loader.toExpression(src);
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), exprFunctions));
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), exprFunctions, null, null));
         return expressionEvaluator.toOverture(ast);
     }
     /**
@@ -42,7 +42,7 @@ public class ExpressionEvaluatorTest {
     @Test
     public void letSubstitution(){
         PreludeExpression letExpr = Loader.toExpression("let r11 = 3 in r11");
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of() , List.of()));
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of() , List.of(), null, null));
 
         PreludeExpression result = expressionEvaluator.toOverture(letExpr);
         assertEquals(new Num(3), result);
@@ -54,7 +54,7 @@ public class ExpressionEvaluatorTest {
     @Test
     public void doubleLetSubstitution(){
         PreludeExpression letExpr = Loader.toExpression("let r11 = 3 in let r10 = 4 in r11 + r10");
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of() , List.of()));
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of() , List.of(), null, null));
 
         PreludeExpression result = expressionEvaluator.toOverture(letExpr);
         assertEquals(new PlusExpr(new Num(3), new Num(4)), result);
@@ -66,7 +66,7 @@ public class ExpressionEvaluatorTest {
     @Test
     public void evalLetExpr(){
         PreludeExpression letExpr = Loader.toExpression("let y = 3 in let x = y + 1 in x + y ");
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), List.of()));
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), List.of(), null, null));
         PreludeExpression result = expressionEvaluator.toOverture(letExpr);
         assertEquals(new PlusExpr(new PlusExpr(new Num(3), new Num(1)), new Num(3)), result);
     }

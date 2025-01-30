@@ -4,10 +4,9 @@ import io.github.cvc5.Kind;
 import io.github.cvc5.Result;
 import io.github.cvc5.Solver;
 import io.github.cvc5.Term;
-import plaid.antlr.ConstraintsLoader;
 import plaid.antlr.Loader;
 import plaid.ast.PreludeCommand;
-import plaid.constraints.ast.Constraints;
+import plaid.ast.ConstraintExpr;
 
 import java.util.Collection;
 
@@ -56,27 +55,35 @@ public class Verifier {
             return entails(joinWithAnd(e1s), joinWithAnd(e2s));
         }
     }
-
+    
+    public boolean entails(Collection<Term> e1s, Term e2){
+        if(e1s.isEmpty()){
+            return satisfies(e2);
+        }
+        else{
+            return entails(joinWithAnd(e1s), e2);
+        }
+    }
     /**
      * check if an overture protocol entails a proposition
      * @param src1 String type of Overture
-     * @param src2 String type of Constraints
+     * @param src2 String type of Constraint
      * @return true/false
      */
     public boolean verifies(String src1, String src2){
-        return verifies(Loader.toCommand(src1), ConstraintsLoader.toConstraint(src2));
+        return verifies(Loader.toCommand(src1), Loader.toConstraintExpression(src2));
     }
 
     /**
      * check if an overture protocol entails a proposition (verify correctness)
      * @param command Overture
-     * @param proposition Constraints
+     * @param proposition Constraint
      * @return true/false
      */
-    public boolean verifies(PreludeCommand command, Constraints proposition){
+    public boolean verifies(PreludeCommand command, ConstraintExpr proposition){
         Collection<Term> e1s = termFactory.toTerms(command);
-        Collection<Term> e2s = termFactory.constraintsToTerms(proposition);
-
+        //Collection<Term> e2s = termFactory.constraintToTerm(proposition);
+        Term e2s = termFactory.constraintToTerm(proposition);
         return entails(e1s, e2s);
     }
 
