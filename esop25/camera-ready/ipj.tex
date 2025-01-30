@@ -88,9 +88,10 @@ More formally, we define validity as follows:
 In the above example, note that the environment implicitly records
 that $\rvl{w}$ depends on data from client 1, which in turn
 depends on data from client 2. The rule for MAC
-checking allows an overwrite of the dependency. We explore
-the application of this in more detail in Section
-\ref{section-examples}.
+checking allows an overwrite of the dependency. An implementation
+of a malicious-secure arithmetic circuit that
+applies this rule is provided in extended version of
+this paper \ref{skalka2025smtboostedsecuritytypeslowlevel}.
 
 \cheatjfig
 
@@ -117,7 +118,7 @@ $\cheatj{\Delta}{H,C}{\seclev}$, axiomatized in Figure
 \ref{fig-cheatj}. The composition of typing and this latter rewriting
 obtains essentially a traditional taint analysis, modulo MAC checking.
 Our main type soundness result for integrity is then given as follows.
-Proof details are given in the Appendix.
+Proof details are given in \cite{skalka2025smtboostedsecuritytypeslowlevel}.
 \begin{theorem}
   \label{theorem-ipj}
   Given  $\eqspre$ and $\prog$ with

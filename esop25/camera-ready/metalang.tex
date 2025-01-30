@@ -11,8 +11,9 @@ component definitions support compositional verification of larger
 protocols. Separate verification of well-designed components results
 in confidentiality and integrity properties to be recorded in their
 types, allowing for significant reduction of SMT verification in whole
-program analysis, as we will discuss with extended examples in Section
-\ref{section-examples}.
+program analysis, as we illustrate with extended examples in Section
+\ref{section-examples} and in an extended version of this paper
+\cite{skalka2025smtboostedsecuritytypeslowlevel}.
 
 \metaprotsyntaxfig
 
@@ -215,7 +216,7 @@ to instantiate the function parameters are chosen ``fresh'', meaning
 that any strings and client identifiers occurring as substrings in
 $\mv_1,\ldots,\mv_n$ are unique and not used in any program source
 code. This ensures generality of verification as demonstrated in Lemma
-\ref{lemma-eqs-notg} in the Appendix.
+\ref{lemma-eqs-notg} in an extended version of this paper \cite{skalka2025smtboostedsecuritytypeslowlevel}.
 
 \mtjfnfig
 
@@ -227,15 +228,14 @@ typings. Define:
 \end{definition}
 In practice, to define $\tsig$ the programmer only needs to specify
 pre-~and postconditions, as we illustrate in Section
-\ref{section-examples}, since the rest of the type is reconstructed by
-type checking.
+\ref{section-examples} and \cite{skalka2025smtboostedsecuritytypeslowlevel},
+since the rest of the type is reconstructed by type checking.
 
 The following Theorem establishes our main result, that the
 $\metaprot$ type checking is sound with respect to both
 confidentiality and integrity typings. Since these typings imply
 security hyperproperties of confidentiality and integrity, $\metaprot$
-type checking implicitly enforces them. Proof details are given in the
-Appendix.
+type checking implicitly enforces them. Proof details are given \cite{skalka2025smtboostedsecuritytypeslowlevel}.
 \begin{theorem}[Soundness of $\metaprot$ type checking]
   \label{theorem-mtj}
   Given preprocessing predicate $\eqspre$, program $\instr$, and verified $\tsig$, if
