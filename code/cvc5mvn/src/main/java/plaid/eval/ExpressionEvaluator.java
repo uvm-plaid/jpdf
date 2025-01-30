@@ -103,7 +103,7 @@ public class ExpressionEvaluator {
             }
 
             case AtExpr ae -> new AtExpr(toOverture(ae.e1()), toOverture(ae.e2()));
-
+            case OTExpr oe -> new OTExpr(toOverture(oe.e1()), toOverture(oe.i1()), toOverture(oe.e2()), toOverture(oe.e3()));
             default -> throw new IllegalArgumentException("Bad Expression");
         };
     }
