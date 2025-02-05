@@ -22,6 +22,7 @@ object OvertureChecker {
     case Str(_) => Iterable()
     case TimesExpr(e1, e2) => Iterable(e1, e2)
     case OTExpr(e1, i1, e2, e3) => Iterable(e1, i1, e2, e3)
+    case OTFourExpr(s1, s2, i1, e1, e2, e3, e4) => Iterable(s1, s2, i1, e1, e2, e3, e4)
     // TODO Add other kinds of nodes and externalize
   }
 
@@ -41,6 +42,7 @@ object OvertureChecker {
     case Str(_) => true
     case TimesExpr(_, _) => true
     case OTExpr(_, _, _ , _) => true
+    case OTFourExpr(_, _, _, _, _, _, _) => true
     case _ => false
   })
 
@@ -55,6 +57,8 @@ object OvertureChecker {
   private def partyIndexesAreNumbers(n: Node) = recurse(n, {
     case OTExpr(_, Num(_), _, _) => true
     case OTExpr(_, _, _, _) => false
+    case OTFourExpr(_, _, Num(_), _, _, _, _) => true
+    case OTFourExpr(_, _, _, _, _, _, _) => false
     case AtExpr(_, Num(_)) => true
     case AtExpr(_, _) => false
     case AssertCommand(_, _, Num(_)) => true
@@ -93,6 +97,12 @@ object OvertureChecker {
     case _ => true
   })
 
+  private def otReceiverPartyIndexesMatch(n: Node) = recurse(n, {
+    case AssignCommand(AtExpr(_, i), AtExpr(OTExpr(_, i1, _, _), _)) => i == i1
+    case AssignCommand(AtExpr(_, i), AtExpr(OTFourExpr(_, _, i1, _, _, _, _), _)) => i == i1
+    case _ => true
+  })
+
   private def assertAtsNotNested(n: Node) = recurse(n, {
     case AssertCommand(e1, e2, _) => freeFromAts(e1) && freeFromAts(e2)
     case _ => true
@@ -106,6 +116,7 @@ object OvertureChecker {
     assignmentAtsCoverRight(protocol) &&
     assignmentLeftWellFormed(protocol) &&
     outputPartyIndexesMatch(protocol) &&
-    assertAtsNotNested(protocol) 
+      otReceiverPartyIndexesMatch(protocol) &&
+    assertAtsNotNested(protocol)
 
 }

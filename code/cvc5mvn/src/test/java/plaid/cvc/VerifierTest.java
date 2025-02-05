@@ -285,9 +285,9 @@ public class VerifierTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        Collection<Term> trueTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1"));
+        Term trueTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1"));
         assertTrue(verifier.entails(Collections.emptyList(), trueTerm));
-        Collection<Term> falseTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
+        Term falseTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
         assertFalse(verifier.entails(Collections.emptyList(), falseTerm));
     }
 
@@ -299,10 +299,10 @@ public class VerifierTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        Collection<Term> trueTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1"));
-        assertTrue(verifier.entails(trueTerm, Collections.emptyList()));
-        Collection<Term> falseTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
-        assertTrue(verifier.entails(falseTerm, Collections.emptyList()));
+        Term trueTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1"));
+        assertTrue(verifier.entails(trueTerm, null));
+        Term falseTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
+        assertTrue(verifier.entails(falseTerm, null));
     }
 
     /**

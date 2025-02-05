@@ -126,4 +126,9 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
     public OTExpr visitOTExpr(OTExprContext ctx) {
         return new OTExpr(visit(ctx.expr(0)), visit(ctx.expr(1)), visit(ctx.expr(2)), visit(ctx.expr(3)));
     }
+
+    @Override
+    public PreludeExpression visitOTFourExpr(PreludeParser.OTFourExprContext ctx) {
+        return new OTFourExpr(visit(ctx.expr(0)), visit(ctx.expr(1)), visit(ctx.expr(2)), visit(ctx.expr(3)), visit(ctx.expr(4)), visit(ctx.expr(5)), visit(ctx.expr(6)));
+    }
 }

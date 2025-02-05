@@ -119,13 +119,26 @@ public class OvertureCheckerTest {
     }
 
     /**
-     * OT requires party index for the first subexpression
+     * OT requires the same party index for the receiver
      */
     @Test
-    public void OTPartyIndex(){
-        assertPasses("m[\"x\"]@1 := OT(s[\"foo\"]@3, m[\"bar\"], m[\"zoo\"])@2");
+    public void OTPartyIndexMatch(){
+        assertPasses("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"])@2");
+        assertFails("m[\"x\"]@1 := OT(s[\"foo\"]@3, m[\"bar\"], m[\"zoo\"])@2");
         assertFails("m[\"x\"]@1 := OT(s[\"foo\"]@j, m[\"bar\"], m[\"zoo\"])@2");
         assertFails("m[\"x\"]@1 := OT(s[\"foo\"]@y, m[\"bar\"], m[\"zoo\"])@2");
+    }
+
+    /**
+     * OT4 requires the same party index for the receiver
+     */
+    @Test
+    public void OTFourPartyIndexMatch(){
+        assertPasses("m[\"x\"]@1 := OT4((m[\"s1\"], m[\"s2\"])@1, s[\"x\"], s[\"y\"], s[\"z\"], s[\"t\"])@2");
+        assertFails("m[\"x\"]@1 := OT4((m[\"s1\"], m[\"s2\"])@3, s[\"x\"], s[\"y\"], s[\"z\"], s[\"t\"])@2");
+        assertFails("m[\"x\"]@1 := OT4((m[\"s1\"], m[\"s2\"])@s, s[\"x\"], s[\"y\"], s[\"z\"], s[\"t\"])@2");
+        assertFails("m[\"x\"]@1 := OT4((m[\"s1\"], m[\"s2\"])@y, s[\"x\"], s[\"y\"], s[\"z\"], s[\"t\"])@2");
+
     }
 
     /**
@@ -137,6 +150,17 @@ public class OvertureCheckerTest {
         assertPasses("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\"]+-p[\"y\"], m[\"zoo\"])@2");
         assertFails("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\" ++ \"y\"], m[\"zoo\"])@2");
         assertPasses("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"]*p[\"y\"])@2");
+
+    }
+
+    /**
+     * OT4 does not allow non-overture expression as subexpressions
+     */
+    @Test
+    public void OTFourValidSubExpr(){
+        assertPasses("m[\"x\"]@1 := OT4((m[\"s1\"], m[\"s2\"])@1, s[\"x\"]+r[\"bar\"], s[\"y\"], s[\"z\"], s[\"t\"])@2");
+        assertPasses("m[\"x\"]@1 := OT4((m[\"s1\"], m[\"s2\"])@1, s[\"y\"], s[\"x\"]*r[\"bar\"], s[\"z\"], s[\"t\"])@2");
+        assertFails("m[\"x\"]@1 := OT4((m[\"s1\"], m[\"s2\"])@1, s[\"x\" ++ \"bar\"], s[\"y\"], s[\"z\"], s[\"t\"])@2");
 
     }
 }

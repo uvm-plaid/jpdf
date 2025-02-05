@@ -104,6 +104,7 @@ public class ExpressionEvaluator {
 
             case AtExpr ae -> new AtExpr(toOverture(ae.e1()), toOverture(ae.e2()));
             case OTExpr oe -> new OTExpr(toOverture(oe.e1()), toOverture(oe.i1()), toOverture(oe.e2()), toOverture(oe.e3()));
+            case OTFourExpr ofe -> new OTFourExpr(toOverture(ofe.s1()), toOverture(ofe.s2()), toOverture(ofe.i1()), toOverture(ofe.e1()), toOverture(ofe.e2()), toOverture(ofe.e3()), toOverture(ofe.e4()));
             default -> throw new IllegalArgumentException("Bad Expression");
         };
     }

@@ -19,6 +19,7 @@ import plaid.eval.ProgramEvaluator;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
 
@@ -49,7 +50,7 @@ public class App implements Runnable {
         String program = readSourceCode();
         Program programAST = Loader.toProgram(program);
         PreludeCommand protocol = new ProgramEvaluator(Loader.toProgram(program)).eval();
-        Collection<Term> overtureTerms = termFactory.toTerms(protocol);
+        Term overtureTerms = termFactory.toTerms(protocol);
         
         Term preconditionTerm = programAST.precondition() == null? null : termFactory.constraintToTerm(programAST.precondition());
         Term postconditionTerm = programAST.postcondition() == null? null:  termFactory.constraintToTerm(programAST.postcondition());
@@ -64,8 +65,12 @@ public class App implements Runnable {
             System.exit(1);
         }
         System.out.println("Protocol is satisfiable");
-
-        Collection<Term> premises = Stream.concat(overtureTerms.stream(), preconditionTerm==null? Stream.of() : Stream.of(preconditionTerm)).toList();
+        
+        Collection<Term> premises = new ArrayList<>();
+        premises.add(overtureTerms);
+        if (preconditionTerm != null) {
+            premises.add(preconditionTerm);
+        }
         
         if (postconditionTerm!=null &&  !verifier.entails(premises, postconditionTerm)) {
             System.out.println("Protocol and precondition do not entail postcondition");

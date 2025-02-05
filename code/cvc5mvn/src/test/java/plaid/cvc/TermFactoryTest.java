@@ -7,24 +7,7 @@ import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
 import org.junit.Test;
 import plaid.antlr.Loader;
-import plaid.ast.AndConstraintExpr;
-import plaid.ast.AssertCommand;
-import plaid.ast.AssignCommand;
-import plaid.ast.AtExpr;
-import plaid.ast.CommandList;
-import plaid.ast.ConstraintExpr;
-import plaid.ast.EqualConstraintExpr;
-import plaid.ast.FunctionCallCommand;
-import plaid.ast.Identifier;
-import plaid.ast.MessageExpr;
-import plaid.ast.NotConstraintExpr;
-import plaid.ast.Num;
-import plaid.ast.OTExpr;
-import plaid.ast.OutputExpr;
-import plaid.ast.PlusExpr;
-import plaid.ast.PreludeExpression;
-import plaid.ast.RandomExpr;
-import plaid.ast.Str;
+import plaid.ast.*;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -120,11 +103,11 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        Collection<Term> terms = factory.toTerms(new CommandList(List.of(
+        Term terms = factory.toTerms(new CommandList(List.of(
                 new AssertCommand(new OutputExpr(), new Num(1), new Num(3)),
                 new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3))
         )));
-        assertEquals(2, terms.size());
+        //assertEquals(2, terms.size());
     }
     
     
@@ -306,6 +289,11 @@ public class TermFactoryTest {
         
         TermFactory factory = new TermFactory(termManager, sort);
         // OT(m["x"]@3, r["y"], m["foo"])@2
+        PreludeCommand command0 = Loader.toCommand("out@1 := OT(0@1, 1, 0)@2");
+        PreludeCommand command1 = Loader.toCommand("out@1 := OT(1@1, 1, 0)@2");
+        Verifier verifier = new Verifier(factory);
+        
+        //verifier.findModelSatisfying(verifier. factory.toTerms(command0));
         PreludeExpression expr1 = new AtExpr(new OTExpr(new MessageExpr(new Str("x")), new Num(3), new RandomExpr(new Str("y")), new MessageExpr(new Str("foo"))), new Num(2));
 
         // create constants

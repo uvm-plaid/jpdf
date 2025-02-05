@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.StreamSupport.stream;
 import static plaid.cvc.CvcUtils.getCvcName;
 import static plaid.cvc.CvcUtils.mkFiniteFieldElem;
 
@@ -31,6 +32,7 @@ public class TermFactory {
         }
     }
 
+
     public Sort getSort() {
         return sort;
     }
@@ -43,19 +45,38 @@ public class TermFactory {
         return memories;
     }
 
+    private Term not(Term term){
+        return termManager.mkTerm(Kind.FINITE_FIELD_ADD, term, mkFiniteFieldElem(termManager, "1", sort, 10));
+    }
+
+    /**
+     * join multiple terms with AND
+     * @param terms Collection<Term>>
+     * @return term
+     */
+    public Term joinWithAnd(Collection<Term> terms){
+        if(terms.size() == 1){
+            return terms.iterator().next();
+        }
+        else{
+            return getTermManager().mkTerm(Kind.AND, terms.toArray(new Term[1]));
+        }
+    }
+
     /**
      * converts Prelude commands to CVC5 Terms
      * @param command
      * @return CVC5 Terms
      */
-    public Collection<Term> toTerms(PreludeCommand command) {
+
+    public Term toTerms(PreludeCommand command) {
         return switch (command) {
-            case CommandList x -> x.commands().stream().flatMap(y -> toTerms(y).stream()).toList();
+            case CommandList x -> joinWithAnd(x.commands().stream().map(y -> toTerms(y)).toList());
             case AssertCommand x -> {
                 Integer partyIndex = getPartyIndex(x);
-                yield List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1(), partyIndex), toTerm(x.e2(), partyIndex)));
+                yield joinWithAnd(List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1(), partyIndex), toTerm(x.e2(), partyIndex))));
             }
-            case AssignCommand x -> List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1()), toTerm(x.e2())));
+            case AssignCommand x -> joinWithAnd(List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1()), toTerm(x.e2()))));
             default -> throw new IllegalArgumentException("Not an overture command " + command.getClass().getName());
         };
     }
@@ -114,7 +135,18 @@ public class TermFactory {
 
                 yield termManager.mkTerm(Kind.FINITE_FIELD_ADD,
                         termManager.mkTerm(Kind.FINITE_FIELD_MULT, e1, toTerm(x.e3())),
-                        termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_ADD, e1, mkFiniteFieldElem(termManager, "1", sort, 10)), toTerm(x.e2())));
+                        termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(e1), toTerm(x.e2())));
+            }
+            case OTFourExpr x -> {
+                Integer receiver_partyIndex = CvcUtils.toInt(x.i1());
+                Term s1 = lookupOrCreate((MemoryExpr) x.s1(), receiver_partyIndex);
+                Term s2 = lookupOrCreate((MemoryExpr) x.s2(), receiver_partyIndex);
+
+                Term first = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, s1, s2), toTerm(x.e4()));
+                Term second = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, s1, not(s2)), toTerm(x.e3()));
+                Term third = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(s1), s2), toTerm(x.e2()));
+                Term fourth = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(s1), not(s2)), toTerm(x.e1()));
+                yield termManager.mkTerm(Kind.FINITE_FIELD_ADD, first, termManager.mkTerm(Kind.FINITE_FIELD_ADD, second, termManager.mkTerm(Kind.FINITE_FIELD_ADD, third, fourth)));
             }
             default -> throw new IllegalArgumentException("Cannot convert " + expr.getClass().getName() + " to term");
         };
@@ -139,26 +171,6 @@ public class TermFactory {
         return memory.term();
     }
 
-//    /**
-//     * for constraints terms, looks up the memory set with CVC5 name and return its CVC5 term
-//     */
-//    public Term lookupOrCreate(ConstraintsTerm term){
-//        return switch(term) {
-//            case MessageConstraintsTerm mem -> lookupOrCreate(new MessageExpr(new Str(mem.w())), mem.i());
-//            case RandomConstraintsTerm mem -> lookupOrCreate(new RandomExpr(new Str(mem.w())), mem.i());
-//            case SecretConstraintsTerm mem -> lookupOrCreate(new SecretExpr(new Str(mem.w())), mem.i());
-//            case PublicConstraintsTerm mem -> lookupOrCreate(new PublicExpr(new Str(mem.w())), null);
-//            case OutputConstraintTerm mem -> lookupOrCreate(new OutputExpr(), mem.i());
-//            default -> throw new IllegalArgumentException();
-//        };
-//    }
-
-    /**
-     * translate list of constraint expressions to CVC5 Terms
-     */
-//    public Collection<Term> constraintsToTerms(List<ConstraintExpr> constraints){
-//        return constraints.stream().map(this::constraintToTerm).toList();
-//    }
     
     /**
      * translate constraint expressions to CVC5 Term
@@ -172,20 +184,6 @@ public class TermFactory {
         };
     }
 
-//    /**
-//     * translate constraints term to CVC5 term
-//     */
-//    public Term constraintsToTerm(ConstraintsTerm term)  {
-//        return switch (term) {
-//            case MessageConstraintsTerm x -> lookupOrCreate(x);
-//            case PublicConstraintsTerm x -> lookupOrCreate(x);
-//            case RandomConstraintsTerm x -> lookupOrCreate(x);
-//            case OutputConstraintTerm x -> lookupOrCreate(x);
-//            case SecretConstraintsTerm x -> lookupOrCreate(x);
-//            case MinusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e()), minusOne);
-//            case PlusConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_ADD, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
-//            case TimesConstraintsTerm x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, constraintsToTerm(x.e1()), constraintsToTerm(x.e2()));
-//            default -> throw new NoSuchElementException(term.getClass().getName() + " this CVC5 term is not defined");
-//        };
+
     }
 

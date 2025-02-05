@@ -25,8 +25,8 @@ public class Verifier {
     }
 
     public boolean satisfies(PreludeCommand command) {
-        Collection<Term> e = termFactory.toTerms(command);
-        return satisfies(joinWithAnd(e));
+        Term e = termFactory.toTerms(command);
+        return satisfies(e);
     }
 
     public Map<Term, Integer> findModelSatisfying(Term term) {
@@ -63,24 +63,17 @@ public class Verifier {
         return !satisfies(e1_entails_notE2);
     }
 
-    public boolean entails(Collection<Term> e1s, Collection<Term> e2s) {
-        if (e2s.isEmpty()) {
-            return true;
-        } else if (e1s.isEmpty()) {
-            return satisfies(joinWithAnd(e2s));
-        } else {
-            return entails(joinWithAnd(e1s), joinWithAnd(e2s));
-        }
-    }
-    
-    public boolean entails(Collection<Term> e1s, Term e2){
-        if(e1s.isEmpty()){
+    public boolean entails(Collection<Term> e1s, Term e2) {
+        if (e1s.isEmpty()) {
             return satisfies(e2);
-        }
-        else{
-            return entails(joinWithAnd(e1s), e2);
+        } else if (e2 == null) {
+            return true;
+        } else {
+            return entails(termFactory.joinWithAnd(e1s), e2);
         }
     }
+
+
     /**
      * check if an overture protocol entails a proposition
      * @param src1 String type of Overture
@@ -98,10 +91,9 @@ public class Verifier {
      * @return true/false
      */
     public boolean verifies(PreludeCommand command, ConstraintExpr proposition){
-        Collection<Term> e1s = termFactory.toTerms(command);
-        //Collection<Term> e2s = termFactory.constraintToTerm(proposition);
-        Term e2s = termFactory.constraintToTerm(proposition);
-        return entails(e1s, e2s);
+        Term e1 = termFactory.toTerms(command);
+        Term e2 = termFactory.constraintToTerm(proposition);
+        return entails(e1, e2);
     }
 
     public boolean equivalent(String src1, String src2){
@@ -115,24 +107,12 @@ public class Verifier {
      * @return true/false
      */
     public boolean equivalent(PreludeCommand c1, PreludeCommand c2) {
-        Collection<Term> e1s = termFactory.toTerms(c1);
-        Collection<Term> e2s = termFactory.toTerms(c2);
+        Term e1 = termFactory.toTerms(c1);
+        Term e2 = termFactory.toTerms(c2);
 
-        return entails(joinWithAnd(e1s), joinWithAnd(e2s)) && entails(joinWithAnd(e2s), joinWithAnd(e1s));
+        return entails(e1, e2) && entails(e2, e1);
     }
 
-    /**
-     * join multiple terms with AND
-     * @param terms Collection<Term>>
-     * @return term
-     */
-    private Term joinWithAnd(Collection<Term> terms){
-        if(terms.size() == 1){
-            return terms.iterator().next();
-        }
-        else{
-            return termFactory.getTermManager().mkTerm(Kind.AND, terms.toArray(new Term[1]));
-        }
-    }
+
 }
 

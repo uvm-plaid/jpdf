@@ -172,5 +172,14 @@ public class ExpressionVisitorTest {
         assertEquals(new OTExpr(new SecretExpr(new Str("foo")), new Num(1), new MessageExpr(new Str("bar")), new MessageExpr(new Str("zoo"))),
                 ast("OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"])"));
     }
-    
+
+    /**
+     *  Parses OT4 expression
+     */
+    @Test
+    public void OTFourExpr(){
+        assertEquals(new OTFourExpr(new MessageExpr(new Str("s1")) , new MessageExpr(new Str("s2")) , new Num(1), new SecretExpr(new Str("x")), new SecretExpr(new Str("y")), new SecretExpr(new Str("z")), new SecretExpr(new Str("t"))),
+                ast("OT4((m[\"s1\"], m[\"s2\"])@1, s[\"x\"], s[\"y\"], s[\"z\"], s[\"t\"])"));
+    }
+
 }
