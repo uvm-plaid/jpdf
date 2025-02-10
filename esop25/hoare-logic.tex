@@ -43,7 +43,7 @@ verification. Hardpack eliminates program variables, while softpack may require 
 
   \inferrule[Seq]          
             {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_1}{\peq_2^2}}
-            {\htrip{\peq_1^1 \wedge \peq_1^2}{\cmd_1;\cmd_2}{\peq_1^2 \wedge \peq_1^2}}
+            {\htrip{\peq_1^1 \wedge \peq_1^2}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2}}
 
   \inferrule[Let]
             {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}}
