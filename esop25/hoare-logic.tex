@@ -1,0 +1,74 @@
+\subsection{Hoare Logic}
+
+\newcommand{\htrip}[3]{\{ #1 \}\ #2\ \{ #3 \}}
+\newcommand{\peq}{\notg{\eqs}}
+\newcommand{\ptoeq}[1]{\toeq{#1}}
+\newcommand{\eqtrue}{\mathrm{T}}
+
+Adding basic types to command function declarations to support generalize pre/post conditions. 
+
+$$
+\begin{array}{rcl@{\hspace{4mm}}r}
+\tau &::=& \fieldp{p} \mid \mathit{string} \mid \mathit{cid} \mid \{ \flab_1 : \tau_1; \ldots; \flab_n : \tau_n \} & \gdesc{basic types}\\[2mm]
+\mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y : \tau,\ldots,y : \tau) \{ \cmd \} & \textit{functions}
+\end{array}
+$$
+\medskip
+
+\noindent This is the generalized rule for entailment:
+
+$$
+\inferrule[GenEntails]
+          {\mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\ \peq_1[\mv_1/y_n \cdots \mv_n/y_n] \redx \eqs_1 \\
+           \peq_2[\mv_1/y_n \cdots \mv_n/y_n] \redx \eqs_2 \\ \eqs_1 \models \eqs_2}
+          {\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_2 }
+$$
+
+The following are generalized Hoare triple computations. Hard and soft pack rules allow for compositional
+verification. Hardpack eliminates program variables, while softpack may require less programmer overhead. 
+\begin{mathpar}
+  \inferrule[Mesg]
+            {}
+            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \ptoeq{\elab{e_2}{e_3}}}}
+
+  %\inferrule[Encode]
+  %          {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
+  %            \eqs \models x \eop \phi\\
+  %            \atj{\phi}{R}{\ty}}
+  %          {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(x : \ty)}{R}{\varnothing}{\eqs}}
+  %
+  \inferrule[Assert]
+            {}
+            {\htrip{\ptoeq{\elab{e_1}{e_3}} \eop \ptoeq{\elab{e_2}{e_3}}}{\elab{\assert{e_1 = e_2}}{e_3}}{\eqtrue}}
+
+  \inferrule[Seq]          
+            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_1}{\peq_2^2}}
+            {\htrip{\peq_1^1 \wedge \peq_1^2}{\cmd_1;\cmd_2}{\peq_1^2 \wedge \peq_1^2}}
+
+  \inferrule[Let]
+            {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}}
+            {\htrip{\peq_1}{\elet{y}{e}{\cmd}}{\peq_2}}
+
+  \inferrule[App]
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+            {\htrip{\peq_1[e_1/y_1 \cdots e_n/y_n]}{f(e_1,\ldots,e_n)}{\peq_2[e_1/y_1 \cdots e_n/y_n]}}
+
+  \inferrule[Fn]
+            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \htrip{\peq_1}{\cmd}{\peq_2}}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+
+  \inferrule[Hardpack]
+            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
+              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
+              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \wedge \peq_2' \models \peq_1' \wedge \peq_2 }
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+
+  \inferrule[Softpack]
+            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
+              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
+              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \wedge \peq' \wedge \peq_2' \models \peq_2 }
+            {\htrip{\peq_1' \wedge \peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2' \wedge \peq_2}}
+\end{mathpar}
+
+
+% https://tchajed.github.io/sys-verif-fa24/notes/hoare.html#example-consequences-of-bind-rule
