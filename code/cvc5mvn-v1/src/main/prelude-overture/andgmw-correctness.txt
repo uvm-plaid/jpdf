@@ -1,0 +1,30 @@
+exprfunctions:
+
+not(x){ x + 1 }
+
+mux4(s1, s2, b1, b2, b3, b4){
+  ((s1 * s2) * b4) +
+  ((s1 * not(s2)) * b3) +
+  ((not(s1) * s2) * b2) +
+  ((not(s1) * not(s2)) * b1)
+}
+
+andtablegmw(x, y, z) {
+  let r11 = r[z] + (m[x] + 1) * (m[y] + 1) in
+  let r10 = r[z] + (m[x] + 1) * (m[y] + 0) in
+  let r01 = r[z] + (m[x] + 0) * (m[y] + 1) in
+  let r00 = r[z] + (m[x] + 0) * (m[y] + 0) in
+  { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
+}
+
+cmdfunctions:
+
+andgmw(z, x, y) {
+  let table = andtablegmw(x,y,z) in
+  m[z]@2 := OT4((m[x], m[y])@2, table.row4, table.row3, table.row2, table.row1)@1;
+  m[z]@1 := r[z]@1
+}
+
+main(){ andgmw("g1","x","z") }
+
+postcondition: (m["g1"]@1 + m["g1"]@2 == (m["x"]@1 + m["x"]@2) * (m["z"]@1 + m["z"]@2))

@@ -1,0 +1,8 @@
+
+cmdfunctions:
+f(s) {
+  p[s] := m[s]@1
+}
+main() {
+  f("x")
+}

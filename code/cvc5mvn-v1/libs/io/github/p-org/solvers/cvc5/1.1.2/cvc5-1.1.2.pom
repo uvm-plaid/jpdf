@@ -1,0 +1,27 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.github.p-org.solvers</groupId>
+    <artifactId>cvc5</artifactId>
+    <version>1.1.2</version>
+    <packaging>jar</packaging>
+    <name>CVC5 Java Bindings</name>
+    <description>CVC5 Java Bindings</description>
+    <url>https://github.com/cvc5/cvc5</url>
+
+    <developers>
+        <developer>
+            <url>${project.url}</url>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <url>${project.url}</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>${project.url}</url>
+    </scm>
+
+</project>

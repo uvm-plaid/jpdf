@@ -1,0 +1,46 @@
+exprfunctions:
+
+cmdfunctions:
+
+_open(x,i1,i2){
+    m[x++"exts"]@i1 := m[x++"s"]@i2;
+    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
+}
+
+open(x) { _open(x,1,2); _open(x,2,1) }
+
+_sum(z, x, y, i){
+    m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i
+}
+
+sum(z,x,y){ _sum(z,x,y,1); _sum(z,x,y,2) }
+
+_mult(z, x, y, i) {
+    m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i
+}
+
+mult(z,x,y) {
+    sum(z++"d", x, z++"a");
+    open(z++"d");
+    sum(z++"e", y, z++"b");
+    open(z++"e"); 
+    _mult(z,x,y,1); _mult(z,x,y,2)
+}
+
+main(){
+    sum("z","x","y");
+    open("z");
+    
+    m["kc"]@2 := (m["ka"] * m["kb"])@2;
+    m["kas"]@1 := (m["ka"] + -m["kas"])@2;
+    m["kbs"]@1 := (m["kb"] + -m["kbs"])@2;
+    m["kcs"]@1 := (m["kc"] + -m["kcs"])@2;
+
+    mult("k","i","j");
+    open("k")
+}
+
+postcondition: (
+m["z"]@1 == ((m["xs"]@1 + m["xs"]@2) + (m["ys"]@1 + m["ys"]@2)) AND
+m["k"]@1 == ((m["is"]@1 + m["is"]@2) * (m["js"]@1 + m["js"]@2))
+)

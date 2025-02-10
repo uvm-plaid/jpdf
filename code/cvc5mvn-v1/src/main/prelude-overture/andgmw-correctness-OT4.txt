@@ -1,0 +1,13 @@
+
+cmdfunctions:
+
+andgmw(z, x, y) {
+  m[x ++ "2"]@1 := m[x]@2;
+  m[y ++ "2"]@1 := m[y]@2;
+  m[z]@2 := OT4((m["x2"], m["y2"])@2, r[z] + (m[x] + 0) * (m[y] + 0), r[z] + (m[x] + 0) * (m[y] + 1),r[z] + (m[x] + 1) * (m[y] + 0), r[z] + (m[x] + 1) * (m[y] + 1))@1;
+  m[z]@1 := r[z]@1
+}
+
+main(){ andgmw("g1","x","z") }
+
+postcondition: (m["g1"]@1 + m["g1"]@2 == (m["x"]@1 + m["x"]@2) * (m["z"]@1 + m["z"]@2))
