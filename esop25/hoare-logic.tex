@@ -42,7 +42,7 @@ verification. Hardpack eliminates program variables, while softpack may require 
             {\htrip{\ptoeq{\elab{e_1}{e_3}} \eop \ptoeq{\elab{e_2}{e_3}}}{\elab{\assert{e_1 = e_2}}{e_3}}{\eqtrue}}
 
   \inferrule[Seq]          
-            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_1}{\peq_2^2}}
+            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}}
             {\htrip{\peq_1^1 \wedge \peq_1^2}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2}}
 
   \inferrule[Let]
