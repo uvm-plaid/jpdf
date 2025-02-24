@@ -66,7 +66,7 @@ verification. Hardpack eliminates program variables, while softpack may require 
   \inferrule[Softpack]
             {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
               \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
-              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \wedge \peq' \wedge \peq_2' \models \peq_2 }
+              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \wedge \peq_1' \wedge \peq_2' \models \peq_2 }
             {\htrip{\peq_1' \wedge \peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2' \wedge \peq_2}}
 \end{mathpar}
 
