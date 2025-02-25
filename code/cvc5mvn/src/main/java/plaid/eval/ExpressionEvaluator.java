@@ -4,6 +4,7 @@ import plaid.ast.PreludeExpression;
 import plaid.ast.*;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * operational semantics for Prelude Expressions
@@ -24,7 +25,6 @@ public class ExpressionEvaluator {
      * Evaluate Prelude Expressions
      * @param e
      * @return Overture Expressions
-     * @throws Exception
      */
     public PreludeExpression toOverture(PreludeExpression e) {
         return switch(e){
@@ -90,7 +90,7 @@ public class ExpressionEvaluator {
             }
             case FieldExpr fe -> {
                 Map<Identifier, PreludeExpression> field = new HashMap<>();
-                for(Map.Entry<Identifier, PreludeExpression> element : fe.elements().entrySet()){
+                for(Entry<Identifier, PreludeExpression> element : fe.elements().entrySet()){
                     field.put(element.getKey(), toOverture(element.getValue()));
                 }
 
@@ -109,5 +109,32 @@ public class ExpressionEvaluator {
         };
     }
 
+    public ConstraintExpr evaluate(ConstraintExpr e) {
+        return switch (e) {
+            case AndConstraintExpr x -> new AndConstraintExpr(evaluate(x.e1()), evaluate(x.e2()));
+            case NotConstraintExpr x -> new NotConstraintExpr(evaluate(x.e()));
+            case EqualConstraintExpr x -> new EqualConstraintExpr(toOverture(x.e1()), toOverture(x.e2()));
+            case FunctionCallExpr x -> {
+                ConstraintFunction function = program.resolveConstraintFunction(x.fname());
+                List<Identifier> formalParams = function.params();
+                List<PreludeExpression> actualParams = x
+                        .parameters()
+                        .stream()
+                        .map(this::toOverture)
+                        .toList();
 
+                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
+                for (int i = 0; i < actualParams.size(); i++) {
+                    bindings.put(formalParams.get(i), actualParams.get(i));
+                }
+
+                binding_list.add(bindings);
+                ConstraintExpr result = evaluate(function.body());
+                binding_list.removeLast();
+
+                yield result;
+            }
+            default -> throw new IllegalArgumentException("Bad constraint");
+        };
+    }
 }

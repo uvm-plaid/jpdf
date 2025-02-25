@@ -1,7 +1,10 @@
 // define lexer and parser rules in a single combined grammar file
 grammar Prelude;
 
-program : exprfuncsection? cmdfuncsection? precondsection? postcondsection? EOF;
+program : exprfuncsection? cmdfuncsection? constraintfuncsection? precondsection? postcondsection? EOF;
+
+constraintfuncsection : 'constraintfunctions:' constraintfunction* ;
+constraintfunction : ident '(' (ident (',' ident)*)? ')' '{' constraintExpr '}' #ConstraintFunc ;
 
 exprfuncsection : 'exprfunctions:' exprfunction* ;
 exprfunction : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc ;
@@ -17,6 +20,8 @@ constraintExpr
     | expr '==' expr #EqualConstraintExpr
     | 'NOT' constraintExpr #NotConstraintExpr
     | constraintExpr 'AND' constraintExpr #AndConstraintExpr
+    | ident '(' (expr (',' expr)*)? ')' #FunctionCallConstraintExpr
+    | ident #IdentConstraintExpr
     ;
 
 expr

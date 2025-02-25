@@ -11,7 +11,7 @@ public class CommandEvaluatorTest {
 
     private PreludeCommand eval(String src, List<CommandFunction> commandFunctions){
         PreludeCommand ast = Loader.toCommand(src);
-        CommandEvaluator commandEvaluator = new CommandEvaluator(new Program(commandFunctions, List.of(), null, null));
+        CommandEvaluator commandEvaluator = new CommandEvaluator(new Program(commandFunctions, List.of(), List.of(), null, null));
         return commandEvaluator.evalInstruction(ast);
     }
 

@@ -1,5 +1,3 @@
 package plaid.ast
 
-trait ConstraintExpr extends Node{
-
-}
+trait ConstraintExpr extends Node

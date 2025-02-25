@@ -14,7 +14,6 @@ import plaid.ast.PreludeCommand;
 import plaid.ast.Program;
 import plaid.eval.ProgramEvaluator;
 
-import java.util.Collection;
 import java.util.Collections;
 
 import static org.junit.Assert.assertFalse;

@@ -2,9 +2,11 @@ package plaid.antlr;
 
 import plaid.PreludeBaseListener;
 import plaid.PreludeParser.CommandFuncContext;
+import plaid.PreludeParser.ConstraintFuncContext;
 import plaid.PreludeParser.ExprFuncContext;
 import plaid.PreludeParser.IdentContext;
 import plaid.ast.CommandFunction;
+import plaid.ast.ConstraintFunction;
 import plaid.ast.ExprFunction;
 import plaid.ast.Identifier;
 
@@ -15,6 +17,7 @@ public class FunctionListener extends PreludeBaseListener {
 
     private final List<ExprFunction> exprFunctions = new ArrayList<>();
     private final List<CommandFunction> commandFunctions = new ArrayList<>();
+    private final List<ConstraintFunction> constraintFunctions = new ArrayList<>();
 
     public List<ExprFunction> getExprFunctions() {
         return exprFunctions;
@@ -22,6 +25,10 @@ public class FunctionListener extends PreludeBaseListener {
 
     public List<CommandFunction> getCommandFunctions() {
         return commandFunctions;
+    }
+
+    public List<ConstraintFunction> getConstraintFunctions() {
+        return constraintFunctions;
     }
 
     private List<Identifier> toIdentifiers(List<IdentContext> contexts) {
@@ -43,4 +50,11 @@ public class FunctionListener extends PreludeBaseListener {
                 Loader.toCommand(ctx.command())));
     }
 
+    @Override
+    public void enterConstraintFunc(ConstraintFuncContext ctx) {
+        constraintFunctions.add(new ConstraintFunction(
+                new Identifier(ctx.ident(0).getText()),
+                toIdentifiers(ctx.ident()),
+                Loader.toConstraintExpression(ctx.constraintExpr())));
+    }
 }

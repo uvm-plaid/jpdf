@@ -1,3 +1,3 @@
 package plaid.ast
 
-case class Identifier(name: String) extends PreludeExpression
+case class Identifier(name: String) extends PreludeExpression, ConstraintExpr

@@ -9,10 +9,12 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import plaid.antlr.Loader;
+import plaid.ast.ConstraintExpr;
 import plaid.ast.PreludeCommand;
 import plaid.ast.Program;
 import plaid.cvc.TermFactory;
 import plaid.cvc.Verifier;
+import plaid.eval.ExpressionEvaluator;
 import plaid.eval.OvertureChecker;
 import plaid.eval.ProgramEvaluator;
 
@@ -21,12 +23,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Stream;
 
 import static plaid.cvc.CvcUtils.mkFiniteFieldSort;
 
 @Command(name="prelude", version="prelude-dev", mixinStandardHelpOptions=true)
 public class App implements Runnable {
+
+    private TermFactory termFactory;
 
     @Option(names={"--field-size", "-s"}, defaultValue="2", description="Order of the finite field")
     String fieldSize;
@@ -43,7 +46,7 @@ public class App implements Runnable {
     public void run() {
         TermManager termManager = new TermManager();
         Sort sort = mkFiniteFieldSort(termManager, fieldSize, 10);
-        TermFactory termFactory = new TermFactory(termManager, sort);
+        termFactory = new TermFactory(termManager, sort);
         Verifier verifier = new Verifier(termFactory);
 
         // separate prelude source code and constraints
@@ -52,8 +55,8 @@ public class App implements Runnable {
         PreludeCommand protocol = new ProgramEvaluator(Loader.toProgram(program)).eval();
         Term overtureTerms = termFactory.toTerms(protocol);
         
-        Term preconditionTerm = programAST.precondition() == null? null : termFactory.constraintToTerm(programAST.precondition());
-        Term postconditionTerm = programAST.postcondition() == null? null:  termFactory.constraintToTerm(programAST.postcondition());
+        Term preconditionTerm = evaluateConstraint(programAST, programAST.precondition());
+        Term postconditionTerm = evaluateConstraint(programAST, programAST.postcondition());
 
         if (!OvertureChecker.checkOverture(protocol)) {
             System.out.println("Overture protocol is invalid");
@@ -86,6 +89,14 @@ public class App implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Term evaluateConstraint(Program program, ConstraintExpr expr) {
+        if (expr == null) {
+            return null;
+        }
+        ConstraintExpr eval = new ExpressionEvaluator(program).evaluate(expr);
+        return termFactory.constraintToTerm(eval);
     }
 
 }

@@ -1,0 +1,5 @@
+exprfunctions: f(i) { out@i }
+cmdfunctions: main() { out@1 := m["x"]@1 }
+constraintfunctions: cf(i, b) { f(i) == b }
+precondition: (m["x"]@1 == 0)
+postcondition: (cf(1, 0))

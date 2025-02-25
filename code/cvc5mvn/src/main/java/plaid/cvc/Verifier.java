@@ -58,6 +58,9 @@ public class Verifier {
      * @return
      */
     public boolean entails(Term e1, Term e2) {
+        if (e2 == null) {
+            return true;
+        }
         Term notE2 = termFactory.getTermManager().mkTerm(Kind.NOT, e2);
         Term e1_entails_notE2 = termFactory.getTermManager().mkTerm(Kind.AND, e1, notE2);
         return !satisfies(e1_entails_notE2);

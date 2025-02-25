@@ -104,7 +104,7 @@ public class Loader {
         
         ConstraintExpr precondition =  ctx.precondsection() == null? null : toConstraintExpression(ctx.precondsection().constraintExpr());
         ConstraintExpr postcondition = ctx.postcondsection() == null? null : toConstraintExpression(ctx.postcondsection().constraintExpr()); 
-        return new Program(listener.getCommandFunctions(), listener.getExprFunctions(), precondition, postcondition);
+        return new Program(listener.getCommandFunctions(), listener.getExprFunctions(), listener.getConstraintFunctions(), precondition, postcondition);
     }
 
     /**

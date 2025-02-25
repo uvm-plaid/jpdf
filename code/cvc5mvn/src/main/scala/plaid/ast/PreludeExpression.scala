@@ -1,5 +1,3 @@
 package plaid.ast
 
-trait PreludeExpression extends Node{
-
-}
+trait PreludeExpression extends Node

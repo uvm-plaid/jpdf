@@ -15,7 +15,7 @@ public class ExpressionEvaluatorTest {
 
     private PreludeExpression eval(String src, List<ExprFunction> exprFunctions){
         PreludeExpression ast = Loader.toExpression(src);
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), exprFunctions, null, null));
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), exprFunctions, List.of(), null, null));
         return expressionEvaluator.toOverture(ast);
     }
     /**
@@ -42,7 +42,7 @@ public class ExpressionEvaluatorTest {
     @Test
     public void letSubstitution(){
         PreludeExpression letExpr = Loader.toExpression("let r11 = 3 in r11");
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of() , List.of(), null, null));
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), List.of(), List.of(), null, null));
 
         PreludeExpression result = expressionEvaluator.toOverture(letExpr);
         assertEquals(new Num(3), result);
@@ -54,7 +54,7 @@ public class ExpressionEvaluatorTest {
     @Test
     public void doubleLetSubstitution(){
         PreludeExpression letExpr = Loader.toExpression("let r11 = 3 in let r10 = 4 in r11 + r10");
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of() , List.of(), null, null));
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), List.of(), List.of(), null, null));
 
         PreludeExpression result = expressionEvaluator.toOverture(letExpr);
         assertEquals(new PlusExpr(new Num(3), new Num(4)), result);
@@ -66,7 +66,7 @@ public class ExpressionEvaluatorTest {
     @Test
     public void evalLetExpr(){
         PreludeExpression letExpr = Loader.toExpression("let y = 3 in let x = y + 1 in x + y ");
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), List.of(), null, null));
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), List.of(), List.of(), null, null));
         PreludeExpression result = expressionEvaluator.toOverture(letExpr);
         assertEquals(new PlusExpr(new PlusExpr(new Num(3), new Num(1)), new Num(3)), result);
     }
@@ -118,4 +118,86 @@ public class ExpressionEvaluatorTest {
     public void evalFieldSelection(){
 
     }
+
+    /**
+     * When a constraint contains a prelude expression that uses string
+     * concatenation, the prelude expression is reduced to a single string
+     * when the constraint is evaluated.
+     */
+    @Test
+    public void constraintEvaluationReducesConcatenation() {
+        Program program = new Program(List.of(), List.of(), List.of(), null, null);
+        ConstraintExpr expr = Loader.toConstraintExpression("2 == m[\"x\" ++ \"y\"]@1");
+        ExpressionEvaluator evaluator = new ExpressionEvaluator(program);
+        ConstraintExpr actual = evaluator.evaluate(expr);
+        ConstraintExpr expected = Loader.toConstraintExpression("2 == m[\"xy\"]@1");
+        assertEquals(expected, actual);
+    }
+
+    /**
+     * Prelude function calls can be embedded in the prelude expressions of
+     * constraints, and they reduce during constraint evaluation.
+     */
+    @Test
+    public void constraintEvaluationPreludeFunctions() {
+        Program program = Loader.toProgram("exprfunctions: f(i) {out@i}");
+        ConstraintExpr expr = Loader.toConstraintExpression("f(1) == 2");
+        ExpressionEvaluator evaluator = new ExpressionEvaluator(program);
+        ConstraintExpr actual = evaluator.evaluate(expr);
+        ConstraintExpr expected = Loader.toConstraintExpression("out@1 == 2");
+        assertEquals(expected, actual);
+    }
+
+    /**
+     * The evaluation of prelude expressions still happens even when the
+     * prelude expressions are embedded within complex constraints.
+     */
+    @Test
+    public void constraintEvaluationPropagation() {
+        Program program = Loader.toProgram("exprfunctions: f() {1}");
+        ExpressionEvaluator evaluator = new ExpressionEvaluator(program);
+
+        // Left side of AND
+        assertEquals(
+                Loader.toConstraintExpression("1 == 2 AND 3 == 3"),
+                evaluator.evaluate(Loader.toConstraintExpression("f() == 2 AND 3 == 3")));
+
+        // Right side of AND
+        assertEquals(
+                Loader.toConstraintExpression("3 == 3 AND 1 == 2"),
+                evaluator.evaluate(Loader.toConstraintExpression("3 == 3 AND f() == 2")));
+
+        // NOT
+        assertEquals(
+                Loader.toConstraintExpression("NOT (1 == 2)"),
+                evaluator.evaluate(Loader.toConstraintExpression("NOT (f() == 2)")));
+    }
+
+    /**
+     * Constraint valued functions get called during constraint evaluation.
+     */
+    @Test
+    public void constraintValuedFunctions() {
+        Program program = Loader.toProgram("constraintfunctions: g(i) {3 == out@i}");
+        ConstraintExpr expr = Loader.toConstraintExpression("NOT g(1)");
+        ExpressionEvaluator evaluator = new ExpressionEvaluator(program);
+        ConstraintExpr actual = evaluator.evaluate(expr);
+        ConstraintExpr expected = Loader.toConstraintExpression("NOT (3 == out@1)");
+        assertEquals(expected, actual);
+    }
+
+    /**
+     * The prelude inside constraint valued functions get called during
+     * constraint evaluation.
+     */
+    @Test
+    public void constraintValuedFunctionsContainPrelude() {
+        Program program = Loader.toProgram("exprfunctions: f(i) {out@i} constraintfunctions: g(i) {3 == f(i)}");
+        ConstraintExpr expr = Loader.toConstraintExpression("NOT g(1)");
+        ExpressionEvaluator evaluator = new ExpressionEvaluator(program);
+        ConstraintExpr actual = evaluator.evaluate(expr);
+        ConstraintExpr expected = Loader.toConstraintExpression("NOT (3 == out@1)");
+        assertEquals(expected, actual);
+    }
+
 }
