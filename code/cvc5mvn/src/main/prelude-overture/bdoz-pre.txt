@@ -39,30 +39,40 @@ main(){
     open("k")
 }
 
-precondition: (
+constraintfunctions:
+
+// BDOZ MAC predicate
+MACOK(x, i1, i2) { m[x++"m"]@i2 == m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"]@i2) }
+
 // These are Beaver triple constraints. Party 3 is a phantom just for spec.
-m["kc"]@3 == m["ka"]@3 * m["kb"]@3 AND
-m["kas"]@1 + m["kas"]@2 == m["ka"]@3 AND
-m["kbs"]@1 + m["kbs"]@2 == m["kb"]@3 AND
-m["kcs"]@1 + m["kcs"]@2 == m["kc"]@3 AND
+BEAVERTRIP(x) {
+  m[x++"c"]@3 == m[x++"a"]@3 * m[x++"b"]@3 AND
+  m[x++"as"]@1 + m[x++"as"]@2 == m[x++"a"]@3 AND
+  m[x++"bs"]@1 + m[x++"bs"]@2 == m[x++"b"]@3 AND
+  m[x++"cs"]@1 + m[x++"cs"]@2 == m[x++"c"]@3
+}
+
+precondition: (
+// Beaver triple constraint for mult gate k
+BEAVERTRIP("k") AND
 
 // These are BDOZ MAC constraints for party 1 verification of party 2.
-m["kam"]@2 == m["kak"]@1 + (m["delta"]@1 * m["kas"]@2) AND
-m["kbm"]@2 == m["kbk"]@1 + (m["delta"]@1 * m["kbs"]@2) AND
-m["kcm"]@2 == m["kck"]@1 + (m["delta"]@1 * m["kcs"]@2) AND
-m["xm"]@2 == m["xk"]@1 + (m["delta"]@1 * m["xs"]@2) AND
-m["ym"]@2 == m["yk"]@1 + (m["delta"]@1 * m["ys"]@2) AND
-m["im"]@2 == m["ik"]@1 + (m["delta"]@1 * m["is"]@2) AND
-m["jm"]@2 == m["jk"]@1 + (m["delta"]@1 * m["js"]@2) AND
+MACOK("ka",1,2) AND
+MACOK("kb",1,2) AND
+MACOK("kc",1,2) AND
+MACOK("x",1,2) AND
+MACOK("y",1,2) AND
+MACOK("i",1,2) AND
+MACOK("j",1,2) AND
 
 // These are BDOZ MAC constraints for party 2 verification of party 1.
-m["kam"]@1 == m["kak"]@2 + (m["delta"]@2 * m["kas"]@1) AND
-m["kbm"]@1 == m["kbk"]@2 + (m["delta"]@2 * m["kbs"]@1) AND
-m["kcm"]@1 == m["kck"]@2 + (m["delta"]@2 * m["kcs"]@1) AND
-m["xm"]@1 == m["xk"]@2 + (m["delta"]@2 * m["xs"]@1) AND
-m["ym"]@1 == m["yk"]@2 + (m["delta"]@2 * m["ys"]@1) AND
-m["im"]@1 == m["ik"]@2 + (m["delta"]@2 * m["is"]@1) AND
-m["jm"]@1 == m["jk"]@2 + (m["delta"]@2 * m["js"]@1) 
+MACOK("ka",2,1) AND
+MACOK("kb",2,1) AND
+MACOK("kc",2,1) AND
+MACOK("x",2,1) AND
+MACOK("y",2,1) AND
+MACOK("i",2,1) AND
+MACOK("j",2,1) 
 )
 
 postcondition: (
