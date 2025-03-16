@@ -10,10 +10,8 @@ import plaid.PreludeParser.CommandContext;
 import plaid.PreludeParser.ExprContext;
 import plaid.PreludeParser.ProgramContext;
 import plaid.PreludeParser.ConstraintExprContext;
-import plaid.ast.PreludeCommand;
-import plaid.ast.PreludeExpression;
-import plaid.ast.Program;
-import plaid.ast.ConstraintExpr;
+import plaid.PreludeParser.TypeContext;
+import plaid.ast.*;
 
 /**
  * Support for converting Prelude source code into an abstract syntax tree.
@@ -22,7 +20,6 @@ public class Loader {
 
     /**
      * Creates a ANTLR4 parser for Prelude source code.
-     *
      * @param src Source code
      * @return ANTLR4 parser
      */
@@ -35,6 +32,15 @@ public class Loader {
         return parser;
     }
 
+    /**
+     * Convert an ANTLR TypeContext into AST
+     * @param ctx TypeContext 
+     * @return AST tree for Type alternatives
+     */
+    public static Type toType(TypeContext ctx){return new TypeVisitor().visit(ctx); }
+    
+    public static Type toType(String src){return toType(createParser(src).type());}
+    
     /**
      * Converts an ANTLR4 context into an abstract syntax tree for an expression.
      *

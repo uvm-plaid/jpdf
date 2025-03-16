@@ -38,7 +38,7 @@ public class CommandEvaluator {
                 // map former parameters to actual parameters
                 Map<Identifier, PreludeExpression> bindings = new HashMap<>();
                 for (int i = 0; i < actual_parameters.size(); i++){
-                    bindings.put(function.y().get(i), actual_parameters.get(i));
+                    bindings.put(function.typedVariables().get(i).y(), actual_parameters.get(i));
                 }
 
                 expressionEvaluator.binding_list.add(bindings);

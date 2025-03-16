@@ -19,7 +19,7 @@ public class ProgramParseTest {
      
                         cmdfunctions:
                 
-                        oneTimePad(x, y, z) {
+                        oneTimePad(x:string, y:string, z:string) {
                             m[z]@1 := (s[x] + not(r[y]))@2
                         }
                 
@@ -45,7 +45,7 @@ public class ProgramParseTest {
      
                         cmdfunctions:
                 
-                        oneTimePad(x, y, z) {
+                        oneTimePad(x:string , y:string, z:string) {
                             m[z]@1 := (s[x] + not(r[y]))@2
                         }
                 

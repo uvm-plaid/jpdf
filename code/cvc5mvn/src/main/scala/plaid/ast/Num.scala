@@ -1,4 +1,4 @@
 package plaid.ast
 import java.lang
 
-case class Num(num: Int) extends PreludeExpression
+case class Num(num: Int) extends PreludeExpression, Type

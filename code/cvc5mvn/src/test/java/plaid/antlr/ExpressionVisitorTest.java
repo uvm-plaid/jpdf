@@ -5,6 +5,7 @@ import plaid.ast.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.junit.Assert.assertEquals;
 
@@ -135,12 +136,12 @@ public class ExpressionVisitorTest {
      */
     @Test
     public void fieldExpr() {
-        assertEquals(new FieldExpr(Map.of()), ast("{}"));
-        assertEquals(new FieldExpr(Map.of(
-                new Identifier("a"), new Num(0))), ast("{a=0}"));
-        assertEquals(new FieldExpr(Map.of(
+        assertEquals(new FieldExpr(new TreeMap<>(Map.of())), ast("{}"));
+        assertEquals(new FieldExpr(new TreeMap<>(Map.of(
+                new Identifier("a"), new Num(0)))), ast("{a=0}"));
+        assertEquals(new FieldExpr(new TreeMap<>(Map.of(
                 new Identifier("a"), new Num(0),
-                new Identifier("b"), new Num(1))), ast("{a=0; b=1}"));
+                new Identifier("b"), new Num(1)))), ast("{a=0; b=1}"));
     }
 
     /**

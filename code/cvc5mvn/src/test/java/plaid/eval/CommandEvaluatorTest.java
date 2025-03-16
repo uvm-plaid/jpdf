@@ -4,6 +4,8 @@ import io.github.cvc5.Command;
 import org.junit.Test;
 import plaid.ast.*;
 import plaid.antlr.Loader;
+import scala.concurrent.impl.FutureConvertersImpl;
+
 import java.util.List;
 import static org.junit.Assert.assertEquals;
 
@@ -31,7 +33,9 @@ public class CommandEvaluatorTest {
      */
     @Test
     public void evalFunctionCallCommand(){
-        List<Identifier> parameters = List.of(new Identifier("n"), new Identifier("i1"), new Identifier("i2"));
+        List<TypedIdentifier> parameters = List.of(new TypedIdentifier(new Identifier("n"), new StringType()),
+                                                   new TypedIdentifier(new Identifier("i1"), new PartyIndexType()),
+                                                   new TypedIdentifier(new Identifier("i2"), new PartyIndexType()));
         PreludeCommand commands = Loader.toCommand("m[n]@i2 := (s[n] + r[n])@i1;\n" + "m[n]@i1 := r[n]@i1");
         CommandFunction commandFunction = new CommandFunction(new Identifier("encodegmw"), parameters, commands);
         List<CommandFunction> functionContext = List.of(commandFunction);
@@ -69,7 +73,10 @@ public class CommandEvaluatorTest {
     @Test
     public void evalAssertCommand(){
         // command function context
-        List<Identifier> formal_parameters = List.of(new Identifier("x"), new Identifier("i1"), new Identifier("i2"));
+        List<TypedIdentifier> formal_parameters = List.of(
+                new TypedIdentifier(new Identifier("x"), new StringType()),
+                new TypedIdentifier(new Identifier("i1"), new PartyIndexType()),
+                new TypedIdentifier(new Identifier("i2"), new PartyIndexType()));
         PreludeCommand functionBody =
                 Loader.toCommand("m[x++\"exts\"]@i1 := m[x++\"s\"]@i2;\n" +
                         "m[x++\"extm\"]@i1 := m[x++\"m\"]@i2;\n" +

@@ -7,6 +7,7 @@ import plaid.PreludeParser.MinusExprContext;
 import plaid.PreludeParser.PlusExprContext;
 import plaid.ast.*;
 
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static plaid.PreludeParser.AtExprContext;
@@ -52,9 +53,11 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
     @Override
     public FieldExpr visitFieldExpr(FieldExprContext ctx) {
-        return new FieldExpr(ctx.flddecl().stream().collect(Collectors.toMap(
+        TreeMap<Identifier, PreludeExpression> map = new TreeMap<>(ctx.flddecl().stream().collect(Collectors.toMap(
                 x -> new Identifier(x.ident().getText()),
                 x -> visit(x.expr()))));
+        
+        return new FieldExpr(map);
     }
 
     @Override

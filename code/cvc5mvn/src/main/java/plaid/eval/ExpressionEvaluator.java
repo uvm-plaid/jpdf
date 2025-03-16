@@ -1,5 +1,6 @@
 package plaid.eval;
 
+import org.antlr.runtime.tree.Tree;
 import plaid.ast.PreludeExpression;
 import plaid.ast.*;
 
@@ -25,6 +26,7 @@ public class ExpressionEvaluator {
      * Evaluate Prelude Expressions
      * @param e
      * @return Overture Expressions
+     * @throws Exception
      */
     public PreludeExpression toOverture(PreludeExpression e) {
         return switch(e){
@@ -89,8 +91,8 @@ public class ExpressionEvaluator {
                 yield result;
             }
             case FieldExpr fe -> {
-                Map<Identifier, PreludeExpression> field = new HashMap<>();
-                for(Entry<Identifier, PreludeExpression> element : fe.elements().entrySet()){
+                TreeMap<Identifier, PreludeExpression> field = new TreeMap<>();
+                for(Map.Entry<Identifier, PreludeExpression> element : fe.elements().entrySet()){
                     field.put(element.getKey(), toOverture(element.getValue()));
                 }
 

@@ -3,12 +3,7 @@ package plaid.antlr;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Test;
-import plaid.ast.AssignCommand;
-import plaid.ast.CommandFunction;
-import plaid.ast.ExprFunction;
-import plaid.ast.Identifier;
-import plaid.ast.Num;
-import plaid.ast.OutputExpr;
+import plaid.ast.*;
 
 import java.util.List;
 
@@ -67,16 +62,16 @@ public class FunctionListenerTest {
 
         CommandFunction g = new CommandFunction(
                 new Identifier("g"),
-                List.of(new Identifier("x")),
+                List.of(new TypedIdentifier(new Identifier("x"), new StringType())),
                 new AssignCommand(new OutputExpr(), new Num(2)));
 
         CommandFunction h = new CommandFunction(
                 new Identifier("h"),
-                List.of(new Identifier("x"), new Identifier("y")),
+                List.of(new TypedIdentifier(new Identifier("x"), new StringType()), new TypedIdentifier(new Identifier("i"), new PartyIndexType())),
                 new AssignCommand(new OutputExpr(), new Num(2)));
 
         assertFunctions(
-                "cmdfunctions: f() { out := 2 } g(x) { out := 2 } h(x, y) { out := 2 }",
+                "cmdfunctions: f() { out := 2 } g(x : string) { out := 2 } h(x : string, i : cid) { out := 2 }",
                 List.of(),
                 List.of(f, g, h));
     }

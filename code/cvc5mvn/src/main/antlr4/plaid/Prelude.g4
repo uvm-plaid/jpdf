@@ -10,7 +10,8 @@ exprfuncsection : 'exprfunctions:' exprfunction* ;
 exprfunction : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc ;
 
 cmdfuncsection : 'cmdfunctions:' cmdfunc* ;
-cmdfunc : ident '(' (ident (',' ident)*)? ')' '{' command '}' #CommandFunc ;
+cmdfunc : //ident '(' (ident (',' ident)*)? ')' '{' command '}' #CommandFunc
+          ident '(' (typedIdent (',' typedIdent)*)? ')' '{' command '}'  #CommandFunc ;
 
 precondsection : 'precondition: (' constraintExpr ')';
 postcondsection : 'postcondition: (' constraintExpr ')';
@@ -55,6 +56,12 @@ command
     | 'let' ident '=' expr 'in' command #LetCommand
     ;
 
+type
+    : 'cid' #PartyIndexType
+    | 'string' #StringType
+    | '{' (typedIdent (';' typedIdent)*)? '}' #RecordType ;
+
+typedIdent : ident ':' type;
 flddecl : ident '=' expr ;
 ident : IDENTIFIER ;
 
