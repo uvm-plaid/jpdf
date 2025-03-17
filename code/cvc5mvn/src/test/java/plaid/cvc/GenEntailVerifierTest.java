@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class GenEntailVerifierTest {
 
@@ -96,8 +96,12 @@ public class GenEntailVerifierTest {
         typing.put(new Identifier("i1"), new PartyIndexType());
         typing.put(new Identifier("z"), new StringType());
 
-
-        boolean result = genEntailVerifier.genEntails(List.of(typing), Loader.toConstraintExpression(e1), Loader.toConstraintExpression(e2));
-        assertEquals(true, result);
+        // e1 entails e2 
+        boolean result1 = genEntailVerifier.genEntails(List.of(typing), Loader.toConstraintExpression(e1), Loader.toConstraintExpression(e2));
+        assertTrue(result1);
+    
+        // e2 does not entail e1
+        boolean result2 = genEntailVerifier.genEntails(List.of(typing), Loader.toConstraintExpression(e2), Loader.toConstraintExpression(e1));
+        assertFalse(result2);
     }
 }

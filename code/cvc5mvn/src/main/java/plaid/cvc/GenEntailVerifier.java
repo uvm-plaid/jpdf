@@ -66,7 +66,7 @@ public class GenEntailVerifier {
             }
         }
         
-//        // TODO
+          // print out identifiers and their fresh values 
 //        for (Map<Identifier, PreludeExpression> bindings : bindingList) {
 //            for (Map.Entry<Identifier, PreludeExpression> entry : bindings.entrySet()) {
 //                System.out.println("id: " + entry.getKey());
