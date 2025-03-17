@@ -313,6 +313,8 @@ public class VerifierTest {
         assertTrue(command instanceof AssignCommand);
         assertTrue(verifier.satisfies(command));
     }
+    
+
 }
 
 

@@ -14,7 +14,7 @@ import java.util.Map.Entry;
 public class ExpressionEvaluator {
 
     private final Program program;
-    List<Map<Identifier, PreludeExpression>> binding_list;
+    public List<Map<Identifier, PreludeExpression>> binding_list;
 
     public ExpressionEvaluator(Program program) {
         this.program = program;
@@ -33,7 +33,19 @@ public class ExpressionEvaluator {
             // base cases
             case Str w -> new Str(w.str());
             case Num i -> new Num(i.num());
-            case Identifier id -> binding_list.getLast().get(id); // throws an error if the list doesn't contain the id
+            case Identifier id -> {
+                // TODO
+                PreludeExpression value = null;
+                for(Map<Identifier, PreludeExpression> bindings : binding_list){
+                    for(Map.Entry<Identifier, PreludeExpression> entry : bindings.entrySet()){
+                        if(entry.getKey().equals(id)){
+                            value = entry.getValue();
+                        }
+                    }
+                }
+                //yield binding_list.getLast().get(id); // original
+                yield value;
+            } // throws an error if the list doesn't contain the id
 
             case RandomExpr re -> new RandomExpr(toOverture(re.e()));
             case SecretExpr se -> new SecretExpr(toOverture(se.e()));
@@ -46,7 +58,6 @@ public class ExpressionEvaluator {
             case ConcatExpr ce -> {
                 Str s1 = (Str) toOverture(ce.e1());
                 Str s2 = (Str) toOverture(ce.e2());
-
                 yield new Str(s1.str() + s2.str());
             }
             case MinusExpr me -> new MinusExpr(toOverture(me.e()));
@@ -104,7 +115,9 @@ public class ExpressionEvaluator {
                 yield field.elements().get(fse.l());
             }
 
-            case AtExpr ae -> new AtExpr(toOverture(ae.e1()), toOverture(ae.e2()));
+            case AtExpr ae -> {
+                yield new AtExpr(toOverture(ae.e1()), toOverture(ae.e2()));
+            }
             case OTExpr oe -> new OTExpr(toOverture(oe.e1()), toOverture(oe.i1()), toOverture(oe.e2()), toOverture(oe.e3()));
             case OTFourExpr ofe -> new OTFourExpr(toOverture(ofe.s1()), toOverture(ofe.s2()), toOverture(ofe.i1()), toOverture(ofe.e1()), toOverture(ofe.e2()), toOverture(ofe.e3()), toOverture(ofe.e4()));
             default -> throw new IllegalArgumentException("Bad Expression");
