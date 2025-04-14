@@ -11,7 +11,7 @@ exprfunction : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc ;
 
 cmdfuncsection : 'cmdfunctions:' cmdfunc* ;
 cmdfunc : //ident '(' (ident (',' ident)*)? ')' '{' command '}' #CommandFunc
-          ident '(' (typedIdent (',' typedIdent)*)? ')' '{' command '}'  #CommandFunc ;
+          precondsection? ident '(' (typedIdent (',' typedIdent)*)? ')' '{' command '}' postcondsection? #CommandFunc ;
 
 precondsection : 'precondition: (' constraintExpr ')';
 postcondsection : 'postcondition: (' constraintExpr ')';
@@ -20,9 +20,9 @@ constraintExpr
     : '(' constraintExpr ')' #ParenConstraintExpr
     | expr '==' expr #EqualConstraintExpr
     | 'NOT' constraintExpr #NotConstraintExpr
-    | constraintExpr 'AND' constraintExpr #AndConstraintExpr
+    | constraintExpr 'AND' constraintExpr #AndConstraintExpr //left associative
     | ident '(' (expr (',' expr)*)? ')' #FunctionCallConstraintExpr
-    | ident #IdentConstraintExpr
+    | 'T' #TrueConstraintExpr
     ;
 
 expr
@@ -49,11 +49,11 @@ expr
     ;
 
 command
-    : command (';' command) #CommandList
-    | expr ':=' expr #AssignCommand
-    | 'assert' '(' expr '=' expr ')' '@' expr #AssertCommand
-    | ident '(' (expr (',' expr)*)? ')' #FunctionCallCommand
+    : command (';' command) #CommandList // right associative
     | 'let' ident '=' expr 'in' command #LetCommand
+    | 'assert' '(' expr '=' expr ')' '@' expr #AssertCommand
+    | expr ':=' expr #AssignCommand
+    | ident '(' (expr (',' expr)*)? ')' #FunctionCallCommand
     ;
 
 type

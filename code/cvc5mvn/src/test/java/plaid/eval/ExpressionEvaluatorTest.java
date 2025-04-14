@@ -27,7 +27,7 @@ public class ExpressionEvaluatorTest {
     }
 
     /**
-     * evaluate concatenation
+     * evalConstraint concatenation
      */
     @Test
     public void evalConcat(){
@@ -61,7 +61,7 @@ public class ExpressionEvaluatorTest {
     }
 
     /**
-     * expression in let area should evaluate to value before substitution
+     * expression in let area should evalConstraint to value before substitution
      */
     @Test
     public void evalLetExpr(){
@@ -79,7 +79,7 @@ public class ExpressionEvaluatorTest {
         assertEquals(new PlusExpr(new Num(5), new Num(3)) , eval("let x = 3 in let x = 5 in x+3", List.of()));
     }
     /**
-     * evaluate function call (with let expr, field expr, field selection)
+     * evalConstraint function call (with let expr, field expr, field selection)
      */
     @Test
     public void evalfunctionCall(){
@@ -105,14 +105,14 @@ public class ExpressionEvaluatorTest {
     }
 
     /**
-     * evaluate field record
+     * evalConstraint field record
      */
     @Test
     public void evalFieldExpr(){
 
     }
     /**
-     * evaluate field selection
+     * evalConstraint field selection
      */
     @Test
     public void evalFieldSelection(){

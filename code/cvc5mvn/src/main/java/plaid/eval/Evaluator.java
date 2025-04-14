@@ -1,32 +1,23 @@
 package plaid.eval;
 
-import org.antlr.runtime.tree.Tree;
-import plaid.ast.PreludeExpression;
 import plaid.ast.*;
 
 import java.util.*;
-import java.util.Map.Entry;
 
-/**
- * operational semantics for Prelude Expressions
-  */
-
-public class ExpressionEvaluator {
-
+public class Evaluator {
     private final Program program;
     public List<Map<Identifier, PreludeExpression>> binding_list;
-
-    public ExpressionEvaluator(Program program) {
-        this.program = program;
+    
+    public Evaluator(Program program){
+        this.program = program; 
         binding_list = new LinkedList<>();
         binding_list.add(new HashMap<>());
     }
 
     /**
-     * Evaluate Prelude Expressions
-     * @param e
-     * @return Overture Expressions
-     * @throws Exception
+     * Evaluate Prelude Expression 
+     * @param e Prelude Expression
+     * @return Overture 
      */
     public PreludeExpression toOverture(PreludeExpression e) {
         return switch(e){
@@ -35,18 +26,21 @@ public class ExpressionEvaluator {
             case Num i -> new Num(i.num());
             case Identifier id -> //binding_list.getLast().get(id);
             {
-
-                PreludeExpression value = null;
+                // if identifier is bound to value 
                 for(Map<Identifier, PreludeExpression> bindings : binding_list){
                     for(Map.Entry<Identifier, PreludeExpression> entry : bindings.entrySet()){
                         if(entry.getKey().equals(id)){
-                            value = entry.getValue();
+                            // return the value 
+                            yield entry.getValue();
                         }
                     }
                 }
                 //yield binding_list.getLast().get(id); // original
-                yield value;
+                // otherwise the id itself 
+                // TODO:  hopefully Overture checker catches non-string type of identifiers.
+                yield id;
             } // throws an error if the list doesn't contain the id
+           
 
             case RandomExpr re -> new RandomExpr(toOverture(re.e()));
             case SecretExpr se -> new SecretExpr(toOverture(se.e()));
@@ -116,19 +110,90 @@ public class ExpressionEvaluator {
                 yield field.elements().get(fse.l());
             }
 
-            case AtExpr ae -> {
-                yield new AtExpr(toOverture(ae.e1()), toOverture(ae.e2()));
-            }
+            case AtExpr ae -> new AtExpr(toOverture(ae.e1()), toOverture(ae.e2()));
+            
             case OTExpr oe -> new OTExpr(toOverture(oe.e1()), toOverture(oe.i1()), toOverture(oe.e2()), toOverture(oe.e3()));
             case OTFourExpr ofe -> new OTFourExpr(toOverture(ofe.s1()), toOverture(ofe.s2()), toOverture(ofe.i1()), toOverture(ofe.e1()), toOverture(ofe.e2()), toOverture(ofe.e3()), toOverture(ofe.e4()));
             default -> throw new IllegalArgumentException("Bad Expression");
         };
     }
 
-    public ConstraintExpr evaluate(ConstraintExpr e) {
+    /**
+     * Evaluate Prelude Command 
+     * @param instr Prelude command
+     * @return Overture 
+     */
+    public PreludeCommand evalInstruction(PreludeCommand instr) {
+        return switch (instr) {
+
+            case AssignCommand assignCommand ->
+                    new AssignCommand(toOverture(assignCommand.e1()), toOverture(assignCommand.e2()));
+
+            case FunctionCallCommand functionCall -> {
+                // evalConstraint actual parameters first
+                List<PreludeExpression> actual_parameters =
+                        functionCall.parameters().stream().map(this::toOverture).toList();
+
+                // find a function with the same function name
+                CommandFunction function = program.resolveCommandFunction(functionCall.fname());
+
+                // map former parameters to actual parameters
+                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
+                for (int i = 0; i < actual_parameters.size(); i++) {
+                    bindings.put(function.typedVariables().get(i).y(), actual_parameters.get(i));
+                }
+
+                binding_list.add(bindings);
+
+                // evalConstraint the function body with the actual parameters
+                PreludeCommand result = evalInstruction(function.c());
+                //binding_list.removeLast(); // have to comment out for a constraint to evaluate 
+
+                yield result;
+            }
+
+            case LetCommand letCommand -> {
+                // let y = e in c
+                // evalConstraint e
+                PreludeExpression v = toOverture(letCommand.e());
+                // let y = v in c
+                Map<Identifier, PreludeExpression> binding = new HashMap<>(binding_list.getLast());
+                binding.put(letCommand.y(), v);
+                binding_list.addLast(binding);
+
+                PreludeCommand result = evalInstruction(letCommand.c());
+                binding_list.removeLast();
+                yield result;
+            }
+
+            case CommandList commandList -> {
+                List<PreludeCommand> commands = commandList
+                        .commands()
+                        .stream()
+                        .map(this::evalInstruction)
+                        .toList();
+
+                yield new CommandList(commands);
+            }
+
+            case AssertCommand assertCommand ->
+                    new AssertCommand(toOverture(assertCommand.e1()), toOverture(assertCommand.e2()), toOverture(assertCommand.e3()));
+
+            default -> throw new IllegalArgumentException("Bad instruction");
+
+        };
+    }
+
+    /**
+     * Evalute Constraint Expression 
+     * @param e ConstraintExpr
+     * @return constraints
+     */
+
+    public ConstraintExpr evalConstraint(ConstraintExpr e) {
         return switch (e) {
-            case AndConstraintExpr x -> new AndConstraintExpr(evaluate(x.e1()), evaluate(x.e2()));
-            case NotConstraintExpr x -> new NotConstraintExpr(evaluate(x.e()));
+            case AndConstraintExpr x -> new AndConstraintExpr(evalConstraint(x.e1()), evalConstraint(x.e2()));
+            case NotConstraintExpr x -> new NotConstraintExpr(evalConstraint(x.e()));
             case EqualConstraintExpr x -> new EqualConstraintExpr(toOverture(x.e1()), toOverture(x.e2()));
             case FunctionCallExpr x -> {
                 ConstraintFunction function = program.resolveConstraintFunction(x.fname());
@@ -145,12 +210,14 @@ public class ExpressionEvaluator {
                 }
 
                 binding_list.add(bindings);
-                ConstraintExpr result = evaluate(function.body());
+                ConstraintExpr result = evalConstraint(function.body());
                 binding_list.removeLast();
 
                 yield result;
             }
+            case TrueConstraintExpr x -> x;
             default -> throw new IllegalArgumentException("Bad constraint");
         };
     }
+
 }

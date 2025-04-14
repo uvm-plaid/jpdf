@@ -29,7 +29,7 @@ public class CvcUtilsTest {
     }
 
     /**
-     * Number nodes in the AST evaluate to integers.
+     * Number nodes in the AST evalConstraint to integers.
      */
     @Test
     public void intEval() {
@@ -38,7 +38,7 @@ public class CvcUtilsTest {
     }
 
     /**
-     * Nodes in the AST that are not numbers do not evaluate to integers.
+     * Nodes in the AST that are not numbers do not evalConstraint to integers.
      */
     @Test(expected = IllegalArgumentException.class)
     public void intEvalUnsupported() {
@@ -46,7 +46,7 @@ public class CvcUtilsTest {
     }
 
     /**
-     * String nodes in the AST evaluate to strings.
+     * String nodes in the AST evalConstraint to strings.
      */
     @Test
     public void stringEval() {
@@ -55,7 +55,7 @@ public class CvcUtilsTest {
     }
 
     /**
-     * Nodes in the AST that are not strings do not evaluate to strings.
+     * Nodes in the AST that are not strings do not evalConstraint to strings.
      */
     @Test(expected = IllegalArgumentException.class)
     public void stringEvalUnsupported() {

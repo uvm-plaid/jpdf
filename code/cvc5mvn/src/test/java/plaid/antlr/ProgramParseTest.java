@@ -55,8 +55,9 @@ public class ProgramParseTest {
                         postcondition: (m["pan"]@1 ==  s["foo"]@2 + (r["bar"]@2+1))
                 """);
 
-        //System.out.print(program);
+        //System.out.println("program test: " + program);
         assertNotNull(program);
     }
-    
+
+
 }

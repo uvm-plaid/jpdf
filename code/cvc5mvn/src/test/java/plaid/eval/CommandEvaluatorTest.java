@@ -18,7 +18,7 @@ public class CommandEvaluatorTest {
     }
 
     /**
-     * evaluate assign command
+     * evalConstraint assign command
      */
     @Test
     public void evalAssignCommand(){
@@ -29,7 +29,7 @@ public class CommandEvaluatorTest {
     }
 
     /**
-     * evaluate function call command
+     * evalConstraint function call command
      */
     @Test
     public void evalFunctionCallCommand(){
@@ -37,7 +37,7 @@ public class CommandEvaluatorTest {
                                                    new TypedIdentifier(new Identifier("i1"), new PartyIndexType()),
                                                    new TypedIdentifier(new Identifier("i2"), new PartyIndexType()));
         PreludeCommand commands = Loader.toCommand("m[n]@i2 := (s[n] + r[n])@i1;\n" + "m[n]@i1 := r[n]@i1");
-        CommandFunction commandFunction = new CommandFunction(new Identifier("encodegmw"), parameters, commands);
+        CommandFunction commandFunction = new CommandFunction(new Identifier("encodegmw"), parameters, commands, null, null);
         List<CommandFunction> functionContext = List.of(commandFunction);
         PreludeCommand command = eval("encodegmw(\"x\", 2, 1)", functionContext);
 
@@ -46,7 +46,7 @@ public class CommandEvaluatorTest {
     }
 
     /**
-     * evaluate let command
+     * evalConstraint let command
      */
     @Test
     public void evalLetCommand(){
@@ -55,7 +55,7 @@ public class CommandEvaluatorTest {
     }
 
     /**
-     * evaluate a double let commands
+     * evalConstraint a double let commands
      */
     @Test
     public void evalDoubleLetCommand(){
@@ -64,11 +64,16 @@ public class CommandEvaluatorTest {
     }
 
     /**
-     * evaluate a list of commands
+     * evalConstraint a list of commands
      */
+    @Test
+    public void evalCommandList(){
+        PreludeCommand commandList = eval("let x = \"x\" in m[x]@1 := m[x]@2; \n let y = \"y\" in s[y]@1 := s[y]@2", List.of());
+        assertEquals(Loader.toCommand("m[\"x\"]@1:=m[\"x\"]@2; s[\"y\"]@1 := s[\"y\"]@2"), commandList);
+    }
 
     /**
-     * evaluate assert command
+     * evalConstraint assert command
      */
     @Test
     public void evalAssertCommand(){
@@ -82,9 +87,9 @@ public class CommandEvaluatorTest {
                         "m[x++\"extm\"]@i1 := m[x++\"m\"]@i2;\n" +
                         "assert(m[x++\"extm\"] = m[x++\"k\"] + (m[\"delta\"] * m[x++\"exts\"]))@i1;\n" +
                         "m[x]@i1 := (m[x++\"exts\"] + m[x++\"s\"])@i1" );
-        CommandFunction functionContext = new CommandFunction(new Identifier("_open"), formal_parameters, functionBody);
+        CommandFunction functionContext = new CommandFunction(new Identifier("_open"), formal_parameters, functionBody, null, null);
 
-        // evaluate function body with function call
+        // evalConstraint function body with function call
         PreludeCommand command = eval("_open(\"foo\", 1, 2)", List.of(functionContext));
         assertEquals(Loader.toCommand("m[\"fooexts\"]@1 := m[\"foos\"]@2;\n" +
                 "m[\"fooextm\"]@1 := m[\"foom\"]@2;\n" +
@@ -92,7 +97,7 @@ public class CommandEvaluatorTest {
                 "m[\"foo\"]@1 := (m[\"fooexts\"] + m[\"foos\"])@1"), command);
     }
     /**
-     * evaluate command function call and expression function call
+     * evalConstraint command function call and expression function call
      */
 //    @Test
 //    public void evalCommandAndExprFunctions(){

@@ -99,6 +99,7 @@ public class ConstraintExpressionVisitorTest {
     @Test
     public void equalityFirst(){
         // NOT e1 == e2
+        // NOT (e1 == e2) 
         Node constraint = ast("NOT m[\"x\"]@1 == m[\"z\"]@3");
         assertEquals(new NotConstraintExpr(new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(3)))),
                 constraint);

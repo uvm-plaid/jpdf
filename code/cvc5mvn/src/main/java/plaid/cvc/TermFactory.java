@@ -4,8 +4,6 @@ import io.github.cvc5.*;
 import plaid.ast.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.StreamSupport.stream;
 import static plaid.cvc.CvcUtils.getCvcName;
@@ -69,9 +67,9 @@ public class TermFactory {
      * @return CVC5 Terms
      */
 
-    public Term toTerms(PreludeCommand command) {
+    public Term toTerm(PreludeCommand command) {
         return switch (command) {
-            case CommandList x -> joinWithAnd(x.commands().stream().map(y -> toTerms(y)).toList());
+            case CommandList x -> joinWithAnd(x.commands().stream().map(y -> toTerm(y)).toList());
             case AssertCommand x -> {
                 Integer partyIndex = getPartyIndex(x);
                 yield joinWithAnd(List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1(), partyIndex), toTerm(x.e2(), partyIndex))));
@@ -180,6 +178,7 @@ public class TermFactory {
             case NotConstraintExpr x -> termManager.mkTerm(Kind.NOT, constraintToTerm(x.e()));
             case AndConstraintExpr x -> termManager.mkTerm(Kind.AND, constraintToTerm(x.e1()), constraintToTerm(x.e2()));
             case EqualConstraintExpr x -> termManager.mkTerm(Kind.EQUAL, toTerm(x.e1()), toTerm(x.e2()));
+            case TrueConstraintExpr x -> termManager.mkTrue();
             default -> throw new IllegalArgumentException("cannot convert" + expr.getClass().getName() + "into CVC5 term");
         };
     }

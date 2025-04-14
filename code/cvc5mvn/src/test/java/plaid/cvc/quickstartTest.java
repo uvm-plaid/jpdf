@@ -83,7 +83,7 @@ public class quickstartTest {
         solver.assertFormula(constraint1);
 
         Result r = solver.checkSat();
-        System.out.println("result: " + r);
+        //System.out.println("result: " + r);
 
         // get values for the memories that satisfy the constraint
         Term m_x_1_val = solver.getValue(m_x_1);
@@ -99,9 +99,9 @@ public class quickstartTest {
         //String constraint2_FiniteFieldValue = constraint2_val.getFiniteFieldValue();
 
 
-        System.out.println("finite field value for m_x_1: " + m_x_1_FiniteFieldValue);
-        System.out.println("finite field value for s_x_2: " + s_x_2_FiniteFieldValue);
-        System.out.println("finite field value for r_x_2: " + r_x_2_FiniteFieldValue);
+        //System.out.println("finite field value for m_x_1: " + m_x_1_FiniteFieldValue);
+        //System.out.println("finite field value for s_x_2: " + s_x_2_FiniteFieldValue);
+        //System.out.println("finite field value for r_x_2: " + r_x_2_FiniteFieldValue);
         //System.out.println("finite field value for constraint: " + constraint2_FiniteFieldValue);
         
         

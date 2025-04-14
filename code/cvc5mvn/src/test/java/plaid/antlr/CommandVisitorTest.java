@@ -115,4 +115,17 @@ public class CommandVisitorTest {
                 ast("m[\"x\"]@1 := OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"])@2"));
     }
 
+
+    /**
+     * Parses a list of commands in right associate.
+     */
+    @Test
+    public void rightAssociative() {
+        PreludeCommand command = ast("out@1 := x; out@2 := x; out@3 := x");
+        assertEquals(new CommandList(List.of(
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")), 
+                    new CommandList(List.of(
+                        new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x")),
+                        new AssignCommand(new AtExpr(new OutputExpr(), new Num(3)), new Identifier("x")))))), command);
+    }
 }

@@ -89,19 +89,19 @@ public class GenEntailVerifierTest {
         String e2 = "m[z++\"s\"]@i1 + m[z++\"s\"]@i2 == m[x++\"s\"]@i1 + m[y++\"s\"]@i1 + m[x++\"s\"]@i2 + m[y++\"s\"]@i2";
 
         GenEntailVerifier genEntailVerifier = new GenEntailVerifier();
-        Map<Identifier, Type> typing = new HashMap<>(); 
-        typing.put(new Identifier("i2"), new PartyIndexType());
-        typing.put(new Identifier("y"), new StringType());
-        typing.put(new Identifier("x"), new StringType());
-        typing.put(new Identifier("i1"), new PartyIndexType());
-        typing.put(new Identifier("z"), new StringType());
+        List<TypedIdentifier> typing = List.of( 
+            new TypedIdentifier(new Identifier("i2"), new PartyIndexType()),
+            new TypedIdentifier(new Identifier("y"), new StringType()),
+            new TypedIdentifier(new Identifier("x"), new StringType()),
+            new TypedIdentifier(new Identifier("i1"), new PartyIndexType()),
+            new TypedIdentifier(new Identifier("z"), new StringType()));
 
         // e1 entails e2 
-        boolean result1 = genEntailVerifier.genEntails(List.of(typing), Loader.toConstraintExpression(e1), Loader.toConstraintExpression(e2));
+        boolean result1 = genEntailVerifier.genEntails(typing, Loader.toConstraintExpression(e1), Loader.toConstraintExpression(e2));
         assertTrue(result1);
     
         // e2 does not entail e1
-        boolean result2 = genEntailVerifier.genEntails(List.of(typing), Loader.toConstraintExpression(e2), Loader.toConstraintExpression(e1));
+        boolean result2 = genEntailVerifier.genEntails(typing, Loader.toConstraintExpression(e2), Loader.toConstraintExpression(e1));
         assertFalse(result2);
     }
 }

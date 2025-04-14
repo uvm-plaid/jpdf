@@ -103,7 +103,7 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        Term terms = factory.toTerms(new CommandList(List.of(
+        Term terms = factory.toTerm(new CommandList(List.of(
                 new AssertCommand(new OutputExpr(), new Num(1), new Num(3)),
                 new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3))
         )));
@@ -235,6 +235,19 @@ public class TermFactoryTest {
      }
 
     /**
+     * Creates term for True constraint 
+     */
+    @Test
+    public void trueConstraintTerm() throws CVC5ApiException{
+        TermManager termManager = new TermManager();
+        Sort sort = termManager.mkFiniteFieldSort("2", 10);
+        TermFactory factory = new TermFactory(termManager, sort);
+        
+        Term term = factory.constraintToTerm(new TrueConstraintExpr());
+        assertEquals(termManager.mkTrue() ,term);
+    }
+
+    /**
      * creates complex constraint expressions 
      */
     @Test
@@ -275,7 +288,7 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        factory.toTerms(new FunctionCallCommand(new Identifier("f"), List.of()));
+        factory.toTerm(new FunctionCallCommand(new Identifier("f"), List.of()));
     }
 
     /**
@@ -293,7 +306,7 @@ public class TermFactoryTest {
         PreludeCommand command1 = Loader.toCommand("out@1 := OT(1@1, 1, 0)@2");
         Verifier verifier = new Verifier(factory);
         
-        //verifier.findModelSatisfying(verifier. factory.toTerms(command0));
+        //verifier.findModelSatisfying(verifier. factory.toTerm(command0));
         PreludeExpression expr1 = new AtExpr(new OTExpr(new MessageExpr(new Str("x")), new Num(3), new RandomExpr(new Str("y")), new MessageExpr(new Str("foo"))), new Num(2));
 
         // create constants

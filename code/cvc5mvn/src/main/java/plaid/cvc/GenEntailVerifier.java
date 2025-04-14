@@ -5,6 +5,7 @@ import io.github.cvc5.Sort;
 import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
 import plaid.ast.*;
+import plaid.eval.Evaluator;
 import plaid.eval.ExpressionEvaluator;
 
 import java.util.*;
@@ -56,15 +57,14 @@ public class GenEntailVerifier {
      * @param e2 abstract postcondition
      * @return true/false
      */
-    public boolean genEntails(List<Map<Identifier, Type>> typings, ConstraintExpr e1, ConstraintExpr e2) throws CVC5ApiException {
+    public boolean genEntails(List<TypedIdentifier> typings, ConstraintExpr e1, ConstraintExpr e2) {
         List<Map<Identifier, PreludeExpression>> bindingList = new ArrayList<>();
         
         // generate fresh values for variables 
-        for (Map<Identifier, Type> typing : typings) {
-            for (Map.Entry<Identifier, Type> entry : typing.entrySet()) {
-                bindingList.add(new HashMap<Identifier, PreludeExpression>(Map.of(entry.getKey(), genFreshValue(entry.getValue()))));
-            }
+        for (TypedIdentifier typing: typings){
+            bindingList.add(Map.of(typing.y(), genFreshValue(typing.t())));
         }
+        
         
           // print out identifiers and their fresh values 
 //        for (Map<Identifier, PreludeExpression> bindings : bindingList) {
@@ -74,11 +74,11 @@ public class GenEntailVerifier {
 //            }
 //        }
         
-        // evaluate abstractConstraints into ground constraint
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(new Program(List.of(), List.of(), List.of(), null, null));
-        expressionEvaluator.binding_list = bindingList;
-        ConstraintExpr groundE1 = expressionEvaluator.evaluate(e1); 
-        ConstraintExpr groundE2 =  expressionEvaluator.evaluate(e2);
+        // evalConstraint abstractConstraints into ground constraint
+        Evaluator evaluator = new Evaluator(new Program(List.of(), List.of(), List.of(), null, null));
+        evaluator.binding_list = bindingList;
+        ConstraintExpr groundE1 = evaluator.evalConstraint(e1); 
+        ConstraintExpr groundE2 =  evaluator.evalConstraint(e2);
                 
         // check if ground constraint1 entails ground constraint2 using Verifier entails
         TermFactory termFactory = new TermFactory(termManager, sort);

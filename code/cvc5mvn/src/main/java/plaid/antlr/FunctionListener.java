@@ -1,11 +1,13 @@
 package plaid.antlr;
 
 import plaid.PreludeBaseListener;
+import plaid.PreludeParser;
 import plaid.PreludeParser.CommandFuncContext;
 import plaid.PreludeParser.ConstraintFuncContext;
 import plaid.PreludeParser.ExprFuncContext;
 import plaid.PreludeParser.IdentContext;
 import plaid.PreludeParser.TypedIdentContext;
+import plaid.PreludeParser.ConstraintExprContext;
 import plaid.ast.*;
 import plaid.ast.CommandFunction;
 import plaid.ast.ConstraintFunction;
@@ -51,10 +53,18 @@ public class FunctionListener extends PreludeBaseListener {
 
     @Override
     public void enterCommandFunc(CommandFuncContext ctx) {
+        // command function may not have the precondition and postcondition
+        // then interpret null constraint as T
+       ConstraintExpr precondition = ctx.precondsection() == null? null : Loader.toConstraintExpression(ctx.precondsection().constraintExpr());
+       ConstraintExpr postcondition = ctx.postcondsection() == null? null : Loader.toConstraintExpression(ctx.postcondsection().constraintExpr());     
+        
+        
         commandFunctions.add(new CommandFunction(
                 new Identifier(ctx.ident().getText()), // fname
                 toTypedIdentifiers(ctx.typedIdent()),
-                Loader.toCommand(ctx.command())));
+                Loader.toCommand(ctx.command()),
+                precondition,
+                postcondition));
     }
 
     @Override

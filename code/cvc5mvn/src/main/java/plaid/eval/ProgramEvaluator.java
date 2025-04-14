@@ -14,7 +14,7 @@ public class ProgramEvaluator {
         this.commandEvaluator = new CommandEvaluator(program);
     }
 
-    // evaluate main method (command function)
+    // evalConstraint main method (command function)
     public PreludeCommand eval() {
         PreludeCommand commands = null;
         for (CommandFunction commandFunction : program.commandFunctions()) {
@@ -29,12 +29,4 @@ public class ProgramEvaluator {
 
     }
 
-
-
 }
-
-/*
-String progrm = "";
-ProgramEvaluator programEvaluator = new ProgramEvaluator(program);
-programEvaluator.eval; // return output
- */

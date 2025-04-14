@@ -53,7 +53,7 @@ public class App implements Runnable {
         String program = readSourceCode();
         Program programAST = Loader.toProgram(program);
         PreludeCommand protocol = new ProgramEvaluator(Loader.toProgram(program)).eval();
-        Term overtureTerms = termFactory.toTerms(protocol);
+        Term overtureTerms = termFactory.toTerm(protocol);
         
         Term preconditionTerm = evaluateConstraint(programAST, programAST.precondition());
         Term postconditionTerm = evaluateConstraint(programAST, programAST.postcondition());

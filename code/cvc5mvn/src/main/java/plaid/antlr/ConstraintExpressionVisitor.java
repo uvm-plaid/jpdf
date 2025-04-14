@@ -1,15 +1,10 @@
 package plaid.antlr;
 
+import io.github.cvc5.TermManager;
 import plaid.PreludeBaseVisitor;
 import plaid.PreludeParser;
 import plaid.PreludeParser.FunctionCallConstraintExprContext;
-import plaid.PreludeParser.IdentConstraintExprContext;
-import plaid.ast.AndConstraintExpr;
-import plaid.ast.ConstraintExpr;
-import plaid.ast.EqualConstraintExpr;
-import plaid.ast.FunctionCallExpr;
-import plaid.ast.Identifier;
-import plaid.ast.NotConstraintExpr;
+import plaid.ast.*;
 
 public class ConstraintExpressionVisitor extends PreludeBaseVisitor<ConstraintExpr> {
 
@@ -34,9 +29,7 @@ public class ConstraintExpressionVisitor extends PreludeBaseVisitor<ConstraintEx
     }
 
     @Override
-    public Identifier visitIdentConstraintExpr(IdentConstraintExprContext ctx) {
-        return new Identifier(ctx.getText());
-    }
+    public ConstraintExpr visitTrueConstraintExpr(PreludeParser.TrueConstraintExprContext ctx) { return new TrueConstraintExpr();}
 
     @Override
     public ConstraintExpr visitFunctionCallConstraintExpr(FunctionCallConstraintExprContext ctx) {

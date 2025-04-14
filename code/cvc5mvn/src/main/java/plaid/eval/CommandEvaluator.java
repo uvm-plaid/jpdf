@@ -28,7 +28,7 @@ public class CommandEvaluator {
                     new AssignCommand(expressionEvaluator.toOverture(assignCommand.e1()), expressionEvaluator.toOverture(assignCommand.e2()));
 
             case FunctionCallCommand functionCall -> {
-                // evaluate actual parameters first
+                // evalConstraint actual parameters first
                 List<PreludeExpression> actual_parameters =
                         functionCall.parameters().stream().map(expressionEvaluator::toOverture).toList();
 
@@ -43,7 +43,7 @@ public class CommandEvaluator {
 
                 expressionEvaluator.binding_list.add(bindings);
 
-                // evaluate the function body with the actual parameters
+                // evalConstraint the function body with the actual parameters
                 PreludeCommand result = evalInstruction(function.c());
                 expressionEvaluator.binding_list.removeLast();
 
@@ -52,7 +52,7 @@ public class CommandEvaluator {
 
             case LetCommand letCommand -> {
                 // let y = e in c
-                // evaluate e
+                // evalConstraint e
                 PreludeExpression v = expressionEvaluator.toOverture(letCommand.e());
 
                 // let y = v in c
@@ -82,4 +82,6 @@ public class CommandEvaluator {
 
         };
     }
+    
+    
 }

@@ -15,6 +15,7 @@ import plaid.ast.Program;
 import plaid.eval.ProgramEvaluator;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -83,15 +84,15 @@ public class VerifierTest {
                 (out@1 == s["x"]@1 + s["y"]@2) AND (out@2 == s["x"]@1 + s["y"]@2)
                 """;
         assertTrue(verifier.satisfies(protocol));
-        assertTrue(verifier.verifies(protocol, proposition));
+        assertTrue(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition))));
     }
 
 
     /**
-     * an overture protocol verifies a correct proposition
+     * an overture protocol entails a correct proposition
      */
     @Test
-    public void verifiesCorrectProposition(){
+    public void entailsCorrectProposition(){
         String protocol = """
                 m["x"]@2 := (s["x"] + r["x"] + r["loc"])@1;
                 m["x"]@3 := r["x"]@1
@@ -100,14 +101,14 @@ public class VerifierTest {
                 r["x"]@1 == m["x"]@3
                 """;
 
-        assertTrue(verifier.verifies(protocol, proposition));
+        assertTrue(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition))));
     }
 
     /**
      * three-party addition
      */
     @Test
-    public void verifiesThreePartyAddition(){
+    public void entailsThreePartyAddition(){
         String protocol = """
                 m["s1"]@2 := ((s["1"] + -r["local"]) + -r["x"])@1;
                 m["s1"]@3 := r["x"]@1;
@@ -137,10 +138,10 @@ public class VerifierTest {
                 out@2 == s["1"]@1 + s["2"]@2 + s["3"]@3 AND
                 out@3 == s["1"]@1 + s["2"]@2 + s["3"]@3
                 """;
-        assertTrue(verifier.verifies(protocol, proposition_1));
-        assertTrue(verifier.verifies(protocol, proposition_2));
-        assertTrue(verifier.verifies(protocol, proposition_3));
-        assertTrue(verifier.verifies(protocol, proposition_4));
+        assertTrue(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_1))));
+        assertTrue(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_2))));
+        assertTrue(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_3))));
+        assertTrue(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_4))));
 
         String proposition_5 = """
                 out@1 == s["1"]@1 + s["2"]@2 + s["3"]@3 AND
@@ -150,15 +151,15 @@ public class VerifierTest {
         String proposition_6 = """
                  out@2 == s["1"]@1 + s["2"]@2 + r["x"]@3
                 """;
-        assertFalse(verifier.verifies(protocol, proposition_5));
-        assertFalse(verifier.verifies(protocol, proposition_6));
+        assertFalse(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_5))));
+        assertFalse(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_6))));
     }
 
     /**
      * a protocol does not verify a contradictory proposition
      */
     @Test
-    public void verifiesIncorrectProposition(){
+    public void entailsIncorrectProposition(){
         String protocol = """
                 m["x"]@2 := (s["x"] + r["x"] + r["loc"])@1;
                 m["x"]@3 := r["x"]@1
@@ -171,15 +172,14 @@ public class VerifierTest {
                 r["loc"]@1 == m["x"]@3
                 """;
 
-        assertFalse(verifier.verifies(protocol, proposition_1));
-        assertFalse(verifier.verifies(protocol, proposition_2));
-
+        assertFalse(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_1))));
+        assertFalse(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_2))));
     }
 
 
     /**
      * a prelude program evaluates to overture protocol, and
-     * the protocol verifies a correct proposition
+     * the protocol entails a correct proposition
      */
     @Test
     @Ignore
@@ -218,7 +218,7 @@ public class VerifierTest {
                 main(){andgmw("g1","x","z")}
                 
                 """;
-        // evaluate the program to overture protocol
+        // evalConstraint the program to overture protocol
         PreludeCommand protocol = evaluates(program);
         plaid.ScalaFunctions.prettyPrint(protocol);
 
@@ -233,14 +233,14 @@ public class VerifierTest {
                 m["g1"]@1 := r["g1"]@1
                 """;
 
-        // check if the protocol verifies a correct proposition
+        // check if the protocol entails a correct proposition
         String proposition_src = """
                 (m["g1"]@1 + m["g1"]@2) == ((m["x"]@1 + m["x"]@2) * (m["z"]@1 + m["z"]@2))
                 """;
 
         ConstraintExpr proposition = Loader.toConstraintExpression(proposition_src);
-        //assertTrue(Verifier.verifies(evaluated_protocol, proposition_src));
-        assertTrue(verifier.verifies(protocol, proposition));
+        //assertTrue(Verifier.entails(evaluated_protocol, proposition_src));
+        assertTrue(verifier.entails(termFactory.toTerm(protocol), termFactory.constraintToTerm(proposition)));
     }
 
 
@@ -284,9 +284,9 @@ public class VerifierTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        Term trueTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1"));
+        Term trueTerm = factory.toTerm(Loader.toCommand("out@1 := 1@1"));
         assertTrue(verifier.entails(Collections.emptyList(), trueTerm));
-        Term falseTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
+        Term falseTerm = factory.toTerm(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
         assertFalse(verifier.entails(Collections.emptyList(), falseTerm));
     }
 
@@ -298,9 +298,9 @@ public class VerifierTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        Term trueTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1"));
+        Term trueTerm = factory.toTerm(Loader.toCommand("out@1 := 1@1"));
         assertTrue(verifier.entails(trueTerm, null));
-        Term falseTerm = factory.toTerms(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
+        Term falseTerm = factory.toTerm(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
         assertTrue(verifier.entails(falseTerm, null));
     }
 
