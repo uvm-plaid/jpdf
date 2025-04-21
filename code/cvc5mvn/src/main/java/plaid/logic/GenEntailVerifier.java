@@ -1,12 +1,13 @@
-package plaid.cvc;
+package plaid.logic;
 
 import io.github.cvc5.CVC5ApiException;
 import io.github.cvc5.Sort;
 import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
 import plaid.ast.*;
-import plaid.eval.Evaluator;
-import plaid.eval.ExpressionEvaluator;
+import plaid.cvc.TermFactory;
+import plaid.cvc.Verifier;
+import plaid.ScalaFunctions;
 
 import java.util.*;
 
@@ -58,11 +59,11 @@ public class GenEntailVerifier {
      * @return true/false
      */
     public boolean genEntails(List<TypedIdentifier> typings, ConstraintExpr e1, ConstraintExpr e2) {
-        List<Map<Identifier, PreludeExpression>> bindingList = new ArrayList<>();
+        Map<Identifier, PreludeExpression> bindingList = new HashMap<>();
         
         // generate fresh values for variables 
         for (TypedIdentifier typing: typings){
-            bindingList.add(Map.of(typing.y(), genFreshValue(typing.t())));
+            bindingList.put(typing.y(), genFreshValue(typing.t()));
         }
         
         
@@ -75,11 +76,14 @@ public class GenEntailVerifier {
 //        }
         
         // evalConstraint abstractConstraints into ground constraint
-        Evaluator evaluator = new Evaluator(new Program(List.of(), List.of(), List.of(), null, null));
-        evaluator.binding_list = bindingList;
+        ConstraintEvaluator evaluator = new ConstraintEvaluator();
+        evaluator.binding_list.add(bindingList);
         ConstraintExpr groundE1 = evaluator.evalConstraint(e1); 
         ConstraintExpr groundE2 =  evaluator.evalConstraint(e2);
-                
+        evaluator.binding_list.removeLast();
+        // check if groundE1 and groundE2 are in fact ground 
+        // TODO: ConstraintChecker 
+        
         // check if ground constraint1 entails ground constraint2 using Verifier entails
         TermFactory termFactory = new TermFactory(termManager, sort);
         Term groundE1Term = termFactory.constraintToTerm(groundE1);

@@ -3,6 +3,7 @@ package plaid.logic;
 import io.github.cvc5.CVC5ApiException;
 import org.junit.Ignore;
 import org.junit.Test;
+import plaid.ScalaFunctions;
 import plaid.antlr.Loader;
 import plaid.ast.*;
 import scala.collection.immutable.Stream;
@@ -27,10 +28,10 @@ public class ConstraintAnalyzerTest {
 //        return constraintAnalyzer.inferPrePostCmd(src);
 //    }
     /**
-     * infer precondition for message assignment
+     * infer precondition/postcondition for message assignment
      */
     @Test
-    public void inferdAssignment() throws CVC5ApiException {
+    public void inferAssignment() throws CVC5ApiException {
         String src = "m[x]@1 := (s[x]+r[x])@2";
         Constraints expected = new Constraints(
                 new TrueConstraintExpr(),
@@ -40,6 +41,7 @@ public class ConstraintAnalyzerTest {
         assertEquals(expected.getPost(),  inferPrePostCmd(src, "").getPost());
 
     }
+
 
     /**
      * infer preconditon for assert
@@ -60,8 +62,6 @@ public class ConstraintAnalyzerTest {
     @Test
     public void inferLet() throws CVC5ApiException {
         String src = "let i = 1 in m[x]@i := m[x]@2";
-        // But after let unrolling we don't get Overture in this case
-        // what do we want to do?
         Constraints expected = new Constraints(
                 new TrueConstraintExpr(),
                 Loader.toConstraintExpression("m[x]@1 == m[x]@2"));
@@ -209,5 +209,29 @@ public class ConstraintAnalyzerTest {
 
         inferPrePostFN("g", program);
 
+    }
+
+    /**
+     * if I call a function by passing concatenation expression as an argument, 
+     * does the algorithm return constraints with substitution of ?
+     */
+    @Test
+    public void concatArg() throws CVC5ApiException{
+        String program = """
+                cmdfunctions:
+                f(x:string) {m[x++"foo"]@1 := m[x++"foo"]@1}
+                main(){ f(x++"s") }
+                """; 
+        
+        Constraints expected = new Constraints(
+                new TrueConstraintExpr(),
+                Loader.toConstraintExpression("m[x++\"sfoo\"]@1 == m[x++\"sfoo\"]@1")
+        );
+        
+        System.out.println("main's precond: " + ScalaFunctions.prettyPrint(inferPrePostFN("main", program).getPre()));
+        System.out.println("main's postcond AST: " + inferPrePostFN("main", program).getPost());
+        System.out.println("main's postcond: " + ScalaFunctions.prettyPrint(inferPrePostFN("main", program).getPost()));
+        assertEquals(expected.getPre(), inferPrePostFN("main", program).getPre());
+        assertEquals(expected.getPost(), inferPrePostFN("main", program).getPost());
     }
 }

@@ -20,7 +20,6 @@ public class ProgramEvaluatorTest {
      * test confidentiality example
      */
     @Test
-    @Ignore
     public void testConfidentiality() throws CVC5ApiException {
         String program = """
                 exprfunctions: 
@@ -44,12 +43,12 @@ public class ProgramEvaluatorTest {
                 }              
                 
                 cmdfunctions:
-                encodegmw(n, i1, i2) {
+                encodegmw(n:string, i1:cid, i2:cid) {
                     m[n]@i2 := (s[n] + r[n])@i1;
                     m[n]@i1 := r[n]@i1
                 }
                 
-                andgmw(z, x, y) {
+                andgmw(z:string, x:string, y:string) {
                    let table = andtablegmw(x,y,z) in
                    m[x]@1 := m[x]@2;
                    m[y]@1 := m[y]@2;
@@ -57,11 +56,11 @@ public class ProgramEvaluatorTest {
                    m[z]@1 := r[z]@1
                 }
                 
-                xorgmw(z, x, y) {
+                xorgmw(z:string, x:string, y:string) {
                         m[z]@1 := (m[x] + m[y])@1; m[z]@2 := (m[x] + m[y])@2
                 }
                 
-                decodegmw(z) {
+                decodegmw(z:string) {
                         p["1"] := m[z]@1; p["2"] := m[z]@2;
                         out@1 := (p["1"] + p["2"])@1;
                         out@2 := (p["1"] + p["2"])@2

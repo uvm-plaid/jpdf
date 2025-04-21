@@ -1,12 +1,10 @@
-package plaid.cvc;
+package plaid.logic;
 
 import io.github.cvc5.CVC5ApiException;
 import org.junit.Test;
 import plaid.antlr.Loader;
 import plaid.ast.*;
-import scala.concurrent.impl.FutureConvertersImpl;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;

@@ -19,7 +19,7 @@ andtablegmw(x, y, z) {
 
 cmdfunctions:
 
-andgmw(z, x, y) {
+andgmw(z:string, x:string, y:string) {
   let table = andtablegmw(x,y,z) in
   m[z]@2 := OT4((m[x], m[y])@2, table.row4, table.row3, table.row2, table.row1)@1;
   m[z]@1 := r[z]@1

@@ -24,22 +24,22 @@ public class Evaluator {
             // base cases
             case Str w -> new Str(w.str());
             case Num i -> new Num(i.num());
-            case Identifier id -> //binding_list.getLast().get(id);
-            {
-                // if identifier is bound to value 
-                for(Map<Identifier, PreludeExpression> bindings : binding_list){
-                    for(Map.Entry<Identifier, PreludeExpression> entry : bindings.entrySet()){
-                        if(entry.getKey().equals(id)){
-                            // return the value 
-                            yield entry.getValue();
-                        }
-                    }
-                }
-                //yield binding_list.getLast().get(id); // original
-                // otherwise the id itself 
-                // TODO:  hopefully Overture checker catches non-string type of identifiers.
-                yield id;
-            } // throws an error if the list doesn't contain the id
+            case Identifier id -> binding_list.getLast().get(id);
+            
+//            {
+//                // if identifier is bound to value 
+//                for(Map<Identifier, PreludeExpression> bindings : binding_list){
+//                    for(Map.Entry<Identifier, PreludeExpression> entry : bindings.entrySet()){
+//                        if(entry.getKey().equals(id)){
+//                            // return the value 
+//                            yield entry.getValue();
+//                        }
+//                    }
+//                }
+//                //yield binding_list.getLast().get(id); // original
+//                // otherwise the id itself
+//                yield id;
+//            } // throws an error if the list doesn't contain the id
            
 
             case RandomExpr re -> new RandomExpr(toOverture(re.e()));
@@ -70,8 +70,7 @@ public class Evaluator {
 
                 PreludeExpression result = toOverture(le.e2());
                 binding_list.removeLast();
-                //subst(le.getE2(), e1, le.getY());
-                //isVal(le.getE1()) ?  : new LetExpr(le.getY(), toOverture(le.getE1()), le.getE2());
+
                 yield result;
             }
             case FunctionCallExpr fe -> {
@@ -147,7 +146,7 @@ public class Evaluator {
 
                 // evalConstraint the function body with the actual parameters
                 PreludeCommand result = evalInstruction(function.c());
-                //binding_list.removeLast(); // have to comment out for a constraint to evaluate 
+                binding_list.removeLast(); // have to comment out for a constraint to evaluate
 
                 yield result;
             }

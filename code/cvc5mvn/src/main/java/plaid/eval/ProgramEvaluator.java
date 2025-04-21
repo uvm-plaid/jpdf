@@ -7,11 +7,11 @@ import plaid.ast.Program;
 
 public class ProgramEvaluator {
     private final Program program;
-    private final CommandEvaluator commandEvaluator;
+    private final Evaluator evaluator;
 
     public ProgramEvaluator(Program program){
         this.program = program;
-        this.commandEvaluator = new CommandEvaluator(program);
+        this.evaluator = new Evaluator(program);
     }
 
     // evalConstraint main method (command function)
@@ -25,7 +25,7 @@ public class ProgramEvaluator {
         }
 
         assert commands != null;
-        return commandEvaluator.evalInstruction(commands);
+        return evaluator.evalInstruction(commands);
 
     }
 

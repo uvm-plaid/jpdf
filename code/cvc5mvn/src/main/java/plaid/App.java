@@ -1,5 +1,6 @@
 package plaid;
 
+import io.github.cvc5.CVC5ApiException;
 import io.github.cvc5.Sort;
 import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
@@ -9,14 +10,18 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import plaid.antlr.Loader;
+import plaid.ast.CommandFunction;
 import plaid.ast.ConstraintExpr;
 import plaid.ast.PreludeCommand;
 import plaid.ast.Program;
 import plaid.cvc.TermFactory;
 import plaid.cvc.Verifier;
+import plaid.eval.Evaluator;
 import plaid.eval.ExpressionEvaluator;
 import plaid.eval.OvertureChecker;
 import plaid.eval.ProgramEvaluator;
+import plaid.logic.ConstraintAnalyzer;
+import plaid.logic.Constraints;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,18 +46,35 @@ public class App implements Runnable {
         int exitCode = new CommandLine(new App()).execute(args);
         System.exit(exitCode);
     }
-
+    
+    // static analysis on main
+    private Constraints staticAnalysis(Program program) throws CVC5ApiException {
+        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(program);
+        return constraintAnalyzer.inferPrePostFN(program.resolveCommandFunction(Loader.toExpression("main")));
+    }
+    
     @Override
     public void run() {
         TermManager termManager = new TermManager();
         Sort sort = mkFiniteFieldSort(termManager, fieldSize, 10);
         termFactory = new TermFactory(termManager, sort);
         Verifier verifier = new Verifier(termFactory);
-
-        // separate prelude source code and constraints
+        
+        // read prelude source code and constraints
         String program = readSourceCode();
         Program programAST = Loader.toProgram(program);
-        PreludeCommand protocol = new ProgramEvaluator(Loader.toProgram(program)).eval();
+        
+        
+        // static analysis 
+        try {
+            Constraints constraints = staticAnalysis(programAST);
+            System.out.println(ScalaFunctions.prettyPrint(constraints.getPre())); 
+            System.out.println(ScalaFunctions.prettyPrint(constraints.getPost()));
+        } catch (CVC5ApiException e) {
+            throw new RuntimeException(e);
+        }
+
+        PreludeCommand protocol = new ProgramEvaluator(Loader.toProgram(program)).eval(); // evaluation 
         Term overtureTerms = termFactory.toTerm(protocol);
         
         Term preconditionTerm = evaluateConstraint(programAST, programAST.precondition());
@@ -95,7 +117,7 @@ public class App implements Runnable {
         if (expr == null) {
             return null;
         }
-        ConstraintExpr eval = new ExpressionEvaluator(program).evaluate(expr);
+        ConstraintExpr eval = new Evaluator(program).evalConstraint(expr);
         return termFactory.constraintToTerm(eval);
     }
 

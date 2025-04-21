@@ -9,12 +9,13 @@ import scala.concurrent.impl.FutureConvertersImpl;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
 
+@Deprecated
 public class CommandEvaluatorTest {
 
     private PreludeCommand eval(String src, List<CommandFunction> commandFunctions){
         PreludeCommand ast = Loader.toCommand(src);
-        CommandEvaluator commandEvaluator = new CommandEvaluator(new Program(commandFunctions, List.of(), List.of(), null, null));
-        return commandEvaluator.evalInstruction(ast);
+        Evaluator evaluator = new Evaluator(new Program(commandFunctions, List.of(), List.of(), null, null));
+        return evaluator.evalInstruction(ast);
     }
 
     /**

@@ -10,7 +10,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
-
+@Deprecated
 public class ExpressionEvaluatorTest {
 
     private PreludeExpression eval(String src, List<ExprFunction> exprFunctions){

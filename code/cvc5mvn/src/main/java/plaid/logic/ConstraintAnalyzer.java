@@ -1,28 +1,29 @@
 package plaid.logic;
 
 import io.github.cvc5.CVC5ApiException;
-import io.github.cvc5.Sort;
-import io.github.cvc5.TermManager;
 import plaid.ast.*;
-import plaid.cvc.GenEntailVerifier;
-import plaid.eval.Evaluator;
-import plaid.cvc.TermFactory;
-
 import java.util.*;
+import plaid.ScalaFunctions;
 
 public class ConstraintAnalyzer {
 
     private final Program program; // provide a program to resolve function
-    private final Evaluator evaluator;
-    private final TermManager termManager = new TermManager();
-    private final Sort sort = termManager.mkFiniteFieldSort("2", 10);
-    private final TermFactory termFactory = new TermFactory(termManager, sort);
+    private final ConstraintEvaluator evaluator;
     private final GenEntailVerifier verifier = new GenEntailVerifier();
     private final List<Map<PreludeExpression, Constraints>> functionConstraints; // data structure to store inferred pre/post conditions by FN rule
+    
+    private Map<Identifier, PreludeExpression> binding(List<TypedIdentifier> formal, List<PreludeExpression> actual){
+        // for each actual parameter, bind it to corresponding formal parameter 
+        Map<Identifier, PreludeExpression> bindingList = new HashMap<>(); 
+        for(int i = 0; i < formal.size(); i++){
+            bindingList.put(formal.get(i).y(), actual.get(i));
+        }
+        return bindingList;
+    }
 
     public ConstraintAnalyzer(Program program) throws CVC5ApiException {
         this.program = program;
-        this.evaluator = new Evaluator(program);
+        this.evaluator = new ConstraintEvaluator();
         functionConstraints = new LinkedList<>();
         functionConstraints.add(new HashMap<>());
     }
@@ -33,7 +34,8 @@ public class ConstraintAnalyzer {
     public Constraints inferPrePostFN(CommandFunction function) throws CVC5ApiException{
         // infer the precondition and postcondition for the function using inferPrePostCmd
         Constraints constraints = inferPrePostCmd(function.c());
-        
+        System.out.println("ASDF inferred pre for : " + function.fname() + ScalaFunctions.prettyPrint(constraints.getPre()));
+        System.out.println("ASDF inferred post for: " + function.fname().toString() + ScalaFunctions.prettyPrint(constraints.getPost()));
         // if the function does not have annotated pre/post conditions
         if (function.precond() == null && function.postcond() == null ){
             // then store inferred pre/post conditions and return them
@@ -43,11 +45,15 @@ public class ConstraintAnalyzer {
         else {
             // otherwise, use the hardpack
             // annotated precondition /\ inferred postcondition
-            ConstraintExpr pre = function.precond() == null? constraints.getPost() : 
-                    new AndConstraintExpr(function.precond(), constraints.getPost());
+            ConstraintExpr pre =
+                    function.precond() == null? constraints.getPost()
+                    : constraints.getPost() == null? function.precond()
+                    : new AndConstraintExpr(function.precond(), constraints.getPost());
             // inferred precondition /\ annotated postcondition
-            ConstraintExpr post = function.postcond() == null? constraints.getPre() :
-                    new AndConstraintExpr(constraints.getPre(), function.postcond());
+            ConstraintExpr post =
+                    function.postcond() == null? constraints.getPre()
+                    : constraints.getPre() == null ? function.postcond()
+                    : new AndConstraintExpr(constraints.getPre(), function.postcond());
             // take typings
             if (verifier.genEntails(function.typedVariables(), pre, post)){
                 functionConstraints.add(Map.of(function.fname(), new Constraints(function.precond(), function.postcond())));
@@ -56,11 +62,10 @@ public class ConstraintAnalyzer {
             else{
                 // if the hardpack does not hold
                 // return error message
-                throw new RuntimeException("The hardpack does not hold!");
+                throw new RuntimeException("The hardpack does not hold for " + ScalaFunctions.prettyPrint(function.fname()));
             }
         }
     }
-
 
     /**
      * using switch, create a recursive function that infers precondition and postcondition for each command
@@ -84,42 +89,50 @@ public class ConstraintAnalyzer {
                 for (PreludeCommand c : commandList.commands()){
                     constraints.add(inferPrePostCmd(c));
                 }
-                //List<Constraints> constraints = commandList.commands().stream().map(this::inferPrePostCmd).toList(); // for some reason, CVC5exception cannot handle with function expression
-                ConstraintExpr pre_result = new AndConstraintExpr(constraints.getFirst().getPre(),constraints.get(1).getPre());
-                ConstraintExpr post_result = new AndConstraintExpr(constraints.getFirst().getPost(), constraints.get(1).getPost());
 
-                if(constraints.size() > 2) {
-                    for (int i = 2; i <= constraints.size(); i++) {
-                        pre_result = new AndConstraintExpr(pre_result, constraints.get(i).getPre());
-                        post_result = new AndConstraintExpr(post_result, constraints.get(i).getPost());
-                    }
+                // if there is only one constraint
+                // then we don't need to conjoin
+                if (constraints.size() == 1){
+                    yield new Constraints(constraints.getFirst().getPre(), constraints.getFirst().getPost());
                 }
-                yield new Constraints(pre_result, post_result);
+                else {
+
+                    Optional<ConstraintExpr> reducedPre =
+                            constraints.stream().map(Constraints::getPre).filter(Objects::nonNull).reduce(AndConstraintExpr::new);
+                    Optional<ConstraintExpr> reducedPost =
+                            constraints.stream().map(Constraints::getPost).filter(Objects::nonNull).reduce(AndConstraintExpr::new);
+                    yield new Constraints(reducedPre.orElse(null), reducedPost.orElse(null));
+
+                }
+
             }
 
             case FunctionCallCommand functionCallCommand -> {
+                // give the binding of actual and formal parameters for constraints evaluation 
+                evaluator.binding_list.add(binding(program.resolveCommandFunction(functionCallCommand.fname()).typedVariables(), functionCallCommand.parameters()));
+
                 // look up functionConstraints
                 for (Map<PreludeExpression, Constraints> constraints : functionConstraints){
                     for(Map.Entry<PreludeExpression, Constraints> entry : constraints.entrySet()){
                         // if functionConstraints contains the inferred pre/post conditions for the function
                         if(entry.getKey().equals(functionCallCommand.fname())){
                             // use them for evaluation by the APP rule
-                            evaluator.evalInstruction(functionCallCommand);
-                            yield new Constraints(
-                                    entry.getValue().getPre() == null ? null : evaluator.evalConstraint(entry.getValue().getPre()),
-                                    entry.getValue().getPost() == null? null : evaluator.evalConstraint(entry.getValue().getPost()));
+                            ConstraintExpr pre = entry.getValue().getPre() == null ? null : evaluator.evalConstraint(entry.getValue().getPre());
+                            ConstraintExpr post =  entry.getValue().getPost() == null? null : evaluator.evalConstraint(entry.getValue().getPost());
+                            evaluator.binding_list.removeLast();
+                            yield new Constraints(pre, post);
                         }
 
                     }
                 }
                 // otherwise, let E1, E2 = inferPrePostFN and
                 // use them with the APP rule to get precondition and postcondition of the application
-                evaluator.evalInstruction(functionCallCommand);
                 Constraints constraints = inferPrePostFN(program.resolveCommandFunction(functionCallCommand.fname()));
-  
-                yield new Constraints(
-                        constraints.getPre() == null ? null : evaluator.evalConstraint(constraints.getPre()),
-                        constraints.getPost()== null ? null : evaluator.evalConstraint(constraints.getPost()));
+                ConstraintExpr pre = constraints.getPre() == null ? null : evaluator.evalConstraint(constraints.getPre());
+                ConstraintExpr post = constraints.getPost()== null ? null : evaluator.evalConstraint(constraints.getPost());
+                evaluator.binding_list.removeLast();
+                yield new Constraints(pre, post);
+                        
             }
             default -> throw new RuntimeException("cannot infer precondition from invalid input");
         };
@@ -145,11 +158,12 @@ public class ConstraintAnalyzer {
             case MessageExpr e -> new AtExpr(e, partyIndex);
             case PublicExpr e -> e;
             case OutputExpr e -> new AtExpr(e, partyIndex);
-            case MinusExpr e -> new MinusExpr(appendPartyIndex(e, partyIndex));
+            case MinusExpr e -> new MinusExpr(appendPartyIndex(e.e(), partyIndex));
             case TimesExpr e -> new TimesExpr(appendPartyIndex(e.e1(), partyIndex), appendPartyIndex(e.e2(), partyIndex));
             case PlusExpr e -> new PlusExpr(appendPartyIndex(e.e1(), partyIndex), appendPartyIndex(e.e2(), partyIndex));
-            default -> throw new RuntimeException("bad constraints");
+            default -> throw new RuntimeException("cannot add party index to given prelude expression");
         };
     }
 
 }
+

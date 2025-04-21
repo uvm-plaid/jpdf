@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.List;
 
+@Deprecated
 public class CommandEvaluator {
     private final Program program;
     private final List<Map<Identifier, PreludeExpression>> binding_list;

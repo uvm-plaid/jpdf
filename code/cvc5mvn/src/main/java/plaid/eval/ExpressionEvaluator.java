@@ -11,6 +11,7 @@ import java.util.Map.Entry;
  * operational semantics for Prelude Expressions
   */
 
+@Deprecated
 public class ExpressionEvaluator {
 
     private final Program program;

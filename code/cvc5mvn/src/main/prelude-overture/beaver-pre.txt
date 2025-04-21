@@ -2,24 +2,24 @@ exprfunctions:
 
 cmdfunctions:
 
-_open(x,i1,i2){
+_open(x:string, i1:cid, i2:cid){
     m[x++"exts"]@i1 := m[x++"s"]@i2;
     m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
 }
 
-open(x) { _open(x,1,2); _open(x,2,1) }
+open(x:string) { _open(x,1,2); _open(x,2,1) }
 
-_sum(z, x, y, i){
+_sum(z:string, x:string, y:string, i:cid){
     m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i
 }
 
-sum(z,x,y){ _sum(z,x,y,1); _sum(z,x,y,2) }
+sum(z:string,x:string,y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
 
-_mult(z, x, y, i) {
+_mult(z:string, x:string, y:string, i:cid) {
     m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i
 }
 
-mult(z,x,y) {
+mult(z:string, x:string, y:string) {
     sum(z++"d", x, z++"a");
     open(z++"d");
     sum(z++"e", y, z++"b");
