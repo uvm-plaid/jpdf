@@ -18,6 +18,6 @@ sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
 
 main() {
     sum("z","x","y");
-    open("z");
+    open("z")
 }
 postcondition: ( m["z"]@1 == (m["x"]@1 + m["x"]@2) + (m["y"]@1 + m["y"]@2)) )

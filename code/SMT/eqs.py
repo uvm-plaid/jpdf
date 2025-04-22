@@ -27,12 +27,12 @@ s.add(o == p1 + p2)
 # sanity check (should be sat)
 s.check()
 
-start_c1 = time.perf_counter()
+# start_c1 = time.perf_counter()
 
 # correctness (should be unsat)
 s.check(x + y != o)  
 
-stop_c1 = time.perf_counter()
+# stop_c1 = time.perf_counter()
 
 # 3-party addition in F7
 
@@ -57,13 +57,13 @@ s.add(o == p1 + p2 + p3)
 # sanity check (should be sat)
 s.check()
 
-start_c2 = time.perf_counter()
+# start_c2 = time.perf_counter()
 
 # correctness (should be unsat)
 
 s.check(o != s1 + s2 + s3)
 
-stop_c2 = time.perf_counter()
+# stop_c2 = time.perf_counter()
 
 # BDOZ/SPDZ SHE scheme 
 
@@ -74,30 +74,30 @@ mac1,mac2,m1,m2,k1,k2,d,a = FiniteFieldElems('mac1 mac2 m1 m2 k1 k2 d a', 7)
 s.add(mac1 == k1 + (d * m1))
 s.add(mac2 == k2 + (d * m2))
 
-start_c3 = time.perf_counter()
+# start_c3 = time.perf_counter()
 
 # HE for sum of shares,(should be unsat)
 s.check(mac1 + mac2 != (k1 + k2) + (d * (m1 + m2)))
 
-stop_c3 = time.perf_counter()
+# stop_c3 = time.perf_counter()
 
-start_c4 = time.perf_counter()
+# start_c4 = time.perf_counter()
 
 # HE for multiplication of share and public value a (should be unsat)
 s.check(mac1 * a != (k1 * a) + (d * (m1 * a)))
 
-stop_c4 = time.perf_counter()
+# stop_c4 = time.perf_counter()
 
 
-print(f"check 1 (2 party sum): { stop_c1 - start_c1:0.6f} seconds")
+# print(f"check 1 (2 party sum): { stop_c1 - start_c1:0.6f} seconds")
 
-print(f"check 2 (3 party sum): { stop_c2 - start_c2:0.6f} seconds")
+# print(f"check 2 (3 party sum): { stop_c2 - start_c2:0.6f} seconds")
 
-print(f"check 3 (BDOZ sum HE): { stop_c3 - start_c3:0.6f} seconds")
+# print(f"check 3 (BDOZ sum HE): { stop_c3 - start_c3:0.6f} seconds")
 
-print(f"check 4 (BDOZ mult HE): { stop_c4 - start_c4:0.6f} seconds")
+# print(f"check 4 (BDOZ mult HE): { stop_c4 - start_c4:0.6f} seconds")
 
-# andgmw gate in overture
+## andgmw gate in overture
 
 s.resetAssertions()
 
@@ -137,3 +137,22 @@ s.add(mz1 == rz1)
 
 # This is the correctness property of the gate.
 s.check(mz1 + mz2 != (mx1 + mx2) * (my1 + my2))
+
+## Beaver triple multiplication
+
+s.resetAssertions()
+
+a, b, c, d, e, ra1, ra2, rb1, rb2, rc1, rc2, x1, x2, y1, y2, z1, z2 = FiniteFieldElems('a b c d e ra1 ra2 rb1 rb2 rc1 rc2 x1 x2 y1 y2 z1 z2', 7)
+
+s.add(a == ra1 + ra2)
+s.add(b == rb1 + rb2)
+s.add(c == a * b)
+s.add(rc1 == c - rc2)
+
+s.add(d == (x1 - ra1) + (x2 - ra2))
+s.add(e == (y1 - rb1) + (y2 - rb2))
+
+s.add(z1 == (d * e) + (d * rb1) + (e * ra1) + rc1)
+s.add(z2 == (d * rb2) + (e * ra2) + rc2)
+
+s.check(z1 + z2 != (x1 + x2) * (y1 + y2))
