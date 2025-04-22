@@ -15,7 +15,7 @@ def prettyPrint(n: Node): String = n match {
   case AssertCommand(e1, e2, i) => s"assert (${prettyPrint(e1)} = ${prettyPrint(e2)})@${prettyPrint(i)}\n"
   case AssignCommand(e1, e2) => s"${prettyPrint(e1)} := ${prettyPrint(e2)}\n"
   case AtExpr(e, i) => s"${prettyPrint(e)}@${prettyPrint(i)}"
-  case CommandList(lst) => lst.stream().map(x => prettyPrint(x)).collect(Collectors.joining(""))
+  case CommandList(c1, c2) => s"${prettyPrint(c1)};\n${prettyPrint(c2)}"
   case Identifier(name) => name
   case MessageExpr(e) => s"m[${prettyPrint(e)}]"
   case MinusExpr(e) => s"-${prettyPrint(e)}"

@@ -103,10 +103,10 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        Term terms = factory.toTerm(new CommandList(List.of(
+        Term terms = factory.toTerm(new CommandList(
                 new AssertCommand(new OutputExpr(), new Num(1), new Num(3)),
                 new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3))
-        )));
+        ));
         //assertEquals(2, terms.size());
     }
     

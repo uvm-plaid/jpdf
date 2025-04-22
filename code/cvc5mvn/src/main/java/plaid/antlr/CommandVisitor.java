@@ -42,7 +42,7 @@ public class CommandVisitor extends PreludeBaseVisitor<PreludeCommand> {
 
     @Override
     public CommandList visitCommandList(CommandListContext ctx) {
-        return new CommandList(ctx.command().stream().map(this::visit).toList());
+        return new CommandList(visit(ctx.command(0)), visit(ctx.command(1)));
     }
 
     @Override

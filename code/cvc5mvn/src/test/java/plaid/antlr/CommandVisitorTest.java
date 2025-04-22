@@ -70,9 +70,9 @@ public class CommandVisitorTest {
         assertEquals(new LetCommand(
                 new Identifier("x"),
                 new Num(4),
-                new CommandList(List.of(
+                new CommandList(
                     new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")),
-                    new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x"))))), command);
+                    new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x")))), command);
     }
 
     /**
@@ -81,9 +81,9 @@ public class CommandVisitorTest {
     @Test
     public void commandList() {
         PreludeCommand command = ast("out@1 := x; out@2 := x");
-        assertEquals(new CommandList(List.of(
+        assertEquals(new CommandList(
                 new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")),
-                new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x")))), command);
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x"))), command);
     }
 
     /**
@@ -92,9 +92,9 @@ public class CommandVisitorTest {
     @Test
     public void fullLineComments() {
         PreludeCommand command = ast("out@1 := x;\n//out@3 := z;\nout@2 := y");
-        assertEquals(new CommandList(List.of(
+        assertEquals(new CommandList(
                 new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")),
-                new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("y")))), command);
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("y"))), command);
     }
 
     /**
@@ -122,10 +122,13 @@ public class CommandVisitorTest {
     @Test
     public void rightAssociative() {
         PreludeCommand command = ast("out@1 := x; out@2 := x; out@3 := x");
-        assertEquals(new CommandList(List.of(
-                new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")), 
-                    new CommandList(List.of(
-                        new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x")),
-                        new AssignCommand(new AtExpr(new OutputExpr(), new Num(3)), new Identifier("x")))))), command);
+        Object expected = new CommandList(
+                new CommandList(
+                        new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Identifier("x")),
+                        new AssignCommand(new AtExpr(new OutputExpr(), new Num(2)), new Identifier("x"))
+                ),
+                new AssignCommand(new AtExpr(new OutputExpr(), new Num(3)), new Identifier("x"))
+        );
+        assertEquals(expected, command);
     }
 }

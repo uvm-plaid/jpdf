@@ -69,7 +69,7 @@ public class TermFactory {
 
     public Term toTerm(PreludeCommand command) {
         return switch (command) {
-            case CommandList x -> joinWithAnd(x.commands().stream().map(y -> toTerm(y)).toList());
+            case CommandList x -> joinWithAnd(List.of(toTerm(x.c1()), toTerm(x.c2())));
             case AssertCommand x -> {
                 Integer partyIndex = getPartyIndex(x);
                 yield joinWithAnd(List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1(), partyIndex), toTerm(x.e2(), partyIndex))));

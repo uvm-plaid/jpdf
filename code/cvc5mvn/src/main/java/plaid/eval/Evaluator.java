@@ -165,15 +165,8 @@ public class Evaluator {
                 yield result;
             }
 
-            case CommandList commandList -> {
-                List<PreludeCommand> commands = commandList
-                        .commands()
-                        .stream()
-                        .map(this::evalInstruction)
-                        .toList();
-
-                yield new CommandList(commands);
-            }
+            case CommandList commandList ->
+                new CommandList(evalInstruction(commandList.c1()), evalInstruction(commandList.c2()));
 
             case AssertCommand assertCommand ->
                     new AssertCommand(toOverture(assertCommand.e1()), toOverture(assertCommand.e2()), toOverture(assertCommand.e3()));

@@ -10,7 +10,7 @@ object OvertureChecker {
     case AssertCommand(e1, e2, i) => Iterable(e1, e2, i)
     case AssignCommand(e1, e2) => Iterable(e1, e2)
     case AtExpr(e, i) => Iterable(e, i)
-    case CommandList(lst) => lst.asScala
+    case CommandList(c1, c2) => Iterable(c1, c2)
     case MessageExpr(s) => Iterable(s)
     case MinusExpr(e) => Iterable(e)
     case Num(_) => Iterable()
@@ -30,7 +30,7 @@ object OvertureChecker {
     case AssertCommand(_, _, _) => true
     case AssignCommand(_, _) => true
     case AtExpr(_, _) => true
-    case CommandList(_) => true
+    case CommandList(_, _) => true
     case MessageExpr(_) => true
     case MinusExpr(_) => true
     case Num(_) => true

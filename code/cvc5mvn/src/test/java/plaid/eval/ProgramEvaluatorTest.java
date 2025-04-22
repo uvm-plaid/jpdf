@@ -106,7 +106,7 @@ public class ProgramEvaluatorTest {
                 """;
 
         String expected_output_5 = """
-                m["g2"]@1 := (m["g1"] + m["y"])@1; 
+                m["g2"]@1 := (m["g1"] + m["y"])@1;
                 m["g2"]@2 := (m["g1"] + m["y"])@2
                 """;
 
@@ -117,11 +117,17 @@ public class ProgramEvaluatorTest {
                 """;
 
         CommandList expected_output =
-                new CommandList(List.of(Loader.toCommand(expected_output_1),
-                        new CommandList(List.of(Loader.toCommand(expected_output_2),
-                        new CommandList(List.of(Loader.toCommand(expected_output_3),
-                        new CommandList(List.of(Loader.toCommand(expected_output_4),
-                        new CommandList(List.of(Loader.toCommand(expected_output_5), Loader.toCommand(expected_output_6)))))))))));
+                new CommandList(
+                        new CommandList(
+                                new CommandList(
+                                        new CommandList(
+                                                new CommandList(
+                                                        Loader.toCommand(expected_output_1),
+                                                        Loader.toCommand(expected_output_2)),
+                                                Loader.toCommand(expected_output_3)),
+                                        Loader.toCommand(expected_output_4)),
+                                Loader.toCommand(expected_output_5)),
+                        Loader.toCommand(expected_output_6));
 
         assertEquals(expected_output, actual_output);
 

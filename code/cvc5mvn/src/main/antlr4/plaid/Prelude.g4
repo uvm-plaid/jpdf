@@ -49,7 +49,7 @@ expr
     ;
 
 command
-    : command (';' command) #CommandList // right associative
+    : command ';' command #CommandList
     | 'let' ident '=' expr 'in' command #LetCommand
     | 'assert' '(' expr '=' expr ')' '@' expr #AssertCommand
     | expr ':=' expr #AssignCommand

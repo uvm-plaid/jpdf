@@ -86,25 +86,14 @@ public class ConstraintAnalyzer {
                 // for each command's precondition, join them with And
                 // same for postcondition
                 List<Constraints> constraints = new ArrayList<>();
-                for (PreludeCommand c : commandList.commands()){
-                    constraints.add(inferPrePostCmd(c));
-                }
+                constraints.add(inferPrePostCmd(commandList.c1()));
+                constraints.add(inferPrePostCmd(commandList.c2()));
 
-                // if there is only one constraint
-                // then we don't need to conjoin
-                if (constraints.size() == 1){
-                    yield new Constraints(constraints.getFirst().getPre(), constraints.getFirst().getPost());
-                }
-                else {
-
-                    Optional<ConstraintExpr> reducedPre =
-                            constraints.stream().map(Constraints::getPre).filter(Objects::nonNull).reduce(AndConstraintExpr::new);
-                    Optional<ConstraintExpr> reducedPost =
-                            constraints.stream().map(Constraints::getPost).filter(Objects::nonNull).reduce(AndConstraintExpr::new);
-                    yield new Constraints(reducedPre.orElse(null), reducedPost.orElse(null));
-
-                }
-
+                Optional<ConstraintExpr> reducedPre =
+                        constraints.stream().map(Constraints::getPre).filter(Objects::nonNull).reduce(AndConstraintExpr::new);
+                Optional<ConstraintExpr> reducedPost =
+                        constraints.stream().map(Constraints::getPost).filter(Objects::nonNull).reduce(AndConstraintExpr::new);
+                yield new Constraints(reducedPre.orElse(null), reducedPost.orElse(null));
             }
 
             case FunctionCallCommand functionCallCommand -> {
