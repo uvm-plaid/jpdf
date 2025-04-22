@@ -1,21 +1,23 @@
-exprfunctions:
-
-not(x){ (x + 1) }
-
-mux(s, b1, b2){ (not(s) * b1) + (s1 * b2) }
-
 cmdfunctions:
 
-main(){
-  m["x"]@1 := 1@1;
-  m["unit"]@1 := 1@1;
-  m["zero"]@1 := 0@1;
-  m["y"]@1 := (m["unit"] + m["zero"])@1;
-  m["ot"]@1 := OT(m["y"]@1, s["x"], s["y"])@2
+_open(x:string, i1:cid, i2:cid){
+    m[x++"exts"]@i1 := m[x++"s"]@i2;
+    m[x++"extm"]@i1 := m[x++"m"]@i2;
+    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
 }
 
-postcondition: (
-  m["x"]@1 == m["unit"]@1 AND
-  m["ot"]@1 == ((m["y"]@1 + m["unit"]@1) * s["x"]@2) + (m["y"]@1 * s["y"]@2)
-)
+open(x:string) { _open(x,1,2); _open(x,2,1) }
 
+_sum(z:string, x:string, y:string, i:cid){
+    m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i;
+    m[z++"m"]@i := (m[x++"m"] + m[y++"m"])@i;
+    m[z++"k"]@i := (m[x++"k"] + m[y++"k"])@i
+}
+
+sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
+
+main() {
+    sum("z","x","y");
+    open("z");
+}
+postcondition: ( m["z"]@1 == (m["x"]@1 + m["x"]@2) + (m["y"]@1 + m["y"]@2)) )
