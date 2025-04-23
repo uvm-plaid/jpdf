@@ -47,8 +47,9 @@ main() {
     mult("k","i","j");
     open("k")
 }
-postcondition: ( m["z"]@1 == (m["xs"]@1 + m["xs"]@2) + (m["ys"]@1 + m["ys"]@2) AND
-                 m["k"]@1 == (m["is"]@1 + m["is"]@2) * (m["js"]@1 + m["js"]@2) )
+postcondition: ( // m["z"]@1 == (m["xs"]@1 + m["xs"]@2) + (m["ys"]@1 + m["ys"]@2) AND
+                 m["z"]@1 == SHARED("xs") + SHARED("ys") AND
+		 m["k"]@1 == (m["is"]@1 + m["is"]@2) * (m["js"]@1 + m["js"]@2) )
 
 constraintfunctions:
 
