@@ -1,3 +1,7 @@
+exprfunctions:
+
+SHARED(x) { (m[x]@1 + m[x]@2) }
+
 cmdfunctions:
 
 _open(x:string, i1:cid, i2:cid){
@@ -55,3 +59,4 @@ BEAVERTRIP(x) {
   m[x++"bs"]@1 + m[x++"bs"]@2 == m[x++"b"]@3 AND
   m[x++"cs"]@1 + m[x++"cs"]@2 == m[x++"c"]@3 
 }
+
