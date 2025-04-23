@@ -78,62 +78,62 @@ public class ConstraintEvaluator {
             }
             case MinusExpr me -> new MinusExpr(toOverture(me.e()));
 
-//            case LetExpr le -> {
-//                // let y = e1 in e2
-//                // evalConstraint e1 first
-//                PreludeExpression e1 = toOverture(le.e1());
-//                // let y = v in e2
-//                // substitute v for y in e2
-//
-//                Map<Identifier, PreludeExpression> bindings = new HashMap<>(binding_list.getLast());
-//                bindings.put(le.y(), e1);
-//                binding_list.addLast(bindings);
-//
-//                PreludeExpression result = toOverture(le.e2());
-//                binding_list.removeLast();
-//
-//                yield result;
-//            }
-//            case FunctionCallExpr fe -> {
-//                // evalConstraint the parameters first
-//                List<PreludeExpression> actualParams = fe
-//                        .parameters()
-//                        .stream()
-//                        .map(this::toOverture)
-//                        .toList();
-//
-//                // bind former parameters to actual parameters in function context
-//                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
-//
-//
-//                for(int i = 0; i < actualParams.size(); i++){
-//                    bindings.put(program.resolveExprFunction(fe.fname()).y().get(i), actualParams.get(i));
-//                }
-//                binding_list.add(bindings);
-//
-//                PreludeExpression result = toOverture(program.resolveExprFunction(fe.fname()).e());
-//
-//                binding_list.removeLast();
-//                yield result;
-//            }
-//            case FieldExpr fe -> {
-//                TreeMap<Identifier, PreludeExpression> field = new TreeMap<>();
-//                for(Map.Entry<Identifier, PreludeExpression> element : fe.elements().entrySet()){
-//                    field.put(element.getKey(), toOverture(element.getValue()));
-//                }
-//
-//                yield new FieldExpr(field);
-//            }
-//            case FieldSelectExpr fse -> {
-//                // evalConstraint field expression first
-//                FieldExpr field = (FieldExpr) toOverture(fse.e());
-//                yield field.elements().get(fse.l());
-//            }
+            case LetExpr le -> {
+                // let y = e1 in e2
+                // evalConstraint e1 first
+                PreludeExpression e1 = toOverture(le.e1());
+                // let y = v in e2
+                // substitute v for y in e2
+
+                Map<Identifier, PreludeExpression> bindings = new HashMap<>(binding_list.getLast());
+                bindings.put(le.y(), e1);
+                binding_list.addLast(bindings);
+
+                PreludeExpression result = toOverture(le.e2());
+                binding_list.removeLast();
+
+                yield result;
+            }
+            case FunctionCallExpr fe -> {
+                // evalConstraint the parameters first
+                List<PreludeExpression> actualParams = fe
+                        .parameters()
+                        .stream()
+                        .map(this::toOverture)
+                        .toList();
+
+                // bind former parameters to actual parameters in function context
+                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
+
+
+                for(int i = 0; i < actualParams.size(); i++){
+                    bindings.put(program.resolveExprFunction(fe.fname()).y().get(i), actualParams.get(i));
+                }
+                binding_list.add(bindings);
+
+                PreludeExpression result = toOverture(program.resolveExprFunction(fe.fname()).e());
+
+                binding_list.removeLast();
+                yield result;
+            }
+            case FieldExpr fe -> {
+                TreeMap<Identifier, PreludeExpression> field = new TreeMap<>();
+                for(Map.Entry<Identifier, PreludeExpression> element : fe.elements().entrySet()){
+                    field.put(element.getKey(), toOverture(element.getValue()));
+                }
+
+                yield new FieldExpr(field);
+            }
+            case FieldSelectExpr fse -> {
+                // evalConstraint field expression first
+                FieldExpr field = (FieldExpr) toOverture(fse.e());
+                yield field.elements().get(fse.l());
+            }
 
             case AtExpr ae -> new AtExpr(toOverture(ae.e1()), toOverture(ae.e2()));
             
-//            case OTExpr oe -> new OTExpr(toOverture(oe.e1()), toOverture(oe.i1()), toOverture(oe.e2()), toOverture(oe.e3()));
-//            case OTFourExpr ofe -> new OTFourExpr(toOverture(ofe.s1()), toOverture(ofe.s2()), toOverture(ofe.i1()), toOverture(ofe.e1()), toOverture(ofe.e2()), toOverture(ofe.e3()), toOverture(ofe.e4()));
+            case OTExpr oe -> new OTExpr(toOverture(oe.e1()), toOverture(oe.i1()), toOverture(oe.e2()), toOverture(oe.e3()));
+            case OTFourExpr ofe -> new OTFourExpr(toOverture(ofe.s1()), toOverture(ofe.s2()), toOverture(ofe.i1()), toOverture(ofe.e1()), toOverture(ofe.e2()), toOverture(ofe.e3()), toOverture(ofe.e4()));
             default -> throw new IllegalArgumentException("Bad Expression");
         };
     }

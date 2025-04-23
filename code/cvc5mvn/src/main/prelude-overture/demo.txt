@@ -19,7 +19,7 @@ _sum(z:string, x:string, y:string, i:cid){
 }
 
 sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
-postcondition: ( m[z++"s"]@1 + m[z++"s"]@2 == (m[x++"s"]@1 + m[x++"s"]@2) + (m[y++"s"]@1 + m[y++"s"]@2)) )
+postcondition: ( m[z++"s"]@1 + m[z++"s"]@2 == (m[x++"s"]@1 + m[x++"s"]@2) + (m[y++"s"]@1 + m[y++"s"]@2))
 
 _mult(z : string, y : string, i : cid) {
    m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i;
