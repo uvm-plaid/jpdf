@@ -142,7 +142,7 @@ s.check(mz1 + mz2 != (mx1 + mx2) * (my1 + my2))
 
 s.resetAssertions()
 
-a, b, c, d, e, ra1, ra2, rb1, rb2, rc1, rc2, x1, x2, y1, y2, z1, z2 = FiniteFieldElems('a b c d e ra1 ra2 rb1 rb2 rc1 rc2 x1 x2 y1 y2 z1 z2', 7)
+a, b, c, d, e, ra1, ra2, rb1, rb2, rc1, rc2, x1, x2, y1, y2, z1, z2 = FiniteFieldElems('a b c d e ra1 ra2 rb1 rb2 rc1 rc2 x1 x2 y1 y2 z1 z2', 2147483647)
 
 s.add(a == ra1 + ra2)
 s.add(b == rb1 + rb2)

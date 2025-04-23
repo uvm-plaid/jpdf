@@ -1,28 +1,11 @@
 cmdfunctions:
 
-_open(x:string, i1:cid, i2:cid){
-    m[x++"exts"]@i1 := m[x++"s"]@i2;
-    m[x++"extm"]@i1 := m[x++"m"]@i2;
-    assert(m[x++"extm"] = m[x++"k"] + (m["delta"] * m[x++"exts"]))@i1;
-    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
-}
-
-open(x:string) { _open(x,1,2); _open(x,2,1) }
-
-_sum(z:string, x:string, y:string, i:cid){
-    m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i;
-    m[z++"m"]@i := (m[x++"m"] + m[y++"m"])@i;
-    m[z++"k"]@i := (m[x++"k"] + m[y++"k"])@i
-}
-
-sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
-
-precondition: ( m["xm"]@1 == m["xk"]@2 + (m["delta"]@2 * m["xs"]@1) AND
-                m["xm"]@2 == m["xk"]@1 + (m["delta"]@1 * m["xs"]@2) AND
-		m["ym"]@1 == m["yk"]@2 + (m["delta"]@2 * m["ys"]@1) AND
-                m["ym"]@2 == m["yk"]@1 + (m["delta"]@1 * m["ys"]@2) )
+precondition: ( foo() )
 main() {
-    sum("z","x","y");
-    open("z")
+   m["x"]@1 := r["x"]@1;
+   m["x"]@1 := r["y"]@1
 }
-postcondition: ( m["z"]@1 == (m["xs"]@1 + m["xs"]@2) + (m["ys"]@1 + m["ys"]@2)) )
+
+constraintfunctions:
+
+foo() { m["x"]@1 == m["x"]@1 } 
