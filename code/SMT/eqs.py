@@ -138,21 +138,40 @@ s.add(mz1 == rz1)
 # This is the correctness property of the gate.
 s.check(mz1 + mz2 != (mx1 + mx2) * (my1 + my2))
 
-## Beaver triple multiplication
+## Beaver triple multiplication, Pragmatic MPC style
 
 s.resetAssertions()
 
-a, b, c, d, e, ra1, ra2, rb1, rb2, rc1, rc2, x1, x2, y1, y2, z1, z2 = FiniteFieldElems('a b c d e ra1 ra2 rb1 rb2 rc1 rc2 x1 x2 y1 y2 z1 z2', 2147483647)
+a, b, c, d, e, a1, a2, b1, b2, rc1, rc2, x1, x2, y1, y2, z1, z2 = FiniteFieldElems('a b c d e a1 a2 b1 b2 rc1 rc2 x1 x2 y1 y2 z1 z2', 2147483647)
 
-s.add(a == ra1 + ra2)
-s.add(b == rb1 + rb2)
+s.add(a == a1 + a2)
+s.add(b == b1 + b2)
 s.add(c == a * b)
 s.add(rc1 == c - rc2)
 
-s.add(d == (x1 - ra1) + (x2 - ra2))
-s.add(e == (y1 - rb1) + (y2 - rb2))
+s.add(d == (x1 - a1) + (x2 - a2))
+s.add(e == (y1 - b1) + (y2 - b2))
 
-s.add(z1 == (d * e) + (d * rb1) + (e * ra1) + rc1)
-s.add(z2 == (d * rb2) + (e * ra2) + rc2)
+s.add(z1 == (d * e) + (d * b1) + (e * a1) + rc1)
+s.add(z2 == (d * b2) + (e * a2) + rc2)
+
+s.check(z1 + z2 != (x1 + x2) * (y1 + y2))
+
+## Beaver triple multiplication, Medium style
+
+s.resetAssertions()
+
+a, b, c, d, e, a1, a2, b1, b2, rc1, rc2, x1, x2, y1, y2, z1, z2 = FiniteFieldElems('a b c d e a1 a2 b1 b2 rc1 rc2 x1 x2 y1 y2 z1 z2', 2147483647)
+
+s.add(a == a1 + a2)
+s.add(b == b1 + b2)
+s.add(c == a * b)
+s.add(rc1 == c - rc2)
+
+s.add(d == (x1 + a1) + (x2 + a2))
+s.add(e == (y1 + b1) + (y2 + b2))
+
+s.add(z1 == (d * y1) - (e * a1) + rc1)
+s.add(z2 == (d * y2) - (e * a2) + rc2)
 
 s.check(z1 + z2 != (x1 + x2) * (y1 + y2))
