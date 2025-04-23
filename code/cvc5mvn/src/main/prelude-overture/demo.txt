@@ -3,7 +3,7 @@ cmdfunctions:
 precondition: ( foo() )
 main() {
    m["x"]@1 := r["x"]@1;
-   m["x"]@1 := r["y"]@1
+   m["y"]@1 := r["y"]@1
 }
 
 constraintfunctions:
