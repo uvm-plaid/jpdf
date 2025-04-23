@@ -2,7 +2,14 @@ exprfunctions:
 
 SHARED(x) { (m[x++"s"]@1 + m[x++"s"]@2) }
 
+IDEALF() { (s["x"]@1 + s["y"]@2) + (s["i"]@1 * s["j"]@2) }
+
 cmdfunctions:
+
+sshare(x:string, i1:cid, i2:cid) {
+   m[x++"s"]@i2 := (s[x] + -r[x])@i1;
+   m[x++"s"]@i1 := r[x]@i1
+}
 
 _open(x:string, i1:cid, i2:cid){
     m[x++"exts"]@i1 := m[x++"s"]@i2;
@@ -35,13 +42,17 @@ postcondition: ( SHARED(z) == SHARED(x) * SHARED(y) )
 // * 
 precondition: ( BEAVERTRIP("k") ) 
 main() {
+    sshare("x", 1, 2);
+    sshare("y", 2, 1);
+    sshare("i", 1, 2);
+    sshare("j", 2, 1);
+    
     sum("z","x","y");
-    open("z");
     mult("k","i","j");
-    open("k")
+    sum("out","z","k");
+    open("out")
 }
-postcondition: ( m["z"]@1 == SHARED("x") + SHARED("y") AND
-	         m["k"]@1 == SHARED("i") * SHARED("j") )
+postcondition: ( m["out"]@1 == IDEALF() )
 
 constraintfunctions:
 
