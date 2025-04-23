@@ -6,11 +6,11 @@ import scala.collection.View;
 import java.util.*;
 
 public class ConstraintEvaluator {
-    //private final Program program;
+    private final Program program;
     public List<Map<Identifier, PreludeExpression>> binding_list;
 
-    public ConstraintEvaluator(){
-        //this.program = program; 
+    public ConstraintEvaluator(Program program){
+        this.program = program; 
         binding_list = new LinkedList<>();
         binding_list.add(new HashMap<>());
     }
@@ -214,26 +214,26 @@ public class ConstraintEvaluator {
             case AndConstraintExpr x -> new AndConstraintExpr(evalConstraint(x.e1()), evalConstraint(x.e2()));
             case NotConstraintExpr x -> new NotConstraintExpr(evalConstraint(x.e()));
             case EqualConstraintExpr x -> new EqualConstraintExpr(toOverture(x.e1()), toOverture(x.e2()));
-//            case FunctionCallExpr x -> {
-//                ConstraintFunction function = program.resolveConstraintFunction(x.fname());
-//                List<Identifier> formalParams = function.params();
-//                List<PreludeExpression> actualParams = x
-//                        .parameters()
-//                        .stream()
-//                        .map(this::toOverture)
-//                        .toList();
-//
-//                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
-//                for (int i = 0; i < actualParams.size(); i++) {
-//                    bindings.put(formalParams.get(i), actualParams.get(i));
-//                }
-//
-//                binding_list.add(bindings);
-//                ConstraintExpr result = evalConstraint(function.body());
-//                binding_list.removeLast();
-//
-//                yield result;
-//            }
+            case FunctionCallExpr x -> {
+                ConstraintFunction function = program.resolveConstraintFunction(x.fname());
+                List<Identifier> formalParams = function.params();
+                List<PreludeExpression> actualParams = x
+                        .parameters()
+                        .stream()
+                        .map(this::toOverture)
+                        .toList();
+
+                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
+                for (int i = 0; i < actualParams.size(); i++) {
+                    bindings.put(formalParams.get(i), actualParams.get(i));
+                }
+
+                binding_list.add(bindings);
+                ConstraintExpr result = evalConstraint(function.body());
+                binding_list.removeLast();
+
+                yield result;
+            }
             case TrueConstraintExpr x -> x;
             default -> throw new IllegalArgumentException("Bad constraint");
         };

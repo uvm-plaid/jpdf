@@ -9,7 +9,7 @@ public class ConstraintAnalyzer {
 
     private final Program program; // provide a program to resolve function
     private final ConstraintEvaluator evaluator;
-    private final GenEntailVerifier verifier = new GenEntailVerifier();
+    private final GenEntailVerifier verifier;
     private final List<Map<PreludeExpression, Constraints>> functionConstraints; // data structure to store inferred pre/post conditions by FN rule
     
     private Map<Identifier, PreludeExpression> binding(List<TypedIdentifier> formal, List<PreludeExpression> actual){
@@ -23,7 +23,8 @@ public class ConstraintAnalyzer {
 
     public ConstraintAnalyzer(Program program) throws CVC5ApiException {
         this.program = program;
-        this.evaluator = new ConstraintEvaluator();
+        this.evaluator = new ConstraintEvaluator(program);
+        this.verifier = new GenEntailVerifier(program);
         functionConstraints = new LinkedList<>();
         functionConstraints.add(new HashMap<>());
     }

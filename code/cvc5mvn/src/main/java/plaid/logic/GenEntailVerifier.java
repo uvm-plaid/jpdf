@@ -17,8 +17,11 @@ public class GenEntailVerifier {
     TermManager termManager = new TermManager();
     Sort sort = termManager.mkFiniteFieldSort(order, 10);
    
-    public GenEntailVerifier() throws CVC5ApiException {
-        counter = 1;        
+    private final Program program;
+    
+    public GenEntailVerifier(Program program) throws CVC5ApiException {
+        counter = 1;
+        this.program = program;
     }
     
     private static Str genFreshString(){
@@ -38,8 +41,8 @@ public class GenEntailVerifier {
 
     public static PreludeExpression genFreshValue(Type type) {
         return switch (type) {
-            case StringType _ -> genFreshString();
-            case PartyIndexType _ -> genFreshCID();
+            case StringType x -> genFreshString();
+            case PartyIndexType x -> genFreshCID();
             case RecordType t -> {
                 TreeMap<Identifier, PreludeExpression> map = new java.util.TreeMap<>(Map.of());
                 for (Map.Entry<Identifier, Type> element : t.elements().entrySet()){
@@ -76,7 +79,7 @@ public class GenEntailVerifier {
 //        }
         
         // evalConstraint abstractConstraints into ground constraint
-        ConstraintEvaluator evaluator = new ConstraintEvaluator();
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         evaluator.binding_list.add(bindingList);
         ConstraintExpr groundE1 = evaluator.evalConstraint(e1); 
         ConstraintExpr groundE2 =  evaluator.evalConstraint(e2);

@@ -34,6 +34,7 @@ def prettyPrint(n: Node): String = n match {
   case NotConstraintExpr(e) => s"NOT ${prettyPrint(e)}"
   case EqualConstraintExpr(e1, e2) => s"${prettyPrint(e1)} == ${prettyPrint(e2)}"
   case TrueConstraintExpr() => "T"
+  case FunctionCallExpr(i, es) => s"${prettyPrint(i)}(${String.join(", ", es.stream().map(prettyPrint).toList)})"
   case null => ""
 
 }
