@@ -7,24 +7,26 @@ import io.github.cvc5.TermManager;
 import plaid.ast.*;
 import plaid.cvc.TermFactory;
 import plaid.cvc.Verifier;
-import plaid.ScalaFunctions;
 
 import java.util.*;
 
 public class GenEntailVerifier {
-    private static int counter;
-    private final static String order = "2";
-    TermManager termManager = new TermManager();
-    Sort sort = termManager.mkFiniteFieldSort(order, 10);
+    private int counter;
+    private final TermManager termManager;
+    private final Sort sort;
+    //private final static String order = "2";
+   
    
     private final Program program;
     
-    public GenEntailVerifier(Program program) throws CVC5ApiException {
+    public GenEntailVerifier(Program program, String order) throws CVC5ApiException {
         counter = 1;
+        termManager  = new TermManager();
+        sort = termManager.mkFiniteFieldSort(order, 10);
         this.program = program;
     }
     
-    private static Str genFreshString(){
+    private Str genFreshString(){
         Character c = (char) (36); // $
         String freshStr = String.valueOf(c).repeat(Math.max(0, counter));
         counter = counter + 1;
@@ -33,13 +35,13 @@ public class GenEntailVerifier {
         return new Str(freshStr);
     }
 
-    private static Num genFreshCID() {
+    private Num genFreshCID() {
         int freshID = -(counter);
         counter++;
         return new Num(freshID);
     }
 
-    public static PreludeExpression genFreshValue(Type type) {
+    public PreludeExpression genFreshValue(Type type) {
         return switch (type) {
             case StringType x -> genFreshString();
             case PartyIndexType x -> genFreshCID();

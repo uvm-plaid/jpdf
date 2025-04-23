@@ -21,11 +21,11 @@ public class GenEntailVerifierTest {
     @Test
     public void genFreshStringTest() throws CVC5ApiException{
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
-        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program); // initialize counter = 0
+        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2"); // initialize counter = 0
         
-        assertEquals(new Str("$"), GenEntailVerifier.genFreshValue(new StringType()));
-        assertEquals(new Str("$$"), GenEntailVerifier.genFreshValue(new StringType()));
-        assertEquals(new Str("$$$"), GenEntailVerifier.genFreshValue(new StringType()));         
+        assertEquals(new Str("$"), genEntailVerifier.genFreshValue(new StringType()));
+        assertEquals(new Str("$$"), genEntailVerifier.genFreshValue(new StringType()));
+        assertEquals(new Str("$$$"), genEntailVerifier.genFreshValue(new StringType()));         
     }
 
     /**
@@ -34,11 +34,11 @@ public class GenEntailVerifierTest {
     @Test
     public void genFreshCIDTest() throws CVC5ApiException{
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
-        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program); // initialize counter = 0
+        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2"); // initialize counter = 0
         
-        assertEquals(new Num(-1),  GenEntailVerifier.genFreshValue(new PartyIndexType()));
-        assertEquals(new Num(-2), GenEntailVerifier.genFreshValue(new PartyIndexType()));
-        assertEquals(new Num(-3), GenEntailVerifier.genFreshValue(new PartyIndexType()));
+        assertEquals(new Num(-1),  genEntailVerifier.genFreshValue(new PartyIndexType()));
+        assertEquals(new Num(-2), genEntailVerifier.genFreshValue(new PartyIndexType()));
+        assertEquals(new Num(-3), genEntailVerifier.genFreshValue(new PartyIndexType()));
     }
 
     /**
@@ -49,7 +49,7 @@ public class GenEntailVerifierTest {
         String src = "{ s : string ; i : cid}";
         // initialize counter = 1
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
-        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program); 
+        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2"); 
 
         RecordType recordType = (RecordType) Loader.toType(src); // convert a string src into AST
         
@@ -57,7 +57,7 @@ public class GenEntailVerifierTest {
         map.put(new Identifier("s"), new Str("$$"));
         map.put(new Identifier("i"), new Num(-1));
         Object expected = new FieldExpr(map); 
-        assertEquals(expected, GenEntailVerifier.genFreshValue(recordType));
+        assertEquals(expected, genEntailVerifier.genFreshValue(recordType));
 
     }
 
@@ -69,7 +69,7 @@ public class GenEntailVerifierTest {
         String src = "{t: {s:string; t2:{i:cid}}}";
         // initialize counter = 1
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
-        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program);
+        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2");
         
         RecordType recordType = (RecordType) Loader.toType(src);
         
@@ -78,7 +78,7 @@ public class GenEntailVerifierTest {
         innermap.put(new Identifier("t2"), new FieldExpr(new TreeMap<>(Map.of(new Identifier("i"), new Num(-2)))));
         
         Object expected = new FieldExpr(new TreeMap<>(Map.of(new Identifier("t"), new FieldExpr(innermap))));
-        assertEquals(expected, GenEntailVerifier.genFreshValue(recordType));
+        assertEquals(expected, genEntailVerifier.genFreshValue(recordType));
         
     }
 
@@ -91,7 +91,7 @@ public class GenEntailVerifierTest {
         String e2 = "m[z++\"s\"]@i1 + m[z++\"s\"]@i2 == m[x++\"s\"]@i1 + m[y++\"s\"]@i1 + m[x++\"s\"]@i2 + m[y++\"s\"]@i2";
 
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
-        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program);
+        GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2");
         List<TypedIdentifier> typing = List.of( 
             new TypedIdentifier(new Identifier("i2"), new PartyIndexType()),
             new TypedIdentifier(new Identifier("y"), new StringType()),

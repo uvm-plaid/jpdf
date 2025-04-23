@@ -6,7 +6,6 @@ import org.junit.Test;
 import plaid.ScalaFunctions;
 import plaid.antlr.Loader;
 import plaid.ast.*;
-import scala.collection.immutable.Stream;
 
 import java.util.List;
 
@@ -15,13 +14,13 @@ import static org.junit.Assert.assertEquals;
 public class ConstraintAnalyzerTest {
 
     private Constraints inferPrePostCmd(String src, String program) throws CVC5ApiException {
-        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(Loader.toProgram(program));
+        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(Loader.toProgram(program), "2");
         return constraintAnalyzer.inferPrePostCmd(Loader.toCommand(src));
     }
 
     private Constraints inferPrePostFN(String fName, String src) throws CVC5ApiException {
         Program program = Loader.toProgram(src);
-        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(program);
+        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(program, "2");
         return constraintAnalyzer.inferPrePostFN(program.resolveCommandFunction(Loader.toExpression(fName)));
     }
 
@@ -93,7 +92,7 @@ public class ConstraintAnalyzerTest {
     @Test
     public void inferFunctionCall() throws CVC5ApiException {
         String program = """
-                cmdfunctions: 
+                cmdfunctions:
                 f(i:cid) {assert (m["x"] = m["x"])@i}
 
                 main(){f(1)}

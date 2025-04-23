@@ -49,16 +49,16 @@ public class App implements Runnable {
     
     // static analysis on main
     private Constraints staticAnalysis(Program program) throws CVC5ApiException {
-        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(program);
+        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(program, fieldSize);
         return constraintAnalyzer.inferPrePostFN(program.resolveCommandFunction(Loader.toExpression("main")));
     }
     
     @Override
     public void run() {
-        TermManager termManager = new TermManager();
-        Sort sort = mkFiniteFieldSort(termManager, fieldSize, 10);
-        termFactory = new TermFactory(termManager, sort);
-        Verifier verifier = new Verifier(termFactory);
+//        TermManager termManager = new TermManager();
+//        Sort sort = mkFiniteFieldSort(termManager, fieldSize, 10);
+//        termFactory = new TermFactory(termManager, sort);
+//        Verifier verifier = new Verifier(termFactory);
         
         // read prelude source code and constraints
         String program = readSourceCode();
@@ -68,40 +68,40 @@ public class App implements Runnable {
         // static analysis 
         try {
             Constraints constraints = staticAnalysis(programAST);
-            System.out.println(ScalaFunctions.prettyPrint(constraints.getPre())); 
-            System.out.println(ScalaFunctions.prettyPrint(constraints.getPost()));
+            System.out.println("The inferred precondition for main: " +  ScalaFunctions.prettyPrint(constraints.getPre())); 
+            System.out.println("The inferred postcondition for main: " + ScalaFunctions.prettyPrint(constraints.getPost()));
         } catch (CVC5ApiException e) {
             throw new RuntimeException(e);
         }
 
-        PreludeCommand protocol = new ProgramEvaluator(Loader.toProgram(program)).eval(); // evaluation 
-        Term overtureTerms = termFactory.toTerm(protocol);
-        
-        Term preconditionTerm = evaluateConstraint(programAST, programAST.precondition());
-        Term postconditionTerm = evaluateConstraint(programAST, programAST.postcondition());
-
-        if (!OvertureChecker.checkOverture(protocol)) {
-            System.out.println("Overture protocol is invalid");
-            System.exit(1);
-        }
-
-        if (!verifier.satisfies(protocol)) {
-            System.out.println("Protocol is not satisfiable");
-            System.exit(1);
-        }
-        System.out.println("Protocol is satisfiable");
-        
-        Collection<Term> premises = new ArrayList<>();
-        premises.add(overtureTerms);
-        if (preconditionTerm != null) {
-            premises.add(preconditionTerm);
-        }
-        
-        if (postconditionTerm!=null &&  !verifier.entails(premises, postconditionTerm)) {
-            System.out.println("Protocol and precondition do not entail postcondition");
-            System.exit(1);
-        }
-        System.out.println("Protocol and precondition entail postcondition");
+//        PreludeCommand protocol = new ProgramEvaluator(Loader.toProgram(program)).eval(); // evaluation 
+//        Term overtureTerms = termFactory.toTerm(protocol);
+//        
+//        Term preconditionTerm = evaluateConstraint(programAST, programAST.precondition());
+//        Term postconditionTerm = evaluateConstraint(programAST, programAST.postcondition());
+//
+//        if (!OvertureChecker.checkOverture(protocol)) {
+//            System.out.println("Overture protocol is invalid");
+//            System.exit(1);
+//        }
+//
+//        if (!verifier.satisfies(protocol)) {
+//            System.out.println("Protocol is not satisfiable");
+//            System.exit(1);
+//        }
+//        System.out.println("Protocol is satisfiable");
+//        
+//        Collection<Term> premises = new ArrayList<>();
+//        premises.add(overtureTerms);
+//        if (preconditionTerm != null) {
+//            premises.add(preconditionTerm);
+//        }
+//        
+//        if (postconditionTerm!=null &&  !verifier.entails(premises, postconditionTerm)) {
+//            System.out.println("Protocol and precondition do not entail postcondition");
+//            System.exit(1);
+//        }
+//        System.out.println("Protocol and precondition entail postcondition");
     }
 
     private String readSourceCode() {
@@ -113,12 +113,12 @@ public class App implements Runnable {
         }
     }
 
-    private Term evaluateConstraint(Program program, ConstraintExpr expr) {
-        if (expr == null) {
-            return null;
-        }
-        ConstraintExpr eval = new Evaluator(program).evalConstraint(expr);
-        return termFactory.constraintToTerm(eval);
-    }
+//    private Term evaluateConstraint(Program program, ConstraintExpr expr) {
+//        if (expr == null) {
+//            return null;
+//        }
+//        ConstraintExpr eval = new Evaluator(program).evalConstraint(expr);
+//        return termFactory.constraintToTerm(eval);
+//    }
 
 }

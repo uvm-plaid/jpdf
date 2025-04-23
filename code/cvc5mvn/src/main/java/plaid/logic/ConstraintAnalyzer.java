@@ -21,10 +21,10 @@ public class ConstraintAnalyzer {
         return bindingList;
     }
 
-    public ConstraintAnalyzer(Program program) throws CVC5ApiException {
+    public ConstraintAnalyzer(Program program, String order) throws CVC5ApiException {
         this.program = program;
         this.evaluator = new ConstraintEvaluator(program);
-        this.verifier = new GenEntailVerifier(program);
+        this.verifier = new GenEntailVerifier(program, order);
         functionConstraints = new LinkedList<>();
         functionConstraints.add(new HashMap<>());
     }
