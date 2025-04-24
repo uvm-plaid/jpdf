@@ -147,29 +147,29 @@ public class ConstraintEvaluator {
         return switch (instr) {
             case AssignCommand assignCommand ->
                     new AssignCommand(toOverture(assignCommand.e1()), toOverture(assignCommand.e2()));
-//
-//            case FunctionCallCommand functionCall -> {
-//                // evalConstraint actual parameters first
-//                List<PreludeExpression> actual_parameters =
-//                        functionCall.parameters().stream().map(this::toOverture).toList();
-//
-//                // find a function with the same function name
-//                CommandFunction function = program.resolveCommandFunction(functionCall.fname());
-//
-//                // map former parameters to actual parameters
-//                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
-//                for (int i = 0; i < actual_parameters.size(); i++) {
-//                    bindings.put(function.typedVariables().get(i).y(), actual_parameters.get(i));
-//                }
-//
-//                binding_list.add(bindings);
-//
-//                // evalConstraint the function body with the actual parameters
-//                PreludeCommand result = evalInstruction(function.c());
-//                //binding_list.removeLast(); // have to comment out for a constraint to evaluate 
-//
-//                yield result;
-//            }
+
+            case FunctionCallCommand functionCall -> {
+                // evalConstraint actual parameters first
+                List<PreludeExpression> actual_parameters =
+                        functionCall.parameters().stream().map(this::toOverture).toList();
+
+                // find a function with the same function name
+                CommandFunction function = program.resolveCommandFunction(functionCall.fname());
+
+                // map former parameters to actual parameters
+                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
+                for (int i = 0; i < actual_parameters.size(); i++) {
+                    bindings.put(function.typedVariables().get(i).y(), actual_parameters.get(i));
+                }
+
+                binding_list.add(bindings);
+
+                // evalConstraint the function body with the actual parameters
+                PreludeCommand result = evalInstruction(function.c());
+                binding_list.removeLast(); 
+
+                yield result;
+            }
 
             case LetCommand letCommand -> {
                 // let y = e in c
@@ -185,18 +185,11 @@ public class ConstraintEvaluator {
                 yield result;
             }
 
-//            case CommandList commandList -> {
-//                List<PreludeCommand> commands = commandList
-//                        .commands()
-//                        .stream()
-//                        .map(this::evalInstruction)
-//                        .toList();
-//
-//                yield new CommandList(commands);
-//            }
-//
-//            case AssertCommand assertCommand ->
-//                    new AssertCommand(toOverture(assertCommand.e1()), toOverture(assertCommand.e2()), toOverture(assertCommand.e3()));
+            case CommandList commandList -> new CommandList(evalInstruction(commandList.c1()), evalInstruction(commandList.c2()));
+            
+
+            case AssertCommand assertCommand ->
+                    new AssertCommand(toOverture(assertCommand.e1()), toOverture(assertCommand.e2()), toOverture(assertCommand.e3()));
 
             default -> throw new IllegalArgumentException("Bad instruction");
 

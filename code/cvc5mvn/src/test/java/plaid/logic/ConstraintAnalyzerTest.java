@@ -229,12 +229,10 @@ public class ConstraintAnalyzerTest {
                 Loader.toConstraintExpression("m[x++\"sfoo\"]@1 == m[x++\"sfoo\"]@1")
         );
         
-        System.out.println("main's precond: " + ScalaFunctions.prettyPrint(inferPrePostFN("main", program).getPre()));
-        System.out.println("main's postcond AST: " + inferPrePostFN("main", program).getPost());
-        System.out.println("main's postcond: " + ScalaFunctions.prettyPrint(inferPrePostFN("main", program).getPost()));
         assertEquals(expected.getPre(), inferPrePostFN("main", program).getPre());
         assertEquals(expected.getPost(), inferPrePostFN("main", program).getPost());
     }
+    
 
     @Test
     public void concatLiterals() {
@@ -277,4 +275,6 @@ public class ConstraintAnalyzerTest {
         Object expected = new ConcatExpr(new ConcatExpr(i, new Str("bc")), i);
         assertEquals(expected, actual);
     }
+    
+
 }

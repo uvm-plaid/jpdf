@@ -68,8 +68,8 @@ public class App implements Runnable {
         // static analysis 
         try {
             Constraints constraints = staticAnalysis(programAST);
-            System.out.println("The inferred precondition for main: " +  ScalaFunctions.prettyPrint(constraints.getPre())); 
-            System.out.println("The inferred postcondition for main: " + ScalaFunctions.prettyPrint(constraints.getPost()));
+            System.out.println("The hardpacked precondition for main: " +  ScalaFunctions.prettyPrint(constraints.getPre())); 
+            System.out.println("The hardpacked postcondition for main: " + ScalaFunctions.prettyPrint(constraints.getPost()));
         } catch (CVC5ApiException e) {
             throw new RuntimeException(e);
         }
