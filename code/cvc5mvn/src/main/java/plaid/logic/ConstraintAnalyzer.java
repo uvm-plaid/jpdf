@@ -10,7 +10,7 @@ public class ConstraintAnalyzer {
     private final Program program; // provide a program to resolve function
     private final ConstraintEvaluator evaluator;
     private final GenEntailVerifier verifier;
-    private final List<Map<PreludeExpression, Constraints>> functionConstraints; // data structure to store inferred pre/post conditions by FN rule
+    private final Map<PreludeExpression, Constraints> functionConstraints = new HashMap<>(); // data structure to store inferred pre/post conditions by FN rule
     
     private Map<Identifier, PreludeExpression> binding(List<TypedIdentifier> formal, List<PreludeExpression> actual){
         // for each actual parameter, bind it to corresponding formal parameter 
@@ -25,14 +25,12 @@ public class ConstraintAnalyzer {
         this.program = program;
         this.evaluator = new ConstraintEvaluator(program);
         this.verifier = new GenEntailVerifier(program, order);
-        functionConstraints = new LinkedList<>();
-        functionConstraints.add(new HashMap<>());
     }
 
     /**
      * calculate precondition and postcondition for function, FN rule
      */
-    public Constraints inferPrePostFN(CommandFunction function) throws CVC5ApiException{
+    public Constraints inferPrePostFN(CommandFunction function) {
         // infer the precondition and postcondition for the function using inferPrePostCmd
         Constraints constraints = inferPrePostCmd(function.c());
         System.out.println("ASDF inferred pre for : " + function.fname() + ScalaFunctions.prettyPrint(constraints.getPre()));
@@ -40,7 +38,7 @@ public class ConstraintAnalyzer {
         // if the function does not have annotated pre/post conditions
         if (function.precond() == null && function.postcond() == null ){
             // then store inferred pre/post conditions and return them
-            functionConstraints.add(Map.of(function.fname(), constraints));
+            functionConstraints.put(function.fname(), constraints);
             return constraints;
         }
         else {
@@ -57,7 +55,7 @@ public class ConstraintAnalyzer {
                     : new AndConstraintExpr(constraints.getPre(), function.postcond());
             // take typings
             if (verifier.genEntails(function.typedVariables(), pre, post)){
-                functionConstraints.add(Map.of(function.fname(), new Constraints(function.precond(), function.postcond())));
+                functionConstraints.put(function.fname(), new Constraints(function.precond(), function.postcond()));
                 return new Constraints(function.precond(), function.postcond());
             }
             else{
@@ -71,7 +69,7 @@ public class ConstraintAnalyzer {
     /**
      * using switch, create a recursive function that infers precondition and postcondition for each command
      */
-    public Constraints inferPrePostCmd(PreludeCommand command) throws CVC5ApiException{
+    public Constraints inferPrePostCmd(PreludeCommand command) {
         return switch(command){
             case AssignCommand assignCommand ->
                     new Constraints(
@@ -98,28 +96,20 @@ public class ConstraintAnalyzer {
             }
 
             case FunctionCallCommand functionCallCommand -> {
+                Identifier id = functionCallCommand.fname();
+                CommandFunction fn = program.resolveCommandFunction(id);
                 // give the binding of actual and formal parameters for constraints evaluation 
-                evaluator.binding_list.add(binding(program.resolveCommandFunction(functionCallCommand.fname()).typedVariables(), functionCallCommand.parameters()));
+                evaluator.binding_list.add(binding(fn.typedVariables(), functionCallCommand.parameters()));
 
                 // look up functionConstraints
-                for (Map<PreludeExpression, Constraints> constraints : functionConstraints){
-                    for(Map.Entry<PreludeExpression, Constraints> entry : constraints.entrySet()){
-                        // if functionConstraints contains the inferred pre/post conditions for the function
-                        if(entry.getKey().equals(functionCallCommand.fname())){
-                            // use them for evaluation by the APP rule
-                            ConstraintExpr pre = entry.getValue().getPre() == null ? null : evaluator.evalConstraint(entry.getValue().getPre());
-                            ConstraintExpr post =  entry.getValue().getPost() == null? null : evaluator.evalConstraint(entry.getValue().getPost());
-                            evaluator.binding_list.removeLast();
-                            yield new Constraints(pre, post);
-                        }
-
-                    }
+                if (!functionConstraints.containsKey(id)) {
+                    functionConstraints.put(id, inferPrePostFN(fn));
                 }
-                // otherwise, let E1, E2 = inferPrePostFN and
-                // use them with the APP rule to get precondition and postcondition of the application
-                Constraints constraints = inferPrePostFN(program.resolveCommandFunction(functionCallCommand.fname()));
+                Constraints constraints = functionConstraints.get(id);
+
+                // use them for evaluation by the APP rule
                 ConstraintExpr pre = constraints.getPre() == null ? null : evaluator.evalConstraint(constraints.getPre());
-                ConstraintExpr post = constraints.getPost()== null ? null : evaluator.evalConstraint(constraints.getPost());
+                ConstraintExpr post = constraints.getPost() == null ? null : evaluator.evalConstraint(constraints.getPost());
                 evaluator.binding_list.removeLast();
                 yield new Constraints(pre, post);
                         
