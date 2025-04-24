@@ -10,7 +10,7 @@ public class ConstraintAnalyzer {
     private final Program program; // provide a program to resolve function
     private final ConstraintEvaluator evaluator;
     private final GenEntailVerifier verifier;
-    private final Map<PreludeExpression, Constraints> functionConstraints = new HashMap<>(); // data structure to store inferred pre/post conditions by FN rule
+    private final Map<Identifier, Constraints> functionConstraints = new HashMap<>(); // data structure to store inferred pre/post conditions by FN rule
     
     private Map<Identifier, PreludeExpression> binding(List<TypedIdentifier> formal, List<PreludeExpression> actual){
         // for each actual parameter, bind it to corresponding formal parameter 
@@ -33,8 +33,8 @@ public class ConstraintAnalyzer {
     public Constraints inferPrePostFN(CommandFunction function) {
         // infer the precondition and postcondition for the function using inferPrePostCmd
         Constraints constraints = inferPrePostCmd(function.c());
-        System.out.println("ASDF inferred pre for : " + function.fname() + ScalaFunctions.prettyPrint(constraints.getPre()));
-        System.out.println("ASDF inferred post for: " + function.fname().toString() + ScalaFunctions.prettyPrint(constraints.getPost()));
+        System.out.println("Inferred pre for " + function.fname().name() + ": " + ScalaFunctions.prettyPrint(constraints.getPre()));
+        System.out.println("Inferred post for " + function.fname().name() + ": "  + ScalaFunctions.prettyPrint(constraints.getPost()));
         // if the function does not have annotated pre/post conditions
         if (function.precond() == null && function.postcond() == null ){
             // then store inferred pre/post conditions and return them
