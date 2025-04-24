@@ -1,0 +1,285 @@
+% Inbuilt themes in beamer
+\documentclass{beamer}
+
+% Theme choice:
+\usetheme{CambridgeUS}
+\usecolortheme{default}
+
+\usepackage[style=verbose,backend=biber]{biblatex}
+\addbibresource{secure-computation-bibliography.bib}
+
+\usepackage{mathpartir}
+\usepackage{comment}
+
+% \input{slide-macros}
+\input{macros}
+
+% Title page details: 
+\title{SMT-Boosted Security Types for Low-Level MPC}
+
+\author{Christian Skalka and Joe Near}
+
+\date{ESOP, May 6, 2025}
+
+\logo{
+\includegraphics[width=3cm]{UVM_Logo_Primary_Horiz_G.png}
+}
+
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+% Title page frame
+\begin{frame}
+    \titlepage 
+\end{frame}
+
+% Remove logo from the next slides
+\logo{}
+
+
+% % Outline frame
+% \begin{frame}{Outline}
+%     \tableofcontents
+% \end{frame}
+
+\section{Overview}
+
+\begin{frame}{Background}
+  
+  \cemph{Secure Multiparty Computation (MPC)} is a paradigm for
+  \cemph{confidential computing}.
+  \begin{itemize}
+  \item Supports data privacy.
+  \item Uses software-based protocols (vs., e.g., enclaves).
+  \item No trusted 3rd party.
+  \end{itemize}
+  Many existing deployments: voting, auctions, satellite trajectories, COVID exposure notification, ...\footnote{https://mpc.cs.berkeley.edu}
+
+  \medskip
+
+  Various language frameworks, including MPyC, Fairplay, Viaduct.
+\end{frame}
+
+\begin{frame}{Contributions}
+
+  Existing HLLs rely on low-level MPC protocols with correctness
+  assumed.
+  \begin{itemize}
+  \item Distinct features, e.g., probabilistic sampling.
+  \item Existing proof techniques mostly manual.
+  \end{itemize}
+  Our contributions:
+  \begin{itemize}
+  \item Language design for low-level protocol definitions.
+  \item Automated type analysis for security properties, with correctness based on
+    \cemph{hyperproperties}\footnote{Skalka and Near, PPDP 2024}.
+  \item Our type analysis leverages an \cemph{SMT finite fields theory}\footnote{Ozdemir et. al, CAV 2023} for:
+    \begin{itemize}
+    \item \cemph{Correctness}
+    \item \cemph{Confidentiality}
+    \item \cemph{Integrity}
+    \end{itemize}
+  \end{itemize}
+  
+\end{frame}
+
+\section{What's an MPC Protocol}
+
+\begin{frame}{What's an MPC Protocol?}
+  A \emph{protocol} $\prog$ implements an \emph{ideal functionality} $\idealf$,
+  defined in terms of operations $(+,-,*)$ in a prime field $\mathbb{F}_p$.
+  \begin{itemize}
+  \item The inputs are \cemph{secret values} of \cemph{clients} in a \emph{federation}
+    $\setit{1,...,j}$.
+  \item Clients are distributed and communicate via \cemph{message passing}.
+  \item Any client can be corrupted by the adversary, who can then see their messages.
+  \item The \cemph{output} is made \emph{publicly available} by $\prog$.
+  \end{itemize}
+  \cemph{The output may leak secret information to an adversary} trying to
+  guess secret values, since it depends on inputs.
+
+  \medskip
+  
+  \cemph{Confidentiality} means that protocol messages don't enable the adversary
+  to make better guesses than the output alone. 
+
+\end{frame}
+
+\begin{frame}{Declassification of the Ideal Functionality}
+
+  \begin{exampleblock}{Example: 3-Party $\fplus$ in $\mathbb{F}_2$ (where $\fplus$ is $\exor$ and $\ftimes$ is $\wedge$)}
+  $$
+    \idealf =
+    \mathit{secret}@{\mathit{client_1}} + \mathit{secret}@{\mathit{client_2}} + 
+      \mathit{secret}@{\mathit{client_3}}
+  $$
+  Suppose in a run of $\prog$ and $\mathit{client_3}$ is
+  corrupted, with $\mathit{secret}@{\mathit{client_3}} = 0$. 
+  In case the output is 1, the adversary knows that either:
+  $$
+  \mathit{secret}@{\mathit{client_1}} = 0 \text{\ and\ } \mathit{secret}@{\mathit{client_2}} = 1
+  $$
+  or:
+  $$
+  \mathit{secret}@{\mathit{client_1}} = 1 \text{\ and\ } \mathit{secret}@{\mathit{client_2}} = 0
+  $$
+  with equal joint probability of .5.
+
+  \medskip
+
+  \cemph{Messages sent to $\mathit{client_3}$ during
+    a run of $\prog$ should not
+    allow the adversary better guesses.}
+  \end{exampleblock}
+
+\end{frame}  
+
+\begin{frame}{Protocol Implementation in Overture}
+
+  Low-level, probabilistic protocols are defined in terms of basic variable types
+  (identifiers $x$ distinguish them):
+  \begin{itemize}
+  \item $\secret{x}$: secret values in $\mathbb{F}_p$.
+  \item $\mesg{x}$: messages received during the protocol.
+  \item $\flip{x}$: uniformly random samples from $\mathbb{F}_p$ (implemented with
+    a random tape semantics).
+  \end{itemize}
+  We localize computation to \emph{clients}, and any information
+  exchanged between clients must be through messaging.
+  %\begin{exampleblock}{Toy Example:}
+  %  $$
+  %  \begin{array}{rcl@{\qquad}l}
+  %    \mx{x}{1} &:=& \elab{(\secret{x} - \flip{x})}{2}  & \textit{(unicast)}\\
+  %    \mx{y}{*} &:=& \elab{(\flip{y} + \mesg{x})}{1}  & \textit{(broadcast)}
+  %  \end{array}
+  %  $$ 
+  %\end{exampleblock}
+\end{frame}
+
+\section{Example: Additive Sharing}
+\begin{frame}{Example: Additive Secret Shares}
+
+  To implement 3-party summation in any $\mathbb{F}_p$, we can use \emph{additive sharing}.
+  Each party first generates \emph{reconstructive shares}.
+  
+  \begin{block}{Reconstructive Sharing}
+    $$
+    \begin{array}{lll}
+      \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip \fminus \flip{x})}{1} \\ 
+      \elab{\mesg{s1}}{3} &:=& \elab{\flip{x}}{1} \\ 
+      \elab{\mesg{s2}}{1} &:=& \elab{(\secret{2} \fminus \locflip \fminus \flip{x})}{2} \\ 
+      \elab{\mesg{s2}}{3} &:=& \elab{\flip{x}}{2} \\ 
+      \elab{\mesg{s3}}{1} &:=& \elab{(\secret{3} \fminus \locflip \fminus \flip{x})}{3} \\ 
+      \elab{\mesg{s3}}{2} &:=& \elab{\flip{x}}{3}
+    \end{array}
+    $$
+  \end{block}
+  \begin{itemize}
+  \item $\elab{\mesg{s1}}{2}, \elab{\mesg{s1}}{3}, \elab{\locflip}{1}$ are the \emph{shares} of $\sx{1}{1}$,
+    etc.
+  \item \emph{algebraically} $\sx{1}{1} \eop \elab{\mesg{s1}}{2} + \elab{\mesg{s1}}{3} + \elab{\locflip}{1}$.
+  \item \emph{probabilistically} any 2 out of three shares are in a uniform random distribution.
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Additive Homomorphism of Shares}
+
+  To sum the secrets \emph{in secret}:
+  
+  \begin{block}{Additive Homomorphism: Sum-of-Shares}
+    $$
+    \begin{array}{lll}
+      \mx{ss1}{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
+      \mx{ss2}{2} &:=& \elab{(\mesg{s1} \fplus \locflip \fplus \mesg{s3})}{2} \\
+      \mx{ss3}{3} &:=& \elab{(\mesg{s1} \fplus \mesg{s2} \fplus \locflip)}{3} 
+    \end{array}
+    $$
+  \end{block}
+
+  Additive homorphism:
+  \begin{itemize}
+  \item \emph{Algebraically}, $\mx{ss1}{1} + \mx{ss1}{2} + \mx{ss1}{1} \eop \sx{1}{1} + \sx{2}{2} + \sx{3}{3}$ 
+  \item \emph{Probabilistically}, protocol step is noninteractive and each of $\mx{ss1}{i}$ remain in a uniform distribution.
+  \end{itemize}
+  
+\end{frame}
+
+\begin{comment}
+\begin{frame}{Example contd.: Output}
+
+  \begin{itemize}
+    \item Any $\mx{ss1}{*},\mx{ss2}{*},\mx{ss3}{*}$ such that:
+    $$
+    \mx{ss1}{*} + \ \mx{ss2}{*} + \ \mx{ss3}{*} \eop \sx{1}{1} + \sx{2}{2}  + \sx{3}{3}
+    $$
+    are \cemph{equally likely}.
+  \end{itemize}
+
+  \begin{block}{Client Outputs}
+    $$
+    \begin{array}{lll}
+      \out{1} &:=& \elab{(\mesg{ss1} \fplus \mesg{ss2} + \mesg{ss3})}{1}\\
+      \out{2} &:=& \elab{(\mesg{ss1} \fplus \mesg{ss2} + \mesg{ss3})}{2}\\
+      \out{3} &:=& \elab{(\mesg{ss1} \fplus \mesg{ss2} + \mesg{ss3})}{3}
+    \end{array}
+    $$
+  \end{block}
+  
+  %\begin{exampleblock}{Example Bad Protocol}
+  %  If 1 is honest and accidentally broadcasts its local share:
+  %  $$
+  %  \mx{leak}{*} := \elab{\locflip}{1}
+  %  $$
+  %  conditioning on adversarial views now yields probability 1 for
+  %  either $\sx{1}{1} = 0 \wedge \sx{2}{2} = 1$ or
+  %  $\sx{1}{1} = 1 \wedge \sx{2}{2} = 0$.
+  %\end{exampleblock}
+  
+\end{frame}
+\end{comment}
+
+\section{SMT Boosting: Correctness}
+
+\begin{frame}{Verifying Correctness}
+
+Letting $\prog$ be the above protocol:
+$$
+\toeq{\prog} \wedge \ttt{out} \eop \mx{ss1}{1} + \mx{ss1}{2} + \mx{ss1}{1} \models\ \ttt{out} \eop \sx{1}{1} \fplus \sx{2}{2} \fplus \sx{3}{3}
+$$
+  
+\end{frame}
+
+\section{SMT Boosting: Confidentiality}
+
+\begin{frame}{Verifying Confidentiality}
+
+$$    
+  \inferrule[Encode]
+  {\eqs \models \phi \eop \phi' \oplus \rx{w}{\cid} \\
+   \oplus \in \{ \fplus,\fminus \}\\
+   \eqj{R}{\eqs}{\phi'}{\ty}}
+  {\eqj{R;\{ \rx{w}{\cid} \}}{\eqs}{\phi}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+$$
+
+  
+\end{frame}
+
+\section{Conclusion and Future Work}
+
+\logo{
+\includegraphics[width=3cm]{UVM_Logo_Primary_Horiz_G.png}
+}
+
+\begin{frame}{Future Work}
+
+  \begin{itemize}
+  \item Generalize verification to arbitrary prime fields.
+  \item Automated type system to eliminate manual proof elements.
+  \item Support for concurrency.
+  \end{itemize}
+
+\end{frame}
+
+\end{document}
