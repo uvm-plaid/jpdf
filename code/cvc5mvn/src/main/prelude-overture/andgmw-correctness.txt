@@ -2,13 +2,6 @@ exprfunctions:
 
 not(x){ x + 1 }
 
-mux4(s1, s2, b1, b2, b3, b4){
-  ((s1 * s2) * b4) +
-  ((s1 * not(s2)) * b3) +
-  ((not(s1) * s2) * b2) +
-  ((not(s1) * not(s2)) * b1)
-}
-
 andtablegmw(x, y, z) {
   let r11 = (r[z] + (m[x] + 1) * (m[y] + 1)) in
   let r10 = (r[z] + (m[x] + 1) * (m[y] + 0)) in
@@ -25,5 +18,5 @@ andgmw(z:string, x:string, y:string) {
   m[z]@1 := r[z]@1
 }
 
-main(){ andgmw("g1","x","z") }
-postcondition: (m["g1"]@1 + m["g1"]@2 == (m["x"]@1 + m["x"]@2) * (m["z"]@1 + m["z"]@2))
+main(){ andgmw("g1","x","y") }
+postcondition: (m["g1"]@1 + m["g1"]@2 == (m["x"]@1 + m["x"]@2) * (m["y"]@1 + m["y"]@2))
