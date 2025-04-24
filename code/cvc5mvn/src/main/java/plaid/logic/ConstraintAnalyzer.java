@@ -76,7 +76,7 @@ public class ConstraintAnalyzer {
             case AssignCommand assignCommand ->
                     new Constraints(
                             new TrueConstraintExpr(),
-                            new EqualConstraintExpr(assignCommand.e1(), appendPartyIndex(assignCommand.e2())));
+                            new EqualConstraintExpr(assignCommand.e1(), appendPartyIndex(assignCommand.e2(), null)));
             case AssertCommand assertCommand ->
                     new Constraints(
                             new EqualConstraintExpr(appendPartyIndex(assertCommand.e1(), assertCommand.e3()), appendPartyIndex(assertCommand.e2(), assertCommand.e3())),
@@ -129,20 +129,11 @@ public class ConstraintAnalyzer {
     }
 
     /**
-     * append party index to sub expressions on the right side of ASSIGN using appendPartyIndex function
-     */
-    private PreludeExpression appendPartyIndex(PreludeExpression expression){
-        if(expression instanceof AtExpr){
-            return appendPartyIndex(((AtExpr) expression).e1(), ((AtExpr) expression).e2());
-        }
-        return null;
-    }
-
-    /**
      * append party index to for expressions of arithmetic operation on memories
      */
     private PreludeExpression appendPartyIndex(PreludeExpression expression, PreludeExpression partyIndex){
         return switch (expression){
+            case AtExpr e -> appendPartyIndex(e.e1(), e.e2());
             case RandomExpr e -> new AtExpr(e, partyIndex);
             case SecretExpr e -> new AtExpr(e, partyIndex);
             case MessageExpr e -> new AtExpr(e, partyIndex);
@@ -150,6 +141,19 @@ public class ConstraintAnalyzer {
             case MinusExpr e -> new MinusExpr(appendPartyIndex(e.e(), partyIndex));
             case TimesExpr e -> new TimesExpr(appendPartyIndex(e.e1(), partyIndex), appendPartyIndex(e.e2(), partyIndex));
             case PlusExpr e -> new PlusExpr(appendPartyIndex(e.e1(), partyIndex), appendPartyIndex(e.e2(), partyIndex));
+            case OTExpr e -> new OTExpr(
+                    appendPartyIndex(e.e1(), e.i1()),
+                    e.i1(),
+                    appendPartyIndex(e.e2(), partyIndex),
+                    appendPartyIndex(e.e3(), partyIndex));
+            case OTFourExpr e -> new OTFourExpr(
+                    appendPartyIndex(e.s1(), e.i1()),
+                    appendPartyIndex(e.s2(), e.i1()),
+                    e.i1(),
+                    appendPartyIndex(e.e1(), partyIndex),
+                    appendPartyIndex(e.e2(), partyIndex),
+                    appendPartyIndex(e.e3(), partyIndex),
+                    appendPartyIndex(e.e4(), partyIndex));
             case PreludeExpression e -> e;
         };
     }

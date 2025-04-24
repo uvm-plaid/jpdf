@@ -128,18 +128,14 @@ public class TermFactory {
             case TimesExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e1()), toTerm(x.e2()));
             case MinusExpr x -> termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e()), minusOne);
             case OTExpr x -> {
-                Integer receiver_partyIndex = CvcUtils.toInt(x.i1());
-                Term e1 = lookupOrCreate((MemoryExpr) x.e1(), receiver_partyIndex);
-
+                Term e1 = toTerm(x.e1());
                 yield termManager.mkTerm(Kind.FINITE_FIELD_ADD,
                         termManager.mkTerm(Kind.FINITE_FIELD_MULT, e1, toTerm(x.e3())),
                         termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(e1), toTerm(x.e2())));
             }
             case OTFourExpr x -> {
-                Integer receiver_partyIndex = CvcUtils.toInt(x.i1());
-                Term s1 = lookupOrCreate((MemoryExpr) x.s1(), receiver_partyIndex);
-                Term s2 = lookupOrCreate((MemoryExpr) x.s2(), receiver_partyIndex);
-
+                Term s1 = toTerm(x.s1());
+                Term s2 = toTerm(x.s2());
                 Term first = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, s1, s2), toTerm(x.e4()));
                 Term second = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, s1, not(s2)), toTerm(x.e3()));
                 Term third = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(s1), s2), toTerm(x.e2()));
