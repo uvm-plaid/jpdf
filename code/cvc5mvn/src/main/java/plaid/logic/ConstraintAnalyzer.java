@@ -8,7 +8,6 @@ import plaid.ScalaFunctions;
 public class ConstraintAnalyzer {
 
     private final Program program; // provide a program to resolve function
-    private final ConstraintEvaluator evaluator;
     private final GenEntailVerifier verifier;
     private final Map<Identifier, Constraints> functionConstraints = new HashMap<>(); // data structure to store inferred pre/post conditions by FN rule
     
@@ -23,7 +22,6 @@ public class ConstraintAnalyzer {
 
     public ConstraintAnalyzer(Program program, String order) throws CVC5ApiException {
         this.program = program;
-        this.evaluator = new ConstraintEvaluator(program);
         this.verifier = new GenEntailVerifier(program, order);
     }
 
@@ -31,8 +29,9 @@ public class ConstraintAnalyzer {
      * calculate precondition and postcondition for function, FN rule
      */
     public Constraints inferPrePostFN(CommandFunction function) {
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         // infer the precondition and postcondition for the function using inferPrePostCmd
-        Constraints constraints = inferPrePostCmd(function.c());
+        Constraints constraints = inferPrePostCmd(function.c(), evaluator);
         System.out.println("Inferred pre for " + function.fname().name() + ": " + ScalaFunctions.prettyPrint(constraints.getPre()));
         System.out.println("Inferred post for " + function.fname().name() + ": "  + ScalaFunctions.prettyPrint(constraints.getPost()));
         // if the function does not have annotated pre/post conditions
@@ -69,7 +68,7 @@ public class ConstraintAnalyzer {
     /**
      * using switch, create a recursive function that infers precondition and postcondition for each command
      */
-    public Constraints inferPrePostCmd(PreludeCommand command) {
+    public Constraints inferPrePostCmd(PreludeCommand command, ConstraintEvaluator evaluator) {
         return switch(command){
             case AssignCommand assignCommand ->
                     new Constraints(
@@ -79,14 +78,14 @@ public class ConstraintAnalyzer {
                     new Constraints(
                             new EqualConstraintExpr(appendPartyIndex(assertCommand.e1(), assertCommand.e3()), appendPartyIndex(assertCommand.e2(), assertCommand.e3())),
                             new TrueConstraintExpr());
-            case LetCommand letCommand -> inferPrePostCmd(evaluator.evalInstruction(letCommand));
+            case LetCommand letCommand -> inferPrePostCmd(evaluator.evalInstruction(letCommand), evaluator);
             case CommandList commandList -> {
                 // visit each command and apply inferPrePostCmd
                 // for each command's precondition, join them with And
                 // same for postcondition
                 List<Constraints> constraints = new ArrayList<>();
-                constraints.add(inferPrePostCmd(commandList.c1()));
-                constraints.add(inferPrePostCmd(commandList.c2()));
+                constraints.add(inferPrePostCmd(commandList.c1(), evaluator));
+                constraints.add(inferPrePostCmd(commandList.c2(), evaluator));
 
                 Optional<ConstraintExpr> reducedPre =
                         constraints.stream().map(Constraints::getPre).filter(Objects::nonNull).reduce(AndConstraintExpr::new);
@@ -105,7 +104,7 @@ public class ConstraintAnalyzer {
                 }
                 Constraints constraints = functionConstraints.get(id);
 
-                // give the binding of actual and formal parameters for constraints evaluation 
+                // give the binding of actual and formal parameters for constraints evaluation
                 evaluator.binding_list.add(binding(fn.typedVariables(), functionCallCommand.parameters()));
                 // use them for evaluation by the APP rule
                 ConstraintExpr pre = constraints.getPre() == null ? null : evaluator.evalConstraint(constraints.getPre());

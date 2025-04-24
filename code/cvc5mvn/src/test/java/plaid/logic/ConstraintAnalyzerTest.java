@@ -14,8 +14,9 @@ import static org.junit.Assert.assertEquals;
 public class ConstraintAnalyzerTest {
 
     private Constraints inferPrePostCmd(String src, String program) throws CVC5ApiException {
-        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(Loader.toProgram(program), "2");
-        return constraintAnalyzer.inferPrePostCmd(Loader.toCommand(src));
+        Program ast = Loader.toProgram(program);
+        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(ast, "2");
+        return constraintAnalyzer.inferPrePostCmd(Loader.toCommand(src), new ConstraintEvaluator(ast));
     }
 
     private Constraints inferPrePostFN(String fName, String src) throws CVC5ApiException {
