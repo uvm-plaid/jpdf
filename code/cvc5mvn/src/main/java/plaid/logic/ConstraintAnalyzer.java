@@ -146,12 +146,11 @@ public class ConstraintAnalyzer {
             case RandomExpr e -> new AtExpr(e, partyIndex);
             case SecretExpr e -> new AtExpr(e, partyIndex);
             case MessageExpr e -> new AtExpr(e, partyIndex);
-            case PublicExpr e -> e;
             case OutputExpr e -> new AtExpr(e, partyIndex);
             case MinusExpr e -> new MinusExpr(appendPartyIndex(e.e(), partyIndex));
             case TimesExpr e -> new TimesExpr(appendPartyIndex(e.e1(), partyIndex), appendPartyIndex(e.e2(), partyIndex));
             case PlusExpr e -> new PlusExpr(appendPartyIndex(e.e1(), partyIndex), appendPartyIndex(e.e2(), partyIndex));
-            default -> throw new RuntimeException("cannot add party index to given prelude expression");
+            case PreludeExpression e -> e;
         };
     }
 
