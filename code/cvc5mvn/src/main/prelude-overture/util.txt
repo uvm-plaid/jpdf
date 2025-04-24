@@ -1,0 +1,12 @@
+exprfunctions:
+
+not(x){ x + 1 }
+
+mux2(s,b1,b2) { ((not(s) * b1) + (s * b2)) }
+
+mux4(s1, s2, b1, b2, b3, b4){
+  ((s1 * s2) * b4) +
+  ((s1 * not(s2)) * b3) +
+  ((not(s1) * s2) * b2) +
+  ((not(s1) * not(s2)) * b1)
+}
