@@ -10,20 +10,20 @@ mux4(s1, s2, b1, b2, b3, b4){
 }
 
 andtablegmw(x, y, z) {
-  let r11 = r[z] + (m[x] + 1) * (m[y] + 1) in
-  let r10 = r[z] + (m[x] + 1) * (m[y] + 0) in
-  let r01 = r[z] + (m[x] + 0) * (m[y] + 1) in
-  let r00 = r[z] + (m[x] + 0) * (m[y] + 0) in
+  let r11 = (r[z] + (m[x] + 1) * (m[y] + 1)) in
+  let r10 = (r[z] + (m[x] + 1) * (m[y] + 0)) in
+  let r01 = (r[z] + (m[x] + 0) * (m[y] + 1)) in
+  let r00 = (r[z] + (m[x] + 0) * (m[y] + 0)) in
   { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
 }
 
 cmdfunctions:
 
 andgmw(z:string, x:string, y:string) {
-  let table = andtablegmw(x,y,z) in
+  // let table = andtablegmw(x,y,z) in
   m[x]@1 := m[x]@2;
   m[y]@1 := m[y]@2;
-  m[z]@2 := (mux4(m[x], m[y], table.row4, table.row3, table.row2, table.row1))@1;
+  // m[z]@2 := (mux4(m[x], m[y], table.row4, table.row3, table.row2, table.row1))@1;
   // m[z]@2 := OT4((m[x], m[y])@2, table.row4, table.row3, table.row2, table.row1)@1;
   m[z]@1 := r[z]@1
 }

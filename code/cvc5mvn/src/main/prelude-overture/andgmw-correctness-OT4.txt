@@ -1,4 +1,3 @@
-
 cmdfunctions:
 
 andgmw(z, x, y) {
