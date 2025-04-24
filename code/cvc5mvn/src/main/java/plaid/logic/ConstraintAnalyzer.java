@@ -98,8 +98,6 @@ public class ConstraintAnalyzer {
             case FunctionCallCommand functionCallCommand -> {
                 Identifier id = functionCallCommand.fname();
                 CommandFunction fn = program.resolveCommandFunction(id);
-                // give the binding of actual and formal parameters for constraints evaluation 
-                evaluator.binding_list.add(binding(fn.typedVariables(), functionCallCommand.parameters()));
 
                 // look up functionConstraints
                 if (!functionConstraints.containsKey(id)) {
@@ -107,6 +105,8 @@ public class ConstraintAnalyzer {
                 }
                 Constraints constraints = functionConstraints.get(id);
 
+                // give the binding of actual and formal parameters for constraints evaluation 
+                evaluator.binding_list.add(binding(fn.typedVariables(), functionCallCommand.parameters()));
                 // use them for evaluation by the APP rule
                 ConstraintExpr pre = constraints.getPre() == null ? null : evaluator.evalConstraint(constraints.getPre());
                 ConstraintExpr post = constraints.getPost() == null ? null : evaluator.evalConstraint(constraints.getPost());
