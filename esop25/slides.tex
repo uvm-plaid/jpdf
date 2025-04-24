@@ -163,7 +163,7 @@
   To implement 3-party summation in any $\mathbb{F}_p$, we can use \emph{additive sharing}.
   Each party first generates \emph{reconstructive shares}.
   
-  \begin{block}{Reconstructive Sharing}
+  \begin{block}{Reconstructive Sharing: Protocol $\prog_{\mathit{sum3}}$}
     $$
     \begin{array}{lll}
       \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip \fminus \flip{x})}{1} \\ 
@@ -175,9 +175,9 @@
     \end{array}
     $$
   \end{block}
-  \begin{itemize}
-  \item $\elab{\mesg{s1}}{2}, \elab{\mesg{s1}}{3}, \elab{\locflip}{1}$ are the \emph{shares} of $\sx{1}{1}$,
+  $\elab{\mesg{s1}}{2}, \elab{\mesg{s1}}{3}, \elab{\locflip}{1}$ are the \cemph{secret shares} of $\sx{1}{1}$,
     etc.
+  \begin{itemize}
   \item \emph{algebraically} $\sx{1}{1} \eop \elab{\mesg{s1}}{2} + \elab{\mesg{s1}}{3} + \elab{\locflip}{1}$.
   \item \emph{probabilistically} any 2 out of three shares are in a uniform random distribution.
   \end{itemize}
@@ -186,9 +186,9 @@
 
 \begin{frame}{Additive Homomorphism of Shares}
 
-  To sum the secrets \emph{in secret}:
   
-  \begin{block}{Additive Homomorphism: Sum-of-Shares}
+  \begin{block}{Additive Homomorphism: Sum-of-Shares}     
+  To sum the input secrets \emph{in secret} extend $\prog_{\mathit{sum3}}$:
     $$
     \begin{array}{lll}
       \mx{ss1}{1} &:=& \elab{(\locflip \fplus \mesg{s2} \fplus \mesg{s3})}{1} \\ 
@@ -198,10 +198,10 @@
     $$
   \end{block}
 
-  Additive homorphism:
+  Additive homorphism-- each $\mx{ssi}{i}$ for $i \in \setit{1,2,3}$ is a share:
   \begin{itemize}
-  \item \emph{Algebraically}, $\mx{ss1}{1} + \mx{ss1}{2} + \mx{ss1}{1} \eop \sx{1}{1} + \sx{2}{2} + \sx{3}{3}$ 
-  \item \emph{Probabilistically}, protocol step is noninteractive and each of $\mx{ss1}{i}$ remain in a uniform distribution.
+  \item \emph{Algebraically}, $\mx{ss1}{1} + \mx{ss1}{2} + \mx{ss1}{3} \eop \sx{1}{1} + \sx{2}{2} + \sx{3}{3}$ 
+  \item \emph{Probabilistically}, protocol step is noninteractive and each $\mx{ssi}{i}$ remains in a uniform distribution.
   \end{itemize}
   
 \end{frame}
@@ -240,14 +240,42 @@
 \end{frame}
 \end{comment}
 
+\section{Using SMT}
+
+\begin{frame}{Using Satisfiability Modulo Finite Fields (SMFF)}
+
+  SMFF supports equational constraint definitions $\eqs$ over a finite field $\mathcal{F}_{p}$
+  with a mature solver, in the style of SMT.
+
+  \medskip
+  Overture protocols $\prog$ have a straightforward interpretation as SMFF constraints $\toeq{\prog}$ , e.g.,
+  the first two lines of $\prog_{\mathit{sum3}}$ translate as:
+  $$
+  %\toeq{
+  %  \begin{array}{c}
+  %  \begin{array}{lll}
+  %    \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip \fminus \flip{x})}{1} \\ 
+  %    \elab{\mesg{s1}}{3} &:=& \elab{\flip{x}}{1} 
+  %  \end{array}\\
+  %  = \\
+    \begin{array}{lll}
+      \elab{\mesg{s1}}{2} &\eop& \elab{\secret{1}}{1} \fminus \elab{\locflip}{1} \fminus \elab{\flip{x}}{1}\quad \wedge \\ 
+      \elab{\mesg{s1}}{3} &\eop& \elab{\flip{x}}{1} 
+    \end{array}
+    %\end{array}
+    %}
+  $$
+  
+\end{frame}
+
 \section{SMT Boosting: Correctness}
 
 \begin{frame}{Verifying Correctness}
 
 Letting $\prog$ be the above protocol:
 $$
-\begin{array}[l]
-  \toeq{\prog} \wedge \ttt{out} \eop \mx{ss1}{1} + \mx{ss1}{2} + \mx{ss1}{1} \models\\
+\begin{array}{c}
+  \toeq{\prog} \wedge \ttt{out} \eop \mx{ss1}{1} + \mx{ss1}{2} + \mx{ss1}{3}\\ \models\\
   \ttt{out} \eop \sx{1}{1} \fplus \sx{2}{2} \fplus \sx{3}{3}
 \end{array}
 $$
