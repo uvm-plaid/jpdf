@@ -10,9 +10,13 @@
 
 \usepackage{mathpartir}
 \usepackage{comment}
+\usepackage{fancyvrb}
+\usepackage{moreverb}
 
 % \input{slide-macros}
 \input{macros}
+
+\newcommand{\sumthree}{\prog_{\mathit{sum3}}}
 
 % Title page details: 
 \title{SMT-Boosted Security Types for Low-Level MPC}
@@ -178,7 +182,7 @@
   $\elab{\mesg{s1}}{2}, \elab{\mesg{s1}}{3}, \elab{\locflip}{1}$ are the \cemph{secret shares} of $\sx{1}{1}$,
     etc.
   \begin{itemize}
-  \item \emph{algebraically} $\sx{1}{1} \eop \elab{\mesg{s1}}{2} + \elab{\mesg{s1}}{3} + \elab{\locflip}{1}$.
+  \item \emph{algebraically} $\elab{\locflip}{1} + \elab{\mesg{s1}}{2} + \elab{\mesg{s1}}{3} \eop \sx{1}{1}$.
   \item \emph{probabilistically} any 2 out of three shares are in a uniform random distribution.
   \end{itemize}
   
@@ -242,12 +246,13 @@
 
 \section{Using SMT}
 
-\begin{frame}{Using Satisfiability Modulo Finite Fields (SMFF)}
+\begin{frame}{cvc5 Finite Fields Theory}
 
-  SMFF supports equational constraint definitions $\eqs$ over a finite field $\mathcal{F}_{p}$
-  with a mature solver, in the style of SMT.
+  The cvc5 Finite Fields Theory supports automatate satisfiability checking of equational
+  constraint definitions $\eqs$ over prime fields $\mathcal{F}_{p}$.
 
   \medskip
+  
   Overture protocols $\prog$ have a straightforward interpretation as SMFF constraints $\toeq{\prog}$ , e.g.,
   the first two lines of $\prog_{\mathit{sum3}}$ translate as:
   $$
@@ -264,22 +269,28 @@
     \end{array}
     %\end{array}
     %}
-  $$
+ $$
+
+ Verifiable \emph{entailment} $\eqs_1 \models \eqs_2$ means that any model of $\eqs_1$ is a model
+ of $\eqs_2$. Models of $\prog$ correspond exactly to valid runs of $\prog$...
   
 \end{frame}
 
 \section{SMT Boosting: Correctness}
 
-\begin{frame}{Verifying Correctness}
+\begin{frame}{Verifying Protocol Correctness}
 
-Letting $\prog$ be the above protocol:
+  Entailment is a mechanism for verifying protocol properties. If an interpretation
+  of a protocol entails a property, it holds in all protocol runs. 
 $$
 \begin{array}{c}
-  \toeq{\prog} \wedge \ttt{out} \eop \mx{ss1}{1} + \mx{ss1}{2} + \mx{ss1}{3}\\ \models\\
+  \toeq{\sumthree} \wedge \ttt{out} \eop \mx{ss1}{1} + \mx{ss1}{2} + \mx{ss1}{3}\\ \models\\
   \ttt{out} \eop \sx{1}{1} \fplus \sx{2}{2} \fplus \sx{3}{3}
 \end{array}
 $$
-  
+
+Correctness of subroutines (e.g., addition and multiplication gates in encrypted circuits)
+or the full protocol wrt $\idealf$ can be checked automatically.
 \end{frame}
 
 \section{SMT Boosting: Confidentiality}
@@ -295,6 +306,28 @@ $$
 $$
 
   
+\end{frame}
+
+\begin{frame}[fragile]{Modular Typing in Prelude}
+  \small{
+  \begin{verbatimtab}
+SHARED(x) { (m[x]@1 + m[x]@2) }
+
+andtablegmw(x, y, z) {
+  let r11 = (r[z] + (m[x] + 1) * (m[y] + 1)) in
+  ... // elided
+  { r1 = r11; r2 = r10; r3 = r01; r4 = r00 }
+}
+
+andgmw(z:string, x:string, y:string) {
+  let tab = andtablegmw(x,y,z) in
+  m[z]@2 := OT4((m[x], m[y])@2, tab.r4, tab.r3, tab.r2, tab.r1)@1;
+  m[z]@1 := r[z]@1
+}
+postcondition: ( m[z]@1 == r[z]@1 AND
+                 m[z]@2 == (SHARED(x) * SHARED(y)) + r[z]@1) ) 
+  \end{verbatimtab}
+  }
 \end{frame}
 
 \section{Conclusion and Future Work}
