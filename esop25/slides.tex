@@ -149,6 +149,11 @@
   \item $\flip{x}$: uniformly random samples from $\mathbb{F}_p$ (implemented with
     a random tape semantics).
   \end{itemize}
+  \emph{Computations} are normal field operations on variables-- addition (+), multiplication (*),
+  and additive inverse (-).
+
+  \medskip
+  
   We localize computation to \emph{clients}, and any information
   exchanged between clients must be through messaging.
   %\begin{exampleblock}{Toy Example:}
@@ -297,6 +302,7 @@ or the full protocol wrt $\idealf$ can be checked automatically.
 
 \begin{frame}{Verifying Confidentiality}
 
+Verifying equational properties 
 $$    
   \inferrule[Encode]
   {\eqs \models \phi \eop \phi' \oplus \rx{w}{\cid} \\
