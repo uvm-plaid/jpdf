@@ -325,7 +325,57 @@ or the full protocol wrt $\idealf$ can be checked automatically.
   
 \end{frame}
 
-\begin{frame}[fragile]{Modular Typing in Prelude}
+\section{SMT Boosting: Confidentiality}
+
+\begin{frame}{Verifying Confidentiality}
+
+  Applying this rule to, e.g., $\sumthree$ is straightforward given it's syntactic
+  form, but applies more generally.
+
+  \medskip
+  
+  Yao's Garbled Circuits (YGC) in $\mathbb{F}_{2}$ wire input encoding, using
+  $\rx{w}{2}$ as encrypted wire value:
+$$
+\xassign{\mx{w}{1}}{\mux{\secret{w}}{\neg\flip{w}}{\flip{w}}}{2}
+$$
+where for all $\be_1,\be_2,\be_3$ (with $\neg$ denoting negation in $\mathbb{F}_2$):
+$$
+\mux{\be_1}{\be_2}{\be_3} \defeq (\neg\be_1 \ftimes \be_2) \fplus (\be_1 \ftimes \be_3)
+$$
+and letting this protocol be $\prog$ the following is valid:
+\begin{mathpar}
+%\toeq{\xassign{\mx{w}{1}}{\OT{\secret{w}}{1}{\neg\flip{w}}{\flip{w}}}{2}}
+   \toeq{\prog} \models \mx{w}{1} \eop \neg\sx{w}{2} - \rx{w}{2}
+\end{mathpar}
+\end{frame}
+
+\begin{frame}{Compositional Typing in Prelude}
+
+The $\metaprot$ language is a \emph{metalanguage} aka metaprogramming
+language, where an $\fedprot$ protocol is the result of
+computation.
+\begin{itemize}
+\item Supports compositional verification of larger
+  protocols.
+\item Confidentiality and integrity properties to be recorded in pre/post
+  conditions.
+\item Encapsulation and compositional re-use of function property verification.
+\end{itemize}
+
+$$
+\begin{array}{l}
+\ttt{encode}(y,s,r) \{\\
+\quad \xassign{\mx{y}{r}}{\mux{\secret{y}}{\neg\flip{y}}{\flip{y}}}{s};\\
+% \quad \eqcast{\mx{y}{r}}{\neg\sx{y}{s} \fplus \rx{y}{s}}\\
+\}\\
+\ttt{postcondition:} ( \mx{y}{r} \eop \neg\sx{y}{s} \fplus \rx{y}{s} )
+\end{array}
+$$
+  
+\end{frame}
+
+\begin{frame}[fragile]{Compositional Typing in Prelude}
   \small{
   \begin{verbatimtab}
 SHARED(x) { (m[x]@1 + m[x]@2) }
@@ -363,4 +413,27 @@ postcondition: ( m[z]@1 == r[z]@1 AND
 
 \end{frame}
 
+\begin{frame}[fragile]{Compositional Integrity Typing in Prelude}
+  \small{
+  \begin{verbatimtab}
+MACOK(x, i1, i2)
+  { m[x++"m"]@i2 ==
+    m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"]@i2) }
+
+MACed(x) { MACOK(x, 1, 2) AND MACOK(x, 2, 1) } 
+      
+_sum(z:string, x:string, y:string, i:cid){
+    m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i;
+    m[z++"m"]@i := (m[x++"m"] + m[y++"m"])@i;
+    m[z++"k"]@i := (m[x++"k"] + m[y++"k"])@i
+}
+
+precondition: ( MACed(x) AND MACed(y) )
+sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
+postcondition: ( MACed(z) )
+  \end{verbatimtab}
+  }
+\end{frame}
+
 \end{document}
+
