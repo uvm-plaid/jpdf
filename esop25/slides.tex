@@ -302,15 +302,26 @@ or the full protocol wrt $\idealf$ can be checked automatically.
 
 \begin{frame}{Verifying Confidentiality}
 
-Verifying equational properties 
-$$    
+  Verifying equational properties also supports verification of confidentiality.
+  It is well-known that expressions of the form:
+  $$
+  e - \rx{w}{\cid}
+  $$
+  are a means of encrypting $e$ using $\rx{w}{\cid}$ as a one-time-pad in any
+  size field. This can be leveraged in typing. 
+  $$    
   \inferrule[Encode]
-  {\eqs \models \phi \eop \phi' \oplus \rx{w}{\cid} \\
-   \oplus \in \{ \fplus,\fminus \}\\
-   \eqj{R}{\eqs}{\phi'}{\ty}}
-  {\eqj{R;\{ \rx{w}{\cid} \}}{\eqs}{\phi}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
-$$
-
+  {\eqs \models \toeq{e} \eop \toeq{e'} - \rx{w}{\cid}\\
+   \eqj{R}{\eqs}{e'}{\ty}}
+  {\eqj{R;\{ \rx{w}{\cid} \}}{\eqs}{e}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+  $$
+  \begin{itemize}
+  \item The \emph{ciphertype} $\cty{\rx{w}{\cid}}{\ty}$ indicates the computation
+    results in a value encrypted with $\rx{w}{\cid}$.
+  \item $\ty$ is a conservative approximation of the dependencies in $e'$.
+  \item The \emph{randomness environment} $R;\{ \rx{w}{\cid} \}$ enforces
+    linearity.
+  \end{itemize}
   
 \end{frame}
 
