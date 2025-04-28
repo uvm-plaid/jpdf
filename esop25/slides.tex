@@ -406,8 +406,12 @@ postcondition: ( m[z]@1 == r[z]@1 AND
 \begin{frame}{Future Work}
 
   \begin{itemize}
-  \item Generalize verification to arbitrary prime fields.
-  \item Automated type system to eliminate manual proof elements.
+  \item In this paper: typing verifies noninterference until declassification.
+    \begin{itemize}
+    \item Goal: accurately verify declassification bounds.
+    \end{itemize}
+  \item Automated weakest precondition/stongest postcondition inference.
+  \item Scalability evaluation of large circuits.
   \item Support for concurrency.
   \end{itemize}
 
