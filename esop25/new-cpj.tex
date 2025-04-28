@@ -1,0 +1,123 @@
+\newcommand{\Shares}{\mathcal{S}}
+\newcommand{\sharet}[2]{\mathit{share}(#1,#2)}
+\newcommand{\sid}{\texttt{s}}
+\newcommand{\sexp}{s}
+\newcommand{\keys}{\mathcal{K}}
+\newcommand{\rkey}{\kappa}
+\renewcommand{\unity}[2]{U(#1,#2)}
+\newcommand{\uncorr}[2]{#1\bowtie#2}
+
+\section{New Confidentiality Typing}
+
+\begin{mathpar}
+  \inferrule[Mesg]
+            {}
+            {\Gamma, \varnothing, \eqs \vdash \mx{w}{\cid} : \Gamma(\mx{w}{\cid})}
+            
+  \inferrule[Rand]
+            {}
+            {\Gamma, \varnothing, \eqs \vdash \rx{w}{\cid} : \unity{\rx{w}{\cid}}{\setit{\rx{w}{\cid}}}}
+            
+  \inferrule[Ideal]
+            {}
+            {\Gamma, \varnothing, \eqs \vdash f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n}) :
+              \setit{f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n})}}
+
+  \inferrule[Enc]
+            {\Gamma, R, \eqs \vdash \phi : \ty}
+            {\Gamma, R;\rx{w}{\cid}, \eqs \vdash \phi \fminus \rx{w}{\cid} : \unity{\rx{w}{\cid}}{\ty}}
+
+  \inferrule[HeAdd]
+      {\Gamma, R_1, \eqs \vdash \phi_1 : \setit{\unity{\rkey_1}{\ty_1}} \\
+        \Gamma, R_2, \eqs \vdash \phi_2 : \setit{\unity{\rkey_2}{\ty_2}} \\
+        \uncorr{\rkey_1}{\rkey_2}
+      }
+      {\Gamma, R_1;R_2, \eqs \vdash \phi_1 \fplus \phi_2 : \setit{\unity{\rkey_1 \oplus \rkey_2}{\ty_1 \cup \ty_2}}}
+
+  \inferrule[Join]
+      {\Gamma, R_1, \eqs \vdash \phi_1 : \ty_1 \\ \Gamma, R_2, \eqs \vdash \phi_2 : \ty_2}
+      {\Gamma, R_1;R_2, \eqs \vdash \phi_1 \bop \phi_2 : \ty_1 \cup \ty_2}
+            
+  \inferrule[Eq]
+            {\eqs \models \phi \eop \phi' \\ \Gamma, R, \eqs \vdash \phi' : \ty}
+            {\Gamma, R, \eqs \vdash \phi : \ty}          
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Mesg]
+      {\Gamma, R, \eqs \vdash \toeq{\elab{e}{\cid}} : \ty}
+      {\Gamma, \eqs \vdash \xassign{x}{e}{\cid} : (\Gamma;x:\ty),R}
+
+  \inferrule[Seq]
+      {\Gamma_1,\eqs \vdash \cmd_1 : \Gamma_2,R_1 \\
+        \Gamma_2,\eqs \vdash \cmd_2 : \Gamma_3,R_2}
+      {\Gamma_1, \eqs \vdash \cmd_1;\cmd_2 : \Gamma_3,R_1;R_2}
+\end{mathpar}
+
+\begin{comment}
+\section{Deprecated}
+
+\begin{mathpar}
+  \inferrule[Mesg]
+            {}
+            {\Gamma, \eqs \vdash x : \Gamma(x)}
+
+  \inferrule[Key]
+            {\sid:[\ldots,x_k,\ldots] \in \keys}
+            {\Gamma, \eqs \vdash x_k : \setit{\sharet{\sid}{k}}}
+            
+  \inferrule[Secret]
+            {}
+            {\Gamma, \eqs \vdash \sx{w}{\cid} : \setit{\sx{w}{\cid}}}
+            
+  \inferrule[Join]
+            {\Gamma, \eqs \vdash \phi_1 : \ty_1 \\ \Gamma, \eqs \vdash \phi_2 : \ty_2}
+            {\Gamma, \eqs \vdash \phi_1 \bop \phi_2 : \ty_1 \cup \ty_2}
+            
+  \inferrule[Eq]
+            {\eqs \models \phi \eop \phi' \\ \Gamma, \eqs \vdash \phi' : \ty}
+            {\Gamma, \eqs \vdash \phi : \ty}
+
+  \inferrule[Share]
+            {\Gamma, \eqs \vdash x_1 : \sharet{\sid}{1} \\ \cdots \\ \Gamma, \eqs \vdash x_{n-1} : \sharet{\sid}{n-1} }
+            {\Gamma, \eqs \vdash \phi - x_1 - \cdots - x_{n-1} : [\phi]_\sid}
+            
+  \inferrule[HeAdd]
+      {\Gamma, \eqs \vdash \phi_1 : \setit{\sharet{\sexp_1}{k}} \\
+       \Gamma, \eqs \vdash \phi_2 : \setit{\sharet{\sexp_2}{k}} }
+      {\Gamma, \eqs \vdash \phi_1 \fplus \phi_2 : \setit{\sharet{\sexp_1 \oplus \sexp_2}{k}}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Enc]
+      {\Gamma, \eqs \vdash \toeq{\elab{e}{\cid}} : [\phi]_{\sid}}
+      {\Gamma,\Shares,\eqs \vdash \xassign{x}{e}{\cid} : (\Gamma;x:\sharet{\sid}{n}),(\Shares;[\phi]_\sid)}
+
+  \inferrule[Mesg]
+      {\Gamma, \eqs \vdash \toeq{\elab{e}{\cid}} : \ty}
+      {\Gamma,\Shares,\eqs \vdash \xassign{x}{e}{\cid} : (\Gamma;x:\ty),\Shares}
+
+  \inferrule[Seq]
+      {\Gamma_1,\Shares_1,\eqs \vdash \prog_1 : \Gamma_2,\Shares_2 \\
+        \Gamma_2,\Shares_2,\eqs \vdash \prog_2 : \Gamma_3,\Shares_3}
+      {\Gamma_1,\Shares_1,\eqs \vdash \prog_1;\prog_2 : \Gamma_3,\Shares_3}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {}
+      {\Shares \vdash T \cup \setit{\sx{w}{\cid}},C \leadsto T, C.\sx{w}{\cid}}
+      
+  \inferrule
+      {}
+      {\Shares \vdash T \cup \setit{\sharet{\sexp}{1},\ldots,\sharet{\sexp}{n}},C \leadsto T, C.\Shares(\sexp)}
+
+  \inferrule
+      {\setit{\sharet{\sexp_1 \oplus \sexp_2}{j}, \sharet{\sexp_1}{k}, \sharet{\sexp_2}{k}} \subseteq T}
+      {\Shares \vdash T,C \leadsto T \cup \setit{\sharet{\sexp_1 \oplus \sexp_2}{k}},C}
+
+  \inferrule
+      {\Shares \vdash T_1,C_1 \leadsto T_2,C_2 \\ \Shares \vdash T_2,C_2 \leadsto T_3,C_3 }
+      {\Shares \vdash T_1,C_1 \leadsto T_3,C_3 }
+\end{mathpar}
+\end{comment}
