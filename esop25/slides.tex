@@ -67,7 +67,7 @@
 
 \begin{frame}{Contributions}
 
-  Existing HLLs rely on low-level MPC protocols with correctness
+  Existing high-level PLs rely on low-level MPC protocols with correctness
   assumed.
   \begin{itemize}
   \item Distinct features, e.g., probabilistic sampling.
@@ -98,15 +98,15 @@
     $\setit{1,...,j}$.
   \item Clients are distributed and communicate via \cemph{message passing}.
   \item Any client can be corrupted by the adversary, who can then see their messages.
-  \item The \cemph{output} is made \emph{publicly available} by $\prog$.
+  \item The \cemph{output} $=\idealf$ is made \emph{publicly available} by $\prog$.
   \end{itemize}
-  \cemph{The output may leak secret information to an adversary} trying to
+  \cemph{$\idealf$ may expose some information to an adversary} trying to
   guess secret values, since it depends on inputs.
 
   \medskip
   
-  \cemph{Confidentiality} means that protocol messages don't enable the adversary
-  to make better guesses than the output alone. 
+  \cemph{Confidentiality} means that the protocol doesn't enable the adversary
+  to make better guesses than $\idealf$. 
 
 \end{frame}
 
@@ -141,8 +141,8 @@
 
 \begin{frame}{Protocol Implementation in Overture}
 
-  Low-level, probabilistic protocols are defined in terms of basic variable types
-  (identifiers $x$ distinguish them):
+  In our language Overture, low-level, probabilistic protocols are defined in
+  terms of basic variable types (identifiers $x$ distinguish them):
   \begin{itemize}
   \item $\secret{x}$: secret values in $\mathbb{F}_p$.
   \item $\mesg{x}$: messages received during the protocol.
@@ -254,7 +254,7 @@
 \begin{frame}{cvc5 Finite Fields Theory}
 
   The cvc5 Finite Fields Theory supports automated satisfiability checking of equational
-  constraint definitions $\eqs$ over prime fields $\mathcal{F}_{p}$.
+  constraint definitions $\eqs$ over prime fields $\mathbb{F}_{p}$.
 
   \medskip
   

@@ -4,9 +4,10 @@
 \newcommand{\sexp}{s}
 \newcommand{\keys}{\mathcal{K}}
 \newcommand{\rkey}{\kappa}
-\renewcommand{\unity}[1]{U(#1)}
+\renewcommand{\unity}[2]{U(#1, #2)}
 \newcommand{\uncorr}[2]{#1\bowtie#2}
 \newcommand{\corr}{\simeq}
+\renewcommand{\ty}{D}
 
 \section{Declassification Typing}
 
@@ -17,7 +18,7 @@
             
   \inferrule[Rand]
             {}
-            {\Gamma, \varnothing, \eqs \vdash \rx{w}{\cid} : \unity{\rx{w}{\cid}}}
+            {\Gamma, \varnothing, \eqs \vdash \rx{w}{\cid} : \setit{\unity{\rx{w}{\cid}}{\varnothing}}}
             
   \inferrule[Ideal]
             {}
@@ -25,15 +26,15 @@
               \setit{f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n})}}
 
   \inferrule[Enc]
-            {}
-            {\Gamma, R;\rx{w}{\cid}, \eqs \vdash \phi \fminus \rx{w}{\cid} : \unity{\rx{w}{\cid}}}
+            {\Gamma, R, \eqs \vdash \phi : \ty}
+            {\Gamma, R;\rx{w}{\cid}, \eqs \vdash \phi \fminus \rx{w}{\cid} : \setit{\unity{\rx{w}{\cid}}{\ty}}}
 
   \inferrule[HEAdd]
-      {\Gamma, R_1, \eqs \vdash \phi_1 : \setit{\unity{\rkey_1}} \\
-        \Gamma, R_2, \eqs \vdash \phi_2 : \setit{\unity{\rkey_2}} \\
-        \uncorr{\rkey_1}{\rkey_2}
+      {\Gamma, R_1, \eqs \vdash \phi_1 : \setit{\unity{\rkey_1}{\ty_1}} \\
+        \Gamma, R_2, \eqs \vdash \phi_2 : \setit{\unity{\rkey_2}{\ty_2}} \\
+        \uncorr{\unity{\rkey_1}{\ty_1}}{\unity{\rkey_2}{\ty_2}}
       }
-      {\Gamma, R_1;R_2, \eqs \vdash \phi_1 \fplus \phi_2 : \setit{\unity{\rkey_1 \oplus \rkey_2}}}
+      {\Gamma, R_1;R_2, \eqs \vdash \phi_1 \fplus \phi_2 : \setit{\unity{\rkey_1 \oplus \rkey_2}{\ty_1\cup \ty_2}}}
 
   \inferrule[Join]
       {\Gamma, R_1, \eqs \vdash \phi_1 : \ty_1 \\ \Gamma, R_2, \eqs \vdash \phi_2 : \ty_2}
@@ -55,6 +56,7 @@
       {\Gamma_1, \eqs \vdash \cmd_1;\cmd_2 : \Gamma_3,R_1;R_2}
 \end{mathpar}
 
+\begin{comment}
 \begin{mathpar}
   \inferrule[PassiveRecon]
       {\setit{(e_1,\unity{\rkey_1}), (e_2,\unity{\rkey_2})}  \subseteq K\\
@@ -67,10 +69,8 @@
        \uncorr{\rkey_1}{\rkey_2} }
       {\Gamma, \eqs \vdash K,R \leadsto K \cup \setit{(e_1 \fplus e_2,\unity{\rkey_1 \oplus \rkey_2})},R}
 \end{mathpar}
+\end{comment}
 
-
-\begin{mathpar}
-\end{mathpar}
 
 \begin{comment}
 \section{Deprecated}
