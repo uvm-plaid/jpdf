@@ -52,7 +52,7 @@
 \begin{frame}{Background}
   
   \cemph{Secure Multiparty Computation (MPC)} is a paradigm for
-  \cemph{confidential computing}.
+  \cemph{confidential computing} in distributed settings.
   \begin{itemize}
   \item Supports data privacy.
   \item Uses software-based protocols (vs., e.g., enclaves).
@@ -67,11 +67,11 @@
 
 \begin{frame}{Contributions}
 
-  Existing high-level PLs rely on low-level MPC protocols with correctness
+  Existing high-level PLs rely on low-level MPC protocols with correctness and security
   assumed.
   \begin{itemize}
-  \item Distinct features, e.g., probabilistic sampling.
-  \item Existing proof techniques mostly manual.
+  \item Distinct low-level features, e.g., probabilistic sampling.
+  \item Existing low-level proof techniques mostly manual.
   \end{itemize}
   Our contributions:
   \begin{itemize}
@@ -97,7 +97,7 @@
   \item The inputs are \cemph{secret values} of \cemph{clients} in a \emph{federation}
     $\setit{1,...,j}$.
   \item Clients are distributed and communicate via \cemph{message passing}.
-  \item Any client can be corrupted by the adversary, who can then see their messages.
+  \item Any client can be corrupted by the \cemph{adversary}, who can then see their messages.
   \item The \cemph{output} $=\idealf$ is made \emph{publicly available} by $\prog$.
   \end{itemize}
   \cemph{$\idealf$ may expose some information to an adversary} trying to
@@ -106,7 +106,7 @@
   \medskip
   
   \cemph{Confidentiality} means that the protocol doesn't enable the adversary
-  to make better guesses than $\idealf$. 
+  to make better guesses than $\idealf$.\footnote{Passive adversary assumed for this talk.}
 
 \end{frame}
 
@@ -251,14 +251,14 @@
 
 \section{Using SMT}
 
-\begin{frame}{cvc5 Finite Fields Theory}
+\begin{frame}{SMT Finite Fields Theory}
 
-  The cvc5 Finite Fields Theory supports automated satisfiability checking of equational
+  The SMT Finite Fields Theory supports automated satisfiability checking of equational
   constraint definitions $\eqs$ over prime fields $\mathbb{F}_{p}$.
 
   \medskip
   
-  Overture protocols $\prog$ have a straightforward interpretation as SMFF constraints $\toeq{\prog}$ , e.g.,
+  Overture protocols $\prog$ have a straightforward interpretation as equality constraints $\toeq{\prog}$ , e.g.,
   the first two lines of $\prog_{\mathit{sum3}}$ translate as:
   $$
   %\toeq{
@@ -274,10 +274,14 @@
     \end{array}
     %\end{array}
     %}
- $$
+  $$
 
- Verifiable \emph{entailment} $\eqs_1 \models \eqs_2$ means that any model of $\eqs_1$ is a model
- of $\eqs_2$. Models of $\prog$ correspond exactly to valid runs of $\prog$, therefore...
+    Random variables (e.g., $\rx{x}{1}$) unconstrained in the interpretation.
+
+    \medskip
+    
+    \cemph{Models of $\toeq{\prog}$ correspond exactly to runs of $\prog$}.
+    
   
 \end{frame}
 
@@ -285,8 +289,12 @@
 
 \begin{frame}{Verifying Protocol Correctness}
 
-  ... entailment is a mechanism for verifying protocol properties. If an interpretation
-  of a protocol entails a property, it holds in all protocol runs. 
+    Verifiable \emph{entailment} $\eqs_1 \models \eqs_2$ means that any model of $\eqs_1$ is a model
+    of $\eqs_2$. 
+
+    \medskip
+    Entailment is a mechanism for verifying protocol properties. If an interpretation
+    of a protocol entails a property, it holds in all protocol runs. 
 $$
 \begin{array}{c}
   \toeq{\sumthree} \wedge \ttt{out} \eop \mx{ss1}{1} + \mx{ss1}{2} + \mx{ss1}{3}\\ \models\\
@@ -305,9 +313,9 @@ or the full protocol wrt $\idealf$ can be checked automatically.
   Verifying equational properties also supports verification of confidentiality.
   It is well-known that expressions of the form:
   $$
-  (e - \rx{w}){\cid}
+  (e - \flip{w}){\cid}
   $$
-  are a means of encrypting $e$ using $\rx{w}{\cid}$ as a one-time-pad in any
+  are a means of encrypting $\elab{e}{\cid}$ using $\rx{w}{\cid}$ as a one-time-pad in any
   size field. This can be leveraged in typing. 
   $$    
   \inferrule[Encode]
