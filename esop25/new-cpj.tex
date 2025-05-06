@@ -36,7 +36,7 @@
   \inferrule[Smear]
       {\Gamma, \eqs \vdash \phi_1 : \dty{R_1}{\eset_1}\\
        \Gamma, \eqs \vdash \phi_2 : \dty{R_2}{\eset_2}}
-      {\Gamma, \eqs \vdash \phi_1 \fplus \phi_2 : \dty{\varnothing}{R_1 \cup R_2 \cup \eset_1 \cup \eset_2}}
+      {\Gamma, \eqs \vdash \phi_1 \eop \phi_2 : \dty{\varnothing}{R_1 \cup R_2 \cup \eset_1 \cup \eset_2}}
 
   \inferrule[Eq]
             {\eqs \models \phi \eop \phi' \\ \Gamma, \eqs \vdash \phi' : \ty}
@@ -61,6 +61,8 @@
       {\exists R\ .\ \forall X \in \pow(\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n})\ .\ |X| < n \implies \\
           \Gamma, \eqs \vdash \Sigma_{x \in X} x : \unity{R'}{\eset} \ \wedge \ R' \subseteq R  }   
       {\Gamma,R,\eqs \vdash \setit{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\be}}
+
+  
 \end{mathpar}
 
 
