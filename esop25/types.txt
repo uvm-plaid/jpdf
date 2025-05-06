@@ -57,9 +57,10 @@ Defn: U(R,T) = [R,T] where R <> {}.
 
 [[Secret Sharing]]
 exists R .
- for all X \in pow({m@1,...,m@n}) . 
-   G,E |- \Sum_{x \in X} x : U(R',T) /\
-   R' \subseteq R
+ for all X \in pow({m@1,...,m@n}) .
+   |X| < n => 
+    G,E |- \Sum_{x \in X} x : U(R',T) /\
+R' \subseteq R
 E |= m@1 + ... + m@n == e
 ----------------------------------------
 G, E, R |- [m@1,...,m@n] : shares[e]
@@ -75,10 +76,12 @@ G, E, R1;R2 |- [m@1,...,m@n] : shares[e1+e2]
 
 [[Secure Opening]]
 G, E, R1 |- [m@1,...,m@n] : shares[e]
-m'@i = m@1 + ... + m@n
+E |= p1 == m@1
+...
+E |= pn == m@n
 G, E, R1 |- e : U(R2,T)
 -------------------------------------
-G, E, R1;R2 |- m'@i : secopen[e]
+G, E, R1;R2 |- [p1,...,pn] : secopen[e]
 
 [[Declassification]]
 G, E, R|- [m@1,...,m@n] : shares[e]

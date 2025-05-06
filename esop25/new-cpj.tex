@@ -1,60 +1,71 @@
-\newcommand{\Shares}{\mathcal{S}}
-\newcommand{\sharet}[2]{\mathit{share}(#1,#2)}
-\newcommand{\sid}{\texttt{s}}
-\newcommand{\sexp}{s}
-\newcommand{\keys}{\mathcal{K}}
-\newcommand{\rkey}{\kappa}
 \renewcommand{\unity}[2]{U(#1, #2)}
-\newcommand{\uncorr}[2]{#1\bowtie#2}
-\newcommand{\corr}{\simeq}
-\renewcommand{\ty}{D}
+\renewcommand{\ty}{T}
+\newcommand{\eset}{D}
+\newcommand{\dty}[2]{\langle #1, #2 \rangle}
+\newcommand{\sharet}[1]{\mathrm{shares}(#1)}
 
 \section{Declassification Typing}
 
+\subsection{Primitive Typing Rules}
+
 \begin{mathpar}
   \inferrule[Mesg]
             {}
-            {\Gamma, \varnothing, \eqs \vdash \mx{w}{\cid} : \Gamma(\mx{w}{\cid})}
+            {\Gamma, \eqs \vdash \mx{w}{\cid} : \Gamma(\mx{w}{\cid})}
             
   \inferrule[Rand]
             {}
-            {\Gamma, \varnothing, \eqs \vdash \rx{w}{\cid} : \setit{\unity{\rx{w}{\cid}}{\varnothing}}}
+            {\Gamma, \eqs \vdash \rx{w}{\cid} : \dty{\setit{\rx{w}{\cid}}}{\varnothing}}
             
   \inferrule[Ideal]
             {}
-            {\Gamma, \varnothing, \eqs \vdash f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n}) :
-              \setit{f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n})}}
+            {\Gamma, \eqs \vdash f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n}) :
+              \dty{\varnothing}{f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n})}}
 
-  \inferrule[Enc]
-            {\Gamma, R, \eqs \vdash \phi : \ty}
-            {\Gamma, R;\rx{w}{\cid}, \eqs \vdash \phi \fminus \rx{w}{\cid} : \setit{\unity{\rx{w}{\cid}}{\ty}}}
-
-  \inferrule[HEAdd]
-      {\Gamma, R_1, \eqs \vdash \phi_1 : \setit{\unity{\rkey_1}{\ty_1}} \\
-        \Gamma, R_2, \eqs \vdash \phi_2 : \setit{\unity{\rkey_2}{\ty_2}} \\
-        \uncorr{\unity{\rkey_1}{\ty_1}}{\unity{\rkey_2}{\ty_2}}
-      }
-      {\Gamma, R_1;R_2, \eqs \vdash \phi_1 \fplus \phi_2 : \setit{\unity{\rkey_1 \oplus \rkey_2}{\ty_1\cup \ty_2}}}
+  \inferrule[Invert]
+            {\Gamma, \eqs \vdash \phi : \ty}
+            {\Gamma, \eqs \vdash -\phi : \ty}
 
   \inferrule[Join]
-      {\Gamma, R_1, \eqs \vdash \phi_1 : \ty_1 \\ \Gamma, R_2, \eqs \vdash \phi_2 : \ty_2}
-      {\Gamma, R_1;R_2, \eqs \vdash \phi_1 \bop \phi_2 : \ty_1 \cup \ty_2}
-            
+      {\Gamma, \eqs \vdash \phi_1 : \dty{R_1}{\eset_1}\\
+       \Gamma, \eqs \vdash \phi_2 : \dty{R_2}{\eset_2}\\
+        R \defeq (R_1 - (R_2 \cup \eset_2) \cup (R_2 - (R_1 \cup \eset_1)) \\ 
+        \eset \defeq (R_1 \cup R_2 \cup \eset_1 \cup \eset_2) - R }
+      {\Gamma, \eqs \vdash \phi_1 \fplus \phi_2 : \dty{R}{\eset}}
+
+  \inferrule[Smear]
+      {\Gamma, \eqs \vdash \phi_1 : \dty{R_1}{\eset_1}\\
+       \Gamma, \eqs \vdash \phi_2 : \dty{R_2}{\eset_2}}
+      {\Gamma, \eqs \vdash \phi_1 \fplus \phi_2 : \dty{\varnothing}{R_1 \cup R_2 \cup \eset_1 \cup \eset_2}}
+
   \inferrule[Eq]
-            {\eqs \models \phi \eop \phi' \\ \Gamma, R, \eqs \vdash \phi' : \ty}
-            {\Gamma, R, \eqs \vdash \phi : \ty}          
+            {\eqs \models \phi \eop \phi' \\ \Gamma, \eqs \vdash \phi' : \ty}
+            {\Gamma, \eqs \vdash \phi : \ty}          
 \end{mathpar}
 
 \begin{mathpar}
   \inferrule[Mesg]
-      {\Gamma, R, \eqs \vdash \toeq{\elab{e}{\cid}} : \ty}
-      {\Gamma, \eqs \vdash \xassign{x}{e}{\cid} : (\Gamma;x:\ty),R}
+      {\Gamma, \eqs \vdash \toeq{\elab{e}{\cid}} : \ty}
+      {\Gamma, \eqs \vdash \xassign{x}{e}{\cid} : (\Gamma;x:\ty)}
 
   \inferrule[Seq]
-      {\Gamma_1,\eqs \vdash \cmd_1 : \Gamma_2,R_1 \\
-        \Gamma_2,\eqs \vdash \cmd_2 : \Gamma_3,R_2}
-      {\Gamma_1, \eqs \vdash \cmd_1;\cmd_2 : \Gamma_3,R_1;R_2}
+      {\Gamma_1,\eqs \vdash \cmd_1 : \Gamma_2 \\
+        \Gamma_2,\eqs \vdash \cmd_2 : \Gamma_3}
+      {\Gamma_1, \eqs \vdash \cmd_1;\cmd_2 : \Gamma_3}
 \end{mathpar}
+
+\subsection{Strategies}
+
+\begin{mathpar}
+  \inferrule[Sharing]
+      {\exists R\ .\ \forall X \in \pow(\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n})\ .\ |X| < n \implies \\
+          \Gamma, \eqs \vdash \Sigma_{x \in X} x : \unity{R'}{\eset} \ \wedge \ R' \subseteq R  }   
+      {\Gamma,R,\eqs \vdash \setit{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\be}}
+\end{mathpar}
+
+
+
+
 
 \begin{comment}
 \begin{mathpar}
