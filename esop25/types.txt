@@ -1,0 +1,168 @@
+======
+Typing
+======
+
+G,E |- f(s1,...,sn) : [{},{f(s1,...,sn)}]
+
+G,E |- m : G(m)
+
+G,E |- r : [{r},{}]
+
+G,E |- e : [R,X]
+-----------------
+G,E |- -e : [R,X]
+
+G,E |- e1 : [R1,X1]
+G,E |- e2 : [R2,X2]
+R = (R1 - (R2 u X2) u (R2 - (R1 u X1))
+X = (R1 u R2 u X1 u X2) - R
+------------------------------
+G,E |- e1 + e2 : [R,X]
+
+G,E |- e1 : [R1,X1]
+G,E |- e2 : [R2,X2]
+------------------------------
+G,E |- e1 op e2 : [{}, R1 u R2 u X1 u X2]
+
+E |= e == e'    G,E |- e' : T
+-----------------------------
+G,E |- e : T
+
+
+G,E|- e : T
+--------------------------
+G,E |- x := e : (G; x : T)
+
+G1,E |- c1 : G2   G2,E |- c2 : G3
+---------------------------------
+G1,E |- c1;c2 : G3 
+
+==========
+Metatheory
+==========
+
+L: Given c,E,G with c |= E and 0,E |- c : G. Then for all C,
+    view(G,E,C,c) =  U_{X \in (pow(vars(c)_C) - {})} T such that G,E |- \Sum_{x \in X} x : T.
+
+Defn: revealed(T,H) = { f(s@i1,...,s@in) | [{}, D] \in T /\ f(s@i1,...,s@in) \in D /\ \exists i \in 1..n . i \in H }
+
+Thm: Given c,E,G with c |= E and 0,E |- c : G. Then c satisfies NIMO for F if for all H,C we have
+revealed(view(G,E,C,c)) = { F }.
+
+==========
+Strategies
+==========
+
+Defn: U(R,T) = [R,T] where R <> {}. 
+
+[[Secret Sharing]]
+exists R .
+ for all X \in pow({m@1,...,m@n}) . 
+   G,E |- \Sum_{x \in X} x : U(R',T) /\
+   R' \subseteq R
+E |= m@1 + ... + m@n == e
+----------------------------------------
+G, E, R |- [m@1,...,m@n] : shares[e]
+
+[[HE Addition]]
+G, E, R1 |- [m1@1,...,m1@n] : shares[e1]
+G, E, R2 |- [m2@1,...,m2@n] : shares[e2]
+E |= m@1 == m1@1 + m2@1
+...
+E |= m@n == m1@n + m2@n
+--------------------------------------------
+G, E, R1;R2 |- [m@1,...,m@n] : shares[e1+e2]
+
+[[Secure Opening]]
+G, E, R1 |- [m@1,...,m@n] : shares[e]
+m'@i = m@1 + ... + m@n
+G, E, R1 |- e : U(R2,T)
+-------------------------------------
+G, E, R1;R2 |- m'@i : secopen[e]
+
+[[Declassification]]
+G, E, R|- [m@1,...,m@n] : shares[e]
+E |= p1 == m@1
+...
+E |= pn == m@n
+-----------------------------------
+G, E, R |- [p1,...,pn] : declass[e]
+
+========
+Examples
+========
+
+m12 := s1 - rl1 - r1
+m13 := r1
+m21 := s2 - rl2 - r2
+m23 := r2
+m31 := s3 - rl3 - r3
+m32 := r3
+
+==
+TYPES
+
+m12 : U(r1,{s1})
+m13 : U(r1,{})
+
+m21 : U(r2,{s2})
+m23 : U(r2,{})
+
+m31 : U(r3,{s3})
+m32 : U(r3,{})
+
+==
+SHARE CLOSURES
+
+m12 + m13 == s1 - rl1
+m12 + m13 : U(rl1,{s1})
+
+m21 + m23 == s2 - rl2
+m21 + m23 : U(rl2,{s2})
+
+m31 + m32 == s3 - rl3
+m31 + m32 : U(rl3,{s3})
+
+m23 + m32 + m12 + m13 : U(r2+r3+rl1,{s1})
+==
+
+p1 := m31 + m21 + rl1
+p2 := m12 + m32 + rl2
+p3 := m13 + m23 + rl3
+out := p1 + p2 + p3
+
+==
+TYPES
+
+p1 := U(r3+r2+rl1,{s3,rl3,s2,rl2})
+p2 := U(r1+r3+rl2,{s3,rl3,s1,rl1})
+p3 := U(r1+r2+rl3,{s2,rl2,s1,rl1})
+==
+CLOSURES
+
+p1 + p2 + p3 : [{},{s1+s2+s3}]
+out : [{},{s1+s2+s3}]
+m23 + m32 + m12 + m13 + p1 : [{},{s1+s2+s3}]
+m21 + m31 + m23 + m13 + p2 : [{},{s1+s2+s3}]
+m21 + m31 + m12 + m32 + p3 : [{},{s1+s2+s3}]
+
+
+
+ma@1 := ra - r@3
+ma@2 := r@3
+
+mx@1 := s - r@2
+max@1 := r + ma@2
+
+ma1 : [{r3},{ra2}]
+mx1 : [{r2},{s2}]
+max1 : [{r2},{r3}]
+
+ma1 + mx1 : [{r2,r3},{ra2,s2}], etc.
+
+ma1 + mx1 + max1 : [{},{r2,r3,ra2,s2}] 
+
+BUT ALSO...
+
+ma1 + mx1 + max1 == ra3 + s2
+ma1 + mx1 + max1 : [{ra3},{s2}]
