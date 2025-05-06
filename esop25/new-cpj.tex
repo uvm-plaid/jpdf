@@ -84,14 +84,14 @@
       
  \inferrule[Secure Opening]
       {
-        \Gamma,R,\eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi} \\
+        \Gamma,R_1,\eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi} \\
         \eqs \models \px{w_1} \eop \mx{w_1}{\cid_1}
         \ \ldots\
         \eqs \models \px{w_n} \eop \mx{w_n}{\cid_n}\\
-        \Gamma,R,\eqs \vdash \phi : \unity{R}{\eset}
+        \Gamma,\eqs \vdash \phi : \unity{R_2}{\eset}
       }
       {
-        \Gamma, R, \eqs \vdash \cvec{\px{w_1},\ldots,\px{w_n}} : \secopent
+        \Gamma, R_1;R_2, \eqs \vdash \cvec{\px{w_1},\ldots,\px{w_n}} : \secopent
       }
       
  \inferrule[Declassification]
