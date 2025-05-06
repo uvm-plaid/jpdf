@@ -3,6 +3,10 @@
 \newcommand{\eset}{D}
 \newcommand{\dty}[2]{\langle #1, #2 \rangle}
 \newcommand{\sharet}[1]{\mathrm{shares}(#1)}
+\newcommand{\cvec}[1]{[#1]}
+\newcommand{\secopent}{\mathrm{secopen}}
+\newcommand{\declasst}[1]{\mathrm{declass}(#1)}
+
 
 \section{Declassification Typing}
 
@@ -36,7 +40,7 @@
   \inferrule[Smear]
       {\Gamma, \eqs \vdash \phi_1 : \dty{R_1}{\eset_1}\\
        \Gamma, \eqs \vdash \phi_2 : \dty{R_2}{\eset_2}}
-      {\Gamma, \eqs \vdash \phi_1 \eop \phi_2 : \dty{\varnothing}{R_1 \cup R_2 \cup \eset_1 \cup \eset_2}}
+      {\Gamma, \eqs \vdash \phi_1 \bop \phi_2 : \dty{\varnothing}{R_1 \cup R_2 \cup \eset_1 \cup \eset_2}}
 
   \inferrule[Eq]
             {\eqs \models \phi \eop \phi' \\ \Gamma, \eqs \vdash \phi' : \ty}
@@ -58,11 +62,48 @@
 
 \begin{mathpar}
   \inferrule[Sharing]
-      {\exists R\ .\ \forall X \in \pow(\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n})\ .\ |X| < n \implies \\
-          \Gamma, \eqs \vdash \Sigma_{x \in X} x : \unity{R'}{\eset} \ \wedge \ R' \subseteq R  }   
-      {\Gamma,R,\eqs \vdash \setit{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\be}}
+      {
+        \eqs \models \mx{w_1}{\cid_1} \fplus \cdots \fplus \mx{w_n}{\cid_n} \eop \phi \\
+        \\
+        \exists R\ .\ (\forall M \in \pow(\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n})\ .\ |M| < n \implies \\
+          \qquad \Gamma, \eqs \vdash \Sigma_{x \in M} x : \unity{R'}{\eset} \ \wedge \ R' \subseteq R)
+      }   
+      {\Gamma,R,\eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi}}
 
-  
+  \inferrule[Homomorphic Addition]
+      {
+       \Gamma,R_1,\eqs \vdash \cvec{\mx{w^1_1}{\cid_1},\ldots,\mx{w^1_n}{\cid_n}} : \sharet{\phi_1} \\
+       \Gamma,R_2,\eqs \vdash \cvec{\mx{w^2_1}{\cid_1},\ldots,\mx{w^2_n}{\cid_n}} : \sharet{\phi_2} \\
+       \eqs \models \mx{w_1}{\cid_1} \eop \mx{w^1_1}{\cid_1} \fplus \mx{w^2_1}{\cid_1} 
+       \ \ldots\ 
+       \eqs \models \mx{w_n}{\cid_n} \eop \mx{w^1_n}{\cid_n} \fplus \mx{w^2_n}{\cid_n} 
+      }
+      {
+        \Gamma, R_1;R_2, \eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi_1 \fplus \phi_2}
+      }
+      
+ \inferrule[Secure Opening]
+      {
+        \Gamma,R,\eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi} \\
+        \eqs \models \px{w_1} \eop \mx{w_1}{\cid_1}
+        \ \ldots\
+        \eqs \models \px{w_n} \eop \mx{w_n}{\cid_n}\\
+        \Gamma,R,\eqs \vdash \phi : \unity{R}{\eset}
+      }
+      {
+        \Gamma, R, \eqs \vdash \cvec{\px{w_1},\ldots,\px{w_n}} : \secopent
+      }
+      
+ \inferrule[Declassification]
+      {
+        \Gamma,R,\eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi} \\
+        \eqs \models \px{w_1} \eop \mx{w_1}{\cid_1}
+        \ \ldots\
+        \eqs \models \px{w_n} \eop \mx{w_n}{\cid_n}
+      }
+      {
+        \Gamma, R, \eqs \vdash \cvec{\px{w_1},\ldots,\px{w_n}} : \declasst{\phi}
+      }
 \end{mathpar}
 
 
