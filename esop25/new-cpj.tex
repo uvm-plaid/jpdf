@@ -89,6 +89,14 @@ $$
   $$
 \end{definition}
 
+\begin{theorem}[Security Typing]
+  Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
+  The $\prog$ satisfies {NIMO} for ideal functionality $\idealf$ if for all $H,C$, we have:
+  $$
+  \revealed(\view(\Gamma,\eqs,C,\prog),H) = \setit{\idealf}
+  $$
+\end{theorem}
+
 \subsection{Strategies}
 
 \begin{mathpar}
