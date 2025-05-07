@@ -6,9 +6,19 @@
 \newcommand{\cvec}[1]{[#1]}
 \newcommand{\secopent}{\mathrm{secopen}}
 \newcommand{\declasst}[1]{\mathrm{declass}(#1)}
+\renewcommand{\view}{\mathit{view}}
+\newcommand{\revealed}{\mathit{revealed}}
 
 
 \section{Declassification Typing}
+
+$$
+\begin{array}{rcl@{\hspace{4mm}}r}
+\eset &\in& 2^{\phi} & \gdesc{Dependency Approximations}\\ 
+\ty &::=& \dty{R}{\eset} & \gdesc{Probabilistic Types} \\
+\Gamma &::=& \varnothing \mid \Gamma; x : \ty & \gdesc{Type Environments}
+\end{array}
+$$
 
 \subsection{Primitive Typing Rules}
 
@@ -24,7 +34,7 @@
   \inferrule[Ideal]
             {}
             {\Gamma, \eqs \vdash f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n}) :
-              \dty{\varnothing}{f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n})}}
+              \dty{\varnothing}{\setit{f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n})}}}
 
   \inferrule[Invert]
             {\Gamma, \eqs \vdash \phi : \ty}
@@ -58,6 +68,27 @@
       {\Gamma_1, \eqs \vdash \cmd_1;\cmd_2 : \Gamma_3}
 \end{mathpar}
 
+
+\begin{definition}[Adversarial Views]
+  Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
+  Then for all $H,C$, define:
+  $$
+  \view(\Gamma,\eqs,C,\prog) \defeq \bigcup_{X \in (\pow(\vars(\prog)_C)) - \varnothing} \ty
+     \qquad \text{where}\ \Gamma,\eqs \vdash \Sigma_{x \in X} x : \ty
+  $$
+\end{definition}
+
+\begin{definition}[Revelation]
+  $$
+  \begin{array}{ll}
+    \revealed(\ty,H) \defeq & \setit{f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n}) \mid  \\
+      & \qquad \dty{\varnothing}{\eset} \in \ty\ \wedge\\
+      & \qquad f(\sx{w_1}{\cid_1},\ldots,\sx{w_n}{\cid_n}) \in \eset\ \wedge \\
+      & \qquad \exists 1 \le i \le n . \cid_i \in H} 
+  \end{array}
+  $$
+\end{definition}
+
 \subsection{Strategies}
 
 \begin{mathpar}
@@ -65,7 +96,7 @@
       {
         \eqs \models \mx{w_1}{\cid_1} \fplus \cdots \fplus \mx{w_n}{\cid_n} \eop \phi \\
         \\
-        \exists R\ .\ (\forall M \in \pow(\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n})\ .\ |M| < n \implies \\
+        \exists R\ .\ (\forall M \in \pow(\setit{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}})\ .\ 0 < |M| < n \implies \\
           \qquad \Gamma, \eqs \vdash \Sigma_{x \in M} x : \unity{R'}{\eset} \ \wedge \ R' \subseteq R)
       }   
       {\Gamma,R,\eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi}}
@@ -108,88 +139,3 @@
 
 
 
-
-
-\begin{comment}
-\begin{mathpar}
-  \inferrule[PassiveRecon]
-      {\setit{(e_1,\unity{\rkey_1}), (e_2,\unity{\rkey_2})}  \subseteq K\\
-       \rkey_1 \corr \rkey_2 \\
-       \Gamma, R_2, \eqs \vdash e_1 \fplus e_2 : \ty}
-      {\Gamma, \eqs \vdash K,R_1 \leadsto K \cup \ty,R_1;R_2}
-      
-  \inferrule[PassiveHEAdd]
-      {\setit{(e_1,\unity{\rkey_1}), (e_n,\unity{\rkey_2})}  \subseteq K\\
-       \uncorr{\rkey_1}{\rkey_2} }
-      {\Gamma, \eqs \vdash K,R \leadsto K \cup \setit{(e_1 \fplus e_2,\unity{\rkey_1 \oplus \rkey_2})},R}
-\end{mathpar}
-\end{comment}
-
-
-\begin{comment}
-\section{Deprecated}
-
-\begin{mathpar}
-  \inferrule[Mesg]
-            {}
-            {\Gamma, \eqs \vdash x : \Gamma(x)}
-
-  \inferrule[Key]
-            {\sid:[\ldots,x_k,\ldots] \in \keys}
-            {\Gamma, \eqs \vdash x_k : \setit{\sharet{\sid}{k}}}
-            
-  \inferrule[Secret]
-            {}
-            {\Gamma, \eqs \vdash \sx{w}{\cid} : \setit{\sx{w}{\cid}}}
-            
-  \inferrule[Join]
-            {\Gamma, \eqs \vdash \phi_1 : \ty_1 \\ \Gamma, \eqs \vdash \phi_2 : \ty_2}
-            {\Gamma, \eqs \vdash \phi_1 \bop \phi_2 : \ty_1 \cup \ty_2}
-            
-  \inferrule[Eq]
-            {\eqs \models \phi \eop \phi' \\ \Gamma, \eqs \vdash \phi' : \ty}
-            {\Gamma, \eqs \vdash \phi : \ty}
-
-  \inferrule[Share]
-            {\Gamma, \eqs \vdash x_1 : \sharet{\sid}{1} \\ \cdots \\ \Gamma, \eqs \vdash x_{n-1} : \sharet{\sid}{n-1} }
-            {\Gamma, \eqs \vdash \phi - x_1 - \cdots - x_{n-1} : [\phi]_\sid}
-            
-  \inferrule[HeAdd]
-      {\Gamma, \eqs \vdash \phi_1 : \setit{\sharet{\sexp_1}{k}} \\
-       \Gamma, \eqs \vdash \phi_2 : \setit{\sharet{\sexp_2}{k}} }
-      {\Gamma, \eqs \vdash \phi_1 \fplus \phi_2 : \setit{\sharet{\sexp_1 \oplus \sexp_2}{k}}}
-\end{mathpar}
-
-\begin{mathpar}
-  \inferrule[Enc]
-      {\Gamma, \eqs \vdash \toeq{\elab{e}{\cid}} : [\phi]_{\sid}}
-      {\Gamma,\Shares,\eqs \vdash \xassign{x}{e}{\cid} : (\Gamma;x:\sharet{\sid}{n}),(\Shares;[\phi]_\sid)}
-
-  \inferrule[Mesg]
-      {\Gamma, \eqs \vdash \toeq{\elab{e}{\cid}} : \ty}
-      {\Gamma,\Shares,\eqs \vdash \xassign{x}{e}{\cid} : (\Gamma;x:\ty),\Shares}
-
-  \inferrule[Seq]
-      {\Gamma_1,\Shares_1,\eqs \vdash \prog_1 : \Gamma_2,\Shares_2 \\
-        \Gamma_2,\Shares_2,\eqs \vdash \prog_2 : \Gamma_3,\Shares_3}
-      {\Gamma_1,\Shares_1,\eqs \vdash \prog_1;\prog_2 : \Gamma_3,\Shares_3}
-\end{mathpar}
-
-\begin{mathpar}
-  \inferrule
-      {}
-      {\Shares \vdash T \cup \setit{\sx{w}{\cid}},C \leadsto T, C.\sx{w}{\cid}}
-      
-  \inferrule
-      {}
-      {\Shares \vdash T \cup \setit{\sharet{\sexp}{1},\ldots,\sharet{\sexp}{n}},C \leadsto T, C.\Shares(\sexp)}
-
-  \inferrule
-      {\setit{\sharet{\sexp_1 \oplus \sexp_2}{j}, \sharet{\sexp_1}{k}, \sharet{\sexp_2}{k}} \subseteq T}
-      {\Shares \vdash T,C \leadsto T \cup \setit{\sharet{\sexp_1 \oplus \sexp_2}{k}},C}
-
-  \inferrule
-      {\Shares \vdash T_1,C_1 \leadsto T_2,C_2 \\ \Shares \vdash T_2,C_2 \leadsto T_3,C_3 }
-      {\Shares \vdash T_1,C_1 \leadsto T_3,C_3 }
-\end{mathpar}
-\end{comment}

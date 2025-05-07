@@ -41,13 +41,13 @@ G1,E |- c1;c2 : G3
 Metatheory
 ==========
 
-L: Given c,E,G with c |= E and 0,E |- c : G. Then for all C,
+Defn: Given c,E,G with c |= E and 0,E |- c : G. Then for all C,
     view(G,E,C,c) =  U_{X \in (pow(vars(c)_C) - {})} T such that G,E |- \Sum_{x \in X} x : T.
 
 Defn: revealed(T,H) = { f(s@i1,...,s@in) | [{}, D] \in T /\ f(s@i1,...,s@in) \in D /\ \exists i \in 1..n . i \in H }
 
 Thm: Given c,E,G with c |= E and 0,E |- c : G. Then c satisfies NIMO for F if for all H,C we have
-revealed(view(G,E,C,c)) = { F }.
+revealed(view(G,E,C,c), H) = { F }.
 
 ==========
 Strategies
