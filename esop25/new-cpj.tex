@@ -72,12 +72,12 @@ $$
 \end{mathpar}
 
 
-\begin{definition}[Adversarial Views]
+\begin{definition}[Views]
   Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
-  Then for all $H,C$, define:
+  Define:
   $$
-  \view(\Gamma,\eqs,C,\prog) \defeq \bigcup_{X \in (\pow(\vars(\prog)_C)) - \varnothing} \ty
-     \qquad \text{where}\ \Gamma,\eqs \vdash \Sigma_{x \in X} x : \ty
+  \view(\Gamma,\eqs,X) \defeq \bigcup_{X' \in (\pow(X) - \varnothing)} \ty
+     \qquad \text{where}\ \Gamma,\eqs \vdash \Sigma_{x \in X'} x : \ty
   $$
 \end{definition}
 
@@ -94,9 +94,9 @@ $$
 
 \begin{theorem}[Security Typing]
   Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
-  The $\prog$ satisfies {NIMO} for ideal functionality $\idealf$ if for all $H,C$, we have:
+  Then $\prog$ satisfies {NIMO} for ideal functionality $\idealf$ if for all $H,C$, we have:
   $$
-  \revealed(\view(\Gamma,\eqs,C,\prog),H) = \setit{\idealf}
+  \revealed(\view(\Gamma,\eqs,\vars(\prog)_C),H) = \setit{\idealf}
   $$
 \end{theorem}
 
@@ -154,3 +154,16 @@ $$
       }
 \end{mathpar}
 
+\begin{theorem}
+  Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
+  Suppose also $\Gamma,\eqs \vdash \varnothing,\varnothing \Rightarrow \Delta$, and define:
+  $$\eset = \{ \phi \mid \exists \nu \in \dom(\Delta) . \Delta(\nu) \mapsto \declasst{\phi} \}$$.
+  Then for any $H,C$, with:
+  $$
+  X_C \defeq \{ x \mid x \in \vars(\prog)_C \wedge \neg \exists \nu \in \dom(\Delta) . x \in \nu \}
+  $$
+  we have:
+  $$
+  \eset \cup  \revealed(\view(\Gamma,\eqs,X_C),H) = \revealed(\view(\Gamma,\eqs,\vars(\prog)_C),H)
+  $$
+\end{theorem}
