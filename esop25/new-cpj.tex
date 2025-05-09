@@ -8,7 +8,10 @@
 \newcommand{\declasst}[1]{\mathrm{declass}(#1)}
 \renewcommand{\view}{\mathit{view}}
 \newcommand{\revealed}{\mathit{revealed}}
-
+\newcommand{\sty}{\varsigma}
+\newcommand{\noise}{\mathrm{noise}}
+\newcommand{\owners}{\mathrm{owners}}
+\newcommand{\federation}{I_{\mathit{fed}}}
 
 \section{Declassification Typing}
 
@@ -99,53 +102,55 @@ $$
 
 \subsection{Strategy Typing}
 
-
+$$
+\inferrule
+    {\Gamma, \eqs \vdash \phi : \dty{R}{\eset} \\ R - R_I \neq \varnothing}
+    {\Gamma, \eqs \vdash \phi : \noise(R,I)}
+$$
 
 \begin{mathpar}
   \inferrule[Sharing]
       {
         \eqs \models \mx{w_1}{\cid_1} \fplus \cdots \fplus \mx{w_n}{\cid_n} \eop \phi \\
         \\
-        \exists R\ .\ (\forall M \in \pow(\setit{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}})\ .\ 0 < |M| < n \implies \\
-          \qquad \Gamma, \eqs \vdash \Sigma_{x \in M} x : \unity{R'}{\eset} \ \wedge \ R' \subseteq R)
+        \exists R_2\ .\ (\forall M \in \pow(\setit{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}})\ .\ 0 < |M| < n \implies \\
+          \qquad \Gamma, \eqs \vdash \Sigma_{x \in M} x : \noise(R,\owners(M)) \ \wedge \ R \subseteq R_2)
       }   
-      {\Gamma,R,\eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi}}
+      {\Gamma,\eqs \vdash R_1,\Delta \leadsto R_1;R_2, \Delta; \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi}}
 
   \inferrule[Homomorphic Addition]
       {
-       \Gamma,R_1,\eqs \vdash \cvec{\mx{w^1_1}{\cid_1},\ldots,\mx{w^1_n}{\cid_n}} : \sharet{\phi_1} \\
-       \Gamma,R_2,\eqs \vdash \cvec{\mx{w^2_1}{\cid_1},\ldots,\mx{w^2_n}{\cid_n}} : \sharet{\phi_2} \\
+       \Delta(\cvec{\mx{w^1_1}{\cid_1},\ldots,\mx{w^1_n}{\cid_n}}) = \sharet{\phi_1} \\
+       \Delta(\cvec{\mx{w^2_1}{\cid_1},\ldots,\mx{w^2_n}{\cid_n}}) = \sharet{\phi_2} \\
        \eqs \models \mx{w_1}{\cid_1} \eop \mx{w^1_1}{\cid_1} \fplus \mx{w^2_1}{\cid_1} 
        \ \ldots\ 
        \eqs \models \mx{w_n}{\cid_n} \eop \mx{w^1_n}{\cid_n} \fplus \mx{w^2_n}{\cid_n} 
       }
       {
-        \Gamma, R_1;R_2, \eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi_1 \fplus \phi_2}
+        \Gamma, \eqs \vdash R,\Delta \leadsto R,\Delta;\cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi_1 \fplus \phi_2}
       }
       
  \inferrule[Secure Opening]
       {
-        \Gamma,R_1,\eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi} \\
+        \Delta(\cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}}) = \sharet{\phi} \\
         \eqs \models \px{w_1} \eop \mx{w_1}{\cid_1}
         \ \ldots\
         \eqs \models \px{w_n} \eop \mx{w_n}{\cid_n}\\
-        \Gamma,\eqs \vdash \phi : \unity{R_2}{\eset}
+        \Gamma,\eqs \vdash \phi : \noise(R_2, \federation)
       }
       {
-        \Gamma, R_1;R_2, \eqs \vdash \cvec{\px{w_1},\ldots,\px{w_n}} : \secopent
+        \Gamma, \eqs \vdash R_1;\Delta \leadsto R_1;R_2, \Delta; \cvec{\px{w_1},\ldots,\px{w_n}} : \secopent
       }
       
  \inferrule[Declassification]
       {
-        \Gamma,R,\eqs \vdash \cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}} : \sharet{\phi} \\
+        \Delta(\cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}}) =  \sharet{\phi} \\
         \eqs \models \px{w_1} \eop \mx{w_1}{\cid_1}
         \ \ldots\
         \eqs \models \px{w_n} \eop \mx{w_n}{\cid_n}
       }
       {
-        \Gamma, R, \eqs \vdash \cvec{\px{w_1},\ldots,\px{w_n}} : \declasst{\phi}
+        \Gamma, \eqs \vdash R, \Delta \leadsto R, \Delta;\cvec{\px{w_1},\ldots,\px{w_n}} : \declasst{\phi}
       }
 \end{mathpar}
-
-
 

@@ -169,3 +169,16 @@ BUT ALSO...
 
 ma1 + mx1 + max1 == ra3 + s2
 ma1 + mx1 + max1 : [{ra3},{s2}]
+
+=======
+Prelude
+=======
+
+copygate(x,y)
+{
+   m[y++"tmp"]@1 := m[x] - r[y]@2;
+   m[y++"tmp"]@2 := m[x] - r[y]@1;
+   m[y]@1 ::= m[y++"tmp"] + r[y]@1;
+   m[y]@2 ::= m[y++"tmp"] + r[y]@2
+}
+postcondition : ([m[y]@1,m[y]@2] : shares(m[x]@1 + m[x]@2))
