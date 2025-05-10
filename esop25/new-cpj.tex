@@ -12,6 +12,7 @@
 \newcommand{\noise}{\mathrm{noise}}
 \newcommand{\owners}{\mathrm{owners}}
 \newcommand{\federation}{I_{\mathit{fed}}}
+\newcommand{\tjoin}{\bowtie}
 
 \section{Declassification Typing}
 
@@ -23,7 +24,56 @@ $$
 \end{array}
 $$
 
+The types of expressions $\elab{\be}{\cid}$ reflect their dependencies which
+may include variables from clients beside $\cid$, so typings are in terms
+of interpretations $\toeq{\elab{\be}{\cid}}$. Types are of the form $\dty{R}{\eset}$,
+where $\eset$ is a set of expressions $\phi$, and intuitively the typing
+$\toeq{\elab{\be}{\cid}} : \dty{R}{\eset}$ means that the marginal distribution
+of its variable dependencies is equivalent to the (uniform) marginal distribution of
+variables in $R$. If $R$ is empty this means that the distribution is dependent
+on the marginal distribution of variables in $\eset$. So for example:
+\begin{mathpar}
+  \sx{w}{\cid} : \dty{\varnothing}{\setit{\sx{w}{\cid}}}
+
+  \rx{w}{\cid} : \dty{\setit{\rx{w}{\cid}}}{\varnothing}
+  
+  \sx{w}{\cid} - \rx{w}{\cid} : \dty{\setit{\rx{w}{\cid}}}{\setit{\sx{w}{\cid}}}
+\end{mathpar}
+The typing rules are an approximation of dependencies, so wherever dependencies
+may be revealed, the system (conservatively) reflects this. So for example:
+\begin{mathpar}
+  \sx{w}{\cid} \ftimes \rx{w}{\cid} : \dty{\varnothing}{\setit{\rx{w}{\cid}, \sx{w}{\cid}}}
+\end{mathpar}
 \subsection{Primitive Typing Rules}
+
+The primitive typing rules are precise and expressive and reflect no particular
+implementation strategies, they just track dependencies as reflected in types.
+The most important rules are for binary operators, where dependencies merge
+in interesting ways especially with summation. In particular, if two
+randomized values are summed, they remain randomized modulo disjointness
+of randomness. Otherwise, overlapping randomness is merged into the dependencies.
+For example:
+\begin{eqnarray*}
+& (\sx{w}{\cid_1} - \rx{w}{\cid_1}) + (\sx{w}{\cid_2} - \rx{w}{\cid_2}) : \\
+& \dty{\setit{\rx{w}{\cid_1},\rx{w}{\cid_2}}}{\setit{\sx{w}{\cid_2},\sx{w}{\cid_1}}}
+\end{eqnarray*}
+but:
+$$
+(\sx{w}{\cid_1} - \rx{w}{\cid_1}) + \rx{w}{\cid_1} :
+\dty{\varnothing}{\setit{\rx{w}{\cid_1},\sx{w}{\cid_1}}}
+$$
+
+
+\begin{definition}[Type Join]
+  Given $\dty{R_1}{\eset_1}$ and $\dty{R_2}{\eset_2}$, define
+  $\dty{R_1}{\eset_1} \tjoin \dty{R_2}{\eset_2} \defeq \dty{R}{\eset}$ where
+  $R = (R_1 - (R_2 \cup \eset_2) \cup (R_2 - (R_1 \cup \eset_1))$ 
+  and $\eset = (R_1 \cup R_2 \cup \eset_1 \cup \eset_2) - R $.
+  %\begin{eqnarray*}
+  %  R &\defeq& (R_1 - (R_2 \cup \eset_2) \cup (R_2 - (R_1 \cup \eset_1))\\
+  %  \eset &\defeq& (R_1 \cup R_2 \cup \eset_1 \cup \eset_2) - R 
+  %\end{eqnarray*}
+\end{definition}
 
 \begin{mathpar}
   \inferrule[Mesg]
@@ -45,10 +95,10 @@ $$
 
   \inferrule[Join]
       {\Gamma, \eqs \vdash \phi_1 : \dty{R_1}{\eset_1}\\
-       \Gamma, \eqs \vdash \phi_2 : \dty{R_2}{\eset_2}\\
-        R \defeq (R_1 - (R_2 \cup \eset_2) \cup (R_2 - (R_1 \cup \eset_1)) \\ 
-        \eset \defeq (R_1 \cup R_2 \cup \eset_1 \cup \eset_2) - R }
-      {\Gamma, \eqs \vdash \phi_1 \fplus \phi_2 : \dty{R}{\eset}}
+       \Gamma, \eqs \vdash \phi_2 : \dty{R_2}{\eset_2}}%\\
+        %R \defeq (R_1 - (R_2 \cup \eset_2) \cup (R_2 - (R_1 \cup \eset_1)) \\ 
+        %\eset \defeq (R_1 \cup R_2 \cup \eset_1 \cup \eset_2) - R }
+      {\Gamma, \eqs \vdash \phi_1 \fplus \phi_2 : \dty{R_1}{\eset_1} \tjoin \dty{R_2}{\eset_2}}
 
   \inferrule[Smear]
       {\Gamma, \eqs \vdash \phi_1 : \dty{R_1}{\eset_1}\\
@@ -157,13 +207,26 @@ $$
 \begin{theorem}
   Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
   Suppose also $\Gamma,\eqs \vdash \varnothing,\varnothing \Rightarrow \Delta$, and define:
+  $$\eset \defeq \{ \phi \mid \exists \nu \in \dom(\Delta) . \Delta(\nu) \mapsto \declasst{\phi} \}$$
+  Let $\iov(\prog) = S \cup M \cup P$. 
+  Then for any $H,C$, if for all $x \in (M \cup P)_C$ there exists
+  $\nu \in \dom(\Delta)$ with $x \in \nu$, we have:
+  $$
+  D = \revealed(\view(\Gamma,\eqs,\vars(\prog)_C),H)
+  $$
+\end{theorem}
+
+\begin{lemma}
+  Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
+  Suppose also $\Gamma,\eqs \vdash \varnothing,\varnothing \Rightarrow \Delta$, and define:
   $$\eset = \{ \phi \mid \exists \nu \in \dom(\Delta) . \Delta(\nu) \mapsto \declasst{\phi} \}$$
   Then for any $H,C$, with:
   $$
-  X_C \defeq \{ x \mid x \in \vars(\prog)_C \wedge \neg \exists \nu \in \dom(\Delta) . x \in \nu \}
+  X \defeq \{ x \mid x \in \vars(\prog)_C \wedge \neg \exists \nu \in \dom(\Delta) . x \in \nu \}
   $$
   we have:
   $$
-  \eset \cup  \revealed(\view(\Gamma,\eqs,X_C),H) = \revealed(\view(\Gamma,\eqs,\vars(\prog)_C),H)
+  \eset \cup  \revealed(\view(\Gamma,\eqs,X),H) = \revealed(\view(\Gamma,\eqs,\vars(\prog)_C),H)
   $$
-\end{theorem}
+\end{lemma}
+
