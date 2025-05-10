@@ -62,8 +62,7 @@ $$
 (\sx{w}{\cid_1} - \rx{w}{\cid_1}) + \rx{w}{\cid_1} :
 \dty{\varnothing}{\setit{\rx{w}{\cid_1},\sx{w}{\cid_1}}}
 $$
-
-
+To join types appropriately, we make the following definition.
 \begin{definition}[Type Join]
   Given $\dty{R_1}{\eset_1}$ and $\dty{R_2}{\eset_2}$, define
   $\dty{R_1}{\eset_1} \tjoin \dty{R_2}{\eset_2} \defeq \dty{R}{\eset}$ where
@@ -74,6 +73,10 @@ $$
   %  \eset &\defeq& (R_1 \cup R_2 \cup \eset_1 \cup \eset_2) - R 
   %\end{eqnarray*}
 \end{definition}
+Then the rules for typing are as follows. The most interesting are the rules
+for summation that allow joining types and possibly retaining uniformity,
+and the rule for binary operations (including multiplication) that
+revert to the approximation of distributions of dependent expressions.
 
 \begin{mathpar}
   \inferrule[Mesg]
@@ -120,7 +123,6 @@ $$
         \Gamma_2,\eqs \vdash \cmd_2 : \Gamma_3}
       {\Gamma_1, \eqs \vdash \cmd_1;\cmd_2 : \Gamma_3}
 \end{mathpar}
-
 
 \begin{definition}[Views]
   Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
