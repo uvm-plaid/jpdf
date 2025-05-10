@@ -14,7 +14,7 @@
 \newcommand{\federation}{I_{\mathit{fed}}}
 \newcommand{\tjoin}{\bowtie}
 
-\section{Declassification Typing}
+\section{$\minifed$ Declassification Typing}
 
 $$
 \begin{array}{rcl@{\hspace{4mm}}r}
@@ -119,11 +119,13 @@ revert to the approximation of distributions of dependent expressions.
       {\Gamma, \eqs \vdash \xassign{x}{e}{\cid} : (\Gamma;x:\ty)}
 
   \inferrule[Seq]
-      {\Gamma_1,\eqs \vdash \cmd_1 : \Gamma_2 \\
-        \Gamma_2,\eqs \vdash \cmd_2 : \Gamma_3}
-      {\Gamma_1, \eqs \vdash \cmd_1;\cmd_2 : \Gamma_3}
+      {\Gamma_1,\eqs \vdash \prog_1 : \Gamma_2 \\
+        \Gamma_2,\eqs \vdash \prog_2 : \Gamma_3}
+      {\Gamma_1, \eqs \vdash \prog_1;\prog_2 : \Gamma_3}
 \end{mathpar}
-
+We note that typing tracks uniformity of marginal distributions of independent messages,
+but not their joint distributions. In order to capture this, we define a notion of
+dependency closures in views:  
 \begin{definition}[Views]
   Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
   Define:
@@ -132,7 +134,10 @@ revert to the approximation of distributions of dependent expressions.
      \qquad \text{where}\ \Gamma,\eqs \vdash \Sigma_{x \in X'} x : \ty
   $$
 \end{definition}
-
+The goal of the analysis is to show that views contain only noise and the
+result of the ideal functionality. To this end we define a notion of revelation, where
+functions of honest secrets are available in the clear in adversarial
+views:
 \begin{definition}[Revelation]
   $$
   \begin{array}{ll}
@@ -143,7 +148,8 @@ revert to the approximation of distributions of dependent expressions.
   \end{array}
   $$
 \end{definition}
-
+Now we can state our security typing correctness result, which says that the only
+information revealed in adversarial views (besides noise) is the ideal functionality. 
 \begin{theorem}[Security Typing]
   Given $\prog, \eqs, \Gamma$ with $\toeq{\prog} \models \eqs$ and $\varnothing, \eqs \vdash \prog : \Gamma$.
   Then $\prog$ satisfies {NIMO} for ideal functionality $\idealf$ if for all $H,C$, we have:
@@ -153,6 +159,30 @@ revert to the approximation of distributions of dependent expressions.
 \end{theorem}
 
 \subsection{Strategy Typings}
+
+The type system presented above is in a logical form and is not syntax-directed.
+Also, the definition of $\view$ involves a powerset construction with exponential
+complexity in the size of the program.
+
+As a step towards an algorithm, we can define specific strategies and analysis
+based on our type system that both reduces overall complexity and leverages SMT
+solving. This will form the foundation of a decidable and scalable type analysis
+for $\metaprot$.  We define \emph{vectors} of messages $\nu$ that participate in strategies,
+e.g., the collective shares of secret values.
+\begin{definition}
+  A \emph{message vector} $\nu$ is either a vector of distinct
+  broadcast messages $\cvec{\px{w_1},\ldots,\px{w_n}}$, or of unicast
+  messages $\cvec{\mx{w_1}{\cid_1},\ldots,\mx{w_n}{\cid_n}}$ where
+  each $\cid_i$ for $i \in \setit{\cid_1,\ldots,\cid_n}$ is distinct.  
+\end{definition}
+
+\emph{Strategy typings} and environments are then defined via the following syntax.
+$$
+\begin{array}{rcl@{\hspace{4mm}}r}
+\sty &::=& \sharet{\phi} \mid \declasst{\phi} \mid \secopent & \gdesc{Strategy Types} \\[1mm]
+\Delta &::=& \varnothing \mid \Delta; \nu : \sty & \gdesc{Strategy Type Environments}
+\end{array}
+$$
 
 $$
 \inferrule
