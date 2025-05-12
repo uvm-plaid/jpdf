@@ -4,9 +4,11 @@ import io.github.cvc5.CVC5ApiException;
 import io.github.cvc5.Sort;
 import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
+
 import plaid.ast.*;
 import plaid.cvc.TermFactory;
 import plaid.cvc.Verifier;
+import plaid.eval.ConstraintChecker;
 
 import java.util.*;
 
@@ -71,30 +73,27 @@ public class GenEntailVerifier {
             bindingList.put(typing.y(), genFreshValue(typing.t()));
         }
         
-        
-          // print out identifiers and their fresh values 
-//        for (Map<Identifier, PreludeExpression> bindings : bindingList) {
-//            for (Map.Entry<Identifier, PreludeExpression> entry : bindings.entrySet()) {
-//                System.out.println("id: " + entry.getKey());
-//                System.out.println("fresh: " + entry.getValue());
-//            }
-//        }
-        
         // evalConstraint abstractConstraints into ground constraint
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         evaluator.binding_list.add(bindingList);
         ConstraintExpr groundE1 = evaluator.evalConstraint(e1); 
         ConstraintExpr groundE2 =  evaluator.evalConstraint(e2);
         evaluator.binding_list.removeLast();
-        // check if groundE1 and groundE2 are in fact ground 
-        // TODO: ConstraintChecker 
+
+        // check if groundE1 and groundE2 are in fact ground
+        if(ConstraintChecker.checkConstraint(groundE1) && ConstraintChecker.checkConstraint(groundE2)){
+            // check if ground constraint1 entails ground constraint2 using Verifier entails
+            TermFactory termFactory = new TermFactory(termManager, sort);
+            Term groundE1Term = termFactory.constraintToTerm(groundE1);
+            Term groundE2Term = termFactory.constraintToTerm(groundE2);
+            Verifier verifier = new Verifier(termFactory);
+
+            return verifier.entails(groundE1Term, groundE2Term);
+        }
         
-        // check if ground constraint1 entails ground constraint2 using Verifier entails
-        TermFactory termFactory = new TermFactory(termManager, sort);
-        Term groundE1Term = termFactory.constraintToTerm(groundE1);
-        Term groundE2Term = termFactory.constraintToTerm(groundE2);
-        Verifier verifier = new Verifier(termFactory);
-        
-        return verifier.entails(groundE1Term, groundE2Term); 
+        else{
+            throw new RuntimeException("constraints with fresh values are not ground!");
+        }
+
     }
 }

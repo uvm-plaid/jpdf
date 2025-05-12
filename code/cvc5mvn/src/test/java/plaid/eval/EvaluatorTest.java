@@ -8,7 +8,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-// combine exisiting ExpressionEvaluatorTest and CommandEvaluatorTest
 public class EvaluatorTest {
 
     private PreludeExpression evalExpr(String src, List<ExprFunction> exprFunctions) {
