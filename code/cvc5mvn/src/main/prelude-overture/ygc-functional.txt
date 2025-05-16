@@ -42,7 +42,7 @@ andtables(z,x,y){
   { tt = ttable; pt = ptable; tks = tks; pks = pks }
 }
 
-evalgate(g,xwv,ywv,tables) {
+evalgate(xwv,ywv,tables) {
   let tk = mux4(xwv.t, ywv.t, tables.tks.v1, tables.tks.v2, tables.tks.v3, tables.tks.v4) in
   let pk = mux4(xwv.t, ywv.t, tables.pks.v1, tables.pks.v2, tables.pks.v3, tables.pks.v4) in
   let trow = mux4(xwv.p, ywv.p, tables.tt.v1, tables.tt.v2, tables.tt.v3, tables.tt.v4) in
@@ -53,10 +53,18 @@ evalgate(g,xwv,ywv,tables) {
 cmdfunctions:
 
 main(){
+
+  m["xt"]@1 := OT(s["x"]@1, r["xt"], not(r["xt"]))@1;
+  m["xp"]@1 := OT(s["x"]@1, r["xp"], not(r["xp"]))@1;
+  m["yt"]@1 := mux(s["y"], r["yt"], not(r["yt"]))@1;
+  m["yp"]@1 := mux(s["y"], r["yp"], not(r["yp"]))@1;
+  
   let ztables = andtables("z", "x", "y") in
-  let xwv = { t = s["x"] + r["xt"]; p = s["x"] + r["xp"] } in 
-  let ywv = { t = s["y"] + r["yt"]; p = s["y"] + r["yp"] } in
-  let zwv = evalgate("z", xwv, ywv, ztables) in
+  // let xwv = { t = s["x"] + r["xt"]; p = s["x"] + r["xp"] } in 
+  // let ywv = { t = s["y"] + r["yt"]; p = s["y"] + r["yp"] } in
+  let xwv = { t = m["xt"]; p = m["xp"] } in 
+  let ywv = { t = m["yt"]; p = m["yp"] } in 
+  let zwv = evalgate(xwv, ywv, ztables) in
   out@1 := (zwv.t + r["zt"])@1
 }
 
