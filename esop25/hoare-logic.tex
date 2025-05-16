@@ -1,3 +1,28 @@
+\subsection{Corrections to $\metaprot$ Generalized Constraint Forms and Evaluation}
+
+The syntax of $\notg{\eqs}$ in the ESOP paper was too complicated. It should simply be:
+$$
+\begin{array}{rcl@{\hspace{4mm}}r}
+\notg{\eqs} &::=& e \eop e \mid \notg{\eqs} \wedge \notg{\eqs} 
+\end{array}
+$$
+The semantics of generalized constraint evaluation can also be greatly simplified, as
+follows:
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2}
+      {e_1 \eop e_2 \redx \toeq{\be_1} \eop \toeq{\be_2}}
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\eqs_2} \redx \eqs_2 }
+      {\notg{\eqs_1} \wedge \notg{\eqs_2} \redx \eqs_1 \wedge \eqs_2}
+\end{mathpar}
+Given these changes, we also have some corrections to the $\TirName{Assert}$ and $\TirName{Mesg}$
+rules, which referred to a syntactic form ``$\toeq{e}$'' which now seems meaningless.
+
+The upshot is that evaluation of generalized constraints, mainly in the $\TirName{GenEntails}$
+rule, can be defined very directly in terms of evaluation of $\metaprot$ expressions.
+
 \subsection{Hoare Logic}
 
 \newcommand{\htrip}[3]{\{ #1 \}\ #2\ \{ #3 \}}
@@ -29,7 +54,7 @@ verification. Hardpack eliminates program variables, while softpack may require 
 \begin{mathpar}
   \inferrule[Mesg]
             {}
-            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \ptoeq{\elab{e_2}{e_3}}}}
+            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \elab{e_2}{e_3}}}
 
   %\inferrule[Encode]
   %          {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
@@ -39,7 +64,7 @@ verification. Hardpack eliminates program variables, while softpack may require 
   %
   \inferrule[Assert]
             {}
-            {\htrip{\ptoeq{\elab{e_1}{e_3}} \eop \ptoeq{\elab{e_2}{e_3}}}{\elab{\assert{e_1 = e_2}}{e_3}}{\eqtrue}}
+            {\htrip{\elab{e_1}{e_3} \eop \elab{e_2}{e_3}}{\elab{\assert{e_1 = e_2}}{e_3}}{\eqtrue}}
 
   \inferrule[Seq]          
             {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}}
