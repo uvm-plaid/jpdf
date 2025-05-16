@@ -1,65 +1,12 @@
 exprfunctions:
 
-SHARED(x) { (m[x++"s"]@1 + m[x++"s"]@2) }
+not(x){ (x + 1) }
 
-IDEALF() { (s["x"]@1 + s["y"]@2) + (s["i"]@1 * s["j"]@2) }
+mux(s1, b1, b2){ (not(s1) * b1) + (s1 * b2) }
 
 cmdfunctions:
 
-sshare(x:string, i1:cid, i2:cid) {
-   m[x++"s"]@i2 := (s[x] + -r[x])@i1;
-   m[x++"s"]@i1 := r[x]@i1
-}
-
-_open(x:string, i1:cid, i2:cid){
-    m[x++"exts"]@i1 := m[x++"s"]@i2;
-    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
-}
-
-open(x:string) { _open(x,1,2); _open(x,2,1) }
-
-_sum(z:string, x:string, y:string, i:cid) { m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i }
-
-sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
-postcondition: ( SHARED(z) == SHARED(x) + SHARED(y) )
-
-_mult(z : string, y : string, i : cid) {
-    m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i
-}
-
-precondition: ( BEAVERTRIP(z) )
-mult(z : string, x : string, y : string) {
-    sum(z++"d", x, z++"a");
-    open(z++"d");
-    sum(z++"e", y, z++"b");
-    open(z++"e");
-    _mult(z,y,1); _mult(z,y,2)
-}
-postcondition: ( SHARED(z) == SHARED(x) * SHARED(y) )
-
-// *
-// main entry point
-// * 
-precondition: ( BEAVERTRIP("k") ) 
 main() {
-    sshare("x", 1, 2);
-    sshare("y", 2, 1);
-    sshare("i", 1, 2);
-    sshare("j", 2, 1);
-    
-    sum("z","x","y");
-    mult("k","i","j");
-    sum("out","z","k");
-    open("out")
+   m["x"]@1 := mux(r["x"], 1, 0)@2
 }
-postcondition: ( m["out"]@1 == IDEALF() )
-
-constraintfunctions:
-
-// These are Beaver triple constraints. Party 3 is a phantom just for spec.
-BEAVERTRIP(x) {
-  m[x++"c"]@3 == m[x++"a"]@3 * m[x++"b"]@3 AND
-  m[x++"as"]@1 + m[x++"as"]@2 == m[x++"a"]@3 AND
-  m[x++"bs"]@1 + m[x++"bs"]@2 == m[x++"b"]@3 AND
-  m[x++"cs"]@1 + m[x++"cs"]@2 == m[x++"c"]@3 
-}
+postcondition: ( T )

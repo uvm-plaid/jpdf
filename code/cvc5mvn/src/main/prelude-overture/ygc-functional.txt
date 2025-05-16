@@ -1,0 +1,68 @@
+exprfunctions:
+
+not(x){ (x + 1) }
+
+mux(s1, b1, b2){ (not(s1) * b1) + (s1 * b2)}
+
+mux4(s1, s2, b1, b2, b3, b4){
+  (not(s1) * not(s2) * b1) +  (not(s1) * (s2) * b2) + ((s1) * not(s2) * b3) + ((s1) * (s2) * b4) 
+}
+
+permute(s1, b1, b2){
+  let v1 = (not(s1) * b1) + (s1 * b2) in
+  let v2 = (not(s1) * b2) + (s1 * b1) in
+  {v1 = v1; v2 = v2} 
+}
+
+permute4(s1, s2, b1, b2, b3, b4){
+  let v1 = mux4(s1, s2, b1, b2, b3, b4) in
+  let v2 = mux4(s1, not(s2), b1, b2, b3, b4) in
+  let v3 = mux4(not(s1), s2, b1, b2, b3, b4) in
+  let v4 = mux4(not(s1), not(s2), b1, b2, b3, b4) in
+  {v1 = v1; v2 = v2; v3 = v3; v4 = v4} 
+}
+
+andtables(z,x,y){
+  let xwl = { t = r[x++"t"]; p = r[x++"p"] } in
+  let ywl = { t = r[y++"t"]; p = r[y++"p"] } in
+  let tks = { v1 = r[z++"tk1"]; v2 = r[z++"tk2"]; v3 = r[z++"tk3"]; v4 = r[z++"tk4"] } in
+  let pks = { v1 = r[z++"pk1"]; v2 = r[z++"pk2"]; v3 = r[z++"pk3"]; v4 = r[z++"pk4"] } in
+  let tkeys = permute4(xwl.t, ywl.t, tks.v1, tks.v2, tks.v3, tks.v4) in
+  let pkeys = permute4(xwl.t, ywl.t, pks.v1, pks.v2, pks.v3, pks.v4) in
+  let ttable = permute4(xwl.p, ywl.p,
+       	                tkeys.v1 + r[z++"t"],
+  			tkeys.v2 + r[z++"t"],
+  			tkeys.v3 + r[z++"t"],
+  			tkeys.v4 + not(r[z++"t"])) in
+  let ptable = permute4(xwl.p, ywl.p,
+      	                pkeys.v1 + r[z++"p"],
+  			pkeys.v2 + r[z++"p"],
+  			pkeys.v3 + r[z++"p"],
+  			pkeys.v4 + not(r[z++"p"])) in
+  { tt = ttable; pt = ptable; tks = tks; pks = pks }
+}
+
+evalgate(g,xwv,ywv,tables) {
+  let tk = mux4(xwv.t, ywv.t, tables.tks.v1, tables.tks.v2, tables.tks.v3, tables.tks.v4) in
+  let pk = mux4(xwv.t, ywv.t, tables.pks.v1, tables.pks.v2, tables.pks.v3, tables.pks.v4) in
+  let trow = mux4(xwv.p, ywv.p, tables.tt.v1, tables.tt.v2, tables.tt.v3, tables.tt.v4) in
+  let prow = mux4(xwv.p, ywv.p, tables.pt.v1, tables.pt.v2, tables.pt.v3, tables.pt.v4) in
+  { t = tk + trow; p = pk + prow } 
+}
+
+cmdfunctions:
+
+main(){
+  let ztables = andtables("z", "x", "y") in
+  let xwv = { t = s["x"] + r["xt"]; p = s["x"] + r["xp"] } in 
+  let ywv = { t = s["y"] + r["yt"]; p = s["y"] + r["yp"] } in
+  let zwv = evalgate("z", xwv, ywv, ztables) in
+  out@1 := (zwv.t + r["zt"])@1
+}
+
+postcondition: (
+  // circuit correctness
+  out@1 == s["x"]@1 * s["y"]@1 
+) 
+
+
