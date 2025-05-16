@@ -73,10 +73,10 @@ public class ConstraintAnalyzer {
             case AssignCommand assignCommand ->
                     new Constraints(
                             new TrueConstraintExpr(),
-                            new EqualConstraintExpr(assignCommand.e1(), appendPartyIndex(assignCommand.e2(), null)));
+                            new EqualConstraintExpr(evaluator.toOverture(assignCommand.e1()), appendPartyIndex(evaluator.toOverture(assignCommand.e2()), null)));
             case AssertCommand assertCommand ->
                     new Constraints(
-                            new EqualConstraintExpr(appendPartyIndex(assertCommand.e1(), assertCommand.e3()), appendPartyIndex(assertCommand.e2(), assertCommand.e3())),
+                            new EqualConstraintExpr(appendPartyIndex(evaluator.toOverture(assertCommand.e1()), evaluator.toOverture(assertCommand.e3())), appendPartyIndex(evaluator.toOverture(assertCommand.e2()), evaluator.toOverture(assertCommand.e3()))),
                             new TrueConstraintExpr());
             case LetCommand letCommand -> inferPrePostCmd(evaluator.evalInstruction(letCommand), evaluator);
             case CommandList commandList -> {
