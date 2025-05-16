@@ -22,7 +22,7 @@ permute4(s1, s2, b1, b2, b3, b4){
   {v1 = v1; v2 = v2; v3 = v3; v4 = v4} 
 }
 
-andtables(z,x,y){
+bintables(z,x,y,ttv){
   let xwl = { t = r[x++"t"]; p = r[x++"p"] } in
   let ywl = { t = r[y++"t"]; p = r[y++"p"] } in
   let tks = { v1 = r[z++"tk1"]; v2 = r[z++"tk2"]; v3 = r[z++"tk3"]; v4 = r[z++"tk4"] } in
@@ -30,17 +30,21 @@ andtables(z,x,y){
   let tkeys = permute4(xwl.t, ywl.t, tks.v1, tks.v2, tks.v3, tks.v4) in
   let pkeys = permute4(xwl.t, ywl.t, pks.v1, pks.v2, pks.v3, pks.v4) in
   let ttable = permute4(xwl.p, ywl.p,
-       	                tkeys.v1 + r[z++"t"],
-  			tkeys.v2 + r[z++"t"],
-  			tkeys.v3 + r[z++"t"],
-  			tkeys.v4 + not(r[z++"t"])) in
+       	                tkeys.v1 + mux(ttv.v00, r[z++"t"], not(r[z++"t"])),
+  			tkeys.v2 + mux(ttv.v01, r[z++"t"], not(r[z++"t"])),
+  			tkeys.v3 + mux(ttv.v10, r[z++"t"], not(r[z++"t"])),
+  			tkeys.v4 + mux(ttv.v11, r[z++"t"], not(r[z++"t"]))) in
   let ptable = permute4(xwl.p, ywl.p,
-      	                pkeys.v1 + r[z++"p"],
-  			pkeys.v2 + r[z++"p"],
-  			pkeys.v3 + r[z++"p"],
-  			pkeys.v4 + not(r[z++"p"])) in
+      	                pkeys.v1 + mux(ttv.v00, r[z++"p"], not(r[z++"p"])),
+  			pkeys.v2 + mux(ttv.v01, r[z++"p"], not(r[z++"p"])),
+  			pkeys.v3 + mux(ttv.v10, r[z++"p"], not(r[z++"p"])),
+  			pkeys.v4 + mux(ttv.v11, r[z++"p"], not(r[z++"p"]))) in 
   { tt = ttable; pt = ptable; tks = tks; pks = pks }
 }
+
+andtables(z,x,y) { bintables(z,x,y, { v00 = 0; v01 = 0; v10 = 0; v11 = 1 }) }
+
+xortables(z,x,y) { bintables(z,x,y, { v00 = 0; v01 = 1; v10 = 1; v11 = 0 }) }
 
 decodetables(z) {
   let tks = { v1 = r["decode_tk1"]; v2 = r["decode_tk2"] } in
@@ -103,6 +107,26 @@ andgate(z : string, x : string, y : string) {
   m[z++"pk_r4"]@1 := tables.pks.v4@2 
 }
 
+xorgate(z : string, x : string, y : string) {
+  let tables = xortables(z,x,y) in
+  m[z++"tt_r1"]@1 := tables.tt.v1@2; 
+  m[z++"tt_r2"]@1 := tables.tt.v2@2; 
+  m[z++"tt_r3"]@1 := tables.tt.v3@2; 
+  m[z++"tt_r4"]@1 := tables.tt.v4@2; 
+  m[z++"pt_r1"]@1 := tables.pt.v1@2; 
+  m[z++"pt_r2"]@1 := tables.pt.v2@2; 
+  m[z++"pt_r3"]@1 := tables.pt.v3@2; 
+  m[z++"pt_r4"]@1 := tables.pt.v4@2; 
+  m[z++"tk_r1"]@1 := tables.tks.v1@2; 
+  m[z++"tk_r2"]@1 := tables.tks.v2@2; 
+  m[z++"tk_r3"]@1 := tables.tks.v3@2; 
+  m[z++"tk_r4"]@1 := tables.tks.v4@2; 
+  m[z++"pk_r1"]@1 := tables.pks.v1@2; 
+  m[z++"pk_r2"]@1 := tables.pks.v2@2; 
+  m[z++"pk_r3"]@1 := tables.pks.v3@2; 
+  m[z++"pk_r4"]@1 := tables.pks.v4@2 
+}
+
 decodegate(z : string) {
   let tables = decodetables(z) in
   m["decode_tt_r1"]@1 := tables.tt.v1@2; 
@@ -123,20 +147,22 @@ eval_ingate(x : string) {
 
 main(){
 
+  garbler_ingate("w");
   eval_ingate("x");
   garbler_ingate("y");
 
   andgate("z", "x", "y");
-  decodegate("z");
+  xorgate("out", "z", "w");
+  decodegate("out");
   
   let zwv = evalgate(mkwv("x"), mkwv("y"), mktables("z")) in
-  out@1 := evaldecode(zwv, mkdecode())@1
-
+  let outwv = evalgate(zwv, mkwv("w"), mktables("out")) in
+  out@1 := evaldecode(outwv, mkdecode())@1
 }
 
 postcondition: (
   // circuit correctness
-  out@1 == s["x"]@1 * s["y"]@2
+  out@1 == (s["x"]@1 * s["y"]@2) + s["w"]@2
 ) 
 
 
