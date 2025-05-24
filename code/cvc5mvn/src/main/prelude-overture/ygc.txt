@@ -44,7 +44,38 @@ bintables(z,x,y,ttv){
 
 andtables(z,x,y) { bintables(z,x,y, { v00 = 0; v01 = 0; v10 = 0; v11 = 1 }) }
 
+nandtables(z,x,y) { bintables(z,x,y, { v00 = 1; v01 = 1; v10 = 1; v11 = 0 }) }
+
 xortables(z,x,y) { bintables(z,x,y, { v00 = 0; v01 = 1; v10 = 1; v11 = 0 }) }
+
+ortables(z,x,y) { bintables(z,x,y, { v00 = 0; v01 = 1; v10 = 1; v11 = 1 }) }
+
+evalgate(xwv,ywv,tables) {
+  let tk = mux4(xwv.t, ywv.t, tables.tks.v1, tables.tks.v2, tables.tks.v3, tables.tks.v4) in
+  let pk = mux4(xwv.t, ywv.t, tables.pks.v1, tables.pks.v2, tables.pks.v3, tables.pks.v4) in
+  let trow = mux4(xwv.p, ywv.p, tables.tt.v1, tables.tt.v2, tables.tt.v3, tables.tt.v4) in
+  let prow = mux4(xwv.p, ywv.p, tables.pt.v1, tables.pt.v2, tables.pt.v3, tables.pt.v4) in
+  { t = tk + trow; p = pk + prow } 
+}
+
+copytables(xcopy, x) {
+  let xwl = { t = r[x++"t"]; p = r[x++"p"] } in
+  let tks = { v1 = r[xcopy++"tk1"]; v2 = r[xcopy++"tk2"] } in
+  let pks = { v1 = r[xcopy++"pk1"]; v2 = r[xcopy++"pk2"] } in
+  let tkeys = permute(xwl.t, tks.v1, tks.v2) in
+  let pkeys = permute(xwl.t, pks.v1, pks.v2) in
+  let tt = permute(xwl.p, tkeys.v1 + r[xcopy++"t"], tkeys.v2 + not(r[xcopy++"t"])) in
+  let pt = permute(xwl.p, pkeys.v1 + r[xcopy++"p"], pkeys.v2 + not(r[xcopy++"p"])) in
+  { tt = tt; pt = pt; tks = tks; pks = pks }
+}
+
+evalcopy(xwv,tables) {
+  let tk = mux(xwv.t, tables.tks.v1, tables.tks.v2) in 
+  let pk = mux(xwv.t, tables.pks.v1, tables.pks.v2) in
+  let trow = mux(xwv.p, tables.tt.v1, tables.tt.v2) in
+  let prow = mux(xwv.p, tables.pt.v1, tables.pt.v2) in 
+  { t = tk + trow; p = pk + prow } 
+}
 
 decodetables(z) {
   let tks = { v1 = r["decode_tk1"]; v2 = r["decode_tk2"] } in
@@ -57,14 +88,6 @@ evaldecode(zwv, tables) {
   let tk = mux(zwv.t, tables.tks.v1, tables.tks.v2) in
   let trow = mux(zwv.p, tables.tt.v1, tables.tt.v2) in
   tk + trow
-}
-
-evalgate(xwv,ywv,tables) {
-  let tk = mux4(xwv.t, ywv.t, tables.tks.v1, tables.tks.v2, tables.tks.v3, tables.tks.v4) in
-  let pk = mux4(xwv.t, ywv.t, tables.pks.v1, tables.pks.v2, tables.pks.v3, tables.pks.v4) in
-  let trow = mux4(xwv.p, ywv.p, tables.tt.v1, tables.tt.v2, tables.tt.v3, tables.tt.v4) in
-  let prow = mux4(xwv.p, ywv.p, tables.pt.v1, tables.pt.v2, tables.pt.v3, tables.pt.v4) in
-  { t = tk + trow; p = pk + prow } 
 }
 
 mktables(z) {

@@ -53,43 +53,47 @@ revealed(view(G,E,C,c), H) = { F }.
 Strategies
 ==========
 
-Defn: U(R,T) = [R,T] where R <> {}. 
+Defn: U(R,T) = [R,T] where R <> {}.
 
-[[Secret Sharing]]
-exists R .
- for all X \in pow({m@1,...,m@n}) .
-   |X| < n => 
-    G,E |- \Sum_{x \in X} x : U(R',T) /\
-R' \subseteq R
-E |= m@1 + ... + m@n == e
-----------------------------------------
-G, E, R |- [m@1,...,m@n] : shares[e]
+E |= e1 + e2 = e
+G,E |- e1 : U(R,D1) G,E |- e2 : U(R,D2)
+-----------------------------------------
+G,E |- [e1,e2] : shares(R, e)
 
-[[HE Addition]]
-G, E, R1 |- [m1@1,...,m1@n] : shares[e1]
-G, E, R2 |- [m2@1,...,m2@n] : shares[e2]
-E |= m@1 == m1@1 + m2@1
-...
-E |= m@n == m1@n + m2@n
---------------------------------------------
-G, E, R1;R2 |- [m@1,...,m@n] : shares[e1+e2]
 
-[[Secure Opening]]
-G, E, R1 |- [m@1,...,m@n] : shares[e]
-E |= p1 == m@1
-...
-E |= pn == m@n
-G, E, R1 |- e : U(R2,T)
--------------------------------------
-G, E, R1;R2 |- [p1,...,pn] : secopen[e]
+G,E |- [mux4(_r[xt]@1,r[_yt]@1,tks) + mux4(r[_xp]@1,r[_yp]@1,tt),
+        r[zt]@2] : shares(r[zt]@2, (r[_xt]@1 + r[xt]@2) op (r[_yt]@1 + r[yt]@2))
+	
+G,E |- [mux4(_r[xt]@1,r[_yt]@1,pks) + mux4(r[_xp]@1,r[_yp]@1,pt),
+        r[zp]@2] : shares(r[zp]@2, (r[_xp]@1 + r[xp]@2) op (r[_yp]@1 + r[yp]@2))
 
-[[Declassification]]
-G, E, R|- [m@1,...,m@n] : shares[e]
-E |= p1 == m@1
-...
-E |= pn == m@n
------------------------------------
-G, E, R |- [p1,...,pn] : declass[e]
+G,E |- tks : R1, pks : R2 
+--------------------------------------------------------------------------------
+G,E |- tt,pt,tks,pks : gate(R1;R2;r[zt]@2;r[zp]@2)
+
+E |= mux(_r[zt]@1, tks) + mux(r[_zp]@1, tt)  == _r[zt]@1 + r[zt]@2
+G,E |- tks : R
+------------------------------------------------------------------
+G,E |- tt,tks : decoder(z,R)
+
+
+G,E |- m@i : noise(R,i)
+-----------------------
+G,E |- [m@i] : R, noise
+
+G,E |- tt,pt,tks,pks : gate(R)
+---------------------------------
+G,R |- [tt,pt,tks,pks] : R, noise
+
+G,E |- [p1,p2] : shares(e)
+--------------------------------
+G,E |- [p1,p2] : {}, reveal(e)
+
+G,E |- d : decoder(z,R)
+G,E |- [e@1,rzt@2] : shares(f(s1,...,sn))
+E |= p == e@1 + rzt@2
+-----------------------------------------
+G,E |- [d,p] : R, reveal(f(s1,...,sn))
 
 ========
 Examples
