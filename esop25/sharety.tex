@@ -45,4 +45,9 @@
       {\Gamma,\eqs \vdash [\phi] : \pubty\\
         \Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety}
       {\Gamma,\eqs \vdash [\phi_1\ftimes\phi,\phi_2\ftimes\phi] : \sharety}
+
+  \inferrule[PubOp]
+      {\Gamma,\eqs \vdash [\phi_1] : \pubty\\
+        \Gamma,\eqs \vdash [\phi_2] : \pubty}
+      {\Gamma,\eqs \vdash [\phi_1\bop\phi_2] : \pubty}
 \end{mathpar}
