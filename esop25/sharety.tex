@@ -13,12 +13,12 @@
   
 \begin{mathpar}
   \inferrule[Share]
-      {\eqs \models \genshares(\phi_1,y,\cid) \eop R_2,[x,\phi_2] }
-      {\Gamma,R_1,\eqs \vdash [x] : R_1;R_2, \Gamma; [x,\phi_2] : \sharety}
+      {\eqs \models \genshares(\phi_1,y,\cid) \eop R_2,[\mx{z}{\cid},\phi_2] }
+      {\Gamma,R_1,\eqs \vdash [\mx{z}{\cid}] : R_1;R_2, \Gamma; [\mx{z}{\cid},\phi_2] : \sharety}
 
   \inferrule[Open]
-      {\Gamma,R,\eqs \vdash [p_1,p_2] : \sharety}
-      {\Gamma,R,\eqs \vdash [p_1,p_2] : R, \Gamma; [\recon(p_1,p_2)] : \pubty}
+      {\Gamma,R,\eqs \vdash [\px{y},\px{z}] : \sharety}
+      {\Gamma,R,\eqs \vdash [\px{y},\px{z}] : R, \Gamma; [\recon(\px{y},\px{z})] : \pubty}
 
   \inferrule[Seq]
       {\Gamma_1,\eqs,R_1 \vdash \xvec_1 : R_2,\Gamma_2 \\
