@@ -96,6 +96,47 @@ E |= p == e@1 + rzt@2
 G,E |- [d,p] : R, reveal(f(s1,...,sn))
 
 ========
+FINALLY?
+========
+
+
+genshares(x,i) = {r[x]@i}, s[x] - r[x]@i, r[x]@i
+
+recon(e1,e2) = e1 + e2
+
+
+E |= genshares(s,i) = R2,x,e2
+----------------------------------------
+G,E,R1 |- [x] : R1;R2, G;[x,e2] : shares
+
+G,E |- [p1,p2] : shares
+---------------------------------------------------
+G,E,R |- [p1,p2] : R1;R2, G;[recon(p1,p2)] : public
+
+G1,E,R1 |- c1 : R2,G2   G2,E,R2 |- c2 : R3,G3
+---------------------------------------------
+G1,E,R1 |- c1;c2 : R3;G3
+
+
+G,E |- v : G(v)
+
+G,E |- [e1,e2] : shares
+G,E |- [e1',e2'] : shares
+-------------------------------
+G,E |- [e1+e1',e2+e2'] : shares
+
+G,E |- [e1,e2] : shares
+G,E |- [e] : public
+---------------------------
+G,E |- [e1 + e,e2] : shares
+
+G,E |- [e1,e2] : shares
+G,E |- [e] : public
+-------------------------------
+G,E |- [e1 * e,e2 * e] : shares
+
+
+========
 Examples
 ========
 

@@ -50,6 +50,8 @@ xortables(z,x,y) { bintables(z,x,y, { v00 = 0; v01 = 1; v10 = 1; v11 = 0 }) }
 
 ortables(z,x,y) { bintables(z,x,y, { v00 = 0; v01 = 1; v10 = 1; v11 = 1 }) }
 
+eqtables(z,x,y) { bintables(z,x,y, { v00 = 1; v01 = 0; v10 = 0; v11 = 1 }) }
+
 evalgate(xwv,ywv,tables) {
   let tk = mux4(xwv.t, ywv.t, tables.tks.v1, tables.tks.v2, tables.tks.v3, tables.tks.v4) in
   let pk = mux4(xwv.t, ywv.t, tables.pks.v1, tables.pks.v2, tables.pks.v3, tables.pks.v4) in

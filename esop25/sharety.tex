@@ -1,0 +1,48 @@
+\section{Share Types}
+
+\newcommand{\sharety}{\mathrm{shares}}
+\newcommand{\pubty}{\mathrm{public}}
+\newcommand{\genshares}{\mathrm{genshares}}
+\newcommand{\recon}{\mathrm{recon}}
+\newcommand{\xvec}{\nu}
+
+\begin{eqnarray*}
+  \genshares(\phi,y,\cid) &\defeq& \setit{\rx{y}{\cid}}, [\phi - \rx{y}{\cid}, \rx{y}{\cid}]\\
+  \recon(\phi_1,\phi_2) &\defeq& \phi_1 \fplus \phi_2
+\end{eqnarray*}
+  
+\begin{mathpar}
+  \inferrule[Share]
+      {\eqs \models \genshares(\phi_1,y,\cid) \eop R_2,[x,\phi_2] }
+      {\Gamma,R_1,\eqs \vdash [x] : R_1;R_2, \Gamma; [x,\phi_2] : \sharety}
+
+  \inferrule[Open]
+      {\Gamma,R,\eqs \vdash [p_1,p_2] : \sharety}
+      {\Gamma,R,\eqs \vdash [p_1,p_2] : R, \Gamma; [\recon(p_1,p_2)] : \pubty}
+
+  \inferrule[Seq]
+      {\Gamma_1,\eqs,R_1 \vdash \xvec_1 : R_2,\Gamma_2 \\
+        \Gamma_2,\eqs,R_2 \vdash \xvec_2 : R_3,\Gamma_3}
+      {\Gamma_1, \eqs,R_1 \vdash \xvec_1\xvec_2 : R_3\Gamma_3}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Hyp]
+      {}
+      {\Gamma,\eqs \vdash \xvec : \Gamma(\xvec)}
+
+  \inferrule[HEAdd]
+      {\Gamma,\eqs \vdash [\phi^1_1,\phi^1_2] : \sharety\\
+        \Gamma,\eqs \vdash [\phi^2_1,\phi^2_2] : \sharety}
+      {\Gamma,\eqs \vdash [\phi^1_1\fplus\phi^2_1,\phi^1_2\fplus\phi^2_2] : \sharety}
+
+  \inferrule[HEAddPub]
+      {\Gamma,\eqs \vdash [\phi] : \pubty\\
+        \Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety}
+      {\Gamma,\eqs \vdash [\phi_1\fplus\phi,\phi_2] : \sharety}
+            
+  \inferrule[HEMultPub]
+      {\Gamma,\eqs \vdash [\phi] : \pubty\\
+        \Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety}
+      {\Gamma,\eqs \vdash [\phi_1\ftimes\phi,\phi_2\ftimes\phi] : \sharety}
+\end{mathpar}
