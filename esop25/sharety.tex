@@ -17,7 +17,7 @@
       {\Gamma,R_1,\eqs \vdash [\mx{z}{\cid}] : R_1;R_2, \Gamma; [\mx{z}{\cid},\phi_2] : \sharety}
 
   \inferrule[Open]
-      {\Gamma,R,\eqs \vdash [\px{y},\px{z}] : \sharety}
+      {\Gamma, \eqs \vdash [\px{y},\px{z}] : \sharety}
       {\Gamma,R,\eqs \vdash [\px{y},\px{z}] : R, \Gamma; [\recon(\px{y},\px{z})] : \pubty}
 
   \inferrule[Seq]
