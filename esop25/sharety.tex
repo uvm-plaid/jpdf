@@ -6,6 +6,8 @@
 \newcommand{\recon}{\mathrm{recon}}
 \newcommand{\xvec}{\nu}
 
+\subsection{Logical Rules}
+
 \begin{eqnarray*}
   \genshares(\phi,y,\cid) &\defeq& \setit{\rx{y}{\cid}}, [\phi - \rx{y}{\cid}, \rx{y}{\cid}]\\
   \recon(\phi_1,\phi_2) &\defeq& \phi_1 \fplus \phi_2
@@ -50,4 +52,54 @@
       {\Gamma,\eqs \vdash [\phi_1] : \pubty\\
         \Gamma,\eqs \vdash [\phi_2] : \pubty}
       {\Gamma,\eqs \vdash [\phi_1\bop\phi_2] : \pubty}
+\end{mathpar}
+
+\subsection{$\minifed$ Algorithmic Rules}
+
+\begin{mathpar}
+  \inferrule[ShareAlg1]
+      {\eqs \models \genshares(\phi_1,y,1) \eop R_2,[\mx{z}{1},\mx{z}{2}] }
+      {\Gamma,R_1,\eqs \vdash [\mx{z}{1},\mx{z}{2}] : R_1;R_2, \Gamma; [\mx{z}{1},\mx{z}{2}] : \sharety}
+      
+  \inferrule[ShareAlg2]
+      {\eqs \models \genshares(\phi_1,y,2) \eop R_2,[\mx{z}{1},\mx{z}{2}] }
+      {\Gamma,R_1,\eqs \vdash [\mx{z}{1},\mx{z}{2}] : R_1;R_2, \Gamma; [\mx{z}{1},\mx{z}{2}] : \sharety}
+      
+  \inferrule[LocalShare]
+      {\Gamma, \eqs \vdash [\mx{z}{1},\mx{z}{2}] : \sharety}
+      {\Gamma,R,\eqs \vdash [\mx{z}{1},\mx{z}{2}] : R, \Gamma; [\mx{z}{1},\mx{z}{2}] : \sharety}
+
+  \inferrule[OpenAlg]
+      {\Gamma, \eqs \vdash [\mx{x}{\cid}] : \pubty}
+      {\Gamma,R,\eqs \vdash [\mx{x}{\cid}] : R, \Gamma; [\mx{x}{\cid}] : \pubty}
+\end{mathpar}
+
+\subsection{$\metaprot$ Hoare Type Theory}
+
+\begin{mathpar}
+  \inferrule[Mesg]
+            {}
+            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \elab{e_2}{e_3}}}
+
+  \inferrule[Seq]          
+            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}}
+            {\htrip{\peq_1^1 \wedge \peq_1^2}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2}}
+
+  \inferrule[Let]
+            {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}}
+            {\htrip{\peq_1}{\elet{y}{e}{\cmd}}{\peq_2}}
+
+  \inferrule[App]
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+            {\htrip{\peq_1[e_1/y_1 \cdots e_n/y_n]}{f(e_1,\ldots,e_n)}{\peq_2[e_1/y_1 \cdots e_n/y_n]}}
+
+  \inferrule[Fn]
+            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \htrip{\peq_1}{\cmd}{\peq_2}}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+
+  \inferrule[Hardpack]
+            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
+              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
+              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \wedge \peq_2' \models \peq_1' \wedge \peq_2 }
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
 \end{mathpar}
