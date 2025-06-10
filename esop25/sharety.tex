@@ -8,15 +8,29 @@
 \newcommand{\xdefs}{\mathcal{D}}
 \newcommand{\kwas}{\ \mathrm{as}\ }
 \newcommand{\shtrip}[3]{#1 \Vdash #2 \rhd #3}
+% \newcommand{\shtrip}{\htrip}
 \newcommand{\redxsub}{\varrho}
 
 \subsection{Logical Rules for $\minifed$}
+
+The logical typing rules enforce confidentiality. They impose
+coordination across clients and are defined in terms of vectors of
+expressions $\xvec$. Critically \emph{\bf all rules are defined modulo
+equivalence of vectors given $\eqs$}. We start by defining share
+generation and reconstruction. While we assume additive shares in this
+work, the type system is generally (intentionally) agnostic wrt to
+these abstractions, and so could be swapped out for, e.g., Shamir
+shares.
 
 \begin{eqnarray*}
   \genshares(\phi,y,\cid) &\defeq& \setit{\rx{y}{\cid}}, [\phi - \rx{y}{\cid}, \rx{y}{\cid}]\\
   \recon(\phi_1,\phi_2) &\defeq& \phi_1 \fplus \phi_2
 \end{eqnarray*}
-  
+
+Generally the type system works more like an information flow type system
+than our previous work. The following rules define allowable interactions
+between clients. The idea is that all interactive messages must be categorized
+as either shares or public values in order for the protocol to be well-typed.
 \begin{mathpar}
   \inferrule[Share]
       {\eqs \models \genshares(\phi_1,y,\cid) \eop R_2,[\mx{z}{\cid},\phi_2] }
@@ -32,6 +46,12 @@
       {\Gamma_1, \eqs,R_1 \vdash \xvec_1\xvec_2 : R_3,\Gamma_3}
 \end{mathpar}
 
+In addition to the interactive rules, we have rules for local computation.
+Again, these are all modulo equivalence of vectors under $\eqs$. These rules
+allow standard homorphic encryption operations, and in particular ensure
+that all openings are secure in a NIMO sense. These can be combined with
+the Hoare logic to obtain a precise bound on information release, e.g.,
+that outputs are secure openings of the ideal functionality.
 \begin{mathpar}
   \inferrule[Hyp]
       {}
@@ -60,7 +80,19 @@
 
 \subsection{Algorithmic Rules for $\metaprot$}
 
-
+The $\minifed$ type system is undecidable given validity up to equivalence of expression
+vectors, so as in previous work we want a decidable algorithm for $\metaprot$ that must
+rely on type annotations and explicit type preconditions. For example, a GMW or BGW
+sum gate should assume that the inputs are shares, and assert that the outputs are shares.
+To this end we extend the syntax of commands to include type annotations:
+$$
+\cmd ::= \cdots \mid [e,e] \kwas \genshares(\notg{\phi},e,e) \mid [e,e] : \sharety \mid
+     [e,e] : \pubty \mid [e] : \pubty
+$$
+These annotations need to be verified, and in general may rely on an SMT equivalence.
+Currently the only examples of the latter I've found are for the genshares case, but
+coercion forms for others could easily be added. The relevant equivalence for
+genshares can be inferred as a precondition in the Hoare logic, as follows.
 \begin{mathpar}
   %\inferrule[Assert]
   %    {}
@@ -76,60 +108,87 @@
   %    {}
   %    {\htrip{e \eop e_1 \fplus e_2}{[e] \kwas \recon(e_1,e_2)}{\eqtrue}} 
 \end{mathpar}
-
+The typing rules are then given as follows. First, the type annotations, which
+rely on local computation typing which is purely syntax-directed given an empty
+constraint. $\xdefs$ is a mapping from $x$s to $\phi$s (their ``definitions'')
+which is just the explicit definition of $x$ in the protocol (see rule
+\TirName{Defn}).
 \begin{mathpar}
-  \inferrule
+  \inferrule[CoerceGenshare]
       {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\ e \redx w \\ e' \redx \cid}
       {\shtrip{\Gamma, R, \xdefs}
         {[e_1,e_2] \kwas \genshares(\notg{\phi},e,e')}
         {\Gamma;[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety, R;\setit{\rx{w}{\cid}}, \xdefs} }
 
-  \inferrule
+  \inferrule[LocalShare]
       {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}  \\\\
         \Gamma,\eqtrue \vdash [\xdefs(\mx{w_1}{\cid_1} ), \xdefs(\mx{w_2}{\cid_2})] : \sharety}
-      {\shtrip{\Gamma, R, \xdefs}{[e_2,e_2] : \sharety}{\Gamma;[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety,
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}{\Gamma;[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety,
           R, \xdefs}}
 
-  \inferrule
+  \inferrule[Open]
       {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}  \\
         \Gamma,\eqtrue \vdash [\xdefs(\px{w_1}), \xdefs(\px{w_2})] : \sharety}
-      {\shtrip{\Gamma, R, \xdefs}{[e_2,e_2] : \pubty}{\Gamma;[\px{w_1} \fplus \px{w_2}] : \pubty,
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \pubty}{\Gamma;[\px{w_1} \fplus \px{w_2}] : \pubty,
           R, \xdefs}}
 
-  \inferrule
+  \inferrule[Public]
       {e \redx \mx{w}{\cid} \\ \Gamma,\eqtrue \vdash [\xdefs(\mx{w}{\cid})] : \pubty}
       {\shtrip{\Gamma, R, \xdefs}{[e] : \pubty}{\Gamma;[\mx{w}{\cid}] : \pubty,
           R, \xdefs}}
 
-  \inferrule
+  \inferrule[Defn]
       {e_1 \redx \mx{w}{\cid_1} \\ e_2 \redx \elab{\be}{\cid_2}}
       {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[\mx{w}{\cid_1} \mapsto \toeq{\elab{\be}{\cid_2}}]}}
-
-  \inferrule
+\end{mathpar}
+The remaining rules are as follows, where ``evaluating substitution''
+$\redxsub(\notg{R}),\redxsub(\notg{\Gamma})$ is defined to impose evaluation
+\cnote{probably should do this for $\peq$ as well}. I.e., given $\redxsub = [e_1/y_1 \cdots e_n/y_n]$:
+    $$
+    \redxsub(\notg{\Gamma}) = \Gamma \ \text{where}\ \notg{\Gamma}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma
+    $$
+and so on.:
+\begin{mathpar}
+  \inferrule[App]
       {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R'},\notg{\Gamma_2}) \\
        \redxsub = [e_1/y_1 \cdots e_n/y_n]}
       {\shtrip{\Gamma;\redxsub(\notg{\Gamma_1}), R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma;\redxsub(\notg{\Gamma_2}), R;\redxsub(\notg{R'}), \xdefs}}
 
-  \inferrule        
+  \inferrule[Seq]    
       {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1}{\Gamma_2,R_2,\xdefs_2} \\
        \shtrip{\Gamma_2,R_2,\xdefs_2}{\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
       {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1;\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
 
   \inferrule[Let]
       {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd[e/y]}{\Gamma_2,R_2,\xdefs_2}}
-      {\htrip{\Gamma_1,R_1,\xdefs_1}{\elet{y}{e}{\cmd}}{\Gamma_2,R_2,\xdefs_2}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\elet{y}{e}{\cmd}}{\Gamma_2,R_2,\xdefs_2}}
 \end{mathpar}
-
+The \TirName{App} rule relies on function typings, which are a dependent type form
+$\Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R},\notg{\Gamma_2})$ where
+$y_1,\ldots,y_n$ are the expression parameters, $\notg{\Gamma_1}$ is the
+generalized typing precondition, and $(\notg{R},\notg{\Gamma_2})$ is the generalized
+typing postconditions including any randomness consumed by OTP encryption.
+Function typings are computed as follows (compositionally):
 $$
-\inferrule
+\inferrule[Fn]
     {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\
       \redxsub = [\mv_1/y_1 \cdots \mv_n/y_n] \\
      \shtrip{\redxsub(\notg{\Gamma_1}), \varnothing, \varnothing}{\cmd}{\redxsub(\notg{\Gamma_2}), \redxsub(\notg{R}),\xdefs}}
     {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R},\notg{\Gamma_2})}
-$$
+ $$
 
-    Note: $\xdefs$ is a mapping from $x$s to $\phi$s (their ``definitions''). ``Evaluating substitution'' $\redxsub(\notg{R}),\redxsub(\notg{\Gamma})$ is defined to impose evaluation (probably $\peq$ as well). I.e., given $\redxsub = [e_1/y_1 \cdots e_n/y_n]$:
-    $$
-    \redxsub(\notg{\Gamma}) = \Gamma \ \text{where}\ \notg{\Gamma}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma
-    $$
-    and so on.
+Note that in rule $\TirName{Fn}$, the precondition $\notg{\Gamma_1}$
+and the typing annotations that may contribute to
+$(\notg{R},\notg{\Gamma_2})$ need to be specified somewhere, a style
+choice. Currently they are being written as additional clauses to the
+\ttt{precondition} and \ttt{postcondition} of functions, e.g.:
+\begin{verbatimtab}
+precondition: ([m[x++"s"]@1,m[x++"s"]@2] : shares;
+               [m[y++"s"]@1,m[y++"s"]@2] : shares)
+sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
+postcondition: ( [m[z++"s"]@1,m[z++"s"]@2] : shares),
+               ( SHARED(z) == SHARED(x) + SHARED(y) )
+\end{verbatimtab}
+This example illustrates how we can write both confidentiality and correctness properties--
+or not include either as desired. That is, the confidentiality type system will ensure
+gradual release, without any SMT pre or postconditions. 
