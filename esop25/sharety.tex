@@ -141,9 +141,14 @@ which is just the explicit definition of $x$ in the protocol (see rule
       {e_1 \redx \mx{w}{\cid_1} \\ e_2 \redx \elab{\be}{\cid_2}}
       {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[\mx{w}{\cid_1} \mapsto \toeq{\elab{\be}{\cid_2}}]}}
 \end{mathpar}
-The remaining rules are as follows, where ``evaluating substitution''
-$\redxsub(\notg{R}),\redxsub(\notg{\Gamma})$ is defined to impose evaluation
-\cnote{probably should do this for $\peq$ as well}. I.e., given $\redxsub = [e_1/y_1 \cdots e_n/y_n]$:
+The remaining rules are as follows, with the rule for application
+being the most interesting as usual. Since we allow dependent
+generalization in function types, as in previous work (and as in the
+Hoare logic) we equate expressions up to the result of their
+evaluation. To make rules a little more succint we define ``evaluating
+substitution'' $\redxsub(\notg{R}),\redxsub(\notg{\Gamma})$ to also
+impose evaluation \cnote{probably should do this for $\peq$ as
+  well}. I.e., given $\redxsub = [e_1/y_1 \cdots e_n/y_n]$:
     $$
     \redxsub(\notg{\Gamma}) = \Gamma \ \text{where}\ \notg{\Gamma}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma
     $$
