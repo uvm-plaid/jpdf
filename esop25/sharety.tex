@@ -105,9 +105,15 @@
       {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[\mx{w}{\cid_1} \mapsto \toeq{\elab{\be}{\cid_2}}]}}
 
   \inferrule
-      {f : \Pi y_1:\tau_1,\ldots,y_n:\tau_n . \notg{\Gamma_1}, (\notg{R'},\notg{\Gamma_2})}
+      {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1}, (\notg{R'},\notg{\Gamma_2})}
       {\shtrip{\Gamma;\notg{\Gamma_1}[e_1/y_1 \cdots e_n/y_n], R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma;\notg{\Gamma_2}[e_1/y_1 \cdots e_n/y_n], R;\notg{R'}[e_1/y_1 \cdots e_n/y_n], \xdefs}}
 \end{mathpar}
+
+$$
+\inferrule
+    {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ }
+    {f : }
+$$
 
 Note: subsitution in $\notg{R},\notg{\Gamma}$ should be defined to impose evaluation (probably $\peq$ as well).
 
