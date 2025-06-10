@@ -4,7 +4,10 @@
 \newcommand{\pubty}{\mathrm{public}}
 \newcommand{\genshares}{\mathrm{genshares}}
 \newcommand{\recon}{\mathrm{recon}}
-\newcommand{\xvec}{\nu}
+\newcommand{\xvec}{\upsilon}
+\newcommand{\xdefs}{\mathcal{D}}
+\newcommand{\kwas}{\ \mathrm{as}\ }
+\newcommand{\shtrip}[3]{#1 \Vdash #2 \rhd #3}
 
 \subsection{Logical Rules}
 
@@ -56,50 +59,55 @@
 
 \subsection{$\minifed$ Algorithmic Rules}
 
-\begin{mathpar}
-  \inferrule[ShareAlg1]
-      {\eqs \models \genshares(\phi_1,y,1) \eop R_2,[\mx{z}{1},\mx{z}{2}] }
-      {\Gamma,R_1,\eqs \vdash [\mx{z}{1},\mx{z}{2}] : R_1;R_2, \Gamma; [\mx{z}{1},\mx{z}{2}] : \sharety}
-      
-  \inferrule[ShareAlg2]
-      {\eqs \models \genshares(\phi_1,y,2) \eop R_2,[\mx{z}{1},\mx{z}{2}] }
-      {\Gamma,R_1,\eqs \vdash [\mx{z}{1},\mx{z}{2}] : R_1;R_2, \Gamma; [\mx{z}{1},\mx{z}{2}] : \sharety}
-      
-  \inferrule[LocalShare]
-      {\Gamma, \eqs \vdash [\mx{z}{1},\mx{z}{2}] : \sharety}
-      {\Gamma,R,\eqs \vdash [\mx{z}{1},\mx{z}{2}] : R, \Gamma; [\mx{z}{1},\mx{z}{2}] : \sharety}
-
-  \inferrule[OpenAlg]
-      {\Gamma, \eqs \vdash [\mx{x}{\cid}] : \pubty}
-      {\Gamma,R,\eqs \vdash [\mx{x}{\cid}] : R, \Gamma; [\mx{x}{\cid}] : \pubty}
-\end{mathpar}
-
-\subsection{$\metaprot$ Hoare Type Theory}
 
 \begin{mathpar}
-  \inferrule[Mesg]
-            {}
-            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \elab{e_2}{e_3}}}
-
-  \inferrule[Seq]          
-            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}}
-            {\htrip{\peq_1^1 \wedge \peq_1^2}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2}}
-
-  \inferrule[Let]
-            {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}}
-            {\htrip{\peq_1}{\elet{y}{e}{\cmd}}{\peq_2}}
-
-  \inferrule[App]
-            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
-            {\htrip{\peq_1[e_1/y_1 \cdots e_n/y_n]}{f(e_1,\ldots,e_n)}{\peq_2[e_1/y_1 \cdots e_n/y_n]}}
-
-  \inferrule[Fn]
-            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \htrip{\peq_1}{\cmd}{\peq_2}}
-            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
-
-  \inferrule[Hardpack]
-            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
-              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
-              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \wedge \peq_2' \models \peq_1' \wedge \peq_2 }
-            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+  %\inferrule[Assert]
+  %    {}
+  %    {\htrip{\mx{e^1_1}{e^1_2} \eop \phi - \rx{y}{\cid} \wedge
+  %            \mx{e^2_1}{e^2_2} \eop \rx{y}{\cid}}
+  %           {[\mx{e^1_1}{e^1_2},\mx{e^2_1}{e^2_2}] \kwas \genshares(\phi,y,\cid)}{\eqtrue}}
+  \inferrule[CoerceShares]
+      {}
+      {\htrip{e_1 \eop \notg{\phi} - \rx{e}{e'} \wedge e_2 \eop \rx{e}{e'}}
+             {[e_1,e_2] \kwas \genshares(\notg{\phi},e,e')}{\eqtrue}}
+      
+  %\inferrule[CoerceShares]
+  %    {}
+  %    {\htrip{e \eop e_1 \fplus e_2}{[e] \kwas \recon(e_1,e_2)}{\eqtrue}} 
 \end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\ e \redx w \\ e' \redx \cid}
+      {\shtrip{\Gamma, R, \xdefs}
+        {[e_1,e_2] \kwas \genshares(\notg{\phi},e,e')}
+        {\Gamma;[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety, R;\setit{\rx{w}{\cid}}, \xdefs} }
+
+  \inferrule
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}  \\\\
+        \Gamma,\eqtrue \vdash [\xdefs(\mx{w_1}{\cid_1} ), \xdefs(\mx{w_2}{\cid_2})] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_2,e_2] : \sharety}{\Gamma;[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety,
+          R, \xdefs}}
+
+  \inferrule
+      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}  \\
+        \Gamma,\eqtrue \vdash [\xdefs(\px{w_1}), \xdefs(\px{w_2})] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_2,e_2] : \pubty}{\Gamma;[\px{w_1} \fplus \px{w_2}] : \pubty,
+          R, \xdefs}}
+
+  \inferrule
+      {e \redx \mx{w}{\cid} \\ \Gamma,\eqtrue \vdash [\xdefs(\mx{w}{\cid})] : \pubty}
+      {\shtrip{\Gamma, R, \xdefs}{[e] : \pubty}{\Gamma;[\mx{w}{\cid}] : \pubty,
+          R, \xdefs}}
+
+  \inferrule
+      {e_1 \redx \mx{w}{\cid_1} \\ e_2 \redx \elab{\be}{\cid_2}}
+      {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[\mx{w}{\cid_1} \mapsto \toeq{\elab{\be}{\cid_2}}]}}
+
+  \inferrule
+      {f : \Pi y_1:\tau_1,\ldots,y_n:\tau_n . \notg{\Gamma_1}, (\notg{R'},\notg{\Gamma_2})}
+      {\shtrip{\Gamma;\notg{\Gamma_1}[e_1/y_1 \cdots e_n/y_n], R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma;\notg{\Gamma_2}[e_1/y_1 \cdots e_n/y_n], R;\notg{R'}[e_1/y_1 \cdots e_n/y_n], \xdefs}}
+\end{mathpar}
+
+Note: subsitution in $\notg{R},\notg{\Gamma}$ should be defined to impose evaluation (probably $\peq$ as well).
+

@@ -7,7 +7,7 @@ cmdfunctions:
 _open(x:string, i1:cid, i2:cid){
     m[x++"exts"]@i1 := m[x++"s"]@i2;
     m[x++"extm"]@i1 := m[x++"m"]@i2;
-    assert(m[x++"extm"] = m[x++"k"] + (m["delta"] * m[x++"exts"]))@i1;
+    assert(m[x++"extm"] = -m[x++"k"] + (m["delta"] * m[x++"exts"]))@i1;
     m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
 }
 
@@ -44,8 +44,10 @@ postcondition: ( MACed(z) AND SHARED(z) == SHARED(x) * SHARED(y) )
 // *
 // main entry point
 // * 
-precondition: ( MACed("x") AND MACed("y") AND MACed("i") AND MACed("j") AND
- 	        MACed("ka") AND MACed("kb") AND MACed("kc") AND BEAVERTRIP("k") ) 
+precondition: ( MACed("x") AND MACed("y") AND
+	        MACed("i") AND MACed("j") AND
+ 	        MACed("ka") AND MACed("kb") AND MACed("kc") AND
+		BEAVERTRIP("k") ) 
 main() {
     sum("z","x","y");
     mult("k","i","j");
@@ -57,7 +59,7 @@ postcondition: ( m["out"]@1 == (SHARED("x") + SHARED("y")) + (SHARED("i") * SHAR
 constraintfunctions:
 
 // BDOZ MAC predicate
-MACOK(x, i1, i2) { m[x++"m"]@i2 == m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"]@i2) }
+MACOK(x, i1, i2) { m[x++"m"]@i2 == -m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"]@i2) }
 
 MACed(x) { MACOK(x, 1, 2) AND MACOK(x, 2, 1) }
 
