@@ -109,6 +109,15 @@
       {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R'},\notg{\Gamma_2}) \\
        \redxsub = [e_1/y_1 \cdots e_n/y_n]}
       {\shtrip{\Gamma;\redxsub(\notg{\Gamma_1}), R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma;\redxsub(\notg{\Gamma_2}), R;\redxsub(\notg{R'}), \xdefs}}
+
+  \inferrule        
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1}{\Gamma_2,R_2,\xdefs_2} \\
+       \shtrip{\Gamma_2,R_2,\xdefs_2}{\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1;\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+
+  \inferrule[Let]
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd[e/y]}{\Gamma_2,R_2,\xdefs_2}}
+      {\htrip{\Gamma_1,R_1,\xdefs_1}{\elet{y}{e}{\cmd}}{\Gamma_2,R_2,\xdefs_2}}
 \end{mathpar}
 
 $$
