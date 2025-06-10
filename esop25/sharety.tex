@@ -8,8 +8,9 @@
 \newcommand{\xdefs}{\mathcal{D}}
 \newcommand{\kwas}{\ \mathrm{as}\ }
 \newcommand{\shtrip}[3]{#1 \Vdash #2 \rhd #3}
+\newcommand{\redxsub}{\varrho}
 
-\subsection{Logical Rules}
+\subsection{Logical Rules for $\minifed$}
 
 \begin{eqnarray*}
   \genshares(\phi,y,\cid) &\defeq& \setit{\rx{y}{\cid}}, [\phi - \rx{y}{\cid}, \rx{y}{\cid}]\\
@@ -57,7 +58,7 @@
       {\Gamma,\eqs \vdash [\phi_1\bop\phi_2] : \pubty}
 \end{mathpar}
 
-\subsection{$\minifed$ Algorithmic Rules}
+\subsection{Algorithmic Rules for $\metaprot$}
 
 
 \begin{mathpar}
@@ -105,15 +106,21 @@
       {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[\mx{w}{\cid_1} \mapsto \toeq{\elab{\be}{\cid_2}}]}}
 
   \inferrule
-      {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1}, (\notg{R'},\notg{\Gamma_2})}
-      {\shtrip{\Gamma;\notg{\Gamma_1}[e_1/y_1 \cdots e_n/y_n], R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma;\notg{\Gamma_2}[e_1/y_1 \cdots e_n/y_n], R;\notg{R'}[e_1/y_1 \cdots e_n/y_n], \xdefs}}
+      {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R'},\notg{\Gamma_2}) \\
+       \redxsub = [e_1/y_1 \cdots e_n/y_n]}
+      {\shtrip{\Gamma;\redxsub(\notg{\Gamma_1}), R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma;\redxsub(\notg{\Gamma_2}), R;\redxsub(\notg{R'}), \xdefs}}
 \end{mathpar}
 
 $$
 \inferrule
-    {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ }
-    {f : }
+    {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\
+      \redxsub = [\mv_1/y_1 \cdots \mv_n/y_n] \\
+     \shtrip{\redxsub(\notg{\Gamma_1}), \varnothing, \varnothing}{\cmd}{\redxsub(\notg{\Gamma_2}), \redxsub(\notg{R}),\xdefs}}
+    {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R},\notg{\Gamma_2})}
 $$
 
-Note: subsitution in $\notg{R},\notg{\Gamma}$ should be defined to impose evaluation (probably $\peq$ as well).
-
+    Note: $\xdefs$ is a mapping from $x$s to $\phi$s (their ``definitions''). ``Evaluating substitution'' $\redxsub(\notg{R}),\redxsub(\notg{\Gamma})$ is defined to impose evaluation (probably $\peq$ as well). I.e., given $\redxsub = [e_1/y_1 \cdots e_n/y_n]$:
+    $$
+    \redxsub(\notg{\Gamma}) = \Gamma \ \text{where}\ \notg{\Gamma}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma
+    $$
+    and so on.

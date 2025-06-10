@@ -20,8 +20,7 @@ andgmw(z:string, x:string, y:string) {
   m[z]@1 := r[z]@1
 }
 postcondition:
-  ({r[z]@1},
-   [m[z]@1,m[z]@2] as [r[z]@1, (SHARED(x) * SHARED(y)) + r[z]@1] : shares),
+  ([m[z]@1, m[z]@2] as genshares(SHARED(x) * SHARED(y), z, 1))
   ( SHARED(z) == SHARED(x) * SHARED(y))
 
 main(){ andgmw("g1","x","y") }
