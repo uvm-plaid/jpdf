@@ -33,6 +33,51 @@
     - [**test**](src/test): Unit tests
 
 ------
+
+## Setting up cvc5
+
+These instructions are for Debian-based Linux distributions. The steps for
+Windows or MacOS will vary.
+
+The steps about Java 8 are for an older version of `cvc5`. The newer versions
+are compatible with more recent versions of Java.
+
+I also think, but haven't tested, that without `--prefix` that the `cvc5`
+shared object files will get dumped into somewhere that is already on the Java
+system library path (and then you wouldn't have to move the `.so` flies or
+tell Maven about where it can find them.
+
+```
+# Install some build tools
+sudo apt install cmake m4
+
+# Install an old JDK compatible with cmake or cvc5 or whatever
+sudo apt install openjdk-8-jdk
+
+# Use this JDK for the cvc5 build process
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+
+# Clone the cvc5 repo from github
+git clone https://github.com/cvc5/cvc5
+cd cvc5
+
+# Switch to latest stable branch
+# Replace the version number if needed
+git checkout cvc5-1.1.2
+
+# Build the project and java bindings
+./configure.sh production --java-bindings --auto-download --prefix=build/install
+cd build
+make
+make install
+
+# If the libraries have been moved to a standard location
+java -jar target/MyProject-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+# If the libraries have not been moved
+java -Djava.library.path="/home/bob/src/cvc5/build/install/lib" -jar target/MyProject-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
 ## Installation & Running
 
 Maven is required to build this project.
