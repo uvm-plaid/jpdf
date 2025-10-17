@@ -1,0 +1,528 @@
+\newcommand{\compwrapfig}
+{
+  \begin{figure}[t]
+    \begin{tabular}{lccccccc}
+      & 
+      \begin{sideways} probabilistic language \end{sideways} &
+      \begin{sideways} probabilistic conditioning \end{sideways} & 
+      \begin{sideways} low-level protocols \end{sideways} & 
+      \begin{sideways} passive security \end{sideways} & 
+      \begin{sideways} malicious security \end{sideways}& 
+      \begin{sideways} hyperproperties \end{sideways}& 
+      \begin{sideways} automation \end{sideways}\\\hline\hline
+      Haskell EDSL \cite{6266151} & \checkmark &  & \checkmark  & \checkmark & & \checkmark & \checkmark \\\hline
+      MPC in SecreC \cite{almeida2018enforcing} & \checkmark & \checkmark &   & \checkmark & & \checkmark & \checkmark \\\hline
+      $\lambda_{\text{obliv}}$ \cite{darais2019language} & \checkmark & & \checkmark & & & \checkmark & \checkmark \\\hline
+      PSL \cite{barthe2019probabilistic} & \checkmark & & \checkmark & & & & \\\hline
+      Lilac \cite{li2023lilac} & \checkmark & \checkmark & & & & & \\\hline
+      Wys$^*$ \cite{wysstar} & & & & \checkmark & & \checkmark & \checkmark\\\hline
+      Viaduct \cite{10.1145/3453483.3454074,viaduct-UC} & & & & \checkmark & \checkmark & \checkmark & \checkmark\\\hline
+      MPC in EasyCrypt \cite{8429300} &  \checkmark &  \checkmark &  \checkmark & \checkmark & \checkmark & \checkmark & \\\hline
+      $\metaprot$/$\minifed$ \cite{skalka-near-ppdp24} & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & * \\\hline
+      This work & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark\\
+      \hline
+    \end{tabular}
+    \caption{Comparison of systems for verification of MPC security in PLs. * indicates limited support for automation.}
+    \label{fig-comp-wrap}
+  \end{figure}
+}
+
+\newcommand{\minicatsyntaxfig}{
+\begin{fpfig}[t]{Syntax of $\minicat$}{fig-minicat-syntax}
+\small{
+$$
+    \begin{array}{rcl@{\hspace{4mm}}r}
+      \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid \OT{\be}{\cid}{\be}{\be} & \textit{expressions}\\[1mm]
+      x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid  \rvl{w} \mid \out{\cid} & \textit{variables} \\[1mm]
+      \prog &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \reveal{w}{\be}{\cid} \mid \pubout{\cid}{\be}{\cid} \mid \prog;\prog & \textit{protocols}
+    \end{array}
+$$}
+\end{fpfig}    
+}
+
+\newcommand{\minicatredxfig}{
+\begin{fpfig}[t]{Semantics of $\minicat$ expressions (T) and programs (B).}{fig-minicat-redx}
+\small{
+ $$
+  \begin{array}{c@{\hspace{5mm}}c}
+  \begin{array}{rcl}
+    \lcod{\store, v}{\cid} &=& v\\
+    \lcod{\store, \be_1 \fplus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fplus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \fminus \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \fminus \lcod{\store, \be_2}{\cid}}\\ 
+    \lcod{\store, \be_1 \ftimes \be_2}{\cid} &=& \fcod{\lcod{\store, \be_1}{\cid} \ftimes \lcod{\store, \be_2}{\cid}}\\
+  \end{array} & 
+  \begin{array}{rcl}
+    \lcod{\store, \flip{w}}{\cid} &=& \store(\elab{\flip{w}}{\cid})\\
+    \lcod{\store, \secret{w}}{\cid} &=& \store(\elab{\secret{w}}{\cid})\\
+    \lcod{\store, \mesg{w}}{\cid} &=& \store(\elab{\mesg{w}}{\cid})\\
+    \lcod{\store, \rvl{w}}{\cid} &=& \store(\rvl{w})\\
+    %\lcod{\store, \OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2} &=&
+    %\begin{cases}
+    %  \lcod{\store,\be_2}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 0 \\
+    %  \lcod{\store,\be_3}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 1 \\
+    %\end{cases}
+  \end{array}
+  \end{array}
+  $$
+
+  %$$
+  %\lcod{\store, \OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2} =
+  %  \begin{cases}
+  %    \lcod{\store,\be_2}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 0 \\
+  %    \lcod{\store,\be_3}{\cid_2} \text{\ if\ } \lcod{\store,\be_1}{\cid_1} = 1 \\
+  %  \end{cases}
+  %$$
+  %
+\begin{mathpar}
+  (\store, \xassign{x}{\be}{\cid}) \redx \extend{\store}{x}{\lcod{\store,\be}{\cid}}
+  
+  \inferrule
+      {(\store_1,\prog_1) \redx \store_2 \\ (\store_2,\prog_2) \redx \store_3 }
+      {(\store_1,\prog_1;\prog_2) \redx \store_3}
+      %(\store, \eassign{\mesg{w}}{\cid_1}{\be}{\cid_2};\prog) \redx (\extend{\store}{\mesg{w}_{\cid_1}}{\lcod{\store,\be}{\cid_2}}, \prog)    
+      %(\store, \reveal{w}{\be}{\cid};\prog) \redx (\extend{\store}{\rvl{w}}{\lcod{\store,\be}{\cid}}, \prog)   
+      %(\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\minicataredxfig}{
+\begin{fpfig}[t]{Adversarial semantics of $\minicat$.}{fig-minicat-aredx}
+\small{
+\begin{mathpar}
+  \inferrule
+      { \cid \in H }
+      { (\store, \xassign{x}{\be}{\cid}) \aredx \extend{\store}{x}{\lcod{\store,\be}{\cid}} }
+      
+  \inferrule
+      {\cid \in C }
+      { (\store, \xassign{x}{\be}{\cid}) \aredx \extend{\store}{x}{\lcod{\arewrite(\store_C,\be)}{\cid}}}
+      
+  \inferrule
+      {\lcod{\store,\be_1}{\cid} = \lcod{\store,\be_2}{\cid}  \text{\ or\ } \cid \in C}
+      { (\store,\elab{\assert{\be_1 = \be_2}}{\cid}) \aredx \store }
+      
+  \inferrule
+      {\lcod{\store,\be_1}{\cid} \ne \lcod{\store,\be_2}{\cid}}
+      {(\store,\elab{\assert{\be_1 = \be_2}}{\cid}) \aredx \abort}
+  
+  \inferrule
+      {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \store_3 }
+      {(\store_1,\prog_1;\prog_2) \aredx \store_3}
+
+  \inferrule
+      {(\store_1,\prog_1) \aredx \abort}
+      {(\store_1,\prog_1;\prog_2) \aredx \abort}
+      
+  \inferrule
+      {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \abort }
+      {(\store_1,\prog_1;\prog_2) \aredx \store_2}
+\end{mathpar}}
+\end{fpfig}
+}
+
+\newcommand{\cpjfig}{
+\begin{fpfig}[t]{Syntax and Derivation Rules for $\minicat$ Confidentiality Types}{fig-cpj}
+\small{
+$$
+\begin{array}{rcl@{\hspace{3mm}}l}
+  t &::=& x \mid \cty{x}{T} \\
+  \ty & \in & 2^{t} & \gdesc{confidentiality types}\\
+  \Gamma &::=& \varnothing \mid \Gamma; x : \ty & \gdesc{confidentiality type environments}
+\end{array} 
+$$
+\medskip
+\begin{mathpar}
+  \inferrule[DepTy]
+  {}
+  {\eqj{\varnothing}{\eqs}{\phi}{\vars(\phi)}}
+  
+  \inferrule[Encode]
+  {\eqs \models \phi \eop \phi' \oplus \rx{w}{\cid} \\
+   \oplus \in \{ \fplus,\fminus \}\\
+   \eqj{R}{\eqs}{\phi'}{\ty}}
+  {\eqj{R;\{ \rx{w}{\cid} \}}{\eqs}{\phi}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Send]
+            {\eqj{R}{\eqs}{\phi}{\ty}}
+            {\cpj{R}{\eqs}{x \eop \phi}{(x : \ty)}}
+            
+  \inferrule[Seq]
+            {\cpj{R_1}{\eqs}{\phi_1}{\Gamma_1}\\
+             \cpj{R_2}{\eqs}{\phi_2}{\Gamma_2}}
+            {\cpj{R_1;R_2}{\eqs}{\phi_1 \wedge \phi_2}{\Gamma_1;\Gamma_2}}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\leakjfig}{
+\begin{fpfig}[t]{Dependencies in Views: Derivation Rules}{fig-leakj}
+\small{
+\begin{mathpar}
+  \inferrule
+      {\leakclose{\Gamma}{\ty_1}{\ty_2} \\ \leakclose{\Gamma}{\ty_2}{\ty_3}}
+      {\leakclose{\Gamma}{\ty_1}{\ty_3}}
+
+      \leakclose{\Gamma}{\ty \cup \setit{\mx{w}{\cid}}}{\ty \cup \Gamma(\mx{w}{\cid})}
+
+      \leakclose{\Gamma}{\ty_1 \cup \setit{x, \cty{x}{\ty_2}}}{\ty_1\cup\ty_2}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {}
+      {\leakj{\Gamma}{\varnothing}{\varnothing}}
+
+\inferrule
+      {\leakj{\Gamma}{M}{\ty'} \\ \leakclose{\Gamma}{\ty'\cup\setit{x}}{\ty}}
+      {\leakj{\Gamma}{M \cup \setit{x}}{\ty}}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\ipjfig}{
+\begin{fpfig}[t]{Syntax and derivation rule of $\minicat$ integrity types}{fig-ipj}
+\small{
+$$
+\begin{array}{rcl@{\hspace{4mm}}l}
+  \latel &::=& \hilab \mid \lolab & \gdesc{integrity labels} \\
+  \Delta &::=& \varnothing \mid \Delta; x : \ity{\cid}{V} & \gdesc{integrity type environments}
+\end{array} 
+$$
+
+\begin{mathpar}
+  \inferrule[Value]
+  {}
+  {\itj{\cid}{v}{\varnothing}}
+  
+  \inferrule[Secret]
+  {}
+  {\itj{\cid}{\secret{w}}{\varnothing}}
+  
+  \inferrule[Rando]
+  {}
+  {\itj{\cid}{\flip{w}}{\varnothing}}
+  
+  \inferrule[Mesg]
+  {}
+  {\itj{\cid}{\mesg{w}}{\setit{\mx{w}{\cid}}}}
+    
+  \inferrule[PubM]
+  {}
+  {\itj{\cid}{\rvl{w}}{\setit{\rvl{w}}}}
+
+  \inferrule[Binop]
+  {\itj{\cid}{\be_1}{V_1} \\
+   \itj{\cid}{\be_2}{V_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\itj{\cid}{\be_1 \oplus \be_2}{V_1 \cup V_2}}
+%
+%  \inferrule[IntegrityWeaken]
+%  {\itj{\Delta}{\eqs}{\cid}{\be}{\latel_1} \\ \latel_1 \sle \latel_2}
+%  {\itj{\Delta}{\eqs}{\cid}{\be}{\latel_2}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Send]
+            {\itj{\cid}{\be}{V}}
+            {\ipj{\eqs}{\xassign{x}{\be}{\cid}}{(x : \ity{\cid}{V})}}
+             
+%  \inferrule[Assert]
+%            {\eqs \models \toeq{\elab{\be_1}{\cid}} = \toeq{\elab{\be_2}{\cid}}}
+%            {\ej{\Delta}{R}{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Delta}{\eqs}}
+%            
+  \inferrule[Seq]
+            {\ipj{\eqs}{\prog_1}{\Delta_1}\\
+             \ipj{\eqs}{\prog_2}{\Delta_2}}
+            {\ipj{\eqs}{\prog_1;\prog_2}{\Delta_1;\Delta_2}}
+
+  \inferrule[MAC]
+            {\eqs \models \toeq{\elab{\assert{\macbdoz{w}}}{\cid}}}
+            {\ipj{\eqs}{\elab{\assert{\macbdoz{w}}}{\cid}}{(\mx{w\ttt{s}}{\cid}: \ity{\cid}{\varnothing})}}
+%
+%  \inferrule[MAC]
+%            {\eqs \models 
+%              \mx{w\ttt{m}}{\cid} \eop \mx{w\ttt{k}}{\cid} \fplus \ttt{(}\mx{\ttt{delta}}{\cid} \ftimes
+%                  \mx{w\ttt{s}}{\cid}\ttt{)}}
+%            {\ipj{\Delta}{\eqs}{
+%                \elab{\assert{\mesg{w\ttt{m}} \eop \mesg{w\ttt{k}} \fplus \ttt{(}\mesg{\ttt{delta}} \ftimes
+%                  \mesg{w\ttt{s}}\ttt{)}}}{\cid}}{\Delta;\mx{w\ttt{s}}{\cid}: \hilab }}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\cheatjfig}{
+\begin{fpfig}[t]{Assigning integrity labels to variables}{fig-cheatj}
+\small{
+\begin{mathpar}
+  \inferrule
+      {}
+      {\cheatj{\varnothing}{H,C}{\seclev_{H,C}}}
+      
+  \inferrule
+      {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in H}
+      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\hilab \wedge (\bigwedge_{x \in V} \seclev_2(x))}}}
+      
+  \inferrule
+      {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in C}
+      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\lolab}}}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\metaprotsyntaxfig}{
+  \begin{fpfig}[t]{$\metaprot$ syntax.}{fig-metaprotsyntax}
+\small{
+$$
+\begin{array}{rcl@{\hspace{4mm}}r}
+  %\notg{x} &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\[2mm]
+  \multicolumn{3}{l}{\flab \in \mathrm{Field},\   y \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[1mm]
+  %x &\in& \mathrm{EVar}\\
+  %f &\in& \mathrm{FName}\\[2mm]
+  e &::=& \mv \mid \flip{e} \mid \secret{e} \mid \mesg{e} \mid \rvl{e} \mid \outkw \mid e \bop e 
+   \mid y \mid & \gdesc{expressions}\\
+  & & e.\flab \mid \elab{e}{e} \mid \elet{y}{e}{e} \mid  f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \\[1mm]
+  %  & \textit{expressions}\\
+  \cmd &::=& %\msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
+  \assign{e}{e} \mid f(e,\ldots,e) \mid
+  \elet{y}{e}{\instr} \mid  \cmd;\cmd & \gdesc{instructions}\\
+         & & \elab{\assert{e = e}}{e} \mid \eqcast{\mx{e}{e}}{\notg{\phi}} \\[1mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
+  \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
+  \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
+  & \gdesc{values}\\[1mm] % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
+  \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y,\ldots,y) \{ \cmd \} & \textit{functions}
+  %\phi &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e} \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
+  %\eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
+\end{array}
+$$
+}
+\end{fpfig}
+}
+
+\newcommand{\metaprotexprsemanticsfig}{
+  \begin{fpfig}[t]{Semantics of $\metaprot$ expressions.}{fig-metaprotexprsemantics}
+\small{
+  \begin{mathpar}
+  \inferrule
+      {e_1 \redx \mv \\ e_2[\mv/y] \redx \mv'}
+      {\elet{y}{e_1}{e_2} \redx \mv'}
+      
+  \inferrule
+      {e_1 \redx \be \\ e_2 \redx \cid}
+      {\elab{e_1}{e_2} \redx \elab{\be}{\cid}}
+
+  \inferrule
+      {\codebase(f) = y_1,\ldots,y_n,\ e \\ e_1 \redx \mv_1 \cdots e_n \redx \mv_n \\
+        e[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \mv}
+      {f(e_1,\ldots,e_n) \redx \mv}
+
+  \inferrule
+      {e_1 \redx \mv_1 \\ \cdots \\ e_n \redx \mv_n }
+      {\{ \flab_1 = e_1; \ldots; \flab_n = e_n \} \redx \{ \flab_1 = \mv_1; \ldots; \flab_n = \mv_n \} }
+
+  \inferrule
+      {e \redx \{\ldots; \flab = \mv; \ldots\}}
+      {e.\flab \redx \mv}
+
+  \inferrule
+      {e_1 \redx w_1 \\ e_2 \redx w_2}
+      {e_1 \concat e_2 \redx w_1w_2}
+
+  \inferrule
+      {e \redx w}
+      {\mesg{e} \redx \mesg{w}}
+      
+  \inferrule
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2}     
+      {e_1 \fplus e_2 \redx \be_1 \fplus \be_2}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+\newcommand{\metaprotinstrsemanticsfig}{
+  \begin{fpfig}[t]{Semantics of $\metaprot$ instructions.}{fig-metaprotinstrsemantics}
+%\small{
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx x \\ e_2 \redx \elab{\be}{\cid}}
+      {\assign{e_1}{e_2} \redx \xassign{x}{\be}{\cid}}
+
+  \inferrule
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2 \\ e_3 \redx \cid}
+      {\elab{\assert{e_1 = e_2}}{e_3} \redx \elab{\assert{\be_1 = \be_2}}{\cid}}
+
+  \inferrule
+      {\codebase(f) = y_1,\ldots,y_n, \instr \\e_1 \redx \mv_1 \ \cdots \ e_n \redx \mv_n \\
+        \instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
+      }
+      {f(e_1,\ldots,e_n) \redx \prog}
+      
+  \inferrule
+      {e \redx \mv \\ \instr[\mv/y] \redx \prog}
+      {\elet{y}{e}{\instr} \redx \prog}
+
+  \inferrule
+      {e_1 \redx \prog_1 \\ e_2 \redx \prog_2}
+      {e_1;e_2 \redx \prog_1;\prog_2}
+\end{mathpar}
+%}
+\end{fpfig}
+}
+
+\newcommand{\atjfig}{
+  \begin{fpfig}[t]{Algorithmic type judgements for $\minicat$.}{fig-atj}
+\small{
+\begin{mathpar}
+  \atj{x}{\varnothing}{\setit{x}}
+
+  \inferrule
+  {\atj{\phi}{R}{\ty} \\ \rx{w}{\cid}\not\in R \\ \oplus \in \setit{\fplus,\fminus}}
+  {\atj{\phi \oplus \rx{w}{\cid}}{R \cup \setit{\rx{w}{\cid}}}{\setit{\cty{\rx{w}{\cid}}{\ty}}}}
+
+  \inferrule
+  {\atj{\phi_1}{R_1}{\ty_1} \\
+   \atj{\phi_2}{R_2}{\ty_2} \\ \oplus \in \{ \fplus,\fminus,\ftimes \}}
+  {\atj{\phi_1 \oplus \phi_2}{R_1;R_2}{\ty_1 \cup \ty_2}}
+\end{mathpar}
+}
+\end{fpfig}
+}
+
+
+\newcommand{\notgfig}{
+\begin{fpfig}[t]{Evaluation of expressions within types and constraints.}{fig-notg}
+$$
+\begin{array}{cc}
+  \begin{array}{rcl}
+    \notg{x} &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\
+  \notg{\phi} &::=& \notg{x} \mid \notg{\phi} \fplus \notg{\phi} \mid \notg{\phi} \fminus \notg{\phi} \mid \notg{\phi} \ftimes \notg{\phi} \\
+  \notg{\eqs} &::=& \notg{\phi} \eop \notg{\phi} \mid \notg{\eqs} \wedge \notg{\eqs} \\
+  \notg{X} &\in& 2^{\notg{x}}
+\end{array}& \qquad
+\begin{array}{rcl}
+  \notg{t} &::=& e \mid \cty{e}{\notg{\ty}} \\
+  \notg{\ty} & \in & 2^{\notg{t}}\\
+  \notg{\Gamma} &::=& \varnothing \mid \notg\Gamma; e : \notg{\ty}\\
+  \notg\Delta &::=& \varnothing \mid \notg\Delta; e : \ity{e}{\notg{V}}
+\end{array}
+\end{array}
+$$
+
+\begin{mathpar}
+  \inferrule
+      {\notg{\phi_1} \redx \phi_1 \\ \notg{\phi_2} \redx \phi_2}     
+      {\notg{\phi_1} \ftimes \notg{\phi_2} \redx \phi_1 \ftimes \phi_2}
+
+  \inferrule
+      {\notg{\phi_1} \redx \phi_1 \\ \notg{\phi_2} \redx \phi_2}
+      {\notg{\phi_1} \eop \notg{\phi_2} \redx \phi_1 \eop \phi_2}
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\eqs_2} \redx \eqs_2 }
+      {\notg{\eqs_1} \wedge \notg{\eqs_2} \redx \eqs_1 \wedge \eqs_2}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {e \redx x \\ \notg{\ty} \redx \ty}
+      {\cty{e}{\notg{\ty}} \redx \cty{x}{\ty}}
+      
+  \inferrule
+      {\notg{t_1} \redx t_1 \\ \cdots \\ \notg{t_n} \redx t_n}
+      {\setit{\notg{t_1},\ldots,\notg{t_n}} \redx \setit{ t_1,\ldots,t_n }}
+
+  \inferrule
+      {\notg{\Gamma} \redx \Gamma \\ e \redx x \\ \notg{\ty} \redx \ty }
+      {\notg{\Gamma}; e : \notg{\ty} \redx \Gamma; x : \ty }
+
+  \inferrule
+      {\notg{\Delta} \redx \Delta \\ e_1 \redx x  \\ e_2 \redx \cid \\ \notg{V} \redx V}
+      {\notg{\Delta}; e_1 : \ity{e_2}{\notg{V}} \redx \Delta; x : \ity{\cid}{V} }
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\Gamma} \redx \\ \notg{R} \redx R
+        \\ \notg{\Delta} \redx \Delta \\ \notg{\eqs_2} \redx \eqs_2}
+      {\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}} \redx
+        \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}}
+\end{mathpar}
+    
+\end{fpfig}
+}
+
+\newcommand{\mtjfig}{
+\begin{fpfig}[h]{$\metaprot$ type derivation rules for instructions.}{fig-mtj}
+\begin{mathpar}
+  \inferrule[Mesg]
+            {\assign{e_1}{e_2} \redx \xassign{x}{\be}{\cid}  \\ \atj{\toeq{\elab{\be}{\cid}}}{R}{\ty} \\
+              \itj{\cid}{\be}{V}}
+            {\mtj{\assign{e_1}{e_2}}{\eqs}{(x:\ty)}{R}{(x : \ity{\cid}{V})}{\eqs \wedge x \eop \toeq{\elab{\be}{\cid}}}}
+
+  \inferrule[Encode]
+            {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
+              \eqs \models x \eop \phi\\
+              \atj{\phi}{R}{\ty}}
+            {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(x : \ty)}{R}{\varnothing}{\eqs}}
+
+  \inferrule[Assert]
+            {\elab{\assert{e_1 = e_2}}{e_3} \redx \elab{\assert{\be_1 = \be_2}}{\cid} \\
+             \ipj{\eqs}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\Delta}}
+            {\mtj{\elab{\assert{e_1 = e_2}}{e_3}}{\eqs}{\varnothing}{\varnothing}{\Delta}{\eqs}}
+            
+  \inferrule[App]
+            {f : \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}} \\
+              e_1 \redx \mv_1\ \cdots\ e_n \redx \mv_n \\
+              (\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}})[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+                    \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2} \\
+              \eqs \models \eqs_1}
+            {\mtj{f(e_1,\ldots,e_n)}{\eqs}{\Gamma}{R}{\Delta}{\eqs \wedge \eqs_2}}
+
+  \inferrule[Seq]          
+            {\mtj{\prog_1}{\eqs_1}{\Gamma_1}{R_1}{\Delta_1}{\eqs_2} \\
+             \mtj{\prog_2}{\eqs_2}{\Gamma_2}{R_2}{\Delta_2}{\eqs_3}}
+            {\mtj{\prog_1;\prog_2}{\eqs_1}{\Gamma_1;\Gamma_2}{R_1;R_2}{\Delta_1;\Delta_2}{\eqs_3}}
+\end{mathpar}
+\end{fpfig}
+}
+
+\newcommand{\mtjfnfig}{
+\begin{fpfig}[h]{$\metaprot$ type derivation rules for function definitions.}{fig-mtjfn}
+\begin{mathpar}
+   \inferrule[Fn]
+            {\codebase(f) = y_1,\ldots,y_n, \instr \\
+              \mtj{\instr[\mv_1/y_1]\cdots[\mv_n/y_n]}{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}\\
+              \fresh(\mv_1,\ldots,\mv_n) \\
+              %\subn = [\mv_1/y_1]\cdots[\mv_n/y_n] \\
+              (\hty{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}})[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx
+                    \hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2} }
+            {f : \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}}
+
+  \inferrule[FnPre]
+            {f : \dht{y_1,\ldots,y_n}{\notg{\eqs}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}} \\
+              \precond(f) = \notg{\eqs_1} \\
+              \fresh(\mv_1,\ldots,\mv_n) \\
+              \notg{\eqs}[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx \eqs \\
+              \notg{\eqs_1}[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx \eqs_1 \\
+              \eqs_1 \models \eqs             
+            }
+            {f : \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}}
+
+  \inferrule[FnPost]
+            {f : \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs}} \\
+              \postcond(f) = \notg{\eqs_2} \\
+              \fresh(\mv_1,\ldots,\mv_n) \\
+              \notg{\eqs}[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx \eqs \\
+              \notg{\eqs_2}[\mv_1/y_1]\cdots[\mv_n/y_n]  \redx \eqs_2 \\
+              \eqs \models \eqs_2              
+            }
+            {f : \dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}}
+\end{mathpar}
+\end{fpfig}
+}

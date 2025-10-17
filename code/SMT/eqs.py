@@ -30,7 +30,7 @@ s.check()
 # start_c1 = time.perf_counter()
 
 # correctness (should be unsat)
-s.check(x + y != o)  
+s.check(x + y != o)
 
 # stop_c1 = time.perf_counter()
 

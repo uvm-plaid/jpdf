@@ -1,0 +1,160 @@
+\section{Introduction}
+
+Data privacy is a critical concern in distributed applications
+including privacy-preserving machine learning
+\cite{li2021privacy,knott2021crypten,koch2020privacy,liu2020privacy}
+and blockchains
+\cite{ishai2009zero,lu2019honeybadgermpc,gao2022symmeproof,tomaz2020preserving}.
+Secure multiparty computation (MPC) is a key software-based enabling
+technology for these applications. MPC protocols provide both confidentiality
+and integrity properties, formulated as real/ideal (aka simulator)
+security and universal composability (UC) \cite{evans2018pragmatic},
+with well-studied manual proof methods \cite{Lindell2017}.  MPC
+security semantics has also been reformulated as
+\emph{hyperproperties}
+\cite{8429300,10.1145/3453483.3454074,skalka-near-ppdp24} to support
+automated language-based proof methods. Recent research in the SMT
+community has developed theories of finite fields \cite{SMFF} with
+clear relevance to verification of cryptographic schemes that rely on
+field arithmetic. The goal of this paper is to combine these two
+approaches in a decidable type system for verifying correctness and
+security properties of MPC protocols.
+
+Our focus is on low-level MPC protocols. Previous high-level
+MPC-enabled languages such as Wysteria \cite{rastogi2014wysteria} and
+Viaduct \cite{10.1145/3453483.3454074} are designed to provide
+effective programming of full applications, and incorporate
+sophisticated compilation techniques such as orchestration
+\cite{viaduct-UC} to guarantee high-level security properties. But
+these approaches rely on \emph{libraries} of low-level MPC protocols,
+such as binary and arithmetic circuits. These low-level protocols are
+probabilistic, encapsulate abstractions such as secret sharing and
+semi-homomorphic encryption, and are complementary to high-level
+language design.
+
+\subsection{Overview and Contributions}
+
+Our work is based on the $\metaprot$/$\minicat$ framework developed in
+previous work \cite{skalka-near-ppdp24}. The prior work developed the 
+language and semantics, plus two mechanisms for verifying security: an
+automated approach for protocols in $\mathbb{F}_2$ (the binary field),
+based on enumerating all possible executions of the protocol, that scales 
+only to very small protocols; and a manual approach based on a program logic.
+%
+In Section \ref{section-lang} we recall the $\minicat$ language model and key definitions. In
+Section \ref{section-model} we recall formulations of program distributions,
+and key probabilistic hyperproperties of MPC in $\minicat$. 
+
+Together, our contributions \emph{automate} the verification of security
+properties in $\metaprot$/$\minicat$. In this work, we build on~\cite{skalka-near-ppdp24}
+by developing automatic verification approaches that work for arbitrary
+finite fields and scale to large protocols. To accomplish this, we develop new
+type systems for compositional verification, and use SMT to automate the checks
+that were accomplished by enumeration in prior work. Specifically, we make the
+following contributions:
+%
+\begin{enumerate}[i.]
+\item In Section \ref{section-smt}, an interpretation of protocols in
+  $\minicat$ as SMT constraints (Theorem \ref{theorem-toeq}) and
+  methodology for verifying correctness properties.
+\item In Section \ref{section-cpj}, a confidentiality type system for
+  $\minicat$ protocols with a soundness property guaranteeing that
+  information is released only through explicit declassifications
+  (Theorem \ref{theorem-cpj}).
+\item In Section \ref{section-ipj}, an integrity type system for
+  $\minicat$ protocols with a soundness property guaranteeing
+  robustness in malicious settings (Theorem \ref{theorem-ipj}).
+\item In Section \ref{section-metalang}, a dependent Hoare type system and
+  algorithm for the $\metaprot$ language that is sound for the
+  confidentiality and integrity type systems (Theorem
+  \ref{theorem-mtj}), with independently verified, compositional $\Pi$
+  types for functions.
+\end{enumerate}
+In all cases, our type systems are boosted by verification mechanisms
+provided by Satisfiability Modulo Finite Fields \cite{SMFF}. In
+Section \ref{section-examples} we develop and discuss extended example
+applications of our type analyses to real protocols including
+the Goldreich-Micali-Wigderson (GMW), Bendlin-Damgard-Orland-Zakarias
+(BDOZ), and Yao's Garbled Circuits (YGC) protocols.
+
+\subsection{Related Work}
+\label{section-related-work}
+
+The goal of the $\minicat/\metaprot$ framework is to automate
+correctness and security verification of low-level protocols.  Other
+prior work has considered automated verification of high-level
+protocols and manual verification of low-level protocols.
+We summarize this comparison in Figure \ref{fig-comp-wrap}.
+
+% We consider related systems in several
+% dimensions, including whether they are aimed at low-level design with
+% probabilistic features, whether they support reasoning about
+% conditional probabilities which are central to real/ideal security,
+% whether they consider MPC security through the lens of
+% hyperproperties, and whether they consider passive and/or malicious
+% security models.
+
+The most closely related work is \cite{skalka-near-ppdp24}, where
+foundations for $\minicat/\metaprot$ are introduced including a
+verification algorithm. However, this algorithm only works for
+$\mathbb{F}_2$-- e.g., binary circuits-- and does not scale due to
+exponential complexity, necessitating semi-automated proof
+techniques. In contrast, our type systems scale to arbitrary prime
+fields and whole program analysis for larger circuits (protocols). So
+our work is a significant advancement of $\minicat/\metaprot$.  Our
+work is also closely related to Satisfiability Modulo Finite Fields
+\cite{SMFF} but only in the sense that we apply their method as we
+discuss in Section \ref{section-smt} and subsequently.
+
+Other low-level languages with probabilistic features for privacy
+preserving protocols have been proposed. The
+$\lambda_{\mathrm{obliv}}$ language \cite{darais2019language} uses a
+type system to automatically enforce so-called probabilistic trace
+obliviousness.  But similar to previous work on oblivious data
+structures \cite{10.1145/3498713}, obliviousness is related to pure
+noninterference, not the conditional form related to passive MPC
+security (Definition \ref{definition-NIMO}). The Haskell-based security
+type system in \cite{6266151} enforces a version of noninterference
+that is sound for passive security, but does not consider malicious
+security. And properties of real/ideal passive and malicious security
+for a probabilistic language have been (manually) formulated in
+EasyCrypt \cite{8429300}.
+
+\compwrapfig
+
+Several high-level languages have been developed for writing MPC
+applications. Previous work on analysis for the
+SecreC language \cite{almeida2018enforcing,10.1145/2637113.2637119} is
+concerned with properties of complex MPC circuits, in particular a
+user-friendly specification and automated enforcement of
+declassification bounds in programs that use MPC in subprograms. The
+Wys$^\star$ language \cite{wysstar}, based on Wysteria
+\cite{rastogi2014wysteria}, has similar goals and includes a
+trace-based semantics for reasoning about the interactions of MPC
+protocols. Their compiler also guarantees that underlying
+multi-threaded protocols enforce the single-threaded source language
+semantics. These two lines of work were focused on passive
+security. The Viaduct language \cite{10.1145/3453483.3454074} has a
+well-developed information flow type system that automatically
+enforces both confidentiality and integrity through hyperproperties
+such as robust declassification, in addition to rigorous compilation
+guarantees through orchestration \cite{viaduct-UC}. However, these
+high level languages lack probabilistic features and other
+abstractions of low-level protocols, the implementation and security
+of which are typically assumed as a selection of library components.
+
+Program logics for probabilistic languages and specifically reasoning
+about properties such as joint probabilistic independence is also
+important related work. Probabilistic Separation Logic (PSL)
+\cite{barthe2019probabilistic} develops a logical framework for
+reasoning about probabilistic independence (aka separation) in
+programs, and they consider several (hyper)properties, such as perfect
+secrecy of one-time-pads and indistinguishability in secret sharing,
+that are critical to MPC. Lilac \cite{li2023lilac} extends this line
+of work with formalisms for conditional independence which is 
+also particularly important for MPC \cite{skalka-near-ppdp24}.
+
+The Cryptol and SAW tools \cite{10.1007/978-3-319-48869-1_5} allow
+programmers to program security protocols that are verified using
+SMT. However they are used for cryptographic protocols more generally,
+and are not designed specifically for MPC as our framework is.

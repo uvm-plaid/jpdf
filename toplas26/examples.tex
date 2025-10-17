@@ -1,0 +1,305 @@
+\section{Extended Examples}
+\label{section-examples}
+
+In Section \ref{section-smt} we gave the example of 3-party additive
+sharing for any field $\fieldp{p}$. In Sections \ref{section-ipj} and
+\ref{section-metalangty} we discussed the example of YGC input encoding.
+Now we consider examples that illustrate the versatility of the
+$\TirName{Encode}$ typing rule for confidentiality, the use of
+postconditions for correctness, and the use of both pre-~and
+postconditions for integrity.
+
+To evaluate our system especially regarding performance, using the
+Satisfiability Modulo Fields theory in cvc5 on an Apple M1 processor,
+we have verified correctness of additive sharing protocols in fields
+up to size $\fieldp{2^{31} - 1}$ (an approximation of 32-bit integers)
+which takes $\sim$7ms to compute for 3 parties and not significantly more
+than for, e.g., $\fieldp{2}$. We have also verified the semi-homomorphic
+encryption properties leveraged in the BDOZ circuit library functions
+(Figures \ref{fig-bdozsum} and \ref{fig-bdozmult}) in fields up to
+size $\fieldp{2^{31} - 1}$ which take $\sim$8ms for the property used for
+the postcondition of the $\ttt{mult}$ gate. This is categorically
+better performance than can be achieved using previous brute-force
+methods in $\fieldp{2}$ \cite{skalka-near-ppdp24}.
+
+\subsection{Confidentiality Examples}
+
+\input{gmw}
+
+In the 2-party GMW protocol \cite{evans2018pragmatic}, another garbled
+binary circuit protocol, values are encrypted in a manner similar to
+BDOZ as described in Section \ref{section-ipj}. In our definition of
+GMW we use the convention that shared values $\macgv{\mesg{w}}$ are
+identified by strings $w$ and encoded as shares $\mx{w}{1}$ and
+$\mx{w}{2}$.  As for YGC, ciphertypes reflect the confidentiality of
+GMW input encodings as defined in the $\ttt{encodegmw}$ function in
+Figure \ref{fig-gmw}. No programmer annotation is needed given the
+syntax of the function body. More interestingly, the $\ttt{andgmw}$
+gate definition shows how a programmer hint can express the relevant
+confidentiality property of the output share $\mx{z}{2}$ on client 2,
+using the $\ttt{as}$ casting. The non-trivial equivalence can be
+verified by SMT once during verification, and subsequently
+confidentiality is expressed in the dependent type of the function (as
+for $\ttt{encode}$).
+
+Note also that the $\ttt{andgmw}$ function is decorated with a
+postcondition that expresses the correctness property of the
+function. Although not strictly necessary for confidentiality, this
+annotation can at least help eliminate bugs, and also can be used
+compositionally for whole-program correctness properties. As for
+confidentiality hints, this postcondition needs to be verified only
+once at the point of definition and subsequently is guaranteed to hold
+for any application.
+
+\subsection{Integrity Examples}
+
+\input{bdoz}
+
+Returning to the example of malicious-secure 2-party BDOZ arithmetic
+circuits begun in Section \ref{section-ipj}, in Figure \ref{fig-bdozsum} we
+define $\ttt{sum}$ and $\ttt{open}$ functions. The latter implements
+``secure opening''-- each party sends it's local share of a
+global value $\macgv{\mesg{w}}$ along with its MAC to the other party,
+which is authenticated via the $\macbdoz{w}$ check (in \ttt{\_open}),
+and then each party reconstructs $\macgv{\mesg{w}}$. The preconditions
+of $\ttt{open}$ specify the authentication requirements. 
+
+The $\ttt{sum}$ function implements an addition gate. This is
+non-interactive-- each party just sums its local shares
+of the two values. The pre- and postcondition annotations
+on $\ttt{sum}$ express the additive homomorphism associated
+with this encryption scheme-- the sum of MACs of the input
+shares is a valid MAC for the output share on each client,
+which can be checked using the sum of keys of the input shares.
+
+In BDOZ a pre-processing phase is assumed where initial input secrets
+are shared along with their associated MACs and keys. This can be
+expressed in $\eqspre$ for input secrets $\sx{\ttt{"x"}}{1}$ and
+$\sx{\ttt{"y"}}{2}$, for example, which subsume the following
+constraints on shares:
+{\footnotesize$$
+\begin{array}{l}
+\mx{\ttt{"xs"}}{2} \eop \sx{\ttt{"x"}}{1} \fminus \rx{\ttt{"x"}}{1} \wedge 
+\mx{\ttt{"xs"}}{1} \eop \rx{\ttt{"x"}}{1} \wedge \\
+\mx{\ttt{"ys"}}{1} \eop \sx{\ttt{"y"}}{2} \fminus \rx{\ttt{"y"}}{2} \wedge 
+\mx{\ttt{"ys"}}{2} \eop \rx{\ttt{"y"}}{2} 
+\end{array}
+$$}
+and the following constraint on keys and MACs for authentication
+of $\sx{\ttt{"x"}}{1}$ (and similarly for $\sx{\ttt{"y"}}{2}$):
+{\footnotesize$$
+\begin{array}{l}
+\mx{\ttt{"delta"}}{1} \eop \rx{\ttt{"delta"}}{1} \wedge
+\mx{\ttt{"xk"}}{1} \eop \rx{\ttt{"xk"}}{1} \wedge\\
+\mx{\ttt{"xm"}}{2} \eop \mx{\ttt{"xk"}}{1} \fplus (\mx{\ttt{"delta"}}{1} * \mx{\ttt{"xs"}}{2})
+\end{array}
+$$}
+Given these global preconditions, a malicious secure opening of $\sx{\ttt{"x"}}{1} +
+\sx{\ttt{"y"}}{2}$ would be obtained as
+$\ttt{sum}(\ttt{"z"},\ttt{"x"},\ttt{"y"}); \ttt{open}(\ttt{"z"})$,
+which type checks.
+
+A common approach to implementing multiplication gates in a BDOZ
+setting is to use \emph{Beaver Triples}. Recall that Beaver triples
+are values $a,b,c$ with $a$ and $b$ chosen randomly and $c = a * b$,
+unique per multiplication gate, that are secret shared with clients
+during pre-processing.  In our encoding we assume the additional
+convention that each gate output identifier distinguishes the Beaver
+triple, so for example the share of the $a$ value for a gate
+$\ttt{"g1"}$ is identified by $\ttt{"g1as"}$, etc.
+
+%, and $\eqspre$
+%subsumes the following constraints for the $a,b,c$ values of gate
+%$\ttt{"g1"}$.  {\footnotesize$$
+%\begin{array}{l}
+%\mx{\ttt{"g1as"}}{1} \eop \rx{\ttt{"g1as"}}{1}\ \wedge 
+%\mx{\ttt{"g1bs"}}{1} \eop \rx{\ttt{"g1bs"}}{1}\ \wedge\\
+%\mx{\ttt{"g1as"}}{2} \eop \rx{\ttt{"g1as"}}{2}\ \wedge 
+%\mx{\ttt{"g1bs"}}{2} \eop \rx{\ttt{"g1bs"}}{2}\ \wedge\\
+%\mx{\ttt{"g1cs"}}{1} \eop \\
+%\qquad ((\mx{\ttt{"g1as"}}{1} \fplus \mx{\ttt{"g1bs"}}{2})\ \ftimes\\
+%\qquad\phantom{(}(\mx{\ttt{"g1bs"}}{1} \fplus \mx{\ttt{"g1bs"}}{2})) \fminus \rx{\ttt{"g1cs"}}{2}\ \wedge\\
+%\mx{\ttt{"g1cs"}}{2} \eop \rx{\ttt{"g1cs"}}{2}
+%\end{array}
+%$$}
+
+The definition of the $\ttt{mult}$ gate is presented in Figure
+\ref{fig-bdozmult},
+%where we present just client 1's side of the
+%protocol $\ttt{\_mult1}$ (client 2's side is nearly symmetric but with
+%a small variation-- refer to
+%\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3} for more
+%details).
+%We could call this function on input secrets
+%$\sx{\ttt{"x"}}{1}$ and $\sx{\ttt{"y"}}{2}$ in gate $\ttt{"g1"}$ as
+%$\ttt{mult}(\ttt{"g1"},\ttt{"x"},\ttt{"y"})$, for example, or embed
+%this gate internally in a circuit.
+%
+As for $\ttt{sum}$, the preconditions of $\ttt{mult}$ express
+the expected MAC properties of input shares, as well as the
+expected Beaver Triple property, and its postcondition
+fexpresses the semi-homomorphic encryption property of
+the resulting share, MAC, and key after gate execution-- specifically,
+it preserves the BDOZ authentication property. Finally, the
+postcondition of $\ttt{mult}$ expresses the
+correctness property of the multiplication gate. In any case,
+integrity of any circuit constructed from the $\ttt{sum}$ and
+$\ttt{mult}$ library functions will require little SMT overhead
+due to compositional verification, once their pre- and postconditions
+are verified by type checking. 
+
+%%%%%%%%%%%%%%%%%%
+%%% ARCHIVAL BELOW
+%%%%%%%%%%%%%%%%%%
+\begin{comment}
+\begin{verbatimtab}
+andtableygc(g,x,y)
+{
+   let table = (~r[g],~r[g],~r[g],r[g])
+   in permute4(r[x],r[y],table)
+}
+
+m[x]@1 := s2(s[x],r[x],~r[x])@2;
+m[x]@1 as s[x]@2 xor r[x]@2;
+
+// m[x]@1 : { c(r[x]@2, { s[x]@2 }) } 
+
+m[y]@1 := OT(s[y]@1,r[y],~r[y])@2;
+m[y]@1 as s[y]@1 xor r[y]@2;
+
+// m[y]@1 : { c(r[y]@2, { s[y]@1 }) } 
+	      
+m[ag]@1 := OT4(m[x]@1, m[y]@1, andtable(ag,r[x],r[y]))@2;
+m[ag]@1 as  ~((r[x]@2 = m[x]@1) and (r[y]@2 = m[y]@1)) xor r[ag]@2;
+
+// m[ag]@1 : { c(r[ag]@2, {r[x]@2, r[y]@2, m[x]@1,  m[y]@1} }
+
+p[o] := OT2(m[ag]@1, perm2(r[ag],(false,true)))@2
+
+// p[o] : { c(r[ag]@2, {r[x]@2, r[y]@2,  m[x]@1,  m[y]@1}), r[ag]@2  } 
+
+out@1 := p[o]@1
+
+// out@1 == s[x] and s[y]
+\end{verbatimtab}
+
+\begin{verbatimtab}
+    encodegmw(in, i1, i2) {
+      m[in]@i2 := (s[in] xor r[in])@i1;
+      m[in]@i1 := r[in]@i1
+    }
+    
+    andtablegmw(x, y, z) {
+      let r11 = r[z] xor (m[x] xor true) and (m[y] xor true) in
+      let r10 = r[z] xor (m[x] xor true) and (m[y] xor false) in
+      let r01 = r[z] xor (m[x] xor false) and (m[y] xor true) in
+      let r00 = r[z] xor (m[x] xor false) and (m[y] xor false) in
+      { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
+    }
+    
+    andgmw(z, x, y) {
+      let table = andtablegmw(x,y,z) in
+      m[z]@2 := OT4(m[x],m[y],table,2,1);
+      m[z]@2 as ~((m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2)) xor r[z]@1);
+      m[z]@1 := r[z]@1
+    }
+
+    // and gate correctness postcondition
+    {} andgmw { m[z]@1 xor m[z]@2 == (m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2) }
+
+    // and gate type
+    andgmw :
+     Pi z,x,y .
+     {}
+     { { r[z]@1 },
+       (m[z]@1 : { r[z]@1 }; m[z]@2 : {c(r[z]@1, { m[x]@1, m[x]@2, m[y]@1, m[y]@2 })} ),
+       m[z]@1 xor m[z]@2 == (m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2)}
+    
+    xorgmw(z, x, y) {
+      m[z]@1 := (m[x] xor m[y])@1; m[z]@2 := (m[x] xor m[y])@2;
+    }
+    
+    decodegmw(z) {
+      p["1"] := m[z]@1; p["2"] := m[z]@2;
+      out@1 := (p["1"] xor p["2"])@1;
+      out@2 := (p["1"] xor p["2"])@2
+    }
+
+    prot() {
+      encodegmw("x",2,1);
+      encodegmw("y",2,1);
+      encodegmw("z",1,2);
+      andgmw("g1","x","z");
+      xorgmw("g2","g1","y");
+      decodegmw("g2")
+    }
+
+    {} prot { out@1 == (s["x"]@1 and s["z"]@2) xor s["y"]@1 }
+\end{verbatimtab}
+
+\subsection{Integrity Examples}
+
+\begin{verbatimtab}
+  secopen(w1,w2,w3,i1,i2) {
+      pre(m[w1++"m"]@i2 == m[w1++"k"]@i1 + (m["delta"]@i1 * m[w1++"s"]@i2 /\
+          m[w1++"m"]@i2 == m[w1++"k"]@i1 + (m["delta"]@i1 * m[w1++"s"]@i2));
+      let locsum =  macsum(macshare(w1), macshare(w2)) in
+      m[w3++"s"]@i1 := (locsum.share)@i2;
+      m[w3++"m"]@i1 := (locsum.mac)@i2;
+      auth(m[w3++"s"],m[w3++"m"],mack(w1) + mack(w2),i1);
+      m[w3]@i1 := (m[w3++"s"] + (locsum.share))@i1
+  }
+
+  
+  _open(x,i1,i2){
+    m[x++"exts"]@i1 := m[x++"s"]@i2;
+    m[x++"extm"]@i1 := m[x++"m"]@i2;
+    assert(m[x++"extm"] == m[x++"k"] + (m["delta"] * m[x++"exts"]));
+    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i2
+  }`
+  
+  _sum(z, x, y,i1,i2) {
+      pre(m[x++"m"]@i2 == m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"]@i2 /\
+          m[y++"m"]@i2 == m[y++"k"]@i1 + (m["delta"]@i1 * m[y++"s"]@i2));
+      m[z++"s"]@i2 := (m[x++"s"] + m[y++"s"])@i2;
+      m[z++"m"]@i2 := (m[x++"m"] + m[y++"m"])@i2;
+      m[z++"k"]@i1 := (m[x++"k"] + m[y++"k"])@i1;
+      post(m[z++"m"]@i2 == m[z++"k"]@i1 + (m["delta"]@i1 * m[z++"s"]@i2)
+  }
+
+  sum(z,x,y) { _sum(z,x,y,1,2);_sum(z,x,y,2,1) }
+
+  open(x) { _open(x,1,2); _open(x,2,1) } 
+
+
+  sum("a","x","d");
+  open("d");
+  sum("b","y","e");
+  open("e");
+  let xys =
+      macsum(macctimes(macshare("b"), m["d"]),
+             macsum(macctimes(macshare("a"), m["e"]),
+                    macshare("c")))
+  let xyk = mack("b") * m["d"] + mack("a") * m["e"] + mack("c")
+                    
+  secopen("a","x","d",1,2);
+    secopen("a","x","d",2,1);
+    secopen("b","y","e",1,2);
+    secopen("b","y","e",2,1);
+    let xys =
+      macsum(macctimes(macshare("b"), m["d"]),
+             macsum(macctimes(macshare("a"), m["e"]),
+                    macshare("c")))
+    in
+    let xyk = mack("b") * m["d"] + mack("d") * m["d"] + mack("c")               
+    in
+    secreveal(xys,xyk,"1",1,2);
+    secreveal(maccsum(xys,m["d"] * m["e"]),
+              xyk - m["d"] * m["e"],
+              "2",2,1);
+    out@1 := (p[1] + p[2])@1;
+    out@2 := (p[1] + p[2])@2;
+\end{verbatimtab}
+
+
+\end{comment}
