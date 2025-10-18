@@ -48,7 +48,7 @@ rule, can be defined very directly in terms of evaluation of $\metaprot$ express
       {\htrip{\eqs_1}{\prog}{\eqs_2}}
 
   \inferrule[Frame]
-      {\htrip{\eqs_1}{\prog}{\eqs_2}}
+      {\htrip{\eqs_1}{\prog}{\eqs_2} \\ \vars(\eqs) \cap \mathit{avars}(\prog) = \varnothing}
       {\htrip{\eqs_1 \wedge \eqs}{\prog}{\eqs_2 \wedge \eqs}}
 \end{mathpar}
 
