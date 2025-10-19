@@ -40,7 +40,7 @@ rule, can be defined very directly in terms of evaluation of $\metaprot$ express
   %
   %\pubout{\cid}{\be}{\cid}
   \inferrule[Seq]
-      {\htrip{\eqs_1}{\prog_1}{\eqs_2} \\ \htrip{\eqs_2}{\prog_1}{\eqs_3} }
+      {\htrip{\eqs_1}{\prog_1}{\eqs_2} \\ \htrip{\eqs_2}{\prog_2}{\eqs_3} }
       {\htrip{\eqs_1}{\prog_1;\prog_2}{\eqs_3}}
 
   \inferrule[Consequence]
@@ -48,11 +48,11 @@ rule, can be defined very directly in terms of evaluation of $\metaprot$ express
       {\htrip{\eqs_1}{\prog}{\eqs_2}}
 
   \inferrule[Frame]
-      {\htrip{\eqs_1}{\prog}{\eqs_2} \\ \vars(\eqs) \cap \mathit{avars}(\prog) = \varnothing}
+      {\htrip{\eqs_1}{\prog}{\eqs_2} \\ \vars(\eqs) \cap \avars(\prog) = \varnothing}
       {\htrip{\eqs_1 \wedge \eqs}{\prog}{\eqs_2 \wedge \eqs}}
 \end{mathpar}
 
-\subsection{$\metaprot$ Hoare Logic}
+\subsection{$\metaprot$ Abstract Hoare Logic}
 
 Adding basic types to command function declarations to support generalize pre/post conditions. 
 
@@ -105,15 +105,8 @@ verification. Hardpack eliminates program variables, while softpack may require 
   \inferrule[Fn]
             {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \htrip{\peq_1}{\cmd}{\peq_2}}
             {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
-
+            
   \inferrule[Hardpack]
-            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
-              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
-              \forall y_1:\tau_1,\ldots,y_n:\tau_n .  \peq_1 \models \peq_1'\\
-              \forall y_1:\tau_1,\ldots,y_n:\tau_n .  \peq_1 \wedge \peq_2' \models \peq_2}
-            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
-
-  \inferrule[ImplementedHardpack]
             {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
               \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
               \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \wedge \peq_2' \models \peq_1' \wedge \peq_2 }
@@ -130,11 +123,92 @@ verification. Hardpack eliminates program variables, while softpack may require 
 % Hoare logic for monadic functional language:
 % https://tchajed.github.io/sys-verif-fa24/notes/hoare.html#example-consequences-of-bind-rule
 
-\begin{theorem}
-  Given $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
-  and $\cmd \redx \prog$. Then $\htrip{\eqs_1}{\prog}{\eqs_2}$.
-\end{theorem}
+
 
 \begin{proof}
-  By induction on the structure of the derivation of $\cmd \redx \prog$. 
+  By induction on the structure of $\cmd$.
+
+  \textit{Case} $\cmd = (\xassign{e_1}{e_2}{e_3})$. In this case by definition we have:
+  \begin{mathpar}
+    e_1 \redx x
+
+    e_2 \redx \be
+
+    e_3 \redx \cid
+
+    \prog = (\xassign{x}{\be}{\cid})
+
+    \peq_1 \redx \true
+
+    \peq_2 \redx x \eop \toeq{\elab{\be}{\cid}}
+  \end{mathpar}
+  But we have $\htrip{\toeq{\elab{\be}{\cid}} \eop \toeq{\elab{\be}{\cid}}}{\xassign{x}{\be}{\cid}}{x \eop \toeq{\elab{\be}{\cid}}}$ by $\TirName{Assign}$ with $(\toeq{\elab{\be}{\cid}} \eop \toeq{\elab{\be}{\cid}})$ iff $\true$, so this case holds.
+
+  \textit{Case} $\cmd = \elab{\assert{e_1 = e_2}}{e_3}$. In this case by definition we have:
+  \begin{mathpar}
+    e_1 \redx \be_1
+
+    e_2 \redx \be_2
+
+    e_3 \redx \cid
+
+    \prog = \elab{\assert{\be_1 = \be_2}}{\cid}
+
+    \peq_1 \redx \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}
+    
+    \peq_2 \redx \true
+  \end{mathpar}
+  But we have $\htrip{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}$ by $\TirName{Assert}$, so
+  this case holds by an application of $\TirName{Consequence}$.
+
+   \textit{Case} $\cmd = \cmd_1;\cmd_2$. In this case by definition we have:
+  \begin{mathpar}
+    \cmd_1 \redx \prog_1
+
+    \cmd_2 \redx \prog_2
+
+    \prog = \prog_1;\prog_2
+
+    \peq_1 = \peq_1^1 \wedge \peq_1^2
+
+    \peq_2 = \peq_2^1 \wedge \peq_2^2
+
+    \peq_1 \redx \eqs_1^1 \wedge \eqs_1^2
+
+    \peq_2 \redx \eqs_2^1 \wedge \eqs_2^2
+  \end{mathpar}
+  where by the induction hypothesis we have:
+  \begin{mathpar}
+    \htrip{\eqs_1^1}{\prog_1}{\eqs_2^1}
+
+    \htrip{\eqs_1^2}{\prog_2}{\eqs_2^2}
+
+    \vars(\prog_1) \cap \avars(\eqs_1^1) = \varnothing
+
+    \vars(\prog_2) \cap \avars(\eqs_1^2) = \varnothing    
+  \end{mathpar}
+  But then by $\TirName{Frame}$ we have
+  $\htrip{\eqs_1^1 \wedge \eqs_1^2}{\prog_1}{\eqs_2^1 \wedge \eqs_1^2}$ and
+  $\htrip{\eqs_2^1 \wedge \eqs_1^2}{\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$,
+  so this case holds by an application of $\TirName{Seq}$.
 \end{proof}
+
+\begin{mathpar}
+\inferrule[Assigns]
+          {\htrip{\eqs_1}{\prog}{\eqs_2}}
+          {\htrip{\eqs_1 \wedge \sigma_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
+\end{mathpar}
+
+\begin{lemma} $\eqs_1 \models \sigma_{\prog}(\eqs_2)$ iff $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_2$.
+\end{lemma}
+
+\begin{lemma}
+  Given $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
+  and $\cmd \redx \prog$. Then $\htrip{\sigma_{\prog}(\eqs_1)}{\prog}{\eqs_2}$
+  and $\sigma_{\prog}(\eqs_1) \models \eqs_1 \wedge \eqs_2$.
+\end{lemma}
+
+\begin{theorem}
+  Given $\htrip{\peq_1}{\ttt{main()}}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
+  and $\cmd \redx \prog$. Then $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+\end{theorem}
