@@ -205,7 +205,7 @@ verification. Hardpack eliminates program variables, while softpack may require 
 \begin{lemma}
   Given $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
   and $\cmd \redx \prog$. Then $\htrip{\sigma_{\prog}(\eqs_1)}{\prog}{\eqs_2}$
-  and $\sigma_{\prog}(\eqs_1) \models \eqs_1 \wedge \eqs_2$.
+  and $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_1 \wedge \eqs_2$.
 \end{lemma}
 
 \begin{theorem}
