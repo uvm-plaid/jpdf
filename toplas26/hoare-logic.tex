@@ -199,16 +199,70 @@ verification. Hardpack eliminates program variables, while softpack may require 
           {\htrip{\eqs_1 \wedge \sigma_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
 \end{mathpar}
 
-\begin{lemma} $\eqs_1 \models \sigma_{\prog}(\eqs_2)$ iff $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_2$.
+\begin{lemma} $\sigma_{\prog}(\eqs_1) \models \sigma_{\prog}(\eqs_2)$ iff $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_2$.
 \end{lemma}
 
 \begin{lemma}
   Given $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
-  and $\cmd \redx \prog$. Then $\htrip{\sigma_{\prog}(\eqs_1)}{\prog}{\eqs_2}$
-  and $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_1 \wedge \eqs_2$.
+  and $\cmd \redx \prog$. Then $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_2$.
+\end{lemma}
+
+\begin{lemma}
+  Given $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
+  and $\cmd \redx \prog$. Then $\htrip{\sigma_{\prog}(\eqs_1)}{\prog}{\eqs_2}$.
 \end{lemma}
 
 \begin{theorem}
   Given $\htrip{\peq_1}{\ttt{main()}}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
   and $\cmd \redx \prog$. Then $\htrip{\eqs_1}{\prog}{\eqs_2}$.
 \end{theorem}
+
+\subsection{Try Again}
+
+\begin{mathpar}
+  \inferrule[Mesg]
+            {}
+            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{\eqtrue}, e_1 \eop \elab{e_2}{e_3}}
+
+  %\inferrule[Encode]
+  %          {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
+  %            \eqs \models x \eop \phi\\
+  %            \atj{\phi}{R}{\ty}}
+  %          {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(x : \ty)}{R}{\varnothing}{\eqs}}
+  %
+  \inferrule[Assert]
+            {}
+            {\htrip{\elab{e_1}{e_3} \eop \elab{e_2}{e_3}}{\elab{\assert{e_1 = e_2}}{e_3}}{\eqtrue}, \eqtrue}
+
+  \inferrule[Seq]          
+            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1},\peq_1 \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2},\peq_2}
+            {\htrip{\peq_1^1 \wedge (\peq_1^2 \wedge \peq_1)}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2},\peq_1 \wedge \peq_2}
+
+  \inferrule[Let]
+            {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}, \peq}
+            {\htrip{\peq_1}{\elet{y}{e}{\cmd}}{\peq_2}, \peq }
+
+  \inferrule[App]
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2},\peq}
+            {\htrip{\peq_1[e_1/y_1 \cdots e_n/y_n]}{f(e_1,\ldots,e_n)}{\peq_2[e_1/y_1 \cdots e_n/y_n]},\peq[e_1/y_1 \cdots e_n/y_n]}
+
+  \inferrule[Fn]
+            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \htrip{\peq_1}{\cmd}{\peq_2},\peq}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2},\peq}
+            
+  \inferrule[Hardpack]
+            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
+              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'},\peq \\
+              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_1'\ \text{and}\ \peq_1 \wedge \peq \models \peq_2}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2},\peq}
+\end{mathpar}
+
+\begin{mathpar}
+\inferrule[Assigns]
+          {\htrip{\eqs_1}{\prog}{\eqs_2}}
+          {\htrip{\eqs_1 \wedge \sigma_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
+\end{mathpar}
+
+\begin{lemma}
+  $\sigma_{\prog}(\eqs)$ iff $\toeq{\prog} \wedge \eqs$ and $\sigma_{\prog}(\eqs_1) \models \sigma_{\prog}(\eqs_2)$ iff $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_2$.
+\end{lemma}
