@@ -75,15 +75,26 @@ $$
 
 \noindent This is the generalized rule for entailment:
 
-$$
+\begin{mathpar}
 \inferrule[GenEntails]
           {\mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\ \peq_1[\mv_1/y_n \cdots \mv_n/y_n] \redx \eqs_1 \\
            \peq_2[\mv_1/y_n \cdots \mv_n/y_n] \redx \eqs_2 \\ \eqs_1 \models \eqs_2}
           {\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_2 }
-$$
+\end{mathpar}
 
-The following are generalized Hoare triple computations. Hard and soft pack rules allow for compositional
-verification. Hardpack eliminates program variables, while softpack may require less programmer overhead. 
+\begin{lemma}
+  \label{lemma-genentails}
+  If $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_2$ and
+  $\peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1$ and
+  $\peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2$, then
+  $\eqs_1 \models \eqs_2$.  
+\end{lemma}
+          
+The following are generalized Hoare triple computations. Hard and soft
+pack rules allow for compositional verification. Hardpack eliminates
+program variables, while softpack may require less programmer
+overhead.
+
 \begin{mathpar}
   \inferrule[Mesg]
             {}
@@ -268,10 +279,10 @@ verification. Hardpack eliminates program variables, while softpack may require 
 \end{lemma}
 
 \begin{proof}
-  By induction on the structure of $\cmd$.
+  By induction on the derivation of $\cmd \redx \prog$.
 
   \textit{Case} $\cmd = \cmd_1;\cmd_2$. In this case by assumption and
-  definition of $\TirName{Seq}$ we have:
+  definition and inversion of $\redx$ and $\TirName{Seq}$ we have:
   \begin{mathpar}
     \cmd_1 \redx \prog_1
 
@@ -291,7 +302,7 @@ verification. Hardpack eliminates program variables, while softpack may require 
 
     \htrip{\peq_1^2}{\cmd_2}{\peq_2^2},\peq_2
   \end{mathpar}
-    Assume given $\eqs_0$ with $\vars(\eqs_0) \cap \avars(\prog) = \varnothing$ and
+  Assume given $\eqs_0$ with $\vars(\eqs_0) \cap \avars(\prog) = \varnothing$ and
   $\eqs_0 \models  \eqs_1^1 \wedge ((\eqs_2^1 \impl \eqs_1^2) \vee (\eqs_1 \impl \eqs_1^2))$.
   Proceed by subcases to show $\htrip{\eqs_0}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$.
 
@@ -325,6 +336,53 @@ verification. Hardpack eliminates program variables, while softpack may require 
   $\subn_i \subseteq \subn_{\prog_i}$ 
   and $\toeq{\subn_i}$ iff $\eqs_i$ for $i \in \setit{1,2}$. Hence
   $\subn_1 \circ \subn_2 \subseteq \subn_{\prog}$ and $\subn_1 \circ \subn_2$
-  iff $\eqs_1 \wedge \eqs_2$.
-  
+  iff $\eqs_1 \wedge \eqs_2$. The case follows.
+
+  \textit{Case} $\cmd = f(e_1,\ldots,e_n)$. In this case by assumption and
+  definition and inversion of $\TirName{App}$ and $\redx$ we have:
+  \begin{mathpar}
+    \codebase(f) = y_1,\ldots,y_n, \instr
+
+    e_1 \redx \mv_1 \cdots e_n \redx \mv_n
+
+    \instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
+
+    \peq_1 \redx \eqs_1
+      
+    \peq_2 \redx \eqs_2
+
+    \peq \redx \eqs
+
+    \peq_1 = \peq^0_1[\mv_1/y_1]\cdots[\mv_n/y_n]
+
+    \peq_2 = \peq^0_2[\mv_1/y_1]\cdots[\mv_n/y_n]
+    
+    \htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2},\peq
+  \end{mathpar}
+  Now, the judgement $\htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2},\peq$
+  follows by one or two subcases. Where it follows by \TirName{Fn} the result
+  is immediate by definition and the induction hypothesis. Otherwise it follows by
+  \TirName{Hardpack} and we proceed as follows.
+
+  By inversion of \TirName{Hardpack} we have
+  $\htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'},\peq$ by
+  \TirName{Fn} where $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1
+  \models \peq_1'$. Assume $\peq_1'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+  \eqs_1'$ and $\peq_2'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2'$.
+  By Lemma \ref{lemma-genentails} we have $\eqs_1 \models \eqs_1'$,
+  thus sanity conditions on $\peq_1$ and the induction hypothesis
+  entail $\htrip{\eqs_1}{\prog}{\eqs_2'}$. Also by inversion of
+  \TirName{Hardpack} we have $\forall y_1:\tau_1,\ldots,y_n:\tau_n
+  . \peq_1 \models \peq \impl \peq_2$, implying
+  $\eqs_1 \models \eqs \wedge \eqs_2$. But then by Lemmas
+  \ref{lemma-subn}, \ref{lemma-hardpacksubn}, and the induction
+  hypothesis we have
+  $\eqs_1 \models \subn_{\prog}(\eqs_2)$, thus
+  $\eqs_1$ iff $\eqs_1 \wedge \subn_{\prog}(\eqs_2)$, and
+  we can deduce $\htrip{\eqs_1 \wedge \subn_{\prog}(\eqs_2)}{\prog}{\eqs_2'}$
+  by \TirName{Consequence}, thus 
+  $\htrip{\eqs_1 \wedge \subn_{\prog}(\eqs_2)}{\prog}{\eqs_2' \wedge \eqs_2}$
+  by \TirName{Assigns}, and thus 
+  $\htrip{\eqs_1}{\prog}{\eqs_2}$ by \TirName{Consequence}, so this
+  case follows.
 \end{proof}
