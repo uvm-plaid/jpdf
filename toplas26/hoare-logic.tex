@@ -364,7 +364,8 @@ overhead.
   $\htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'},\peq$ by
   \TirName{Fn} where $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1
   \models \peq_1'$. Assume $\peq_1'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
-  \eqs_1'$ and $\peq_2'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2'$.
+  \eqs_1'$ and $\peq_2'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2'$\cnote{sanity
+    conditions should guarantee existence of $\eqs_{1,2}$}.
   By Lemma \ref{lemma-genentails} we have $\eqs_1 \models \eqs_1'$,
   thus sanity conditions on $\peq_1$ and the induction hypothesis
   entail $\htrip{\eqs_1}{\prog}{\eqs_2'}$. Also by inversion of
