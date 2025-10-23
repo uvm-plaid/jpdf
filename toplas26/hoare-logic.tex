@@ -52,6 +52,15 @@ rule, can be defined very directly in terms of evaluation of $\metaprot$ express
       {\htrip{\eqs_1 \wedge \eqs}{\prog}{\eqs_2 \wedge \eqs}}
 \end{mathpar}
 
+
+Derived rule:
+\begin{mathpar}
+\inferrule[Assigns]
+          {\htrip{\eqs_1}{\prog}{\eqs_2}}
+          {\htrip{\eqs_1 \wedge \subn_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
+\end{mathpar}
+
+
 \subsection{$\metaprot$ Abstract Hoare Logic}
 
 Adding basic types to command function declarations to support generalize pre/post conditions. 
@@ -193,30 +202,6 @@ verification. Hardpack eliminates program variables, while softpack may require 
   so this case holds by an application of $\TirName{Seq}$.
 \end{proof}
 
-\begin{mathpar}
-\inferrule[Assigns]
-          {\htrip{\eqs_1}{\prog}{\eqs_2}}
-          {\htrip{\eqs_1 \wedge \sigma_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
-\end{mathpar}
-
-\begin{lemma} $\sigma_{\prog}(\eqs_1) \models \sigma_{\prog}(\eqs_2)$ iff $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_2$.
-\end{lemma}
-
-\begin{lemma}
-  Given $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
-  and $\cmd \redx \prog$. Then $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_2$.
-\end{lemma}
-
-\begin{lemma}
-  Given $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
-  and $\cmd \redx \prog$. Then $\htrip{\sigma_{\prog}(\eqs_1)}{\prog}{\eqs_2}$.
-\end{lemma}
-
-\begin{theorem}
-  Given $\htrip{\peq_1}{\ttt{main()}}{\peq_2}$ with $\peq_1 \redx \eqs_1$, $\peq_2 \redx \eqs_2$,
-  and $\cmd \redx \prog$. Then $\htrip{\eqs_1}{\prog}{\eqs_2}$.
-\end{theorem}
-
 \subsection{Try Again}
 
 \begin{mathpar}
@@ -236,7 +221,7 @@ verification. Hardpack eliminates program variables, while softpack may require 
 
   \inferrule[Seq]          
             {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1},\peq_1 \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2},\peq_2}
-            {\htrip{\peq_1^1 \wedge (\peq_1^2 \wedge \peq_1)}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2},\peq_1 \wedge \peq_2}
+            {\htrip{\peq_1^1 \wedge ((\peq_2^1 \impl \peq_1^2) \vee (\peq_1 \impl \peq_1^2))}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2},\peq_1 \wedge \peq_2}
 
   \inferrule[Let]
             {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}, \peq}
@@ -253,54 +238,86 @@ verification. Hardpack eliminates program variables, while softpack may require 
   \inferrule[Hardpack]
             {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
               \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'},\peq \\
-              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_1'\ \text{and}\ \peq_1 \wedge \peq \models \peq_2}
-            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2},\peq}
+              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_1'\ \text{and}\ \peq_1 \models \peq \impl \peq_2}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2},\true}
 \end{mathpar}
 
-\begin{mathpar}
-  \inferrule[Mesg]
-            {}
-            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{\eqtrue}}
-
-  %\inferrule[Encode]
-  %          {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
-  %            \eqs \models x \eop \phi\\
-  %            \atj{\phi}{R}{\ty}}
-  %          {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(x : \ty)}{R}{\varnothing}{\eqs}}
-  %
-  \inferrule[Assert]
-            {}
-            {\htrip{\elab{e_1}{e_3} \eop \elab{e_2}{e_3}}{\elab{\assert{e_1 = e_2}}{e_3}}{\eqtrue}}
-
-  \inferrule[Seq]          
-            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1},\peq_1 \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2},\peq_2}
-            {\htrip{\peq_1^1 \wedge (\peq_1^2 \wedge \peq_2^1)}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2}}
-
-  \inferrule[Let]
-            {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}}
-            {\htrip{\peq_1}{\elet{y}{e}{\cmd}}{\peq_2}}
-
-  \inferrule[App]
-            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
-            {\htrip{\peq_1[e_1/y_1 \cdots e_n/y_n]}{f(e_1,\ldots,e_n)}{\peq_2[e_1/y_1 \cdots e_n/y_n]}}
-
-  \inferrule[Fn]
-            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \htrip{\peq_1}{\cmd}{\peq_2}}
-            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
-            
-  \inferrule[Hardpack]
-            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
-              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
-              \forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_1'\ \text{and}\ \peq_1 \wedge \peq_2' \models \peq_2}
-            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
-\end{mathpar}
-
-\begin{mathpar}
-\inferrule[Assigns]
-          {\htrip{\eqs_1}{\prog}{\eqs_2}}
-          {\htrip{\eqs_1 \wedge \sigma_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
-\end{mathpar}
 
 \begin{lemma}
-  $\sigma_{\prog}(\eqs)$ iff $\toeq{\prog} \wedge \eqs$ and $\sigma_{\prog}(\eqs_1) \models \sigma_{\prog}(\eqs_2)$ iff $\eqs_1 \wedge \toeq{\sigma_{\prog}} \models \eqs_2$.
+  \label{lemma-subn}
+  Given $\eqs_1$ and $\subn$ with $\vars(\eqs) \cap \dom(\subn) = \varnothing$ we have
+  $\eqs_1 \models \subn(\eqs_2)$ iff $\eqs_1 \models \toeq{\subn} \impl \eqs_2$ for
+  any $\eqs_2$.
 \end{lemma}
+
+\begin{lemma}
+  \label{lemma-hardpacksubn}
+  Given $\eqs_1$, $\subn_1$, and $\subn_2$ with $\vars(\subn_1) \cap \dom(\subn_2)= \varnothing$
+  and $\vars(\eqs) \cap (\dom(\subn_1) \cup \dom(\subn_1)) = \varnothing$ we have
+  $\eqs_1 \models \subn_1(\eqs_2)$ implies $\eqs_1 \models \subn_1 \circ \subn_2(\eqs_2)$ for
+  any $\eqs_2$.
+\end{lemma}
+
+\begin{lemma}
+  Given $\htrip{\peq_1}{\cmd}{\peq_2},\peq$ with $\peq_1 \redx
+  \eqs_1$, $\peq_2 \redx \eqs_2$, $\peq \redx \eqs$, and $\cmd \redx
+  \prog$. Then given any $\eqs_0$ with $\vars(\eqs_0) \cap
+  \avars(\prog) = \varnothing$ and $\eqs_0 \models \eqs_1$ we have
+  $\htrip{\eqs_0}{\prog}{\eqs_2}$ is valid and there exists $\subn
+  \subseteq \subn_\prog$ such that $\toeq{\subn}$ iff $\eqs$.
+\end{lemma}
+
+\begin{proof}
+  By induction on the structure of $\cmd$.
+
+  \textit{Case} $\cmd = \cmd_1;\cmd_2$. In this case by assumption and
+  definition of $\TirName{Seq}$ we have:
+  \begin{mathpar}
+    \cmd_1 \redx \prog_1
+
+    \cmd_2 \redx \prog_2
+
+    \prog = \prog_1;\prog_2
+
+    \peq_1 \redx \eqs_1^1 \wedge ((\eqs_2^1 \impl \eqs_1^2) \vee (\eqs_1 \impl \eqs_1^2))
+      
+    \peq_2 \redx \eqs_2^1 \wedge \eqs_2^2
+
+    \peq \redx \eqs_1 \wedge \eqs_2
+  \end{mathpar}
+  and by inversion of the $\TirName{Seq}$ rule we have:
+  \begin{mathpar}
+    \htrip{\peq_1^1}{\cmd_1}{\peq_2^1},\peq_1
+
+    \htrip{\peq_1^2}{\cmd_2}{\peq_2^2},\peq_2
+  \end{mathpar}
+    Assume given $\eqs_0$ with $\vars(\eqs_0) \cap \avars(\prog) = \varnothing$ and
+  $\eqs_0 \models  \eqs_1^1 \wedge ((\eqs_2^1 \impl \eqs_1^2) \vee (\eqs_1 \impl \eqs_1^2))$.
+  Proceed by subcases to show $\htrip{\eqs_0}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$.
+
+  \textit{Subcase} $\eqs_0 \models  \eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)$. By the
+  induction hypothesis we have $\htrip{\eqs_0}{\prog_1}{\eqs_2^1}$, and by
+  \TirName{Frame} we have $\htrip{\eqs_0}{\prog_1}{\eqs_1^1 \wedge \eqs_2^1}$
+  \cnote{need to strengthen vars issue}.
+  But $\eqs_1^1 \wedge \peq_2^1 \models \eqs_1^2$ by assumption and standard reasoning,
+  so  $\htrip{\eqs_0}{\prog_1}{\eqs_1^2}$ by \TirName{Consequence}.
+  Since also by the induction hypothesis we have $\htrip{\eqs_1^2}{\prog_2}{\eqs_2^2}$,
+  and thus $\htrip{\eqs_1^2}{\prog_2}{\eqs_1^2 \wedge \eqs_2^2}$ by \TirName{Frame} \cnote{need to
+    strengthen vars issue (also in second subcase)},
+  by \TirName{Seq} we have $\htrip{\eqs_0}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$.
+  So this subcase holds.
+
+  \textit{Subcase} $\eqs_0 \models  \eqs_1^1 \wedge (\eqs_1 \impl \eqs_1^2)$.
+  By the induction hypothesis we have $\htrip{\eqs_0}{\prog_1}{\eqs_2^1}$,
+  and also by the induction hypothesis and Lemmas \ref{lemma-subn} and
+  \ref{lemma-hardpacksubn} we have $\eqs_0 \models \eqs_1^1 \wedge \subn_{\prog_1}(\eqs_1^2)$,
+  i.e., $\eqs_0$ iff $\eqs_0' \wedge \subn_{\prog_1}(\eqs_1^2)$ for some
+  $\eqs_0'$. Thus $\htrip{\eqs_0' \wedge \subn_{\prog_1}(\eqs_1^2)}{\prog_1}{\eqs_2^1}$
+  by \TirName{Consequence}, so also
+  $\htrip{\eqs_0' \wedge \subn_{\prog_1}(\eqs_1^2)}{\prog_1}{\eqs_2^1 \wedge \eqs_1^2}$
+  by \TirName{Assigns}. And by the induction hypothesis we
+  have $\htrip{\eqs_1^2}{\prog_2}{\eqs_2^2}$, and thus
+  $\htrip{\eqs_2^1 \wedge \eqs_1^2}{\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$ by \TirName{Frame}.
+  So by \TirName{Seq} we have $\htrip{\eqs_0}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$,
+  therefore this subcase holds.
+\end{proof}
