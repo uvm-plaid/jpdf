@@ -347,13 +347,13 @@ overhead.
 
     \instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
 
-    \peq \redx \eqs
-
     \peq_1 = \peq^0_1[\mv_1/y_1]\cdots[\mv_n/y_n]
 
     \peq_2 = \peq^0_2[\mv_1/y_1]\cdots[\mv_n/y_n]
+
+    \peq = \peq^0[\mv_1/y_1]\cdots[\mv_n/y_n]
     
-    \htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2},\peq
+    \htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2},\peq^0
   \end{mathpar}
   Now, the judgement $\htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2},\peq$
   follows by one or two subcases. Where it follows by \TirName{Fn} the result
@@ -369,8 +369,8 @@ overhead.
   thus sanity conditions on $\peq_1$ and the induction hypothesis
   entail $\htrip{\eqs_1}{\prog}{\eqs_2'}$. Also by inversion of
   \TirName{Hardpack} we have $\forall y_1:\tau_1,\ldots,y_n:\tau_n
-  . \peq_1 \models \peq \impl \peq_2$, implying
-  $\eqs_1 \models \eqs \wedge \eqs_2$. But then by Lemmas
+  . \peq_1 \models \peq_0 \impl \peq_2$, implying
+  $\eqs_1 \models \eqs \impl \eqs_2$. But then by Lemmas
   \ref{lemma-subn}, \ref{lemma-hardpacksubn}, and the induction
   hypothesis we have
   $\eqs_1 \models \subn_{\prog}(\eqs_2)$, thus
