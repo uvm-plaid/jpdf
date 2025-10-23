@@ -61,7 +61,7 @@ Derived rule:
 \end{mathpar}
 
 
-\subsection{$\metaprot$ Abstract Hoare Logic}
+\subsection{$\metaprot$ Automated Abstract Hoare Logic}
 
 Adding basic types to command function declarations to support generalize pre/post conditions. 
 
@@ -144,7 +144,8 @@ $$
   any $\eqs_2$.
 \end{lemma}
 
-\begin{lemma}
+\begin{lemma}[$\metaprot$ Hoare Triple Correctness]
+  \label{lemma-htrip}
   Given $\htrip{\peq_1}{\cmd}{\peq_2},\peq$ with $\peq_1 \redx
   \eqs_1$, $\peq_2 \redx \eqs_2$, $\peq \redx \eqs$, and $\cmd \redx
   \prog$. Then given any $\eqs_0$ with $\vars(\eqs_0) \cap
@@ -225,13 +226,13 @@ $$
   Proceed by subcases to show $\htrip{\eqs_0}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$.
 
   \textit{Subcase} $\eqs_0 \models  \eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)$. By the
-  induction hypothesis we have $\htrip{\eqs_0}{\prog_1}{\eqs_2^1}$, and by
-  \TirName{Frame} we have $\htrip{\eqs_0}{\prog_1}{\eqs_1^1 \wedge \eqs_2^1}$
-  \cnote{need to strengthen vars issue}.
-  But $\eqs_1^1 \wedge \peq_2^1 \models \eqs_1^2$ by assumption and standard reasoning,
+  induction hypothesis we have $\htrip{\eqs_0}{\prog_1}{\eqs_2^1}$, and since
+  $\vars(\eqs_0) \cap \avars(\prog_1)$ by assumption, by
+  \TirName{Frame} we have $\htrip{\eqs_0}{\prog_1}{\eqs_0 \wedge \eqs_2^1}$.
+  But then $\eqs_0 \wedge \eqs_2^1 \models \peq_1^2$ by standard reasoning,
   so  $\htrip{\eqs_0}{\prog_1}{\eqs_1^2}$ by \TirName{Consequence}.
   Since also by the induction hypothesis we have $\htrip{\eqs_1^2}{\prog_2}{\eqs_2^2}$,
-  and thus $\htrip{\eqs_1^2}{\prog_2}{\eqs_1^2 \wedge \eqs_2^2}$ by \TirName{Frame} \cnote{need to
+  and thus $\htrip{\eqs_1^2}{\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$ by \TirName{Frame} \cnote{need to
     strengthen vars issue (also in second subcase)},
   by \TirName{Seq} we have $\htrip{\eqs_0}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$.
   So this subcase holds.
