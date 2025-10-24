@@ -23,9 +23,9 @@ public class GenEntailVerifierTest {
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
         GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2"); // initialize counter = 0
         
-        assertEquals(new Str("$"), genEntailVerifier.genFreshValue(new StringType()));
-        assertEquals(new Str("$$"), genEntailVerifier.genFreshValue(new StringType()));
-        assertEquals(new Str("$$$"), genEntailVerifier.genFreshValue(new StringType()));         
+        assertEquals(new Str("$1"), genEntailVerifier.genFreshValue(new StringType()));
+        assertEquals(new Str("$2"), genEntailVerifier.genFreshValue(new StringType()));
+        assertEquals(new Str("$3"), genEntailVerifier.genFreshValue(new StringType()));         
     }
 
     /**
@@ -54,7 +54,7 @@ public class GenEntailVerifierTest {
         RecordType recordType = (RecordType) Loader.toType(src); // convert a string src into AST
         
         TreeMap<Identifier, Expr> map = new TreeMap<>();
-        map.put(new Identifier("s"), new Str("$$"));
+        map.put(new Identifier("s"), new Str("$2"));
         map.put(new Identifier("i"), new Num(-1));
         Object expected = new FieldExpr(map); 
         assertEquals(expected, genEntailVerifier.genFreshValue(recordType));
@@ -74,7 +74,7 @@ public class GenEntailVerifierTest {
         RecordType recordType = (RecordType) Loader.toType(src);
         
         TreeMap<Identifier, Expr> innermap = new TreeMap<>();
-        innermap.put(new Identifier("s"), new Str("$"));
+        innermap.put(new Identifier("s"), new Str("$1"));
         innermap.put(new Identifier("t2"), new FieldExpr(new TreeMap<>(Map.of(new Identifier("i"), new Num(-2)))));
         
         Object expected = new FieldExpr(new TreeMap<>(Map.of(new Identifier("t"), new FieldExpr(innermap))));

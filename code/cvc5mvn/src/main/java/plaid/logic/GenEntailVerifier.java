@@ -27,18 +27,11 @@ public class GenEntailVerifier {
     }
     
     private Str genFreshString(){
-        Character c = (char) (36); // $
-        String freshStr = String.valueOf(c).repeat(Math.max(0, counter));
-        counter = counter + 1;
-
-        // return a string of length counter
-        return new Str(freshStr);
+        return new Str("$" + counter++);
     }
 
     private Num genFreshCID() {
-        int freshID = -(counter);
-        counter++;
-        return new Num(freshID);
+        return new Num(-counter++);
     }
 
     public Expr genFreshValue(Type type) {
@@ -89,10 +82,9 @@ public class GenEntailVerifier {
 
             return verifier.entails(groundE1Term, groundE2Term);
         }
-        
-        else{
+        else {
             throw new RuntimeException("constraints with fresh values are not ground!");
         }
-
     }
+
 }
