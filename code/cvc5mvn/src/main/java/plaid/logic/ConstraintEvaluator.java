@@ -49,9 +49,7 @@ public class ConstraintEvaluator {
             case ConcatExpr ce -> {
                 
                 // if both sub-terms are strings, concatenate directly 
-                if(toOverture(ce.e1()) instanceof Str && toOverture(ce.e2()) instanceof Str) {
-                    Str s1 = (Str) toOverture(ce.e1());
-                    Str s2 = (Str) toOverture(ce.e2());
+                if(toOverture(ce.e1()) instanceof Str s1 && toOverture(ce.e2()) instanceof Str s2) {
                     yield new Str(s1.str() + s2.str());
                 }
                 
