@@ -1,6 +1,6 @@
 package plaid.ast
 
-// TODO FunctionCallExpr maybe should be separate for constraints?
+// TODO FunctionCallExpr, Identifier maybe should be separate for constraints?
 
 trait Expr extends Node
 case class AtExpr(e1: Expr, e2: Expr) extends Expr
@@ -21,3 +21,7 @@ case class PublicExpr(e: Expr) extends Expr
 case class SecretExpr(e: Expr) extends Expr
 case class Str(str: String) extends Expr
 case class TimesExpr(e1: Expr, e2: Expr) extends Expr
+
+case class Identifier(name: String) extends Expr, ConstraintExpr, java.lang.Comparable[Identifier] {
+  override def compareTo(other: Identifier): Int = name.compareTo(other.name)
+}
