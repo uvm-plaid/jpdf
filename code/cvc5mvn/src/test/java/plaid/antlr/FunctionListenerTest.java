@@ -115,8 +115,8 @@ public class FunctionListenerTest {
                 new Identifier("f"),
                 List.of(),
                 new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new AtExpr(new Num(3), new Num(1))),
-                new TrueConstraintExpr(),
-                new EqualConstraintExpr(new AtExpr(new OutputExpr(), new Num(1)), new Num(3)) 
+                new TrueConstraint(),
+                new EqualConstraint(new AtExpr(new OutputExpr(), new Num(1)), new Num(3)) 
         );
         
         assertFunctions(src, List.of(), List.of(f));

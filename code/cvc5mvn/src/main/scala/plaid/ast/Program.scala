@@ -5,8 +5,8 @@ case class Program(
                     commandFunctions: java.util.List[CommandFunction],
                     exprFunctions: java.util.List[ExprFunction],
                     constraintFunctions: java.util.List[ConstraintFunction],
-                    precondition: ConstraintExpr,
-                    postcondition: ConstraintExpr) extends Node{
+                    precondition: Constraint,
+                    postcondition: Constraint) extends Node{
 
   def resolveExprFunction(functionName : Expr):ExprFunction = {
     exprFunctions.asScala.find(x => x.fname == functionName).get

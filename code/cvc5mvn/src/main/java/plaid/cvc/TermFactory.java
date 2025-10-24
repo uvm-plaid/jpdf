@@ -167,12 +167,12 @@ public class TermFactory {
     /**
      * translate constraint expressions to CVC5 Term
      */
-    public Term constraintToTerm(ConstraintExpr expr){
+    public Term constraintToTerm(Constraint expr){
         return switch (expr) {
-            case NotConstraintExpr x -> termManager.mkTerm(Kind.NOT, constraintToTerm(x.e()));
-            case AndConstraintExpr x -> termManager.mkTerm(Kind.AND, constraintToTerm(x.e1()), constraintToTerm(x.e2()));
-            case EqualConstraintExpr x -> termManager.mkTerm(Kind.EQUAL, toTerm(x.e1()), toTerm(x.e2()));
-            case TrueConstraintExpr x -> termManager.mkTrue();
+            case NotConstraint x -> termManager.mkTerm(Kind.NOT, constraintToTerm(x.e()));
+            case AndConstraint x -> termManager.mkTerm(Kind.AND, constraintToTerm(x.e1()), constraintToTerm(x.e2()));
+            case EqualConstraint x -> termManager.mkTerm(Kind.EQUAL, toTerm(x.e1()), toTerm(x.e2()));
+            case TrueConstraint x -> termManager.mkTrue();
             default -> throw new IllegalArgumentException("cannot convert" + expr.getClass().getName() + "into CVC5 term");
         };
     }

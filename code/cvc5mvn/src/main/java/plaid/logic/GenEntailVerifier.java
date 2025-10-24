@@ -65,7 +65,7 @@ public class GenEntailVerifier {
      * @param e2 abstract postcondition
      * @return true/false
      */
-    public boolean genEntails(List<TypedIdentifier> typings, ConstraintExpr e1, ConstraintExpr e2) {
+    public boolean genEntails(List<TypedIdentifier> typings, Constraint e1, Constraint e2) {
         Map<Identifier, Expr> bindingList = new HashMap<>();
         
         // generate fresh values for variables 
@@ -76,8 +76,8 @@ public class GenEntailVerifier {
         // evalConstraint abstractConstraints into ground constraint
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         evaluator.binding_list.add(bindingList);
-        ConstraintExpr groundE1 = evaluator.evalConstraint(e1); 
-        ConstraintExpr groundE2 =  evaluator.evalConstraint(e2);
+        Constraint groundE1 = evaluator.evalConstraint(e1); 
+        Constraint groundE2 =  evaluator.evalConstraint(e2);
         evaluator.binding_list.removeLast();
 
         // check if groundE1 and groundE2 are in fact ground

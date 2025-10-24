@@ -120,13 +120,13 @@ public class ExpressionVisitorTest {
      */
     @Test
     public void functionCall() {
-        assertEquals(new FunctionCallExpr(
+        assertEquals(new FunctionCall(
                 new Identifier("f"),
                 List.of()), ast("f()"));
-        assertEquals(new FunctionCallExpr(
+        assertEquals(new FunctionCall(
                 new Identifier("f"),
                 List.of(new Num(0))), ast("f(0)"));
-        assertEquals(new FunctionCallExpr(
+        assertEquals(new FunctionCall(
                 new Identifier("f"),
                 List.of(new Num(0), new Identifier("x"))), ast("f(0, x)"));
     }

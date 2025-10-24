@@ -93,7 +93,7 @@ public class ConstraintEvaluator {
 
                 yield result;
             }
-            case FunctionCallExpr fe -> {
+            case FunctionCall fe -> {
                 // evalConstraint the parameters first
                 List<Expr> actualParams = fe
                         .parameters()
@@ -201,12 +201,12 @@ public class ConstraintEvaluator {
      * @return constraints
      */
 
-    public ConstraintExpr evalConstraint(ConstraintExpr e) {
+    public Constraint evalConstraint(Constraint e) {
         return switch (e) {
-            case AndConstraintExpr x -> new AndConstraintExpr(evalConstraint(x.e1()), evalConstraint(x.e2()));
-            case NotConstraintExpr x -> new NotConstraintExpr(evalConstraint(x.e()));
-            case EqualConstraintExpr x -> new EqualConstraintExpr(toOverture(x.e1()), toOverture(x.e2()));
-            case FunctionCallExpr x -> {
+            case AndConstraint x -> new AndConstraint(evalConstraint(x.e1()), evalConstraint(x.e2()));
+            case NotConstraint x -> new NotConstraint(evalConstraint(x.e()));
+            case EqualConstraint x -> new EqualConstraint(toOverture(x.e1()), toOverture(x.e2()));
+            case FunctionCall x -> {
                 ConstraintFunction function = program.resolveConstraintFunction(x.fname());
                 List<Identifier> formalParams = function.params();
                 List<Expr> actualParams = x
@@ -221,12 +221,12 @@ public class ConstraintEvaluator {
                 }
 
                 binding_list.add(bindings);
-                ConstraintExpr result = evalConstraint(function.body());
+                Constraint result = evalConstraint(function.body());
                 binding_list.removeLast();
 
                 yield result;
             }
-            case TrueConstraintExpr x -> x;
+            case TrueConstraint x -> x;
             default -> throw new IllegalArgumentException("Bad constraint");
         };
     }

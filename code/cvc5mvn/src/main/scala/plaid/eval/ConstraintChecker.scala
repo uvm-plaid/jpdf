@@ -10,9 +10,9 @@ object ConstraintChecker {
    * let us recursively explore the full AST
    */
   private def children(n: Node): Iterable[Node] = n match {
-    case AndConstraintExpr(e1, e2) => Iterable(e1, e2)
-    case EqualConstraintExpr(e1, e2) => Iterable(e1, e2)
-    case TrueConstraintExpr() => Iterable()
+    case AndConstraint(e1, e2) => Iterable(e1, e2)
+    case EqualConstraint(e1, e2) => Iterable(e1, e2)
+    case TrueConstraint() => Iterable()
     case PlusExpr(e1, e2) => Iterable(e1, e2)
     case MinusExpr(e) => Iterable(e)
     case TimesExpr(e1, e2) => Iterable(e1, e2)
@@ -32,9 +32,9 @@ object ConstraintChecker {
    * valid constraint node type
    */
   private def constraintNodeTypes(n: Node) = recurse(n, {
-    case AndConstraintExpr(_, _) => true
-    case EqualConstraintExpr(_, _) => true
-    case TrueConstraintExpr() => true
+    case AndConstraint(_, _) => true
+    case EqualConstraint(_, _) => true
+    case TrueConstraint() => true
     case PlusExpr(_, _) => true
     case MinusExpr(_) => true
     case TimesExpr(_, _) => true
@@ -89,7 +89,7 @@ object ConstraintChecker {
   })
 
 
-  def checkConstraint(constraint: ConstraintExpr): Boolean = {
+  def checkConstraint(constraint: Constraint): Boolean = {
       constraintNodeTypes(constraint) &&
       memoryIndexesAreStrings(constraint) &&
       partyIndexesAreNumbers(constraint) &&

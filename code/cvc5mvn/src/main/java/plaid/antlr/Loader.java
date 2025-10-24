@@ -66,7 +66,7 @@ public class Loader {
      * @param ctx ANTLR context
      * @return Abstract syntax tree for expressions
      */
-    public static ConstraintExpr toConstraintExpression(ConstraintExprContext ctx){
+    public static Constraint toConstraintExpression(ConstraintExprContext ctx){
         return new ConstraintExpressionVisitor().visit(ctx);
     }
 
@@ -75,7 +75,7 @@ public class Loader {
      * @param src String source code
      * @return abstract syntax tree
      */
-    public static ConstraintExpr toConstraintExpression(String src){
+    public static Constraint toConstraintExpression(String src){
         return toConstraintExpression(createParser(src).constraintExpr());
     }
 
@@ -108,8 +108,8 @@ public class Loader {
         FunctionListener listener = new FunctionListener();
         new ParseTreeWalker().walk(listener, ctx);
         
-        ConstraintExpr precondition =  ctx.precondsection() == null? null : toConstraintExpression(ctx.precondsection().constraintExpr());
-        ConstraintExpr postcondition = ctx.postcondsection() == null? null : toConstraintExpression(ctx.postcondsection().constraintExpr()); 
+        Constraint precondition =  ctx.precondsection() == null? null : toConstraintExpression(ctx.precondsection().constraintExpr());
+        Constraint postcondition = ctx.postcondsection() == null? null : toConstraintExpression(ctx.postcondsection().constraintExpr()); 
         return new Program(listener.getCommandFunctions(), listener.getExprFunctions(), listener.getConstraintFunctions(), precondition, postcondition);
     }
 

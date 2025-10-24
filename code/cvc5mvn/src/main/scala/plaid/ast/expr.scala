@@ -7,7 +7,7 @@ case class AtExpr(e1: Expr, e2: Expr) extends Expr
 case class ConcatExpr(e1: Expr, e2: Expr) extends Expr
 case class FieldExpr(elements: java.util.TreeMap[Identifier, Expr]) extends Expr
 case class FieldSelectExpr(e: Expr, l: Identifier) extends Expr
-case class FunctionCallExpr(fname: Identifier, parameters: java.util.List[Expr]) extends Expr, ConstraintExpr
+case class FunctionCall(fname: Identifier, parameters: java.util.List[Expr]) extends Expr, Constraint
 case class LetExpr(y: Identifier, e1: Expr, e2: Expr) extends Expr
 case class MessageExpr(e: Expr) extends Expr
 case class RandomExpr(e: Expr) extends Expr
@@ -22,6 +22,6 @@ case class SecretExpr(e: Expr) extends Expr
 case class Str(str: String) extends Expr
 case class TimesExpr(e1: Expr, e2: Expr) extends Expr
 
-case class Identifier(name: String) extends Expr, ConstraintExpr, java.lang.Comparable[Identifier] {
+case class Identifier(name: String) extends Expr, Constraint, java.lang.Comparable[Identifier] {
   override def compareTo(other: Identifier): Int = name.compareTo(other.name)
 }

@@ -1,24 +1,24 @@
 package plaid.logic;
 
-import plaid.ast.ConstraintExpr;
+import plaid.ast.Constraint;
 
 public class Constraints {
-    ConstraintExpr precondition;
-    ConstraintExpr postcondition;
+    Constraint precondition;
+    Constraint postcondition;
 
     // constructor
-    public Constraints(ConstraintExpr precondition, ConstraintExpr postcondition){
+    public Constraints(Constraint precondition, Constraint postcondition){
         this.precondition = precondition;
         this.postcondition = postcondition;
     }
     
     // return precondition
-    public ConstraintExpr getPre(){
+    public Constraint getPre(){
         return precondition;
     }
     
     // return postcondition
-    public ConstraintExpr getPost(){
+    public Constraint getPost(){
         return postcondition;
     }
 }

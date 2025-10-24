@@ -8,7 +8,7 @@ public class ConstraintExpressionVisitorTest {
     /**
      * converts string src code into AST
      */
-    private ConstraintExpr ast(String src){return Loader.toConstraintExpression(src);}
+    private Constraint ast(String src){return Loader.toConstraintExpression(src);}
 
     /**
      * parses equal constraints
@@ -17,7 +17,7 @@ public class ConstraintExpressionVisitorTest {
     public void equalExpr(){
         Node expr = ast("m[\"z\"]@1 + m[\"z\"]@2 == (m[\"x\"]@1 + m[\"x\"]@2) * (m[\"y\"]@1 + m[\"y\"]@2)");
         assertEquals(
-                new EqualConstraintExpr(
+                new EqualConstraint(
                         new PlusExpr(
                                 new AtExpr(new MessageExpr(new Str("z")), new Num(1)),
                                 new AtExpr(new MessageExpr(new Str("z")), new Num(2))),
@@ -32,8 +32,8 @@ public class ConstraintExpressionVisitorTest {
      */
     @Test
     public void andConstraints(){
-        Node expected_expr = new AndConstraintExpr(new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("z")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(1))),
-                new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("y")), new Num(2)), new AtExpr(new MessageExpr(new Str("y")), new Num(2))));
+        Node expected_expr = new AndConstraint(new EqualConstraint(new AtExpr(new MessageExpr(new Str("z")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(1))),
+                new EqualConstraint(new AtExpr(new MessageExpr(new Str("y")), new Num(2)), new AtExpr(new MessageExpr(new Str("y")), new Num(2))));
         Node actual_expr = ast("(m[\"z\"]@1==m[\"z\"]@1) AND (m[\"y\"]@2 == m[\"y\"]@2)");
 
         assertEquals(expected_expr, actual_expr);
@@ -44,7 +44,7 @@ public class ConstraintExpressionVisitorTest {
      */
     @Test
     public void notConstraints(){
-        Node expected_expr = new NotConstraintExpr(new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("z")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(1))));
+        Node expected_expr = new NotConstraint(new EqualConstraint(new AtExpr(new MessageExpr(new Str("z")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(1))));
         Node actual_expr = ast("NOT(m[\"z\"]@1==m[\"z\"]@1)");
         assertEquals(expected_expr, actual_expr);
     }
@@ -68,11 +68,11 @@ public class ConstraintExpressionVisitorTest {
         // c1 AND (c2 AND c3)  
         Node constraint = ast("m[\"x\"]@1 == m[\"z\"]@3 AND (m[\"x\"]@1 == m[\"y\"]@2 AND m[\"z\"]@3 == m[\"w\"]@4)");
         assertEquals(
-                new AndConstraintExpr(
-                        new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(3))), 
-                        new AndConstraintExpr(
-                                new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("y")), new Num(2))), 
-                                new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("z")), new Num(3)), new AtExpr(new MessageExpr(new Str("w")), new Num(4))))),
+                new AndConstraint(
+                        new EqualConstraint(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(3))), 
+                        new AndConstraint(
+                                new EqualConstraint(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("y")), new Num(2))), 
+                                new EqualConstraint(new AtExpr(new MessageExpr(new Str("z")), new Num(3)), new AtExpr(new MessageExpr(new Str("w")), new Num(4))))),
                 
                 constraint);
         
@@ -86,9 +86,9 @@ public class ConstraintExpressionVisitorTest {
         // NOT c1 AND c2 
         Node constraint = ast("NOT m[\"x\"]@1 == m[\"z\"]@3 AND m[\"x\"]@1 == m[\"y\"]@2");
         assertEquals(
-                new AndConstraintExpr(
-                        new NotConstraintExpr(new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(3)))), 
-                        new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("y")), new Num(2)))),
+                new AndConstraint(
+                        new NotConstraint(new EqualConstraint(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(3)))), 
+                        new EqualConstraint(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("y")), new Num(2)))),
                 constraint
         );
     }
@@ -101,7 +101,7 @@ public class ConstraintExpressionVisitorTest {
         // NOT e1 == e2
         // NOT (e1 == e2) 
         Node constraint = ast("NOT m[\"x\"]@1 == m[\"z\"]@3");
-        assertEquals(new NotConstraintExpr(new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(3)))),
+        assertEquals(new NotConstraint(new EqualConstraint(new AtExpr(new MessageExpr(new Str("x")), new Num(1)), new AtExpr(new MessageExpr(new Str("z")), new Num(3)))),
                 constraint);
         
     }

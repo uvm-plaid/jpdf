@@ -30,11 +30,11 @@ def prettyPrint(n: Node): String = n match {
   case TimesExpr(e1, e2) => s"(${prettyPrint(e1)} * ${prettyPrint(e2)})"
   case OTExpr(e1, i1, e2, e3) => s"OT(${prettyPrint(e1)}@${prettyPrint(i1)},${prettyPrint(e2)}, ${prettyPrint(e3)})"
   case OTFourExpr(s1, s2, i1, e1, e2, e3, e4) => s"OT4((${prettyPrint(s1)}, ${prettyPrint(s2)})@${prettyPrint(i1)}, ${prettyPrint(e1)}, ${prettyPrint(e2)}, ${prettyPrint(e3)}, ${prettyPrint(e4)})"
-  case AndConstraintExpr(e1, e2) => s"${prettyPrint(e1)} AND ${prettyPrint(e2)}"
-  case NotConstraintExpr(e) => s"NOT ${prettyPrint(e)}"
-  case EqualConstraintExpr(e1, e2) => s"${prettyPrint(e1)} == ${prettyPrint(e2)}"
-  case TrueConstraintExpr() => "T"
-  case FunctionCallExpr(i, es) => s"${prettyPrint(i)}(${String.join(", ", es.stream().map(prettyPrint).toList)})"
+  case AndConstraint(e1, e2) => s"${prettyPrint(e1)} AND ${prettyPrint(e2)}"
+  case NotConstraint(e) => s"NOT ${prettyPrint(e)}"
+  case EqualConstraint(e1, e2) => s"${prettyPrint(e1)} == ${prettyPrint(e2)}"
+  case TrueConstraint() => "T"
+  case FunctionCall(i, es) => s"${prettyPrint(i)}(${String.join(", ", es.stream().map(prettyPrint).toList)})"
   case null => ""
 
 }

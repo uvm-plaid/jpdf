@@ -35,7 +35,7 @@ public class ConstraintAnalyzerTest {
     public void inferAssignment() throws CVC5ApiException {
         String src = "m[x]@1 := (s[x]+r[x])@2";
         Constraints expected = new Constraints(
-                new TrueConstraintExpr(),
+                new TrueConstraint(),
                 Loader.toConstraintExpression("m[x]@1 == s[x]@2 + r[x]@2"));
         // element-wise equality check
         assertEquals(expected.getPre(),  inferPrePostCmd(src, "").getPre());
@@ -51,7 +51,7 @@ public class ConstraintAnalyzerTest {
     public void inferAssert() throws CVC5ApiException {
         String src = "assert (m[x] = m[y])@1";
 
-        Constraints expected = new Constraints(Loader.toConstraintExpression("m[x]@1 == m[y]@1"), new TrueConstraintExpr());
+        Constraints expected = new Constraints(Loader.toConstraintExpression("m[x]@1 == m[y]@1"), new TrueConstraint());
 
         assertEquals(expected.getPre(), inferPrePostCmd(src, "").getPre());
         assertEquals(expected.getPost(), inferPrePostCmd(src, "").getPost());
@@ -64,7 +64,7 @@ public class ConstraintAnalyzerTest {
     public void inferLet() throws CVC5ApiException {
         String src = "let i = 1 in m[x]@i := m[x]@2";
         Constraints expected = new Constraints(
-                new TrueConstraintExpr(),
+                new TrueConstraint(),
                 Loader.toConstraintExpression("m[x]@1 == m[x]@2"));
         assertEquals(expected.getPre(), inferPrePostCmd(src, "").getPre());
         assertEquals(expected.getPost(), inferPrePostCmd(src, "").getPost());
@@ -102,7 +102,7 @@ public class ConstraintAnalyzerTest {
         // what is  precondition of f(1)?
         Constraints expected = new Constraints(
                 Loader.toConstraintExpression("m[\"x\"]@1 == m[\"x\"]@1"),
-                new TrueConstraintExpr());
+                new TrueConstraint());
 
         Constraints actual = inferPrePostCmd("f(1)", program);
         assertEquals(expected.getPre(), actual.getPre());
@@ -225,7 +225,7 @@ public class ConstraintAnalyzerTest {
                 """; 
         
         Constraints expected = new Constraints(
-                new TrueConstraintExpr(),
+                new TrueConstraint(),
                 Loader.toConstraintExpression("m[x++\"sfoo\"]@1 == m[x++\"sfoo\"]@1")
         );
         

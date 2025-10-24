@@ -112,10 +112,10 @@ public class EvaluatorTest {
     @Test
     public void constraintEvaluationReducesConcatenation() {
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
-        ConstraintExpr expr = Loader.toConstraintExpression("2 == m[\"x\" ++ \"y\"]@1");
+        Constraint expr = Loader.toConstraintExpression("2 == m[\"x\" ++ \"y\"]@1");
         Evaluator evaluator = new Evaluator(program);
-        ConstraintExpr actual = evaluator.evalConstraint(expr);
-        ConstraintExpr expected = Loader.toConstraintExpression("2 == m[\"xy\"]@1");
+        Constraint actual = evaluator.evalConstraint(expr);
+        Constraint expected = Loader.toConstraintExpression("2 == m[\"xy\"]@1");
         assertEquals(expected, actual);
     }
 
@@ -126,10 +126,10 @@ public class EvaluatorTest {
     @Test
     public void constraintEvaluationPreludeFunctions() {
         Program program = Loader.toProgram("exprfunctions: f(i) {out@i}");
-        ConstraintExpr expr = Loader.toConstraintExpression("f(1) == 2");
+        Constraint expr = Loader.toConstraintExpression("f(1) == 2");
         Evaluator evaluator = new Evaluator(program);
-        ConstraintExpr actual = evaluator.evalConstraint(expr);
-        ConstraintExpr expected = Loader.toConstraintExpression("out@1 == 2");
+        Constraint actual = evaluator.evalConstraint(expr);
+        Constraint expected = Loader.toConstraintExpression("out@1 == 2");
         assertEquals(expected, actual);
     }
 
@@ -164,10 +164,10 @@ public class EvaluatorTest {
     @Test
     public void constraintValuedFunctions() {
         Program program = Loader.toProgram("constraintfunctions: g(i) {3 == out@i}");
-        ConstraintExpr expr = Loader.toConstraintExpression("NOT g(1)");
+        Constraint expr = Loader.toConstraintExpression("NOT g(1)");
         Evaluator evaluator = new Evaluator(program);
-        ConstraintExpr actual = evaluator.evalConstraint(expr);
-        ConstraintExpr expected = Loader.toConstraintExpression("NOT (3 == out@1)");
+        Constraint actual = evaluator.evalConstraint(expr);
+        Constraint expected = Loader.toConstraintExpression("NOT (3 == out@1)");
         assertEquals(expected, actual);
     }
 
@@ -178,10 +178,10 @@ public class EvaluatorTest {
     @Test
     public void constraintValuedFunctionsContainPrelude() {
         Program program = Loader.toProgram("exprfunctions: f(i) {out@i} constraintfunctions: g(i) {3 == f(i)}");
-        ConstraintExpr expr = Loader.toConstraintExpression("NOT g(1)");
+        Constraint expr = Loader.toConstraintExpression("NOT g(1)");
         Evaluator evaluator = new Evaluator(program);
-        ConstraintExpr actual = evaluator.evalConstraint(expr);
-        ConstraintExpr expected = Loader.toConstraintExpression("NOT (3 == out@1)");
+        Constraint actual = evaluator.evalConstraint(expr);
+        Constraint expected = Loader.toConstraintExpression("NOT (3 == out@1)");
         assertEquals(expected, actual);
     }
 

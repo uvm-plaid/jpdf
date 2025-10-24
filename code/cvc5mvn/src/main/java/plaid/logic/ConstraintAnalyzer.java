@@ -43,15 +43,15 @@ public class ConstraintAnalyzer {
         else {
             // otherwise, use the hardpack
             // annotated precondition /\ inferred postcondition
-            ConstraintExpr pre =
+            Constraint pre =
                     function.precond() == null? constraints.getPost()
                     : constraints.getPost() == null? function.precond()
-                    : new AndConstraintExpr(function.precond(), constraints.getPost());
+                    : new AndConstraint(function.precond(), constraints.getPost());
             // inferred precondition /\ annotated postcondition
-            ConstraintExpr post =
+            Constraint post =
                     function.postcond() == null? constraints.getPre()
                     : constraints.getPre() == null ? function.postcond()
-                    : new AndConstraintExpr(constraints.getPre(), function.postcond());
+                    : new AndConstraint(constraints.getPre(), function.postcond());
             // take typings
             if (verifier.genEntails(function.typedVariables(), pre, post)){
                 functionConstraints.put(function.fname(), new Constraints(function.precond(), function.postcond()));
@@ -72,12 +72,12 @@ public class ConstraintAnalyzer {
         return switch(command){
             case AssignCommand assignCommand ->
                     new Constraints(
-                            new TrueConstraintExpr(),
-                            new EqualConstraintExpr(evaluator.toOverture(assignCommand.e1()), appendPartyIndex(evaluator.toOverture(assignCommand.e2()), null)));
+                            new TrueConstraint(),
+                            new EqualConstraint(evaluator.toOverture(assignCommand.e1()), appendPartyIndex(evaluator.toOverture(assignCommand.e2()), null)));
             case AssertCommand assertCommand ->
                     new Constraints(
-                            new EqualConstraintExpr(appendPartyIndex(evaluator.toOverture(assertCommand.e1()), evaluator.toOverture(assertCommand.e3())), appendPartyIndex(evaluator.toOverture(assertCommand.e2()), evaluator.toOverture(assertCommand.e3()))),
-                            new TrueConstraintExpr());
+                            new EqualConstraint(appendPartyIndex(evaluator.toOverture(assertCommand.e1()), evaluator.toOverture(assertCommand.e3())), appendPartyIndex(evaluator.toOverture(assertCommand.e2()), evaluator.toOverture(assertCommand.e3()))),
+                            new TrueConstraint());
             case LetCommand letCommand -> inferPrePostCmd(evaluator.evalInstruction(letCommand), evaluator);
             case CommandList commandList -> {
                 // visit each command and apply inferPrePostCmd
@@ -87,10 +87,10 @@ public class ConstraintAnalyzer {
                 constraints.add(inferPrePostCmd(commandList.c1(), evaluator));
                 constraints.add(inferPrePostCmd(commandList.c2(), evaluator));
 
-                Optional<ConstraintExpr> reducedPre =
-                        constraints.stream().map(Constraints::getPre).filter(Objects::nonNull).reduce(AndConstraintExpr::new);
-                Optional<ConstraintExpr> reducedPost =
-                        constraints.stream().map(Constraints::getPost).filter(Objects::nonNull).reduce(AndConstraintExpr::new);
+                Optional<Constraint> reducedPre =
+                        constraints.stream().map(Constraints::getPre).filter(Objects::nonNull).reduce(AndConstraint::new);
+                Optional<Constraint> reducedPost =
+                        constraints.stream().map(Constraints::getPost).filter(Objects::nonNull).reduce(AndConstraint::new);
                 yield new Constraints(reducedPre.orElse(null), reducedPost.orElse(null));
             }
 
@@ -107,8 +107,8 @@ public class ConstraintAnalyzer {
                 // give the binding of actual and formal parameters for constraints evaluation
                 evaluator.binding_list.add(binding(fn.typedVariables(), functionCallCommand.parameters()));
                 // use them for evaluation by the APP rule
-                ConstraintExpr pre = constraints.getPre() == null ? null : evaluator.evalConstraint(constraints.getPre());
-                ConstraintExpr post = constraints.getPost() == null ? null : evaluator.evalConstraint(constraints.getPost());
+                Constraint pre = constraints.getPre() == null ? null : evaluator.evalConstraint(constraints.getPre());
+                Constraint post = constraints.getPost() == null ? null : evaluator.evalConstraint(constraints.getPost());
                 evaluator.binding_list.removeLast();
                 yield new Constraints(pre, post);
                         

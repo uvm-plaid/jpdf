@@ -35,8 +35,8 @@ public class ExpressionVisitor extends PreludeBaseVisitor<Expr> {
     }
 
     @Override
-    public FunctionCallExpr visitFunctionCallExpr(FunctionCallExprContext ctx) {
-        return new FunctionCallExpr(
+    public FunctionCall visitFunctionCallExpr(FunctionCallExprContext ctx) {
+        return new FunctionCall(
                 new Identifier(ctx.ident().getText()),
                 ctx.expr().stream().map(this::visit).toList());
     }

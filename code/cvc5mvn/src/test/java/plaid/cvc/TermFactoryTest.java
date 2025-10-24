@@ -183,7 +183,7 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        ConstraintExpr ast = Loader.toConstraintExpression("m[\"foo\"]@3 == 5");
+        Constraint ast = Loader.toConstraintExpression("m[\"foo\"]@3 == 5");
         Term term = factory.constraintToTerm(ast);
         Verifier verifier = new Verifier(factory);
         Map<Term, Integer> actual = verifier.findModelSatisfying(term);
@@ -201,9 +201,9 @@ public class TermFactoryTest {
         TermFactory factory = new TermFactory(termManager, sort);
 
         // m["x"]@3 == r["y"]@5 AND r["y"]@5 == 1
-        ConstraintExpr ast = new AndConstraintExpr(
-                new EqualConstraintExpr(new AtExpr(new MessageExpr(new Str("x")), new Num(3)), new AtExpr(new RandomExpr(new Str("y")), new Num(5))),
-                new EqualConstraintExpr(new AtExpr(new RandomExpr(new Str("y")), new Num(5)), new Num(1)));
+        Constraint ast = new AndConstraint(
+                new EqualConstraint(new AtExpr(new MessageExpr(new Str("x")), new Num(3)), new AtExpr(new RandomExpr(new Str("y")), new Num(5))),
+                new EqualConstraint(new AtExpr(new RandomExpr(new Str("y")), new Num(5)), new Num(1)));
 
         Term term = factory.constraintToTerm(ast);
         Verifier verifier = new Verifier(factory);
@@ -223,8 +223,8 @@ public class TermFactoryTest {
 
         // NOT(m_foo_3 == 0)
         Term term = factory.constraintToTerm(
-                new NotConstraintExpr(
-                new EqualConstraintExpr(
+                new NotConstraint(
+                new EqualConstraint(
                         new AtExpr(new MessageExpr(new Str("foo")), new Num(3)),
                         new Num(0))));
 
@@ -243,7 +243,7 @@ public class TermFactoryTest {
         Sort sort = termManager.mkFiniteFieldSort("2", 10);
         TermFactory factory = new TermFactory(termManager, sort);
         
-        Term term = factory.constraintToTerm(new TrueConstraintExpr());
+        Term term = factory.constraintToTerm(new TrueConstraint());
         assertEquals(termManager.mkTrue() ,term);
     }
 
@@ -255,7 +255,7 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        ConstraintExpr ast = Loader.toConstraintExpression("out@1 == out@2 + 1 AND out@2 == out@3 + 2 AND out@3 == 4");
+        Constraint ast = Loader.toConstraintExpression("out@1 == out@2 + 1 AND out@2 == out@3 + 2 AND out@3 == 4");
         Term term = factory.constraintToTerm(ast);
         Verifier verifier = new Verifier(factory);
         Map<Term, Integer> actual = verifier.findModelSatisfying(term);

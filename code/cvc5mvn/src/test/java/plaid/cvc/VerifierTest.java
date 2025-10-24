@@ -4,18 +4,15 @@ import io.github.cvc5.CVC5ApiException;
 import io.github.cvc5.Sort;
 import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import plaid.antlr.Loader;
 import plaid.ast.AssignCommand;
-import plaid.ast.ConstraintExpr;
 import plaid.ast.PreludeCommand;
 import plaid.ast.Program;
 import plaid.eval.ProgramEvaluator;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
