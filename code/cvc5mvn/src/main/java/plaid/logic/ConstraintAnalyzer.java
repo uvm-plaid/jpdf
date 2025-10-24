@@ -32,8 +32,6 @@ public class ConstraintAnalyzer {
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         // infer the precondition and postcondition for the function using inferPrePostCmd
         Constraints constraints = inferPrePostCmd(function.c(), evaluator);
-        //System.out.println("Inferred pre for " + function.fname().name() + ": " + ScalaFunctions.prettyPrint(constraints.getPre()));
-        //System.out.println("Inferred post for " + function.fname().name() + ": "  + ScalaFunctions.prettyPrint(constraints.getPost()));
         // if the function does not have annotated pre/post conditions
         if (function.precond() == null && function.postcond() == null ){
             // then store inferred pre/post conditions and return them

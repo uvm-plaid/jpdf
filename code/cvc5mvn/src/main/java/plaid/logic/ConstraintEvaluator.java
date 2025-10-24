@@ -42,12 +42,12 @@ public class ConstraintEvaluator {
             case SecretExpr se -> new SecretExpr(toOverture(se.e()));
             case MessageExpr me -> new MessageExpr(toOverture(me.e()));
             case PublicExpr pe -> new PublicExpr(toOverture(pe.e()));
-            case OutputExpr oe -> new OutputExpr();
+            case OutputExpr oe -> oe;
 
             case TimesExpr te -> new TimesExpr(toOverture(te.e1()), toOverture(te.e2()));
             case PlusExpr pe -> new PlusExpr(toOverture(pe.e1()), toOverture(pe.e2()));
             case ConcatExpr ce -> {
-                
+                // TODO Is there a bug here? 
                 // if both sub-terms are strings, concatenate directly 
                 if(toOverture(ce.e1()) instanceof Str s1 && toOverture(ce.e2()) instanceof Str s2) {
                     yield new Str(s1.str() + s2.str());

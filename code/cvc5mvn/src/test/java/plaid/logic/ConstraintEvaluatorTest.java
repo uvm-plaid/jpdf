@@ -85,20 +85,22 @@ public class ConstraintEvaluatorTest {
 
         List<Identifier> parameters = List.of(new Identifier("x"), new Identifier("y"), new Identifier("z"));
         Expr expr =
-                Loader.toExpression("    let r11 = r[z] + (m[x] + 1) * (m[y] + 1) in\n" +
-                        "    let r10 = r[z] + (m[x] + 1) * (m[y] + 0) in\n" +
-                        "    let r01 = r[z] + (m[x] + 0) * (m[y] + 1) in\n" +
-                        "    let r00 = r[z] + (m[x] + 0) * (m[y] + 0) in\n" +
-                        "    { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }");
+                Loader.toExpression("""
+                            let r11 = r[z] + (m[x] + 1) * (m[y] + 1) in
+                            let r10 = r[z] + (m[x] + 1) * (m[y] + 0) in
+                            let r01 = r[z] + (m[x] + 0) * (m[y] + 1) in
+                            let r00 = r[z] + (m[x] + 0) * (m[y] + 0) in
+                            { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }\
+                        """);
         ExprFunction exprFunction = new ExprFunction(new Identifier("andtablegmw"), parameters, expr);
 
         Expr result = evalExpr("""
                 andtablegmw("foo", "bar", "barz")""", List.of(exprFunction));
         Expr expectedResult =
                 Loader.toExpression("""
-                        {row1 = r["barz"] + (m["foo"] + 1) * (m["bar"] + 1); 
-                        row2 = r["barz"] + (m["foo"] + 1) * (m["bar"] + 0); 
-                        row3 = r["barz"] + (m["foo"] + 0) * (m["bar"] + 1); 
+                        {row1 = r["barz"] + (m["foo"] + 1) * (m["bar"] + 1);
+                        row2 = r["barz"] + (m["foo"] + 1) * (m["bar"] + 0);
+                        row3 = r["barz"] + (m["foo"] + 0) * (m["bar"] + 1);
                         row4 = r["barz"] + (m["foo"] + 0) * (m["bar"] + 0) }""");
         assertEquals(expectedResult, result);
     }
@@ -251,19 +253,20 @@ public class ConstraintEvaluatorTest {
                 new TypedIdentifier(new Identifier("i1"), new PartyIndexType()),
                 new TypedIdentifier(new Identifier("i2"), new PartyIndexType()));
         Cmd functionBody =
-                Loader.toCommand("m[x++\"exts\"]@i1 := m[x++\"s\"]@i2;\n" +
-                        "m[x++\"extm\"]@i1 := m[x++\"m\"]@i2;\n" +
-                        "assert(m[x++\"extm\"] = m[x++\"k\"] + (m[\"delta\"] * m[x++\"exts\"]))@i1;\n" +
-                        "m[x]@i1 := (m[x++\"exts\"] + m[x++\"s\"])@i1");
+                Loader.toCommand("""
+                        m[x++"exts"]@i1 := m[x++"s"]@i2;
+                        m[x++"extm"]@i1 := m[x++"m"]@i2;
+                        assert(m[x++"extm"] = m[x++"k"] + (m["delta"] * m[x++"exts"]))@i1;
+                        m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1""");
         CommandFunction functionContext = new CommandFunction(new Identifier("_open"), formal_parameters, functionBody, null, null);
 
         // evalConstraint function body with function call
         Cmd command = evalCommand("_open(\"foo\", 1, 2)", List.of(functionContext));
-        assertEquals(Loader.toCommand("m[\"fooexts\"]@1 := m[\"foos\"]@2;\n" +
-                "m[\"fooextm\"]@1 := m[\"foom\"]@2;\n" +
-                "assert(m[\"fooextm\"] = m[\"fook\"] + (m[\"delta\"] * m[\"fooexts\"]))@1;\n" +
-                "m[\"foo\"]@1 := (m[\"fooexts\"] + m[\"foos\"])@1"), command);
-
+        assertEquals(Loader.toCommand("""
+                m["fooexts"]@1 := m["foos"]@2;
+                m["fooextm"]@1 := m["foom"]@2;
+                assert(m["fooextm"] = m["fook"] + (m["delta"] * m["fooexts"]))@1;
+                m["foo"]@1 := (m["fooexts"] + m["foos"])@1"""), command);
     }
 
 }

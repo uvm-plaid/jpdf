@@ -45,8 +45,8 @@ public class GenEntailVerifier {
 
     public Expr genFreshValue(Type type) {
         return switch (type) {
-            case StringType x -> genFreshString();
-            case PartyIndexType x -> genFreshCID();
+            case StringType _ -> genFreshString();
+            case PartyIndexType _ -> genFreshCID();
             case RecordType t -> {
                 TreeMap<Identifier, Expr> map = new java.util.TreeMap<>(Map.of());
                 for (Map.Entry<Identifier, Type> element : t.elements().entrySet()){
