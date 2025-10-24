@@ -66,21 +66,21 @@ public class TermFactory {
      * @return CVC5 Terms
      */
 
-    public Term toTerm(PreludeCommand command) {
+    public Term toTerm(Cmd command) {
         return switch (command) {
-            case CommandList x -> joinWithAnd(List.of(toTerm(x.c1()), toTerm(x.c2())));
-            case AssertCommand x -> {
+            case ListCmd x -> joinWithAnd(List.of(toTerm(x.c1()), toTerm(x.c2())));
+            case AssertCmd x -> {
                 Integer partyIndex = getPartyIndex(x);
                 yield joinWithAnd(List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1(), partyIndex), toTerm(x.e2(), partyIndex))));
             }
-            case AssignCommand x -> joinWithAnd(List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1()), toTerm(x.e2()))));
+            case AssignCmd x -> joinWithAnd(List.of(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1()), toTerm(x.e2()))));
             default -> throw new IllegalArgumentException("Not an overture command " + command.getClass().getName());
         };
     }
 
-    public static Integer getPartyIndex(PreludeCommand command) {
-        if (command instanceof AssertCommand) {
-            Expr indexExpr = ((AssertCommand) command).e3();
+    public static Integer getPartyIndex(Cmd command) {
+        if (command instanceof AssertCmd) {
+            Expr indexExpr = ((AssertCmd) command).e3();
             return ((Num) indexExpr).num();
         }
         return null;

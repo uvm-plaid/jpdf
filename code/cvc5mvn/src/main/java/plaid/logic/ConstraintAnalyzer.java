@@ -68,24 +68,24 @@ public class ConstraintAnalyzer {
     /**
      * using switch, create a recursive function that infers precondition and postcondition for each command
      */
-    public Constraints inferPrePostCmd(PreludeCommand command, ConstraintEvaluator evaluator) {
+    public Constraints inferPrePostCmd(Cmd command, ConstraintEvaluator evaluator) {
         return switch(command){
-            case AssignCommand assignCommand ->
+            case AssignCmd assignCmd ->
                     new Constraints(
                             new TrueConstraint(),
-                            new EqualConstraint(evaluator.toOverture(assignCommand.e1()), appendPartyIndex(evaluator.toOverture(assignCommand.e2()), null)));
-            case AssertCommand assertCommand ->
+                            new EqualConstraint(evaluator.toOverture(assignCmd.e1()), appendPartyIndex(evaluator.toOverture(assignCmd.e2()), null)));
+            case AssertCmd assertCmd ->
                     new Constraints(
-                            new EqualConstraint(appendPartyIndex(evaluator.toOverture(assertCommand.e1()), evaluator.toOverture(assertCommand.e3())), appendPartyIndex(evaluator.toOverture(assertCommand.e2()), evaluator.toOverture(assertCommand.e3()))),
+                            new EqualConstraint(appendPartyIndex(evaluator.toOverture(assertCmd.e1()), evaluator.toOverture(assertCmd.e3())), appendPartyIndex(evaluator.toOverture(assertCmd.e2()), evaluator.toOverture(assertCmd.e3()))),
                             new TrueConstraint());
-            case LetCommand letCommand -> inferPrePostCmd(evaluator.evalInstruction(letCommand), evaluator);
-            case CommandList commandList -> {
+            case LetCmd letCmd -> inferPrePostCmd(evaluator.evalInstruction(letCmd), evaluator);
+            case ListCmd listCmd -> {
                 // visit each command and apply inferPrePostCmd
                 // for each command's precondition, join them with And
                 // same for postcondition
                 List<Constraints> constraints = new ArrayList<>();
-                constraints.add(inferPrePostCmd(commandList.c1(), evaluator));
-                constraints.add(inferPrePostCmd(commandList.c2(), evaluator));
+                constraints.add(inferPrePostCmd(listCmd.c1(), evaluator));
+                constraints.add(inferPrePostCmd(listCmd.c2(), evaluator));
 
                 Optional<Constraint> reducedPre =
                         constraints.stream().map(Constraints::getPre).filter(Objects::nonNull).reduce(AndConstraint::new);
@@ -94,8 +94,8 @@ public class ConstraintAnalyzer {
                 yield new Constraints(reducedPre.orElse(null), reducedPost.orElse(null));
             }
 
-            case FunctionCallCommand functionCallCommand -> {
-                Identifier id = functionCallCommand.fname();
+            case CallCmd callCmd -> {
+                Identifier id = callCmd.fname();
                 CommandFunction fn = program.resolveCommandFunction(id);
 
                 // look up functionConstraints
@@ -105,7 +105,7 @@ public class ConstraintAnalyzer {
                 Constraints constraints = functionConstraints.get(id);
 
                 // give the binding of actual and formal parameters for constraints evaluation
-                evaluator.binding_list.add(binding(fn.typedVariables(), functionCallCommand.parameters()));
+                evaluator.binding_list.add(binding(fn.typedVariables(), callCmd.parameters()));
                 // use them for evaluation by the APP rule
                 Constraint pre = constraints.getPre() == null ? null : evaluator.evalConstraint(constraints.getPre());
                 Constraint post = constraints.getPost() == null ? null : evaluator.evalConstraint(constraints.getPost());

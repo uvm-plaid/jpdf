@@ -142,12 +142,12 @@ public class ConstraintEvaluator {
      * @param instr Prelude command
      * @return Overture 
      */
-    public PreludeCommand evalInstruction(PreludeCommand instr) {
+    public Cmd evalInstruction(Cmd instr) {
         return switch (instr) {
-            case AssignCommand assignCommand ->
-                    new AssignCommand(toOverture(assignCommand.e1()), toOverture(assignCommand.e2()));
+            case AssignCmd assignCmd ->
+                    new AssignCmd(toOverture(assignCmd.e1()), toOverture(assignCmd.e2()));
 
-            case FunctionCallCommand functionCall -> {
+            case CallCmd functionCall -> {
                 // evalConstraint actual parameters first
                 List<Expr> actual_parameters =
                         functionCall.parameters().stream().map(this::toOverture).toList();
@@ -164,31 +164,31 @@ public class ConstraintEvaluator {
                 binding_list.add(bindings);
 
                 // evalConstraint the function body with the actual parameters
-                PreludeCommand result = evalInstruction(function.c());
+                Cmd result = evalInstruction(function.c());
                 binding_list.removeLast(); 
 
                 yield result;
             }
 
-            case LetCommand letCommand -> {
+            case LetCmd letCmd -> {
                 // let y = e in c
                 // evalConstraint e
-                Expr v = toOverture(letCommand.e());
+                Expr v = toOverture(letCmd.e());
                 // let y = v in c
                 Map<Identifier, Expr> binding = new HashMap<>(binding_list.getLast());
-                binding.put(letCommand.y(), v);
+                binding.put(letCmd.y(), v);
                 binding_list.addLast(binding);
 
-                PreludeCommand result = evalInstruction(letCommand.c());
+                Cmd result = evalInstruction(letCmd.c());
                 binding_list.removeLast();
                 yield result;
             }
 
-            case CommandList commandList -> new CommandList(evalInstruction(commandList.c1()), evalInstruction(commandList.c2()));
+            case ListCmd listCmd -> new ListCmd(evalInstruction(listCmd.c1()), evalInstruction(listCmd.c2()));
             
 
-            case AssertCommand assertCommand ->
-                    new AssertCommand(toOverture(assertCommand.e1()), toOverture(assertCommand.e2()), toOverture(assertCommand.e3()));
+            case AssertCmd assertCmd ->
+                    new AssertCmd(toOverture(assertCmd.e1()), toOverture(assertCmd.e2()), toOverture(assertCmd.e3()));
 
             default -> throw new IllegalArgumentException("Bad instruction");
 

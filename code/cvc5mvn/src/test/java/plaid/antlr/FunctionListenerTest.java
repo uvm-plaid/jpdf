@@ -58,21 +58,21 @@ public class FunctionListenerTest {
         CommandFunction f = new CommandFunction(
                 new Identifier("f"),
                 List.of(),
-                new AssignCommand(new OutputExpr(), new Num(2)),
+                new AssignCmd(new OutputExpr(), new Num(2)),
                 null,
                 null);
 
         CommandFunction g = new CommandFunction(
                 new Identifier("g"),
                 List.of(new TypedIdentifier(new Identifier("x"), new StringType())),
-                new AssignCommand(new OutputExpr(), new Num(2)),
+                new AssignCmd(new OutputExpr(), new Num(2)),
                 null,
                 null);
 
         CommandFunction h = new CommandFunction(
                 new Identifier("h"),
                 List.of(new TypedIdentifier(new Identifier("x"), new StringType()), new TypedIdentifier(new Identifier("i"), new PartyIndexType())),
-                new AssignCommand(new OutputExpr(), new Num(2)),
+                new AssignCmd(new OutputExpr(), new Num(2)),
                 null,
                 null);
 
@@ -95,7 +95,7 @@ public class FunctionListenerTest {
         CommandFunction g = new CommandFunction(
                 new Identifier("g"),
                 List.of(),
-                new AssignCommand(new OutputExpr(), new Num(2)),
+                new AssignCmd(new OutputExpr(), new Num(2)),
                 null,null);
 
         assertFunctions(
@@ -114,7 +114,7 @@ public class FunctionListenerTest {
         CommandFunction f = new CommandFunction(
                 new Identifier("f"),
                 List.of(),
-                new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new AtExpr(new Num(3), new Num(1))),
+                new AssignCmd(new AtExpr(new OutputExpr(), new Num(1)), new AtExpr(new Num(3), new Num(1))),
                 new TrueConstraint(),
                 new EqualConstraint(new AtExpr(new OutputExpr(), new Num(1)), new Num(3)) 
         );

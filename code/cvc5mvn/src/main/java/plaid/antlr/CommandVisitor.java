@@ -6,46 +6,46 @@ import plaid.PreludeParser.AssignCommandContext;
 import plaid.PreludeParser.CommandListContext;
 import plaid.PreludeParser.FunctionCallCommandContext;
 import plaid.PreludeParser.LetCommandContext;
-import plaid.ast.AssertCommand;
-import plaid.ast.AssignCommand;
-import plaid.ast.CommandList;
-import plaid.ast.FunctionCallCommand;
+import plaid.ast.AssertCmd;
+import plaid.ast.AssignCmd;
+import plaid.ast.ListCmd;
+import plaid.ast.CallCmd;
 import plaid.ast.Identifier;
-import plaid.ast.LetCommand;
-import plaid.ast.PreludeCommand;
+import plaid.ast.LetCmd;
+import plaid.ast.Cmd;
 
-public class CommandVisitor extends PreludeBaseVisitor<PreludeCommand> {
+public class CommandVisitor extends PreludeBaseVisitor<Cmd> {
 
     @Override
-    public FunctionCallCommand visitFunctionCallCommand(FunctionCallCommandContext ctx) {
-        return new FunctionCallCommand(
+    public CallCmd visitFunctionCallCommand(FunctionCallCommandContext ctx) {
+        return new CallCmd(
                 new Identifier(ctx.ident().getText()),
                 ctx.expr().stream().map(Loader::toExpression).toList());
     }
 
     @Override
-    public AssignCommand visitAssignCommand(AssignCommandContext ctx) {
-        return new AssignCommand(
+    public AssignCmd visitAssignCommand(AssignCommandContext ctx) {
+        return new AssignCmd(
                 Loader.toExpression(ctx.expr(0)),
                 Loader.toExpression(ctx.expr(1)));
     }
 
     @Override
-    public AssertCommand visitAssertCommand(AssertCommandContext ctx) {
-        return new AssertCommand(
+    public AssertCmd visitAssertCommand(AssertCommandContext ctx) {
+        return new AssertCmd(
                 Loader.toExpression(ctx.expr(0)),
                 Loader.toExpression(ctx.expr(1)),
                 Loader.toExpression(ctx.expr(2)));
     }
 
     @Override
-    public CommandList visitCommandList(CommandListContext ctx) {
-        return new CommandList(visit(ctx.command(0)), visit(ctx.command(1)));
+    public ListCmd visitCommandList(CommandListContext ctx) {
+        return new ListCmd(visit(ctx.command(0)), visit(ctx.command(1)));
     }
 
     @Override
-    public LetCommand visitLetCommand(LetCommandContext ctx) {
-        return new LetCommand(
+    public LetCmd visitLetCommand(LetCommandContext ctx) {
+        return new LetCmd(
                 new Identifier(ctx.ident().getText()),
                 Loader.toExpression(ctx.expr()),
                 Loader.toCommand(ctx.command()));

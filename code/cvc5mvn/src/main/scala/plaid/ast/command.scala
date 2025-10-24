@@ -1,8 +1,8 @@
 package plaid.ast
 
-trait PreludeCommand extends Node
-case class AssertCommand(e1: Expr, e2: Expr, e3: Expr) extends PreludeCommand
-case class AssignCommand(e1: Expr, e2: Expr) extends PreludeCommand
-case class CommandList(c1: PreludeCommand, c2: PreludeCommand) extends PreludeCommand
-case class FunctionCallCommand(fname: Identifier, parameters: java.util.List[Expr]) extends PreludeCommand
-case class LetCommand(y: Identifier, e: Expr, c: PreludeCommand) extends PreludeCommand
+trait Cmd extends Node
+case class AssertCmd(e1: Expr, e2: Expr, e3: Expr) extends Cmd
+case class AssignCmd(e1: Expr, e2: Expr) extends Cmd
+case class ListCmd(c1: Cmd, c2: Cmd) extends Cmd
+case class CallCmd(fname: Identifier, parameters: java.util.List[Expr]) extends Cmd
+case class LetCmd(y: Identifier, e: Expr, c: Cmd) extends Cmd

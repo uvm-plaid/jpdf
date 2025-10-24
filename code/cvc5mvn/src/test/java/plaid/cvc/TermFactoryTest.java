@@ -103,9 +103,9 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        Term terms = factory.toTerm(new CommandList(
-                new AssertCommand(new OutputExpr(), new Num(1), new Num(3)),
-                new AssignCommand(new AtExpr(new OutputExpr(), new Num(1)), new Num(3))
+        Term terms = factory.toTerm(new ListCmd(
+                new AssertCmd(new OutputExpr(), new Num(1), new Num(3)),
+                new AssignCmd(new AtExpr(new OutputExpr(), new Num(1)), new Num(3))
         ));
         //assertEquals(2, terms.size());
     }
@@ -288,7 +288,7 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        factory.toTerm(new FunctionCallCommand(new Identifier("f"), List.of()));
+        factory.toTerm(new CallCmd(new Identifier("f"), List.of()));
     }
 
     /**
@@ -302,8 +302,8 @@ public class TermFactoryTest {
         
         TermFactory factory = new TermFactory(termManager, sort);
         // OT(m["x"]@3, r["y"], m["foo"])@2
-        PreludeCommand command0 = Loader.toCommand("out@1 := OT(0@1, 1, 0)@2");
-        PreludeCommand command1 = Loader.toCommand("out@1 := OT(1@1, 1, 0)@2");
+        Cmd command0 = Loader.toCommand("out@1 := OT(0@1, 1, 0)@2");
+        Cmd command1 = Loader.toCommand("out@1 := OT(1@1, 1, 0)@2");
         Verifier verifier = new Verifier(factory);
         
         //verifier.findModelSatisfying(verifier. factory.toTerm(command0));

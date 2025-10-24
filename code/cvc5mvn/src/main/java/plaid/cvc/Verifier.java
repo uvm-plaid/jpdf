@@ -5,7 +5,7 @@ import io.github.cvc5.Result;
 import io.github.cvc5.Solver;
 import io.github.cvc5.Term;
 import plaid.antlr.Loader;
-import plaid.ast.PreludeCommand;
+import plaid.ast.Cmd;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class Verifier {
         return satisfies(Loader.toCommand(src));
     }
 
-    public boolean satisfies(PreludeCommand command) {
+    public boolean satisfies(Cmd command) {
         Term e = termFactory.toTerm(command);
         return satisfies(e);
     }
@@ -108,7 +108,7 @@ public class Verifier {
      * @param c2 Overture
      * @return true/false
      */
-    public boolean equivalent(PreludeCommand c1, PreludeCommand c2) {
+    public boolean equivalent(Cmd c1, Cmd c2) {
         Term e1 = termFactory.toTerm(c1);
         Term e2 = termFactory.toTerm(c2);
 

@@ -1,16 +1,9 @@
 package plaid.eval;
 
 import io.github.cvc5.CVC5ApiException;
-import io.github.cvc5.Sort;
-import io.github.cvc5.TermManager;
-import org.junit.Ignore;
 import org.junit.Test;
 import plaid.antlr.Loader;
 import plaid.ast.*;
-import plaid.cvc.TermFactory;
-import plaid.cvc.Verifier;
-
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -78,7 +71,7 @@ public class ProgramEvaluatorTest {
                 """;
         Program src = Loader.toProgram(program);
         ProgramEvaluator programEvaluator = new ProgramEvaluator(src);
-        PreludeCommand actual_output = programEvaluator.eval();
+        Cmd actual_output = programEvaluator.eval();
 
         String expected_output_1 = """
                 m["x"]@1 := (s["x"] + r["x"])@2;
@@ -116,12 +109,12 @@ public class ProgramEvaluatorTest {
                 out@2 := (p["1"] + p["2"])@2
                 """;
 
-        CommandList expected_output =
-                new CommandList(
-                        new CommandList(
-                                new CommandList(
-                                        new CommandList(
-                                                new CommandList(
+        ListCmd expected_output =
+                new ListCmd(
+                        new ListCmd(
+                                new ListCmd(
+                                        new ListCmd(
+                                                new ListCmd(
                                                         Loader.toCommand(expected_output_1),
                                                         Loader.toCommand(expected_output_2)),
                                                 Loader.toCommand(expected_output_3)),

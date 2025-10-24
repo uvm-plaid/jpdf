@@ -7,10 +7,10 @@ import plaid.ast._
 object OvertureChecker {
 
   private def children(n: Node): Iterable[Node] = n match {
-    case AssertCommand(e1, e2, i) => Iterable(e1, e2, i)
-    case AssignCommand(e1, e2) => Iterable(e1, e2)
+    case AssertCmd(e1, e2, i) => Iterable(e1, e2, i)
+    case AssignCmd(e1, e2) => Iterable(e1, e2)
     case AtExpr(e, i) => Iterable(e, i)
-    case CommandList(c1, c2) => Iterable(c1, c2)
+    case ListCmd(c1, c2) => Iterable(c1, c2)
     case MessageExpr(s) => Iterable(s)
     case MinusExpr(e) => Iterable(e)
     case Num(_) => Iterable()
@@ -27,10 +27,10 @@ object OvertureChecker {
   }
 
   private def overtureNodeTypes(n: Node) = recurse(n, {
-    case AssertCommand(_, _, _) => true
-    case AssignCommand(_, _) => true
+    case AssertCmd(_, _, _) => true
+    case AssignCmd(_, _) => true
     case AtExpr(_, _) => true
-    case CommandList(_, _) => true
+    case ListCmd(_, _) => true
     case MessageExpr(_) => true
     case MinusExpr(_) => true
     case Num(_) => true
@@ -61,8 +61,8 @@ object OvertureChecker {
     case OTFourExpr(_, _, _, _, _, _, _) => false
     case AtExpr(_, Num(_)) => true
     case AtExpr(_, _) => false
-    case AssertCommand(_, _, Num(_)) => true
-    case AssertCommand(_, _, _) => false
+    case AssertCmd(_, _, Num(_)) => true
+    case AssertCmd(_, _, _) => false
     case _ => true
   })
 
@@ -79,37 +79,37 @@ object OvertureChecker {
   })
 
   private def assignmentAtsCoverRight(n: Node) = recurse(n, {
-    case AssignCommand(_, AtExpr(e, _)) => freeFromAts(e)
-    case AssignCommand(_, _) => false
+    case AssignCmd(_, AtExpr(e, _)) => freeFromAts(e)
+    case AssignCmd(_, _) => false
     case _ => true
   })
 
   private def assignmentLeftWellFormed(n: Node) = recurse(n, {
-    case AssignCommand(AtExpr(MessageExpr(_), _), _) => true
-    case AssignCommand(PublicExpr(_), _) => true
-    case AssignCommand(AtExpr(OutputExpr(), _), _) => true
-    case AssignCommand(_, _) => false
+    case AssignCmd(AtExpr(MessageExpr(_), _), _) => true
+    case AssignCmd(PublicExpr(_), _) => true
+    case AssignCmd(AtExpr(OutputExpr(), _), _) => true
+    case AssignCmd(_, _) => false
     case _ => true
   })
 
   private def outputPartyIndexesMatch(n: Node) = recurse(n, {
-    case AssignCommand(AtExpr(OutputExpr(), i1), AtExpr(_, i2)) => i1 == i2
+    case AssignCmd(AtExpr(OutputExpr(), i1), AtExpr(_, i2)) => i1 == i2
     case _ => true
   })
 
   private def otReceiverPartyIndexesMatch(n: Node) = recurse(n, {
-    case AssignCommand(AtExpr(_, i), AtExpr(OTExpr(_, i1, _, _), _)) => i == i1
-    case AssignCommand(AtExpr(_, i), AtExpr(OTFourExpr(_, _, i1, _, _, _, _), _)) => i == i1
+    case AssignCmd(AtExpr(_, i), AtExpr(OTExpr(_, i1, _, _), _)) => i == i1
+    case AssignCmd(AtExpr(_, i), AtExpr(OTFourExpr(_, _, i1, _, _, _, _), _)) => i == i1
     case _ => true
   })
 
   private def assertAtsNotNested(n: Node) = recurse(n, {
-    case AssertCommand(e1, e2, _) => freeFromAts(e1) && freeFromAts(e2)
+    case AssertCmd(e1, e2, _) => freeFromAts(e1) && freeFromAts(e2)
     case _ => true
   })
 
 
-  def checkOverture(protocol: PreludeCommand): Boolean =
+  def checkOverture(protocol: Cmd): Boolean =
     overtureNodeTypes(protocol) &&
     partyIndexesAreNumbers(protocol) &&
     memoryIndexesAreStrings(protocol) &&

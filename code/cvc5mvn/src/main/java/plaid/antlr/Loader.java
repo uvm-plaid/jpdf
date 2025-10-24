@@ -85,7 +85,7 @@ public class Loader {
      * @param ctx ANTLR4 context
      * @return Abstract syntax tree for a command
      */
-    public static PreludeCommand toCommand(CommandContext ctx) {
+    public static Cmd toCommand(CommandContext ctx) {
         return new CommandVisitor().visit(ctx);
     }
 
@@ -95,7 +95,7 @@ public class Loader {
      * @param src Source code
      * @return Abstract syntax tree for a command
      */
-    public static PreludeCommand toCommand(String src) {
+    public static Cmd toCommand(String src) {
         return toCommand(createParser(src).command());
     }
 

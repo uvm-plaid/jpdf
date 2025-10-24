@@ -2,11 +2,6 @@ package plaid.eval;
 
 import org.junit.Test;
 import plaid.antlr.Loader;
-import plaid.ast.PreludeCommand;
-import plaid.ast.Program;
-import scala.concurrent.impl.FutureConvertersImpl;
-
-import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

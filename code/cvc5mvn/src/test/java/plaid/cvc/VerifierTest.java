@@ -7,8 +7,8 @@ import io.github.cvc5.TermManager;
 import org.junit.Test;
 
 import plaid.antlr.Loader;
-import plaid.ast.AssignCommand;
-import plaid.ast.PreludeCommand;
+import plaid.ast.AssignCmd;
+import plaid.ast.Cmd;
 import plaid.ast.Program;
 import plaid.eval.ProgramEvaluator;
 
@@ -25,11 +25,11 @@ public class VerifierTest {
     private final TermFactory termFactory = new TermFactory(termManager, sort);
     private final Verifier verifier = new Verifier(termFactory);
 
-    private static PreludeCommand evaluates(String program){
+    private static Cmd evaluates(String program){
         return evaluates(Loader.toProgram(program));
     }
 
-    private static PreludeCommand evaluates(Program program){
+    private static Cmd evaluates(Program program){
         ProgramEvaluator evaluator = new ProgramEvaluator(program);
         return evaluator.eval();
     }
@@ -239,8 +239,8 @@ public class VerifierTest {
      */
     @Test
     public void oneCommandProtocolSatisfaction() {
-        PreludeCommand command = Loader.toCommand("out@1 := 1@1");
-        assertTrue(command instanceof AssignCommand);
+        Cmd command = Loader.toCommand("out@1 := 1@1");
+        assertTrue(command instanceof AssignCmd);
         assertTrue(verifier.satisfies(command));
     }
     

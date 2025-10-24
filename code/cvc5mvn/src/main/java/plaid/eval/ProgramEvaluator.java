@@ -2,7 +2,7 @@ package plaid.eval;
 
 import plaid.ast.CommandFunction;
 import plaid.ast.Identifier;
-import plaid.ast.PreludeCommand;
+import plaid.ast.Cmd;
 import plaid.ast.Program;
 
 public class ProgramEvaluator {
@@ -15,8 +15,8 @@ public class ProgramEvaluator {
     }
 
     // evalConstraint main method (command function)
-    public PreludeCommand eval() {
-        PreludeCommand commands = null;
+    public Cmd eval() {
+        Cmd commands = null;
         for (CommandFunction commandFunction : program.commandFunctions()) {
             if (commandFunction.fname().equals(new Identifier("main"))) {
                 commands = commandFunction.c();
