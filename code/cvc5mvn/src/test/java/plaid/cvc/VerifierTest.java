@@ -9,8 +9,6 @@ import org.junit.Test;
 import plaid.antlr.Loader;
 import plaid.ast.AssignCmd;
 import plaid.ast.Cmd;
-import plaid.ast.Program;
-import plaid.eval.ProgramEvaluator;
 
 import java.util.Collections;
 
@@ -24,15 +22,6 @@ public class VerifierTest {
     private final Sort sort = mkFiniteFieldSort(termManager, "7", 10);
     private final TermFactory termFactory = new TermFactory(termManager, sort);
     private final Verifier verifier = new Verifier(termFactory);
-
-    private static Cmd evaluates(String program){
-        return evaluates(Loader.toProgram(program));
-    }
-
-    private static Cmd evaluates(Program program){
-        ProgramEvaluator evaluator = new ProgramEvaluator(program);
-        return evaluator.eval();
-    }
 
     /**
      * satisfies a simple protocol.

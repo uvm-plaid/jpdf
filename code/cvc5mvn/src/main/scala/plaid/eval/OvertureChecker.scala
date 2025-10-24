@@ -1,7 +1,5 @@
 package plaid.eval
 
-import scala.jdk.CollectionConverters._
-
 import plaid.ast._
 
 object OvertureChecker {
@@ -116,7 +114,6 @@ object OvertureChecker {
     assignmentAtsCoverRight(protocol) &&
     assignmentLeftWellFormed(protocol) &&
     outputPartyIndexesMatch(protocol) &&
-      otReceiverPartyIndexesMatch(protocol) &&
+    otReceiverPartyIndexesMatch(protocol) &&
     assertAtsNotNested(protocol)
-
 }
