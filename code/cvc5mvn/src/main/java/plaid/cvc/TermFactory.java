@@ -5,7 +5,6 @@ import plaid.ast.*;
 
 import java.util.*;
 
-import static java.util.stream.StreamSupport.stream;
 import static plaid.cvc.CvcUtils.getCvcName;
 import static plaid.cvc.CvcUtils.mkFiniteFieldElem;
 
@@ -108,12 +107,6 @@ public class TermFactory {
     public Term toTerm(PreludeExpression expr) {
         return switch (expr) {
             case PublicExpr x -> lookupOrCreate(x, null);
-            case MemoryExpr x -> {
-                if (partyIndex == null) {
-                    throw new IllegalStateException("Party index for memory cannot be null");
-                }
-                yield lookupOrCreate(x, partyIndex);
-            }
             case AtExpr x -> {
                 if (partyIndex != null) {
                     throw new IllegalStateException("Party index " + partyIndex + " already active");
@@ -142,7 +135,12 @@ public class TermFactory {
                 Term fourth = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(s1), not(s2)), toTerm(x.e1()));
                 yield termManager.mkTerm(Kind.FINITE_FIELD_ADD, first, termManager.mkTerm(Kind.FINITE_FIELD_ADD, second, termManager.mkTerm(Kind.FINITE_FIELD_ADD, third, fourth)));
             }
-            default -> throw new IllegalArgumentException("Cannot convert " + expr.getClass().getName() + " to term");
+            case PreludeExpression x -> {
+                if (partyIndex == null) {
+                    throw new IllegalStateException("Party index for memory cannot be null");
+                }
+                yield lookupOrCreate(x, partyIndex);
+            }
         };
     }
 
@@ -152,7 +150,7 @@ public class TermFactory {
      * @param partyIndex
      * @return
      */
-    public Term lookupOrCreate(MemoryExpr expr, Integer partyIndex) {
+    public Term lookupOrCreate(PreludeExpression expr, Integer partyIndex) {
         String name = getCvcName(expr, partyIndex);
         Memory memory = memories
                 .stream()

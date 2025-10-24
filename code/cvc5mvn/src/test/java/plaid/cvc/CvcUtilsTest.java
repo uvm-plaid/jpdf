@@ -1,7 +1,6 @@
 package plaid.cvc;
 
 import org.junit.Test;
-import plaid.ast.MemoryExpr;
 import plaid.ast.MessageExpr;
 import plaid.ast.Num;
 import plaid.ast.OutputExpr;

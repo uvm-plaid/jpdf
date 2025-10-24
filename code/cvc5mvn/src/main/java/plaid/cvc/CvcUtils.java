@@ -4,7 +4,6 @@ import io.github.cvc5.CVC5ApiException;
 import io.github.cvc5.Sort;
 import io.github.cvc5.Term;
 import io.github.cvc5.TermManager;
-import plaid.ast.MemoryExpr;
 import plaid.ast.MessageExpr;
 import plaid.ast.Num;
 import plaid.ast.OutputExpr;
@@ -40,7 +39,7 @@ public class CvcUtils {
         }
     }
 
-    public static String getCvcName(MemoryExpr expr, Integer partyIndex) {
+    public static String getCvcName(PreludeExpression expr, Integer partyIndex) {
         return switch (expr) {
             case MessageExpr mem -> "m_" + toString(mem.e()) + "_" + partyIndex;
             case OutputExpr ignored -> "o_" + partyIndex;

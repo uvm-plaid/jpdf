@@ -1,7 +1,6 @@
 package plaid.cvc;
 
 import io.github.cvc5.Term;
-import plaid.ast.MemoryExpr;
 import plaid.ast.Node;
 
 
