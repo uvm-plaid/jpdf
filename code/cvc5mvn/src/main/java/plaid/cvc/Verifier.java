@@ -7,7 +7,6 @@ import io.github.cvc5.Term;
 import plaid.antlr.Loader;
 import plaid.ast.Cmd;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,59 +63,6 @@ public class Verifier {
         Term e1_entails_notE2 = termFactory.getTermManager().mkTerm(Kind.AND, e1, notE2);
         return !satisfies(e1_entails_notE2);
     }
-
-    public boolean entails(Collection<Term> e1s, Term e2) {
-        if (e1s.isEmpty()) {
-            return satisfies(e2);
-        } else if (e2 == null) {
-            return true;
-        } else {
-            return entails(termFactory.joinWithAnd(e1s), e2);
-        }
-    }
-
-    
-//    /**
-//     * check if an overture protocol entails a proposition
-//     * @param src1 String type of Overture, Prelude, Constraints
-//     * @param src2 String type of Constraint
-//     * @return true/false
-//     */
-//    public boolean entails(String src1, String src2){
-//        return entails(Loader.toCommand(src1), Loader.toConstraintExpression(src2));
-//    }
-//
-//    /**
-//     * check if an overture protocol entails a proposition (verify correctness)
-//     * @param command Overture
-//     * @param proposition Constraint
-//     * @return true/false
-//     */
-//    public boolean entails(PreludeCommand command, ConstraintExpr proposition){
-//        Term e1 = termFactory.toTerm(command);
-//        Term e2 = termFactory.constraintToTerm(proposition);
-//        return entails(e1, e2);
-//    }
-
-    public boolean equivalent(String src1, String src2){
-        return equivalent(Loader.toCommand(src1), Loader.toCommand(src2));
-    }
-
-    /**
-     * Two protocols are equivalent if they entail each other
-     * @param c1 Overture
-     * @param c2 Overture
-     * @return true/false
-     */
-    public boolean equivalent(Cmd c1, Cmd c2) {
-        Term e1 = termFactory.toTerm(c1);
-        Term e2 = termFactory.toTerm(c2);
-
-        return entails(e1, e2) && entails(e2, e1);
-    }
-
-
-
 
 }
 

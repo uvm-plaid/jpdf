@@ -161,53 +161,6 @@ public class VerifierTest {
         assertFalse(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_1))));
         assertFalse(verifier.entails(termFactory.toTerm(Loader.toCommand(protocol)), termFactory.constraintToTerm(Loader.toConstraintExpression(proposition_2))));
     }
-    
-
-    /**
-     * two protocols are equivalent
-     */
-    @Test
-    public void equivalent(){
-        String protocol_1 = """
-                m["x"]@2 := (s["x"] + r["x"] + r["loc"])@1;
-                m["x"]@3 := r["x"]@1
-                """;
-        String protocol_2 = """
-                m["x"]@3 := r["x"]@1;
-                m["x"]@2 := (s["x"] + r["x"] + r["loc"])@1
-                """;
-        assertTrue(verifier.equivalent(protocol_1, protocol_2));
-    }
-
-    /**
-     * two protocols are not equivalent
-     */
-    @Test
-    public void notEquivalent(){
-        String protocol_1 = """
-                m["x"]@2 := (s["x"] + r["x"] + r["loc"])@1;
-                m["x"]@3 := r["x"]@1
-                """;
-        String protocol_2 = """
-                r["x"]@1 := m["x"]@3
-                """;
-        assertFalse(verifier.equivalent(protocol_1, protocol_2));
-    }
-
-    /**
-     * The truth value when nothing entails some predicate depends on the
-     * truth value of the predicate.
-     */
-    @Test
-    public void nothingEntailsSomething() throws CVC5ApiException {
-        TermManager termManager = new TermManager();
-        Sort sort = termManager.mkFiniteFieldSort("7", 10);
-        TermFactory factory = new TermFactory(termManager, sort);
-        Term trueTerm = factory.toTerm(Loader.toCommand("out@1 := 1@1"));
-        assertTrue(verifier.entails(Collections.emptyList(), trueTerm));
-        Term falseTerm = factory.toTerm(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"));
-        assertFalse(verifier.entails(Collections.emptyList(), falseTerm));
-    }
 
     /**
      * The truth value when some predicate entails nothing is always true.
