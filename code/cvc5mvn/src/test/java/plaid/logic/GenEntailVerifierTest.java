@@ -53,7 +53,7 @@ public class GenEntailVerifierTest {
 
         RecordType recordType = (RecordType) Loader.toType(src); // convert a string src into AST
         
-        TreeMap<Identifier, PreludeExpression> map = new TreeMap<>();
+        TreeMap<Identifier, Expr> map = new TreeMap<>();
         map.put(new Identifier("s"), new Str("$$"));
         map.put(new Identifier("i"), new Num(-1));
         Object expected = new FieldExpr(map); 
@@ -73,7 +73,7 @@ public class GenEntailVerifierTest {
         
         RecordType recordType = (RecordType) Loader.toType(src);
         
-        TreeMap<Identifier, PreludeExpression> innermap = new TreeMap<>();
+        TreeMap<Identifier, Expr> innermap = new TreeMap<>();
         innermap.put(new Identifier("s"), new Str("$"));
         innermap.put(new Identifier("t2"), new FieldExpr(new TreeMap<>(Map.of(new Identifier("i"), new Num(-2)))));
         

@@ -80,7 +80,7 @@ public class TermFactory {
 
     public static Integer getPartyIndex(PreludeCommand command) {
         if (command instanceof AssertCommand) {
-            PreludeExpression indexExpr = ((AssertCommand) command).e3();
+            Expr indexExpr = ((AssertCommand) command).e3();
             return ((Num) indexExpr).num();
         }
         return null;
@@ -92,7 +92,7 @@ public class TermFactory {
      * @param partyIndex
      * @return
      */
-    public Term toTerm(PreludeExpression expr, Integer partyIndex) {
+    public Term toTerm(Expr expr, Integer partyIndex) {
         this.partyIndex = partyIndex;
         Term result = toTerm(expr);
         this.partyIndex = null;
@@ -104,7 +104,7 @@ public class TermFactory {
      * @param expr
      * @return
      */
-    public Term toTerm(PreludeExpression expr) {
+    public Term toTerm(Expr expr) {
         return switch (expr) {
             case PublicExpr x -> lookupOrCreate(x, null);
             case AtExpr x -> {
@@ -135,7 +135,7 @@ public class TermFactory {
                 Term fourth = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(s1), not(s2)), toTerm(x.e1()));
                 yield termManager.mkTerm(Kind.FINITE_FIELD_ADD, first, termManager.mkTerm(Kind.FINITE_FIELD_ADD, second, termManager.mkTerm(Kind.FINITE_FIELD_ADD, third, fourth)));
             }
-            case PreludeExpression x -> {
+            case Expr x -> {
                 if (partyIndex == null) {
                     throw new IllegalStateException("Party index for memory cannot be null");
                 }
@@ -150,7 +150,7 @@ public class TermFactory {
      * @param partyIndex
      * @return
      */
-    public Term lookupOrCreate(PreludeExpression expr, Integer partyIndex) {
+    public Term lookupOrCreate(Expr expr, Integer partyIndex) {
         String name = getCvcName(expr, partyIndex);
         Memory memory = memories
                 .stream()

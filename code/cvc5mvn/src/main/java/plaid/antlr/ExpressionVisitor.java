@@ -27,10 +27,10 @@ import static plaid.PreludeParser.StrContext;
 import static plaid.PreludeParser.TimesExprContext;
 import static plaid.PreludeParser.OTExprContext;
 
-public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
+public class ExpressionVisitor extends PreludeBaseVisitor<Expr> {
 
     @Override
-    public PreludeExpression visitParenPExpr(ParenPExprContext ctx) {
+    public Expr visitParenPExpr(ParenPExprContext ctx) {
         return visit(ctx.expr());
     }
 
@@ -53,7 +53,7 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
 
     @Override
     public FieldExpr visitFieldExpr(FieldExprContext ctx) {
-        TreeMap<Identifier, PreludeExpression> map = new TreeMap<>(ctx.flddecl().stream().collect(Collectors.toMap(
+        TreeMap<Identifier, Expr> map = new TreeMap<>(ctx.flddecl().stream().collect(Collectors.toMap(
                 x -> new Identifier(x.ident().getText()),
                 x -> visit(x.expr()))));
         
@@ -131,7 +131,7 @@ public class ExpressionVisitor extends PreludeBaseVisitor<PreludeExpression> {
     }
 
     @Override
-    public PreludeExpression visitOTFourExpr(PreludeParser.OTFourExprContext ctx) {
+    public Expr visitOTFourExpr(PreludeParser.OTFourExprContext ctx) {
         return new OTFourExpr(visit(ctx.expr(0)), visit(ctx.expr(1)), visit(ctx.expr(2)), visit(ctx.expr(3)), visit(ctx.expr(4)), visit(ctx.expr(5)), visit(ctx.expr(6)));
     }
 }

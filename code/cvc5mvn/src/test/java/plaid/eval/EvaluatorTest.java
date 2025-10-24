@@ -10,8 +10,8 @@ import static org.junit.Assert.assertEquals;
 
 public class EvaluatorTest {
 
-    private PreludeExpression evalExpr(String src, List<ExprFunction> exprFunctions) {
-        PreludeExpression ast = Loader.toExpression(src);
+    private Expr evalExpr(String src, List<ExprFunction> exprFunctions) {
+        Expr ast = Loader.toExpression(src);
         Evaluator evaluator = new Evaluator(new Program(List.of(), exprFunctions, List.of(), null, null));
         return evaluator.toOverture(ast);
     }
@@ -84,7 +84,7 @@ public class EvaluatorTest {
     public void evalfunctionCall() {
 
         List<Identifier> parameters = List.of(new Identifier("x"), new Identifier("y"), new Identifier("z"));
-        PreludeExpression expr =
+        Expr expr =
                 Loader.toExpression("    let r11 = r[z] + (m[x] + 1) * (m[y] + 1) in\n" +
                         "    let r10 = r[z] + (m[x] + 1) * (m[y] + 0) in\n" +
                         "    let r01 = r[z] + (m[x] + 0) * (m[y] + 1) in\n" +
@@ -92,9 +92,9 @@ public class EvaluatorTest {
                         "    { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }");
         ExprFunction exprFunction = new ExprFunction(new Identifier("andtablegmw"), parameters, expr);
 
-        PreludeExpression result = evalExpr("""
+        Expr result = evalExpr("""
                 andtablegmw("foo", "bar", "barz")""", List.of(exprFunction));
-        PreludeExpression expectedResult =
+        Expr expectedResult =
                 Loader.toExpression("""
                         {row1 = r["barz"] + (m["foo"] + 1) * (m["bar"] + 1); 
                         row2 = r["barz"] + (m["foo"] + 1) * (m["bar"] + 0); 

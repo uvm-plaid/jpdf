@@ -7,7 +7,7 @@ import io.github.cvc5.TermManager;
 import plaid.ast.MessageExpr;
 import plaid.ast.Num;
 import plaid.ast.OutputExpr;
-import plaid.ast.PreludeExpression;
+import plaid.ast.Expr;
 import plaid.ast.PublicExpr;
 import plaid.ast.RandomExpr;
 import plaid.ast.SecretExpr;
@@ -39,7 +39,7 @@ public class CvcUtils {
         }
     }
 
-    public static String getCvcName(PreludeExpression expr, Integer partyIndex) {
+    public static String getCvcName(Expr expr, Integer partyIndex) {
         return switch (expr) {
             case MessageExpr mem -> "m_" + toString(mem.e()) + "_" + partyIndex;
             case OutputExpr ignored -> "o_" + partyIndex;
@@ -50,14 +50,14 @@ public class CvcUtils {
         };
     }
 
-    public static int toInt(PreludeExpression expr) {
+    public static int toInt(Expr expr) {
         return switch (expr) {
             case Num num -> num.num();
             default -> throw new IllegalArgumentException("Must be number, found " + expr.getClass().getName());
         };
     }
 
-    public static String toString(PreludeExpression expr) {
+    public static String toString(Expr expr) {
         return switch (expr) {
             case Str str -> str.str();
             default -> throw new IllegalArgumentException("Must be string, found " + expr.getClass().getName());

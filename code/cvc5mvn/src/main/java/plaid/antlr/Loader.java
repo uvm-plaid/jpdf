@@ -47,7 +47,7 @@ public class Loader {
      * @param ctx ANTLR4 context
      * @return Abstract syntax tree for an expression
      */
-    public static PreludeExpression toExpression(ExprContext ctx) {
+    public static Expr toExpression(ExprContext ctx) {
         return new ExpressionVisitor().visit(ctx);
     }
 
@@ -57,7 +57,7 @@ public class Loader {
      * @param src Source code
      * @return Abstract syntax tree for an expression
      */
-    public static PreludeExpression toExpression(String src) {
+    public static Expr toExpression(String src) {
         return toExpression(createParser(src).expr());
     }
 

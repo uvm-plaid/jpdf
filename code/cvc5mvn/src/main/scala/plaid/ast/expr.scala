@@ -1,21 +1,23 @@
 package plaid.ast
 
-trait PreludeExpression extends Node
-case class AtExpr(e1: PreludeExpression, e2: PreludeExpression) extends PreludeExpression
-case class ConcatExpr(e1: PreludeExpression, e2: PreludeExpression) extends PreludeExpression
-case class FieldExpr(elements: java.util.TreeMap[Identifier, PreludeExpression]) extends PreludeExpression
-case class FieldSelectExpr(e: PreludeExpression, l: Identifier) extends PreludeExpression
-case class FunctionCallExpr(fname: Identifier, parameters: java.util.List[PreludeExpression]) extends PreludeExpression, ConstraintExpr
-case class LetExpr(y: Identifier, e1: PreludeExpression, e2: PreludeExpression) extends PreludeExpression
-case class MessageExpr(e: PreludeExpression) extends PreludeExpression
-case class RandomExpr(e: PreludeExpression) extends PreludeExpression
-case class MinusExpr(e: PreludeExpression) extends PreludeExpression
-case class Num(num: Int) extends PreludeExpression
-case class OTExpr(e1: PreludeExpression, i1: PreludeExpression, e2: PreludeExpression, e3: PreludeExpression) extends PreludeExpression
-case class OTFourExpr(s1: PreludeExpression, s2: PreludeExpression, i1: PreludeExpression, e1: PreludeExpression, e2: PreludeExpression, e3: PreludeExpression, e4: PreludeExpression) extends PreludeExpression
-case class OutputExpr() extends PreludeExpression
-case class PlusExpr(e1: PreludeExpression, e2: PreludeExpression) extends PreludeExpression
-case class PublicExpr(e: PreludeExpression) extends PreludeExpression
-case class SecretExpr(e: PreludeExpression) extends PreludeExpression
-case class Str(str: String) extends PreludeExpression
-case class TimesExpr(e1: PreludeExpression, e2: PreludeExpression) extends PreludeExpression
+// TODO FunctionCallExpr maybe should be separate for constraints?
+
+trait Expr extends Node
+case class AtExpr(e1: Expr, e2: Expr) extends Expr
+case class ConcatExpr(e1: Expr, e2: Expr) extends Expr
+case class FieldExpr(elements: java.util.TreeMap[Identifier, Expr]) extends Expr
+case class FieldSelectExpr(e: Expr, l: Identifier) extends Expr
+case class FunctionCallExpr(fname: Identifier, parameters: java.util.List[Expr]) extends Expr, ConstraintExpr
+case class LetExpr(y: Identifier, e1: Expr, e2: Expr) extends Expr
+case class MessageExpr(e: Expr) extends Expr
+case class RandomExpr(e: Expr) extends Expr
+case class MinusExpr(e: Expr) extends Expr
+case class Num(num: Int) extends Expr
+case class OTExpr(e1: Expr, i1: Expr, e2: Expr, e3: Expr) extends Expr
+case class OTFourExpr(s1: Expr, s2: Expr, i1: Expr, e1: Expr, e2: Expr, e3: Expr, e4: Expr) extends Expr
+case class OutputExpr() extends Expr
+case class PlusExpr(e1: Expr, e2: Expr) extends Expr
+case class PublicExpr(e: Expr) extends Expr
+case class SecretExpr(e: Expr) extends Expr
+case class Str(str: String) extends Expr
+case class TimesExpr(e1: Expr, e2: Expr) extends Expr

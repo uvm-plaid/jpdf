@@ -43,12 +43,12 @@ public class GenEntailVerifier {
         return new Num(freshID);
     }
 
-    public PreludeExpression genFreshValue(Type type) {
+    public Expr genFreshValue(Type type) {
         return switch (type) {
             case StringType x -> genFreshString();
             case PartyIndexType x -> genFreshCID();
             case RecordType t -> {
-                TreeMap<Identifier, PreludeExpression> map = new java.util.TreeMap<>(Map.of());
+                TreeMap<Identifier, Expr> map = new java.util.TreeMap<>(Map.of());
                 for (Map.Entry<Identifier, Type> element : t.elements().entrySet()){
                     map.put(element.getKey(), genFreshValue(element.getValue()));
                 }
@@ -66,7 +66,7 @@ public class GenEntailVerifier {
      * @return true/false
      */
     public boolean genEntails(List<TypedIdentifier> typings, ConstraintExpr e1, ConstraintExpr e2) {
-        Map<Identifier, PreludeExpression> bindingList = new HashMap<>();
+        Map<Identifier, Expr> bindingList = new HashMap<>();
         
         // generate fresh values for variables 
         for (TypedIdentifier typing: typings){

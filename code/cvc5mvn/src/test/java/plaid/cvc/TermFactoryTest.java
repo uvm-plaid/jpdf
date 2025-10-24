@@ -40,7 +40,7 @@ public class TermFactoryTest {
      */
     @Test(expected = IllegalStateException.class)
     public void partyIndexesDoNotStack() throws CVC5ApiException {
-        PreludeExpression expr = Loader.toExpression("(s[\"y\"] + s[\"x\"]@1)@2");
+        Expr expr = Loader.toExpression("(s[\"y\"] + s[\"x\"]@1)@2");
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
@@ -52,7 +52,7 @@ public class TermFactoryTest {
      */
     @Test(expected = IllegalStateException.class)
     public void memoryPartyIndexRequired() throws CVC5ApiException {
-        PreludeExpression expr = Loader.toExpression("m[\"y\"]");
+        Expr expr = Loader.toExpression("m[\"y\"]");
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
@@ -64,7 +64,7 @@ public class TermFactoryTest {
      */
     @Test(expected = IllegalStateException.class)
     public void secretPartyIndexRequired() throws CVC5ApiException {
-        PreludeExpression expr = Loader.toExpression("s[\"y\"]");
+        Expr expr = Loader.toExpression("s[\"y\"]");
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
@@ -76,7 +76,7 @@ public class TermFactoryTest {
      */
     @Test(expected = IllegalStateException.class)
     public void randomPartyIndexRequired() throws CVC5ApiException {
-        PreludeExpression expr = Loader.toExpression("r[\"y\"]");
+        Expr expr = Loader.toExpression("r[\"y\"]");
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
@@ -88,7 +88,7 @@ public class TermFactoryTest {
      */
     @Test(expected = IllegalStateException.class)
     public void outputPartyIndexRequired() throws CVC5ApiException {
-        PreludeExpression expr = Loader.toExpression("out");
+        Expr expr = Loader.toExpression("out");
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
@@ -131,8 +131,8 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        PreludeExpression mem = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
-        PreludeExpression expr = new PlusExpr(new Num(6), mem);
+        Expr mem = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        Expr expr = new PlusExpr(new Num(6), mem);
         factory.toTerm(expr);
 
         Collection<Memory> memories = factory.getMemories();
@@ -147,7 +147,7 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        PreludeExpression expr = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        Expr expr = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
         factory.toTerm(expr);
 
         Collection<Memory> memories = factory.getMemories();
@@ -166,9 +166,9 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        PreludeExpression expr1 = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        Expr expr1 = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
         factory.toTerm(expr1);
-        PreludeExpression expr2 = new AtExpr(new RandomExpr(new Str("y")), new Num(5));
+        Expr expr2 = new AtExpr(new RandomExpr(new Str("y")), new Num(5));
         factory.toTerm(expr2);
 
         Collection<Memory> memories = factory.getMemories();
@@ -271,9 +271,9 @@ public class TermFactoryTest {
         TermManager termManager = new TermManager();
         Sort sort = termManager.mkFiniteFieldSort("7", 10);
         TermFactory factory = new TermFactory(termManager, sort);
-        PreludeExpression expr = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        Expr expr = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
         factory.toTerm(expr);
-        PreludeExpression twin = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
+        Expr twin = new AtExpr(new MessageExpr(new Str("x")), new Num(3));
         factory.toTerm(twin);
 
         Collection<Memory> memories = factory.getMemories();
@@ -307,7 +307,7 @@ public class TermFactoryTest {
         Verifier verifier = new Verifier(factory);
         
         //verifier.findModelSatisfying(verifier. factory.toTerm(command0));
-        PreludeExpression expr1 = new AtExpr(new OTExpr(new MessageExpr(new Str("x")), new Num(3), new RandomExpr(new Str("y")), new MessageExpr(new Str("foo"))), new Num(2));
+        Expr expr1 = new AtExpr(new OTExpr(new MessageExpr(new Str("x")), new Num(3), new RandomExpr(new Str("y")), new MessageExpr(new Str("foo"))), new Num(2));
 
         // create constants
         Term m_x_3 = termManager.mkConst(sort, "m_x_3");

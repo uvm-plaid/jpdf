@@ -11,9 +11,9 @@ public class ConstraintAnalyzer {
     private final GenEntailVerifier verifier;
     private final Map<Identifier, Constraints> functionConstraints = new HashMap<>(); // data structure to store inferred pre/post conditions by FN rule
     
-    private Map<Identifier, PreludeExpression> binding(List<TypedIdentifier> formal, List<PreludeExpression> actual){
+    private Map<Identifier, Expr> binding(List<TypedIdentifier> formal, List<Expr> actual){
         // for each actual parameter, bind it to corresponding formal parameter 
-        Map<Identifier, PreludeExpression> bindingList = new HashMap<>(); 
+        Map<Identifier, Expr> bindingList = new HashMap<>(); 
         for(int i = 0; i < formal.size(); i++){
             bindingList.put(formal.get(i).y(), actual.get(i));
         }
@@ -120,7 +120,7 @@ public class ConstraintAnalyzer {
     /**
      * append party index to for expressions of arithmetic operation on memories
      */
-    private PreludeExpression appendPartyIndex(PreludeExpression expression, PreludeExpression partyIndex){
+    private Expr appendPartyIndex(Expr expression, Expr partyIndex){
         return switch (expression){
             case AtExpr e -> appendPartyIndex(e.e1(), e.e2());
             case RandomExpr e -> new AtExpr(e, partyIndex);
@@ -143,7 +143,7 @@ public class ConstraintAnalyzer {
                     appendPartyIndex(e.e2(), partyIndex),
                     appendPartyIndex(e.e3(), partyIndex),
                     appendPartyIndex(e.e4(), partyIndex));
-            case PreludeExpression e -> e;
+            case Expr e -> e;
         };
     }
 

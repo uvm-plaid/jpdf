@@ -1,3 +1,3 @@
 package plaid.ast
 
-case class AssertCommand(e1: PreludeExpression, e2: PreludeExpression, e3: PreludeExpression) extends PreludeCommand
+case class AssertCommand(e1: Expr, e2: Expr, e3: Expr) extends PreludeCommand

@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 public class ExpressionVisitorTest {
 
-    private PreludeExpression ast(String src) {
+    private Expr ast(String src) {
         return Loader.toExpression(src);
     }
 
@@ -28,8 +28,8 @@ public class ExpressionVisitorTest {
      */
     @Test
     public void unlimitedParens() {
-        PreludeExpression none = ast("\"x\"");
-        PreludeExpression many = ast("((((((\"x\"))))))");
+        Expr none = ast("\"x\"");
+        Expr many = ast("((((((\"x\"))))))");
         assertEquals(many, none);
     }
 
@@ -38,7 +38,7 @@ public class ExpressionVisitorTest {
      */
     @Test
     public void multiplyFirst() {
-        PreludeExpression expr = ast("3 + 2 * 9");
+        Expr expr = ast("3 + 2 * 9");
         assertEquals(new PlusExpr(new Num(3), new TimesExpr(new Num(2), new Num(9))), expr);
 
     }
@@ -57,7 +57,7 @@ public class ExpressionVisitorTest {
      */
     @Test
     public void parensOverride() {
-        PreludeExpression expr = ast("(3 + 2) * 9");
+        Expr expr = ast("(3 + 2) * 9");
         assertEquals(new TimesExpr(new PlusExpr(new Num(3), new Num(2)), new Num(9)), expr);
     }
 
@@ -66,7 +66,7 @@ public class ExpressionVisitorTest {
      */
     @Test
     public void strConcat() {
-        PreludeExpression expr = ast("\"a\" ++ \"b\" ++ \"c\"");
+        Expr expr = ast("\"a\" ++ \"b\" ++ \"c\"");
         assertEquals(new ConcatExpr(new ConcatExpr(new Str("a"), new Str("b")), new Str("c")), expr);
     }
 
@@ -75,8 +75,8 @@ public class ExpressionVisitorTest {
      */
     @Test
     public void selectPrecedence() {
-        PreludeExpression expr = ast("8 * parent.child");
-        PreludeExpression select = new FieldSelectExpr(new Identifier("parent"), new Identifier("child"));
+        Expr expr = ast("8 * parent.child");
+        Expr select = new FieldSelectExpr(new Identifier("parent"), new Identifier("child"));
         assertEquals(new TimesExpr(new Num(8), select), expr);
     }
 
@@ -97,7 +97,7 @@ public class ExpressionVisitorTest {
      */
     @Test
     public void partyIndexSiblings() {
-        PreludeExpression expr = ast("s[\"y\"]@2 + s[\"x\"]@1");
+        Expr expr = ast("s[\"y\"]@2 + s[\"x\"]@1");
         assertEquals(new PlusExpr(
                 new AtExpr(new SecretExpr(new Str("y")), new Num(2)),
                 new AtExpr(new SecretExpr(new Str("x")), new Num(1))), expr);
@@ -108,7 +108,7 @@ public class ExpressionVisitorTest {
      */
     @Test
     public void letExpr() {
-        PreludeExpression expr = ast("let z = 1 in 2 + z");
+        Expr expr = ast("let z = 1 in 2 + z");
         assertEquals(new LetExpr(
                 new Identifier("z"),
                 new Num(1),

@@ -3,7 +3,6 @@ package plaid.logic;
 import io.github.cvc5.CVC5ApiException;
 import org.junit.Ignore;
 import org.junit.Test;
-import plaid.ScalaFunctions;
 import plaid.antlr.Loader;
 import plaid.ast.*;
 
@@ -239,7 +238,7 @@ public class ConstraintAnalyzerTest {
     public void concatLiterals() {
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
-        PreludeExpression input = new ConcatExpr(new Str("a"), new Str("b"));
+        Expr input = new ConcatExpr(new Str("a"), new Str("b"));
         Object actual = evaluator.toOverture(input);
         Object expected = new Str("ab");
         assertEquals(expected, actual);
@@ -252,9 +251,9 @@ public class ConstraintAnalyzerTest {
     public void concatGroupedLiterals() {
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
-        PreludeExpression group1 = new ConcatExpr(new Str("a"), new Str("b"));
-        PreludeExpression group2 = new ConcatExpr(new Str("c"), new Str("d"));
-        PreludeExpression input = new ConcatExpr(group1, group2);
+        Expr group1 = new ConcatExpr(new Str("a"), new Str("b"));
+        Expr group2 = new ConcatExpr(new Str("c"), new Str("d"));
+        Expr input = new ConcatExpr(group1, group2);
         Object actual = evaluator.toOverture(input);
         Object expected = new Str("abcd");
         assertEquals(expected, actual);
@@ -269,9 +268,9 @@ public class ConstraintAnalyzerTest {
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         Identifier i = new Identifier("i");
-        PreludeExpression group1 = new ConcatExpr(i, new Str("b"));
-        PreludeExpression group2 = new ConcatExpr(new Str("c"), i);
-        PreludeExpression input = new ConcatExpr(group1, group2);
+        Expr group1 = new ConcatExpr(i, new Str("b"));
+        Expr group2 = new ConcatExpr(new Str("c"), i);
+        Expr input = new ConcatExpr(group1, group2);
         Object actual = evaluator.toOverture(input);
         Object expected = new ConcatExpr(new ConcatExpr(i, new Str("bc")), i);
         assertEquals(expected, actual);

@@ -1,13 +1,12 @@
 package plaid.logic;
 
 import plaid.ast.*;
-import scala.collection.View;
 
 import java.util.*;
 
 public class ConstraintEvaluator {
     private final Program program;
-    public List<Map<Identifier, PreludeExpression>> binding_list;
+    public List<Map<Identifier, Expr>> binding_list;
 
     public ConstraintEvaluator(Program program){
         this.program = program; 
@@ -20,7 +19,7 @@ public class ConstraintEvaluator {
      * @param e Prelude Expression
      * @return Overture 
      */
-    public PreludeExpression toOverture(PreludeExpression e) {
+    public Expr toOverture(Expr e) {
         return switch(e){
             // base cases
             case Str w -> new Str(w.str());
@@ -81,29 +80,29 @@ public class ConstraintEvaluator {
             case LetExpr le -> {
                 // let y = e1 in e2
                 // evalConstraint e1 first
-                PreludeExpression e1 = toOverture(le.e1());
+                Expr e1 = toOverture(le.e1());
                 // let y = v in e2
                 // substitute v for y in e2
 
-                Map<Identifier, PreludeExpression> bindings = new HashMap<>(binding_list.getLast());
+                Map<Identifier, Expr> bindings = new HashMap<>(binding_list.getLast());
                 bindings.put(le.y(), e1);
                 binding_list.addLast(bindings);
 
-                PreludeExpression result = toOverture(le.e2());
+                Expr result = toOverture(le.e2());
                 binding_list.removeLast();
 
                 yield result;
             }
             case FunctionCallExpr fe -> {
                 // evalConstraint the parameters first
-                List<PreludeExpression> actualParams = fe
+                List<Expr> actualParams = fe
                         .parameters()
                         .stream()
                         .map(this::toOverture)
                         .toList();
 
                 // bind former parameters to actual parameters in function context
-                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
+                Map<Identifier, Expr> bindings = new HashMap<>();
 
 
                 for(int i = 0; i < actualParams.size(); i++){
@@ -111,14 +110,14 @@ public class ConstraintEvaluator {
                 }
                 binding_list.add(bindings);
 
-                PreludeExpression result = toOverture(program.resolveExprFunction(fe.fname()).e());
+                Expr result = toOverture(program.resolveExprFunction(fe.fname()).e());
 
                 binding_list.removeLast();
                 yield result;
             }
             case FieldExpr fe -> {
-                TreeMap<Identifier, PreludeExpression> field = new TreeMap<>();
-                for(Map.Entry<Identifier, PreludeExpression> element : fe.elements().entrySet()){
+                TreeMap<Identifier, Expr> field = new TreeMap<>();
+                for(Map.Entry<Identifier, Expr> element : fe.elements().entrySet()){
                     field.put(element.getKey(), toOverture(element.getValue()));
                 }
 
@@ -150,14 +149,14 @@ public class ConstraintEvaluator {
 
             case FunctionCallCommand functionCall -> {
                 // evalConstraint actual parameters first
-                List<PreludeExpression> actual_parameters =
+                List<Expr> actual_parameters =
                         functionCall.parameters().stream().map(this::toOverture).toList();
 
                 // find a function with the same function name
                 CommandFunction function = program.resolveCommandFunction(functionCall.fname());
 
                 // map former parameters to actual parameters
-                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
+                Map<Identifier, Expr> bindings = new HashMap<>();
                 for (int i = 0; i < actual_parameters.size(); i++) {
                     bindings.put(function.typedVariables().get(i).y(), actual_parameters.get(i));
                 }
@@ -174,9 +173,9 @@ public class ConstraintEvaluator {
             case LetCommand letCommand -> {
                 // let y = e in c
                 // evalConstraint e
-                PreludeExpression v = toOverture(letCommand.e());
+                Expr v = toOverture(letCommand.e());
                 // let y = v in c
-                Map<Identifier, PreludeExpression> binding = new HashMap<>(binding_list.getLast());
+                Map<Identifier, Expr> binding = new HashMap<>(binding_list.getLast());
                 binding.put(letCommand.y(), v);
                 binding_list.addLast(binding);
 
@@ -210,13 +209,13 @@ public class ConstraintEvaluator {
             case FunctionCallExpr x -> {
                 ConstraintFunction function = program.resolveConstraintFunction(x.fname());
                 List<Identifier> formalParams = function.params();
-                List<PreludeExpression> actualParams = x
+                List<Expr> actualParams = x
                         .parameters()
                         .stream()
                         .map(this::toOverture)
                         .toList();
 
-                Map<Identifier, PreludeExpression> bindings = new HashMap<>();
+                Map<Identifier, Expr> bindings = new HashMap<>();
                 for (int i = 0; i < actualParams.size(); i++) {
                     bindings.put(formalParams.get(i), actualParams.get(i));
                 }

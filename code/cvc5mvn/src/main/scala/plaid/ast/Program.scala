@@ -8,16 +8,16 @@ case class Program(
                     precondition: ConstraintExpr,
                     postcondition: ConstraintExpr) extends Node{
 
-  def resolveExprFunction(functionName : PreludeExpression):ExprFunction = {
+  def resolveExprFunction(functionName : Expr):ExprFunction = {
     exprFunctions.asScala.find(x => x.fname == functionName).get
   }
 
-  def resolveCommandFunction(functionName: PreludeExpression): CommandFunction = {
+  def resolveCommandFunction(functionName: Expr): CommandFunction = {
     commandFunctions.asScala.find(x => x.fname.equals(functionName)).get
   }
 
 
-  def resolveConstraintFunction(functionName: PreludeExpression): ConstraintFunction = {
+  def resolveConstraintFunction(functionName: Expr): ConstraintFunction = {
     constraintFunctions.asScala.find(x => x.id.equals(functionName)).get
   }
 
