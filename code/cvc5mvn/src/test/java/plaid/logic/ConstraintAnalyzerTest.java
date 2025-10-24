@@ -24,10 +24,6 @@ public class ConstraintAnalyzerTest {
         return constraintAnalyzer.inferPrePostFN(program.resolveCommandFunction(Loader.toExpression(fName)));
     }
 
-//    private Constraints inferPrePostCmd(PreludeCommand src, String program) throws CVC5ApiException {
-//        ConstraintAnalyzer constraintAnalyzer = new ConstraintAnalyzer(Loader.toProgram(program));
-//        return constraintAnalyzer.inferPrePostCmd(src);
-//    }
     /**
      * infer precondition/postcondition for message assignment
      */
@@ -115,13 +111,13 @@ public class ConstraintAnalyzerTest {
      * when the function called does have constraints
      */
     @Test
-    public void inferFunctionCallWtihAnnotations() throws CVC5ApiException {
+    public void inferFunctionCallWithAnnotations() throws CVC5ApiException {
         String program = """
                 cmdfunctions:
                 g() { h("y") }
                 
                 precondition: ( m[y]@1 == 2 AND m["z"]@1 == 3)
-                h(y : string) { 
+                h(y : string) {
                     m["x"]@1 := (m[y] * m["z"])@1;
                     assert(m["x"] = m["z"] + m["z"])@1
                     }
@@ -147,7 +143,7 @@ public class ConstraintAnalyzerTest {
     @Test
     public void inferFunction() throws CVC5ApiException {
         String program = """
-                cmdfunctions: 
+                cmdfunctions:
                 f(i:cid) {assert (m["x"] = m["x"])@i}
 
                 main(){f(1); let x = "foo" in m[x]@2 := m[x]@2}
@@ -222,8 +218,8 @@ public class ConstraintAnalyzerTest {
                 cmdfunctions:
                 f(x:string) {m[x++"foo"]@1 := m[x++"foo"]@1}
                 main(){ f(x++"s") }
-                """; 
-        
+                """;
+
         Constraints expected = new Constraints(
                 new TrueConstraint(),
                 Loader.toConstraintExpression("m[x++\"sfoo\"]@1 == m[x++\"sfoo\"]@1")
@@ -258,23 +254,5 @@ public class ConstraintAnalyzerTest {
         Object expected = new Str("abcd");
         assertEquals(expected, actual);
     }
-
-    /**
-     * (i ++ "b") ++ ("c" ++ i)
-     */
-    @Test
-    @Ignore
-    public void concatGroupedMixed() {
-        Program program = new Program(List.of(), List.of(), List.of(), null, null);
-        ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
-        Identifier i = new Identifier("i");
-        Expr group1 = new ConcatExpr(i, new Str("b"));
-        Expr group2 = new ConcatExpr(new Str("c"), i);
-        Expr input = new ConcatExpr(group1, group2);
-        Object actual = evaluator.toOverture(input);
-        Object expected = new ConcatExpr(new ConcatExpr(i, new Str("bc")), i);
-        assertEquals(expected, actual);
-    }
-    
 
 }

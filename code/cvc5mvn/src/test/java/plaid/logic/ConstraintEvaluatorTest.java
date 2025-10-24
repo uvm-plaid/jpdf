@@ -32,12 +32,34 @@ public class ConstraintEvaluatorTest {
     }
 
     /**
-     * evalConstraint concatenation
+     * The concatenation of two string literals should result in a combined
+     * string literal.
      */
     @Test
-    public void evalConcat() {
-        //assertEquals(new Str(String.valueOf(new Str("x")) + String.valueOf(new Str("y"))), eval("\"x\"++\"y\"", List.of()));
+    public void literalConcat() {
         assertEquals(new Str("xy"), evalExpr("\"x\"++\"y\"", List.of()));
+    }
+
+    /**
+     * The concatenation of a string literal to an identifier should not
+     * reduce.
+     */
+    @Test
+    public void identifierConcat() {
+        assertEquals(
+                new ConcatExpr(new Identifier("i"), new Str("x")),
+                evalExpr("i++\"x\"", List.of()));
+        assertEquals(
+                new ConcatExpr(new Str("x"), new Identifier("i")),
+                evalExpr("\"x\"++i", List.of()));
+    }
+
+    /**
+     * String literals should reduce recursively.
+     */
+    @Test
+    public void evalGroupedConcat() {
+        assertEquals(new Str("xywz"), evalExpr("(\"x\"++\"y\")++(\"w\"++\"z\")", List.of()));
     }
 
     /**

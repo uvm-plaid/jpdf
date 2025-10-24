@@ -16,9 +16,7 @@ public class GenEntailVerifier {
     private int counter;
     private final TermManager termManager;
     private final Sort sort;
-    //private final static String order = "2";
-   
-   
+
     private final Program program;
     
     public GenEntailVerifier(Program program, String order) throws CVC5ApiException {
@@ -44,9 +42,10 @@ public class GenEntailVerifier {
     }
 
     public Expr genFreshValue(Type type) {
+        // TODO I need to update to use _ for unnamed variables
         return switch (type) {
-            case StringType _ -> genFreshString();
-            case PartyIndexType _ -> genFreshCID();
+            case StringType x -> genFreshString();
+            case PartyIndexType x -> genFreshCID();
             case RecordType t -> {
                 TreeMap<Identifier, Expr> map = new java.util.TreeMap<>(Map.of());
                 for (Map.Entry<Identifier, Type> element : t.elements().entrySet()){
@@ -76,7 +75,7 @@ public class GenEntailVerifier {
         // evalConstraint abstractConstraints into ground constraint
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         evaluator.binding_list.add(bindingList);
-        Constraint groundE1 = evaluator.evalConstraint(e1); 
+        Constraint groundE1 = evaluator.evalConstraint(e1);
         Constraint groundE2 =  evaluator.evalConstraint(e2);
         evaluator.binding_list.removeLast();
 
