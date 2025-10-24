@@ -1,4 +1,4 @@
-package plaid.eval;
+package plaid.logic;
 
 import org.junit.Test;
 import plaid.antlr.Loader;
@@ -8,18 +8,18 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class EvaluatorTest {
+public class ConstraintEvaluatorTest {
 
     private Expr evalExpr(String src, List<ExprFunction> exprFunctions) {
         Expr ast = Loader.toExpression(src);
-        Evaluator evaluator = new Evaluator(new Program(List.of(), exprFunctions, List.of(), null, null));
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(new Program(List.of(), exprFunctions, List.of(), null, null));
         return evaluator.toOverture(ast);
     }
 
 
     private Cmd evalCommand(String src, List<CommandFunction> commandFunctions) {
         Cmd ast = Loader.toCommand(src);
-        Evaluator evaluator = new Evaluator(new Program(commandFunctions, List.of(), List.of(), null, null));
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(new Program(commandFunctions, List.of(), List.of(), null, null));
         return evaluator.evalInstruction(ast);
     }
 
@@ -113,7 +113,7 @@ public class EvaluatorTest {
     public void constraintEvaluationReducesConcatenation() {
         Program program = new Program(List.of(), List.of(), List.of(), null, null);
         Constraint expr = Loader.toConstraintExpression("2 == m[\"x\" ++ \"y\"]@1");
-        Evaluator evaluator = new Evaluator(program);
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         Constraint actual = evaluator.evalConstraint(expr);
         Constraint expected = Loader.toConstraintExpression("2 == m[\"xy\"]@1");
         assertEquals(expected, actual);
@@ -127,7 +127,7 @@ public class EvaluatorTest {
     public void constraintEvaluationPreludeFunctions() {
         Program program = Loader.toProgram("exprfunctions: f(i) {out@i}");
         Constraint expr = Loader.toConstraintExpression("f(1) == 2");
-        Evaluator evaluator = new Evaluator(program);
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         Constraint actual = evaluator.evalConstraint(expr);
         Constraint expected = Loader.toConstraintExpression("out@1 == 2");
         assertEquals(expected, actual);
@@ -140,7 +140,7 @@ public class EvaluatorTest {
     @Test
     public void constraintEvaluationPropagation() {
         Program program = Loader.toProgram("exprfunctions: f() {1}");
-        Evaluator evaluator = new Evaluator(program);
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
 
         // Left side of AND
         assertEquals(
@@ -165,7 +165,7 @@ public class EvaluatorTest {
     public void constraintValuedFunctions() {
         Program program = Loader.toProgram("constraintfunctions: g(i) {3 == out@i}");
         Constraint expr = Loader.toConstraintExpression("NOT g(1)");
-        Evaluator evaluator = new Evaluator(program);
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         Constraint actual = evaluator.evalConstraint(expr);
         Constraint expected = Loader.toConstraintExpression("NOT (3 == out@1)");
         assertEquals(expected, actual);
@@ -179,7 +179,7 @@ public class EvaluatorTest {
     public void constraintValuedFunctionsContainPrelude() {
         Program program = Loader.toProgram("exprfunctions: f(i) {out@i} constraintfunctions: g(i) {3 == f(i)}");
         Constraint expr = Loader.toConstraintExpression("NOT g(1)");
-        Evaluator evaluator = new Evaluator(program);
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         Constraint actual = evaluator.evalConstraint(expr);
         Constraint expected = Loader.toConstraintExpression("NOT (3 == out@1)");
         assertEquals(expected, actual);

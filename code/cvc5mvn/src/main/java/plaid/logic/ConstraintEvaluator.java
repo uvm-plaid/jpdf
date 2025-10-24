@@ -26,15 +26,6 @@ public class ConstraintEvaluator {
             case Num i -> new Num(i.num());
             case Identifier id ->
             {
-                // if identifier is bound to value 
-//                for(Map<Identifier, PreludeExpression> bindings : binding_list){
-//                    for(Map.Entry<Identifier, PreludeExpression> entry : bindings.entrySet()){
-//                        if(entry.getKey().equals(id)){
-//                            // return the value 
-//                            yield entry.getValue();
-//                        }
-//                    }
-//                }
                 // if the list does not contain the id itself
                 // return id itself
                 if (binding_list.getLast().get(id) == null) {
