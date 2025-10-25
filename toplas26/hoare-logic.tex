@@ -63,7 +63,7 @@ rule, can be defined very directly in terms of evaluation of $\metaprot$ express
 Derived rule:
 \begin{mathpar}
 \inferrule[Assigns]
-          {\htrip{\eqs_1}{\prog}{\eqs_2}}
+          {\htrip{\eqs_1}{\prog}{\eqs_2} \\ \vars(\eqs_1) \cap \dom(\subn) = \varnothing}
           {\htrip{\eqs_1 \wedge \subn_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
 \end{mathpar}
 
