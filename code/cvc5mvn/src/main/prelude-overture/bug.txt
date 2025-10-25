@@ -1,6 +1,6 @@
 //
 // This program illustrates a bug in the Prelude Hoare logic inference prior
-// to November, 2025 (spec available as Hoare.tex in jpdf/esop25).
+// to November, 2025 (spec available as hoare.tex in jpdf/esop25).
 //
 cmdfunctions:
 
