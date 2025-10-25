@@ -1,3 +1,9 @@
+% Prelude Hoare logic counterexample
+%
+% {x = 0} f(){assert x = 0} {x = 0}
+%
+% {}g(){f()}{x = 0}
+
 \section{Automated Hoare Logic for $\metaprot$}
 
 \subsection{Corrections to $\metaprot$ Generalized Constraint Forms and Evaluation}
@@ -5,7 +11,8 @@
 The syntax of $\notg{\eqs}$ in the ESOP paper was too complicated. It should simply be:
 $$
 \begin{array}{rcl@{\hspace{4mm}}r}
-\notg{\eqs} &::=& e \eop e \mid \notg{\eqs} \wedge \notg{\eqs} 
+  \notg{\eqs} &::=& e \eop e \mid \notg{\eqs} \wedge \notg{\eqs} \mid \notg{\eqs} \vee \notg{\eqs}
+  \mid \notg{\eqs} \impl \notg{\eqs}
 \end{array}
 $$
 The semantics of generalized constraint evaluation can also be greatly simplified, as
@@ -93,7 +100,7 @@ $$
 \begin{mathpar}
   \inferrule[Mesg]
             {}
-            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{\eqtrue}, e_1 \eop \elab{e_2}{e_3}}
+            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{\eqtrue}, e_1 \eop \toeq{\elab{e_2}{e_3}}}
 
   %\inferrule[Encode]
   %          {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
@@ -131,7 +138,7 @@ $$
 
 \begin{lemma}
   \label{lemma-subn}
-  Given $\eqs_1$ and $\subn$ with $\vars(\eqs) \cap \dom(\subn) = \varnothing$ we have
+  Given $\eqs_1$ and $\subn$ with $\vars(\eqs_1) \cap \dom(\subn) = \varnothing$ we have
   $\eqs_1 \models \subn(\eqs_2)$ iff $\eqs_1 \models \toeq{\subn} \impl \eqs_2$ for
   any $\eqs_2$.
 \end{lemma}
