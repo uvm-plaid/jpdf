@@ -97,9 +97,9 @@ On Linux,
 export LD_LIBRARY_PATH=/usr/local/lib
 ```
 
-To run the tool on an example,
+To run the tool on an example using the binary field,
 ```
-java -jar target/prelude.jar src/main/prelude-overture/beaver-pre.txt
+java -jar target/prelude.jar --field-size=2 src/main/prelude-overture/beaver-pre.txt
 ```
 
 Further documentation about supported parameters is available via
