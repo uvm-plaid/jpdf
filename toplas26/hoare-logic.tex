@@ -381,3 +381,24 @@ $$
           {\htrip{\eqs_1 \wedge (\eqs_2 \impl \eqs)}{\prog}{\eqs_2 \wedge \eqs}}
 \end{mathpar}
 
+\begin{lemma}
+  \TirName{Hyp} is sound.
+\end{lemma}
+\begin{proof}
+  Assume $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable without \TirName{Hyp}.
+  Then $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$, since all other rules
+  are sound. 
+  Now since $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$ by assumption, we have:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 
+  $$
+  and clearly:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge (\eqs_2 \impl \eqs)
+  $$
+  and since $\eqs_2 \wedge (\eqs_2 \impl \eqs)$ iff
+  $\eqs_2 \wedge \eqs$:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge \eqs
+  $$
+\end{proof}
