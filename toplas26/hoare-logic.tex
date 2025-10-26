@@ -63,7 +63,7 @@ rule, can be defined very directly in terms of evaluation of $\metaprot$ express
 Derived rule:
 \begin{mathpar}
 \inferrule[Assigns]
-          {\htrip{\eqs_1}{\prog}{\eqs_2} \\ \vars(\eqs_1) \cap \dom(\subn) = \varnothing}
+          {\htrip{\eqs_1}{\prog}{\eqs_2}}% \\ \vars(\eqs_1) \cap \dom(\subn) = \varnothing}
           {\htrip{\eqs_1 \wedge \subn_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
 \end{mathpar}
 
@@ -322,3 +322,62 @@ $$
   \TirName{HardPack} and $\ttt{main}() \redx \prog$ then
   $\htrip{\eqs_1}{\prog}{\eqs_2}$.
 \end{theorem}
+
+\subsection{Yet Another Refinement}
+
+\medskip
+
+\begin{mathpar}
+  \inferrule[Mesg]
+            {}
+            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \elab{e_2}{e_3}}}
+
+  %\inferrule[Encode]
+  %          {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
+  %            \eqs \models x \eop \phi\\
+  %            \atj{\phi}{R}{\ty}}
+  %          {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(x : \ty)}{R}{\varnothing}{\eqs}}
+  %
+  \inferrule[Assert]
+            {}
+            {\htrip{\elab{e_1}{e_3} \eop \elab{e_2}{e_3}}{\elab{\assert{e_1 = e_2}}{e_3}}{\eqtrue}}
+
+  \inferrule[Seq]          
+            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}}
+            {\htrip{\peq_1^1 \wedge (\peq_2^1 \impl \peq_1^2)}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2}}
+
+  \inferrule[Let]
+            {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}}
+            {\htrip{\peq_1}{\elet{y}{e}{\cmd}}{\peq_2}}
+
+  \inferrule[App]
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+            {\htrip{\peq_1[e_1/y_1 \cdots e_n/y_n]}{f(e_1,\ldots,e_n)}{\peq_2[e_1/y_1 \cdots e_n/y_n]}}
+
+  \inferrule[Fn]
+            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \htrip{\peq_1}{\cmd}{\peq_2}}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+
+  \inferrule[Hardpack]
+            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
+              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
+              \forall y_1:\tau_1,\ldots,y_n:\tau_n . 
+            \peq_1 \models \peq_1'\ \text{and}\ \peq_1 \wedge \peq_2' \models \peq_2}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+\end{mathpar}
+
+\medskip
+
+The above relies on the soundness of the \TirName{Hyp} rule below, which may be
+derivable but at least is provably sound for the assumed correctness
+property of the logic which is:
+$$
+\htrip{\eqs_1}{\prog}{\eqs_2} \ \textit{implies}\ \eqs_1 \wedge \toeq{\prog} \models \eqs_2
+$$
+
+\begin{mathpar}
+\inferrule[Hyp]
+          {\htrip{\eqs_1}{\prog}{\eqs_2}}
+          {\htrip{\eqs_1 \wedge (\eqs_2 \impl \eqs)}{\prog}{\eqs_2 \wedge \eqs}}
+\end{mathpar}
+
