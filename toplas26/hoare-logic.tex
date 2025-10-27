@@ -97,6 +97,8 @@ $$
   $\eqs_1 \models \eqs_2$.  
 \end{lemma}
 
+\begin{comment}
+  
 \begin{mathpar}
   \inferrule[Mesg]
             {}
@@ -327,6 +329,8 @@ $$
 
 \medskip
 
+\end{comment}
+
 \begin{mathpar}
   \inferrule[Mesg]
             {}
@@ -402,3 +406,46 @@ $$
   \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge \eqs
   $$
 \end{proof}
+
+\begin{lemma}[$\metaprot$ Hoare Triple Correctness]
+  \label{lemma-htrip}
+  Given $\htrip{\peq_1}{\cmd}{\peq_2},\peq$ with $\peq_1 \redx
+  \eqs_1$, $\peq_2 \redx \eqs_2$, $\peq \redx \eqs$, and $\cmd \redx
+  \prog$. Then given any $\eqs_0$ with $\vars(\eqs_0) \cap
+  \avars(\prog) = \varnothing$ and $\eqs_0 \models \eqs_1$ we have
+  $\htrip{\eqs_0}{\prog}{\eqs_2}$ is valid and there exists $\subn
+  \subseteq \subn_\prog$ such that $\toeq{\subn}$ iff $\eqs$.
+\end{lemma}
+
+\begin{proof}
+  By structural induction on the derivation of $\cmd \redx \prog$ and
+  case analysis on $\cmd$.
+
+  \textit{Case} $\cmd = (\xassign{e_1}{e_2}{e_3})$. In this case by definition
+  and inversion of $\redx$ and $\TirName{Assign}$ we have:
+  \begin{mathpar}
+    e_1 \redx x
+
+    e_2 \redx \be
+
+    e_3 \redx \cid
+
+    \prog = (\xassign{x}{\be}{\cid})
+
+    \peq_1 \redx \true
+
+    \peq_2 \redx \true
+
+    \peq \redx x \eop \toeq{\elab{\be}{\cid}}
+  \end{mathpar}
+  Now by \TirName{Assign} we have $\htrip{\true}{\xassign{x}{\be}{\cid}}{\true}$ so
+  for any $\eqs_0$ we have $\htrip{\eqs}{\xassign{x}{\be}{\cid}}{\true}$ by
+  $\TirName{Consequence}$. And $\toeq{\subn_{\xassign{x}{\be}{\cid}}} \defeq
+  x \eop \toeq{\elab{\be}{\cid}}$, so this case holds.
+\end{proof}
+
+\begin{theorem}
+  If $\htrip{\eqs_1}{\ttt{main()}}{\eqs_2},\true$ as a consequence of
+  \TirName{HardPack} and $\ttt{main}() \redx \prog$ then
+  $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+\end{theorem}
