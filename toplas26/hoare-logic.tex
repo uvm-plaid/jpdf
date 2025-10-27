@@ -408,6 +408,15 @@ $$
   $$
 \end{proof}
 
+
+
+\begin{lemma}
+  \label{lemma-closure}
+  If $\htrip{\peq_1}{\prog}{\peq_2}$ and $\instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog$
+  then $\peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \eqs_1$ and
+  $\peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \eqs_2$. 
+\end{lemma}
+
 \begin{lemma}[$\metaprot$ Hoare Triple Correctness]
   \label{lemma-htrip}
   If $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx
@@ -491,11 +500,11 @@ $$
   Thus by $\TirName{Seq}$ we have:
   $$\htrip{\eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$$
 
-    \textit{Case} $\cmd = f(e_1,\ldots,e_n)$. In this case by assumption and
-    definition and inversion of $\TirName{App}$ and $\redx$ we have:
-    \begin{mathpar}
+  \textit{Case} $\cmd = f(e_1,\ldots,e_n)$. In this case by assumption and
+  definition and inversion of $\TirName{App}$ and $\redx$ we have:
+  \begin{mathpar}
     \codebase(f) = y_1,\ldots,y_n, \instr
-
+    
     e_1 \redx \mv_1 \cdots e_n \redx \mv_n
 
     \instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
@@ -506,34 +515,34 @@ $$
     
     \htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2}
   \end{mathpar}
-  Now, the judgement $\htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2}$
-  follows by one or two subcases. Where it follows by \TirName{Fn} the result
-  is immediate by definition and the induction hypothesis. Otherwise it follows by
-  \TirName{Hardpack} and we proceed as follows. \cnote{COMPLETE THIS CASE.}
+  Note that sanity conditions on pre- and post-condition annotations
+  means there exists $\eqs_1$ and $\eqs_2$ where $\peqs_1 \redx
+  \eqs_1$ and $\peq_2 \redx \eqs_2$. Now, the judgement
+  $\htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2}$
+  follows by one or two subcases. Where it follows by \TirName{Fn} the
+  result is immediate by definition and the induction
+  hypothesis. Otherwise it follows by \TirName{Hardpack} and we
+  proceed as follows.
 
-  %By inversion of \TirName{Hardpack} we have
-  %$\htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'}$ by
-  %\TirName{Fn} where $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1
-  %\models \peq_1'$. Assume $\peq_1'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
-  %\eqs_1'$ and $\peq_2'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
-  %\eqs_2'$\cnote{sanity conditions should guarantee existence of
-  %  $\eqs_{1,2}'$}.  By Lemma \ref{lemma-genentails} we have $\eqs_1
-  %\models \eqs_1'$, thus sanity conditions on $\peq_1$ and the
-  %induction hypothesis entail $\htrip{\eqs_1}{\prog}{\eqs_2'}$. Also
-  %by inversion of \TirName{Hardpack} we have $\forall
-  %y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_0 \impl \peq_2$,
-  %implying $\eqs_1 \models \eqs \impl \eqs_2$ by Lemma
-  %\ref{lemma-genentails}. But then by Lemmas \ref{lemma-subn},
-  %\ref{lemma-hardpacksubn}, and the induction hypothesis we have
-  %$\eqs_1 \models \subn_{\prog}(\eqs_2)$, thus $\eqs_1$ iff $\eqs_1
-  %\wedge \subn_{\prog}(\eqs_2)$, and we can deduce $\htrip{\eqs_1
-  %  \wedge \subn_{\prog}(\eqs_2)}{\prog}{\eqs_2'}$ by
-  %\TirName{Consequence}, thus $\htrip{\eqs_1 \wedge
-  %  \subn_{\prog}(\eqs_2)}{\prog}{\eqs_2' \wedge \eqs_2}$ by
-  %\TirName{Assigns}, and thus $\htrip{\eqs_1}{\prog}{\eqs_2}$ by
-  %\TirName{Consequence}, so this case follows since
-  %$\htrip{\eqs_0}{\prog}{\eqs_2}$ for any $\eqs_0$
-  %with $\eqs_0 \models \eqs_1$ by \TirName{Consequence}.
+  By inversion of \TirName{Hardpack} we have
+  $\htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'}$ by
+  \TirName{Fn} where $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1
+  \models \peq_1'$. Then $\peq_1'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+  \eqs_1'$ and $\peq_2'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+  \eqs_2'$ by Lemma \ref{lemma-closure}. 
+  By Lemma \ref{lemma-genentails} we have $\eqs_1
+  \models \eqs_1'$, so by \TirName{Consequence} we have
+  $\htrip{\eqs_1}{\prog}{\eqs_2'}$, and by \TirName{Hyp}
+  we have:
+  $$\htrip{\eqs_1 \wedge (\eqs_2' \impl \eqs_2)}{\prog}{\eqs_2' \wedge \eqs_2}$$
+
+  Furthermore, also by inversion of \TirName{Hardpack} we have
+  $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1 \wedge 
+  \peq_2' \models \peq^0_2$. 
+  By Lemma \ref{lemma-genentails} we thus have $\eqs_1
+  \wedge \eqs_2' \models \eqs_2$, which implies
+  $\eqs_1 \models \eqs_2' \impl \eqs_2$.
+  Thus by \TirName{Consequence} we have $\htrip{\eqs_1}{\prog}{\eqs_2}$.
 
   Finally, \textit{case} $\prog = \elet{y}{e}{\cmd}$ follows trivially
   by the induction hypothesis, which covers all cases to prove
