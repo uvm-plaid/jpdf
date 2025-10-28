@@ -5,13 +5,12 @@ import plaid.ast.*
 import java.util.stream.Collectors
 
 /**
- * Provides a human-readable string representation of an AST node and its decedents. Currently only supports node types
- * used in Overture protocols.
+ * Provides a human-readable string representation of an AST node and its decedents.
  *
  * @param n The node to represent
  * @return Human-readable representation
  */
-def prettyPrint(n: Node): String = n match {
+def prettyPrint(n: Node): String = n match
   case AssertCmd(e1, e2, i) => s"assert (${prettyPrint(e1)} = ${prettyPrint(e2)})@${prettyPrint(i)}\n"
   case AssignCmd(e1, e2) => s"${prettyPrint(e1)} := ${prettyPrint(e2)}\n"
   case AtExpr(e, i) => s"${prettyPrint(e)}@${prettyPrint(i)}"
@@ -36,5 +35,3 @@ def prettyPrint(n: Node): String = n match {
   case TrueConstraint() => "T"
   case FunctionCall(i, es) => s"${prettyPrint(i)}(${es.map(prettyPrint).mkString(", ")})"
   case null => ""
-
-}
