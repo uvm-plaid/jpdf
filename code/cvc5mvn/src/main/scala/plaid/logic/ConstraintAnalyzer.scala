@@ -1,7 +1,7 @@
 package plaid.logic
 
 import plaid.ast.*
-import plaid.ScalaFunctions
+import plaid.prettyPrint
 
 import java.util.{ArrayList, HashMap, Optional, List as JList, Map as JMap}
 import scala.jdk.CollectionConverters.*
@@ -34,7 +34,7 @@ class ConstraintAnalyzer(val program: Program, order: String) {
         functionConstraints.put(function.fname, new Constraints(function.precond, function.postcond))
         new Constraints(function.precond, function.postcond)
       else
-        throw new RuntimeException(s"The hardpack does not hold for ${ScalaFunctions.prettyPrint(function.fname)}")
+        throw new RuntimeException(s"The hardpack does not hold for ${prettyPrint(function.fname)}")
   }
 
   /** Recursively infer pre/postconditions for a command */

@@ -25,8 +25,8 @@ class App extends Runnable {
     val ast = Loader.toProgram(src)
     val analyzer = new ConstraintAnalyzer(ast, fieldSize)
     val constraints = analyzer.inferPrePostFN(ast.resolveCommandFunction(Loader.toExpression("main")))
-    println(s"The precondition for main: ${ScalaFunctions.prettyPrint(constraints.precondition)}")
-    println(s"The postcondition for main: ${ScalaFunctions.prettyPrint(constraints.postcondition)}")
+    println(s"The precondition for main: ${prettyPrint(constraints.precondition)}")
+    println(s"The postcondition for main: ${prettyPrint(constraints.postcondition)}")
 }
 
 object App {
