@@ -1,6 +1,6 @@
 package plaid.ast
 
-trait Cmd extends Node
+sealed trait Cmd extends Node
 case class AssertCmd(e1: Expr, e2: Expr, e3: Expr) extends Cmd
 case class AssignCmd(e1: Expr, e2: Expr) extends Cmd
 case class ListCmd(c1: Cmd, c2: Cmd) extends Cmd

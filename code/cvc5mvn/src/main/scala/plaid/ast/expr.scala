@@ -2,7 +2,7 @@ package plaid.ast
 
 // TODO FunctionCallExpr, Identifier maybe should be separate for constraints?
 
-trait Expr extends Node
+sealed trait Expr extends Node
 case class AtExpr(e1: Expr, e2: Expr) extends Expr
 case class ConcatExpr(e1: Expr, e2: Expr) extends Expr
 case class FieldExpr(elements: java.util.TreeMap[Identifier, Expr]) extends Expr
