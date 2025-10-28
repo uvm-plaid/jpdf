@@ -232,7 +232,7 @@ public class ConstraintAnalyzerTest {
 
     @Test
     public void concatLiterals() {
-        Program program = new Program(List.of(), List.of(), List.of(), null, null);
+        Program program = new Program(List.of(), List.of(), List.of());
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         Expr input = new ConcatExpr(new Str("a"), new Str("b"));
         Object actual = evaluator.toOverture(input);
@@ -245,7 +245,7 @@ public class ConstraintAnalyzerTest {
      */
     @Test
     public void concatGroupedLiterals() {
-        Program program = new Program(List.of(), List.of(), List.of(), null, null);
+        Program program = new Program(List.of(), List.of(), List.of());
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         Expr group1 = new ConcatExpr(new Str("a"), new Str("b"));
         Expr group2 = new ConcatExpr(new Str("c"), new Str("d"));

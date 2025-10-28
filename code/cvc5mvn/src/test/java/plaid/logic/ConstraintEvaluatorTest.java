@@ -12,14 +12,14 @@ public class ConstraintEvaluatorTest {
 
     private Expr evalExpr(String src, List<ExprFunction> exprFunctions) {
         Expr ast = Loader.toExpression(src);
-        ConstraintEvaluator evaluator = new ConstraintEvaluator(new Program(List.of(), exprFunctions, List.of(), null, null));
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(new Program(List.of(), exprFunctions, List.of()));
         return evaluator.toOverture(ast);
     }
 
 
     private Cmd evalCommand(String src, List<CommandFunction> commandFunctions) {
         Cmd ast = Loader.toCommand(src);
-        ConstraintEvaluator evaluator = new ConstraintEvaluator(new Program(commandFunctions, List.of(), List.of(), null, null));
+        ConstraintEvaluator evaluator = new ConstraintEvaluator(new Program(commandFunctions, List.of(), List.of()));
         return evaluator.evalInstruction(ast);
     }
 
@@ -135,7 +135,7 @@ public class ConstraintEvaluatorTest {
      */
     @Test
     public void constraintEvaluationReducesConcatenation() {
-        Program program = new Program(List.of(), List.of(), List.of(), null, null);
+        Program program = new Program(List.of(), List.of(), List.of());
         Constraint expr = Loader.toConstraintExpression("2 == m[\"x\" ++ \"y\"]@1");
         ConstraintEvaluator evaluator = new ConstraintEvaluator(program);
         Constraint actual = evaluator.evalConstraint(expr);

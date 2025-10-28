@@ -20,7 +20,7 @@ public class GenEntailVerifierTest {
      */
     @Test
     public void genFreshStringTest() throws CVC5ApiException{
-        Program program = new Program(List.of(), List.of(), List.of(), null, null);
+        Program program = new Program(List.of(), List.of(), List.of());
         GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2"); // initialize counter = 0
         
         assertEquals(new Str("$1"), genEntailVerifier.genFreshValue(new StringType()));
@@ -33,7 +33,7 @@ public class GenEntailVerifierTest {
      */
     @Test
     public void genFreshCIDTest() throws CVC5ApiException{
-        Program program = new Program(List.of(), List.of(), List.of(), null, null);
+        Program program = new Program(List.of(), List.of(), List.of());
         GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2"); // initialize counter = 0
         
         assertEquals(new Num(-1),  genEntailVerifier.genFreshValue(new PartyIndexType()));
@@ -48,7 +48,7 @@ public class GenEntailVerifierTest {
     public void genFreshRecordTest() throws CVC5ApiException {
         String src = "{ s : string ; i : cid}";
         // initialize counter = 1
-        Program program = new Program(List.of(), List.of(), List.of(), null, null);
+        Program program = new Program(List.of(), List.of(), List.of());
         GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2"); 
 
         RecordType recordType = (RecordType) Loader.toType(src); // convert a string src into AST
@@ -68,7 +68,7 @@ public class GenEntailVerifierTest {
     public void nestedRecordType() throws CVC5ApiException {
         String src = "{t: {s:string; t2:{i:cid}}}";
         // initialize counter = 1
-        Program program = new Program(List.of(), List.of(), List.of(), null, null);
+        Program program = new Program(List.of(), List.of(), List.of());
         GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2");
         
         RecordType recordType = (RecordType) Loader.toType(src);
@@ -90,7 +90,7 @@ public class GenEntailVerifierTest {
         String e1 = "m[z++\"s\"]@i1 == m[x++\"s\"]@i1 + m[y++\"s\"]@i1 AND m[z++\"s\"]@i2 == m[x++\"s\"]@i2 + m[y++\"s\"]@i2";
         String e2 = "m[z++\"s\"]@i1 + m[z++\"s\"]@i2 == m[x++\"s\"]@i1 + m[y++\"s\"]@i1 + m[x++\"s\"]@i2 + m[y++\"s\"]@i2";
 
-        Program program = new Program(List.of(), List.of(), List.of(), null, null);
+        Program program = new Program(List.of(), List.of(), List.of());
         GenEntailVerifier genEntailVerifier = new GenEntailVerifier(program, "2");
         List<TypedIdentifier> typing = List.of( 
             new TypedIdentifier(new Identifier("i2"), new PartyIndexType()),

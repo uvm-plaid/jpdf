@@ -14,9 +14,7 @@ case class TypedIdentifier(y: Identifier, t: Type) extends Node
 case class Program(
                     commandFunctions: java.util.List[CommandFunction],
                     exprFunctions: java.util.List[ExprFunction],
-                    constraintFunctions: java.util.List[ConstraintFunction],
-                    precondition: Constraint,
-                    postcondition: Constraint) extends Node {
+                    constraintFunctions: java.util.List[ConstraintFunction]) extends Node {
 
   def resolveExprFunction(functionName: Expr): ExprFunction = {
     exprFunctions.asScala.find(x => x.fname == functionName).get

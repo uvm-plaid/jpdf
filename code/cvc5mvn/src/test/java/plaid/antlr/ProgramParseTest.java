@@ -50,9 +50,6 @@ public class ProgramParseTest {
                         }
                 
                         main(){ oneTimePad("foo", "bar", "pan") }
-                
-                        precondition: (m["pan"]@1 ==  s["foo"]@2 + (r["bar"]@2+1))
-                        postcondition: (m["pan"]@1 ==  s["foo"]@2 + (r["bar"]@2+1))
                 """);
 
         //System.out.println("program test: " + program);
