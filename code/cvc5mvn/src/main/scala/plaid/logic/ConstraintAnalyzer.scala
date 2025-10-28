@@ -4,7 +4,6 @@ import plaid.ast.*
 import plaid.prettyPrint
 
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.*
 
 class ConstraintAnalyzer(val program: Program, order: String) {
 
@@ -16,7 +15,7 @@ class ConstraintAnalyzer(val program: Program, order: String) {
 
   /** Calculate precondition and postcondition for a function (FN rule) */
   def inferPrePostFN(function: CommandFunction): Constraints = {
-    val evaluator = new ConstraintEvaluator(program)
+    val evaluator = ConstraintEvaluator(program)
     val constraints = inferPrePostCmd(function.c, evaluator)
 
     if function.precond == null && function.postcond == null then
@@ -79,10 +78,9 @@ class ConstraintAnalyzer(val program: Program, order: String) {
         functionConstraints.put(id, inferPrePostFN(fn))
       val constraints = functionConstraints(id)
 
-      evaluator.binding_list.add(binding(fn.typedVariables, callCmd.parameters).asJava)
-      val pre = Option(constraints.precondition).map(evaluator.evalConstraint).orNull
-      val post = Option(constraints.postcondition).map(evaluator.evalConstraint).orNull
-      evaluator.binding_list.removeLast()
+      val ev = evaluator.copy(bindings = binding(fn.typedVariables, callCmd.parameters))
+      val pre = Option(constraints.precondition).map(ev.evalConstraint).orNull
+      val post = Option(constraints.postcondition).map(ev.evalConstraint).orNull
       Constraints(pre, post)
 
     case _ =>
