@@ -46,7 +46,7 @@ class QuickstartTest {
     val m_x_1 = tm.mkConst(sort, "m_x_1")
 
     val factory = new TermFactory(tm, sort)
-    assertNotEquals(m_x_1, factory.toTerm(new MessageExpr(new Str("x")), 1))
+    assertNotEquals(m_x_1, factory.toTerm(MessageExpr(Str("x")), 1))
   }
 
   @Test

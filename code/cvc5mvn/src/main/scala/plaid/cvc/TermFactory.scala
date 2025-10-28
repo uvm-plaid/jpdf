@@ -94,7 +94,7 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
   def lookupOrCreate(expr: Expr, idx: Integer): Term = {
     val name = CvcUtils.getCvcName(expr, idx)
     val memory = memories.asScala.find(_.name == name).getOrElse {
-      new Memory(name, termManager.mkConst(sort, name), expr, idx)
+      Memory(name, termManager.mkConst(sort, name), expr, idx)
     }
     memories.add(memory)
     memory.term

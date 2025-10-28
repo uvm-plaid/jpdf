@@ -31,8 +31,8 @@ class ConstraintAnalyzer(val program: Program, order: String) {
 
       if verifier.genEntails(function.typedVariables, e1, e1p) &&
         verifier.genEntails(function.typedVariables, AndConstraint(e1, e2p), e2) then
-        functionConstraints.put(function.fname, new Constraints(function.precond, function.postcond))
-        new Constraints(function.precond, function.postcond)
+        functionConstraints.put(function.fname, Constraints(function.precond, function.postcond))
+        Constraints(function.precond, function.postcond)
       else
         throw new RuntimeException(s"The hardpack does not hold for ${prettyPrint(function.fname)}")
   }
@@ -40,7 +40,7 @@ class ConstraintAnalyzer(val program: Program, order: String) {
   /** Recursively infer pre/postconditions for a command */
   def inferPrePostCmd(command: Cmd, evaluator: ConstraintEvaluator): Constraints = command match
     case assignCmd: AssignCmd =>
-      new Constraints(
+      Constraints(
         TrueConstraint(),
         EqualConstraint(
           evaluator.toOverture(assignCmd.e1),
@@ -49,7 +49,7 @@ class ConstraintAnalyzer(val program: Program, order: String) {
       )
 
     case assertCmd: AssertCmd =>
-      new Constraints(
+      Constraints(
         EqualConstraint(
           appendPartyIndex(evaluator.toOverture(assertCmd.e1), evaluator.toOverture(assertCmd.e3)),
           appendPartyIndex(evaluator.toOverture(assertCmd.e2), evaluator.toOverture(assertCmd.e3))
@@ -70,7 +70,7 @@ class ConstraintAnalyzer(val program: Program, order: String) {
       val reducedPost: Optional[Constraint] =
         constraints.asScala.map(_.postcondition).filter(_ != null).reduceOption((a, b) => AndConstraint(a, b)).asJava
 
-      new Constraints(reducedPre.orElse(null), reducedPost.orElse(null))
+      Constraints(reducedPre.orElse(null), reducedPost.orElse(null))
 
     case callCmd: CallCmd =>
       val id = callCmd.fname
@@ -84,7 +84,7 @@ class ConstraintAnalyzer(val program: Program, order: String) {
       val pre = Option(constraints.precondition).map(evaluator.evalConstraint).orNull
       val post = Option(constraints.postcondition).map(evaluator.evalConstraint).orNull
       evaluator.binding_list.removeLast()
-      new Constraints(pre, post)
+      Constraints(pre, post)
 
     case _ =>
       throw new RuntimeException("cannot infer precondition from invalid input")

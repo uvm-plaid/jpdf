@@ -27,8 +27,8 @@ class ConstraintAnalyzerTest {
   @throws[CVC5ApiException]
   def inferAssignment(): Unit = {
     val src = """m[x]@1 := (s[x]+r[x])@2"""
-    val expected = new Constraints(
-      new TrueConstraint(),
+    val expected = Constraints(
+      TrueConstraint(),
       Loader.toConstraintExpression("""m[x]@1 == s[x]@2 + r[x]@2""")
     )
     assertEquals(expected.precondition, inferPrePostCmd(src, "").precondition)
@@ -40,9 +40,9 @@ class ConstraintAnalyzerTest {
   @throws[CVC5ApiException]
   def inferAssert(): Unit = {
     val src = """assert (m[x] = m[y])@1"""
-    val expected = new Constraints(
+    val expected = Constraints(
       Loader.toConstraintExpression("""m[x]@1 == m[y]@1"""),
-      new TrueConstraint()
+      TrueConstraint()
     )
     assertEquals(expected.precondition, inferPrePostCmd(src, "").precondition)
     assertEquals(expected.postcondition, inferPrePostCmd(src, "").postcondition)
@@ -53,8 +53,8 @@ class ConstraintAnalyzerTest {
   @throws[CVC5ApiException]
   def inferLet(): Unit = {
     val src = """let i = 1 in m[x]@i := m[x]@2"""
-    val expected = new Constraints(
-      new TrueConstraint(),
+    val expected = Constraints(
+      TrueConstraint(),
       Loader.toConstraintExpression("""m[x]@1 == m[x]@2""")
     )
     assertEquals(expected.precondition, inferPrePostCmd(src, "").precondition)
@@ -66,7 +66,7 @@ class ConstraintAnalyzerTest {
   @throws[CVC5ApiException]
   def inferCommandList(): Unit = {
     val src = """m[x]@1 := m[x]@2; assert(m[y]=m[x])@i"""
-    val expected = new Constraints(
+    val expected = Constraints(
       Loader.toConstraintExpression("""T AND m[y]@i==m[x]@i"""),
       Loader.toConstraintExpression("""m[x]@1 == m[x]@2 AND T""")
     )
@@ -85,9 +85,9 @@ class ConstraintAnalyzerTest {
         |main(){f(1)}
         |""".stripMargin
 
-    val expected = new Constraints(
+    val expected = Constraints(
       Loader.toConstraintExpression("""m["x"]@1 == m["x"]@1"""),
-      new TrueConstraint()
+      TrueConstraint()
     )
 
     val actual = inferPrePostCmd("f(1)", program)
@@ -108,7 +108,7 @@ class ConstraintAnalyzerTest {
         |  assert(m["x"] = m["z"] + m["z"])@1
         |}""".stripMargin
 
-    val expected = new Constraints(
+    val expected = Constraints(
       Loader.toConstraintExpression("""m["y"]@1 == 2 AND m["z"]@1 == 3"""),
       null
     )
@@ -128,7 +128,7 @@ class ConstraintAnalyzerTest {
         |
         |main(){f(1); let x = "foo" in m[x]@2 := m[x]@2}""".stripMargin
 
-    val expected = new Constraints(
+    val expected = Constraints(
       Loader.toConstraintExpression("""m["x"]@1 == m["x"]@1 AND T"""),
       Loader.toConstraintExpression("""T AND m["foo"]@2 == m["foo"]@2""")
     )
@@ -153,7 +153,7 @@ class ConstraintAnalyzerTest {
         |precondition: ( m["y"]@1 == 2 AND m["z"]@1 == 3)
         |h() { g() }""".stripMargin
 
-    val expected = new Constraints(
+    val expected = Constraints(
       Loader.toConstraintExpression("""m["y"]@1 == 2 AND m["z"]@1 == 3"""),
       null
     )
@@ -188,8 +188,8 @@ class ConstraintAnalyzerTest {
         |f(x:string) {m[x++"foo"]@1 := m[x++"foo"]@1}
         |main(){ f(x++"s") }""".stripMargin
 
-    val expected = new Constraints(
-      new TrueConstraint(),
+    val expected = Constraints(
+      TrueConstraint(),
       Loader.toConstraintExpression("""m[x++"sfoo"]@1 == m[x++"sfoo"]@1""")
     )
 
@@ -199,24 +199,24 @@ class ConstraintAnalyzerTest {
 
   @Test
   def concatLiterals(): Unit = {
-    val program = new Program(List(), List(), List())
+    val program = Program(List(), List(), List())
     val evaluator = new ConstraintEvaluator(program)
-    val input = new ConcatExpr(new Str("a"), new Str("b"))
+    val input = ConcatExpr(Str("a"), Str("b"))
     val actual = evaluator.toOverture(input)
-    val expected = new Str("ab")
+    val expected = Str("ab")
     assertEquals(expected, actual)
   }
 
   /** ("a" ++ "b") ++ ("c" ++ "d") */
   @Test
   def concatGroupedLiterals(): Unit = {
-    val program = new Program(List(), List(), List())
+    val program = Program(List(), List(), List())
     val evaluator = new ConstraintEvaluator(program)
-    val group1 = new ConcatExpr(new Str("a"), new Str("b"))
-    val group2 = new ConcatExpr(new Str("c"), new Str("d"))
-    val input = new ConcatExpr(group1, group2)
+    val group1 = ConcatExpr(Str("a"), Str("b"))
+    val group2 = ConcatExpr(Str("c"), Str("d"))
+    val input = ConcatExpr(group1, group2)
     val actual = evaluator.toOverture(input)
-    val expected = new Str("abcd")
+    val expected = Str("abcd")
     assertEquals(expected, actual)
   }
 

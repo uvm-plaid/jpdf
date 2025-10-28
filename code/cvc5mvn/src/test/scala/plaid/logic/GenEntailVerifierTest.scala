@@ -13,37 +13,37 @@ class GenEntailVerifierTest {
   @Test
   @throws[ CVC5ApiException ]
   def genFreshStringTest(): Unit = {
-    val program = new Program(List(), List(), List())
+    val program = Program(List(), List(), List())
     val genEntailVerifier = new GenEntailVerifier(program, "2")
 
-    assertEquals(new Str("$1"), genEntailVerifier.genFreshValue(new StringType()))
-    assertEquals(new Str("$2"), genEntailVerifier.genFreshValue(new StringType()))
-    assertEquals(new Str("$3"), genEntailVerifier.genFreshValue(new StringType()))
+    assertEquals(Str("$1"), genEntailVerifier.genFreshValue(StringType()))
+    assertEquals(Str("$2"), genEntailVerifier.genFreshValue(StringType()))
+    assertEquals(Str("$3"), genEntailVerifier.genFreshValue(StringType()))
   }
 
   @Test
   @throws[ CVC5ApiException ]
   def genFreshCIDTest(): Unit = {
-    val program = new Program(List(), List(), List())
+    val program = Program(List(), List(), List())
     val genEntailVerifier = new GenEntailVerifier(program, "2")
 
-    assertEquals(new Num(-1), genEntailVerifier.genFreshValue(new PartyIndexType()))
-    assertEquals(new Num(-2), genEntailVerifier.genFreshValue(new PartyIndexType()))
-    assertEquals(new Num(-3), genEntailVerifier.genFreshValue(new PartyIndexType()))
+    assertEquals(Num(-1), genEntailVerifier.genFreshValue(PartyIndexType()))
+    assertEquals(Num(-2), genEntailVerifier.genFreshValue(PartyIndexType()))
+    assertEquals(Num(-3), genEntailVerifier.genFreshValue(PartyIndexType()))
   }
 
   @Test
   @throws[ CVC5ApiException ]
   def genFreshRecordTest(): Unit = {
     val src = "{ s : string ; i : cid}"
-    val program = new Program(List(), List(), List())
+    val program = Program(List(), List(), List())
     val genEntailVerifier = new GenEntailVerifier(program, "2")
 
     val recordType = Loader.toType(src).asInstanceOf[RecordType]
     val map = new TreeMap[Identifier, Expr]()
-    map.put(new Identifier("s"), new Str("$2"))
-    map.put(new Identifier("i"), new Num(-1))
-    val expected = new FieldExpr(map)
+    map.put(Identifier("s"), Str("$2"))
+    map.put(Identifier("i"), Num(-1))
+    val expected = FieldExpr(map)
 
     assertEquals(expected, genEntailVerifier.genFreshValue(recordType))
   }
@@ -52,16 +52,16 @@ class GenEntailVerifierTest {
   @throws[ CVC5ApiException ]
   def nestedRecordType(): Unit = {
     val src = "{t: {s:string; t2:{i:cid}}}"
-    val program = new Program(List(), List(), List())
+    val program = Program(List(), List(), List())
     val genEntailVerifier = new GenEntailVerifier(program, "2")
 
     val recordType = Loader.toType(src).asInstanceOf[RecordType]
 
     val innermap = new TreeMap[Identifier, Expr]()
-    innermap.put(new Identifier("s"), new Str("$1"))
-    innermap.put(new Identifier("t2"), new FieldExpr(new TreeMap(Map.of(new Identifier("i"), new Num(-2)))))
+    innermap.put(Identifier("s"), Str("$1"))
+    innermap.put(Identifier("t2"), FieldExpr(new TreeMap(Map.of(Identifier("i"), Num(-2)))))
 
-    val expected = new FieldExpr(new TreeMap(Map.of(new Identifier("t"), new FieldExpr(innermap))))
+    val expected = FieldExpr(new TreeMap(Map.of(Identifier("t"), FieldExpr(innermap))))
     assertEquals(expected, genEntailVerifier.genFreshValue(recordType))
   }
 
@@ -75,15 +75,15 @@ class GenEntailVerifierTest {
       """m[z++"s"]@i1 + m[z++"s"]@i2 ==
         |m[x++"s"]@i1 + m[y++"s"]@i1 + m[x++"s"]@i2 + m[y++"s"]@i2""".stripMargin
 
-    val program = new Program(List(), List(), List())
+    val program = Program(List(), List(), List())
     val genEntailVerifier = new GenEntailVerifier(program, "2")
 
     val typing = List(
-      new TypedIdentifier(new Identifier("i2"), new PartyIndexType()),
-      new TypedIdentifier(new Identifier("y"), new StringType()),
-      new TypedIdentifier(new Identifier("x"), new StringType()),
-      new TypedIdentifier(new Identifier("i1"), new PartyIndexType()),
-      new TypedIdentifier(new Identifier("z"), new StringType())
+      TypedIdentifier(Identifier("i2"), PartyIndexType()),
+      TypedIdentifier(Identifier("y"), StringType()),
+      TypedIdentifier(Identifier("x"), StringType()),
+      TypedIdentifier(Identifier("i1"), PartyIndexType()),
+      TypedIdentifier(Identifier("z"), StringType())
     )
 
     val result1 = genEntailVerifier.genEntails(typing, Loader.toConstraintExpression(e1), Loader.toConstraintExpression(e2))

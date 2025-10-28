@@ -83,8 +83,8 @@ class TermFactoryTest {
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
     val terms = factory.toTerm(ListCmd(
-      AssertCmd(new OutputExpr(), new Num(1), new Num(3)),
-      AssignCmd(new AtExpr(new OutputExpr(), new Num(1)), new Num(3))
+      AssertCmd(OutputExpr(), Num(1), Num(3)),
+      AssignCmd(AtExpr(OutputExpr(), Num(1)), Num(3))
     ))
     // assertEquals(2, terms.size()) // optional
   }
@@ -96,7 +96,7 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    val term = factory.toTerm(new Num(1))
+    val term = factory.toTerm(Num(1))
     assertNotNull(term.getFiniteFieldValue)
   }
 
@@ -107,8 +107,8 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    val mem = new AtExpr(new MessageExpr(new Str("x")), new Num(3))
-    val expr = new PlusExpr(new Num(6), mem)
+    val mem = AtExpr(MessageExpr(Str("x")), Num(3))
+    val expr = PlusExpr(Num(6), mem)
     factory.toTerm(expr)
     val memories = factory.getMemories.asScala
     assertEquals(1, memories.size)
@@ -121,7 +121,7 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    val expr = new AtExpr(new MessageExpr(new Str("x")), new Num(3))
+    val expr = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(expr)
     val memories = factory.getMemories.asScala
     assertEquals(1, memories.size)
@@ -137,9 +137,9 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    val expr1 = new AtExpr(new MessageExpr(new Str("x")), new Num(3))
+    val expr1 = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(expr1)
-    val expr2 = new AtExpr(new RandomExpr(new Str("y")), new Num(5))
+    val expr2 = AtExpr(RandomExpr(Str("y")), Num(5))
     factory.toTerm(expr2)
     val memories = factory.getMemories.asScala
     assertEquals(2, memories.size)
@@ -167,9 +167,9 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    val ast = new AndConstraint(
-      new EqualConstraint(new AtExpr(new MessageExpr(new Str("x")), new Num(3)), new AtExpr(new RandomExpr(new Str("y")), new Num(5))),
-      new EqualConstraint(new AtExpr(new RandomExpr(new Str("y")), new Num(5)), new Num(1))
+    val ast = AndConstraint(
+      EqualConstraint(AtExpr(MessageExpr(Str("x")), Num(3)), AtExpr(RandomExpr(Str("y")), Num(5))),
+      EqualConstraint(AtExpr(RandomExpr(Str("y")), Num(5)), Num(1))
     )
     val term = factory.constraintToTerm(ast)
     val verifier = new Verifier(factory)
@@ -186,10 +186,10 @@ class TermFactoryTest {
     val sort = termManager.mkFiniteFieldSort("2", 10)
     val factory = new TermFactory(termManager, sort)
     val term = factory.constraintToTerm(
-      new NotConstraint(
-        new EqualConstraint(
-          new AtExpr(new MessageExpr(new Str("foo")), new Num(3)),
-          new Num(0)
+      NotConstraint(
+        EqualConstraint(
+          AtExpr(MessageExpr(Str("foo")), Num(3)),
+          Num(0)
         )
       )
     )
@@ -206,7 +206,7 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("2", 10)
     val factory = new TermFactory(termManager, sort)
-    val term = factory.constraintToTerm(new TrueConstraint())
+    val term = factory.constraintToTerm(TrueConstraint())
     assertEquals(termManager.mkTrue(), term)
   }
 
@@ -232,9 +232,9 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    val expr = new AtExpr(new MessageExpr(new Str("x")), new Num(3))
+    val expr = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(expr)
-    val twin = new AtExpr(new MessageExpr(new Str("x")), new Num(3))
+    val twin = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(twin)
     val memories = factory.getMemories.asScala
     assertEquals(1, memories.size)
@@ -247,7 +247,7 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    factory.toTerm(new CallCmd(new Identifier("f"), List()))
+    factory.toTerm(CallCmd(Identifier("f"), List()))
   }
 
   /** CVC5 interpretation for OT */
@@ -258,14 +258,14 @@ class TermFactoryTest {
     val sort = termManager.mkFiniteFieldSort("2", 10)
     val factory = new TermFactory(termManager, sort)
 
-    val expr1 = new AtExpr(
-      new OTExpr(
-        new MessageExpr(new Str("x")),
-        new Num(3),
-        new RandomExpr(new Str("y")),
-        new MessageExpr(new Str("foo"))
+    val expr1 = AtExpr(
+      OTExpr(
+        MessageExpr(Str("x")),
+        Num(3),
+        RandomExpr(Str("y")),
+        MessageExpr(Str("foo"))
       ),
-      new Num(2)
+      Num(2)
     )
 
     val m_x_3 = termManager.mkConst(sort, "m_x_3")
