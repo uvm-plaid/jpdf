@@ -11,7 +11,7 @@ object CommandVisitor extends PreludeBaseVisitor[Cmd] {
   override def visitFunctionCallCommand(ctx: FunctionCallCommandContext): CallCmd =
     CallCmd(
       Identifier(ctx.ident().getText),
-      ctx.expr().asScala.map(Loader.toExpression).toList.asJava
+      ctx.expr().asScala.map(Loader.toExpression).toList
     )
 
   override def visitAssignCommand(ctx: AssignCommandContext): AssignCmd =

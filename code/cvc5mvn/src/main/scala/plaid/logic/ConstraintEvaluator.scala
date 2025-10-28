@@ -48,10 +48,10 @@ class ConstraintEvaluator(val program: Program) {
       result
 
     case fe: FunctionCall =>
-      val actualParams = fe.parameters.asScala.map(toOverture).toList
+      val actualParams = fe.parameters.map(toOverture).toList
       val bindings = new HashMap[Identifier, Expr]
       val fn = program.resolveExprFunction(fe.fname)
-      fn.y.asScala.zip(actualParams).foreach((id, value) => bindings.put(id, value))
+      fn.y.zip(actualParams).foreach((id, value) => bindings.put(id, value))
       binding_list.add(bindings)
       val result = toOverture(fn.e)
       binding_list.removeLast()
@@ -86,10 +86,10 @@ class ConstraintEvaluator(val program: Program) {
       AssignCmd(toOverture(assignCmd.e1), toOverture(assignCmd.e2))
 
     case callCmd: CallCmd =>
-      val actualParameters = callCmd.parameters.asScala.map(toOverture).toList
+      val actualParameters = callCmd.parameters.map(toOverture).toList
       val fn = program.resolveCommandFunction(callCmd.fname)
       val bindings = new HashMap[Identifier, Expr]
-      fn.typedVariables.asScala.zip(actualParameters).foreach((typedId, value) => bindings.put(typedId.y, value))
+      fn.typedVariables.zip(actualParameters).foreach((typedId, value) => bindings.put(typedId.y, value))
       binding_list.add(bindings)
       val result = evalInstruction(fn.c)
       binding_list.removeLast()
@@ -120,8 +120,8 @@ class ConstraintEvaluator(val program: Program) {
     case x: EqualConstraint => EqualConstraint(toOverture(x.e1), toOverture(x.e2))
     case x: FunctionCall =>
       val fn = program.resolveConstraintFunction(x.fname)
-      val formalParams = fn.params.asScala.toList
-      val actualParams = x.parameters.asScala.map(toOverture).toList
+      val formalParams = fn.params
+      val actualParams = x.parameters.map(toOverture)
       val bindings = new HashMap[Identifier, Expr]
       formalParams.zip(actualParams).foreach((id, value) => bindings.put(id, value))
       binding_list.add(bindings)

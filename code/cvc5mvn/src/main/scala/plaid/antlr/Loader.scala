@@ -56,9 +56,9 @@ object Loader {
     ParseTreeWalker.DEFAULT.walk(listener, ctx)
 
     Program(
-      listener.getCommandFunctions,
-      listener.getExprFunctions,
-      listener.getConstraintFunctions)
+      listener.commandFunctions.toList,
+      listener.exprFunctions.toList,
+      listener.constraintFunctions.toList)
   }
 
   /** Converts Prelude source code into an abstract syntax tree for a Prelude program. */

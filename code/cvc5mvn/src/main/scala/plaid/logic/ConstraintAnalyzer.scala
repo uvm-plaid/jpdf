@@ -12,12 +12,8 @@ class ConstraintAnalyzer(val program: Program, order: String) {
   private val verifier = new GenEntailVerifier(program, order)
   private val functionConstraints: JMap[Identifier, Constraints] = new HashMap()
 
-  private def binding(formal: JList[TypedIdentifier], actual: JList[Expr]): JMap[Identifier, Expr] = {
-    val bindingList: JMap[Identifier, Expr] = new HashMap()
-    for i <- 0 until formal.size do
-      bindingList.put(formal.get(i).y, actual.get(i))
-    bindingList
-  }
+  private def binding(formal: List[TypedIdentifier], actual: List[Expr]): Map[Identifier, Expr] =
+    formal.map(_.y).zip(actual).toMap
 
   /** Calculate precondition and postcondition for a function (FN rule) */
   def inferPrePostFN(function: CommandFunction): Constraints = {
@@ -84,7 +80,7 @@ class ConstraintAnalyzer(val program: Program, order: String) {
         functionConstraints.put(id, inferPrePostFN(fn))
       val constraints = functionConstraints.get(id)
 
-      evaluator.binding_list.add(binding(fn.typedVariables, callCmd.parameters))
+      evaluator.binding_list.add(binding(fn.typedVariables, callCmd.parameters).asJava)
       val pre = Option(constraints.precondition).map(evaluator.evalConstraint).orNull
       val post = Option(constraints.postcondition).map(evaluator.evalConstraint).orNull
       evaluator.binding_list.removeLast()

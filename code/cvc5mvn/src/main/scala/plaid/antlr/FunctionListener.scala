@@ -8,13 +8,9 @@ import scala.jdk.CollectionConverters.*
 
 class FunctionListener extends PreludeBaseListener {
 
-  private val exprFunctions = scala.collection.mutable.ListBuffer[ExprFunction]()
-  private val commandFunctions = scala.collection.mutable.ListBuffer[CommandFunction]()
-  private val constraintFunctions = scala.collection.mutable.ListBuffer[ConstraintFunction]()
-
-  def getExprFunctions: java.util.List[ExprFunction] = exprFunctions.toList.asJava
-  def getCommandFunctions: java.util.List[CommandFunction] = commandFunctions.toList.asJava
-  def getConstraintFunctions: java.util.List[ConstraintFunction] = constraintFunctions.toList.asJava
+  val exprFunctions = scala.collection.mutable.ListBuffer[ExprFunction]()
+  val commandFunctions = scala.collection.mutable.ListBuffer[CommandFunction]()
+  val constraintFunctions = scala.collection.mutable.ListBuffer[ConstraintFunction]()
 
   private def toIdentifiers(contexts: java.util.List[IdentContext]): List[Identifier] =
     contexts.asScala.drop(1).map(ctx => Identifier(ctx.getText)).toList
@@ -27,7 +23,7 @@ class FunctionListener extends PreludeBaseListener {
   override def enterExprFunc(ctx: ExprFuncContext): Unit = {
     exprFunctions += ExprFunction(
       Identifier(ctx.ident(0).getText), // function name
-      toIdentifiers(ctx.ident()).asJava,           // parameters
+      toIdentifiers(ctx.ident()),           // parameters
       Loader.toExpression(ctx.expr())       // body
     )
   }
@@ -40,7 +36,7 @@ class FunctionListener extends PreludeBaseListener {
 
     commandFunctions += CommandFunction(
       Identifier(ctx.ident().getText),
-      toTypedIdentifiers(ctx.typedIdent()).asJava,
+      toTypedIdentifiers(ctx.typedIdent()),
       Loader.toCommand(ctx.command()),
       precondition,
       postcondition
@@ -50,7 +46,7 @@ class FunctionListener extends PreludeBaseListener {
   override def enterConstraintFunc(ctx: ConstraintFuncContext): Unit = {
     constraintFunctions += ConstraintFunction(
       Identifier(ctx.ident(0).getText),
-      toIdentifiers(ctx.ident()).asJava,
+      toIdentifiers(ctx.ident()),
       Loader.toConstraintExpression(ctx.constraintExpr())
     )
   }

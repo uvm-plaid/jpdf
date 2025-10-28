@@ -7,7 +7,7 @@ case class AtExpr(e1: Expr, e2: Expr) extends Expr
 case class ConcatExpr(e1: Expr, e2: Expr) extends Expr
 case class FieldExpr(elements: java.util.TreeMap[Identifier, Expr]) extends Expr
 case class FieldSelectExpr(e: Expr, l: Identifier) extends Expr
-case class FunctionCall(fname: Identifier, parameters: java.util.List[Expr]) extends Expr, Constraint
+case class FunctionCall(fname: Identifier, parameters: List[Expr]) extends Expr, Constraint
 case class LetExpr(y: Identifier, e1: Expr, e2: Expr) extends Expr
 case class MessageExpr(e: Expr) extends Expr
 case class RandomExpr(e: Expr) extends Expr

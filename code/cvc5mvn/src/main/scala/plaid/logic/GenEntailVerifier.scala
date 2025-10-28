@@ -44,11 +44,11 @@ class GenEntailVerifier(val program: Program, order: String) {
    * @param e2      abstract postcondition
    * @return true/false
    */
-  def genEntails(typings: java.util.List[TypedIdentifier], e1: Constraint, e2: Constraint): Boolean = {
+  def genEntails(typings: List[TypedIdentifier], e1: Constraint, e2: Constraint): Boolean = {
     val bindingList: Map[Identifier, Expr] = new HashMap()
 
     // generate fresh values for variables
-    typings.asScala.foreach { typing =>
+    typings.foreach { typing =>
       bindingList.put(typing.y, genFreshValue(typing.t))
     }
 
