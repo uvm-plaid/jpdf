@@ -4,8 +4,7 @@ import io.github.cvc5.{Kind, Result, Solver, Term}
 import plaid.antlr.Loader
 import plaid.ast.Cmd
 
-import java.util.{HashMap, Map}
-import scala.collection.JavaConverters.asScalaSetConverter
+import scala.collection.JavaConverters.{asScalaSetConverter, mapAsScalaMapConverter}
 
 class Verifier(val termFactory: TermFactory) {
 
@@ -27,14 +26,14 @@ class Verifier(val termFactory: TermFactory) {
     val result = solver.checkSat()
     if (!result.isSat()) return null
 
-    val map: Map[Term, Integer] = new HashMap()
+    val map: java.util.Map[Term, Integer] = new java.util.HashMap()
     val mod = Integer.parseInt(termFactory.sort.getFiniteFieldSize)
     for (memory <- termFactory.getMemories.asScala) {
       val value = solver.getValue(memory.term)
       val finiteFieldValue = Integer.parseInt(CvcUtils.finiteFieldValue(value))
       map.put(memory.term, Math.floorMod(finiteFieldValue, mod))
     }
-    map
+    map.asScala.toMap
   }
 
   /** E1 entails E2 if there is no model that satisfies (E1 AND not E2) */
