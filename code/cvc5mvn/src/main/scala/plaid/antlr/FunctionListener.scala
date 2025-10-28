@@ -17,27 +17,27 @@ class FunctionListener extends PreludeBaseListener {
 
   private def toTypedIdentifiers(contexts: java.util.List[TypedIdentContext]): List[TypedIdentifier] =
     contexts.asScala.map { ctx =>
-      TypedIdentifier(Identifier(ctx.ident().getText), Load.typeMarker(ctx.`type`()))
+      TypedIdentifier(Identifier(ctx.ident().getText), Loader.typeMarker(ctx.`type`()))
     }.toList
 
   override def enterExprFunc(ctx: ExprFuncContext): Unit = {
     exprFunctions += ExprFunction(
       Identifier(ctx.ident(0).getText), // function name
       toIdentifiers(ctx.ident()),           // parameters
-      Load.expression(ctx.expr())       // body
+      Loader.expression(ctx.expr())       // body
     )
   }
 
   override def enterCommandFunc(ctx: CommandFuncContext): Unit = {
     val precondition =
-      Option(ctx.precondsection()).map(_.constraintExpr()).map(Load.constraint).orNull
+      Option(ctx.precondsection()).map(_.constraintExpr()).map(Loader.constraint).orNull
     val postcondition =
-      Option(ctx.postcondsection()).map(_.constraintExpr()).map(Load.constraint).orNull
+      Option(ctx.postcondsection()).map(_.constraintExpr()).map(Loader.constraint).orNull
 
     commandFunctions += CommandFunction(
       Identifier(ctx.ident().getText),
       toTypedIdentifiers(ctx.typedIdent()),
-      Load.command(ctx.command()),
+      Loader.command(ctx.command()),
       precondition,
       postcondition
     )
@@ -47,7 +47,7 @@ class FunctionListener extends PreludeBaseListener {
     constraintFunctions += ConstraintFunction(
       Identifier(ctx.ident(0).getText),
       toIdentifiers(ctx.ident()),
-      Load.constraint(ctx.constraintExpr())
+      Loader.constraint(ctx.constraintExpr())
     )
   }
 }

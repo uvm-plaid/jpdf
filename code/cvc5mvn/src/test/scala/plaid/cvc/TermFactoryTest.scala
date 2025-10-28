@@ -3,7 +3,7 @@ package plaid.cvc
 import io.github.cvc5.{CVC5ApiException, Kind, Term, TermManager}
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.Test
-import plaid.antlr.Load
+import plaid.antlr.Loader
 import plaid.ast.*
 
 class TermFactoryTest {
@@ -22,7 +22,7 @@ class TermFactoryTest {
   @Test(expected = classOf[IllegalStateException])
   @throws[CVC5ApiException]
   def partyIndexesDoNotStack(): Unit = {
-    val expr = Load.expression("(s[\"y\"] + s[\"x\"]@1)@2")
+    val expr = Loader.expression("(s[\"y\"] + s[\"x\"]@1)@2")
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
@@ -33,7 +33,7 @@ class TermFactoryTest {
   @Test(expected = classOf[IllegalStateException])
   @throws[CVC5ApiException]
   def memoryPartyIndexRequired(): Unit = {
-    val expr = Load.expression("m[\"y\"]")
+    val expr = Loader.expression("m[\"y\"]")
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
@@ -44,7 +44,7 @@ class TermFactoryTest {
   @Test(expected = classOf[IllegalStateException])
   @throws[CVC5ApiException]
   def secretPartyIndexRequired(): Unit = {
-    val expr = Load.expression("s[\"y\"]")
+    val expr = Loader.expression("s[\"y\"]")
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
@@ -55,7 +55,7 @@ class TermFactoryTest {
   @Test(expected = classOf[IllegalStateException])
   @throws[CVC5ApiException]
   def randomPartyIndexRequired(): Unit = {
-    val expr = Load.expression("r[\"y\"]")
+    val expr = Loader.expression("r[\"y\"]")
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
@@ -66,7 +66,7 @@ class TermFactoryTest {
   @Test(expected = classOf[IllegalStateException])
   @throws[CVC5ApiException]
   def outputPartyIndexRequired(): Unit = {
-    val expr = Load.expression("out")
+    val expr = Loader.expression("out")
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
@@ -150,7 +150,7 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    val ast = Load.constraint("m[\"foo\"]@3 == 5")
+    val ast = Loader.constraint("m[\"foo\"]@3 == 5")
     val term = factory.constraintToTerm(ast)
     val verifier = new Verifier(factory)
     val actual = verifier.findModelSatisfying(term)
@@ -215,7 +215,7 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    val ast = Load.constraint("out@1 == out@2 + 1 AND out@2 == out@3 + 2 AND out@3 == 4")
+    val ast = Loader.constraint("out@1 == out@2 + 1 AND out@2 == out@3 + 2 AND out@3 == 4")
     val term = factory.constraintToTerm(ast)
     val verifier = new Verifier(factory)
     val actual = verifier.findModelSatisfying(term)

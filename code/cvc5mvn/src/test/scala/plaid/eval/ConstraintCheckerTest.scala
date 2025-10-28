@@ -2,15 +2,15 @@ package plaid.eval
 
 import org.junit.Test
 import org.junit.Assert.{assertFalse, assertTrue}
-import plaid.antlr.Load
+import plaid.antlr.Loader
 
 class ConstraintCheckerTest {
 
   private def assertPasses(src: String): Unit =
-    assertTrue(ConstraintChecker.checkConstraint(Load.constraint(src)))
+    assertTrue(ConstraintChecker.checkConstraint(Loader.constraint(src)))
 
   private def assertFails(src: String): Unit =
-    assertFalse(ConstraintChecker.checkConstraint(Load.constraint(src)))
+    assertFalse(ConstraintChecker.checkConstraint(Loader.constraint(src)))
 
   /** Memories should always come with party indexes */
   @Test

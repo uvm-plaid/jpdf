@@ -6,12 +6,12 @@ import plaid.*
 import plaid.ast.*
 
 /** Support for converting Prelude source code into an abstract syntax tree. */
-object Load {
+object Loader {
 
   /** Creates an ANTLR4 parser for Prelude source code. */
   def parser(src: String): PreludeParser = {
     val input = new ANTLRInputStream(src)
-    val lexer  = new PreludeLexer(input)
+    val lexer = new PreludeLexer(input)
     val tokens = new CommonTokenStream(lexer)
     val parser = new PreludeParser(tokens)
     parser.setBuildParseTree(true)

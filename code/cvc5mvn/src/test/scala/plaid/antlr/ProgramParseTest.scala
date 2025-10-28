@@ -9,7 +9,7 @@ class ProgramParseTest {
   /** Parses an example program with postcondition. */
   @Test
   def programWithPostcondition(): Unit = {
-    val program: Program = Load.program(
+    val program: Program = Loader.program(
       """
         |exprfunctions:
         |
@@ -33,7 +33,7 @@ class ProgramParseTest {
   /** Parses an example program with both precondition and postcondition. */
   @Test
   def programWithPrePostcondition(): Unit = {
-    val program: Program = Load.program(
+    val program: Program = Loader.program(
       """
         |exprfunctions:
         |

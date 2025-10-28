@@ -7,7 +7,7 @@ import org.junit.Assert.assertEquals
 class ConstraintVisitorTest {
 
   /** converts string src code into AST */
-  private def ast(src: String): Constraint = Load.constraint(src)
+  private def ast(src: String): Constraint = Loader.constraint(src)
 
   /** parses equal constraints */
   @Test

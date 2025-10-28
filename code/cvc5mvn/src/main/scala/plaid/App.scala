@@ -2,7 +2,7 @@ package plaid
 
 import picocli.CommandLine
 import picocli.CommandLine.{Command, Option, Parameters}
-import plaid.antlr.Load
+import plaid.antlr.Loader
 import plaid.logic.ConstraintAnalyzer
 
 import java.io.File
@@ -22,9 +22,9 @@ class App extends Runnable {
 
   override def run(): Unit =
     val src = Files.readString(new File(path).toPath)
-    val ast = Load.program(src)
+    val ast = Loader.program(src)
     val analyzer = new ConstraintAnalyzer(ast, fieldSize)
-    val constraints = analyzer.inferPrePostFN(ast.resolveCommandFunction(Load.expression("main")))
+    val constraints = analyzer.inferPrePostFN(ast.resolveCommandFunction(Loader.expression("main")))
     println(s"The precondition for main: ${prettyPrint(constraints.precondition)}")
     println(s"The postcondition for main: ${prettyPrint(constraints.postcondition)}")
 }

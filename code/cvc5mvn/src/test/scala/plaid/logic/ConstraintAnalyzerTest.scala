@@ -3,23 +3,23 @@ package plaid.logic
 import io.github.cvc5.CVC5ApiException
 import org.junit.{Ignore, Test}
 import org.junit.Assert.assertEquals
-import plaid.antlr.Load
+import plaid.antlr.Loader
 import plaid.ast._
 
 class ConstraintAnalyzerTest {
 
   @throws[CVC5ApiException]
   private def inferPrePostCmd(src: String, program: String): Constraints = {
-    val ast: Program = Load.program(program)
+    val ast: Program = Loader.program(program)
     val analyzer = new ConstraintAnalyzer(ast, "2")
-    analyzer.inferPrePostCmd(Load.command(src), new ConstraintEvaluator(ast))
+    analyzer.inferPrePostCmd(Loader.command(src), new Evaluator(ast))
   }
 
   @throws[CVC5ApiException]
   private def inferPrePostFN(fName: String, src: String): Constraints = {
-    val program = Load.program(src)
+    val program = Loader.program(src)
     val analyzer = new ConstraintAnalyzer(program, "2")
-    analyzer.inferPrePostFN(program.resolveCommandFunction(Load.expression(fName)))
+    analyzer.inferPrePostFN(program.resolveCommandFunction(Loader.expression(fName)))
   }
 
   /** infer precondition/postcondition for message assignment */
@@ -29,7 +29,7 @@ class ConstraintAnalyzerTest {
     val src = """m[x]@1 := (s[x]+r[x])@2"""
     val expected = Constraints(
       TrueConstraint(),
-      Load.constraint("""m[x]@1 == s[x]@2 + r[x]@2""")
+      Loader.constraint("""m[x]@1 == s[x]@2 + r[x]@2""")
     )
     assertEquals(expected.precondition, inferPrePostCmd(src, "").precondition)
     assertEquals(expected.postcondition, inferPrePostCmd(src, "").postcondition)
@@ -41,7 +41,7 @@ class ConstraintAnalyzerTest {
   def inferAssert(): Unit = {
     val src = """assert (m[x] = m[y])@1"""
     val expected = Constraints(
-      Load.constraint("""m[x]@1 == m[y]@1"""),
+      Loader.constraint("""m[x]@1 == m[y]@1"""),
       TrueConstraint()
     )
     assertEquals(expected.precondition, inferPrePostCmd(src, "").precondition)
@@ -55,7 +55,7 @@ class ConstraintAnalyzerTest {
     val src = """let i = 1 in m[x]@i := m[x]@2"""
     val expected = Constraints(
       TrueConstraint(),
-      Load.constraint("""m[x]@1 == m[x]@2""")
+      Loader.constraint("""m[x]@1 == m[x]@2""")
     )
     assertEquals(expected.precondition, inferPrePostCmd(src, "").precondition)
     assertEquals(expected.postcondition, inferPrePostCmd(src, "").postcondition)
@@ -67,8 +67,8 @@ class ConstraintAnalyzerTest {
   def inferCommandList(): Unit = {
     val src = """m[x]@1 := m[x]@2; assert(m[y]=m[x])@i"""
     val expected = Constraints(
-      Load.constraint("""T AND m[y]@i==m[x]@i"""),
-      Load.constraint("""m[x]@1 == m[x]@2 AND T""")
+      Loader.constraint("""T AND m[y]@i==m[x]@i"""),
+      Loader.constraint("""m[x]@1 == m[x]@2 AND T""")
     )
     assertEquals(expected.precondition, inferPrePostCmd(src, "").precondition)
     assertEquals(expected.postcondition, inferPrePostCmd(src, "").postcondition)
@@ -86,7 +86,7 @@ class ConstraintAnalyzerTest {
         |""".stripMargin
 
     val expected = Constraints(
-      Load.constraint("""m["x"]@1 == m["x"]@1"""),
+      Loader.constraint("""m["x"]@1 == m["x"]@1"""),
       TrueConstraint()
     )
 
@@ -109,7 +109,7 @@ class ConstraintAnalyzerTest {
         |}""".stripMargin
 
     val expected = Constraints(
-      Load.constraint("""m["y"]@1 == 2 AND m["z"]@1 == 3"""),
+      Loader.constraint("""m["y"]@1 == 2 AND m["z"]@1 == 3"""),
       null
     )
 
@@ -129,8 +129,8 @@ class ConstraintAnalyzerTest {
         |main(){f(1); let x = "foo" in m[x]@2 := m[x]@2}""".stripMargin
 
     val expected = Constraints(
-      Load.constraint("""m["x"]@1 == m["x"]@1 AND T"""),
-      Load.constraint("""T AND m["foo"]@2 == m["foo"]@2""")
+      Loader.constraint("""m["x"]@1 == m["x"]@1 AND T"""),
+      Loader.constraint("""T AND m["foo"]@2 == m["foo"]@2""")
     )
 
     val actual = inferPrePostFN("main", program)
@@ -154,7 +154,7 @@ class ConstraintAnalyzerTest {
         |h() { g() }""".stripMargin
 
     val expected = Constraints(
-      Load.constraint("""m["y"]@1 == 2 AND m["z"]@1 == 3"""),
+      Loader.constraint("""m["y"]@1 == 2 AND m["z"]@1 == 3"""),
       null
     )
 
@@ -190,7 +190,7 @@ class ConstraintAnalyzerTest {
 
     val expected = Constraints(
       TrueConstraint(),
-      Load.constraint("""m[x++"sfoo"]@1 == m[x++"sfoo"]@1""")
+      Loader.constraint("""m[x++"sfoo"]@1 == m[x++"sfoo"]@1""")
     )
 
     assertEquals(expected.precondition, inferPrePostFN("main", program).precondition)
@@ -200,9 +200,9 @@ class ConstraintAnalyzerTest {
   @Test
   def concatLiterals(): Unit = {
     val program = Program(List(), List(), List())
-    val evaluator = new ConstraintEvaluator(program)
+    val evaluator = new Evaluator(program)
     val input = ConcatExpr(Str("a"), Str("b"))
-    val actual = evaluator.toOverture(input)
+    val actual = evaluator.expression(input)
     val expected = Str("ab")
     assertEquals(expected, actual)
   }
@@ -211,11 +211,11 @@ class ConstraintAnalyzerTest {
   @Test
   def concatGroupedLiterals(): Unit = {
     val program = Program(List(), List(), List())
-    val evaluator = new ConstraintEvaluator(program)
+    val evaluator = new Evaluator(program)
     val group1 = ConcatExpr(Str("a"), Str("b"))
     val group2 = ConcatExpr(Str("c"), Str("d"))
     val input = ConcatExpr(group1, group2)
-    val actual = evaluator.toOverture(input)
+    val actual = evaluator.expression(input)
     val expected = Str("abcd")
     assertEquals(expected, actual)
   }

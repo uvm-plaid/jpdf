@@ -1,13 +1,13 @@
 package plaid.cvc
 
 import io.github.cvc5.{Kind, Solver, Term}
-import plaid.antlr.Load
+import plaid.antlr.Loader
 import plaid.ast.Cmd
 
 class Verifier(val termFactory: TermFactory) {
 
   def satisfies(src: String): Boolean =
-    satisfies(Load.command(src))
+    satisfies(Loader.command(src))
 
   def satisfies(command: Cmd): Boolean = {
     val e = termFactory.toTerm(command)

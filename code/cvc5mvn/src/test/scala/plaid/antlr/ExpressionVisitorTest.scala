@@ -8,7 +8,7 @@ import scala.collection.immutable.TreeMap
 
 class ExpressionVisitorTest {
 
-  private def ast(src: String): Expr = Load.expression(src)
+  private def ast(src: String): Expr = Loader.expression(src)
 
   /** String literals parse, and no quotes in the tree. */
   @Test

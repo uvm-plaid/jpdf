@@ -2,21 +2,21 @@ package plaid.logic
 
 import org.junit.Test
 import org.junit.Assert.assertEquals
-import plaid.antlr.Load
+import plaid.antlr.Loader
 import plaid.ast._
 
-class ConstraintEvaluatorTest {
+class EvaluatorTest {
 
   private def evalExpr(src: String, exprFunctions: List[ExprFunction]): Expr = {
-    val ast = Load.expression(src)
-    val evaluator = new ConstraintEvaluator(Program(List(), exprFunctions, List()))
-    evaluator.toOverture(ast)
+    val ast = Loader.expression(src)
+    val evaluator = new Evaluator(Program(List(), exprFunctions, List()))
+    evaluator.expression(ast)
   }
 
   private def evalCommand(src: String, commandFunctions: List[CommandFunction]): Cmd = {
-    val ast = Load.command(src)
-    val evaluator = new ConstraintEvaluator(Program(commandFunctions, List(), List()))
-    evaluator.evalInstruction(ast)
+    val ast = Loader.command(src)
+    val evaluator = new Evaluator(Program(commandFunctions, List(), List()))
+    evaluator.command(ast)
   }
 
   @Test
@@ -71,7 +71,7 @@ class ConstraintEvaluatorTest {
   @Test
   def evalfunctionCall(): Unit = {
     val parameters = List(Identifier("x"), Identifier("y"), Identifier("z"))
-    val expr = Load.expression(
+    val expr = Loader.expression(
       """let r11 = r[z] + (m[x] + 1) * (m[y] + 1) in
         |let r10 = r[z] + (m[x] + 1) * (m[y] + 0) in
         |let r01 = r[z] + (m[x] + 0) * (m[y] + 1) in
@@ -80,7 +80,7 @@ class ConstraintEvaluatorTest {
     val exprFunction = ExprFunction(Identifier("andtablegmw"), parameters, expr)
 
     val result = evalExpr("""andtablegmw("foo", "bar", "barz")""", List(exprFunction))
-    val expectedResult = Load.expression(
+    val expectedResult = Loader.expression(
       """{row1 = r["barz"] + (m["foo"] + 1) * (m["bar"] + 1);
         |row2 = r["barz"] + (m["foo"] + 1) * (m["bar"] + 0);
         |row3 = r["barz"] + (m["foo"] + 0) * (m["bar"] + 1);
@@ -91,59 +91,59 @@ class ConstraintEvaluatorTest {
   @Test
   def constraintEvaluationReducesConcatenation(): Unit = {
     val program = Program(List(), List(), List())
-    val expr = Load.constraint("""2 == m["x" ++ "y"]@1""")
-    val evaluator = new ConstraintEvaluator(program)
-    val actual = evaluator.evalConstraint(expr)
-    val expected = Load.constraint("""2 == m["xy"]@1""")
+    val expr = Loader.constraint("""2 == m["x" ++ "y"]@1""")
+    val evaluator = new Evaluator(program)
+    val actual = evaluator.constraint(expr)
+    val expected = Loader.constraint("""2 == m["xy"]@1""")
     assertEquals(expected, actual)
   }
 
   @Test
   def constraintEvaluationPreludeFunctions(): Unit = {
-    val program = Load.program("""exprfunctions: f(i) {out@i}""")
-    val expr = Load.constraint("f(1) == 2")
-    val evaluator = new ConstraintEvaluator(program)
-    val actual = evaluator.evalConstraint(expr)
-    val expected = Load.constraint("out@1 == 2")
+    val program = Loader.program("""exprfunctions: f(i) {out@i}""")
+    val expr = Loader.constraint("f(1) == 2")
+    val evaluator = new Evaluator(program)
+    val actual = evaluator.constraint(expr)
+    val expected = Loader.constraint("out@1 == 2")
     assertEquals(expected, actual)
   }
 
   @Test
   def constraintEvaluationPropagation(): Unit = {
-    val program = Load.program("exprfunctions: f() {1}")
-    val evaluator = new ConstraintEvaluator(program)
+    val program = Loader.program("exprfunctions: f() {1}")
+    val evaluator = new Evaluator(program)
 
     assertEquals(
-      Load.constraint("1 == 2 AND 3 == 3"),
-      evaluator.evalConstraint(Load.constraint("f() == 2 AND 3 == 3"))
+      Loader.constraint("1 == 2 AND 3 == 3"),
+      evaluator.constraint(Loader.constraint("f() == 2 AND 3 == 3"))
     )
     assertEquals(
-      Load.constraint("3 == 3 AND 1 == 2"),
-      evaluator.evalConstraint(Load.constraint("3 == 3 AND f() == 2"))
+      Loader.constraint("3 == 3 AND 1 == 2"),
+      evaluator.constraint(Loader.constraint("3 == 3 AND f() == 2"))
     )
     assertEquals(
-      Load.constraint("NOT (1 == 2)"),
-      evaluator.evalConstraint(Load.constraint("NOT (f() == 2)"))
+      Loader.constraint("NOT (1 == 2)"),
+      evaluator.constraint(Loader.constraint("NOT (f() == 2)"))
     )
   }
 
   @Test
   def constraintValuedFunctions(): Unit = {
-    val program = Load.program("constraintfunctions: g(i) {3 == out@i}")
-    val expr = Load.constraint("NOT g(1)")
-    val evaluator = new ConstraintEvaluator(program)
-    val actual = evaluator.evalConstraint(expr)
-    val expected = Load.constraint("NOT (3 == out@1)")
+    val program = Loader.program("constraintfunctions: g(i) {3 == out@i}")
+    val expr = Loader.constraint("NOT g(1)")
+    val evaluator = new Evaluator(program)
+    val actual = evaluator.constraint(expr)
+    val expected = Loader.constraint("NOT (3 == out@1)")
     assertEquals(expected, actual)
   }
 
   @Test
   def constraintValuedFunctionsContainPrelude(): Unit = {
-    val program = Load.program("exprfunctions: f(i) {out@i} constraintfunctions: g(i) {3 == f(i)}")
-    val expr = Load.constraint("NOT g(1)")
-    val evaluator = new ConstraintEvaluator(program)
-    val actual = evaluator.evalConstraint(expr)
-    val expected = Load.constraint("NOT (3 == out@1)")
+    val program = Loader.program("exprfunctions: f(i) {out@i} constraintfunctions: g(i) {3 == f(i)}")
+    val expr = Loader.constraint("NOT g(1)")
+    val evaluator = new Evaluator(program)
+    val actual = evaluator.constraint(expr)
+    val expected = Loader.constraint("NOT (3 == out@1)")
     assertEquals(expected, actual)
   }
 
@@ -160,14 +160,14 @@ class ConstraintEvaluatorTest {
       TypedIdentifier(Identifier("i1"), PartyIndexType()),
       TypedIdentifier(Identifier("i2"), PartyIndexType())
     )
-    val commands = Load.command(
+    val commands = Loader.command(
       """m[n]@i2 := (s[n] + r[n])@i1;
         |m[n]@i1 := r[n]@i1""".stripMargin)
     val functionContext = List(CommandFunction(Identifier("encodegmw"), parameters, commands, null, null))
     val command = evalCommand("""encodegmw("x", 2, 1)""", functionContext)
 
     assertEquals(
-      Load.command(
+      Loader.command(
         """m["x"]@1 := (s["x"] + r["x"])@2;
           |m["x"]@2 := r["x"]@2""".stripMargin),
       command
@@ -177,13 +177,13 @@ class ConstraintEvaluatorTest {
   @Test
   def evalLetCommand(): Unit = {
     val command = evalCommand("""let table = "foo" in m[table]@1 := r["x"]@2""", List())
-    assertEquals(Load.command("""m["foo"]@1 := r["x"]@2"""), command)
+    assertEquals(Loader.command("""m["foo"]@1 := r["x"]@2"""), command)
   }
 
   @Test
   def evalDoubleLetCommand(): Unit = {
     val command = evalCommand("""let table = "foo" in let i = 2 in m[table]@1 := r["x"]@i""", List())
-    assertEquals(Load.command("""m["foo"]@1 := r["x"]@2"""), command)
+    assertEquals(Loader.command("""m["foo"]@1 := r["x"]@2"""), command)
   }
 
   @Test
@@ -192,7 +192,7 @@ class ConstraintEvaluatorTest {
       """let x = "x" in m[x]@1 := m[x]@2;
         |let y = "y" in s[y]@1 := s[y]@2""".stripMargin,
       List())
-    assertEquals(Load.command("""m["x"]@1:=m["x"]@2; s["y"]@1 := s["y"]@2"""), commandList)
+    assertEquals(Loader.command("""m["x"]@1:=m["x"]@2; s["y"]@1 := s["y"]@2"""), commandList)
   }
 
   @Test
@@ -202,7 +202,7 @@ class ConstraintEvaluatorTest {
       TypedIdentifier(Identifier("i1"), PartyIndexType()),
       TypedIdentifier(Identifier("i2"), PartyIndexType())
     )
-    val functionBody = Load.command(
+    val functionBody = Loader.command(
       """m[x++"exts"]@i1 := m[x++"s"]@i2;
         |m[x++"extm"]@i1 := m[x++"m"]@i2;
         |assert(m[x++"extm"] = m[x++"k"] + (m["delta"] * m[x++"exts"]))@i1;
@@ -211,7 +211,7 @@ class ConstraintEvaluatorTest {
 
     val command = evalCommand("""_open("foo", 1, 2)""", functionContext)
     assertEquals(
-      Load.command(
+      Loader.command(
         """m["fooexts"]@1 := m["foos"]@2;
           |m["fooextm"]@1 := m["foom"]@2;
           |assert(m["fooextm"] = m["fook"] + (m["delta"] * m["fooexts"]))@1;

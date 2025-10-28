@@ -15,7 +15,7 @@ class ConstraintAnalyzer(val program: Program, order: String) {
 
   /** Calculate precondition and postcondition for a function (FN rule) */
   def inferPrePostFN(function: CommandFunction): Constraints = {
-    val evaluator = ConstraintEvaluator(program)
+    val evaluator = Evaluator(program)
     val constraints = inferPrePostCmd(function.c, evaluator)
 
     if function.precond == null && function.postcond == null then
@@ -36,27 +36,27 @@ class ConstraintAnalyzer(val program: Program, order: String) {
   }
 
   /** Recursively infer pre/postconditions for a command */
-  def inferPrePostCmd(command: Cmd, evaluator: ConstraintEvaluator): Constraints = command match
+  def inferPrePostCmd(command: Cmd, evaluator: Evaluator): Constraints = command match
     case assignCmd: AssignCmd =>
       Constraints(
         TrueConstraint(),
         EqualConstraint(
-          evaluator.toOverture(assignCmd.e1),
-          appendPartyIndex(evaluator.toOverture(assignCmd.e2), null)
+          evaluator.expression(assignCmd.e1),
+          appendPartyIndex(evaluator.expression(assignCmd.e2), null)
         )
       )
 
     case assertCmd: AssertCmd =>
       Constraints(
         EqualConstraint(
-          appendPartyIndex(evaluator.toOverture(assertCmd.e1), evaluator.toOverture(assertCmd.e3)),
-          appendPartyIndex(evaluator.toOverture(assertCmd.e2), evaluator.toOverture(assertCmd.e3))
+          appendPartyIndex(evaluator.expression(assertCmd.e1), evaluator.expression(assertCmd.e3)),
+          appendPartyIndex(evaluator.expression(assertCmd.e2), evaluator.expression(assertCmd.e3))
         ),
         TrueConstraint()
       )
 
     case letCmd: LetCmd =>
-      inferPrePostCmd(evaluator.evalInstruction(letCmd), evaluator)
+      inferPrePostCmd(evaluator.command(letCmd), evaluator)
 
     case listCmd: ListCmd =>
       val constraints = List(
@@ -79,8 +79,8 @@ class ConstraintAnalyzer(val program: Program, order: String) {
       val constraints = functionConstraints(id)
 
       val ev = evaluator.copy(bindings = binding(fn.typedVariables, callCmd.parameters))
-      val pre = Option(constraints.precondition).map(ev.evalConstraint).orNull
-      val post = Option(constraints.postcondition).map(ev.evalConstraint).orNull
+      val pre = Option(constraints.precondition).map(ev.constraint).orNull
+      val post = Option(constraints.postcondition).map(ev.constraint).orNull
       Constraints(pre, post)
 
     case _ =>

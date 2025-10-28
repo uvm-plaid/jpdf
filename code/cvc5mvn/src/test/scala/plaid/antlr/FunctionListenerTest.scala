@@ -15,7 +15,7 @@ class FunctionListenerTest {
     commandFunctions: List[CommandFunction]
   ): Unit = {
     val listener = FunctionListener()
-    val tree: ParseTree = Load.parser(src).program()
+    val tree: ParseTree = Loader.parser(src).program()
     ParseTreeWalker().walk(listener, tree)
 
     assertEquals(exprFunctions, listener.exprFunctions)

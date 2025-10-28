@@ -47,9 +47,9 @@ class GenEntailVerifier(val program: Program, order: String) {
   def genEntails(typings: List[TypedIdentifier], e1: Constraint, e2: Constraint): Boolean = {
     // evaluate abstract constraints into ground constraints with fresh variables
     val bindings = typings.map(x => x.y -> genFreshValue(x.t)).toMap
-    val evaluator = new ConstraintEvaluator(program, bindings)
-    val groundE1: Constraint = evaluator.evalConstraint(e1)
-    val groundE2: Constraint = evaluator.evalConstraint(e2)
+    val evaluator = new Evaluator(program, bindings)
+    val groundE1: Constraint = evaluator.constraint(e1)
+    val groundE2: Constraint = evaluator.constraint(e2)
 
     // check if ground constraints are fully instantiated
     if ConstraintChecker.checkConstraint(groundE1) && ConstraintChecker.checkConstraint(groundE2) then
