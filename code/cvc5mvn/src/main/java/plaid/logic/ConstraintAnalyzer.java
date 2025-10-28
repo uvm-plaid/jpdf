@@ -41,17 +41,17 @@ public class ConstraintAnalyzer {
         else {
             // otherwise, use the hardpack
             // annotated precondition /\ inferred postcondition
-            Constraint pre =
-                    function.precond() == null? constraints.getPost()
-                    : constraints.getPost() == null? function.precond()
-                    : new AndConstraint(function.precond(), constraints.getPost());
-            // inferred precondition /\ annotated postcondition
-            Constraint post =
-                    function.postcond() == null? constraints.getPre()
-                    : constraints.getPre() == null ? function.postcond()
-                    : new AndConstraint(constraints.getPre(), function.postcond());
+
+            // These names match those in the HARDPACK rule for toplas26
+            Constraint e1 = Objects.requireNonNullElse(function.precond(), new TrueConstraint());
+            Constraint e2 = Objects.requireNonNullElse(function.postcond(), new TrueConstraint());
+            // TODO Would be nice to have these non-nullable and TrueConstraint by default
+            Constraint e1p = Objects.requireNonNullElse(constraints.getPre(), new TrueConstraint());
+            Constraint e2p = Objects.requireNonNullElse(constraints.getPost(), new TrueConstraint());
             // take typings
-            if (verifier.genEntails(function.typedVariables(), pre, post)){
+            if (
+                    verifier.genEntails(function.typedVariables(), e1, e1p) &&
+                    verifier.genEntails(function.typedVariables(), new AndConstraint(e1, e2p), e2)) {
                 functionConstraints.put(function.fname(), new Constraints(function.precond(), function.postcond()));
                 return new Constraints(function.precond(), function.postcond());
             }
