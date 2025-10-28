@@ -44,8 +44,8 @@ public class App implements Runnable {
         // static analysis 
         try {
             Constraints constraints = staticAnalysis(programAST);
-            System.out.println("The precondition for main: " +  ScalaFunctions.prettyPrint(constraints.getPre()));
-            System.out.println("The postcondition for main: " + ScalaFunctions.prettyPrint(constraints.getPost()));
+            System.out.println("The precondition for main: " +  ScalaFunctions.prettyPrint(constraints.precondition()));
+            System.out.println("The postcondition for main: " + ScalaFunctions.prettyPrint(constraints.postcondition()));
 
         } catch (CVC5ApiException e) {
             throw new RuntimeException(e);

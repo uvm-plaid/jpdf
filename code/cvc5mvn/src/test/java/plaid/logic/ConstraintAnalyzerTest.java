@@ -34,8 +34,8 @@ public class ConstraintAnalyzerTest {
                 new TrueConstraint(),
                 Loader.toConstraintExpression("m[x]@1 == s[x]@2 + r[x]@2"));
         // element-wise equality check
-        assertEquals(expected.getPre(),  inferPrePostCmd(src, "").getPre());
-        assertEquals(expected.getPost(),  inferPrePostCmd(src, "").getPost());
+        assertEquals(expected.precondition(),  inferPrePostCmd(src, "").precondition());
+        assertEquals(expected.postcondition(),  inferPrePostCmd(src, "").postcondition());
 
     }
 
@@ -49,8 +49,8 @@ public class ConstraintAnalyzerTest {
 
         Constraints expected = new Constraints(Loader.toConstraintExpression("m[x]@1 == m[y]@1"), new TrueConstraint());
 
-        assertEquals(expected.getPre(), inferPrePostCmd(src, "").getPre());
-        assertEquals(expected.getPost(), inferPrePostCmd(src, "").getPost());
+        assertEquals(expected.precondition(), inferPrePostCmd(src, "").precondition());
+        assertEquals(expected.postcondition(), inferPrePostCmd(src, "").postcondition());
     }
 
     /**
@@ -62,8 +62,8 @@ public class ConstraintAnalyzerTest {
         Constraints expected = new Constraints(
                 new TrueConstraint(),
                 Loader.toConstraintExpression("m[x]@1 == m[x]@2"));
-        assertEquals(expected.getPre(), inferPrePostCmd(src, "").getPre());
-        assertEquals(expected.getPost(), inferPrePostCmd(src, "").getPost());
+        assertEquals(expected.precondition(), inferPrePostCmd(src, "").precondition());
+        assertEquals(expected.postcondition(), inferPrePostCmd(src, "").postcondition());
     }
 
 
@@ -76,8 +76,8 @@ public class ConstraintAnalyzerTest {
         Constraints expected = new Constraints(
                 Loader.toConstraintExpression("T AND m[y]@i==m[x]@i"),
                 Loader.toConstraintExpression("m[x]@1 == m[x]@2 AND T"));
-        assertEquals(expected.getPre(), inferPrePostCmd(src, "").getPre());
-        assertEquals(expected.getPost(), inferPrePostCmd(src, "").getPost());
+        assertEquals(expected.precondition(), inferPrePostCmd(src, "").precondition());
+        assertEquals(expected.postcondition(), inferPrePostCmd(src, "").postcondition());
 
     }
 
@@ -101,8 +101,8 @@ public class ConstraintAnalyzerTest {
                 new TrueConstraint());
 
         Constraints actual = inferPrePostCmd("f(1)", program);
-        assertEquals(expected.getPre(), actual.getPre());
-        assertEquals(expected.getPost(), actual.getPost());
+        assertEquals(expected.precondition(), actual.precondition());
+        assertEquals(expected.postcondition(), actual.postcondition());
 
     }
 
@@ -131,8 +131,8 @@ public class ConstraintAnalyzerTest {
 
         Constraints actual = inferPrePostCmd("m[\"y\"]@1 := 2; m[\"z\"]@1 := 3; h(\"y\")", program);
 
-        assertEquals(expected.getPre(), actual.getPre());
-        assertEquals(expected.getPost(), actual.getPost());
+        assertEquals(expected.precondition(), actual.precondition());
+        assertEquals(expected.postcondition(), actual.postcondition());
 
     }
 
@@ -154,8 +154,8 @@ public class ConstraintAnalyzerTest {
         );
 
         Constraints actual = inferPrePostFN("main", program);
-        assertEquals(expected.getPre(), actual.getPre());
-        assertEquals(expected.getPost(), actual.getPost());
+        assertEquals(expected.precondition(), actual.precondition());
+        assertEquals(expected.postcondition(), actual.postcondition());
 
     }
 
@@ -184,8 +184,8 @@ public class ConstraintAnalyzerTest {
         );
 
         Constraints actual = inferPrePostFN("h", program);
-        assertEquals(expected.getPre(), actual.getPre());
-        assertEquals(expected.getPost(), actual.getPost());
+        assertEquals(expected.precondition(), actual.precondition());
+        assertEquals(expected.postcondition(), actual.postcondition());
     }
 
     /**
@@ -225,8 +225,8 @@ public class ConstraintAnalyzerTest {
                 Loader.toConstraintExpression("m[x++\"sfoo\"]@1 == m[x++\"sfoo\"]@1")
         );
         
-        assertEquals(expected.getPre(), inferPrePostFN("main", program).getPre());
-        assertEquals(expected.getPost(), inferPrePostFN("main", program).getPost());
+        assertEquals(expected.precondition(), inferPrePostFN("main", program).precondition());
+        assertEquals(expected.postcondition(), inferPrePostFN("main", program).postcondition());
     }
     
 
