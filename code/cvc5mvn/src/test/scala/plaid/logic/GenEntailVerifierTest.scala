@@ -2,10 +2,11 @@ package plaid.logic
 
 import io.github.cvc5.CVC5ApiException
 import org.junit.Test
-import org.junit.Assert._
+import org.junit.Assert.*
 import plaid.antlr.Loader
-import plaid.ast._
+import plaid.ast.*
 
+import java.util
 import java.util.{Map, TreeMap}
 
 class GenEntailVerifierTest {
@@ -40,7 +41,7 @@ class GenEntailVerifierTest {
     val genEntailVerifier = new GenEntailVerifier(program, "2")
 
     val recordType = Loader.typeMarker(src).asInstanceOf[RecordType]
-    val map = new TreeMap[Identifier, Expr]()
+    val map = new util.TreeMap[Identifier, Expr]()
     map.put(Identifier("s"), Str("$2"))
     map.put(Identifier("i"), Num(-1))
     val expected = FieldExpr(map)
@@ -57,11 +58,11 @@ class GenEntailVerifierTest {
 
     val recordType = Loader.typeMarker(src).asInstanceOf[RecordType]
 
-    val innermap = new TreeMap[Identifier, Expr]()
+    val innermap = new util.TreeMap[Identifier, Expr]()
     innermap.put(Identifier("s"), Str("$1"))
-    innermap.put(Identifier("t2"), FieldExpr(new TreeMap(Map.of(Identifier("i"), Num(-2)))))
+    innermap.put(Identifier("t2"), FieldExpr(new util.TreeMap(util.Map.of(Identifier("i"), Num(-2)))))
 
-    val expected = FieldExpr(new TreeMap(Map.of(Identifier("t"), FieldExpr(innermap))))
+    val expected = FieldExpr(new util.TreeMap(util.Map.of(Identifier("t"), FieldExpr(innermap))))
     assertEquals(expected, genEntailVerifier.genFreshValue(recordType))
   }
 

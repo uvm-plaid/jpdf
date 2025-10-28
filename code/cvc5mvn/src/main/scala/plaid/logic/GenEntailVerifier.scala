@@ -5,7 +5,8 @@ import plaid.ast.*
 import plaid.cvc.{TermFactory, Verifier}
 import plaid.eval.ConstraintChecker
 
-import java.util.{HashMap, Map, TreeMap}
+import java.util
+import java.util.TreeMap
 import scala.jdk.CollectionConverters.*
 
 class GenEntailVerifier(val program: Program, order: String) {
@@ -28,7 +29,7 @@ class GenEntailVerifier(val program: Program, order: String) {
     case _: StringType      => genFreshString()
     case _: PartyIndexType  => genFreshCID()
     case t: RecordType =>
-      val map: TreeMap[Identifier, Expr] = new TreeMap()
+      val map: util.TreeMap[Identifier, Expr] = new util.TreeMap()
       t.elements.asScala.foreach { case (k, v) =>
         map.put(k, genFreshValue(v))
       }
@@ -47,7 +48,7 @@ class GenEntailVerifier(val program: Program, order: String) {
   def genEntails(typings: List[TypedIdentifier], e1: Constraint, e2: Constraint): Boolean = {
     // evaluate abstract constraints into ground constraints with fresh variables
     val bindings = typings.map(x => x.y -> genFreshValue(x.t)).toMap
-    val evaluator = new Evaluator(program, bindings)
+    val evaluator = Evaluator(program, bindings)
     val groundE1: Constraint = evaluator.constraint(e1)
     val groundE2: Constraint = evaluator.constraint(e2)
 

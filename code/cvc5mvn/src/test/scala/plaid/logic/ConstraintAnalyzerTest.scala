@@ -12,7 +12,7 @@ class ConstraintAnalyzerTest {
   private def inferPrePostCmd(src: String, program: String): Constraints = {
     val ast: Program = Loader.program(program)
     val analyzer = new ConstraintAnalyzer(ast, "2")
-    analyzer.inferPrePostCmd(Loader.command(src), new Evaluator(ast))
+    analyzer.inferPrePostCmd(Loader.command(src), Evaluator(ast))
   }
 
   @throws[CVC5ApiException]
@@ -200,7 +200,7 @@ class ConstraintAnalyzerTest {
   @Test
   def concatLiterals(): Unit = {
     val program = Program(List(), List(), List())
-    val evaluator = new Evaluator(program)
+    val evaluator = Evaluator(program)
     val input = ConcatExpr(Str("a"), Str("b"))
     val actual = evaluator.expression(input)
     val expected = Str("ab")
@@ -211,7 +211,7 @@ class ConstraintAnalyzerTest {
   @Test
   def concatGroupedLiterals(): Unit = {
     val program = Program(List(), List(), List())
-    val evaluator = new Evaluator(program)
+    val evaluator = Evaluator(program)
     val group1 = ConcatExpr(Str("a"), Str("b"))
     val group2 = ConcatExpr(Str("c"), Str("d"))
     val input = ConcatExpr(group1, group2)

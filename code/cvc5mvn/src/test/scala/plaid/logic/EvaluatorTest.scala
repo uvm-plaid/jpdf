@@ -9,13 +9,13 @@ class EvaluatorTest {
 
   private def evalExpr(src: String, exprFunctions: List[ExprFunction]): Expr = {
     val ast = Loader.expression(src)
-    val evaluator = new Evaluator(Program(List(), exprFunctions, List()))
+    val evaluator = Evaluator(Program(List(), exprFunctions, List()))
     evaluator.expression(ast)
   }
 
   private def evalCommand(src: String, commandFunctions: List[CommandFunction]): Cmd = {
     val ast = Loader.command(src)
-    val evaluator = new Evaluator(Program(commandFunctions, List(), List()))
+    val evaluator = Evaluator(Program(commandFunctions, List(), List()))
     evaluator.command(ast)
   }
 
@@ -92,7 +92,7 @@ class EvaluatorTest {
   def constraintEvaluationReducesConcatenation(): Unit = {
     val program = Program(List(), List(), List())
     val expr = Loader.constraint("""2 == m["x" ++ "y"]@1""")
-    val evaluator = new Evaluator(program)
+    val evaluator = Evaluator(program)
     val actual = evaluator.constraint(expr)
     val expected = Loader.constraint("""2 == m["xy"]@1""")
     assertEquals(expected, actual)
@@ -102,7 +102,7 @@ class EvaluatorTest {
   def constraintEvaluationPreludeFunctions(): Unit = {
     val program = Loader.program("""exprfunctions: f(i) {out@i}""")
     val expr = Loader.constraint("f(1) == 2")
-    val evaluator = new Evaluator(program)
+    val evaluator = Evaluator(program)
     val actual = evaluator.constraint(expr)
     val expected = Loader.constraint("out@1 == 2")
     assertEquals(expected, actual)
@@ -111,7 +111,7 @@ class EvaluatorTest {
   @Test
   def constraintEvaluationPropagation(): Unit = {
     val program = Loader.program("exprfunctions: f() {1}")
-    val evaluator = new Evaluator(program)
+    val evaluator = Evaluator(program)
 
     assertEquals(
       Loader.constraint("1 == 2 AND 3 == 3"),
@@ -131,7 +131,7 @@ class EvaluatorTest {
   def constraintValuedFunctions(): Unit = {
     val program = Loader.program("constraintfunctions: g(i) {3 == out@i}")
     val expr = Loader.constraint("NOT g(1)")
-    val evaluator = new Evaluator(program)
+    val evaluator = Evaluator(program)
     val actual = evaluator.constraint(expr)
     val expected = Loader.constraint("NOT (3 == out@1)")
     assertEquals(expected, actual)
@@ -141,7 +141,7 @@ class EvaluatorTest {
   def constraintValuedFunctionsContainPrelude(): Unit = {
     val program = Loader.program("exprfunctions: f(i) {out@i} constraintfunctions: g(i) {3 == f(i)}")
     val expr = Loader.constraint("NOT g(1)")
-    val evaluator = new Evaluator(program)
+    val evaluator = Evaluator(program)
     val actual = evaluator.constraint(expr)
     val expected = Loader.constraint("NOT (3 == out@1)")
     assertEquals(expected, actual)
