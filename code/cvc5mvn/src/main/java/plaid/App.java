@@ -8,7 +8,6 @@ import picocli.CommandLine.Parameters;
 
 import plaid.antlr.Loader;
 import plaid.ast.Program;
-import plaid.cvc.TermFactory;
 import plaid.logic.ConstraintAnalyzer;
 import plaid.logic.Constraints;
 
@@ -62,13 +61,5 @@ public class App implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
-//    private Term evaluateConstraint(Program program, ConstraintExpr expr) {
-//        if (expr == null) {
-//            return null;
-//        }
-//        ConstraintExpr eval = new Evaluator(program).evalConstraint(expr);
-//        return termFactory.constraintToTerm(eval);
-//    }
 
 }
