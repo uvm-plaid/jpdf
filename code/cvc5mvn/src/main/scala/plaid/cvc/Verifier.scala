@@ -1,10 +1,8 @@
 package plaid.cvc
 
-import io.github.cvc5.{Kind, Result, Solver, Term}
+import io.github.cvc5.{Kind, Solver, Term}
 import plaid.antlr.Loader
 import plaid.ast.Cmd
-
-import scala.collection.JavaConverters.{asScalaSetConverter, mapAsScalaMapConverter}
 
 class Verifier(val termFactory: TermFactory) {
 
@@ -19,21 +17,18 @@ class Verifier(val termFactory: TermFactory) {
   def satisfies(e: Term): Boolean =
     findModelSatisfying(e) != null
 
-  def findModelSatisfying(term: Term): Map[Term, Integer] = {
+  def findModelSatisfying(term: Term): Map[Term, Int] = {
     val solver = new Solver(termFactory.termManager)
     solver.setOption("produce-models", "true")
     solver.assertFormula(term)
     val result = solver.checkSat()
     if (!result.isSat) return null
 
-    val map: java.util.Map[Term, Integer] = new java.util.HashMap()
     val mod = Integer.parseInt(termFactory.sort.getFiniteFieldSize)
-    for (memory <- termFactory.getMemories.asScala) {
-      val value = solver.getValue(memory.term)
+    termFactory.getMemories.map(m =>
+      val value = solver.getValue(m.term)
       val finiteFieldValue = Integer.parseInt(CvcUtils.finiteFieldValue(value))
-      map.put(memory.term, Math.floorMod(finiteFieldValue, mod))
-    }
-    map.asScala.toMap
+      m.term -> Math.floorMod(finiteFieldValue, mod)).toMap
   }
 
   /** E1 entails E2 if there is no model that satisfies (E1 AND not E2) */

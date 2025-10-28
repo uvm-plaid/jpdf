@@ -3,8 +3,7 @@ package plaid.cvc
 import io.github.cvc5.*
 import plaid.ast.*
 
-import java.util
-import java.util.{Collection, HashSet}
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
 object TermFactory {
@@ -20,7 +19,7 @@ object TermFactory {
 
 class TermFactory(val termManager: TermManager, val sort: Sort) {
 
-  private val memories: java.util.Set[Memory] = new util.HashSet()
+  private val memories = new mutable.HashSet[Memory]()
   private val minusOne: Term = CvcUtils.mkFiniteFieldElem(termManager, "-1", sort, TermFactory.DEFAULT_FIELD_SIZE)
   private var partyIndex: Integer = _
 
@@ -31,7 +30,7 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
     case e: CVC5ApiException => throw new RuntimeException(e)
   }
 
-  def getMemories: java.util.Set[Memory] = memories
+  def getMemories: Set[Memory] = memories.toSet
 
   private def not(term: Term): Term =
     termManager.mkTerm(Kind.FINITE_FIELD_ADD, term, CvcUtils.mkFiniteFieldElem(termManager, "1", sort, TermFactory.DEFAULT_FIELD_SIZE))
@@ -93,18 +92,17 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
 
   def lookupOrCreate(expr: Expr, idx: Integer): Term = {
     val name = CvcUtils.getCvcName(expr, idx)
-    val memory = memories.asScala.find(_.name == name).getOrElse {
+    val memory = memories.find(_.name == name).getOrElse {
       Memory(name, termManager.mkConst(sort, name), expr, idx)
     }
     memories.add(memory)
     memory.term
   }
 
-  def constraintToTerm(expr: Constraint): Term = expr match {
-    case x: NotConstraint    => termManager.mkTerm(Kind.NOT, constraintToTerm(x.e))
-    case x: AndConstraint    => termManager.mkTerm(Kind.AND, constraintToTerm(x.e1), constraintToTerm(x.e2))
-    case x: EqualConstraint  => termManager.mkTerm(Kind.EQUAL, toTerm(x.e1), toTerm(x.e2))
-    case _: TrueConstraint   => termManager.mkTrue()
-    case other               => throw new IllegalArgumentException(s"cannot convert ${other.getClass.getName} into CVC5 term")
-  }
+  def constraintToTerm(expr: Constraint): Term = expr match
+    case NotConstraint(e) => termManager.mkTerm(Kind.NOT, constraintToTerm(e))
+    case AndConstraint(e1, e2) => termManager.mkTerm(Kind.AND, constraintToTerm(e1), constraintToTerm(e2))
+    case EqualConstraint(e1, e2) => termManager.mkTerm(Kind.EQUAL, toTerm(e1), toTerm(e2))
+    case TrueConstraint() => termManager.mkTrue()
+    case other => throw new IllegalArgumentException(s"cannot convert ${other.getClass.getName} into CVC5 term")
 }

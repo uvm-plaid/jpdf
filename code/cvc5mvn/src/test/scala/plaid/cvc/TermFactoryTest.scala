@@ -1,18 +1,16 @@
 package plaid.cvc
 
 import io.github.cvc5.{CVC5ApiException, Kind, Term, TermManager}
-import org.junit.Test
 import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.Test
 import plaid.antlr.Loader
-import plaid.ast._
-
-import scala.jdk.CollectionConverters._
+import plaid.ast.*
 
 class TermFactoryTest {
 
   private def mockModel(factory: TermFactory, nameBasedModel: Map[String, Int]): Map[Term, Int] = {
     nameBasedModel.map { case (name, value) =>
-      val term = factory.getMemories.asScala
+      val term = factory.getMemories
         .find(_.name == name)
         .get
         .term
@@ -110,7 +108,7 @@ class TermFactoryTest {
     val mem = AtExpr(MessageExpr(Str("x")), Num(3))
     val expr = PlusExpr(Num(6), mem)
     factory.toTerm(expr)
-    val memories = factory.getMemories.asScala
+    val memories = factory.getMemories
     assertEquals(1, memories.size)
   }
 
@@ -123,7 +121,7 @@ class TermFactoryTest {
     val factory = new TermFactory(termManager, sort)
     val expr = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(expr)
-    val memories = factory.getMemories.asScala
+    val memories = factory.getMemories
     assertEquals(1, memories.size)
     val mem = memories.head
     assertEquals("m_x_3", mem.name)
@@ -141,7 +139,7 @@ class TermFactoryTest {
     factory.toTerm(expr1)
     val expr2 = AtExpr(RandomExpr(Str("y")), Num(5))
     factory.toTerm(expr2)
-    val memories = factory.getMemories.asScala
+    val memories = factory.getMemories
     assertEquals(2, memories.size)
   }
 
@@ -236,7 +234,7 @@ class TermFactoryTest {
     factory.toTerm(expr)
     val twin = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(twin)
-    val memories = factory.getMemories.asScala
+    val memories = factory.getMemories
     assertEquals(1, memories.size)
   }
 
