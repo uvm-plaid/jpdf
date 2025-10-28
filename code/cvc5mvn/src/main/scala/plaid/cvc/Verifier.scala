@@ -24,7 +24,7 @@ class Verifier(val termFactory: TermFactory) {
     solver.setOption("produce-models", "true")
     solver.assertFormula(term)
     val result = solver.checkSat()
-    if (!result.isSat()) return null
+    if (!result.isSat) return null
 
     val map: java.util.Map[Term, Integer] = new java.util.HashMap()
     val mod = Integer.parseInt(termFactory.sort.getFiniteFieldSize)

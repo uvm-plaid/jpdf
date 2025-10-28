@@ -3,14 +3,13 @@ package plaid.logic
 import plaid.ast.*
 import plaid.prettyPrint
 
-import java.util.{ArrayList, HashMap, Optional, List as JList, Map as JMap}
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOption
 
 class ConstraintAnalyzer(val program: Program, order: String) {
 
   private val verifier = new GenEntailVerifier(program, order)
-  private val functionConstraints: JMap[Identifier, Constraints] = new HashMap()
+  private val functionConstraints = new mutable.HashMap[Identifier, Constraints]()
 
   private def binding(formal: List[TypedIdentifier], actual: List[Expr]): Map[Identifier, Expr] =
     formal.map(_.y).zip(actual).toMap
@@ -61,24 +60,24 @@ class ConstraintAnalyzer(val program: Program, order: String) {
       inferPrePostCmd(evaluator.evalInstruction(letCmd), evaluator)
 
     case listCmd: ListCmd =>
-      val constraints: JList[Constraints] = new ArrayList()
-      constraints.add(inferPrePostCmd(listCmd.c1, evaluator))
-      constraints.add(inferPrePostCmd(listCmd.c2, evaluator))
+      val constraints = List(
+        inferPrePostCmd(listCmd.c1, evaluator),
+        inferPrePostCmd(listCmd.c2, evaluator))
 
-      val reducedPre: Optional[Constraint] =
-        constraints.asScala.map(_.precondition).filter(_ != null).reduceOption((a, b) => AndConstraint(a, b)).asJava
-      val reducedPost: Optional[Constraint] =
-        constraints.asScala.map(_.postcondition).filter(_ != null).reduceOption((a, b) => AndConstraint(a, b)).asJava
+      val reducedPre =
+        constraints.map(_.precondition).filter(_ != null).reduceOption((a, b) => AndConstraint(a, b))
+      val reducedPost =
+        constraints.map(_.postcondition).filter(_ != null).reduceOption((a, b) => AndConstraint(a, b))
 
-      Constraints(reducedPre.orElse(null), reducedPost.orElse(null))
+      Constraints(reducedPre.orNull, reducedPost.orNull)
 
     case callCmd: CallCmd =>
       val id = callCmd.fname
       val fn = program.resolveCommandFunction(id)
 
-      if !functionConstraints.containsKey(id) then
+      if !functionConstraints.contains(id) then
         functionConstraints.put(id, inferPrePostFN(fn))
-      val constraints = functionConstraints.get(id)
+      val constraints = functionConstraints(id)
 
       evaluator.binding_list.add(binding(fn.typedVariables, callCmd.parameters).asJava)
       val pre = Option(constraints.precondition).map(evaluator.evalConstraint).orNull

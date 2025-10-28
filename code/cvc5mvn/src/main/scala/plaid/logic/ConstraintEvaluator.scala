@@ -101,7 +101,7 @@ class ConstraintEvaluator(val program: Program) {
       binding.put(letCmd.y, v)
       binding_list.addLast(binding)
       val result = evalInstruction(letCmd.c)
-      binding_list.removeLast
+      binding_list.removeLast()
       result
 
     case listCmd: ListCmd =>
