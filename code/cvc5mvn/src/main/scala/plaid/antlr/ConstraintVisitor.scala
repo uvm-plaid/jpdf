@@ -19,8 +19,8 @@ object ConstraintVisitor extends PreludeBaseVisitor[Constraint] {
 
   override def visitEqualConstraintExpr(ctx: EqualConstraintExprContext): EqualConstraint =
     EqualConstraint(
-      Loader.toExpression(ctx.expr(0)),
-      Loader.toExpression(ctx.expr(1))
+      Load.expression(ctx.expr(0)),
+      Load.expression(ctx.expr(1))
     )
 
   override def visitTrueConstraintExpr(ctx: TrueConstraintExprContext): TrueConstraint =
@@ -29,6 +29,6 @@ object ConstraintVisitor extends PreludeBaseVisitor[Constraint] {
   override def visitFunctionCallConstraintExpr(ctx: FunctionCallConstraintExprContext): FunctionCall =
     FunctionCall(
       Identifier(ctx.ident().getText),
-      ctx.expr().asScala.map(Loader.toExpression).toList
+      ctx.expr().asScala.map(Load.expression).toList
     )
 }

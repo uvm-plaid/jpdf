@@ -6,7 +6,7 @@ import org.junit.Assert.assertEquals
 
 class CommandVisitorTest {
 
-  private def ast(src: String): Cmd = Loader.toCommand(src)
+  private def ast(src: String): Cmd = Load.command(src)
 
   /** Parses assignment commands. */
   @Test

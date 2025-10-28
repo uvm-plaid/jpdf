@@ -11,20 +11,20 @@ object CommandVisitor extends PreludeBaseVisitor[Cmd] {
   override def visitFunctionCallCommand(ctx: FunctionCallCommandContext): CallCmd =
     CallCmd(
       Identifier(ctx.ident().getText),
-      ctx.expr().asScala.map(Loader.toExpression).toList
+      ctx.expr().asScala.map(Load.expression).toList
     )
 
   override def visitAssignCommand(ctx: AssignCommandContext): AssignCmd =
     AssignCmd(
-      Loader.toExpression(ctx.expr(0)),
-      Loader.toExpression(ctx.expr(1))
+      Load.expression(ctx.expr(0)),
+      Load.expression(ctx.expr(1))
     )
 
   override def visitAssertCommand(ctx: AssertCommandContext): AssertCmd =
     AssertCmd(
-      Loader.toExpression(ctx.expr(0)),
-      Loader.toExpression(ctx.expr(1)),
-      Loader.toExpression(ctx.expr(2))
+      Load.expression(ctx.expr(0)),
+      Load.expression(ctx.expr(1)),
+      Load.expression(ctx.expr(2))
     )
 
   override def visitCommandList(ctx: CommandListContext): ListCmd =
@@ -36,7 +36,7 @@ object CommandVisitor extends PreludeBaseVisitor[Cmd] {
   override def visitLetCommand(ctx: LetCommandContext): LetCmd =
     LetCmd(
       Identifier(ctx.ident().getText),
-      Loader.toExpression(ctx.expr()),
-      Loader.toCommand(ctx.command())
+      Load.expression(ctx.expr()),
+      Load.command(ctx.command())
     )
 }

@@ -3,7 +3,7 @@ package plaid.logic
 import io.github.cvc5.CVC5ApiException
 import org.junit.Test
 import org.junit.Assert._
-import plaid.antlr.Loader
+import plaid.antlr.Load
 import plaid.ast._
 
 import java.util.{Map, TreeMap}
@@ -39,7 +39,7 @@ class GenEntailVerifierTest {
     val program = Program(List(), List(), List())
     val genEntailVerifier = new GenEntailVerifier(program, "2")
 
-    val recordType = Loader.toType(src).asInstanceOf[RecordType]
+    val recordType = Load.typeMarker(src).asInstanceOf[RecordType]
     val map = new TreeMap[Identifier, Expr]()
     map.put(Identifier("s"), Str("$2"))
     map.put(Identifier("i"), Num(-1))
@@ -55,7 +55,7 @@ class GenEntailVerifierTest {
     val program = Program(List(), List(), List())
     val genEntailVerifier = new GenEntailVerifier(program, "2")
 
-    val recordType = Loader.toType(src).asInstanceOf[RecordType]
+    val recordType = Load.typeMarker(src).asInstanceOf[RecordType]
 
     val innermap = new TreeMap[Identifier, Expr]()
     innermap.put(Identifier("s"), Str("$1"))
@@ -86,10 +86,10 @@ class GenEntailVerifierTest {
       TypedIdentifier(Identifier("z"), StringType())
     )
 
-    val result1 = genEntailVerifier.genEntails(typing, Loader.toConstraintExpression(e1), Loader.toConstraintExpression(e2))
+    val result1 = genEntailVerifier.genEntails(typing, Load.constraint(e1), Load.constraint(e2))
     assertTrue(result1)
 
-    val result2 = genEntailVerifier.genEntails(typing, Loader.toConstraintExpression(e2), Loader.toConstraintExpression(e1))
+    val result2 = genEntailVerifier.genEntails(typing, Load.constraint(e2), Load.constraint(e1))
     assertFalse(result2)
   }
 

@@ -3,7 +3,7 @@ package plaid.cvc
 import io.github.cvc5.{CVC5ApiException, Sort, Term, TermManager}
 import org.junit.Test
 import org.junit.Assert.{assertFalse, assertTrue}
-import plaid.antlr.Loader
+import plaid.antlr.Load
 import plaid.ast.{AssignCmd, Cmd}
 import plaid.cvc.CvcUtils.mkFiniteFieldSort
 
@@ -54,8 +54,8 @@ class VerifierTest {
 
     assertTrue(verifier.satisfies(protocol))
     assertTrue(verifier.entails(
-      termFactory.toTerm(Loader.toCommand(protocol)),
-      termFactory.constraintToTerm(Loader.toConstraintExpression(proposition))
+      termFactory.toTerm(Load.command(protocol)),
+      termFactory.constraintToTerm(Load.constraint(proposition))
     ))
   }
 
@@ -69,8 +69,8 @@ class VerifierTest {
     val proposition = """r["x"]@1 == m["x"]@3"""
 
     assertTrue(verifier.entails(
-      termFactory.toTerm(Loader.toCommand(protocol)),
-      termFactory.constraintToTerm(Loader.toConstraintExpression(proposition))
+      termFactory.toTerm(Load.command(protocol)),
+      termFactory.constraintToTerm(Load.constraint(proposition))
     ))
   }
 
@@ -102,8 +102,8 @@ class VerifierTest {
 
     propositions.foreach { p =>
       assertTrue(verifier.entails(
-        termFactory.toTerm(Loader.toCommand(protocol)),
-        termFactory.constraintToTerm(Loader.toConstraintExpression(p))
+        termFactory.toTerm(Load.command(protocol)),
+        termFactory.constraintToTerm(Load.constraint(p))
       ))
     }
 
@@ -116,8 +116,8 @@ class VerifierTest {
 
     falseProps.foreach { p =>
       assertFalse(verifier.entails(
-        termFactory.toTerm(Loader.toCommand(protocol)),
-        termFactory.constraintToTerm(Loader.toConstraintExpression(p))
+        termFactory.toTerm(Load.command(protocol)),
+        termFactory.constraintToTerm(Load.constraint(p))
       ))
     }
   }
@@ -136,8 +136,8 @@ class VerifierTest {
 
     falseProps.foreach { p =>
       assertFalse(verifier.entails(
-        termFactory.toTerm(Loader.toCommand(protocol)),
-        termFactory.constraintToTerm(Loader.toConstraintExpression(p))
+        termFactory.toTerm(Load.command(protocol)),
+        termFactory.constraintToTerm(Load.constraint(p))
       ))
     }
   }
@@ -146,16 +146,16 @@ class VerifierTest {
   @Test
   @throws[CVC5ApiException]
   def somethingEntailsNothing(): Unit = {
-    val trueTerm = termFactory.toTerm(Loader.toCommand("out@1 := 1@1"))
+    val trueTerm = termFactory.toTerm(Load.command("out@1 := 1@1"))
     assertTrue(verifier.entails(trueTerm, null))
-    val falseTerm = termFactory.toTerm(Loader.toCommand("out@1 := 1@1; out@1 := 2@1"))
+    val falseTerm = termFactory.toTerm(Load.command("out@1 := 1@1; out@1 := 2@1"))
     assertTrue(verifier.entails(falseTerm, null))
   }
 
   /** Overture protocols with only one command in them can be satisfied */
   @Test
   def oneCommandProtocolSatisfaction(): Unit = {
-    val command = Loader.toCommand("out@1 := 1@1")
+    val command = Load.command("out@1 := 1@1")
     assertTrue(command.isInstanceOf[AssignCmd])
     assertTrue(verifier.satisfies(command))
   }

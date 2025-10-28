@@ -8,7 +8,7 @@ import org.junit.Assert.assertEquals
 
 class TypeVisitorTest {
 
-  private def ast(src: String): Type = Loader.toType(src)
+  private def ast(src: String): Type = Load.typeMarker(src)
 
   /** Parses client id type */
   @Test

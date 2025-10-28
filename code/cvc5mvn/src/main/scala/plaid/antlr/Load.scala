@@ -6,10 +6,10 @@ import plaid.*
 import plaid.ast.*
 
 /** Support for converting Prelude source code into an abstract syntax tree. */
-object Loader {
+object Load {
 
   /** Creates an ANTLR4 parser for Prelude source code. */
-  def createParser(src: String): PreludeParser = {
+  def parser(src: String): PreludeParser = {
     val input = new ANTLRInputStream(src)
     val lexer  = new PreludeLexer(input)
     val tokens = new CommonTokenStream(lexer)
@@ -19,39 +19,39 @@ object Loader {
   }
 
   /** Converts an ANTLR4 context into an abstract syntax tree for a type. */
-  def toType(ctx: PreludeParser.TypeContext): Type =
+  def typeMarker(ctx: PreludeParser.TypeContext): Type =
     TypeVisitor.visit(ctx)
 
   /** Converts Prelude source code into an abstract syntax tree for an type. */
-  def toType(src: String): Type =
-    toType(createParser(src).`type`())
+  def typeMarker(src: String): Type =
+    typeMarker(parser(src).`type`())
 
   /** Converts an ANTLR4 context into an abstract syntax tree for an expression. */
-  def toExpression(ctx: PreludeParser.ExprContext): Expr =
+  def expression(ctx: PreludeParser.ExprContext): Expr =
     ExpressionVisitor.visit(ctx)
 
   /** Converts Prelude source code into an abstract syntax tree for an expression. */
-  def toExpression(src: String): Expr =
-    toExpression(createParser(src).expr())
+  def expression(src: String): Expr =
+    expression(parser(src).expr())
 
-  /** Converts an ANTLR context for Constraint Expr into an abstract syntax tree. */
-  def toConstraintExpression(ctx: PreludeParser.ConstraintExprContext): Constraint =
+  /** Converts an ANTLR context into an abstract syntax tree for a constraint. */
+  def constraint(ctx: PreludeParser.ConstraintExprContext): Constraint =
     ConstraintVisitor.visit(ctx)
 
-  /** Converts Constraint Expr source code into an abstract syntax tree. */
-  def toConstraintExpression(src: String): Constraint =
-    toConstraintExpression(createParser(src).constraintExpr())
+  /** Converts Prelude source code into an abstract syntax tree for a constraint. */
+  def constraint(src: String): Constraint =
+    constraint(parser(src).constraintExpr())
 
   /** Converts an ANTLR4 context into an abstract syntax tree for a command. */
-  def toCommand(ctx: PreludeParser.CommandContext): Cmd =
+  def command(ctx: PreludeParser.CommandContext): Cmd =
     CommandVisitor.visit(ctx)
 
   /** Converts Prelude source code into an abstract syntax tree for a command. */
-  def toCommand(src: String): Cmd =
-    toCommand(createParser(src).command())
+  def command(src: String): Cmd =
+    command(parser(src).command())
 
   /** Converts an ANTLR4 context into an abstract syntax tree for a Prelude program. */
-  def toProgram(ctx: PreludeParser.ProgramContext): Program = {
+  def program(ctx: PreludeParser.ProgramContext): Program = {
     val listener = new FunctionListener()
     ParseTreeWalker.DEFAULT.walk(listener, ctx)
 
@@ -62,6 +62,6 @@ object Loader {
   }
 
   /** Converts Prelude source code into an abstract syntax tree for a Prelude program. */
-  def toProgram(src: String): Program =
-    toProgram(createParser(src).program())
+  def program(src: String): Program =
+    program(parser(src).program())
 }
