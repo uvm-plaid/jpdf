@@ -1,21 +1,17 @@
 package plaid
 
-import java.io.File
-import java.nio.file.Files
-
-import io.github.cvc5.CVC5ApiException
 import picocli.CommandLine
 import picocli.CommandLine.{Command, Option, Parameters}
-
 import plaid.antlr.Loader
-import plaid.ast.Program
-import plaid.logic.{ConstraintAnalyzer, Constraints}
+import plaid.logic.ConstraintAnalyzer
+
+import java.io.File
+import java.nio.file.Files
 
 @Command(
   name = "prelude",
   version = Array("prelude-dev"),
-  mixinStandardHelpOptions = true
-)
+  mixinStandardHelpOptions = true)
 class App extends Runnable {
 
   @Option(names = Array("--field-size", "-s"), description = Array("Order of the finite field"))
@@ -24,31 +20,13 @@ class App extends Runnable {
   @Parameters(paramLabel = "<path>", description = Array("Path to a prelude source file"))
   var path: String = _
 
-  def staticAnalysis(program: Program): Constraints = {
-    val analyzer = new ConstraintAnalyzer(program, fieldSize)
-    analyzer.inferPrePostFN(program.resolveCommandFunction(Loader.toExpression("main")))
-  }
-
-  override def run(): Unit = {
-    val programSource = readSourceCode()
-    val programAST = Loader.toProgram(programSource)
-
-    try {
-      val constraints = staticAnalysis(programAST)
-      println(s"The precondition for main: ${ScalaFunctions.prettyPrint(constraints.precondition)}")
-      println(s"The postcondition for main: ${ScalaFunctions.prettyPrint(constraints.postcondition)}")
-    } catch {
-      case e: CVC5ApiException => throw new RuntimeException(e)
-    }
-  }
-
-  private def readSourceCode(): String = {
-    try {
-      Files.readString(new File(path).toPath)
-    } catch {
-      case e: Exception => throw new RuntimeException(e)
-    }
-  }
+  override def run(): Unit =
+    val src = Files.readString(new File(path).toPath)
+    val ast = Loader.toProgram(src)
+    val analyzer = new ConstraintAnalyzer(ast, fieldSize)
+    val constraints = analyzer.inferPrePostFN(ast.resolveCommandFunction(Loader.toExpression("main")))
+    println(s"The precondition for main: ${ScalaFunctions.prettyPrint(constraints.precondition)}")
+    println(s"The postcondition for main: ${ScalaFunctions.prettyPrint(constraints.postcondition)}")
 }
 
 object App {
