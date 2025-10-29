@@ -3,6 +3,7 @@ package plaid.prelude.antlr
 import org.antlr.v4.runtime.*
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import plaid.prelude.*
+import plaid.prelude.PreludeParser.*
 import plaid.prelude.ast.*
 
 /** Support for converting Prelude source code into an abstract syntax tree. */
@@ -19,7 +20,7 @@ object Loader {
   }
 
   /** Converts an ANTLR4 context into an abstract syntax tree for a type. */
-  def typeMarker(ctx: PreludeParser.TypeContext): Type =
+  def typeMarker(ctx: TypeContext): Type =
     TypeVisitor.visit(ctx)
 
   /** Converts Prelude source code into an abstract syntax tree for an type. */
@@ -27,7 +28,7 @@ object Loader {
     typeMarker(parser(src).`type`())
 
   /** Converts an ANTLR4 context into an abstract syntax tree for an expression. */
-  def expression(ctx: PreludeParser.ExprContext): Expr =
+  def expression(ctx: ExprContext): Expr =
     ExpressionVisitor.visit(ctx)
 
   /** Converts Prelude source code into an abstract syntax tree for an expression. */
@@ -35,7 +36,7 @@ object Loader {
     expression(parser(src).expr())
 
   /** Converts an ANTLR context into an abstract syntax tree for a constraint. */
-  def constraint(ctx: PreludeParser.ConstraintExprContext): Constraint =
+  def constraint(ctx: ConstraintExprContext): Constraint =
     ConstraintVisitor.visit(ctx)
 
   /** Converts Prelude source code into an abstract syntax tree for a constraint. */
@@ -43,7 +44,7 @@ object Loader {
     constraint(parser(src).constraintExpr())
 
   /** Converts an ANTLR4 context into an abstract syntax tree for a command. */
-  def command(ctx: PreludeParser.CommandContext): Cmd =
+  def command(ctx: CommandContext): Cmd =
     CommandVisitor.visit(ctx)
 
   /** Converts Prelude source code into an abstract syntax tree for a command. */
@@ -51,7 +52,7 @@ object Loader {
     command(parser(src).command())
 
   /** Converts an ANTLR4 context into an abstract syntax tree for a Prelude program. */
-  def program(ctx: PreludeParser.ProgramContext): Program = {
+  def program(ctx: ProgramContext): Program = {
     val listener = new FunctionListener()
     ParseTreeWalker.DEFAULT.walk(listener, ctx)
 

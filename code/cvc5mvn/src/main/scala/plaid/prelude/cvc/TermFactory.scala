@@ -105,5 +105,5 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
     case AndConstraint(e1, e2) => termManager.mkTerm(Kind.AND, constraintToTerm(e1), constraintToTerm(e2))
     case EqualConstraint(e1, e2) => termManager.mkTerm(Kind.EQUAL, toTerm(e1), toTerm(e2))
     case TrueConstraint() => termManager.mkTrue()
-    case other => throw new IllegalArgumentException(s"cannot convert ${other.getClass.getName} into CVC5 term")
+    case other => throw new IllegalArgumentException(s"Unsupported constraint $other")
 }
