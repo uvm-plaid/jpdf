@@ -57,16 +57,67 @@ rule, can be defined very directly in terms of evaluation of $\metaprot$ express
   \inferrule[Frame]
       {\htrip{\eqs_1}{\prog}{\eqs_2} \\ \vars(\eqs) \cap \avars(\prog) = \varnothing}
       {\htrip{\eqs_1 \wedge \eqs}{\prog}{\eqs_2 \wedge \eqs}}
+      
+\inferrule[Hyp]
+          {\htrip{\eqs_1}{\prog}{\eqs_2}}
+          {\htrip{\eqs_1 \wedge (\eqs_2 \impl \eqs)}{\prog}{\eqs_2 \wedge \eqs}}
 \end{mathpar}
 
+%Derived rule:
+%\begin{mathpar}
+%\inferrule[Assigns]
+%          {\htrip{\eqs_1}{\prog}{\eqs_2}}% \\ \vars(\eqs_1) \cap \dom(\subn) = \varnothing}
+%          {\htrip{\eqs_1 \wedge \subn_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
+%\end{mathpar}
 
-Derived rule:
-\begin{mathpar}
-\inferrule[Assigns]
-          {\htrip{\eqs_1}{\prog}{\eqs_2}}% \\ \vars(\eqs_1) \cap \dom(\subn) = \varnothing}
-          {\htrip{\eqs_1 \wedge \subn_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
-\end{mathpar}
 
+\begin{lemma}
+  \label{theorem-toeq}
+  Given $\eqs, \prog, \store$ with $\store \models \eqs$ and $(\store,\prog)$
+  closed.
+  Then $(\store,\prog) \redxs \store'$ iff $\store' \models
+  \eqs \wedge \toeq{\prog}$.
+\end{lemma}
+
+\begin{theorem}
+  \label{theorem-toeq}
+  $\sigma \models \eqspre \wedge \toeq{\prog}$ iff $\store \in \runs(\prog)$.
+\end{theorem}
+
+\begin{definition}
+$\htrip{\eqs_1}{\prog}{\eqs_2}$ is \emph{valid} iff $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$.
+\end{definition}
+
+\begin{lemma}
+  \label{theorem-toeq}
+  Given $\eqs_1, \eqs_2, \prog, \store$ with $\store \models \eqs_1$
+  and $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$. Then
+  $(\store,\prog) \redxs \store'$ implies $\store' \models
+  \eqs_2$.
+\end{lemma}
+
+\begin{lemma}
+  If $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable, then it is valid.
+\end{lemma}
+
+\begin{proof}
+  Assume $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable without \TirName{Hyp}.
+  Then $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$, since all other rules
+  are sound. 
+  Now since $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$ by assumption, we have
+  $
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 
+  $,
+  and clearly:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge (\eqs_2 \impl \eqs)
+  $$
+  and since $\eqs_2 \wedge (\eqs_2 \impl \eqs)$ iff
+  $\eqs_2 \wedge \eqs$, we have by \TirName{Consequence}:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge \eqs
+  $$
+\end{proof}
 
 \subsection{$\metaprot$ Automated Abstract Hoare Logic}
 
