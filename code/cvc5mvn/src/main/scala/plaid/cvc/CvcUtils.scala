@@ -5,27 +5,6 @@ import plaid.ast.*
 
 object CvcUtils {
 
-  def mkFiniteFieldSort(termManager: TermManager, s: String, i: Int): Sort =
-    try {
-      termManager.mkFiniteFieldSort(s, i)
-    } catch {
-      case e: CVC5ApiException => throw new RuntimeException(e)
-    }
-
-  def mkFiniteFieldElem(termManager: TermManager, s: String, sort: Sort, i: Int): Term =
-    try {
-      termManager.mkFiniteFieldElem(s, sort, i)
-    } catch {
-      case e: CVC5ApiException => throw new RuntimeException(e)
-    }
-
-  def finiteFieldValue(term: Term): String =
-    try {
-      term.getFiniteFieldValue
-    } catch {
-      case e: CVC5ApiException => throw new RuntimeException(e)
-    }
-
   def getCvcName(expr: Expr, partyIndex: Integer): String = expr match {
     case mem: MessageExpr => s"m_${toString(mem.e)}_$partyIndex"
     case _: OutputExpr    => s"o_$partyIndex"

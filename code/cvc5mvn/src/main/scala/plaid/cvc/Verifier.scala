@@ -27,7 +27,7 @@ class Verifier(val termFactory: TermFactory) {
     val mod = Integer.parseInt(termFactory.sort.getFiniteFieldSize)
     termFactory.getMemories.map(m =>
       val value = solver.getValue(m.term)
-      val finiteFieldValue = Integer.parseInt(CvcUtils.finiteFieldValue(value))
+      val finiteFieldValue = Integer.parseInt(value.getFiniteFieldValue)
       m.term -> Math.floorMod(finiteFieldValue, mod)).toMap
   }
 

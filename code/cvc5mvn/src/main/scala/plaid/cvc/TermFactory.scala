@@ -20,7 +20,7 @@ object TermFactory {
 class TermFactory(val termManager: TermManager, val sort: Sort) {
 
   private val memories = new mutable.HashSet[Memory]()
-  private val minusOne: Term = CvcUtils.mkFiniteFieldElem(termManager, "-1", sort, TermFactory.DEFAULT_FIELD_SIZE)
+  private val minusOne: Term = termManager.mkFiniteFieldElem("-1", sort, TermFactory.DEFAULT_FIELD_SIZE)
   private var partyIndex: Integer = _
 
   // initialize solver logic
@@ -33,7 +33,7 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
   def getMemories: Set[Memory] = memories.toSet
 
   private def not(term: Term): Term =
-    termManager.mkTerm(Kind.FINITE_FIELD_ADD, term, CvcUtils.mkFiniteFieldElem(termManager, "1", sort, TermFactory.DEFAULT_FIELD_SIZE))
+    termManager.mkTerm(Kind.FINITE_FIELD_ADD, term, termManager.mkFiniteFieldElem("1", sort, TermFactory.DEFAULT_FIELD_SIZE))
 
   def joinWithAnd(terms: java.util.Collection[Term]): Term =
     if (terms.size() == 1) terms.iterator().next()
@@ -66,7 +66,7 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
       val result = toTerm(x.e1)
       partyIndex = null
       result
-    case x: Num         => CvcUtils.mkFiniteFieldElem(termManager, x.num.toString, sort, TermFactory.DEFAULT_FIELD_SIZE)
+    case x: Num         => termManager.mkFiniteFieldElem(x.num.toString, sort, TermFactory.DEFAULT_FIELD_SIZE)
     case x: PlusExpr    => termManager.mkTerm(Kind.FINITE_FIELD_ADD, toTerm(x.e1), toTerm(x.e2))
     case x: TimesExpr   => termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e1), toTerm(x.e2))
     case x: MinusExpr   => termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e), minusOne)

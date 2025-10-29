@@ -1,16 +1,15 @@
 package plaid.cvc
 
-import io.github.cvc5.{CVC5ApiException, Sort, Term, TermManager}
-import org.junit.Test
+import io.github.cvc5.{CVC5ApiException, Sort, TermManager}
 import org.junit.Assert.{assertFalse, assertTrue}
+import org.junit.Test
 import plaid.antlr.Loader
-import plaid.ast.{AssignCmd, Cmd}
-import plaid.cvc.CvcUtils.mkFiniteFieldSort
+import plaid.ast.AssignCmd
 
 class VerifierTest {
 
   private val termManager = new TermManager()
-  private val sort: Sort = mkFiniteFieldSort(termManager, "7", 10)
+  private val sort: Sort = termManager.mkFiniteFieldSort("7", 10)
   private val termFactory = new TermFactory(termManager, sort)
   private val verifier = new Verifier(termFactory)
 
