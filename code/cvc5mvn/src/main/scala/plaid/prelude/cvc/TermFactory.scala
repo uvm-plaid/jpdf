@@ -5,14 +5,13 @@ import plaid.prelude.ast.*
 
 import scala.collection.mutable
 import scala.compiletime.uninitialized
-import scala.jdk.CollectionConverters.*
 
 object TermFactory {
   // TODO Don't we specify the field size?
   private val DEFAULT_FIELD_SIZE = 10
 
   /** Extract party index for assert commands */
-  def getPartyIndex(command: Cmd): Integer =
+  private def getPartyIndex(command: Cmd): Integer =
     command match {
       case x: AssertCmd => CvcUtils.toInt(x.e3)
       case _            => null
@@ -37,18 +36,18 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
   private def not(term: Term): Term =
     termManager.mkTerm(Kind.FINITE_FIELD_ADD, term, termManager.mkFiniteFieldElem("1", sort, TermFactory.DEFAULT_FIELD_SIZE))
 
-  private def joinWithAnd(terms: java.util.Collection[Term]): Term =
-    if (terms.size() == 1) terms.iterator().next()
-    else termManager.mkTerm(Kind.AND, terms.asScala.toArray)
+  private def joinWithAnd(terms: List[Term]): Term =
+    if (terms.size == 1) terms.last
+    else termManager.mkTerm(Kind.AND, terms.toArray)
 
   def toTerm(command: Cmd): Term = command match {
     case x: ListCmd =>
-      joinWithAnd(List(toTerm(x.c1), toTerm(x.c2)).asJava)
+      joinWithAnd(List(toTerm(x.c1), toTerm(x.c2)))
     case x: AssertCmd =>
       val idx = TermFactory.getPartyIndex(x)
-      joinWithAnd(List(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1, idx), toTerm(x.e2, idx))).asJava)
+      joinWithAnd(List(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1, idx), toTerm(x.e2, idx))))
     case x: AssignCmd =>
-      joinWithAnd(List(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1), toTerm(x.e2))).asJava)
+      joinWithAnd(List(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1), toTerm(x.e2))))
     case other =>
       throw new IllegalArgumentException(s"Not an overture command ${other.getClass.getName}")
   }

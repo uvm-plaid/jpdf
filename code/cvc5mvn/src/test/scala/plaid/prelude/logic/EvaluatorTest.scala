@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.*
+import plaid.prelude.transform.Evaluator
 
 class EvaluatorTest {
 
@@ -167,9 +168,7 @@ class EvaluatorTest {
     val command = evalCommand("""encodegmw("x", 2, 1)""", functionContext)
 
     assertEquals(
-      Loader.command(
-        """m["x"]@1 := (s["x"] + r["x"])@2;
-          |m["x"]@2 := r["x"]@2""".stripMargin),
+      Loader.command("""encodegmw("x", 2, 1)"""),
       command
     )
   }
@@ -197,27 +196,11 @@ class EvaluatorTest {
 
   @Test
   def evalAssertCommand(): Unit = {
-    val formalParameters = List(
-      TypedIdentifier(Identifier("x"), StringType()),
-      TypedIdentifier(Identifier("i1"), PartyIndexType()),
-      TypedIdentifier(Identifier("i2"), PartyIndexType())
-    )
-    val functionBody = Loader.command(
-      """m[x++"exts"]@i1 := m[x++"s"]@i2;
-        |m[x++"extm"]@i1 := m[x++"m"]@i2;
-        |assert(m[x++"extm"] = m[x++"k"] + (m["delta"] * m[x++"exts"]))@i1;
-        |m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1""".stripMargin)
-    val functionContext = List(CommandFunction(Identifier("_open"), formalParameters, functionBody, null, null))
-
-    val command = evalCommand("""_open("foo", 1, 2)""", functionContext)
+    val program = Program(List(), List(), List())
+    val cmd = Loader.command("""assert(m["a" ++ "b"] = m["c" ++ "d"])@i1""")
     assertEquals(
-      Loader.command(
-        """m["fooexts"]@1 := m["foos"]@2;
-          |m["fooextm"]@1 := m["foom"]@2;
-          |assert(m["fooextm"] = m["fook"] + (m["delta"] * m["fooexts"]))@1;
-          |m["foo"]@1 := (m["fooexts"] + m["foos"])@1""".stripMargin),
-      command
-    )
+      Loader.command("""assert(m["ab"] = m["cd"])@i1"""),
+      Evaluator(program).command(cmd))
   }
 
 }

@@ -2,6 +2,7 @@ package plaid.prelude.logic
 
 import plaid.prelude.ast.*
 import plaid.prelude.prettyPrint
+import plaid.prelude.transform.{Evaluator, PartyIndexer}
 
 import scala.collection.mutable
 
@@ -42,15 +43,15 @@ class ConstraintAnalyzer(val program: Program, order: String) {
         TrueConstraint(),
         EqualConstraint(
           evaluator.expression(assignCmd.e1),
-          appendPartyIndex(evaluator.expression(assignCmd.e2), null)
+          PartyIndexer.appendPartyIndex(evaluator.expression(assignCmd.e2), null)
         )
       )
 
     case assertCmd: AssertCmd =>
       Constraints(
         EqualConstraint(
-          appendPartyIndex(evaluator.expression(assertCmd.e1), evaluator.expression(assertCmd.e3)),
-          appendPartyIndex(evaluator.expression(assertCmd.e2), evaluator.expression(assertCmd.e3))
+          PartyIndexer.appendPartyIndex(evaluator.expression(assertCmd.e1), evaluator.expression(assertCmd.e3)),
+          PartyIndexer.appendPartyIndex(evaluator.expression(assertCmd.e2), evaluator.expression(assertCmd.e3))
         ),
         TrueConstraint()
       )
@@ -82,33 +83,32 @@ class ConstraintAnalyzer(val program: Program, order: String) {
       val pre = Option(constraints.precondition).map(ev.constraint).orNull
       val post = Option(constraints.postcondition).map(ev.constraint).orNull
       Constraints(pre, post)
+}
 
-  /** Append party index to expressions for arithmetic operations on memories */
-  private def appendPartyIndex(expression: Expr, partyIndex: Expr): Expr = expression match
-    case e: AtExpr       => appendPartyIndex(e.e1, e.e2)
-    case e: RandomExpr   => AtExpr(e, partyIndex)
-    case e: SecretExpr   => AtExpr(e, partyIndex)
-    case e: MessageExpr  => AtExpr(e, partyIndex)
-    case e: OutputExpr   => AtExpr(e, partyIndex)
-    case e: MinusExpr    => MinusExpr(appendPartyIndex(e.e, partyIndex))
-    case e: TimesExpr    => TimesExpr(appendPartyIndex(e.e1, partyIndex), appendPartyIndex(e.e2, partyIndex))
-    case e: PlusExpr     => PlusExpr(appendPartyIndex(e.e1, partyIndex), appendPartyIndex(e.e2, partyIndex))
-    case e: OTExpr       =>
-      OTExpr(
-        appendPartyIndex(e.e1, e.i1),
-        e.i1,
-        appendPartyIndex(e.e2, partyIndex),
-        appendPartyIndex(e.e3, partyIndex)
-      )
-    case e: OTFourExpr   =>
-      OTFourExpr(
-        appendPartyIndex(e.s1, e.i1),
-        appendPartyIndex(e.s2, e.i1),
-        e.i1,
-        appendPartyIndex(e.e1, partyIndex),
-        appendPartyIndex(e.e2, partyIndex),
-        appendPartyIndex(e.e3, partyIndex),
-        appendPartyIndex(e.e4, partyIndex)
-      )
-    case e: Expr => e
+case class Entailment(cmd: Cmd, pre: Constraint, post: Constraint)
+
+// TODO Pre-processing: Append party indexes to expressions and evaluate everything
+// TODO Apply party indexes across commands too
+
+/** As analysis of a Program progresses, support for tracking the constraints that are in play, and the entailments that
+ * have to be checked */
+case class HoareContext(
+  constraint: Constraint = TrueConstraint(),
+  entailments: List[Entailment] = List()) {
+
+  /** Constructs an updated context that reflects the inclusion of a new command */
+  def include(cmd: Cmd): HoareContext = cmd match
+    case AssertCmd(e1, e2, e3) =>
+      val ent = Entailment(cmd, constraint, EqualConstraint(e1, e2))
+      copy(entailments = entailments.appended(ent))
+    case AssignCmd(dest, OTExpr(e1, i1, e2, e3)) => ???
+    case AssignCmd(dest, OTFourExpr(s1, s2, i1, e1, e2, e3, e4)) => ???
+    case AssignCmd(e1, e2) =>
+      val eq = EqualConstraint(e1, e2)
+      copy(constraint = AndConstraint(constraint, eq))
+    case ListCmd(c1, c2) => include(c1).include(c2)
+    case CallCmd(fn, parms) =>
+      // TODO Tricky, generalize here or after?
+      copy(constraint = ???, entailments = ???)
+    case other => throw Exception(s"Command $other is not evaluated")
 }

@@ -1,4 +1,4 @@
-package plaid.prelude.logic
+package plaid.prelude.transform
 
 import plaid.prelude.ast.*
 
@@ -59,12 +59,7 @@ case class Evaluator(
   /** Reduces a command as much as possible in the context of this evaluator's Program and bindings. */
   def command(cmd: Cmd): Cmd = cmd match
     case AssignCmd(e1, e2) => AssignCmd(expression(e1), expression(e2))
-    case CallCmd(fn, parms) =>
-      val f = program.resolveCommandFunction(fn)
-      val formalParms = f.typedVariables.map(_.y)
-      val actualParms = parms.map(expression)
-      val evaluator = copy(bindings = Map.from(formalParms.zip(actualParms)))
-      evaluator.command(f.c)
+    case CallCmd(fn, parms) => CallCmd(fn, parms.map(expression))
     case LetCmd(y, e, c) =>
       val evaluator = copy(bindings = bindings.updated(y, expression(e)))
       evaluator.command(c)

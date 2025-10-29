@@ -5,6 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.{Ignore, Test}
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.*
+import plaid.prelude.transform.Evaluator
 
 class ConstraintAnalyzerTest {
 
