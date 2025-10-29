@@ -7,6 +7,7 @@ import plaid.prelude.logic.ConstraintAnalyzer
 
 import java.io.File
 import java.nio.file.Files
+import scala.compiletime.uninitialized
 
 @Command(
   name = "prelude",
@@ -18,7 +19,7 @@ class App extends Runnable {
   var fieldSize: String = "2"
 
   @Parameters(paramLabel = "<path>", description = Array("Path to a prelude source file"))
-  var path: String = _
+  var path: String = uninitialized
 
   override def run(): Unit =
     val src = Files.readString(new File(path).toPath)
@@ -31,7 +32,7 @@ class App extends Runnable {
 
 object App {
   def main(args: Array[String]): Unit = {
-    val exitCode = new CommandLine(new App()).execute(args: _*)
+    val exitCode = new CommandLine(new App()).execute(args*)
     System.exit(exitCode)
   }
 }

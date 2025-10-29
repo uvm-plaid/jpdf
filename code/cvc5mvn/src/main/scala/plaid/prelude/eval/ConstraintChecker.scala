@@ -26,6 +26,7 @@ object ConstraintChecker {
     case Num(_) => Iterable()
     case OTExpr(e1, i1, e2, e3) => Iterable(e1, i1, e2, e3)
     case OTFourExpr(s1, s2, i1, e1, e2, e3, e4) => Iterable(s1, s2, i1, e1, e2, e3, e4)
+    case x => throw Exception(s"Node $n not yet supported")
   }
 
   /**

@@ -83,9 +83,6 @@ class ConstraintAnalyzer(val program: Program, order: String) {
       val post = Option(constraints.postcondition).map(ev.constraint).orNull
       Constraints(pre, post)
 
-    case _ =>
-      throw new RuntimeException("cannot infer precondition from invalid input")
-
   /** Append party index to expressions for arithmetic operations on memories */
   private def appendPartyIndex(expression: Expr, partyIndex: Expr): Expr = expression match
     case e: AtExpr       => appendPartyIndex(e.e1, e.e2)

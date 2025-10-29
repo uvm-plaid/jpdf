@@ -34,8 +34,6 @@ class GenEntailVerifier(val program: Program, order: String) {
         map.put(k, genFreshValue(v))
       }
       FieldExpr(map)
-    case other =>
-      throw new RuntimeException("Unsupported type " + other)
 
   /**
    * Generalized rule for entailment: verify if precondition entails postcondition for all inputs

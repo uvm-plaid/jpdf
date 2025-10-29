@@ -2,9 +2,9 @@ package plaid.prelude.cvc
 
 import io.github.cvc5.*
 import plaid.prelude.ast.*
-import plaid.prelude.ast.{AndConstraint, AssertCmd, AssignCmd, AtExpr, Cmd, Constraint, EqualConstraint, Expr, ListCmd, MinusExpr, NotConstraint, Num, OTExpr, OTFourExpr, PlusExpr, PublicExpr, TimesExpr, TrueConstraint}
 
 import scala.collection.mutable
+import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
 object TermFactory {
@@ -22,7 +22,7 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
 
   private val memories = new mutable.HashSet[Memory]()
   private val minusOne: Term = termManager.mkFiniteFieldElem("-1", sort, TermFactory.DEFAULT_FIELD_SIZE)
-  private var partyIndex: Integer = _
+  private var partyIndex: Integer = uninitialized
 
   // initialize solver logic
   private val solver = new Solver(termManager)

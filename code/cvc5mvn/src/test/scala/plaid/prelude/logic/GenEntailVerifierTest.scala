@@ -7,7 +7,7 @@ import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.*
 
 import java.util
-import java.util.{Map, TreeMap}
+import java.util.TreeMap
 
 class GenEntailVerifierTest {
 

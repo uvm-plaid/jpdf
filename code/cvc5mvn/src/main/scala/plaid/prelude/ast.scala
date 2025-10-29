@@ -32,4 +32,4 @@ def prettyPrint(n: Node): String = n match
   case EqualConstraint(e1, e2) => s"${prettyPrint(e1)} == ${prettyPrint(e2)}"
   case TrueConstraint() => "T"
   case CallExpr(i, es) => s"${prettyPrint(i)}(${es.map(prettyPrint).mkString(", ")})"
-  case null => ""
+  case x => throw Exception(s"Unhandled node $x")

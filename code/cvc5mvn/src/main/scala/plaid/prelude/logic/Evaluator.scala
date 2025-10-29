@@ -39,7 +39,7 @@ case class Evaluator(
       val evaluator = copy(bindings = Map.from(formalParms.zip(actualParms)))
       evaluator.expression(f.e)
     case FieldExpr(elements) =>
-      val field = scala.collection.immutable.TreeMap(elements.asScala.toSeq.map((k,v) => k -> expression(v)):_*)
+      val field = scala.collection.immutable.TreeMap(elements.asScala.toSeq.map((k,v) => k -> expression(v))*)
       FieldExpr(java.util.TreeMap(field.asJava))
 
     case FieldSelectExpr(e, l) =>
