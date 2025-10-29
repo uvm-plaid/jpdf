@@ -6,14 +6,6 @@ import plaid.prelude.ast.Cmd
 
 class Verifier(val termFactory: TermFactory) {
 
-  def satisfies(src: String): Boolean =
-    satisfies(Loader.command(src))
-
-  def satisfies(command: Cmd): Boolean = {
-    val e = termFactory.toTerm(command)
-    satisfies(e)
-  }
-
   def satisfies(e: Term): Boolean =
     findModelSatisfying(e) != null
 

@@ -8,6 +8,7 @@ import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
 object TermFactory {
+  // TODO Don't we specify the field size?
   private val DEFAULT_FIELD_SIZE = 10
 
   /** Extract party index for assert commands */
@@ -36,7 +37,7 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
   private def not(term: Term): Term =
     termManager.mkTerm(Kind.FINITE_FIELD_ADD, term, termManager.mkFiniteFieldElem("1", sort, TermFactory.DEFAULT_FIELD_SIZE))
 
-  def joinWithAnd(terms: java.util.Collection[Term]): Term =
+  private def joinWithAnd(terms: java.util.Collection[Term]): Term =
     if (terms.size() == 1) terms.iterator().next()
     else termManager.mkTerm(Kind.AND, terms.asScala.toArray)
 
@@ -91,7 +92,7 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
       lookupOrCreate(x, partyIndex)
   }
 
-  def lookupOrCreate(expr: Expr, idx: Integer): Term = {
+  private def lookupOrCreate(expr: Expr, idx: Integer): Term = {
     val name = CvcUtils.getCvcName(expr, idx)
     val memory = memories.find(_.name == name).getOrElse {
       Memory(name, termManager.mkConst(sort, name), expr, idx)

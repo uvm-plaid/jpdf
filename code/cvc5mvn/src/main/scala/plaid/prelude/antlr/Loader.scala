@@ -52,7 +52,7 @@ object Loader {
     command(parser(src).command())
 
   /** Converts an ANTLR4 context into an abstract syntax tree for a Prelude program. */
-  def program(ctx: ProgramContext): Program = {
+  def program(ctx: ProgramContext): Program =
     val listener = new FunctionListener()
     ParseTreeWalker.DEFAULT.walk(listener, ctx)
 
@@ -60,7 +60,6 @@ object Loader {
       listener.commandFunctions.toList,
       listener.exprFunctions.toList,
       listener.constraintFunctions.toList)
-  }
 
   /** Converts Prelude source code into an abstract syntax tree for a Prelude program. */
   def program(src: String): Program =

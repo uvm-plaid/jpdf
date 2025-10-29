@@ -4,7 +4,7 @@ import io.github.cvc5.{CVC5ApiException, Sort, TermManager}
 import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.Test
 import plaid.prelude.antlr.Loader
-import plaid.prelude.ast.AssignCmd
+import plaid.prelude.ast.{AssignCmd, Cmd}
 
 class VerifierTest {
 
@@ -13,28 +13,35 @@ class VerifierTest {
   private val termFactory = new TermFactory(termManager, sort)
   private val verifier = new Verifier(termFactory)
 
+  private def satisfiable(src: String): Boolean =
+    satisfiable(Loader.command(src))
+
+  private def satisfiable(command: Cmd): Boolean =
+    val e = termFactory.toTerm(command)
+    verifier.satisfies(e)
+
   /** satisfies a simple protocol */
   @Test
   def satisfiesCorrectProtocol(): Unit = {
-    assertTrue(verifier.satisfies("out@1 := 1@1; out@2 := 2@2"))
+    assertTrue(satisfiable("out@1 := 1@1; out@2 := 2@2"))
   }
 
   /** Fails to satisfy a simple contradictory protocol */
   @Test
   def failIncorrectProtocol(): Unit = {
-    assertFalse(verifier.satisfies("out@1 := 1@1; out@1 := 2@1"))
+    assertFalse(satisfiable("out@1 := 1@1; out@1 := 2@1"))
   }
 
   /** satisfies a protocol that has an assertion */
   @Test
   def assertionProtocol(): Unit = {
-    assertTrue(verifier.satisfies("out@1 := 1@1; assert (out = 1)@1"))
+    assertTrue(satisfiable("out@1 := 1@1; assert (out = 1)@1"))
   }
 
   /** Fails to satisfy a protocol that has a contradiction caused by an assertion */
   @Test
   def failAssertionProtocol(): Unit = {
-    assertFalse(verifier.satisfies("out@1 := 1@1; assert (out = 2)@1"))
+    assertFalse(satisfiable("out@1 := 1@1; assert (out = 2)@1"))
   }
 
   /** two-party addition */
@@ -51,7 +58,7 @@ class VerifierTest {
     val proposition =
       """(out@1 == s["x"]@1 + s["y"]@2) AND (out@2 == s["x"]@1 + s["y"]@2)""".stripMargin
 
-    assertTrue(verifier.satisfies(protocol))
+    assertTrue(satisfiable(protocol))
     assertTrue(verifier.entails(
       termFactory.toTerm(Loader.command(protocol)),
       termFactory.constraintToTerm(Loader.constraint(proposition))
@@ -156,7 +163,7 @@ class VerifierTest {
   def oneCommandProtocolSatisfaction(): Unit = {
     val command = Loader.command("out@1 := 1@1")
     assertTrue(command.isInstanceOf[AssignCmd])
-    assertTrue(verifier.satisfies(command))
+    assertTrue(satisfiable(command))
   }
 
 }
