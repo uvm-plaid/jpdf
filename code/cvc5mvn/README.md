@@ -26,10 +26,10 @@
                 - [**App.java**](src/main/java/plaid/App.java): Main Test
         - [**prelude-overture**](src/main/prelude-overture): Prelude src examples
         - [**scala**](src/main/scala)
-            - [**plaid**](src/main/scala/plaid)
-                - [**ast**](src/main/scala/plaid/ast): AST for Prelude/Overture
-                  - [**constraints.ast**](src/main/scala/plaid/constraints.ast): AST for Constraints
-                - [**eval**](src/main/scala/plaid/eval): OvertureChecker
+            - [**plaid**](src/main/scala/plaid/prelude)
+                - [**ast**](src/main/scala/plaid/prelude/ast): AST for Prelude/Overture
+                  - [**constraints.ast**](src/main/scala/plaid/prelude/constraints.ast): AST for Constraints
+                - [**eval**](src/main/scala/plaid/prelude/eval): OvertureChecker
     - [**test**](src/test): Unit tests
 
 ------
