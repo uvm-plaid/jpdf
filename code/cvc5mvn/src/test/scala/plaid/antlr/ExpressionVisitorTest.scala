@@ -96,9 +96,9 @@ class ExpressionVisitorTest {
   /** Function calls can have zero, one, or multiple parameters. */
   @Test
   def functionCall(): Unit = {
-    assertEquals(FunctionCall(Identifier("f"), List()), ast("f()"))
-    assertEquals(FunctionCall(Identifier("f"), List(Num(0))), ast("f(0)"))
-    assertEquals(FunctionCall(Identifier("f"), List(Num(0), Identifier("x"))), ast("f(0, x)"))
+    assertEquals(CallExpr(Identifier("f"), List()), ast("f()"))
+    assertEquals(CallExpr(Identifier("f"), List(Num(0))), ast("f(0)"))
+    assertEquals(CallExpr(Identifier("f"), List(Num(0), Identifier("x"))), ast("f(0, x)"))
   }
 
   /** Fields can have zero, one, or multiple members. */

@@ -11,8 +11,8 @@ object ExpressionVisitor extends PreludeBaseVisitor[Expr] {
   override def visitParenPExpr(ctx: ParenPExprContext): Expr =
     visit(ctx.expr())
 
-  override def visitFunctionCallExpr(ctx: FunctionCallExprContext): FunctionCall =
-    FunctionCall(
+  override def visitFunctionCallExpr(ctx: FunctionCallExprContext): CallExpr =
+    CallExpr(
       Identifier(ctx.ident().getText),
       ctx.expr().asScala.map(visit).toList
     )

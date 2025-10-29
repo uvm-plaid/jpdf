@@ -32,7 +32,7 @@ case class Evaluator(
     case LetExpr(y, e1, e2) =>
       val evaluator = copy(bindings = bindings.updated(y, expression(e1)))
       evaluator.expression(e2)
-    case FunctionCall(fn, parms) =>
+    case CallExpr(fn, parms) =>
       val f = program.resolveExprFunction(fn)
       val formalParms = f.y
       val actualParms = parms.map(expression)
@@ -70,19 +70,17 @@ case class Evaluator(
       evaluator.command(c)
     case ListCmd(c1, c2) => ListCmd(command(c1), command(c2))
     case AssertCmd(e1, e2, e3) => AssertCmd(expression(e1), expression(e2), expression(e3))
-    case _ => throw new IllegalArgumentException("Bad instruction")
 
   /** Reduces a constraint as much as possible in the context of this evaluator's Program and bindings. */
   def constraint(c: Constraint): Constraint = c match
     case AndConstraint(e1, e2) => AndConstraint(constraint(e1), constraint(e2))
     case NotConstraint(e) => NotConstraint(constraint(e))
     case EqualConstraint(e1, e2) => EqualConstraint(expression(e1), expression(e2))
-    case FunctionCall(fn, parms) =>
+    case CallConstraint(fn, parms) =>
       val f = program.resolveConstraintFunction(fn)
       val formalParams = f.params
       val actualParams = parms.map(expression)
       val evaluator = copy(bindings = Map.from(formalParams.zip(actualParams)))
       evaluator.constraint(f.body)
     case x: TrueConstraint => x
-    case _ => throw new IllegalArgumentException("Bad constraint")
 }

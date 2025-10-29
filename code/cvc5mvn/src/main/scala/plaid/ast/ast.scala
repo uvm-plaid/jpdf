@@ -3,7 +3,6 @@ package plaid.ast
 import scala.jdk.CollectionConverters._
 
 // TODO Extension methods for Program
-// TODO FunctionCallExpr maybe should be separate for constraints?
 
 sealed trait Node
 
@@ -35,11 +34,12 @@ sealed trait Cmd extends Node
 case class AssertCmd(e1: Expr, e2: Expr, e3: Expr) extends Cmd
 case class AssignCmd(e1: Expr, e2: Expr) extends Cmd
 case class ListCmd(c1: Cmd, c2: Cmd) extends Cmd
-case class CallCmd(fname: Identifier, parameters: List[Expr]) extends Cmd
+case class CallCmd(fn: Identifier, parms: List[Expr]) extends Cmd
 case class LetCmd(y: Identifier, e: Expr, c: Cmd) extends Cmd
 
 sealed trait Constraint extends Node
 case class AndConstraint(e1: Constraint, e2: Constraint) extends Constraint
+case class CallConstraint(fn: Identifier, parms: List[Expr]) extends Constraint
 case class EqualConstraint(e1: Expr, e2: Expr) extends Constraint
 case class NotConstraint(e: Constraint) extends Constraint
 case class TrueConstraint() extends Constraint
@@ -49,7 +49,7 @@ case class AtExpr(e1: Expr, e2: Expr) extends Expr
 case class ConcatExpr(e1: Expr, e2: Expr) extends Expr
 case class FieldExpr(elements: java.util.TreeMap[Identifier, Expr]) extends Expr
 case class FieldSelectExpr(e: Expr, l: Identifier) extends Expr
-case class FunctionCall(fname: Identifier, parameters: List[Expr]) extends Expr, Constraint
+case class CallExpr(fn: Identifier, parms: List[Expr]) extends Expr
 case class LetExpr(y: Identifier, e1: Expr, e2: Expr) extends Expr
 case class MessageExpr(e: Expr) extends Expr
 case class RandomExpr(e: Expr) extends Expr

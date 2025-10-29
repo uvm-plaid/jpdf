@@ -71,14 +71,14 @@ class ConstraintAnalyzer(val program: Program, order: String) {
       Constraints(reducedPre.orNull, reducedPost.orNull)
 
     case callCmd: CallCmd =>
-      val id = callCmd.fname
+      val id = callCmd.fn
       val fn = program.resolveCommandFunction(id)
 
       if !functionConstraints.contains(id) then
         functionConstraints.put(id, inferPrePostFN(fn))
       val constraints = functionConstraints(id)
 
-      val ev = evaluator.copy(bindings = binding(fn.typedVariables, callCmd.parameters))
+      val ev = evaluator.copy(bindings = binding(fn.typedVariables, callCmd.parms))
       val pre = Option(constraints.precondition).map(ev.constraint).orNull
       val post = Option(constraints.postcondition).map(ev.constraint).orNull
       Constraints(pre, post)
