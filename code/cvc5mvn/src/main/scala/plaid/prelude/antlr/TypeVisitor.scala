@@ -8,14 +8,12 @@ import scala.jdk.CollectionConverters.*
 
 object TypeVisitor extends PreludeBaseVisitor[Type] {
 
-  override def visitPartyIndexType(ctx: PartyIndexTypeContext): PartyIndexType =
-    PartyIndexType()
+  override def visitPartyIndexType(ctx: PartyIndexTypeContext) = PartyIndexType()
 
-  override def visitStringType(ctx: StringTypeContext): StringType =
-    StringType()
+  override def visitStringType(ctx: StringTypeContext) = StringType()
 
-  override def visitRecordType(ctx: RecordTypeContext): RecordType =
-    RecordType(new java.util.TreeMap(
+  override def visitRecordType(ctx: RecordTypeContext) = RecordType(
+    elements = new java.util.TreeMap(
       ctx.typedIdent().asScala
         .map { x =>
           val id = Identifier(x.ident().getText)

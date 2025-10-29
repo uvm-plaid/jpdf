@@ -6,6 +6,8 @@ import plaid.prelude.ast.*
 
 import scala.jdk.CollectionConverters.*
 
+// TODO We can just get these straight from the AST...
+
 class FunctionListener extends PreludeBaseListener {
 
   val exprFunctions = scala.collection.mutable.ListBuffer[ExprFunction]()

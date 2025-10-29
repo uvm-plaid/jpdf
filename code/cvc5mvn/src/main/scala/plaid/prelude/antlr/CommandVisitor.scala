@@ -8,35 +8,25 @@ import scala.jdk.CollectionConverters.*
 
 object CommandVisitor extends PreludeBaseVisitor[Cmd] {
 
-  override def visitFunctionCallCommand(ctx: FunctionCallCommandContext): CallCmd =
-    CallCmd(
-      Identifier(ctx.ident().getText),
-      ctx.expr().asScala.map(Loader.expression).toList
-    )
+  override def visitFunctionCallCommand(ctx: FunctionCallCommandContext) = CallCmd(
+    fn = Identifier(ctx.ident().getText),
+    parms = ctx.expr().asScala.map(Loader.expression).toList)
 
-  override def visitAssignCommand(ctx: AssignCommandContext): AssignCmd =
-    AssignCmd(
-      Loader.expression(ctx.expr(0)),
-      Loader.expression(ctx.expr(1))
-    )
+  override def visitAssignCommand(ctx: AssignCommandContext) = AssignCmd(
+    e1 = Loader.expression(ctx.expr(0)),
+    e2 = Loader.expression(ctx.expr(1)))
 
-  override def visitAssertCommand(ctx: AssertCommandContext): AssertCmd =
-    AssertCmd(
-      Loader.expression(ctx.expr(0)),
-      Loader.expression(ctx.expr(1)),
-      Loader.expression(ctx.expr(2))
-    )
+  override def visitAssertCommand(ctx: AssertCommandContext) = AssertCmd(
+    e1 = Loader.expression(ctx.expr(0)),
+    e2 = Loader.expression(ctx.expr(1)),
+    e3 = Loader.expression(ctx.expr(2)))
 
-  override def visitCommandList(ctx: CommandListContext): ListCmd =
-    ListCmd(
-      visit(ctx.command(0)),
-      visit(ctx.command(1))
-    )
+  override def visitCommandList(ctx: CommandListContext) = ListCmd(
+    c1 = visit(ctx.command(0)),
+    c2 = visit(ctx.command(1)))
 
-  override def visitLetCommand(ctx: LetCommandContext): LetCmd =
-    LetCmd(
-      Identifier(ctx.ident().getText),
-      Loader.expression(ctx.expr()),
-      Loader.command(ctx.command())
-    )
+  override def visitLetCommand(ctx: LetCommandContext) = LetCmd(
+    y = Identifier(ctx.ident().getText),
+    e = Loader.expression(ctx.expr()),
+    c = Loader.command(ctx.command()))
 }
