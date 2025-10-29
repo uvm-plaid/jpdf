@@ -4,6 +4,7 @@ import plaid.ast.*
 
 import scala.jdk.CollectionConverters.*
 
+/** Support for reducing an AST using variable substitution, expanding function calls, etc. */
 case class Evaluator(
   program: Program,
   bindings: Map[Identifier, Expr] = Map()) {
@@ -14,6 +15,7 @@ case class Evaluator(
     case (Str(s1), ConcatExpr(Str(s2), e2)) => ConcatExpr(Str(s1 + s2), e2)
     case _ => ConcatExpr(e1, e2)
 
+  /** Reduces an expression as much as possible in the context of this evaluator's Program and bindings. */
   def expression(e: Expr): Expr = e match
     case str: Str => str
     case num: Num => num
@@ -57,6 +59,7 @@ case class Evaluator(
     case _ =>
       throw new IllegalArgumentException("Bad Expression")
 
+  /** Reduces a command as much as possible in the context of this evaluator's Program and bindings. */
   def command(cmd: Cmd): Cmd = cmd match
     case AssignCmd(e1, e2) => AssignCmd(expression(e1), expression(e2))
     case CallCmd(fn, parms) =>
@@ -72,6 +75,7 @@ case class Evaluator(
     case AssertCmd(e1, e2, e3) => AssertCmd(expression(e1), expression(e2), expression(e3))
     case _ => throw new IllegalArgumentException("Bad instruction")
 
+  /** Reduces a constraint as much as possible in the context of this evaluator's Program and bindings. */
   def constraint(c: Constraint): Constraint = c match
     case AndConstraint(e1, e2) => AndConstraint(constraint(e1), constraint(e2))
     case NotConstraint(e) => NotConstraint(constraint(e))
