@@ -1,6 +1,5 @@
 package plaid.cvc
 
-import io.github.cvc5.{CVC5ApiException, Sort, Term, TermManager}
 import plaid.ast.*
 
 object CvcUtils {

@@ -56,9 +56,6 @@ case class Evaluator(
         expression(s1), expression(s2), expression(i1),
         expression(e1), expression(e2), expression(e3), expression(e4))
 
-    case _ =>
-      throw new IllegalArgumentException("Bad Expression")
-
   /** Reduces a command as much as possible in the context of this evaluator's Program and bindings. */
   def command(cmd: Cmd): Cmd = cmd match
     case AssignCmd(e1, e2) => AssignCmd(expression(e1), expression(e2))
