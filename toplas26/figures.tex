@@ -307,8 +307,7 @@ $$
 }
 
 \newcommand{\metaprotsyntaxfig}{
-  \begin{fpfig}[t]{$\metaprot$ syntax.}{fig-metaprotsyntax}
-\small{
+  \begin{fpfig}[t]{$\metaprot$ syntax}{fig-metaprotsyntax}
 $$
 \begin{array}{rcl@{\hspace{4mm}}r}
   %\notg{x} &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\[2mm]
@@ -320,18 +319,17 @@ $$
   & & e.\flab \mid \elab{e}{e} \mid \elet{y}{e}{e} \mid  f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \\[1mm]
   %  & \textit{expressions}\\
   \cmd &::=& %\msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
-  \assign{e}{e} \mid f(e,\ldots,e) \mid
-  \elet{y}{e}{\instr} \mid  \cmd;\cmd & \gdesc{instructions}\\
-         & & \elab{\assert{e = e}}{e} \mid \eqcast{\mx{e}{e}}{\notg{\phi}} \\[1mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
+  \assign{e}{e} \mid f(e,\ldots,e) \mid \elet{y}{e}{\instr} \mid  \cmd;\cmd 
+    \mid \elab{\assert{e = e}}{e} \mid \eqcast{\mx{e}{e}}{\notg{\phi}} & \gdesc{instructions}\\[1mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
   \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
   \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
   & \gdesc{values}\\[1mm] % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
-  \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y,\ldots,y) \{ \cmd \} & \textit{functions}
+  \tau &::=& \mathit{string} \mid \mathit{cid} \mid \{ \flab_1 : \tau_1; \ldots; \flab_n : \tau_n \} & \gdesc{basic types}\\[1mm]
+\mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y : \tau,\ldots,y : \tau) \{ \cmd \} & \textit{functions} % \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y,\ldots,y) \{ \cmd \} & \textit{functions}
   %\phi &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e} \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
   %\eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 
 \end{array}
 $$
-}
 \end{fpfig}
 }
 
@@ -387,7 +385,8 @@ $$
       {\elab{\assert{e_1 = e_2}}{e_3} \redx \elab{\assert{\be_1 = \be_2}}{\cid}}
 
   \inferrule
-      {\codebase(f) = y_1,\ldots,y_n, \instr \\e_1 \redx \mv_1 \ \cdots \ e_n \redx \mv_n \\
+      {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \instr \\
+        e_1 \redx \mv_1 \ \cdots \ e_n \redx \mv_n \\
         \instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
       }
       {f(e_1,\ldots,e_n) \redx \prog}
@@ -423,6 +422,41 @@ $$
 \end{fpfig}
 }
 
+\newcommand{\peqfig}{
+\begin{fpfig}[t]{Abstract constraints and their evaluation.}{fig-peq}
+$$
+  \begin{array}{rcl}
+    \peq &::=& e \eop e \mid \notg{\eqs} \wedge \notg{\eqs} \mid \notg{\eqs} \vee \notg{\eqs}
+  \mid \notg{\eqs} \impl \notg{\eqs} \mid \neg\eqs
+  \end{array}
+$$
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
+      {e_1 \bop e_2 \redx \phi_1 \bop \phi_2}
+      
+  \inferrule
+      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
+      {e_1 \eop e_2 \redx \phi_1 \eop \phi_2}
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\eqs_2} \redx \eqs_2 }
+      {\notg{\eqs_1} \wedge \notg{\eqs_2} \redx \eqs_1 \wedge \eqs_2}
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\eqs_2} \redx \eqs_2 }
+      {\notg{\eqs_1} \vee \notg{\eqs_2} \redx \eqs_1 \vee \eqs_2}
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\eqs_2} \redx \eqs_2 }
+      {\notg{\eqs_1} \impl \notg{\eqs_2} \redx \eqs_1 \impl \eqs_2}
+
+  \inferrule
+      {\peq \redx \eqs}
+      {\neg\peq\redx \neg\eqs}
+\end{mathpar}
+\end{fpfig}
+}
 
 \newcommand{\notgfig}{
 \begin{fpfig}[t]{Evaluation of expressions within types and constraints.}{fig-notg}

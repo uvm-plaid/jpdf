@@ -1,4 +1,4 @@
-\section{Compositional Type Verification in $\metaprot$}
+\section{The $\metaprot$ Language and Automated Hoare Logic}
 \label{section-metalang}
 
 The $\metaprot$ language \cite{skalka-near-ppdp24} includes structured
@@ -35,8 +35,8 @@ of type dependence (Section \ref{section-metalangty}).
 A \emph{codebase} $\codebase$ is a list of function 
 declarations. We write $ \codebase(f) = y_1,\ldots,y_n,\ e$
 if $f(y_1,\ldots,y_n) \{ e \} \in \codebase$, and we
-write  $ \codebase(f) = y_1,\ldots,y_n,\ \instr$
-if $f(y_1,\ldots,y_n) \{ \instr \} \in \codebase$.
+write  $ \codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \instr$
+if $f(y_1 : \tau_1, \ldots, y_n : \tau_n) \{ \instr \} \in \codebase$.
 %A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
 %codebase and expression $\codebase, e$. We may omit
 %$\codebase$ if it is clear from context.  
@@ -57,193 +57,213 @@ category $\notg{\phi}$, to the next Section.
 
 \metaprotinstrsemanticsfig
 
-\subsection{Dependent Hoare Type Theory}
-\label{section-metalangty}
+\subsection{$\metaprot$ Automated Abstract Hoare Logic}
 
-Our first goal in the $\metaprot$ type theory is to define an
-algorithmic system that is sound for both confidentiality and
-integrity typings as defined in Sections \ref{section-cpj} and
-\ref{section-ipj}. Returning to the YGC secret encoding example in
-Section \ref{section-cpj}, note that the key equivalence of the
-$\ttt{mux}$ expression with a one-time-pad encryption we observe there
-is not trivial. To ensure that this sort of equivalence can be picked
-up by the type system, we introduce an $\ttt{as}$ annotation form that
-allows the programmer to provide the needed hint.
+\begin{verbatimtab}
+precondition: ( m[x++"foo"]@1 == 3 )
+bar(x:string){ m[x++"bar"]@2 := (m[x++"foo"] + m[x++"baz"])@1 }
+postcondition: ( [m[z++"bar"]@2 == m[x++"baz"]@1 + 3 )
+\end{verbatimtab}
 
-Consider the following $\ttt{encode}$ function definition that
-generalizes this YGC encoding for any identifier $y$ and sender, receiver
-pair $s,r$. The second line in the body is a hint that
-the message $\mx{y}{r}$ can be considered equivalent to
-$\neg\sx{y}{s} \fplus \rx{y}{s}$:
-$$
-\begin{array}{l}
-\ttt{encode}(y,s,r) \{\\
-\quad \xassign{\mx{y}{r}}{\mux{\secret{y}}{\neg\flip{y}}{\flip{y}}}{s};\\
-\quad \eqcast{\mx{y}{r}}{\neg\sx{y}{s} \fplus \rx{y}{s}}\\
-\}
-\end{array}
-$$
-This hint can be validated using SMT, and then the
-syntactic structure of $\neg\sx{y}{s} \fplus \rx{y}{s}$
-allows its immediate interpretation as a one-time-pad encoding.
+\peqfig
 
-Our second goal in the $\metaprot$ type system is to minimize the
-amount of SMT solving needed for type verification.  Returning to the
-$\ttt{encode}$ example, type checking in our systems only requires the
-hint to be verified once, with the guarantee that $\ttt{encode}$ can
-be applied anywhere without needing to re-verify the hint in
-application instances. To verify the hint in $\ttt{encode}$, we can
-just choose arbitrary ``fresh'' values $w,\cid_1,\cid_2$ for $y$, $s$,
-and $r$, evaluate $\ttt{encode}(w,\cid_1,\cid_2) \redx \prog$, and
-then verify:
-$$\toeq{\prog} \models \mx{w}{\cid_2} \eop
-\neg\sx{w}{\cid_1} \fplus \rx{w}{\cid_1}$$ 
-Since $\ttt{encode}$ is closed, validity is guaranteed for
-any instance of $y$, $s$, and $r$.
-
-We generalize these benefits of compositional verification by allowing
-pre-~and postcondition annotations on $\metaprot$ functions. For
-example, consider a GMW-style, 2-party ``and-gate'' function
-$\ttt{andgmw}(x,y,z)$. In this protocol, each party $\cid
-\in \{1,2\}$ holds an additive secret share $\mx{x}{\cid}$ of
-values identified by $x$ and $y$, and at the end of the
-protocol each hold a secret share $\mx{z}{\cid}$, where:
-$$
-\mx{z}{1} \fplus \mx{z}{2} \eop (\mx{x}{1} \fplus \mx{x}{2}) \ftimes (\mx{y}{1} \fplus \mx{y}{2})
-$$
-We provide details of $\ttt{andgmw}$ and other GMW protocol
-elements in Section \ref{section-examples}.  Our point now is that,
-similarly to the $\ttt{encode}$ example, we can verify this
-postcondition once as a correctness property for $\ttt{andgmw}$, and
-then integrate instances of it into circuit correctness properties
-with the guarantee that each instance also holds for any
-$\ttt{andgmw}$ gate.  Since the program logic of $\ttt{andgmw}$ is
-non-trivial, and typical circuits can use up to thousands of gates,
-this has significant practical benefits by greatly reducing SMT overhead
-in whole-program analysis.
-
-\atjfig
-
-\subsubsection{$\minicat$ expression type algorithm.}
-
-A core element of $\metaprot$ type checking is type checking
-of $\minicat$ expressions. The integrity type system presented in Section
-\ref{section-ipj} is already algorithmic and ready to use. But confidentiality
-typing presented in Section \ref{section-cpj} is not syntax-directed
-due to the \TirName{Encode} rule. But as described above, by introducing
-hint annotations we can ``coerce'' any relevant expression form into
-the simplest equivalent syntactic form for one-time-pad encoding.
-Thus, in Figure \ref{fig-atj} we present the algorithm for
-confidentiality type judgements, where we eliminate the need for
-integrated SMT solving by assuming this sort of casting. 
-
-The following Lemma establishes correctness of algorithmic confidentiality
-type checking, and makes explicit that SMT checking is eliminated in the
-judgement.
 \begin{lemma}
-  \label{lemma-atj-sound}
-  If $\atj{\toeq{\phi}}{R}{\ty}$ then $\eqj{R}{\eqs}{\phi}{\ty}$ for any $\eqs$.
+  \label{lemma-genentails}
+  If $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_2$ and
+  $\peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1$ and
+  $\peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2$, then
+  $\eqs_1 \models \eqs_2$.  
 \end{lemma}
 
-\subsubsection{Dependent Hoare types for instructions.}
 
-Hoare-style types for instructions have the following form:
-$$
-\hty{\eqs_1}{\Gamma}{R}{\Delta}{\eqs_2}
-$$
-Here, $\eqs_1$ and $\eqs_2$ are the pre- and postconditions
-respectively, $\Gamma$ is the confidentiality type environment of the
-protocol resulting from execution of the instruction, which is sound
-wrt confidentiality typing, $R$ are the one-time-pads consumed in the
-confidentiality typing, and $\Delta$ is the sound integrity type
-environment.
+\begin{fpfig}[t]{Algorithmic $\metaprot$ Abstract Hoare Triple Deduction Rules}{fig-metahtrip}
+\begin{mathpar}
+\inferrule[GenEntails]
+          {\mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\ \peq_1[\mv_1/y_n \cdots \mv_n/y_n] \redx \eqs_1 \\
+           \peq_2[\mv_1/y_n \cdots \mv_n/y_n] \redx \eqs_2 \\ \eqs_1 \models \eqs_2}
+          {\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_2 }
+          
+  \inferrule[Mesg]
+            {}
+            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \toeq{\elab{e_2}{e_3}}}}
 
-\notgfig
+  %\inferrule[Encode]
+  %          {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
+  %            \eqs \models x \eop \phi\\
+  %            \atj{\phi}{R}{\ty}}
+  %          {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(x : \ty)}{R}{\varnothing}{\eqs}}
+  %
+  \inferrule[Assert]
+            {}
+            {\htrip{\toeq{\elab{e_1}{e_3}} \eop \toeq{\elab{e_2}{e_3}}}{\elab{\assert{e_1 = e_2}}{e_3}}{\eqtrue}}
 
-To obtain a more complete type system, and to generalize
-function typings, we also introduce a form of type dependency,
-specifically dependence on $\metaprot$ expressions. Dependent
-$\Pi$ types have the form:
-$$
-\dht{y_1,\ldots,y_n}{\notg{\eqs_1}}{\notg{\Gamma}}{\notg{R}}{\notg{\Delta}}{\notg{\eqs_2}}
-$$
-where $y_1,\ldots,y_n$ range over values $\mv$ and each of
-$\notg{\eqs_1}$ etc.~may contain expressions with free occurrences
-of $y_1,\ldots,y_n$-- the syntax of these forms is in Figure
-\ref{fig-notg}. These $\Pi$ types are assigned to functions
-and instantiated at application points. 
+  \inferrule[Seq]          
+            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}}
+            {\htrip{\peq_1^1 \wedge (\peq_2^1 \impl \peq_1^2)}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2}}
 
-For example, here is a valid typing of $\ttt{encode}$.  It says that
-under any precondition, evaluating $\ttt{encode}$ results in a cipher
-type for the encoded message $\mx{x}{r}$, which consumes the
-one-time-pad $\rx{x}{s}$, and the integrity of $\mx{x}{r}$ is
-determined by the security level of $s$. The
-postcondition expresses the key confidentiality property of
-$\mx{x}{r}$, but also may be practically useful for correctness
-properties since it is a simpler expression form than the $\ttt{mux}$
-form:
-$$
-\ttt{encode} :
-\begin{array}[t]{ll}
-  \Pi x,s,r . & \{ \}\quad \mx{x}{r} : \cty{\rx{x}{s}}{\sx{x}{s}}, \{ \rx{x}{s} \} \ \cdot\\
-  & \phantom{\{ \}} \quad \mx{x}{r} : \ity{s}{\setit{}} \\
-  & \{ \mx{x}{r} \eop \neg\sx{y}{s} \fplus \rx{y}{s} \}
-\end{array}
-$$
-A key property of this example and our type system generally is that once
-the $\Pi$ type is verified, typing any application of it requires verification
-of the precondition instance, but not the postcondition instance.
+  \inferrule[Let]
+            {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}}
+            {\htrip{\peq_1}{\elet{y}{e}{\cmd}}{\peq_2}}
 
-\subsection{Algorithmic Type Validity in $\metaprot$}
+  \inferrule[App]
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+            {\htrip{\peq_1[e_1/y_1 \cdots e_n/y_n]}{f(e_1,\ldots,e_n)}{\peq_2[e_1/y_1 \cdots e_n/y_n]}}
 
-\mtjfig
+  \inferrule[Fn]
+            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \htrip{\peq_1}{\cmd}{\peq_2}}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
 
-We equate types up to evaluation of subexpressions as defined in
-Figure \ref{fig-notg}. Since expression evaluation is total we can
-just evaluate types of closed instructions, which are guaranteed to
-have closed types, to obtain Hoare typings for instructions. In Figure
-\ref{fig-mtj} we define the type derivation rules for $\metaprot$. In
-the \TirName{Mesg} rule we use algorithmic confidentiality and
-integrity type checking in a straightforward manner.  In the
-\TirName{Encode} rule, we verify the hint given in the type
-annotation, and then use it for type checking.  In the \TirName{App}
-rule we verify preconditions of the given function type and
-instantiate the type and postconditions with the given expression
-arguments.  The \TirName{Sig} rule we specify how to verify $\Pi$
-types for functions. Note that the values $\mv_1,\ldots,\mv_n$ chosen
-to instantiate the function parameters are chosen ``fresh'', meaning
-that any strings and client identifiers occurring as substrings in
-$\mv_1,\ldots,\mv_n$ are unique and not used in any program source
-code. This ensures generality of verification as demonstrated in Lemma
-\ref{lemma-eqs-notg} in the Appendix.
+  \inferrule[Hardpack]
+            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
+              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
+              \forall y_1:\tau_1,\ldots,y_n:\tau_n . 
+            \peq_1 \models \peq_1'\ \text{and}\ \peq_1 \wedge \peq_2' \models \peq_2}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+\end{mathpar}
+\end{fpfig}
 
-\mtjfnfig
 
-We allow the programmer to specify a type signature $\tsig$ that
-maps functions in $\codebase$ to valid dependent Hoare
-typings. Define:
-\begin{definition}
-  $\tsig$ is \emph{verified} iff $f : \tsig(f)$ is valid for all $f \in \dom(\tsig)$.
-\end{definition}
-In practice, to define $\tsig$ the programmer only needs to specify
-pre-~and postconditions, as we illustrate in Section
-\ref{section-examples}, since the rest of the type is reconstructed by
-type checking.
+\begin{lemma}
+  \label{lemma-closure}
+  If $\htrip{\peq_1}{\prog}{\peq_2}$ and $\instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog$
+  then $\peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1$ and
+  $\peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2$ for some $\eqs_1, \eqs_2$. 
+\end{lemma}
 
-The following Theorem establishes our main result, that the
-$\metaprot$ type checking is sound with respect to both
-confidentiality and integrity typings. Since these typings imply
-security hyperproperties of confidentiality and integrity, $\metaprot$
-type checking implicitly enforces them. Proof details are given in the
-Appendix.
-\begin{theorem}[Soundness of $\metaprot$ type checking]
-  \label{theorem-mtj}
-  Given preprocessing predicate $\eqspre$, program $\instr$, and verified $\tsig$, if
-  the judgement: $$\mtj{\instr}{\eqspre}{\Gamma}{R}{\Delta}{\eqs}$$ is derivable then
-  $\instr \redx \prog$ and:
-  \begin{enumerate}
-  \item $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is valid.
-  \item $\ipj{\eqs}{\prog}{\Delta}$ is valid.
-  \end{enumerate}
+\begin{lemma}[$\metaprot$ Hoare Triple Correctness]
+  \label{lemma-htrip}
+  If $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx
+  \eqs_1$, $\peq_2 \redx \eqs_2$, and $\cmd \redx
+  \prog$, then $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+\end{lemma}
+
+\begin{proof}
+  By structural induction on the derivation of $\cmd \redx \prog$ and
+  case analysis on $\cmd$.
+
+  \textit{Case} $\cmd = (\xassign{e_1}{e_2}{e_3})$. In this case by definition
+  and inversion of $\redx$ and $\TirName{Assign}$ we have:
+  \begin{mathpar}
+    e_1 \redx x
+
+    e_2 \redx \be
+
+    e_3 \redx \cid
+
+    \prog = (\xassign{x}{\be}{\cid})
+
+    \peq_1 \redx \true
+
+    \peq_2  \redx x \eop \toeq{\elab{\be}{\cid}}
+  \end{mathpar}
+  Now by \TirName{Assign} we have
+  $\htrip{\toeq{\elab{\be}{\cid}} \eop \toeq{\elab{\be}{\cid}}}{\xassign{x}{\be}{\cid}}{x \eop \toeq{\elab{\be}{\cid}}}$, so
+  we have
+  $\htrip{\true}{\xassign{x}{\be}{\cid}}{x \eop
+    \toeq{\elab{\be}{\cid}}}$ by \TirName{Consequence}.
+
+  \textit{Case} $\cmd = \elab{\assert{e_1 = e_2}}{e_3}$. In this case by definition we have:
+  \begin{mathpar}
+    e_1 \redx \be_1
+
+    e_2 \redx \be_2
+
+    e_3 \redx \cid
+
+    \prog = \elab{\assert{\be_1 = \be_2}}{\cid}
+
+    \peq_1 \redx \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}
+    
+    \peq_2 \redx \true
+  \end{mathpar}
+  But we have $\htrip{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}$ by $\TirName{Assert}$, so
+  $\htrip{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\true}$ by $\TirName{Consequence}$.
+
+  \textit{Case} $\cmd = \cmd_1;\cmd_2$. In this case by assumption and
+  definition and inversion of $\redx$ and $\TirName{Seq}$ we have:
+  \begin{mathpar}
+    \cmd_1 \redx \prog_1
+
+    \cmd_2 \redx \prog_2
+
+    \prog = \prog_1;\prog_2
+
+    \peq_1 \redx \eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)
+      
+    \peq_2 \redx \eqs_2^1 \wedge \eqs_2^2
+  \end{mathpar}
+  and by inversion of the $\TirName{Seq}$ rule we have:
+  \begin{mathpar}
+    \htrip{\peq_1^1}{\cmd_1}{\peq_2^1}
+
+    \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}
+  \end{mathpar}
+  and by the induction hypothesis we have:
+  \begin{mathpar}
+    \htrip{\eqs_1^1}{\cmd_1}{\eqs_2^1}
+
+    \htrip{\eqs_1^2}{\cmd_2}{\eqs_2^2}
+  \end{mathpar}
+  But by \TirName{Hyp} we have:
+  $\htrip{\eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)}{\cmd_1}{\eqs_2^1 \wedge \eqs_1^2}$
+  and by sanity conditions \cnote{need to clarify these} we have
+  $\vars(\eqs_2^1) \cap \avars(\prog_2) = \varnothing$ so by \TirName{Frame} we
+  have
+  $\htrip{\eqs_2^1 \wedge \eqs_1^2}{\cmd_2}{\eqs_2^1 \wedge \eqs_2^2}$.
+  Thus by $\TirName{Seq}$ we have:
+  $$\htrip{\eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$$
+
+  \textit{Case} $\cmd = f(e_1,\ldots,e_n)$. In this case by assumption and
+  definition and inversion of $\TirName{App}$ and $\redx$ we have:
+  \begin{mathpar}
+    \codebase(f) = y_1,\ldots,y_n, \instr
+    
+    e_1 \redx \mv_1 \cdots e_n \redx \mv_n
+
+    \instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
+
+    \peq_1 = \peq^0_1[\mv_1/y_1]\cdots[\mv_n/y_n]
+
+    \peq_2 = \peq^0_2[\mv_1/y_1]\cdots[\mv_n/y_n]
+    
+    \htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2}
+  \end{mathpar}
+  Note that sanity conditions on pre- and post-condition annotations
+  means there exists $\eqs_1$ and $\eqs_2$ where $\peq_1 \redx
+  \eqs_1$ and $\peq_2 \redx \eqs_2$. Now, the judgement
+  $\htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2}$
+  follows by one or two subcases. Where it follows by \TirName{Fn} the
+  result is immediate by definition and the induction
+  hypothesis. Otherwise it follows by \TirName{Hardpack} and we
+  proceed as follows.
+
+  By inversion of \TirName{Hardpack} we have
+  $\htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'}$ by
+  \TirName{Fn} where $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1
+  \models \peq_1'$. Then $\peq_1'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+  \eqs_1'$ and $\peq_2'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+  \eqs_2'$ by Lemma \ref{lemma-closure}. 
+  By Lemma \ref{lemma-genentails} we have $\eqs_1
+  \models \eqs_1'$, so by \TirName{Consequence} we have
+  $\htrip{\eqs_1}{\prog}{\eqs_2'}$, and by \TirName{Hyp}
+  we have:
+  $$\htrip{\eqs_1 \wedge (\eqs_2' \impl \eqs_2)}{\prog}{\eqs_2' \wedge \eqs_2}$$
+
+  Furthermore, also by inversion of \TirName{Hardpack} we have
+  $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1 \wedge 
+  \peq_2' \models \peq^0_2$. 
+  By Lemma \ref{lemma-genentails} we thus have $\eqs_1
+  \wedge \eqs_2' \models \eqs_2$, which implies
+  $\eqs_1 \models \eqs_2' \impl \eqs_2$.
+  Thus by \TirName{Consequence} we have $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+
+  Finally, \textit{case} $\prog = \elet{y}{e}{\cmd}$ follows trivially
+  by the induction hypothesis, which covers all cases to prove
+  the result.
+\end{proof}
+
+\begin{theorem}
+  If $\htrip{\eqs_1}{\ttt{main()}}{\eqs_2}$ as a consequence of
+  \TirName{HardPack} and $\ttt{main}() \redx \prog$ then
+  $\htrip{\eqs_1}{\prog}{\eqs_2}$.
 \end{theorem}
-
