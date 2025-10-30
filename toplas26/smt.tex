@@ -1,4 +1,4 @@
-\section{$\minicat$ Constraint Verification}
+\section{$\minicat$ SMT-Based Hoare Logic}
 \label{section-smt}
 
 In previous work it was shown that the semantics of $\minicat$ in
@@ -6,19 +6,21 @@ $\mathbb{F}_2$ can be implemented with Datalog
 \cite{skalka-near-ppdp24}, which is a form of constraint
 programming. In this paper we extend this idea to arbitrary prime
 fields by using a more general form of SMT constraint programming,
-Satisfiability Modulo Finite Fields \cite{SMFF}. As we
-will show in subsequent sections, this interpretation supports
-correctness guarantees, and also static type analyses for enforcing
-confidentiality and integrity properties.
+Satisfiability Modulo Finite Fields \cite{SMFF}. As we will show in
+subsequent sections, this interpretation supports automated
+enforcement of correctness guarantees, and also static type analyses
+for enforcing confidentiality and integrity properties.
+In this section we formulate a Hoare Logic for $\minicat$
+as a foundation for protocol verification.
 
 \subsection{Constraint Satisfiability Modulo Finite Fields}
 
-We introduce the following syntax of SMT-style constraints
-for $\minicat$:
+We introduce the following syntax of SMT-style constraints for
+$\minicat$:
 $$
 \begin{array}{rcl}
   \phi ::= x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi  \qquad
-  \eqs ::= \phi \eop \phi \mid \eqs \wedge \eqs \mid \eqs \vee \eqs \neg\eqs \mid \eqs \impl \eqs
+  \eqs ::= \phi \eop \phi \mid \eqs \wedge \eqs \mid \eqs \vee \eqs \mid \neg\eqs \mid \eqs \impl \eqs
 \end{array}
 $$
 %
@@ -76,7 +78,6 @@ technique in SMT to implement our (common) notion of entailment.
 
 \begin{fpfig}[t]{Interpretation of $\minicat$ expressions (T) and programs (B) as
   constraints}{fig-toeq}
-\small{
 \begin{mathpar}
   \toeq{x} = x
 
@@ -92,7 +93,7 @@ technique in SMT to implement our (common) notion of entailment.
   \toeq{\elab{\assert{\be_1 = \be_2}}{\cid}} =  (\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}})
 
   \toeq{\prog_1;\prog_2} = (\toeq{\prog_1} \wedge \toeq{\prog_2})
-\end{mathpar}}
+\end{mathpar}
 \end{fpfig}
 
 A central idea of our approach is that we can interpret any protocol
@@ -115,19 +116,23 @@ negation $\neg$ of expressions) the interpretation is:
 \end{mathpar}
 In general we will assume that any preprocessing predicate is defined
 via a constraint $\eqspre$, i.e., $\preproc(\store) \iff \store
-\models \eqspre$ for all $\store$.  The correctness of the
-SMT interpretation of programs is characterized as follows.
-\begin{theorem}
-  \label{theorem-toeq}
-  $\store$ is a model of $\eqspre \wedge \toeq{\prog}$ iff $\store \in \runs(\prog)$.
-\end{theorem}
+\models \eqspre$ for all $\store$. Intuitively, a protocol satisfies
+a correctness (post)condition $\eqs$ if its SMT interpretation
+entails $\eqs$.
+
+%The correctness of the
+%SMT interpretation of programs is characterized as follows.
+%\begin{theorem}
+%  \label{theorem-toeq}
+%  $\store$ is a model of $\eqspre \wedge \toeq{\prog}$ iff $\store \in \runs(\prog)$.
+%\end{theorem}
 
 \subsubsection{Example: Correctness of 3-Party Addition}
 Consider the following 3-party additive secret sharing protocol, where
 each party generates two additive secret shares
 \cite{evans2018pragmatic} for their respective secrets. Each party
 publicly reveals the sums all their shares, and the sum of those is
-the protocol output for each party.  {\footnotesize
+the protocol output for each party.  
 $$
 \begin{array}{c@{\qquad}c}
 \begin{array}{lll}
@@ -147,11 +152,88 @@ $$
   \out{3} &:=& \elab{(\rvl{1} \fplus \rvl{2} + \rvl{3})}{3}
 \end{array}
 \end{array}
-$$}
+$$
 Letting $\prog$ be this protocol, we can verify correctness
 as follows-- that is, the output sum of all shares is the sum of the
 three input secrets:
 $$
 \toeq{\prog}\ \models\ \out{1} \eop \sx{1}{1} \fplus \sx{2}{2} \fplus \sx{3}{3}
 $$
+
+\noindent We can establish a logical identity between the models of a program and
+its (non-adversarial) runs as follows.   
+\begin{theorem}
+  \label{theorem-toeq}
+  $\sigma \models \eqspre \wedge \toeq{\prog}$ iff $\store \in \runs(\prog)$.
+\end{theorem}
+\noindent This result follows as a consequence of a more general Lemma
+that incorporates a notion of preconditions. 
+\begin{lemma}
+  \label{lemma-toeq}
+  Given $\eqs, \prog, \store$ with $\store \models \eqs$.
+  Then $(\store,\prog) \redxs \store'$ iff $\store' \models
+  \eqs \wedge \toeq{\prog}$.
+\end{lemma}
+\cnote{Prove me?}
+
+\subsection{$\minicat$ Hoare Logic}
+
+When reasoning about MPC protocols it is important to reason about
+postconditions, e.g., to verify correctness conditions. It is also
+important to reason about preconditions of protocols, e.g., to express
+properties of assumed initialization protocols such as Beaver Triples.
+To support this reasoning we introduce a Hoare logic for $\minicat$,
+where $\htrip{\eqs_1}{\prog}{\eqs_2}$ means that $\eqs_1,\eqs_2$ are
+the preconditions and postconditions, respectively, of $\prog$.
+A semantic notion of validity for Hoare triples is defined as
+follows:
+
+\minicathtripfig
+
+\begin{definition}
+$\htrip{\eqs_1}{\prog}{\eqs_2}$ is \emph{valid} iff $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$.
+\end{definition}
+
+The following Lemma establishes that this is a meaningful (and
+standard) definition. It follows by Lemma \ref{lemma-toeq}
+and transitivity of $\models$.
+\begin{lemma}
+  \label{lemma-hoare}
+  Given $\eqs_1, \eqs_2, \prog, \store$ with $\store \models \eqs_1$
+  and $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$. Then
+  $(\store,\prog) \redxs \store'$ implies $\store' \models
+  \eqs_2$.
+\end{lemma}
+
+Now we can introduce a validity-preserving derivation system for the
+$\minicat$ Hoare logic. Since the language is computationally simple
+the Hoare logic can be relatively simple and mostly standard.
+The derivation rules are specified in Figure \ref{fig-minicathtrip}.
+They are mostly familiar except perhaps for \TirName{Assert}, which
+just enforces the expected equality as a precondition, and
+\TirName{Hyp}. It is unknown to the authors and not immediately
+obvious whether \TirName{Hyp} is derivable from other rules, but
+it is validity preserving as we show below. Its main use in this
+paper will be to enable an automated Hoare logic check we develop
+later (Section \ref{section-metahtrip}).
+\begin{lemma}
+  If $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable, then it is valid.
+\end{lemma}
+
+\begin{proof}
+  Assume $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable without \TirName{Hyp}.
+  Then $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$, since all the other rules
+  are well-known to be validity preserving. 
+  Now since $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$ by assumption, we have
+  $
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 
+  $,
+  and clearly:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge (\eqs_2 \impl \eqs)
+  $$
+  and since $\eqs_2 \wedge (\eqs_2 \impl \eqs)$ iff
+  $\eqs_2 \wedge \eqs$, we have
+  $\eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge \eqs$.
+\end{proof}
 

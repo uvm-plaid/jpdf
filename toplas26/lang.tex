@@ -228,3 +228,10 @@ distributions and hyperproperties of protocols.
   $$
 \end{definition}
 
+\paragraph{Sanity conditions on protocols} To simplify
+the presentation we will disregard protocols that are semantically
+ill-defined. That is, we generally assume that for any
+configuration $(\store, \prog)$ there exists $\store$
+with $(\store, \prog) \redxs \store$. This rules out
+use of undefined variables and, in the adversarial semantics,
+programs consisting of just a failing $\assert$.

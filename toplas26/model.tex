@@ -135,7 +135,7 @@ and conditioned to quantify input/output information dependencies.
   where $\botruns$ pads out undefined views and outputs with $\bot$:
   $$
   \begin{array}{c}
-    \botruns(\prog) \defeq \\
+    \botruns(\prog)\ \defeq\ % \\
     \{ \store\{ x_1 \mapsto \bot, \ldots, x_n \mapsto \bot \} \mid 
     \store \in \aruns(\prog) \wedge \{ x_1,\ldots,x_n\} = (V \cup O) - \dom(\store) \}
   \end{array}
@@ -162,8 +162,9 @@ of views, i.e., subsets of $M \cup P$.
   $$
   \begin{array}{lcl}
     \houtputs & \defeq
-        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in H \ \}\ \cup \\
-      & & \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
+        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in H \ \}\ \cup\ %\\
+    % & &
+    \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
            \prog \wedge \cid \in C \wedge \cid' \in H \ \} 
   \end{array}
   $$
@@ -172,8 +173,9 @@ of views, i.e., subsets of $M \cup P$.
   $$
   \begin{array}{lcl}
     \cinputs &  \defeq
-        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in C \ \} \ \cup\\
-      & & \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
+        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in C \ \} \ \cup\ %\\
+    %& &
+    \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
               \prog \wedge \cid \in H \wedge \cid' \in C \ \}
   \end{array}
   $$

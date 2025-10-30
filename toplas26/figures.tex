@@ -29,7 +29,6 @@
 
 \newcommand{\minicatsyntaxfig}{
 \begin{fpfig}[t]{Syntax of $\minicat$}{fig-minicat-syntax}
-\small{
 $$
     \begin{array}{rcl@{\hspace{4mm}}r}
       \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
@@ -37,13 +36,12 @@ $$
       x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid  \rvl{w} \mid \out{\cid} & \textit{variables} \\[1mm]
       \prog &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \reveal{w}{\be}{\cid} \mid \pubout{\cid}{\be}{\cid} \mid \prog;\prog & \textit{protocols}
     \end{array}
-$$}
+$$
 \end{fpfig}    
 }
 
 \newcommand{\minicatredxfig}{
 \begin{fpfig}[t]{Semantics of $\minicat$ expressions (T) and programs (B).}{fig-minicat-redx}
-\small{
  $$
   \begin{array}{c@{\hspace{5mm}}c}
   \begin{array}{rcl}
@@ -84,13 +82,11 @@ $$}
       %(\store, \reveal{w}{\be}{\cid};\prog) \redx (\extend{\store}{\rvl{w}}{\lcod{\store,\be}{\cid}}, \prog)   
       %(\store, \pubout{\cid}{\be}{\cid};\prog) \redx (\extend{\store}{\out{\cid}}{\lcod{\store,\be}{\cid}}, \prog)
 \end{mathpar}
-}
 \end{fpfig}
 }
 
 \newcommand{\minicataredxfig}{
 \begin{fpfig}[t]{Adversarial semantics of $\minicat$.}{fig-minicat-aredx}
-\small{
 \begin{mathpar}
   \inferrule
       { \cid \in H }
@@ -119,7 +115,40 @@ $$}
   \inferrule
       {(\store_1,\prog_1) \aredx \store_2 \\ (\store_2,\prog_2) \aredx \abort }
       {(\store_1,\prog_1;\prog_2) \aredx \store_2}
-\end{mathpar}}
+\end{mathpar}
+\end{fpfig}
+}
+
+\newcommand{\minicathtripfig}{
+\begin{fpfig}[t]{$\minicat$ Hoare logic derivation rules}{fig-minicathtrip}
+\begin{mathpar}
+  \inferrule[Assign]
+            {}
+            {\htrip{\eqs[\toeq{\elab{\be}{\cid_2}}/x]}{\xassign{x}{\be}{\cid_2}}{\eqs}}
+  
+  \inferrule[Assert]
+            {E \models \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}
+            {\htrip{E}{\elab{\assert{\be_1 = \be_2}}{\cid}}{E}}
+
+  %\reveal{w}{\be}{\cid}
+  %
+  %\pubout{\cid}{\be}{\cid}
+  \inferrule[Seq]
+      {\htrip{\eqs_1}{\prog_1}{\eqs_2} \\ \htrip{\eqs_2}{\prog_2}{\eqs_3} }
+      {\htrip{\eqs_1}{\prog_1;\prog_2}{\eqs_3}}
+
+  \inferrule[Consequence]
+      {\htrip{\eqs_1'}{\prog}{\eqs_2'} \\ \eqs_1 \models \eqs_1' \\  \eqs_2' \models \eqs_2 }
+      {\htrip{\eqs_1}{\prog}{\eqs_2}}
+
+  \inferrule[Frame]
+      {\htrip{\eqs_1}{\prog}{\eqs_2} \\ \vars(\eqs) \cap \avars(\prog) = \varnothing}
+      {\htrip{\eqs_1 \wedge \eqs}{\prog}{\eqs_2 \wedge \eqs}}
+      
+\inferrule[Hyp]
+          {\htrip{\eqs_1}{\prog}{\eqs_2}}
+          {\htrip{\eqs_1 \wedge (\eqs_2 \impl \eqs)}{\prog}{\eqs_2 \wedge \eqs}}
+\end{mathpar}
 \end{fpfig}
 }
 
@@ -308,7 +337,6 @@ $$
 
 \newcommand{\metaprotexprsemanticsfig}{
   \begin{fpfig}[t]{Semantics of $\metaprot$ expressions.}{fig-metaprotexprsemantics}
-\small{
   \begin{mathpar}
   \inferrule
       {e_1 \redx \mv \\ e_2[\mv/y] \redx \mv'}
@@ -343,7 +371,6 @@ $$
       {e_1 \redx \be_1 \\ e_2 \redx \be_2}     
       {e_1 \fplus e_2 \redx \be_1 \fplus \be_2}
 \end{mathpar}
-}
 \end{fpfig}
 }
 
