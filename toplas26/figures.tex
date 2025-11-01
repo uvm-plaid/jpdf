@@ -432,13 +432,13 @@ $$
 $$
 \begin{mathpar}
   \inferrule
-      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
-      {e_1 \bop e_2 \redx \phi_1 \bop \phi_2}
+      {e_1 \redx \elab{\be_1}{\cid_1} \\ e_2 \redx \elab{\be_2}{\cid_2} }
+      {e_1 \bop e_2 \redx \toeq{\elab{\be_1}{\cid_1}} \bop \toeq{\elab{\be_2}{\cid_2}}}
       
   \inferrule
-      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
-      {e_1 \eop e_2 \redx \phi_1 \eop \phi_2}
-
+      {e_1 \redx \elab{\be_1}{\cid_1} \\ e_2 \redx \elab{\be_2}{\cid_2} }
+      {e_1 \bop e_2 \redx \toeq{\elab{\be_1}{\cid_1}} \eop \toeq{\elab{\be_2}{\cid_2}}}
+      
   \inferrule
       {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\eqs_2} \redx \eqs_2 }
       {\notg{\eqs_1} \wedge \notg{\eqs_2} \redx \eqs_1 \wedge \eqs_2}
@@ -454,6 +454,10 @@ $$
   \inferrule
       {\peq \redx \eqs}
       {\neg\peq\redx \neg\eqs}
+
+  \inferrule
+      {}
+      {\eqs \redx \eqs}
 \end{mathpar}
 \end{fpfig}
 }
