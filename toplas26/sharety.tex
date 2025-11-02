@@ -14,6 +14,9 @@
 \newcommand{\scrape}{\mathrm{scrape}}
 \newcommand{\realviews}[2]{V_{#1 \lhd #2}}
 \newcommand{\islocal}{\mathrm{local}}
+\newcommand{\oid}{\cid_{\mathit{oracle}}}
+\newcommand{\vscrape}{\mathit{vscrape}}
+\newcommand{\sscrape}{\mathit{sscrape}}
 
 \subsection{Logical Rules for $\minifed$}
 
@@ -45,7 +48,7 @@ as either shares or public values in order for the protocol to be well-typed.
   \inferrule[SecOpen]
       {
         \Gamma, \eqs \vdash [\phi,\px{x}] : \sharety\\
-        \eqs \models  \recon(\phi,\px{x}) \eop \phi' - \rx{y}{\cid_o}
+        \eqs \models  \recon(\phi,\px{x}) \eop \phi' - \rx{y}{\oid}
       }
       {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R \cup \setit{\rx{y}{\cid_o}}, \Gamma \uplus \setit{[\recon(\phi,\px{x})] : \pubty}}
 
@@ -70,29 +73,29 @@ that all openings are secure in a NIMO sense. These can be combined with
 the Hoare logic to obtain a precise bound on information release, e.g.,
 that outputs are secure openings of the ideal functionality.
 
-\begin{mathpar}
-  \eqs \vdash \islocal(\px{x},\cid)
-
-  \eqs \vdash \islocal(\mx{x}{\cid},\cid)
-
-  \eqs \vdash \islocal(\rx{x}{\cid},\cid)
-
-  \eqs \vdash \islocal(\sx{x}{\cid},\cid)
-
-  \inferrule
-      {\eqs \vdash \islocal(\phi_1,\cid) \\ \eqs \vdash \islocal(\phi_2,\cid) }
-      {\eqs \vdash \islocal(\phi_1 \bop \phi_2,\cid)}
-
-  \inferrule
-      {\eqs \vdash \phi \eop \phi' \\ \eqs \vdash \islocal(\phi',\cid)}
-      {\eqs \vdash \islocal(\phi,\cid)}
-\end{mathpar}
-
-\begin{definition}
-  The judgement $\Gamma,\eqs \vdash [\phi_1,\phi_2]$ is \emph{well-formed}
-  iff $\eqs \vdash \islocal(\phi_1,\cid_1)$ and $\eqs \vdash \islocal(\phi_2,\cid_2)$
-  with $\cid_1 \ne \cid_2$.
-\end{definition}
+%\begin{mathpar}
+%  \eqs \vdash \islocal(\px{x},\cid)
+%
+%  \eqs \vdash \islocal(\mx{x}{\cid},\cid)
+%
+%  \eqs \vdash \islocal(\rx{x}{\cid},\cid)
+%
+%  \eqs \vdash \islocal(\sx{x}{\cid},\cid)
+%
+%  \inferrule
+%      {\eqs \vdash \islocal(\phi_1,\cid) \\ \eqs \vdash \islocal(\phi_2,\cid) }
+%      {\eqs \vdash \islocal(\phi_1 \bop \phi_2,\cid)}
+%
+%  \inferrule
+%      {\eqs \vdash \phi \eop \phi' \\ \eqs \vdash \islocal(\phi',\cid)}
+%      {\eqs \vdash \islocal(\phi,\cid)}
+%\end{mathpar}
+%
+%\begin{definition}
+%  The judgement $\Gamma,\eqs \vdash [\phi_1,\phi_2]$ is \emph{well-formed}
+%  iff $\eqs \vdash \islocal(\phi_1,\cid_1)$ and $\eqs \vdash \islocal(\phi_2,\cid_2)$
+%  with $\cid_1 \ne \cid_2$.
+%\end{definition}
 
 \begin{mathpar}
   \inferrule[Sharing]
@@ -102,6 +105,10 @@ that outputs are secure openings of the ideal functionality.
   \inferrule[Public]
       {}
       {\Gamma,\eqs \vdash [\phi_1] : \Gamma([\phi_1])}
+      
+  \inferrule[Val]
+      {}
+      {\Gamma,\eqs \vdash v : \pubty}
 
   \inferrule[HEAdd]
       {\Gamma,\eqs \vdash [\phi^1_1,\phi^1_2] : \sharety\\
@@ -122,19 +129,86 @@ that outputs are secure openings of the ideal functionality.
       {\Gamma,\eqs \vdash [\phi_1] : \pubty\\
         \Gamma,\eqs \vdash [\phi_2] : \pubty}
       {\Gamma,\eqs \vdash [\phi_1\bop\phi_2] : \pubty}
+      
+  \inferrule[ShareEntails]
+      {\Gamma,\eqs \vdash [\phi_1',\phi_2'] : \sharety \\
+        \eqs \models \phi_1 \eop \phi_1' \wedge \phi_2 \eop \phi_2'}
+      {\Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety} 
+      
+  \inferrule[PubEntails]
+      {\Gamma,\eqs \vdash [\phi'] : \pubty \\ \eqs \models \phi \eop \phi'}
+      {\Gamma,\eqs \vdash [\phi] : \pubty} 
 \end{mathpar}
 
-\begin{mathpar}
-  \inferrule
-      {\prog \vdash_{\cid_1} \magical(\Gamma)\\
-        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi} =
-        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi,\mx{z}{\cid_2}}
-      }
-      {\prog \vdash_{\cid_1} \magical(\Gamma;[\mx{z}{\cid_2},\phi_2] : \sharety)}
-\end{mathpar}
+%\begin{mathpar}
+%  \inferrule
+%      {\prog \vdash_{\cid_1} \magical(\Gamma)\\
+%        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi} =
+%        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi,\mx{z}{\cid_2}}
+%      }
+%      {\prog \vdash_{\cid_1} \magical(\Gamma;[\mx{z}{\cid_2},\phi_2] : \sharety)}
+%\end{mathpar}
+
+\begin{definition}
+  We write $\Gamma,R,\eqs : {OK}_\cid$ iff both of the following conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item For all $([\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety) \in \Gamma$,
+    we have $\eqs \models \mx{z}{\cid} \eop \phi - \rx{x}{\cid'}$ for
+    some $\phi$ and unique $\rx{x}{\cid'} \in R$, with $\cid \ne \cid'$.
+  \item For all $([\phi] : \pubty) \in \Gamma$,
+    we have $\eqs \models \phi \eop \phi' - \rx{x}{\oid}$ for
+    some $\phi'$ and unique $\rx{x}{\oid} \in R$.
+  \end{enumerate}
+\end{definition}
 
 \begin{lemma}
-Given $\prog$ with $\iov(\prog) = S \cup V \cup O$.  
+  Given $\Gamma,R,\toeq{\prog} : {OK}_\cid$ and $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma,R,\toeq{\prog} \vdash \setit{x} : R',\Gamma'$
+  for $x \in V_{\setit{\cid}}$. Then $\Gamma',R',\toeq{prog} : {OK}_\cid$.
+\end{lemma}
+
+\begin{definition} Define $\vscrape(\Gamma)$ and $\sscrape(\Gamma)$ as follows:
+\begin{eqnarray*}
+\vscrape(\varnothing) &=& \varnothing \\
+\vscrape(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \setit{\mx{z}{\cid}} \cup \vscrape(\Gamma)\\
+\vscrape(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \setit{\px{x}} \cup \vscrape(\Gamma)\\
+\vscrape(\setit{[\phi] : \outty} \cup \Gamma) &=& \setit{\phi} \cup \vscrape(\Gamma)
+\end{eqnarray*}
+and:
+\begin{eqnarray*}
+\sscrape(\varnothing) &=& \varnothing \\
+\sscrape(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \sscrape(\Gamma)\\
+\vscrape(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \sscrape(\Gamma)\\
+\vscrape(\setit{[\phi] : \outty} \cup \Gamma) &=& \setit{\phi} \cup \sscrape(\Gamma)
+\end{eqnarray*}
+\end{definition}
+
+\begin{lemma}
+  Given $\Gamma,R,\toeq{\prog} : {OK}_\cid$ and $\Gamma,\toeq{\prog} \vdash [\phi_1,\phi_2] :
+  \sharety$. Then with $\cid'\ne \cid$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma) \cup \setit{\phi_1 + \phi_2}}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma) \cup \setit{\phi_1 + \phi_2, \phi_1}}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  Given $\Gamma,R,\toeq{\prog} : {OK}_\cid$ and $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma,R,\toeq{\prog} \vdash \setit{x} : R',\Gamma'$
+  for $x \in V_{\setit{\cid}}$.
+  Given also for $\cid' \ne \cid$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma)}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \sscrape(\Gamma)}
+  $$
+  we then have:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma')}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \sscrape(\Gamma')}
+  $$
 \end{lemma}
 
 \subsection{Algorithmic Rules for $\metaprot$}
