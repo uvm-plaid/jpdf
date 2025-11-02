@@ -49,9 +49,13 @@ as either shares or public values in order for the protocol to be well-typed.
       }
       {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R \cup \setit{\rx{y}{\cid_o}}, \Gamma \uplus \setit{[\recon(\phi,\px{x})] : \pubty}}
 
-  \inferrule[Output]
+  \inferrule[Reveal]
       {\Gamma, \eqs \vdash [\phi,\px{x}] : \sharety}
       {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R, \Gamma \uplus \setit{[\recon(\phi,\px{x})] : \outty}}
+
+  \inferrule[Output]
+      {\Gamma, \eqs \vdash [\out{\cid}] : \outty}
+      {\Gamma,R,\eqs \vdash \setit{ \out{\cid} }: R, \Gamma \uplus \setit{ \out{\cid} : \outty}}
 
   \inferrule[Views]
       {\Gamma_1,\eqs,R_1 \vdash X_1 : R_2,\Gamma_2 \\
