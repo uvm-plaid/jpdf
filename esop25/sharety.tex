@@ -78,6 +78,21 @@ that outputs are secure openings of the ideal functionality.
       {\Gamma,\eqs \vdash [\phi_1\bop\phi_2] : \pubty}
 \end{mathpar}
 
+
+
+\newcommand{\magical}{\mathrm{secenv}}
+\newcommand{\scrape}{\mathrm{scrape}}
+
+\begin{mathpar}
+  \inferrule
+      {\prog \vdash_{\cid_1} \magical(\Gamma)\\
+        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi} =
+        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi,\mx{z}{\cid_2}}
+      }
+      {\prog \vdash_{\cid_1} \magical(\Gamma;[\mx{z}{\cid_2},\phi_2] : \sharety)}
+\end{mathpar}
+
+
 \subsection{Algorithmic Rules for $\metaprot$}
 
 The $\minifed$ type system is undecidable given validity up to equivalence of expression
@@ -197,3 +212,5 @@ postcondition: ( [m[z++"s"]@1,m[z++"s"]@2] : shares),
 This example illustrates how we can write both confidentiality and correctness properties--
 or not include either as desired. That is, the confidentiality type system will ensure
 gradual release, without any SMT pre or postconditions. 
+
+

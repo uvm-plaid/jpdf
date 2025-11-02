@@ -2,14 +2,18 @@
 
 \newcommand{\sharety}{\mathrm{shares}}
 \newcommand{\pubty}{\mathrm{public}}
+\newcommand{\outty}{\mathrm{output}}
 \newcommand{\genshares}{\mathrm{genshares}}
 \newcommand{\recon}{\mathrm{recon}}
 \newcommand{\xvec}{\upsilon}
 \newcommand{\xdefs}{\mathcal{D}}
 \newcommand{\kwas}{\ \mathrm{as}\ }
 \newcommand{\shtrip}[3]{#1 \Vdash #2 \rhd #3}
-% \newcommand{\shtrip}{\htrip}
 \newcommand{\redxsub}{\varrho}
+\newcommand{\magical}{\mathrm{secenv}}
+\newcommand{\scrape}{\mathrm{scrape}}
+\newcommand{\realviews}[2]{V_{#1 \lhd #2}}
+\newcommand{\islocal}{\mathrm{local}}
 
 \subsection{Logical Rules for $\minifed$}
 
@@ -31,19 +35,28 @@ Generally the type system works more like an information flow type system
 than our previous work. The following rules define allowable interactions
 between clients. The idea is that all interactive messages must be categorized
 as either shares or public values in order for the protocol to be well-typed.
+
 \begin{mathpar}
   \inferrule[Share]
-      {\eqs \models \genshares(\phi_1,y,\cid_1) \eop R_2,[\mx{z}{\cid_2},\phi_2] } %\\ \cid_1 \ne \cid_2}
-      {\Gamma,R_1,\eqs \vdash [\mx{z}{\cid_2}] : R_1;R_2, \Gamma; [\mx{z}{\cid_2},\phi_2] : \sharety}
+      %{\eqs \models \genshares(\phi_1,y,\cid_1) \eop R_2,[\mx{z}{\cid_2},\phi_2] } %\\ \cid_1 \ne \cid_2}
+      {\eqs \models \mx{z}{\cid_2} \eop \phi - \rx{y}{\cid_1} \\ \cid_1 \ne \cid_2}
+      {\Gamma,R,\eqs \vdash \setit{ \mx{z}{\cid_2} } : R \uplus \setit{\rx{y}{\cid_1}}, \Gamma \uplus \setit{[\mx{z}{\cid_2}, \rx{y}{\cid_1}] : \sharety}}
 
-  \inferrule[Open]
-      {\Gamma, \eqs \vdash [\px{y},\px{z}] : \sharety}
-      {\Gamma,R,\eqs \vdash [\px{y},\px{z}] : R, \Gamma; [\recon(\px{y},\px{z})] : \pubty}
+  \inferrule[SecOpen]
+      {
+        \Gamma, \eqs \vdash [\phi,\px{x}] : \sharety\\
+        \eqs \models  \recon(\phi,\px{x}) \eop \phi' - \rx{y}{\cid_o}
+      }
+      {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R \cup \setit{\rx{y}{\cid_o}}, \Gamma \uplus \setit{[\recon(\phi,\px{x})] : \pubty}}
 
-  \inferrule[Seq]
-      {\Gamma_1,\eqs,R_1 \vdash \xvec_1 : R_2,\Gamma_2 \\
-        \Gamma_2,\eqs,R_2 \vdash \xvec_2 : R_3,\Gamma_3}
-      {\Gamma_1, \eqs,R_1 \vdash \xvec_1\xvec_2 : R_3,\Gamma_3}
+  \inferrule[Output]
+      {\Gamma, \eqs \vdash [\phi,\px{x}] : \sharety}
+      {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R, \Gamma \uplus \setit{[\recon(\phi,\px{x})] : \outty}}
+
+  \inferrule[Views]
+      {\Gamma_1,\eqs,R_1 \vdash X_1 : R_2,\Gamma_2 \\
+        \Gamma_2,\eqs,R_2 \vdash X_2 : R_3,\Gamma_3}
+      {\Gamma_1, \eqs,R_1 \vdash X_1 \uplus X_2 : R_3,\Gamma_3}
 \end{mathpar}
 
 In addition to the interactive rules, we have rules for local computation.
@@ -52,10 +65,39 @@ allow standard homorphic encryption operations, and in particular ensure
 that all openings are secure in a NIMO sense. These can be combined with
 the Hoare logic to obtain a precise bound on information release, e.g.,
 that outputs are secure openings of the ideal functionality.
+
 \begin{mathpar}
-  \inferrule[Hyp]
+  \eqs \vdash \islocal(\px{x},\cid)
+
+  \eqs \vdash \islocal(\mx{x}{\cid},\cid)
+
+  \eqs \vdash \islocal(\rx{x}{\cid},\cid)
+
+  \eqs \vdash \islocal(\sx{x}{\cid},\cid)
+
+  \inferrule
+      {\eqs \vdash \islocal(\phi_1,\cid) \\ \eqs \vdash \islocal(\phi_2,\cid) }
+      {\eqs \vdash \islocal(\phi_1 \bop \phi_2,\cid)}
+
+  \inferrule
+      {\eqs \vdash \phi \eop \phi' \\ \eqs \vdash \islocal(\phi',\cid)}
+      {\eqs \vdash \islocal(\phi,\cid)}
+\end{mathpar}
+
+\begin{definition}
+  The judgement $\Gamma,\eqs \vdash [\phi_1,\phi_2]$ is \emph{well-formed}
+  iff $\eqs \vdash \islocal(\phi_1,\cid_1)$ and $\eqs \vdash \islocal(\phi_2,\cid_2)$
+  with $\cid_1 \ne \cid_2$.
+\end{definition}
+
+\begin{mathpar}
+  \inferrule[Sharing]
       {}
-      {\Gamma,\eqs \vdash \xvec : \Gamma(\xvec)}
+      {\Gamma,\eqs \vdash [\phi_1,\phi_2] : \Gamma([\phi_1,\phi_2])}
+      
+  \inferrule[Public]
+      {}
+      {\Gamma,\eqs \vdash [\phi_1] : \Gamma([\phi_1])}
 
   \inferrule[HEAdd]
       {\Gamma,\eqs \vdash [\phi^1_1,\phi^1_2] : \sharety\\
@@ -77,6 +119,19 @@ that outputs are secure openings of the ideal functionality.
         \Gamma,\eqs \vdash [\phi_2] : \pubty}
       {\Gamma,\eqs \vdash [\phi_1\bop\phi_2] : \pubty}
 \end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {\prog \vdash_{\cid_1} \magical(\Gamma)\\
+        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi} =
+        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi,\mx{z}{\cid_2}}
+      }
+      {\prog \vdash_{\cid_1} \magical(\Gamma;[\mx{z}{\cid_2},\phi_2] : \sharety)}
+\end{mathpar}
+
+\begin{lemma}
+Given $\prog$ with $\iov(\prog) = S \cup V \cup O$.  
+\end{lemma}
 
 \subsection{Algorithmic Rules for $\metaprot$}
 
