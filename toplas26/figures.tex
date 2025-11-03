@@ -34,7 +34,7 @@ $$
       \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} \subset  \mathbb{N} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
       \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid \OT{\be}{\cid}{\be}{\be} & \textit{expressions}\\[1mm]
       x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid  \rvl{w} \mid \out{\cid} & \textit{variables} \\[1mm]
-      \prog &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \reveal{w}{\be}{\cid} \mid \pubout{\cid}{\be}{\cid} \mid \prog;\prog & \textit{protocols}
+      \prog &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \reveal{w}{\be}{\cid} \mid \pubout{\cid}{\be}{\cid} \mid \prog;\prog \mid \skip & \textit{protocols}
     \end{array}
 $$
 \end{fpfig}    
@@ -73,6 +73,8 @@ $$
   %$$
   %
 \begin{mathpar}
+  (\store, \skip) \redx \store
+  
   (\store, \xassign{x}{\be}{\cid}) \redx \extend{\store}{x}{\lcod{\store,\be}{\cid}}
   
   \inferrule
@@ -122,6 +124,10 @@ $$
 \newcommand{\minicathtripfig}{
 \begin{fpfig}[t]{$\minicat$ Hoare logic derivation rules}{fig-minicathtrip}
 \begin{mathpar}
+  \inferrule[Skip]
+            {}
+            {\htrip{\eqs}{\skip}{\eqs}}
+            
   \inferrule[Assign]
             {}
             {\htrip{\eqs[\toeq{\elab{\be}{\cid_2}}/x]}{\xassign{x}{\be}{\cid_2}}{\eqs}}
