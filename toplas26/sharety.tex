@@ -162,29 +162,30 @@ that outputs are secure openings of the ideal functionality.
 \end{definition}
 
 \begin{lemma}
-  Given $\Gamma,R,\toeq{\prog} : {OK}_\cid$ and $\iov(\prog) = S \cup V \cup O$
-  and $\Gamma,R,\toeq{\prog} \vdash \setit{x} : R',\Gamma'$
-  for $x \in V_{\setit{\cid}}$. Then $\Gamma',R',\toeq{prog} : {OK}_\cid$.
+  Given $\Gamma,R,\eqspre \wedge \toeq{\prog} : {OK}_\cid$ and $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma,R,\eqspre \wedge \toeq{\prog} \vdash \setit{x} : R',\Gamma'$
+  for $x \in V_{\setit{\cid}}$. Then $\Gamma',R',\eqspre \wedge \toeq{\prog} : {OK}_\cid$.
 \end{lemma}
 
 \begin{definition} Define $\vscrape(\Gamma)$ and $\sscrape(\Gamma)$ as follows:
 \begin{eqnarray*}
-\vscrape(\varnothing) &=& \varnothing \\
-\vscrape(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \setit{\mx{z}{\cid}} \cup \vscrape(\Gamma)\\
-\vscrape(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \setit{\px{x}} \cup \vscrape(\Gamma)\\
+\vscrape(\varnothing) &=& \varnothing \\[-1.5mm]
+\vscrape(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \setit{\mx{z}{\cid}} \cup \vscrape(\Gamma)\\[-1.5mm]
+\vscrape(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \setit{\px{x}} \cup \vscrape(\Gamma)\\[-1.5mm]
 \vscrape(\setit{[\phi] : \outty} \cup \Gamma) &=& \setit{\phi} \cup \vscrape(\Gamma)
 \end{eqnarray*}
 and:
 \begin{eqnarray*}
-\sscrape(\varnothing) &=& \varnothing \\
-\sscrape(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \sscrape(\Gamma)\\
-\vscrape(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \sscrape(\Gamma)\\
+\sscrape(\varnothing) &=& \varnothing \\[-1.5mm]
+\sscrape(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \sscrape(\Gamma)\\[-1.5mm]
+\vscrape(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \sscrape(\Gamma)\\[-1.5mm]
 \vscrape(\setit{[\phi] : \outty} \cup \Gamma) &=& \setit{\phi} \cup \sscrape(\Gamma)
 \end{eqnarray*}
 \end{definition}
 
 \begin{lemma}
-  Given $\Gamma,R,\toeq{\prog} : {OK}_\cid$ and $\Gamma,\toeq{\prog} \vdash [\phi_1,\phi_2] :
+  Given $\Gamma,R, \eqspre \wedge \toeq{\prog} : {OK}_\cid$ and
+  $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] :
   \sharety$. Then with $\cid'\ne \cid$:
   $$
   \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma) \cup \setit{\phi_1 + \phi_2}}
@@ -194,22 +195,34 @@ and:
 \end{lemma}
 
 \begin{lemma}
-  Given $\Gamma,R,\toeq{\prog} : {OK}_\cid$ and $\iov(\prog) = S \cup V \cup O$
-  and $\Gamma,R,\toeq{\prog} \vdash \setit{x} : R',\Gamma'$
+  Given $\Gamma,R, \eqspre \wedge \toeq{\prog} : {OK}_\cid$ and $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma,R, \eqspre \wedge \toeq{\prog} \vdash \setit{x} : R',\Gamma'$
   for $x \in V_{\setit{\cid}}$.
-  Given also for $\cid' \ne \cid$:
+  If we have for $\cid' \ne \cid$:
   $$
   \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma)}
   = 
   \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \sscrape(\Gamma)}
   $$
-  we then have:
+  then we have:
   $$
   \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma')}
   = 
   \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \sscrape(\Gamma')}
   $$
 \end{lemma}
+
+\begin{theorem}
+  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\eqspre$.
+  Then $\varnothing,\varnothing,\eqspre \wedge \toeq{\prog} \vdash
+  \houtputs :  R',\Gamma'$ implies:
+  $$
+  \condd{\progtt(\prog)}{S_H}{S_C \cup O} =
+  \condd{\progtt(\prog)}{S_H}{S_C \cup O \cup \houtputs}
+  $$
+  for any partitioning $H,C$ of two clients.
+\end{theorem} 
+
 
 \subsection{Algorithmic Rules for $\metaprot$}
 
