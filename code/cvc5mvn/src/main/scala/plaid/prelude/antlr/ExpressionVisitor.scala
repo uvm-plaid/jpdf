@@ -12,7 +12,7 @@ object ExpressionVisitor extends PreludeBaseVisitor[Expr] {
     visit(ctx.expr())
 
   override def visitFunctionCallExpr(ctx: FunctionCallExprContext) = CallExpr(
-    fn = Identifier(ctx.ident().getText),
+    id = Identifier(ctx.ident().getText),
     parms = ctx.expr().asScala.map(visit).toList)
 
   override def visitLetExpr(ctx: LetExprContext) = LetExpr(
@@ -25,10 +25,9 @@ object ExpressionVisitor extends PreludeBaseVisitor[Expr] {
     e2 = visit(ctx.expr(1)))
 
   override def visitFieldExpr(ctx: FieldExprContext) = FieldExpr(
-    elements = new java.util.TreeMap(ctx.flddecl().asScala
+    elements = ctx.flddecl().asScala
       .map(x => Identifier(x.ident().getText) -> visit(x.expr()))
-      .toMap
-      .asJava))
+      .toMap)
 
   override def visitFieldSelectExpr(ctx: FieldSelectExprContext) = FieldSelectExpr(
     e = visit(ctx.expr()),

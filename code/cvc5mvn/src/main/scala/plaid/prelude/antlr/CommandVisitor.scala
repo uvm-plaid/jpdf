@@ -8,25 +8,21 @@ import scala.jdk.CollectionConverters.*
 
 object CommandVisitor extends PreludeBaseVisitor[Cmd] {
 
-  override def visitFunctionCallCommand(ctx: FunctionCallCommandContext) = CallCmd(
-    fn = Identifier(ctx.ident().getText),
+  override def visitFunctionCallCmd(ctx: FunctionCallCmdContext) = CallCmd(
+    id = Identifier(ctx.ident().getText),
     parms = ctx.expr().asScala.map(Loader.expression).toList)
 
-  override def visitAssignCommand(ctx: AssignCommandContext) = AssignCmd(
+  override def visitAssignCmd(ctx: AssignCmdContext) = AssignCmd(
     e1 = Loader.expression(ctx.expr(0)),
     e2 = Loader.expression(ctx.expr(1)))
 
-  override def visitAssertCommand(ctx: AssertCommandContext) = AssertCmd(
+  override def visitAssertCmd(ctx: AssertCmdContext) = AssertCmd(
     e1 = Loader.expression(ctx.expr(0)),
     e2 = Loader.expression(ctx.expr(1)),
     e3 = Loader.expression(ctx.expr(2)))
 
-  override def visitCommandList(ctx: CommandListContext) = ListCmd(
-    c1 = visit(ctx.command(0)),
-    c2 = visit(ctx.command(1)))
-
-  override def visitLetCommand(ctx: LetCommandContext) = LetCmd(
+  override def visitLetCmd(ctx: LetCmdContext) = LetCmd(
     y = Identifier(ctx.ident().getText),
     e = Loader.expression(ctx.expr()),
-    c = Loader.command(ctx.command()))
+    c = ctx.cmd().asScala.map(Loader.command).toList)
 }

@@ -41,8 +41,6 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
     else termManager.mkTerm(Kind.AND, terms.toArray)
 
   def toTerm(command: Cmd): Term = command match {
-    case x: ListCmd =>
-      joinWithAnd(List(toTerm(x.c1), toTerm(x.c2)))
     case x: AssertCmd =>
       val idx = TermFactory.getPartyIndex(x)
       joinWithAnd(List(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1, idx), toTerm(x.e2, idx))))

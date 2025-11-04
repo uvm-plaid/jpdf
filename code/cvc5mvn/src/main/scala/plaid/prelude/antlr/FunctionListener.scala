@@ -1,7 +1,7 @@
 package plaid.prelude.antlr
 
 import plaid.prelude.PreludeBaseListener
-import plaid.prelude.PreludeParser.{CommandFuncContext, ConstraintFuncContext, ExprFuncContext, IdentContext, TypedIdentContext}
+import plaid.prelude.PreludeParser.{CmdFuncContext, ConstraintFuncContext, ExprFuncContext, IdentContext, TypedIdentContext}
 import plaid.prelude.ast.*
 
 import scala.jdk.CollectionConverters.*
@@ -10,9 +10,9 @@ import scala.jdk.CollectionConverters.*
 
 class FunctionListener extends PreludeBaseListener {
 
-  val exprFunctions = scala.collection.mutable.ListBuffer[ExprFunction]()
-  val commandFunctions = scala.collection.mutable.ListBuffer[CommandFunction]()
-  val constraintFunctions = scala.collection.mutable.ListBuffer[ConstraintFunction]()
+  val exprFunctions = scala.collection.mutable.ListBuffer[ExprFunc]()
+  val commandFunctions = scala.collection.mutable.ListBuffer[CmdFunc]()
+  val constraintFunctions = scala.collection.mutable.ListBuffer[ConstraintFunc]()
 
   private def toIdentifiers(contexts: java.util.List[IdentContext]): List[Identifier] =
     contexts.asScala.drop(1).map(ctx => Identifier(ctx.getText)).toList
@@ -23,33 +23,26 @@ class FunctionListener extends PreludeBaseListener {
     }.toList
 
   override def enterExprFunc(ctx: ExprFuncContext): Unit = {
-    exprFunctions += ExprFunction(
+    exprFunctions += ExprFunc(
       Identifier(ctx.ident(0).getText), // function name
       toIdentifiers(ctx.ident()),           // parameters
       Loader.expression(ctx.expr())       // body
     )
   }
 
-  override def enterCommandFunc(ctx: CommandFuncContext): Unit = {
-    val precondition =
-      Option(ctx.precondsection()).map(_.constraintExpr()).map(Loader.constraint).orNull
-    val postcondition =
-      Option(ctx.postcondsection()).map(_.constraintExpr()).map(Loader.constraint).orNull
-
-    commandFunctions += CommandFunction(
+  override def enterCmdFunc(ctx: CmdFuncContext): Unit =
+    commandFunctions += CmdFunc(
       Identifier(ctx.ident().getText),
       toTypedIdentifiers(ctx.typedIdent()),
-      Loader.command(ctx.command()),
-      precondition,
-      postcondition
-    )
-  }
+      body = ctx.cmd().asScala.map(Loader.command).toList,
+      precond = Option(ctx.pre()).map(x => Loader.constraint(x.constraint())),
+      postcond = Option(ctx.post()).map(x => Loader.constraint(x.constraint())))
 
   override def enterConstraintFunc(ctx: ConstraintFuncContext): Unit = {
-    constraintFunctions += ConstraintFunction(
+    constraintFunctions += ConstraintFunc(
       Identifier(ctx.ident(0).getText),
       toIdentifiers(ctx.ident()),
-      Loader.constraint(ctx.constraintExpr())
+      Loader.constraint(ctx.constraint())
     )
   }
 }

@@ -6,30 +6,6 @@ import plaid.prelude.ast.*
 object ConstraintChecker {
 
   /**
-   * convert AST to Iterable type
-   * let us recursively explore the full AST
-   */
-  private def children(n: Node): Iterable[Node] = n match {
-    case AndConstraint(e1, e2) => Iterable(e1, e2)
-    case EqualConstraint(e1, e2) => Iterable(e1, e2)
-    case TrueConstraint() => Iterable()
-    case PlusExpr(e1, e2) => Iterable(e1, e2)
-    case MinusExpr(e) => Iterable(e)
-    case TimesExpr(e1, e2) => Iterable(e1, e2)
-    case AtExpr(e, i) => Iterable(e, i)
-    case RandomExpr(e) => Iterable(e)
-    case SecretExpr(e) => Iterable(e)
-    case MessageExpr(e) => Iterable(e)
-    case PublicExpr(e) => Iterable(e)
-    case OutputExpr() => Iterable()
-    case Str(_) => Iterable()
-    case Num(_) => Iterable()
-    case OTExpr(e1, i1, e2, e3) => Iterable(e1, i1, e2, e3)
-    case OTFourExpr(s1, s2, i1, e1, e2, e3, e4) => Iterable(s1, s2, i1, e1, e2, e3, e4)
-    case x => throw Exception(s"Node $n not yet supported")
-  }
-
-  /**
    * valid constraint node type
    */
   private def constraintNodeTypes(n: Node) = recurse(n, {
@@ -57,7 +33,7 @@ object ConstraintChecker {
    * recursively check whether the given node and its sub-nodes satisfy f
    * */
   private def recurse(n: Node, f: Node => Boolean): Boolean =
-    f(n) && children(n).forall(c => recurse(c, f))
+    f(n) && n.children().forall(c => recurse(c, f))
 
 
   private def memoryIndexesAreStrings(n: Node) = recurse(n, {

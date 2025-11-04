@@ -36,20 +36,20 @@ object Loader {
     expression(parser(src).expr())
 
   /** Converts an ANTLR context into an abstract syntax tree for a constraint. */
-  def constraint(ctx: ConstraintExprContext): Constraint =
+  def constraint(ctx: ConstraintContext): Constraint =
     ConstraintVisitor.visit(ctx)
 
   /** Converts Prelude source code into an abstract syntax tree for a constraint. */
   def constraint(src: String): Constraint =
-    constraint(parser(src).constraintExpr())
+    constraint(parser(src).constraint())
 
   /** Converts an ANTLR4 context into an abstract syntax tree for a command. */
-  def command(ctx: CommandContext): Cmd =
+  def command(ctx: CmdContext): Cmd =
     CommandVisitor.visit(ctx)
 
   /** Converts Prelude source code into an abstract syntax tree for a command. */
   def command(src: String): Cmd =
-    command(parser(src).command())
+    command(parser(src).cmd())
 
   /** Converts an ANTLR4 context into an abstract syntax tree for a Prelude program. */
   def program(ctx: ProgramContext): Program =

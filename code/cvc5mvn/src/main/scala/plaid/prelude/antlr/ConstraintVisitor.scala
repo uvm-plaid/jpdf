@@ -8,23 +8,23 @@ import scala.jdk.CollectionConverters.*
 
 object ConstraintVisitor extends PreludeBaseVisitor[Constraint] {
 
-  override def visitParenConstraintExpr(ctx: ParenConstraintExprContext): Constraint =
-    visit(ctx.constraintExpr())
+  override def visitParenConstraint(ctx: ParenConstraintContext): Constraint =
+    visit(ctx.constraint())
 
-  override def visitAndConstraintExpr(ctx: AndConstraintExprContext) = AndConstraint(
-    e1 = visit(ctx.constraintExpr(0)),
-    e2 = visit(ctx.constraintExpr(1)))
+  override def visitAndConstraint(ctx: AndConstraintContext) = AndConstraint(
+    e1 = visit(ctx.constraint(0)),
+    e2 = visit(ctx.constraint(1)))
 
-  override def visitNotConstraintExpr(ctx: NotConstraintExprContext) = NotConstraint(
-    e = visit(ctx.constraintExpr()))
+  override def visitNotConstraint(ctx: NotConstraintContext) = NotConstraint(
+    e = visit(ctx.constraint()))
 
-  override def visitEqualConstraintExpr(ctx: EqualConstraintExprContext) = EqualConstraint(
+  override def visitEqualConstraint(ctx: EqualConstraintContext) = EqualConstraint(
     e1 = Loader.expression(ctx.expr(0)),
     e2 = Loader.expression(ctx.expr(1)))
 
-  override def visitTrueConstraintExpr(ctx: TrueConstraintExprContext) = TrueConstraint()
+  override def visitTrueConstraint(ctx: TrueConstraintContext) = TrueConstraint()
 
-  override def visitFunctionCallConstraintExpr(ctx: FunctionCallConstraintExprContext) = CallConstraint(
+  override def visitFunctionCallConstraint(ctx: FunctionCallConstraintContext) = CallConstraint(
     fn = Identifier(ctx.ident().getText),
     parms = ctx.expr().asScala.map(Loader.expression).toList)
 }

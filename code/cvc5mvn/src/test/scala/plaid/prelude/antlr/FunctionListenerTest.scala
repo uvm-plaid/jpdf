@@ -10,9 +10,9 @@ import scala.jdk.CollectionConverters.*
 class FunctionListenerTest {
 
   private def assertFunctions(
-    src: String,
-    exprFunctions: List[ExprFunction],
-    commandFunctions: List[CommandFunction]
+                               src: String,
+                               exprFunctions: List[ExprFunc],
+                               commandFunctions: List[CmdFunc]
   ): Unit = {
     val listener = FunctionListener()
     val tree: ParseTree = Loader.parser(src).program()
@@ -25,9 +25,9 @@ class FunctionListenerTest {
   /** Parses expression functions of zero, one, and multiple parameters. */
   @Test
   def exprFunctions(): Unit = {
-    val f = ExprFunction(Identifier("f"), List(), Num(0))
-    val g = ExprFunction(Identifier("g"), List(Identifier("x")), Num(1))
-    val h = ExprFunction(Identifier("h"), List(Identifier("x"), Identifier("y")), Num(2))
+    val f = ExprFunc(Identifier("f"), List(), Num(0))
+    val g = ExprFunc(Identifier("g"), List(Identifier("x")), Num(1))
+    val h = ExprFunc(Identifier("h"), List(Identifier("x"), Identifier("y")), Num(2))
 
     assertFunctions(
       "exprfunctions: f() { 0 } g(x) { 1 } h(x, y) { 2 }",
@@ -39,7 +39,7 @@ class FunctionListenerTest {
   /** Parses command functions of zero, one, and multiple parameters. */
   @Test
   def commandFunctions(): Unit = {
-    val f = CommandFunction(
+    val f = CmdFunc(
       Identifier("f"),
       List(),
       AssignCmd(OutputExpr(), Num(2)),
@@ -47,7 +47,7 @@ class FunctionListenerTest {
       null
     )
 
-    val g = CommandFunction(
+    val g = CmdFunc(
       Identifier("g"),
       List(TypedIdentifier(Identifier("x"), StringType())),
       AssignCmd(OutputExpr(), Num(2)),
@@ -55,7 +55,7 @@ class FunctionListenerTest {
       null
     )
 
-    val h = CommandFunction(
+    val h = CmdFunc(
       Identifier("h"),
       List(
         TypedIdentifier(Identifier("x"), StringType()),
@@ -76,8 +76,8 @@ class FunctionListenerTest {
   /** Expression functions and command functions can come in any order. */
   @Test
   def orderAgnostic(): Unit = {
-    val f = ExprFunction(Identifier("f"), List(), Num(3))
-    val g = CommandFunction(Identifier("g"), List(), AssignCmd(OutputExpr(), Num(2)), null, null)
+    val f = ExprFunc(Identifier("f"), List(), Num(3))
+    val g = CmdFunc(Identifier("g"), List(), AssignCmd(OutputExpr(), Num(2)), null, null)
 
     assertFunctions(
       "exprfunctions: f() { 3 } cmdfunctions: g() { out := 2 }",
@@ -91,7 +91,7 @@ class FunctionListenerTest {
   def commandFunctionWithConstraints(): Unit = {
     val src = "cmdfunctions: precondition: (T) f() {out@1:=3@1} postcondition: (out@1 == 3)"
 
-    val f = CommandFunction(
+    val f = CmdFunc(
       Identifier("f"),
       List(),
       AssignCmd(

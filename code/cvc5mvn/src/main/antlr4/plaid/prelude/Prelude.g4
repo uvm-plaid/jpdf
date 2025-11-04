@@ -1,28 +1,32 @@
-// define lexer and parser rules in a single combined grammar file
 grammar Prelude;
 
-program : exprfuncsection? cmdfuncsection? constraintfuncsection? EOF;
+program :
+    (
+        ('constraintfunctions:' constraintFunc*)?
+        ('exprfunctions:' exprFunc*)?
+        ('cmdfunctions:' cmdFunc*)
+    )+
+    EOF ;
 
-constraintfuncsection : 'constraintfunctions:' constraintfunction* ;
-constraintfunction : ident '(' (ident (',' ident)*)? ')' '{' constraintExpr '}' #ConstraintFunc ;
+exprFunc : ident '(' (ident (',' ident)*)? ')' '{' expr '}' ;
+constraintFunc : ident '(' (ident (',' ident)*)? ')' '{' constraint '}' ;
 
-exprfuncsection : 'exprfunctions:' exprfunction* ;
-exprfunction : ident '(' (ident (',' ident)*)? ')' '{' expr '}' #ExprFunc ;
+cmdFunc :
+    ('precondition: (' pre ')')?
+    ident '(' (typedIdent (',' typedIdent)*)? ')'
+    '{' cmd (';' cmd)* '}'
+    ('postcondition: (' post ')')? ;
 
-cmdfuncsection : 'cmdfunctions:' cmdfunc* ;
-cmdfunc : //ident '(' (ident (',' ident)*)? ')' '{' command '}' #CommandFunc
-          precondsection? ident '(' (typedIdent (',' typedIdent)*)? ')' '{' command '}' postcondsection? #CommandFunc ;
+pre : constraint ;
+post : constraint ;
 
-precondsection : 'precondition: (' constraintExpr ')';
-postcondsection : 'postcondition: (' constraintExpr ')';
-
-constraintExpr
-    : '(' constraintExpr ')' #ParenConstraintExpr
-    | expr '==' expr #EqualConstraintExpr
-    | 'NOT' constraintExpr #NotConstraintExpr
-    | constraintExpr 'AND' constraintExpr #AndConstraintExpr //left associative
-    | ident '(' (expr (',' expr)*)? ')' #FunctionCallConstraintExpr
-    | 'T' #TrueConstraintExpr
+constraint
+    : '(' constraint ')' #ParenConstraint
+    | expr '==' expr #EqualConstraint
+    | 'NOT' constraint #NotConstraint
+    | constraint 'AND' constraint #AndConstraint //left associative
+    | ident '(' (expr (',' expr)*)? ')' #FunctionCallConstraint
+    | 'T' #TrueConstraint
     ;
 
 expr
@@ -48,12 +52,11 @@ expr
     | VALUE #Num
     ;
 
-command
-    : command ';' command #CommandList
-    | 'let' ident '=' expr 'in' command #LetCommand
-    | 'assert' '(' expr '=' expr ')' '@' expr #AssertCommand
-    | expr ':=' expr #AssignCommand
-    | ident '(' (expr (',' expr)*)? ')' #FunctionCallCommand
+cmd
+    : 'let' ident '=' expr 'in' cmd (';' cmd)* #LetCmd
+    | 'assert' '(' expr '=' expr ')' '@' expr #AssertCmd
+    | expr ':=' expr #AssignCmd
+    | ident '(' (expr (',' expr)*)? ')' #FunctionCallCmd
     ;
 
 type

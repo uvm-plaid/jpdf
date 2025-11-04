@@ -1,4 +1,4 @@
-package plaid.prelude.logic
+package plaid.prelude.transform
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -8,13 +8,13 @@ import plaid.prelude.transform.Evaluator
 
 class EvaluatorTest {
 
-  private def evalExpr(src: String, exprFunctions: List[ExprFunction]): Expr = {
+  private def evalExpr(src: String, exprFunctions: List[ExprFunc]): Expr = {
     val ast = Loader.expression(src)
     val evaluator = Evaluator(Program(List(), exprFunctions, List()))
     evaluator.expression(ast)
   }
 
-  private def evalCommand(src: String, commandFunctions: List[CommandFunction]): Cmd = {
+  private def evalCommand(src: String, commandFunctions: List[CmdFunc]): Cmd = {
     val ast = Loader.command(src)
     val evaluator = Evaluator(Program(commandFunctions, List(), List()))
     evaluator.command(ast)
@@ -78,7 +78,7 @@ class EvaluatorTest {
         |let r01 = r[z] + (m[x] + 0) * (m[y] + 1) in
         |let r00 = r[z] + (m[x] + 0) * (m[y] + 0) in
         |{ row1 = r11; row2 = r10; row3 = r01; row4 = r00 }""".stripMargin)
-    val exprFunction = ExprFunction(Identifier("andtablegmw"), parameters, expr)
+    val exprFunction = ExprFunc(Identifier("andtablegmw"), parameters, expr)
 
     val result = evalExpr("""andtablegmw("foo", "bar", "barz")""", List(exprFunction))
     val expectedResult = Loader.expression(
@@ -164,7 +164,7 @@ class EvaluatorTest {
     val commands = Loader.command(
       """m[n]@i2 := (s[n] + r[n])@i1;
         |m[n]@i1 := r[n]@i1""".stripMargin)
-    val functionContext = List(CommandFunction(Identifier("encodegmw"), parameters, commands, null, null))
+    val functionContext = List(CmdFunc(Identifier("encodegmw"), parameters, commands, null, null))
     val command = evalCommand("""encodegmw("x", 2, 1)""", functionContext)
 
     assertEquals(

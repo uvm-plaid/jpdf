@@ -4,7 +4,6 @@ import io.github.cvc5.{Sort, TermManager}
 import plaid.prelude.ast.*
 import plaid.prelude.cvc.{TermFactory, Verifier}
 import plaid.prelude.eval.ConstraintChecker
-import plaid.prelude.transform.Evaluator
 
 import java.util
 import java.util.TreeMap

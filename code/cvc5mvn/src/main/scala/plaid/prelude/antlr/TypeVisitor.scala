@@ -13,12 +13,11 @@ object TypeVisitor extends PreludeBaseVisitor[Type] {
   override def visitStringType(ctx: StringTypeContext) = StringType()
 
   override def visitRecordType(ctx: RecordTypeContext) = RecordType(
-    elements = new java.util.TreeMap(
-      ctx.typedIdent().asScala
+    elements = ctx.typedIdent().asScala
         .map { x =>
           val id = Identifier(x.ident().getText)
           val tpe = visit(x.`type`())
           id -> tpe
         }
-        .toMap.asJava))
+        .toMap)
 }
