@@ -34,6 +34,40 @@ extension [F <: Func](trg: List[F])
     val first = trg.filter(x => f(x).intersect(ids).isEmpty)
     first ++ trg.filterNot(first.contains).dependencyOrdered(f)
 
-case class ExprFunc(id: Identifier, parms: List[Identifier], body: Expr) extends Func
-case class ConstraintFunc(id: Identifier, parms: List[Identifier], body: Constraint) extends Func
-case class CmdFunc(id: Identifier, typedVariables: List[TypedIdentifier], body: List[Cmd], precond: Option[Constraint], postcond: Option[Constraint]) extends Func
+extension (trg: List[ExprFunc])
+  /** Expand all the expression functions in this list. */
+  def expandAll(): List[ExprFunc] = trg
+    .dependencyOrdered { _.exprDependencies() }
+    .foldLeft(List()) { (acc, f) => f.expand(acc) :: acc }
+
+extension (trg: List[ConstraintFunc])
+  /** Expand all the constraint functions in this list. */
+  def expandAll(exprCtx: List[ExprFunc]): List[ConstraintFunc] = trg
+    .dependencyOrdered { _.constraintDependencies() }
+    .foldLeft(List()) { (acc, f) => f.expand(exprCtx, acc) :: acc }
+
+extension (trg: List[CmdFunc])
+  /** Expand all the constraint functions in this list. */
+  def expandAll(exprCtx: List[ExprFunc], constraintCtx: List[ConstraintFunc]): List[CmdFunc] = trg
+    .dependencyOrdered { _.cmdDependencies() }
+    .map { _.expand(exprCtx, constraintCtx) }
+
+case class ExprFunc(id: Identifier, parms: List[Identifier], body: Expr) extends Func {
+  /** Expand expression function calls in this expression function. */
+  def expand(ctx: List[ExprFunc]): ExprFunc =
+    copy(body = body.expand(ctx))
+}
+
+case class ConstraintFunc(id: Identifier, parms: List[Identifier], body: Constraint) extends Func {
+  /** Expand expression and constraint function calls in this constraint function. */
+  def expand(exprCtx: List[ExprFunc], constraintCtx: List[ConstraintFunc]): ConstraintFunc =
+    copy(body = body.expandExpr(exprCtx).expand(constraintCtx))
+}
+
+case class CmdFunc(id: Identifier, typedVariables: List[TypedIdentifier], body: List[Cmd], precond: Option[Constraint], postcond: Option[Constraint]) extends Func {
+  /** Expand expression and constraint function calls in this constraint function. */
+  def expand(exprCtx: List[ExprFunc], constraintCtx: List[ConstraintFunc]): CmdFunc = copy(
+    body = body.map(_.expandExpr(exprCtx)),
+    precond = precond.map(_.expand(constraintCtx)),
+    postcond = postcond.map(_.expand(constraintCtx)))
+}

@@ -17,7 +17,7 @@ sealed trait Constraint extends Node {
    * for looking up expression functions, and bindings are for any identifiers
    * that should be replaced by expressions.
    */
-  def expandExpr(ctx: List[ExprFunc], bindings: Map[Identifier, Expr]): Constraint = transform {
+  def expandExpr(ctx: List[ExprFunc], bindings: Map[Identifier, Expr] = Map()): Constraint = transform {
     case CallConstraint(id, parms) => Some(CallConstraint(id, parms.map(_.expand(ctx, bindings))))
     case EqualConstraint(e1, e2) => Some(EqualConstraint(e1.expand(ctx, bindings), e2.expand(ctx, bindings)))
     case _ => None
@@ -28,7 +28,7 @@ sealed trait Constraint extends Node {
    * constraint. All expressions in all constraints should be expanded before
    * this is used, but it would probably work anyway.
    */
-  def expand(ctx: List[ConstraintFunc], bindings: Map[Identifier, Expr]): Constraint = transform {
+  def expand(ctx: List[ConstraintFunc], bindings: Map[Identifier, Expr] = Map()): Constraint = transform {
     case CallConstraint(id, parms) =>
       val f = ctx.resolve(id)
       val formalParms = f.parms

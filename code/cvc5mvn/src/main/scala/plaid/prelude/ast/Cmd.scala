@@ -7,7 +7,7 @@ sealed trait Cmd extends Node {
    * for looking up expression functions, and bindings are for any identifiers
    * that should be replaced by expressions.
    */
-  def expandExpr(ctx: List[ExprFunc], bindings: Map[Identifier, Expr]): Cmd = this match
+  def expandExpr(ctx: List[ExprFunc], bindings: Map[Identifier, Expr] = Map()): Cmd = this match
     case AssertCmd(e1, e2, e3) => AssertCmd(e1.expand(ctx, bindings), e2.expand(ctx, bindings), e3.expand(ctx, bindings))
     case AssignCmd(e1, e2) => AssignCmd(e1.expand(ctx, bindings), e2.expand(ctx, bindings))
     case CallCmd(id, parms) => CallCmd(id, parms.map(_.expand(ctx, bindings)))

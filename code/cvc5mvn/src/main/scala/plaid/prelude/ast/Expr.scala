@@ -30,7 +30,7 @@ sealed trait Expr extends Node {
    * reduce string concatenations, and replace identifiers in bindings for
    * arbitrary subexpressions.
    */
-  def expand(ctx: List[ExprFunc] = List(), bindings: Map[Identifier, Expr]): Expr = transform {
+  def expand(ctx: List[ExprFunc] = List(), bindings: Map[Identifier, Expr] = Map()): Expr = transform {
     case id: Identifier => Some(bindings.getOrElse(id, id))
     case ConcatExpr(Str(s1), Str(s2)) => Some(Str(s1 + s2))
     case ConcatExpr(ConcatExpr(e1, Str(s1)), Str(s2)) => Some(ConcatExpr(e1, Str(s1 + s2)))

@@ -3,7 +3,7 @@ package plaid.prelude
 import picocli.CommandLine
 import picocli.CommandLine.{Command, Option, Parameters}
 import plaid.prelude.antlr.Loader
-import plaid.prelude.ast.{Identifier, resolve}
+import plaid.prelude.ast.{Identifier, dependencyOrdered, expandAll, resolve}
 import plaid.prelude.logic.ConstraintAnalyzer
 
 import java.io.File
@@ -25,7 +25,10 @@ class App extends Runnable {
   override def run(): Unit =
     val src = Files.readString(new File(path).toPath)
     val ast = Loader.program(src)
-    
+    val exprFns = ast.exprFuncs.expandAll()
+    val constraintFns = ast.constraintFuncs.expandAll(exprFns)
+    val cmdFns = ast.cmdFuncs.expandAll(exprFns, constraintFns)
+
     val analyzer = new ConstraintAnalyzer(ast, fieldSize)
     val constraints = analyzer.inferPrePostFN(ast.cmdFuncs.resolve(Identifier("main")))
     println(s"The precondition for main: ${constraints.precondition.prettyPrint()}")
