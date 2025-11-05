@@ -9,13 +9,13 @@ import plaid.prelude.ast.*
 import java.util
 import java.util.TreeMap
 
-class GenEntailVerifierTest {
+class verifierTest {
 
   @Test
   @throws[ CVC5ApiException ]
   def genFreshStringTest(): Unit = {
     val program = Program(List(), List(), List())
-    val genEntailVerifier = new GenEntailVerifier(program, "2")
+    val genEntailVerifier = new Verifier(program, "2")
 
     assertEquals(Str("$1"), genEntailVerifier.genFreshValue(StringType()))
     assertEquals(Str("$2"), genEntailVerifier.genFreshValue(StringType()))
@@ -26,7 +26,7 @@ class GenEntailVerifierTest {
   @throws[ CVC5ApiException ]
   def genFreshCIDTest(): Unit = {
     val program = Program(List(), List(), List())
-    val genEntailVerifier = new GenEntailVerifier(program, "2")
+    val genEntailVerifier = new Verifier(program, "2")
 
     assertEquals(Num(-1), genEntailVerifier.genFreshValue(PartyIndexType()))
     assertEquals(Num(-2), genEntailVerifier.genFreshValue(PartyIndexType()))
@@ -38,7 +38,7 @@ class GenEntailVerifierTest {
   def genFreshRecordTest(): Unit = {
     val src = "{ s : string ; i : cid}"
     val program = Program(List(), List(), List())
-    val genEntailVerifier = new GenEntailVerifier(program, "2")
+    val genEntailVerifier = new Verifier(program, "2")
 
     val recordType = Loader.typeMarker(src).asInstanceOf[RecordType]
     val map = new util.TreeMap[Identifier, Expr]()
@@ -54,7 +54,7 @@ class GenEntailVerifierTest {
   def nestedRecordType(): Unit = {
     val src = "{t: {s:string; t2:{i:cid}}}"
     val program = Program(List(), List(), List())
-    val genEntailVerifier = new GenEntailVerifier(program, "2")
+    val genEntailVerifier = new Verifier(program, "2")
 
     val recordType = Loader.typeMarker(src).asInstanceOf[RecordType]
 
@@ -77,7 +77,7 @@ class GenEntailVerifierTest {
         |m[x++"s"]@i1 + m[y++"s"]@i1 + m[x++"s"]@i2 + m[y++"s"]@i2""".stripMargin
 
     val program = Program(List(), List(), List())
-    val genEntailVerifier = new GenEntailVerifier(program, "2")
+    val genEntailVerifier = new Verifier(program, "2")
 
     val typing = List(
       TypedIdentifier(Identifier("i2"), PartyIndexType()),

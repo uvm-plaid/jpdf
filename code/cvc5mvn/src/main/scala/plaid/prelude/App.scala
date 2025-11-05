@@ -1,10 +1,12 @@
 package plaid.prelude
 
+import io.github.cvc5.TermManager
 import picocli.CommandLine
 import picocli.CommandLine.{Command, Option, Parameters}
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.{Identifier, dependencyOrdered, expandAll, resolve}
-import plaid.prelude.logic.contracts
+import plaid.prelude.cvc.TermFactory
+import plaid.prelude.logic.{contracts, verificationFailures}
 
 import java.io.File
 import java.nio.file.Files
@@ -29,7 +31,13 @@ class App extends Runnable {
     val constraintFns = ast.constraintFuncs.expandAll(exprFns)
     val cmdFns = ast.cmdFuncs.expandAll(exprFns, constraintFns)
     val contracts = cmdFns.contracts()
-    // TODO Check and optionally display
+    
+    contracts.foreach(x =>
+      val termManager = TermManager()
+      val termFactory = TermFactory(termManager, fieldSize)
+      val failures = x.verificationFailures(termFactory)
+      val total = x.internals.size
+      println(s"${x.f.id}: ${total - failures.size}/$total entailments verified"))
 }
 
 object App {

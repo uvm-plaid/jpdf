@@ -1,8 +1,8 @@
 package plaid.prelude.logic
 
-import plaid.prelude.ast.{AndConstraint, AssertCmd, AssignCmd, CallCmd, Cmd, CmdFunc, Constraint, EqualConstraint, Identifier, LetCmd, TrueConstraint, dependencyOrdered, OTExpr, OTFourExpr}
+import plaid.prelude.ast.{AndConstraint, AssertCmd, AssignCmd, CallCmd, Cmd, CmdFunc, Constraint, EqualConstraint, Identifier, LetCmd, Node, OTExpr, OTFourExpr, TrueConstraint, dependencyOrdered}
 
-case class Entailment(cmd: Cmd, a: Constraint, b: Constraint)
+case class Entailment(src: Node, a: Constraint, b: Constraint)
 
 /**
  * A context that is built up as commands are processed in succession. It
@@ -57,4 +57,6 @@ extension (trg: CmdFunc)
   def contract(fns: List[Contract]): Contract =
     val pre = trg.precond.getOrElse(TrueConstraint())
     val ctx = trg.body.foldLeft(HoareContext(cons = pre)) { (acc, x) => acc.include(x, fns) }
-    Contract(trg, pre, trg.postcond.getOrElse(ctx.cons), ctx.ent)
+    val post = trg.postcond.getOrElse(ctx.cons)
+    val overall = Entailment(trg, ctx.cons, post)
+    Contract(trg, pre, post, overall :: ctx.ent)

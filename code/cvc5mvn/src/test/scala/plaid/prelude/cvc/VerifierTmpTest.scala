@@ -6,12 +6,12 @@ import org.junit.Test
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.{AssignCmd, Cmd}
 
-class VerifierTest {
+class VerifierTmpTest {
 
   private val termManager = new TermManager()
   private val sort: Sort = termManager.mkFiniteFieldSort("7", 10)
   private val termFactory = new TermFactory(termManager, sort)
-  private val verifier = new Verifier(termFactory)
+  private val verifier = new VerifierTmp(termFactory)
 
   private def satisfiable(src: String): Boolean =
     satisfiable(Loader.command(src))

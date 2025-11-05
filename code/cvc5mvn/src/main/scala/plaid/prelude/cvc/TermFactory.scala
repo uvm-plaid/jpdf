@@ -18,8 +18,9 @@ object TermFactory {
     }
 }
 
-class TermFactory(val termManager: TermManager, val sort: Sort) {
+class TermFactory(val termManager: TermManager, order: String) {
 
+  val sort: Sort = termManager.mkFiniteFieldSort(order, TermFactory.DEFAULT_FIELD_SIZE)
   private val memories = new mutable.HashSet[Memory]()
   private val minusOne: Term = termManager.mkFiniteFieldElem("-1", sort, TermFactory.DEFAULT_FIELD_SIZE)
   private var partyIndex: Integer = uninitialized
@@ -35,20 +36,6 @@ class TermFactory(val termManager: TermManager, val sort: Sort) {
 
   private def not(term: Term): Term =
     termManager.mkTerm(Kind.FINITE_FIELD_ADD, term, termManager.mkFiniteFieldElem("1", sort, TermFactory.DEFAULT_FIELD_SIZE))
-
-  private def joinWithAnd(terms: List[Term]): Term =
-    if (terms.size == 1) terms.last
-    else termManager.mkTerm(Kind.AND, terms.toArray)
-
-  def toTerm(command: Cmd): Term = command match {
-    case x: AssertCmd =>
-      val idx = TermFactory.getPartyIndex(x)
-      joinWithAnd(List(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1, idx), toTerm(x.e2, idx))))
-    case x: AssignCmd =>
-      joinWithAnd(List(termManager.mkTerm(Kind.EQUAL, toTerm(x.e1), toTerm(x.e2))))
-    case other =>
-      throw new IllegalArgumentException(s"Not an overture command ${other.getClass.getName}")
-  }
 
   def toTerm(expr: Expr, idx: Integer): Term = {
     partyIndex = idx

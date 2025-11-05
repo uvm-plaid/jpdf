@@ -4,7 +4,7 @@ import io.github.cvc5.{Kind, Solver, Term}
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.Cmd
 
-class Verifier(val termFactory: TermFactory) {
+class VerifierTmp(val termFactory: TermFactory) {
 
   def satisfies(e: Term): Boolean =
     findModelSatisfying(e) != null
