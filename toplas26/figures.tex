@@ -158,6 +158,49 @@ $$
 \end{fpfig}
 }
 
+\newcommand{\stylocalfig}{
+\begin{fpfig}[t]{Local (non-interactive) share type derivation rules.}{fig-stylocal}
+\begin{mathpar}
+  \inferrule[Shared]
+      {(\stt : \sty) \in \Gamma}
+      {\Gamma,\eqs \vdash \stt : \sty}
+      
+  \inferrule[Val]
+      {}
+      {\Gamma,\eqs \vdash \pubx{v} : \pubty}
+
+  \inferrule[HEAdd]
+      {\Gamma,\eqs \vdash [\phi^1_1,\phi^1_2] : \sharety\\
+        \Gamma,\eqs \vdash [\phi^2_1,\phi^2_2] : \sharety}
+      {\Gamma,\eqs \vdash [\phi^1_1\fplus\phi^2_1,\phi^1_2\fplus\phi^2_2] : \sharety}
+
+  \inferrule[HEAddPub]
+      {\Gamma,\eqs \vdash \pubx{\phi} : \pubty\\
+        \Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety}
+      {\Gamma,\eqs \vdash [\phi_1\fplus\phi,\phi_2] : \sharety}
+            
+  \inferrule[HEMultPub]
+      {\Gamma,\eqs \vdash [\phi] : \pubty\\
+        \Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety}
+      {\Gamma,\eqs \vdash [\phi_1\ftimes\phi,\phi_2\ftimes\phi] : \sharety}
+
+  \inferrule[PubOp]
+      {\Gamma,\eqs \vdash \pubx{\phi_1} : \pubty\\
+        \Gamma,\eqs \vdash \pubx{\phi_2} : \pubty}
+      {\Gamma,\eqs \vdash \pubx{\phi_1\bop\phi_2}: \pubty}
+      
+  \inferrule[ShareEntails]
+      {\Gamma,\eqs \vdash [\phi_1',\phi_2'] : \sharety \\
+        \eqs \models \phi_1 \eop \phi_1' \wedge \phi_2 \eop \phi_2'}
+      {\Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety} 
+      
+  \inferrule[PubEntails]
+      {\Gamma,\eqs \vdash \pubx{\phi'} : \sty \\ \eqs \models \phi \eop \phi'}
+      {\Gamma,\eqs \vdash \pubx{\phi} : \sty} 
+\end{mathpar}
+\end{fpfig}
+}
+
 \newcommand{\cpjfig}{
 \begin{fpfig}[t]{Syntax and Derivation Rules for $\minicat$ Confidentiality Types}{fig-cpj}
 \small{
