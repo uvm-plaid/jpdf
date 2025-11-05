@@ -201,6 +201,35 @@ $$
 \end{fpfig}
 }
 
+\newcommand{\styinteractivefig}{
+\begin{fpfig}[t]{Interactive share type derivation rules.}{fig-styinteractive}
+\begin{mathpar}
+  \inferrule[Share]
+      {\eqs \models \mx{z}{\cid_2} \eop \phi - \rx{y}{\cid_1} \\ \cid_1 \ne \cid_2}
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{[\mx{z}{\cid_2}, \rx{y}{\cid_1}] : \sharety}, R \uplus \setit{\rx{y}{\cid_1}}}
+
+  \inferrule[SecOpen]
+      {
+        \Gamma, \eqs \vdash [\px{x},\px{y}] : \sharety\\
+        \eqs \models  \px{x} + \px{y} \eop \phi' - \rx{y}{\oid}
+      }
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\px{x} + \px{y}}  : \pubty}, R \uplus \setit{\rx{y}{\cid_o}}}
+
+  \inferrule[Reveal]
+      {
+        \Gamma, \eqs \vdash [\px{x},\px{y}] : \sharety
+      }
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\px{x} + \px{y}}  : \outty}, R}
+
+  \inferrule[Output]
+      {
+        \Gamma, \eqs \vdash \pubx{\out{\cid}} : \outty
+      }
+      {\eqs \vdash \Gamma,R \stredx \Gamma \uplus \setit{\pubx{\out{\cid}} : \outty}, R}
+\end{mathpar}
+\end{fpfig}
+}
+
 \newcommand{\cpjfig}{
 \begin{fpfig}[t]{Syntax and Derivation Rules for $\minicat$ Confidentiality Types}{fig-cpj}
 \small{
