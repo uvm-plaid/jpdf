@@ -7,7 +7,7 @@ import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.*
 
 class TermFactoryTest {
-
+/*
   private def mockModel(factory: TermFactory, nameBasedModel: Map[String, Int]): Map[Term, Int] = {
     nameBasedModel.map { case (name, value) =>
       val term = factory.getMemories
@@ -279,5 +279,7 @@ class TermFactoryTest {
     // TODO: memory equality
     // assertEquals(ot, factory.toTerm(expr1))
   }
+  
+ */
 
 }

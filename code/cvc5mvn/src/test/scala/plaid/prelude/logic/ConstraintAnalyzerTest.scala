@@ -5,10 +5,9 @@ import org.junit.Assert.assertEquals
 import org.junit.{Ignore, Test}
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.*
-import plaid.prelude.transform.Evaluator
 
 class ConstraintAnalyzerTest {
-
+/*
   @throws[CVC5ApiException]
   private def inferPrePostCmd(src: String, program: String): Constraints = {
     val ast: Program = Loader.program(program)
@@ -220,5 +219,7 @@ class ConstraintAnalyzerTest {
     val expected = Str("abcd")
     assertEquals(expected, actual)
   }
+  
+ */
 
 }

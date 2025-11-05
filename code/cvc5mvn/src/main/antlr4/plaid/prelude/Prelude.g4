@@ -2,8 +2,8 @@ grammar Prelude;
 
 program :
     (
-        ('constraintfunctions:' constraintFunc*)?
-        ('exprfunctions:' exprFunc*)?
+        ('constraintfunctions:' constraintFunc*) |
+        ('exprfunctions:' exprFunc*) |
         ('cmdfunctions:' cmdFunc*)
     )+
     EOF ;

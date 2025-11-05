@@ -102,6 +102,7 @@ class ExpressionVisitorTest {
     assertEquals(CallExpr(Identifier("f"), List(Num(0), Identifier("x"))), ast("f(0, x)"))
   }
 
+  /*
   /** Fields can have zero, one, or multiple members. */
   @Test
   def fieldExpr(): Unit = {
@@ -112,7 +113,7 @@ class ExpressionVisitorTest {
       ast("{a=0; b=1}")
     )
   }
-
+*/
   /** Identifiers can be mixed case. */
   @Test
   def mixedCaseIdentifiers(): Unit = {

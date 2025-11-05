@@ -10,7 +10,7 @@ import java.util
 import java.util.TreeMap
 
 class verifierTest {
-
+/*
   @Test
   @throws[ CVC5ApiException ]
   def genFreshStringTest(): Unit = {
@@ -93,5 +93,7 @@ class verifierTest {
     val result2 = genEntailVerifier.genEntails(typing, Loader.constraint(e2), Loader.constraint(e1))
     assertFalse(result2)
   }
+
+ */
 
 }

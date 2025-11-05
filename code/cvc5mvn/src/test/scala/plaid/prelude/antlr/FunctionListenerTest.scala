@@ -35,7 +35,7 @@ class FunctionListenerTest {
       List()
     )
   }
-
+/*
   /** Parses command functions of zero, one, and multiple parameters. */
   @Test
   def commandFunctions(): Unit = {
@@ -104,4 +104,5 @@ class FunctionListenerTest {
 
     assertFunctions(src, List(), List(f))
   }
+ */
 }

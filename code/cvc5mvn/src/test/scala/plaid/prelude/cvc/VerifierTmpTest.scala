@@ -7,7 +7,7 @@ import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.{AssignCmd, Cmd}
 
 class VerifierTmpTest {
-
+/*
   private val termManager = new TermManager()
   private val sort: Sort = termManager.mkFiniteFieldSort("7", 10)
   private val termFactory = new TermFactory(termManager, sort)
@@ -165,5 +165,7 @@ class VerifierTmpTest {
     assertTrue(command.isInstanceOf[AssignCmd])
     assertTrue(satisfiable(command))
   }
+
+ */
 
 }

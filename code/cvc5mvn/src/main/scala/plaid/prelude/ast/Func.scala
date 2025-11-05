@@ -30,9 +30,12 @@ extension [F <: Func](trg: List[F])
   def resolve(id: Identifier): F = trg.find(x => id == x.id).get
   /** Sort in such a way that there are no forward dependencies */
   def dependencyOrdered(f: F => Set[Identifier]): List[F] =
-    val ids = trg.map(_.id).toSet
-    val first = trg.filter(x => f(x).intersect(ids).isEmpty)
-    first ++ trg.filterNot(first.contains).dependencyOrdered(f)
+    if trg.isEmpty then Nil
+    else
+      val ids = trg.map(_.id).toSet
+      val first = trg.filter(x => f(x).intersect(ids).isEmpty)
+      if first.isEmpty then throw Exception("Cyclic function calls detected")
+      first ++ trg.filterNot(first.contains).dependencyOrdered(f)
 
 extension (trg: List[ExprFunc])
   /** Expand all the expression functions in this list. */
