@@ -13,7 +13,7 @@
 \newcommand{\redxsub}{\varrho}
 \newcommand{\magical}{\mathrm{secenv}}
 \newcommand{\scrape}{\mathrm{scrape}}
-\newcommand{\realviews}[2]{V_{#1 \lhd #2}}
+\newcommand{\realviews}[2]{V_{#1 \rhd #2}}
 \newcommand{\islocal}{\mathrm{local}}
 \newcommand{\oid}{\cid_{\mathit{oracle}}}
 \newcommand{\ov}{\mathit{ovscrape}}
@@ -297,6 +297,59 @@ and:
 \end{eqnarray*}
 \end{definition}
 
+\begin{lemma}
+  Assume given $\Gamma,R, \eqspre \wedge \toeq{\prog} : {OK}_\cid$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
+  Then, letting $X \defeq \ov(\Gamma) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X \cup \setit{\phi_1 + \phi_2}}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup X \cup \setit{\phi_1 + \phi_2, \phi_1}}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma,R: {OK}_\cid$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
+  Then, letting $X \defeq \ov(\Gamma) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$ for
+  $\cid_1 \ne \cid_2$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X \cup \setit{\phi_1 + \phi_2}}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup X \cup \setit{\phi_1 + \phi_2, \phi_1}}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma_1,R_1: {OK}_\cid$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\eqspre \wedge \toeq{\prog} \vdash \Gamma_1,R_1 \stredx \Gamma_2,R_2$.
+  Letting $X_1 \defeq \ov(\Gamma_1) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$,
+  for $\cid_1 \ne \cid_2$ assume also:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X_1 \cup O}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup O}
+  $$
+  Then, letting $X_2 \defeq \ov(\Gamma_2) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$,
+  we have:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X_2 \cup O}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup O}
+  $$
+\end{lemma}
+
+\begin{theorem}[Confidentiality Type Soundness]
+  Assume given $\prog$ with 
+  $\iov(\prog) = S \cup V \cup O$
+  and $\eqspre \wedge \toeq{\prog} \vdash \varnothing,\varnothing \stredx^*
+  \Gamma,R$ where $\realviews{\setit{\cid_1}}{\setit{\cid_2}} \cup O
+  \subseteq \ov(\Gamma)$ for all $\cid_1$, $\cid_2$ with $\cid_1 \ne \cid_2$.
+  Then $\prog$ satisfies noninterference modulo output.
+\end{theorem}
 
 \section{$\metaprot$ Try Again}
 
