@@ -29,30 +29,42 @@ extension [F <: Func](trg: List[F])
   /** Look up a function by its identifier. */
   def resolve(id: Identifier): F = trg.find(x => id == x.id).get
   /** Sort in such a way that there are no forward dependencies */
-  def dependencyOrdered(f: F => Set[Identifier]): List[F] =
+  def dependencyOrderedUsing(f: F => Set[Identifier]): List[F] =
     if trg.isEmpty then Nil
     else
       val ids = trg.map(_.id).toSet
-      val first = trg.filter(x => f(x).forall(ids.contains))
+      val first = trg.filter(x => f(x).forall(y => !ids.contains(y)))
       if first.isEmpty then throw Exception("Cyclic function calls detected")
-      first ++ trg.filterNot(first.contains).dependencyOrdered(f)
+      first ++ trg.filterNot(first.contains).dependencyOrderedUsing(f)
 
-extension (trg: List[ExprFunc])
-  /** Expand all the expression functions in this list. */
-  def expandAll(): List[ExprFunc] = trg
-    .dependencyOrdered { _.exprDependencies() }
-    .foldLeft(List()) { (acc, f) => f.expand(acc) :: acc }
+object ListExprFuncExt {
+  extension (trg: List[ExprFunc])
+    /** Sort in such a way that there are no forward dependencies */
+    def dependencyOrdered(): List[ExprFunc] = trg.dependencyOrderedUsing(_.exprDependencies())
+    /** Expand all the expression functions in this list. */
+    def expandAll(): List[ExprFunc] = trg
+      .dependencyOrdered()
+      .foldLeft(List()) { (acc, f) => f.expand(acc) :: acc }
+}
 
-extension (trg: List[ConstraintFunc])
-  /** Expand all the constraint functions in this list. */
-  def expandAll(exprCtx: List[ExprFunc]): List[ConstraintFunc] = trg
-    .dependencyOrdered { _.constraintDependencies() }
-    .foldLeft(List()) { (acc, f) => f.expand(exprCtx, acc) :: acc }
+object ListConstraintFuncExt {
+  extension (trg: List[ConstraintFunc])
+    /** Sort in such a way that there are no forward dependencies */
+    def dependencyOrdered(): List[ConstraintFunc] = trg.dependencyOrderedUsing(_.constraintDependencies())
+    /** Expand all the constraint functions in this list. */
+    def expandAll(exprCtx: List[ExprFunc]): List[ConstraintFunc] = trg
+      .dependencyOrdered()
+      .foldLeft(List()) { (acc, f) => f.expand(exprCtx, acc) :: acc }
+}
 
-extension (trg: List[CmdFunc])
-  /** Expand all the constraint functions in this list. */
-  def expandAll(exprCtx: List[ExprFunc], constraintCtx: List[ConstraintFunc]): List[CmdFunc] = trg
-    .map { _.expand(exprCtx, constraintCtx) }
+object ListCmdFuncExt {
+  extension (trg: List[CmdFunc])
+    /** Sort in such a way that there are no forward dependencies */
+    def dependencyOrdered(): List[CmdFunc] = trg.dependencyOrderedUsing(_.cmdDependencies())
+    /** Expand all the constraint functions in this list. */
+    def expandAll(exprCtx: List[ExprFunc], constraintCtx: List[ConstraintFunc]): List[CmdFunc] = trg
+      .map { _.expand(exprCtx, constraintCtx) }
+}
 
 case class ExprFunc(id: Identifier, parms: List[Identifier], body: Expr) extends Func {
   /** Expand expression function calls in this expression function. */

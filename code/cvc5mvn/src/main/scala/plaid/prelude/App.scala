@@ -4,7 +4,9 @@ import io.github.cvc5.TermManager
 import picocli.CommandLine
 import picocli.CommandLine.{Command, Option, Parameters}
 import plaid.prelude.antlr.Loader
-import plaid.prelude.ast.expandAll
+import plaid.prelude.ast.ListExprFuncExt.expandAll
+import plaid.prelude.ast.ListConstraintFuncExt.expandAll
+import plaid.prelude.ast.ListCmdFuncExt.expandAll
 import plaid.prelude.cvc.TermFactory
 import plaid.prelude.logic.{contracts, verificationFailures}
 

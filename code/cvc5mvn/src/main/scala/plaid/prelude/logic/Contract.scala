@@ -1,6 +1,7 @@
 package plaid.prelude.logic
 
-import plaid.prelude.ast.{AndConstraint, AssertCmd, AssignCmd, CallCmd, Cmd, CmdFunc, Constraint, EqualConstraint, Identifier, LetCmd, Node, OTExpr, OTFourExpr, TrueConstraint, dependencyOrdered}
+import plaid.prelude.ast.ListCmdFuncExt.dependencyOrdered
+import plaid.prelude.ast.{AndConstraint, AssertCmd, AssignCmd, CallCmd, Cmd, CmdFunc, Constraint, EqualConstraint, Identifier, Node, OTExpr, OTFourExpr, TrueConstraint}
 
 case class Entailment(src: Node, a: Constraint, b: Constraint)
 
@@ -50,7 +51,7 @@ extension (trg: List[Contract])
 extension (trg: List[CmdFunc])
   /** Calculate contracts for all the commands (which must be expanded). */
   def contracts(): List[Contract] = trg
-    .dependencyOrdered { _.cmdDependencies() }
+    .dependencyOrdered()
     .foldLeft(List()) { (acc, x) => x.contract(acc) :: acc}
 
 extension (trg: CmdFunc)
