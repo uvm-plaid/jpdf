@@ -7,7 +7,8 @@
 \newcommand{\recon}{\mathrm{recon}}
 \newcommand{\xvec}{\upsilon}
 \newcommand{\xdefs}{\mathcal{D}}
-\newcommand{\kwas}{\ \mathrm{as}\ }
+\newcommand{\kwas}{\ \ttt{gen}\ }
+\newcommand{\kwmask}{\ \ttt{masked}\ }
 \newcommand{\shtrip}[3]{#1 \Vdash #2 \rhd #3}
 \newcommand{\redxsub}{\varrho}
 \newcommand{\magical}{\mathrm{secenv}}
@@ -17,6 +18,9 @@
 \newcommand{\oid}{\cid_{\mathit{oracle}}}
 \newcommand{\vscrape}{\mathit{vscrape}}
 \newcommand{\sscrape}{\mathit{sscrape}}
+\newcommand{\pubx}[1]{\langle #1 \rangle}
+\newcommand{\sta}{\mathbf{a}}
+\newcommand{\stredx}{\leadsto}
 
 \subsection{Logical Rules for $\minifed$}
 
@@ -50,15 +54,15 @@ as either shares or public values in order for the protocol to be well-typed.
         \Gamma, \eqs \vdash [\phi,\px{x}] : \sharety\\
         \eqs \models  \recon(\phi,\px{x}) \eop \phi' - \rx{y}{\oid}
       }
-      {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R \cup \setit{\rx{y}{\cid_o}}, \Gamma \uplus \setit{[\recon(\phi,\px{x})] : \pubty}}
+      {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R \uplus \setit{\rx{y}{\cid_o}}, \Gamma \uplus \setit{\pubx{\recon(\phi,\px{x})} : \pubty}}
 
   \inferrule[Reveal]
       {\Gamma, \eqs \vdash [\phi,\px{x}] : \sharety}
-      {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R, \Gamma \uplus \setit{[\recon(\phi,\px{x})] : \outty}}
+      {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R, \Gamma \uplus \setit{\pubx{\recon(\phi,\px{x})} : \outty}}
 
   \inferrule[Output]
       {\Gamma, \eqs \vdash [\out{\cid}] : \outty}
-      {\Gamma,R,\eqs \vdash \setit{ \out{\cid} }: R, \Gamma \uplus \setit{ \out{\cid} : \outty}}
+      {\Gamma,R,\eqs \vdash \setit{ \out{\cid} }: R, \Gamma \uplus \setit{ \pubx{\out{\cid}} : \outty}}
 
   \inferrule[Views]
       {\Gamma_1,\eqs,R_1 \vdash X_1 : R_2,\Gamma_2 \\
@@ -104,11 +108,11 @@ that outputs are secure openings of the ideal functionality.
       
   \inferrule[Public]
       {}
-      {\Gamma,\eqs \vdash [\phi_1] : \Gamma([\phi_1])}
+      {\Gamma,\eqs \vdash \pubx{\phi_1} : \Gamma(\pubx{\phi_1})}
       
   \inferrule[Val]
       {}
-      {\Gamma,\eqs \vdash v : \pubty}
+      {\Gamma,\eqs \vdash \pubx{v} : \pubty}
 
   \inferrule[HEAdd]
       {\Gamma,\eqs \vdash [\phi^1_1,\phi^1_2] : \sharety\\
@@ -116,7 +120,7 @@ that outputs are secure openings of the ideal functionality.
       {\Gamma,\eqs \vdash [\phi^1_1\fplus\phi^2_1,\phi^1_2\fplus\phi^2_2] : \sharety}
 
   \inferrule[HEAddPub]
-      {\Gamma,\eqs \vdash [\phi] : \pubty\\
+      {\Gamma,\eqs \vdash \pubx{\phi} : \pubty\\
         \Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety}
       {\Gamma,\eqs \vdash [\phi_1\fplus\phi,\phi_2] : \sharety}
             
@@ -126,9 +130,9 @@ that outputs are secure openings of the ideal functionality.
       {\Gamma,\eqs \vdash [\phi_1\ftimes\phi,\phi_2\ftimes\phi] : \sharety}
 
   \inferrule[PubOp]
-      {\Gamma,\eqs \vdash [\phi_1] : \pubty\\
-        \Gamma,\eqs \vdash [\phi_2] : \pubty}
-      {\Gamma,\eqs \vdash [\phi_1\bop\phi_2] : \pubty}
+      {\Gamma,\eqs \vdash \pubx{\phi_1} : \pubty\\
+        \Gamma,\eqs \vdash \pubx{\phi_2} : \pubty}
+      {\Gamma,\eqs \vdash \pubx{\phi_1\bop\phi_2}: \pubty}
       
   \inferrule[ShareEntails]
       {\Gamma,\eqs \vdash [\phi_1',\phi_2'] : \sharety \\
@@ -136,8 +140,8 @@ that outputs are secure openings of the ideal functionality.
       {\Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety} 
       
   \inferrule[PubEntails]
-      {\Gamma,\eqs \vdash [\phi'] : \pubty \\ \eqs \models \phi \eop \phi'}
-      {\Gamma,\eqs \vdash [\phi] : \pubty} 
+      {\Gamma,\eqs \vdash \pubx{\phi'} : \pubty \\ \eqs \models \phi \eop \phi'}
+      {\Gamma,\eqs \vdash \pubx{\phi} : \pubty} 
 \end{mathpar}
 
 %\begin{mathpar}
@@ -224,6 +228,48 @@ and:
 \end{theorem} 
 
 
+\subsection{Try Again}
+
+\begin{mathpar}
+  \inferrule[Share]
+      %{\eqs \models \genshares(\phi_1,y,\cid_1) \eop R_2,[\mx{z}{\cid_2},\phi_2] } %\\ \cid_1 \ne \cid_2}
+      {\eqs \models \mx{z}{\cid_2} \eop \phi - \rx{y}{\cid_1} \\ \cid_1 \ne \cid_2}
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{[\mx{z}{\cid_2}, \rx{y}{\cid_1}] : \sharety}, R \uplus \setit{\rx{y}{\cid_1}}}
+
+  \inferrule[SecOpen]
+      {
+        \Gamma, \eqs \vdash [\px{x},\px{y}] : \sharety\\
+        \eqs \models  \px{x} + \px{y} \eop \phi' - \rx{y}{\oid}
+      }
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\px{x} + \px{y}}  : \pubty}, R \uplus \setit{\rx{y}{\cid_o}}}
+
+  \inferrule[Reveal]
+      {
+        \Gamma, \eqs \vdash [\px{x},\px{y}] : \sharety
+      }
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\px{x} + \px{y}}  : \outty}, R}
+
+  \inferrule[Output]
+      {
+        \Gamma, \eqs \vdash \pubx{\out{\cid}} : \outty
+      }
+      {\eqs \vdash \Gamma,R \stredx \Gamma \uplus \setit{\pubx{\out{\cid}} : \outty}, R}
+
+%  \inferrule[Reveal]
+%      {\Gamma, \eqs \vdash [\px{x},\px{y}]}
+%      {\eqs \vdash \Gamma,R \stredx \Gamma \uplus \setit{\pubx{\recon(\phi,\px{x})} : \outty}}
+%
+%  \inferrule[Output]
+%      {\Gamma, \eqs \vdash [\out{\cid}] : \outty}
+%      {\Gamma,R,\eqs \vdash \setit{ \out{\cid} }: R, \Gamma \uplus \setit{ \pubx{\out{\cid}} : \outty}}
+%
+%  \inferrule[Views]
+%      {\Gamma_1,\eqs,R_1 \vdash X_1 : R_2,\Gamma_2 \\
+%        \Gamma_2,\eqs,R_2 \vdash X_2 : R_3,\Gamma_3}
+%      {\Gamma_1, \eqs,R_1 \vdash X_1 \uplus X_2 : R_3,\Gamma_3}
+\end{mathpar}
+
+
 \subsection{Algorithmic Rules for $\metaprot$}
 
 The $\minifed$ type system is undecidable given validity up to equivalence of expression
@@ -259,6 +305,59 @@ rely on local computation typing which is purely syntax-directed given an empty
 constraint. $\xdefs$ is a mapping from $x$s to $\phi$s (their ``definitions'')
 which is just the explicit definition of $x$ in the protocol (see rule
 \TirName{Defn}).
+
+%$$
+%\begin{array}{rclr}
+%\sta &::=& [\mx{e}{e},\mx{e}{e}] \kwas [\phi - \rx{e}{e}, \rx{e}{e}] \mid
+%(\mx{e}{e},\mx{e}{e}) : \sharety \mid & \quad \textit{type annotations} \\
+%& & (\px{e}{e},\px{e}{e}) : \pubty \mid [e] : \pubty \\
+%\cmd &::=& \cdots \mid \sta
+%\end{array}
+%$$
+
+$$
+\begin{array}{rclr}
+\sta &::=& [e,e] \kwas [\phi - \rx{e}{e}, \rx{e}{e}] \mid
+(\mx{e}{e},\mx{e}{e}) : \sharety \mid & \quad \textit{type annotations} \\
+& & (\px{e}{e},\px{e}{e}) : \pubty \mid [e] : \pubty \\
+\cmd &::=& \cdots \mid \sta
+\end{array}
+$$
+
+\begin{mathpar}
+  \inferrule[CoerceGenshare]
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\
+        e_1' \redx \phi - \rx{w_3}{\cid_2} \\
+        e_2' \redx \rx{w_3}{\cid_2}}
+      {\shtrip{\Gamma_{\cid_1},\Gamma_{\cid_2}, R, \xdefs}
+        {[e_1,e_2] \kwas [e_1',e_2']}
+        {\Gamma_{\cid_1} \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety},
+          \Gamma_{\cid_2}, R \uplus \setit{\rx{w}{\cid}}, \xdefs} }
+      
+  \inferrule[CoerceSecureOpen]
+      {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
+        e_1' \redx \phi - \rx{w_3}{\oid} \\
+        e_2' \redx \rx{w_3}{\oid}\\
+        \Gamma \defeq \setit{\pubx{\px{x} + \px{y}} : \pubty}}
+      {\shtrip{\Gamma_{\cid_1},\Gamma_{\cid_2}, R, \xdefs}
+        {[e_1,e_2] \kwmask [e_1',e_2']}
+        {\Gamma_{\cid_1} \cup \Gamma,
+        \Gamma_{\cid_2} \cup \Gamma,
+        R \uplus \setit{\rx{w}{\oid}}, \xdefs} }
+
+  \inferrule[LocalShares]
+      {e_1 \redx \px{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}  \\
+        \Gamma_{\cid_1} \Vdash [\phi_1, \phi_2] : \sharety\\
+        \Gamma_{\cid_2} \Vdash [\phi_2, \phi_1] : \sharety
+      }
+      {\shtrip{\Gamma_{\cid_1},\Gamma_{\cid_2}, R,
+          \xdefs[\mx{w_1}{\cid_1} \mapsto \phi_1, \mx{w_2}{\cid_2} \mapsto \phi_2]}
+        {(e_1,e_2) : \sharety}
+        {\Gamma_{\cid_1} \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety},
+          \Gamma_{\cid_2} \cup \setit{[\mx{w_2}{\cid_2},\mx{w_1}{\cid_1}] : \sharety},
+          R, \xdefs}}
+\end{mathpar}
+
 \begin{mathpar}
   \inferrule[CoerceGenshare]
       {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\ e \redx w \\ e' \redx \cid}
