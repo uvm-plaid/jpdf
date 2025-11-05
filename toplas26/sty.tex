@@ -7,14 +7,99 @@ distribution, meaning that samples can be used as one-time-pads with
 perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
 
 $$
-\begin{array}{rclr}
+\begin{array}{rcl@{\hspace{10mm}}l}
   \sty &::=& \sharety \mid \pubty \mid \outty & \textit{share types} \\
   \stt &::=& [\phi,\phi] \mid \pubx{\phi} & \textit{share terms} 
 \end{array}
 $$
 
+\subsection{Non-interactive typing rules} 
+
 \stylocalfig
+
+\subsection{Interactive typing rules} 
 
 \styinteractivefig
 
+\subsection{Share Type Soundness}
 
+\begin{definition}
+  We write $\eqs,\Gamma,R : {OK}$ iff both of the following conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item For all $([\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety) \in \Gamma$,
+    we have $\eqs \models \mx{z}{\cid} \eop \phi - \rx{x}{\cid'}$ for
+    some $\phi$ and unique $\rx{x}{\cid'} \in R$, with $\cid \ne \cid'$.
+  \item For all $([\phi] : \pubty) \in \Gamma$,
+    we have $\eqs \models \phi \eop \phi' - \rx{x}{\oid}$ for
+    some $\phi'$ and unique $\rx{x}{\oid} \in R$.
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}
+  Given $\eqs,\Gamma,R  : {OK}$.
+  and $\eqs  \vdash \Gamma,R \stredx R',\Gamma'$.
+  Then $\eqs, \Gamma',R' : {OK}$.
+\end{lemma}
+
+\begin{definition} Define $\ov(\Gamma)$ as follows:
+\begin{eqnarray*}
+\ov(\varnothing) &=& \varnothing \\[-1.5mm]
+\ov(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \setit{\mx{z}{\cid}} \cup \ov(\Gamma)\\[-1.5mm]
+\ov(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \setit{\px{x}} \cup \ov(\Gamma)\\[-1.5mm]
+\ov(\setit{[\phi] : \outty} \cup \Gamma) &=& \setit{\phi} \cup \ov(\Gamma)
+\end{eqnarray*}
+\end{definition}
+
+\begin{lemma}
+  Assume given $\Gamma,R, \eqspre \wedge \toeq{\prog} : {OK}_\cid$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
+  Then, letting $X \defeq \ov(\Gamma) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X \cup \setit{\phi_1 + \phi_2}}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup X \cup \setit{\phi_1 + \phi_2, \phi_1}}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma,R: {OK}_\cid$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
+  Then, letting $X \defeq \ov(\Gamma) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$ for
+  $\cid_1 \ne \cid_2$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X \cup \setit{\phi_1 + \phi_2}}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup X \cup \setit{\phi_1 + \phi_2, \phi_1}}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma_1,R_1: {OK}_\cid$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\eqspre \wedge \toeq{\prog} \vdash \Gamma_1,R_1 \stredx \Gamma_2,R_2$.
+  Letting $X_1 \defeq \ov(\Gamma_1) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$,
+  for $\cid_1 \ne \cid_2$ assume also:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X_1 \cup O}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup O}
+  $$
+  Then, letting $X_2 \defeq \ov(\Gamma_2) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$,
+  we have:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X_2 \cup O}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup O}
+  $$
+\end{lemma}
+
+\begin{theorem}[Share Type Soundness]
+  Assume given $\prog$ with 
+  $\iov(\prog) = S \cup V \cup O$
+  and $\eqspre \wedge \toeq{\prog} \vdash \varnothing,\varnothing \stredx^*
+  \Gamma,R$ where $\realviews{\setit{\cid_1}}{\setit{\cid_2}} \cup O
+  \subseteq \ov(\Gamma)$ for all $\cid_1$, $\cid_2$ with $\cid_1 \ne \cid_2$.
+  Then $\prog$ satisfies noninterference modulo output.
+\end{theorem}
