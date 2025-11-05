@@ -30,12 +30,15 @@ trait Node {
     case CallCmd(id, parms) => id :: parms
     case LetCmd(y, e, c) => y :: e :: c
     case RecordType(elements) => elements.flatten((x, y) => List(x, y))
+    case ExprFunc(id, parms, body) => id :: body :: parms
+    case ConstraintFunc(id, parms, body) => id :: body :: parms
+    case CmdFunc(id, parms, body, precond, postcond) => id :: body ++ parms ++ precond.toList ++ postcond.toList
     case _ => List()
 
   /**
    * Collect all the descendants of this node.
    */
-  def descendants(): Iterable[Node] = children().flatMap(_.descendants())
+  def descendants(): Iterable[Node] = children() ++ children().flatMap(_.descendants())
 
   /**
    * Provides a human-readable string representation of an AST node and its decedents.

@@ -33,7 +33,7 @@ extension [F <: Func](trg: List[F])
     if trg.isEmpty then Nil
     else
       val ids = trg.map(_.id).toSet
-      val first = trg.filter(x => f(x).intersect(ids).isEmpty)
+      val first = trg.filter(x => f(x).forall(ids.contains))
       if first.isEmpty then throw Exception("Cyclic function calls detected")
       first ++ trg.filterNot(first.contains).dependencyOrdered(f)
 

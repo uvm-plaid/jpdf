@@ -4,7 +4,7 @@ import io.github.cvc5.TermManager
 import picocli.CommandLine
 import picocli.CommandLine.{Command, Option, Parameters}
 import plaid.prelude.antlr.Loader
-import plaid.prelude.ast.{Identifier, dependencyOrdered, expandAll, resolve}
+import plaid.prelude.ast.expandAll
 import plaid.prelude.cvc.TermFactory
 import plaid.prelude.logic.{contracts, verificationFailures}
 
@@ -31,7 +31,8 @@ class App extends Runnable {
     val constraintFns = ast.constraintFuncs.expandAll(exprFns)
     val cmdFns = ast.cmdFuncs.expandAll(exprFns, constraintFns)
     val contracts = cmdFns.contracts()
-    
+
+    contracts.foreach(x => println(x))
     contracts.foreach(x =>
       val termManager = TermManager()
       val termFactory = TermFactory(termManager, fieldSize)
