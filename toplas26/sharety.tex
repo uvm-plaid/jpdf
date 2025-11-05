@@ -16,6 +16,7 @@
 \newcommand{\realviews}[2]{V_{#1 \lhd #2}}
 \newcommand{\islocal}{\mathrm{local}}
 \newcommand{\oid}{\cid_{\mathit{oracle}}}
+\newcommand{\ov}{\mathit{ovscrape}}
 \newcommand{\vscrape}{\mathit{vscrape}}
 \newcommand{\sscrape}{\mathit{sscrape}}
 \newcommand{\pubx}[1]{\langle #1 \rangle}
@@ -268,6 +269,34 @@ and:
 %        \Gamma_2,\eqs,R_2 \vdash X_2 : R_3,\Gamma_3}
 %      {\Gamma_1, \eqs,R_1 \vdash X_1 \uplus X_2 : R_3,\Gamma_3}
 \end{mathpar}
+
+\begin{definition}
+  We write $\eqs,\Gamma,R : {OK}$ iff both of the following conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item For all $([\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety) \in \Gamma$,
+    we have $\eqs \models \mx{z}{\cid} \eop \phi - \rx{x}{\cid'}$ for
+    some $\phi$ and unique $\rx{x}{\cid'} \in R$, with $\cid \ne \cid'$.
+  \item For all $([\phi] : \pubty) \in \Gamma$,
+    we have $\eqs \models \phi \eop \phi' - \rx{x}{\oid}$ for
+    some $\phi'$ and unique $\rx{x}{\oid} \in R$.
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}
+  Given $\eqspre \wedge \toeq{\prog},\Gamma,R  : {OK}$ and $\iov(\prog) = S \cup V \cup O$
+  and $\eqspre \wedge \toeq{\prog},\Gamma,R \Gamma,R \stredx R',\Gamma'$.
+  Then $\eqspre \wedge \toeq{\prog}, \Gamma',R' : {OK}$.
+\end{lemma}
+
+\begin{definition} Define $\ov(\Gamma)$ as follows:
+\begin{eqnarray*}
+\ov(\varnothing) &=& \varnothing \\[-1.5mm]
+\ov(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \setit{\mx{z}{\cid}} \cup \ov(\Gamma)\\[-1.5mm]
+\ov(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \setit{\px{x}} \cup \ov(\Gamma)\\[-1.5mm]
+\ov(\setit{[\phi] : \outty} \cup \Gamma) &=& \setit{\phi} \cup \ov(\Gamma)
+\end{eqnarray*}
+\end{definition}
+
 
 \section{$\metaprot$ Try Again}
 
