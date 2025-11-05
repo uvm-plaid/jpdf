@@ -28,7 +28,7 @@ sealed trait Constraint extends Node {
    * constraint. All expressions in all constraints should be expanded before
    * this is used, but it would probably work anyway.
    */
-  def expand(ctx: List[ConstraintFunc], bindings: Map[Identifier, Expr] = Map()): Constraint = transform {
+  def expand(ctx: List[ConstraintFunc] = List(), bindings: Map[Identifier, Expr] = Map()): Constraint = transform {
     case CallConstraint(id, parms) =>
       val f = ctx.resolve(id)
       val formalParms = f.parms

@@ -1,4 +1,4 @@
-package plaid.prelude.ext
+package plaid.prelude.logic
 
 import plaid.prelude.ast.{Identifier, Num, Str}
 

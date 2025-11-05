@@ -49,7 +49,6 @@ extension (trg: List[ConstraintFunc])
 extension (trg: List[CmdFunc])
   /** Expand all the constraint functions in this list. */
   def expandAll(exprCtx: List[ExprFunc], constraintCtx: List[ConstraintFunc]): List[CmdFunc] = trg
-    .dependencyOrdered { _.cmdDependencies() }
     .map { _.expand(exprCtx, constraintCtx) }
 
 case class ExprFunc(id: Identifier, parms: List[Identifier], body: Expr) extends Func {

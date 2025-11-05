@@ -52,12 +52,12 @@ sealed trait Expr extends Node {
   /**
    * Move party indexes directly around the memories they enclose.
    */
-  def indexParties(partyIndex: Expr): Expr = transform {
-    case AtExpr(e1, e2) => Some(e1.indexParties(e2))
-    case e: RandomExpr => Some(AtExpr(e, partyIndex))
-    case e: SecretExpr => Some(AtExpr(e, partyIndex))
-    case e: MessageExpr => Some(AtExpr(e, partyIndex))
-    case e: OutputExpr => Some(AtExpr(e, partyIndex))
+  def indexParties(partyIndex: Option[Expr] = None): Expr = transform {
+    case AtExpr(e1, e2) => Some(e1.indexParties(Some(e2)))
+    case e: RandomExpr => Some(AtExpr(e, partyIndex.get))
+    case e: SecretExpr => Some(AtExpr(e, partyIndex.get))
+    case e: MessageExpr => Some(AtExpr(e, partyIndex.get))
+    case e: OutputExpr => Some(AtExpr(e, partyIndex.get))
     case other => None
   }
 }

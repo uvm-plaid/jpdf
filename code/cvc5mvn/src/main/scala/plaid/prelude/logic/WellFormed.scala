@@ -1,10 +1,12 @@
-package plaid.prelude.eval
+package plaid.prelude.logic
 
 import plaid.prelude.ast.*
 
 // check if a (final/evaluated) constraint is valid
-object ConstraintChecker {
+object WellFormed {
 
+  // TODO Apply constraints
+  
   /**
    * valid constraint node type
    */

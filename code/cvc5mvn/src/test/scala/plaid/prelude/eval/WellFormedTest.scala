@@ -3,14 +3,15 @@ package plaid.prelude.eval
 import org.junit.Test
 import org.junit.Assert.{assertFalse, assertTrue}
 import plaid.prelude.antlr.Loader
+import plaid.prelude.logic.WellFormed
 
-class ConstraintCheckerTest {
+class WellFormedTest {
 
   private def assertPasses(src: String): Unit =
-    assertTrue(ConstraintChecker.checkConstraint(Loader.constraint(src)))
+    assertTrue(WellFormed.checkConstraint(Loader.constraint(src)))
 
   private def assertFails(src: String): Unit =
-    assertFalse(ConstraintChecker.checkConstraint(Loader.constraint(src)))
+    assertFalse(WellFormed.checkConstraint(Loader.constraint(src)))
 
   /** Memories should always come with party indexes */
   @Test

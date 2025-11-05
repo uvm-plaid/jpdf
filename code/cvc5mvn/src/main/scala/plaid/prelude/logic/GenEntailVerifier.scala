@@ -3,7 +3,6 @@ package plaid.prelude.logic
 import io.github.cvc5.{Sort, TermManager}
 import plaid.prelude.ast.*
 import plaid.prelude.cvc.{TermFactory, Verifier}
-import plaid.prelude.eval.ConstraintChecker
 
 import java.util
 import java.util.TreeMap
@@ -51,7 +50,7 @@ class GenEntailVerifier(val program: Program, order: String) {
     val groundE2: Constraint = evaluator.constraint(e2)
 
     // check if ground constraints are fully instantiated
-    if ConstraintChecker.checkConstraint(groundE1) && ConstraintChecker.checkConstraint(groundE2) then
+    if WellFormed.checkConstraint(groundE1) && WellFormed.checkConstraint(groundE2) then
       val termFactory = new TermFactory(termManager, sort)
       val groundE1Term = termFactory.constraintToTerm(groundE1)
       val groundE2Term = termFactory.constraintToTerm(groundE2)

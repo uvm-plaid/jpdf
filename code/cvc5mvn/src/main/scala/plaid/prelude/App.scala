@@ -4,7 +4,7 @@ import picocli.CommandLine
 import picocli.CommandLine.{Command, Option, Parameters}
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.{Identifier, dependencyOrdered, expandAll, resolve}
-import plaid.prelude.logic.ConstraintAnalyzer
+import plaid.prelude.logic.contracts
 
 import java.io.File
 import java.nio.file.Files
@@ -28,11 +28,8 @@ class App extends Runnable {
     val exprFns = ast.exprFuncs.expandAll()
     val constraintFns = ast.constraintFuncs.expandAll(exprFns)
     val cmdFns = ast.cmdFuncs.expandAll(exprFns, constraintFns)
-
-    val analyzer = new ConstraintAnalyzer(ast, fieldSize)
-    val constraints = analyzer.inferPrePostFN(ast.cmdFuncs.resolve(Identifier("main")))
-    println(s"The precondition for main: ${constraints.precondition.prettyPrint()}")
-    println(s"The postcondition for main: ${constraints.postcondition.prettyPrint()}")
+    val contracts = cmdFns.contracts()
+    // TODO Check and optionally display
 }
 
 object App {
