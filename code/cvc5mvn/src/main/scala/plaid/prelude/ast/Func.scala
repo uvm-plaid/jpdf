@@ -75,13 +75,13 @@ case class ExprFunc(id: Identifier, parms: List[Identifier], body: Expr) extends
 case class ConstraintFunc(id: Identifier, parms: List[Identifier], body: Constraint) extends Func {
   /** Expand expression and constraint function calls in this constraint function. */
   def expand(exprCtx: List[ExprFunc], constraintCtx: List[ConstraintFunc]): ConstraintFunc =
-    copy(body = body.expandExpr(exprCtx).expand(constraintCtx))
+    copy(body = body.expand(exprCtx, constraintCtx))
 }
 
 case class CmdFunc(id: Identifier, typedVariables: List[TypedIdentifier], body: List[Cmd], precond: Option[Constraint], postcond: Option[Constraint]) extends Func {
   /** Expand expression and constraint function calls in this constraint function. */
-  def expand(exprCtx: List[ExprFunc], constraintCtx: List[ConstraintFunc]): CmdFunc = copy(
-    body = body.map(_.expandExpr(exprCtx)),
-    precond = precond.map(_.expand(constraintCtx)),
-    postcond = postcond.map(_.expand(constraintCtx)))
+  def expand(exprCtx: List[ExprFunc] = Nil, constraintCtx: List[ConstraintFunc] = Nil): CmdFunc = copy(
+    body = body.map(_.expand(exprCtx)),
+    precond = precond.map(_.expand(exprCtx, constraintCtx)),
+    postcond = postcond.map(_.expand(exprCtx, constraintCtx)))
 }

@@ -8,18 +8,28 @@ class CmdFuncTest {
 
   /** Functions with no calls have no dependencies. */
   @Test
-  def dependenciesWithoutCalls(): Unit = {
+  def dependenciesWithoutCalls(): Unit =
     val src = "cmdfunctions: f() { m[\"x\"]@1 := 3 }"
     val fn = Loader.program(src).cmdFuncs.head
     assertEquals(Set(), fn.cmdDependencies())
-  }
 
   /** Functions consisting of a call has just that dependency. */
   @Test
-  def cmdfunctions(): Unit = {
+  def dependenciesJustCall(): Unit =
     val src = "cmdfunctions: f() { g() }"
     val fn = Loader.program(src).cmdFuncs.head
     assertEquals(Set(Identifier("g")), fn.cmdDependencies())
-  }
 
+  /** When a function gets expanded, so do its preconditions and postconditions. */
+  @Test
+  def expandPreAndPost(): Unit =
+    val src ="""
+      cmdfunctions:
+      precondition: ("ab" == "a" ++ "b")
+      f() { m["x"]@1 := 3 }
+      postcondition: ("y" ++ "z" == "yz") """
+
+    val fn = Loader.program(src).cmdFuncs.head.expand()
+    assertEquals(Loader.constraint(""" "ab" == "ab" """), fn.precond.get)
+    assertEquals(Loader.constraint(""" "yz" == "yz" """), fn.postcond.get)
 }

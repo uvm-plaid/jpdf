@@ -13,27 +13,20 @@ sealed trait Constraint extends Node {
     case other => f(other).getOrElse(other))
 
   /**
-   * Expand all the expressions contained inside this constraint. The ctx is
-   * for looking up expression functions, and bindings are for any identifiers
-   * that should be replaced by expressions.
-   */
-  def expandExpr(ctx: List[ExprFunc], bindings: Map[Identifier, Expr] = Map()): Constraint = transform {
-    case CallConstraint(id, parms) => Some(CallConstraint(id, parms.map(_.expand(ctx, bindings))))
-    case EqualConstraint(e1, e2) => Some(EqualConstraint(e1.expand(ctx, bindings), e2.expand(ctx, bindings)))
-    case _ => None
-  }
-
-  /**
    * Recursively inline any constraint function calls contained inside this
    * constraint. All expressions in all constraints should be expanded before
    * this is used, but it would probably work anyway.
    */
-  def expand(ctx: List[ConstraintFunc] = List(), bindings: Map[Identifier, Expr] = Map()): Constraint = transform {
+  def expand(
+      exprCtx: List[ExprFunc] = List(),
+      constraintCtx: List[ConstraintFunc] = List(),
+      bindings: Map[Identifier, Expr] = Map()): Constraint = transform {
+    case EqualConstraint(e1, e2) => Some(EqualConstraint(e1.expand(exprCtx, bindings), e2.expand(exprCtx, bindings)))
     case CallConstraint(id, parms) =>
-      val f = ctx.resolve(id)
+      val f = constraintCtx.resolve(id)
       val formalParms = f.parms
-      val actualParms = parms.map(_.expand(bindings = bindings))
-      Some(f.body.expand(ctx, Map.from(formalParms.zip(actualParms))))
+      val actualParms = parms.map(_.expand(exprCtx, bindings))
+      Some(f.body.expand(exprCtx, constraintCtx, Map.from(formalParms.zip(actualParms))))
     case _ => None
   }
 }
