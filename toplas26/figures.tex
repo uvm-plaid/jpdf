@@ -211,7 +211,7 @@ $$
   \inferrule[SecOpen]
       {
         \Gamma, \eqs \vdash [\px{x},\px{y}] : \sharety\\
-        \eqs \models  \px{x} + \px{y} \eop \phi' - \rx{y}{\oid}
+        \eqs \models  \px{x} + \px{y} \eop \phi' + \rx{y}{\oid}
       }
       {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\px{x} + \px{y}}  : \pubty}, R \uplus \setit{\rx{y}{\cid_o}}}
 
