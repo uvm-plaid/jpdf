@@ -38,8 +38,6 @@ expr
     | expr '++' expr #ConcatExpr
     | '(' expr ')' #ParenPExpr
     | 'let' ident '=' expr 'in' expr #LetExpr
-    | 'OT' '(' expr '@' expr ',' expr ',' expr ')' #OTExpr
-    | 'OT4' '(' '(' expr ',' expr ')' '@' expr ',' expr ',' expr ',' expr ',' expr ')' #OTFourExpr
     | ident '(' (expr (',' expr)*)? ')' #FunctionCallExpr
     | 's[' expr ']' #SecretExpr
     | 'r[' expr ']' #RandomExpr

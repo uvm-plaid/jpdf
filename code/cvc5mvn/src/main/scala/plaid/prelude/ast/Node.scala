@@ -15,8 +15,6 @@ trait Node {
     case MessageExpr(e) => List(e)
     case RandomExpr(e) => List(e)
     case MinusExpr(e) => List(e)
-    case OTExpr(e1, i1, e2, e3) => List(e1, i1, e2, e3)
-    case OTFourExpr(s1, s2, i1, e1, e2, e3, e4) => List(s1, s2, i1, e1, e2, e3, e4)
     case PlusExpr(e1, e2) => List(e1, e2)
     case PublicExpr(e) => List(e)
     case SecretExpr(e) => List(e)
@@ -59,8 +57,6 @@ trait Node {
     case Str(x) => s"\"$x\""
     case ConcatExpr(e1, e2) => s"${e1.prettyPrint()} ++ ${e2.prettyPrint()}"
     case TimesExpr(e1, e2) => s"(${e1.prettyPrint()} * ${e2.prettyPrint()})"
-    case OTExpr(e1, i1, e2, e3) => s"OT(${e1.prettyPrint()}@${i1.prettyPrint()},${e2.prettyPrint()}, ${e3.prettyPrint()})"
-    case OTFourExpr(s1, s2, i1, e1, e2, e3, e4) => s"OT4((${s1.prettyPrint()}, ${s2.prettyPrint()})@${i1.prettyPrint()}, ${e1.prettyPrint()}, ${e2.prettyPrint()}, ${e3.prettyPrint()}, ${e4.prettyPrint()})"
     case AndConstraint(e1, e2) => s"${e1.prettyPrint()} AND ${e2.prettyPrint()}"
     case NotConstraint(e) => s"NOT ${e.prettyPrint()}"
     case EqualConstraint(e1, e2) => s"${e1.prettyPrint()} == ${e2.prettyPrint()}"

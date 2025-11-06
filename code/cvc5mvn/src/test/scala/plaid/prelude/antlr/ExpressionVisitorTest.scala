@@ -2,10 +2,7 @@ package plaid.prelude.antlr
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import plaid.prelude.ast.{AtExpr, CallExpr, ConcatExpr, Expr, FieldExpr, FieldSelectExpr, Identifier, LetExpr, MessageExpr, MinusExpr, Node, Num, OTExpr, OTFourExpr, OutputExpr, PlusExpr, PublicExpr, RandomExpr, SecretExpr, Str, TimesExpr}
-
-import scala.collection.immutable.TreeMap
-import scala.jdk.CollectionConverters.*
+import plaid.prelude.ast.{AtExpr, CallExpr, ConcatExpr, Expr, FieldSelectExpr, Identifier, LetExpr, MessageExpr, MinusExpr, Node, Num, OutputExpr, PlusExpr, PublicExpr, RandomExpr, SecretExpr, Str, TimesExpr}
 
 class ExpressionVisitorTest {
 
@@ -130,36 +127,4 @@ class ExpressionVisitorTest {
   def identifierEquality(): Unit = {
     assertEquals(Identifier("r11"), Identifier("r11"))
   }
-
-  /** Parses OT expression */
-  @Test
-  def otExpr(): Unit = {
-    assertEquals(
-      OTExpr(
-        SecretExpr(Str("foo")),
-        Num(1),
-        MessageExpr(Str("bar")),
-        MessageExpr(Str("zoo"))
-      ),
-      ast("OT(s[\"foo\"]@1, m[\"bar\"], m[\"zoo\"])")
-    )
-  }
-
-  /** Parses OT4 expression */
-  @Test
-  def otFourExpr(): Unit = {
-    assertEquals(
-      OTFourExpr(
-        MessageExpr(Str("s1")),
-        MessageExpr(Str("s2")),
-        Num(1),
-        SecretExpr(Str("x")),
-        SecretExpr(Str("y")),
-        SecretExpr(Str("z")),
-        SecretExpr(Str("t"))
-      ),
-      ast("OT4((m[\"s1\"], m[\"s2\"])@1, s[\"x\"], s[\"y\"], s[\"z\"], s[\"t\"])")
-    )
-  }
-
 }

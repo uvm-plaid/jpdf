@@ -70,19 +70,4 @@ object ExpressionVisitor extends PreludeBaseVisitor[Expr] {
 
   override def visitIdentExpr(ctx: IdentExprContext) = Identifier(
     name = ctx.getText)
-
-  override def visitOTExpr(ctx: OTExprContext) = OTExpr(
-    e1 = visit(ctx.expr(0)),
-    i1 = visit(ctx.expr(1)),
-    e2 = visit(ctx.expr(2)),
-    e3 = visit(ctx.expr(3)))
-
-  override def visitOTFourExpr(ctx: OTFourExprContext) = OTFourExpr(
-    s1 = visit(ctx.expr(0)),
-    s2 = visit(ctx.expr(1)),
-    i1 = visit(ctx.expr(2)),
-    e1 = visit(ctx.expr(3)),
-    e2 = visit(ctx.expr(4)),
-    e3 = visit(ctx.expr(5)),
-    e4 = visit(ctx.expr(6)))
 }

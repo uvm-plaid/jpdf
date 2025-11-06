@@ -1,7 +1,7 @@
 package plaid.prelude.logic
 
 import plaid.prelude.ast.ListCmdFuncExt.dependencyOrdered
-import plaid.prelude.ast.{AndConstraint, AssertCmd, AssignCmd, CallCmd, Cmd, CmdFunc, Constraint, EqualConstraint, Identifier, Node, OTExpr, OTFourExpr, TrueConstraint}
+import plaid.prelude.ast.{AndConstraint, AssertCmd, AssignCmd, CallCmd, Cmd, CmdFunc, Constraint, EqualConstraint, Identifier, Node, TrueConstraint}
 
 case class Entailment(src: Node, a: Constraint, b: Constraint)
 
@@ -23,8 +23,6 @@ case class HoareContext(cons: Constraint = TrueConstraint(), ent: List[Entailmen
       val a = e1.indexParties(Some(party))
       val b = e2.indexParties(Some(party))
       include(Entailment(cmd, cons, EqualConstraint(a, b)))
-    case AssignCmd(dest, OTExpr(e1, i1, e2, e3)) => ???
-    case AssignCmd(dest, OTFourExpr(s1, s2, i1, e1, e2, e3, e4)) => ???
     case AssignCmd(e1, e2) => include(EqualConstraint(e1.indexParties(), e2.indexParties()))
     case CallCmd(id, parms) =>
       val contract = contracts.lookup(id)

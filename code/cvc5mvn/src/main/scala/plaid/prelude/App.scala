@@ -43,8 +43,7 @@ class App extends Runnable {
 }
 
 object App {
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     val exitCode = new CommandLine(new App()).execute(args*)
     System.exit(exitCode)
-  }
 }

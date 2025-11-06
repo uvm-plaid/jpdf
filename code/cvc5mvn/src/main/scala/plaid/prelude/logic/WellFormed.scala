@@ -25,8 +25,6 @@ object WellFormed {
     case OutputExpr() => true
     case Str(_) => true
     case Num(_) => true
-    case OTExpr(_, _, _ , _) => true
-    case OTFourExpr(_, _, _, _, _, _, _) => true
     case other =>
       println(s"***** Found non-ground node $other")
       false

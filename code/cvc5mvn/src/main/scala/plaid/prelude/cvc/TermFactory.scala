@@ -56,21 +56,6 @@ class TermFactory(val termManager: TermManager, order: String) {
     case x: PlusExpr    => termManager.mkTerm(Kind.FINITE_FIELD_ADD, toTerm(x.e1), toTerm(x.e2))
     case x: TimesExpr   => termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e1), toTerm(x.e2))
     case x: MinusExpr   => termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(x.e), minusOne)
-    case x: OTExpr =>
-      val e1 = toTerm(x.e1)
-      termManager.mkTerm(
-        Kind.FINITE_FIELD_ADD,
-        termManager.mkTerm(Kind.FINITE_FIELD_MULT, e1, toTerm(x.e3)),
-        termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(e1), toTerm(x.e2))
-      )
-    case x: OTFourExpr =>
-      val s1 = toTerm(x.s1)
-      val s2 = toTerm(x.s2)
-      val first  = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, s1, s2), toTerm(x.e4))
-      val second = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, s1, not(s2)), toTerm(x.e3))
-      val third  = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(s1), s2), toTerm(x.e2))
-      val fourth = termManager.mkTerm(Kind.FINITE_FIELD_MULT, termManager.mkTerm(Kind.FINITE_FIELD_MULT, not(s1), not(s2)), toTerm(x.e1))
-      termManager.mkTerm(Kind.FINITE_FIELD_ADD, first, termManager.mkTerm(Kind.FINITE_FIELD_ADD, second, termManager.mkTerm(Kind.FINITE_FIELD_ADD, third, fourth)))
     case x: Expr =>
       if (partyIndex == null) throw new IllegalStateException("Party index for memory cannot be null")
       lookupOrCreate(x, partyIndex)

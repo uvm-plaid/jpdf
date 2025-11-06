@@ -17,8 +17,6 @@ sealed trait Expr extends Node {
     case MessageExpr(e) => MessageExpr(e.transform(f))
     case RandomExpr(e) => RandomExpr(e.transform(f))
     case MinusExpr(e) => MinusExpr(e.transform(f))
-    case OTExpr(e1, i1, e2, e3) => OTExpr(e1.transform(f), i1.transform(f), e2.transform(f), e3.transform(f))
-    case OTFourExpr(s1, s2, i1, e1, e2, e3, e4) => OTFourExpr(s1.transform(f), s2.transform(f), i1.transform(f), e1.transform(f), e2.transform(f), e3.transform(f), e4.transform(f))
     case PlusExpr(e1, e2) => PlusExpr(e1.transform(f), e2.transform(f))
     case PublicExpr(e) => PublicExpr(e.transform(f))
     case SecretExpr(e) => SecretExpr(e.transform(f))
@@ -77,8 +75,6 @@ case class MessageExpr(e: Expr) extends Expr
 case class RandomExpr(e: Expr) extends Expr
 case class MinusExpr(e: Expr) extends Expr
 case class Num(num: Int) extends Expr
-case class OTExpr(e1: Expr, i1: Expr, e2: Expr, e3: Expr) extends Expr
-case class OTFourExpr(s1: Expr, s2: Expr, i1: Expr, e1: Expr, e2: Expr, e3: Expr, e4: Expr) extends Expr
 case class OutputExpr() extends Expr
 case class PlusExpr(e1: Expr, e2: Expr) extends Expr
 case class PublicExpr(e: Expr) extends Expr
