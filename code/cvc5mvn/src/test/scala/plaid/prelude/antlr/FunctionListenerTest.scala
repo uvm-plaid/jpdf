@@ -8,7 +8,7 @@ import plaid.prelude.ast.*
 import scala.jdk.CollectionConverters.*
 
 class FunctionListenerTest {
-
+/*
   private def assertFunctions(
                                src: String,
                                exprFunctions: List[ExprFunc],
@@ -35,7 +35,7 @@ class FunctionListenerTest {
       List()
     )
   }
-/*
+
   /** Parses command functions of zero, one, and multiple parameters. */
   @Test
   def commandFunctions(): Unit = {

@@ -10,22 +10,21 @@ class ExprFuncTest {
   /** Functions with no calls have no dependencies. */
   @Test
   def dependenciesWithoutCalls(): Unit =
-    val src = "exprfunctions: f(i) { m[\"x\" ++ i] }"
-    val fn = Loader.program(src).exprFuncs.head
+    val fn = Loader.exprFunc("f(i) { m[\"x\" ++ i] }")
     assertEquals(Set(), fn.exprDependencies())
 
   /** Functions consisting of a call has just that dependency. */
   @Test
   def dependenciesJustCall(): Unit =
-    val src = "exprfunctions: f(i) { g(i) }"
-    val fn = Loader.program(src).exprFuncs.head
+    val fn = Loader.exprFunc("f(i) { g(i) }")
     assertEquals(Set(Identifier("g")), fn.exprDependencies())
 
   /** A chain of functions that call each other have the correct forward dependency order when sorted. */
   @Test
   def dependencyOrderChain(): Unit =
-    val src = "exprfunctions: f() { g() } g() { h() } h() { 0 }"
-    val List(f, g, h) = Loader.program(src).exprFuncs
+    val f = Loader.exprFunc("f() { g() }")
+    val g = Loader.exprFunc("g() { h() }")
+    val h = Loader.exprFunc("h() { 0 }")
     val sortedOrder = List(h, g, f)
     assertEquals(sortedOrder, List(f, g, h).dependencyOrdered())
     assertEquals(sortedOrder, List(g, f, h).dependencyOrdered())
@@ -35,8 +34,9 @@ class ExprFuncTest {
   /** A function that has multiple dependencies appears after both when sorted. */
   @Test
   def dependencyOrderMultiple(): Unit =
-    val src = "exprfunctions: f() { g() ++ h() } g() { 0 } h() { 0 }"
-    val List(f, g, h) = Loader.program(src).exprFuncs
+    val f = Loader.exprFunc("f() { g() ++ h() }")
+    val g = Loader.exprFunc("g() { 0 }")
+    val h = Loader.exprFunc("h() { 0 }")
     assertEquals(f, List(f, g, h).dependencyOrdered().last)
     assertEquals(f, List(g, f, h).dependencyOrdered().last)
     assertEquals(f, List(h, f, g).dependencyOrdered().last)
