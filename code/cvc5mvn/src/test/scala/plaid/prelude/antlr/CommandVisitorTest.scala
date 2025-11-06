@@ -34,86 +34,36 @@ class CommandVisitorTest {
       AssertCmd(MessageExpr(Str("x")), MessageExpr(Str("y")), Num(5)),
       ast("""assert (m["x"] = m["y"])@5"""))
 
-  /*
   /** Parses let commands. */
   @Test
-  def letCommand(): Unit = {
-    val command = ast("let x = 4 in out@1 := x")
+  def letCommand(): Unit =
     assertEquals(
-      LetCmd(
-        Identifier("x"),
-        Num(4),
-        AssignCmd(AtExpr(OutputExpr(), Num(1)), Identifier("x"))
-      ),
-      command
-    )
-  }
+      LetCmd(Identifier("x"), Num(4), List(
+        AssignCmd(AtExpr(OutputExpr(), Num(1)), Identifier("x")))),
+      ast("let x = 4 in out@1 := x"))
 
   /** Let commands can have multiple other commands inside them. */
   @Test
-  def letCommandScope(): Unit = {
-    val command = ast("let x = 4 in out@1 := x; out@2 := x")
+  def letCommandScope(): Unit =
     assertEquals(
-      LetCmd(
-        Identifier("x"),
-        Num(4),
-        ListCmd(
+      LetCmd(Identifier("x"), Num(4), List(
           AssignCmd(AtExpr(OutputExpr(), Num(1)), Identifier("x")),
-          AssignCmd(AtExpr(OutputExpr(), Num(2)), Identifier("x"))
-        )
-      ),
-      command
-    )
-  }
-
-  /** Parses list of commands. */
-  @Test
-  def commandList(): Unit = {
-    val command = ast("out@1 := x; out@2 := x")
-    assertEquals(
-      ListCmd(
-        AssignCmd(AtExpr(OutputExpr(), Num(1)), Identifier("x")),
-        AssignCmd(AtExpr(OutputExpr(), Num(2)), Identifier("x"))
-      ),
-      command
-    )
-  }
+          AssignCmd(AtExpr(OutputExpr(), Num(2)), Identifier("x")))),
+      ast("let x = 4 in out@1 := x; out@2 := x"))
 
   /** Full line comments prevent commands from being parsed. */
   @Test
-  def fullLineComments(): Unit = {
-    val command = ast("out@1 := x;\n//out@3 := z;\nout@2 := y")
+  def fullLineComments(): Unit =
     assertEquals(
-      ListCmd(
+      LetCmd(Identifier("x"), Num(4), List(
         AssignCmd(AtExpr(OutputExpr(), Num(1)), Identifier("x")),
-        AssignCmd(AtExpr(OutputExpr(), Num(2)), Identifier("y"))
-      ),
-      command
-    )
-  }
-*/
-  /** Full line comments prevent commands from being parsed. */
+        AssignCmd(AtExpr(OutputExpr(), Num(2)), Identifier("y")))),
+      ast("let x = 4 in out@1 := x;\n//out@3 := z;\nout@2 := y"))
+
+  /** Partial line comments prevent commands from being parsed. */
   @Test
-  def partialLineComments(): Unit = {
-    val command = ast("out@1 := x//@1")
+  def partialLineComments(): Unit =
     assertEquals(
       AssignCmd(AtExpr(OutputExpr(), Num(1)), Identifier("x")),
-      command
-    )
-  }
-/*
-  /** Parses a list of commands in right-associative style. */
-  @Test
-  def rightAssociative(): Unit = {
-    val command = ast("out@1 := x; out@2 := x; out@3 := x")
-    val expected = ListCmd(
-      ListCmd(
-        AssignCmd(AtExpr(OutputExpr(), Num(1)), Identifier("x")),
-        AssignCmd(AtExpr(OutputExpr(), Num(2)), Identifier("x"))
-      ),
-      AssignCmd(AtExpr(OutputExpr(), Num(3)), Identifier("x"))
-    )
-    assertEquals(expected, command)
-  }
-*/
+      ast("out@1 := x//@1"))
 }
