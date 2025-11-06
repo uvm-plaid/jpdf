@@ -39,7 +39,7 @@ class App extends Runnable {
       val termFactory = TermFactory(termManager, fieldSize)
       val failures = x.verificationFailures(termFactory)
       val total = x.internals.size
-      println(s"${x.f.id}: ${total - failures.size}/$total entailments verified"))
+      println(s"${x.f.id.name}: ${total - failures.size}/$total entailments verified"))
 }
 
 object App {
