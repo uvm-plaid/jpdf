@@ -20,16 +20,17 @@ class CmdFuncTest {
     val fn = Loader.program(src).cmdFuncs.head
     assertEquals(Set(Identifier("g")), fn.cmdDependencies())
 
-  /** When a function gets expanded, so do its preconditions and postconditions. */
+  /** When a function gets expanded, so do its preconditions, postconditions, and body. */
   @Test
-  def expandPreAndPost(): Unit =
+  def expandComponents(): Unit =
     val src ="""
       cmdfunctions:
       precondition: ("ab" == "a" ++ "b")
-      f() { m["x"]@1 := 3 }
+      f() { m["u" ++ "v"]@1 := 3 }
       postcondition: ("y" ++ "z" == "yz") """
 
     val fn = Loader.program(src).cmdFuncs.head.expand()
     assertEquals(Loader.constraint(""" "ab" == "ab" """), fn.precond.get)
     assertEquals(Loader.constraint(""" "yz" == "yz" """), fn.postcond.get)
+    assertEquals(Loader.command(""" m["uv"]@1 := 3 """), fn.body.head)
 }

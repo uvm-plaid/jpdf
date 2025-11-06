@@ -52,7 +52,7 @@ extension (trg: List[CmdFunc])
   /** Calculate contracts for all the commands (which must be expanded). */
   def contracts(): List[Contract] = trg
     .dependencyOrdered()
-    .foldLeft(List()) { (acc, x) => x.contract(acc) :: acc}
+    .foldLeft(List()) { (acc, x) => x.contract(acc) :: acc }
 
 extension (trg: CmdFunc)
   def contract(fns: List[Contract]): Contract =

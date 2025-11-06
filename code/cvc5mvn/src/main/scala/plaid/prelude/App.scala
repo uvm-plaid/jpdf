@@ -34,7 +34,6 @@ class App extends Runnable {
     val cmdFns = ast.cmdFuncs.expandAll(exprFns, constraintFns)
     val contracts = cmdFns.contracts()
 
-    contracts.foreach(x => println(x))
     contracts.foreach(x =>
       val termManager = TermManager()
       val termFactory = TermFactory(termManager, fieldSize)

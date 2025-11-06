@@ -11,7 +11,9 @@ extension (trg: Contract)
       val b = x.b.expand(bindings = bindings)
 
       if !WellFormed.checkConstraint(a) || !WellFormed.checkConstraint(b) then
-        throw Exception(s"Constraints must be ground: $a and $b")
+        println(s"***** a = $a")
+        println(s"***** b = $b")
+        throw Exception(s"Constraints must be ground")
 
       // TODO Reorganize the CVC5 stuff, this is weird
       val verifier = new VerifierTmp(cvc)

@@ -25,6 +25,13 @@ sealed trait Expr extends Node {
     case TimesExpr(e1, e2) => TimesExpr(e1.transform(f), e2.transform(f))
     case other => f(other).getOrElse(other))
 
+  private def concat(e1: Expr, e2: Expr): Expr = (e1, e2) match
+    case (Str(s1), Str(s2)) => Str(s1 + s2)
+    case (Str(s1), ConcatExpr(Str(s2), x2)) => concat(Str(s1 + s2), x2)
+    case (ConcatExpr(x1, Str(s1)), Str(s2)) => concat(x1, Str(s1 + s2))
+    case (ConcatExpr(x1, Str(s1)), ConcatExpr(Str(s2), x2)) => concat(concat(x1, Str(s1 + s2)), x2)
+    case (x1, x2) => ConcatExpr(e1, e2)
+
   /**
    * Expand let bindings, substitute function calls with function bodies,
    * reduce string concatenations, and replace identifiers in bindings for
@@ -32,9 +39,7 @@ sealed trait Expr extends Node {
    */
   def expand(ctx: List[ExprFunc] = List(), bindings: Map[Identifier, Expr] = Map()): Expr = transform {
     case id: Identifier => Some(bindings.getOrElse(id, id))
-    case ConcatExpr(Str(s1), Str(s2)) => Some(Str(s1 + s2))
-    case ConcatExpr(ConcatExpr(e1, Str(s1)), Str(s2)) => Some(ConcatExpr(e1, Str(s1 + s2)))
-    case ConcatExpr(Str(s1), ConcatExpr(Str(s2), e2)) => Some(ConcatExpr(Str(s1 + s2), e2))
+    case ConcatExpr(e1, e2) => Some(concat(e1.expand(ctx, bindings), e2.expand(ctx, bindings)))
     case LetExpr(y, e1, e2) =>
       val b = bindings.updated(y, e1.expand(ctx, bindings))
       Some(e2.expand(ctx, b))

@@ -27,7 +27,9 @@ object WellFormed {
     case Num(_) => true
     case OTExpr(_, _, _ , _) => true
     case OTFourExpr(_, _, _, _, _, _, _) => true
-    case _ => false
+    case other =>
+      println(s"***** Found non-ground node $other")
+      false
   })
 
   /**
@@ -40,19 +42,29 @@ object WellFormed {
 
   private def memoryIndexesAreStrings(n: Node) = recurse(n, {
     case MessageExpr(Str(_)) => true
-    case MessageExpr(_) => false
+    case x: MessageExpr =>
+      println(s"***** Found malformed memory expression $x")
+      false
     case PublicExpr(Str(_)) => true
-    case PublicExpr(_) => false
+    case x: PublicExpr =>
+      println(s"***** Found malformed memory expression $x")
+      false
     case RandomExpr(Str(_)) => true
-    case RandomExpr(_) => false
+    case x: RandomExpr =>
+      println(s"***** Found malformed memory expression $x")
+      false
     case SecretExpr(Str(_)) => true
-    case SecretExpr(_) => false
+    case x: SecretExpr =>
+      println(s"***** Found malformed memory expression $x")
+      false
     case _ => true
   })
 
   private def partyIndexesAreNumbers(n: Node) = recurse(n, {
     case AtExpr(_, Num(_)) => true
-    case AtExpr(_, _) => false
+    case x: AtExpr =>
+      println(s"***** Found malformed at expression $x")
+      false
     case _ => true
   })
 
@@ -63,7 +75,9 @@ object WellFormed {
     case AtExpr(SecretExpr(_), Num(_)) => true
     case AtExpr(PublicExpr(_), Num(_)) => true
     case AtExpr(OutputExpr(), Num(_)) => true
-    case AtExpr(_, _) => false
+    case x: AtExpr =>
+      println(s"***** Found malformed at expression $x")
+      false
     case _ => true
   })
 
