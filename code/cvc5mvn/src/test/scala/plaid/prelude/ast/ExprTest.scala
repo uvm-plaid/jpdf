@@ -34,5 +34,4 @@ class ExprTest {
     val map = Map(Identifier("i") -> Str("x"), Identifier("j") -> Str("y"))
     val expr = Loader.expression(src).expand(bindings = map)
     assertEquals(Str("xaby"), expr)
-
 }

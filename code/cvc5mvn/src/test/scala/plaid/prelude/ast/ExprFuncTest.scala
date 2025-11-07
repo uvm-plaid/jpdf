@@ -41,5 +41,4 @@ class ExprFuncTest {
     assertEquals(f, List(g, f, h).dependencyOrdered().last)
     assertEquals(f, List(h, f, g).dependencyOrdered().last)
     assertEquals(f, List(h, g, f).dependencyOrdered().last)
-
 }

@@ -10,8 +10,8 @@ class ContractTest {
   /** The default postcondition is the constraints from a function body. */
   @Test
   def defaultPostcondition(): Unit =
-    val src = """ cmdfunctions: f() { m["x"]@1 := 4 } """
-    val contract = Loader.program(src).cmdFuncs.head.contract(Nil)
+    val src = """ f() { m["x"]@1 := 4 } """
+    val contract = Loader.cmdFunc(src).contract(Nil)
     // Maybe the T AND part will simplify away someday...
     val post = Loader.constraint(""" T AND m["x"]@1 == 4 """)
     assertEquals(post, contract.post)
@@ -31,11 +31,10 @@ class ContractTest {
    */
   @Test
   def postconditionCallSubstitution(): Unit =
-    val constraintFn = Loader.program("""constraintfunctions: f(i) { i ++ "x" == "ax" } """).constraintFuncs.head
-    val cmdFn = Loader.program("""cmdfunctions: g() { m["x"]@1 := 4 } postcondition: (f("a")) """).cmdFuncs.head
+    val constraintFn = Loader.constraintFunc(""" f(i) { i ++ "x" == "ax" } """)
+    val cmdFn = Loader.cmdFunc(""" g() { m["x"]@1 := 4 } postcondition: (f("a")) """)
     val expanded = cmdFn.expand(constraintCtx = List(constraintFn))
     val contract = expanded.contract(Nil)
     val post = Loader.constraint(""" "ax" == "ax" """)
     assertEquals(post, contract.post)
-
 }
