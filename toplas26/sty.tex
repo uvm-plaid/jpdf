@@ -148,6 +148,13 @@ protocol. We illustrate secure openings in practice at more length
 in Section \ref{section-examples}, though we note that appropriate
 properties of initialization protocols can be encoded in $\eqspre$.
 
+We write $\stredx^*$ to denote the reflexive, transitive
+closure of $\stredx$. For any protocol $\prog$, the goal of the
+type analysis is to show that all interactive messages can be classified--
+that is, to show that $\eqspre \wedge \toeq{\prog} \vdash
+\varnothing,\varnothing \stredx^* \Gamma,R$ where all
+interactive messages are classified in $\Gamma$. 
+
 
 \subsection{Share Typing Example} To illustrate details of the
 type system we return to the example of additive sharing in the context
