@@ -1,54 +1,52 @@
 package plaid.prelude.antlr
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.junit.Assert.assertNotNull
-import plaid.prelude.ast.Program
+import plaid.prelude.ast.{AssignCmd, CmdFunc, ConstraintFunc, EqualConstraint, ExprFunc, Identifier, Num, Program}
 
 class ProgramParseTest {
 
-  /** Parses an example program with postcondition. */
+  /** Parses expression functions from appropriate section. */
   @Test
-  def programWithPostcondition(): Unit = {
-    val program: Program = Loader.program(
-      """
-        |exprfunctions:
-        |
-        |not(x){ x + 1 }
-        |
-        |cmdfunctions:
-        |
-        |oneTimePad(x:string, y:string, z:string) {
-        |    m[z]@1 := (s[x] + not(r[y]))@2
-        |}
-        |
-        |main(){ oneTimePad("foo", "bar", "pan") }
-        |
-        |postcondition: (m["pan"]@1 ==  s["foo"]@2 + (r["bar"]@2+1))
-        |""".stripMargin
-    )
+  def exprFuncSection(): Unit =
+    assertEquals(
+      Program(
+        exprFuncs = List(ExprFunc(Identifier("f"), Nil, Num(12))),
+        constraintFuncs = Nil,
+        cmdFuncs = Nil),
+      Loader.program("exprfunctions: f() { 12 }"))
 
-    assertNotNull(program)
-  }
-
-  /** Parses an example program with both precondition and postcondition. */
+  /** Parses constraint functions from appropriate section. */
   @Test
-  def programWithPrePostcondition(): Unit = {
-    val program: Program = Loader.program(
-      """
-        |exprfunctions:
-        |
-        |not(x){ x + 1 }
-        |
-        |cmdfunctions:
-        |
-        |oneTimePad(x:string , y:string, z:string) {
-        |    m[z]@1 := (s[x] + not(r[y]))@2
-        |}
-        |
-        |main(){ oneTimePad("foo", "bar", "pan") }
-        |""".stripMargin
-    )
+  def constraintFuncSection(): Unit =
+    assertEquals(
+      Program(
+        exprFuncs = Nil,
+        constraintFuncs = List(ConstraintFunc(Identifier("f"), Nil, EqualConstraint(Num(12), Num(12)))),
+        cmdFuncs = Nil),
+      Loader.program("constraintfunctions: f() { 12 == 12 }"))
 
-    assertNotNull(program)
-  }
+  /** Parses command functions from appropriate section. */
+  @Test
+  def cmdFuncSection(): Unit =
+    assertEquals(
+      Program(
+        exprFuncs = Nil,
+        constraintFuncs = Nil,
+        cmdFuncs = List(CmdFunc(Identifier("f"), Nil, List(AssignCmd(Num(12), Num(12))), None, None))),
+      Loader.program("cmdfunctions: f() { 12 := 12 }"))
+
+  /** Program sections can appear in any order. */
+  @Test
+  def sectionOrderAgnostic(): Unit =
+    val exprSection = "exprfunctions: exprfn() { 12 }"
+    val constraintSection = "constraintfunctions: constraintfn() { T }"
+    val cmdSection = "cmdfunctions: cmdfn() { m[\"x\"]@1 := m[\"x\"]@2 }"
+    val prog1 = Loader.program(exprSection + constraintSection + cmdSection)
+    val prog2 = Loader.program(constraintSection + exprSection + cmdSection)
+    val prog3 = Loader.program(cmdSection + exprSection + constraintSection)
+    val prog4 = Loader.program(cmdSection + constraintSection + exprSection)
+    assertEquals(prog1, prog2)
+    assertEquals(prog2, prog3)
+    assertEquals(prog3, prog4)
 }
