@@ -57,6 +57,32 @@ distribution in a finite field yields a value in a uniform
 distribution, meaning that samples can be used as one-time-pads with
 perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
 
+Of course, there are other methods for encrypting values in MPC
+protocols-- but we can observe that many are algebraically equivalent
+to this fundamental schema. For example, in Yao's Garbled Circuits
+(YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents encrypted wire
+values as a random sample (for 1) or its negation (for 0), and shares
+its secret input encoding with the ``evaluator'' by using
+it as a selection bit. That is, assuming that client 2 is the garbler and
+client 1 is the evaluator, we can define:
+$$
+\xassign{\mx{w}{1}}{\mux{\secret{w}}{\neg\flip{w}}{\flip{w}}}{2}
+$$
+where for all $\be_1,\be_2,\be_3$ (with $\neg$ denoting negation in $\mathbb{F}_2$):
+$$
+\mux{\be_1}{\be_2}{\be_3} \defeq (\neg\be_1 \ftimes \be_2) \fplus (\be_1 \ftimes \be_3)
+$$
+and letting this protocol be $\prog$ the following is valid:
+\begin{mathpar}
+%\toeq{\xassign{\mx{w}{1}}{\OT{\secret{w}}{1}{\neg\flip{w}}{\flip{w}}}{2}}
+   \toeq{\prog} \models \mx{w}{1} \eop \neg\sx{w}{2} \fplus \rx{w}{2}
+\end{mathpar}
+This allows us to assign the same ciphertype to $\mx{w}{1}$ as above--
+that is, $\cty{\rx{w}{2}}{\setit{\sx{w}{2}}}$.  Since this is a
+one-time-pad scheme, it is also important that we ensure that samples
+are used at most once for encryption. As in previous work 
+\cite{darais2019language} we use type linearity to enforce this.
+
 \styinteractivefig
 
 \subsection{Share Typing Example} To illustrate details of the
