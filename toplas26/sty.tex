@@ -26,11 +26,20 @@ $$
   \sty &::=& \sharety \mid \pubty \mid \outty & \textit{share types} \\
   \stt &::=& [\phi,\phi] \mid \pubx{\phi} & \textit{share terms} 
 \end{array}
-$$ We proceed by formally describing the type analysis, then
+$$
+We proceed by formally describing the type analysis, then
 discussing an illustrative example, and finally by demonstrating share
-type soundness (Theorem \ref{theorem-sty}).
+type soundness in Theorem \ref{theorem-sty}. This result shows that
+our analysis enforces noninterference modulo output, in contrast to
+previous systems that only enforce a gradual release property
+(\cite{skalka-near-esop25}). By connecting this analysis with
+protocol correctness properties enforced by the Hoare logic
+discussed in Section \ref{section-smt}, the output can also
+be connected to an intended ideal functionality. 
 
 \subsection{Non-Interactive Typing Rules} 
+
+\stylocalfig
 
 Our non-interactive typing rules are presented in Figure
 \ref{fig-stylocal}. Judgmements are of the form $\Gamma, \eqs \vdash
@@ -47,8 +56,6 @@ multiplication of shares with a public value (\TirName{HEAddPub} and
 These rules also leverage SMT entailment in the \TirName{ShareEntails}
 and \TirName{PubEntails} rules, since these operations should be
 allowable up to algebraic equivalence in the context of a protocol.
-
-\stylocalfig
 
 \subsection{Interactive Typing Rules} 
 
