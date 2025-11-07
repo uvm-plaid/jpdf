@@ -1,11 +1,26 @@
 \section{Share Types}
 \label{section-sty}
 
-It is well-known that adding or subtracting a sample from a uniform
-distribution in a finite field yields a value in a uniform
-distribution, meaning that samples can be used as one-time-pads with
-perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
+Our approach to static analysis is to enforce the use of sound
+techniques in semi-homorphic encryption in protocols.  As discussed in
+the example in Section \ref{section-smt-example}, protocols integrate
+interactive elements, such as the sharing of one-time-pad (OTP)
+encrypted secrets, and noninteractive elements, such as addition (of
+shares). We approach this by introducing distinct judgement forms for
+interactive and noninteractive protocol elements. Our type system
+as presented will assume 2-client protocols, but this is for
+simplicity and the analysis can be generalized to more parties. 
 
+Both interactive and non-interactive judgements leverage the use
+of SMT interpretations as described in Section \ref{section-smt}.
+We introduce a \emph{share type} language $\sty$, classifying
+\emph{share terms}. We represent share terms using standard notation
+\cite{10.1007/978-3-030-68869-1_3}. A share term $[\phi_1,\phi_2]$
+represents a secret-shared value where client 1 has $\phi_1$ and
+client 2 has $\phi_2$, and this shared value can be reconstructed
+as $\phi_1 + \phi_2$.\cnote{Comment on generation and
+  reconstruction in general somewhere.} A share term $\pubx{\phi}$
+denotes a publicly shared value.
 $$
 \begin{array}{rcl@{\hspace{10mm}}l}
   \sty &::=& \sharety \mid \pubty \mid \outty & \textit{share types} \\
@@ -13,13 +28,79 @@ $$
 \end{array}
 $$
 
-\subsection{Non-interactive typing rules} 
+\subsection{Non-Interactive Typing Rules} 
 
 \stylocalfig
 
-\subsection{Interactive typing rules} 
+\subsection{Interactive Typing Rules} 
+
+It is well-known that adding or subtracting a sample from a uniform
+distribution in a finite field yields a value in a uniform
+distribution, meaning that samples can be used as one-time-pads with
+perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
 
 \styinteractivefig
+
+\subsection{Share Typing Example} To illustrate details of the
+type system we return to the example of additive sharing in the context
+of a 2-client protocol. We first focus on initial secret sharing steps--
+let $\prog$ be the following protocol in $\fieldp{2}$ (noting
+that $-$ is equivalent to xor in $\fieldp{2}$):
+$$
+\begin{array}{lll}
+  \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip)}{1}; \\
+  \elab{\mesg{s2}}{1} &:=& \elab{(\secret{2} \fminus \locflip)}{2} 
+\end{array}
+$$
+We can then assert:
+$$
+\toeq{\prog} \vdash \varnothing,\varnothing \stredx
+\setit{[\mx{s2}{1}, \elab{\locflip}{2}] : \sharety,
+  [\mx{s1}{2}, \elab{\locflip}{1}] : \sharety}, \setit{\elab{\locflip}{1},\elab{\locflip}{2}}
+$$
+Suppose the protocol goes on to reveal the negation of the
+sum (xor-ing) of the inputs:
+$$
+\begin{array}{lll}
+  \px{1} &:=& \elab{\mesg{s2} + \locflip + 1}{1}; \\
+  \px{2} &:=& \elab{\mesg{s1} + \locflip}{2}\\
+  \out{1} &:=& \elab{\px{1} + \px{2}}{1}\\
+  \out{2} &:=& \elab{\px{1} + \px{2}}{2}
+\end{array}
+$$
+Letting this extended protocol be $\prog'$, and letting:
+$$
+\begin{array}{rcl}
+\Gamma &\defeq& \setit{[\mx{s2}{1}, \elab{\locflip}{2}] : \sharety,
+  [\mx{s1}{2}, \elab{\locflip}{1}] : \sharety}\\
+R &\defeq&  \setit{\elab{\locflip}{1},\elab{\locflip}{2}}
+\end{array}
+$$
+observe we can then obtain share typings for noninteractive components for
+addition of shares by \TirName{Shared} and \TirName{HeAdd}:
+$$
+\Gamma, \toeq{\prog'} \vdash
+[\mx{s2}{1} + \elab{\locflip}{1}, \mx{s1}{2} + \elab{\locflip}{2}] : \sharety
+$$
+and hence for negation by \TirName{HeAddPub}:
+$$
+\Gamma, \toeq{\prog'} \vdash
+[\mx{s2}{1} + \elab{\locflip}{1} + 1, \mx{s1}{2} + \elab{\locflip}{2}] : \sharety
+$$
+This implies:
+$$
+\toeq{\prog'} \vdash \varnothing,\varnothing \stredx
+\Gamma \cup \setit{\pubx{\px{1} + \px{2}} : \outty}, R 
+$$
+Hence by \TirName{PubEntails} we have:
+$$
+\begin{array}{l}
+\Gamma \cup \setit{\pubx{\px{1} + \px{2}} : \outty}, \toeq{\prog'} \vdash
+\pubx{\out{1}} : \outty \\
+\Gamma \cup \setit{\pubx{\px{1} + \px{2}} : \outty}, \toeq{\prog'} \vdash
+\pubx{\out{2}} : \outty
+\end{array}
+$$
 
 \subsection{Share Type Soundness}
 

@@ -128,6 +128,7 @@ entails $\eqs$.
 %\end{theorem}
 
 \subsubsection{Example: Correctness of 3-Party Addition}
+\label{section-smt-example}
 Consider the following 3-party additive secret sharing protocol, where
 each party generates two additive secret shares
 \cite{evans2018pragmatic} for their respective secrets. Each party
@@ -221,6 +222,7 @@ later (Section \ref{section-metahtrip}).
 \end{lemma}
 
 \begin{proof}
+  \cnote{de-obfuscate.}
   Assume $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable without \TirName{Hyp}.
   Then $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$, since all the other rules
   are well-known to be validity preserving. 
