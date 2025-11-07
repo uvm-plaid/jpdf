@@ -27,19 +27,41 @@ $$
   \stt &::=& [\phi,\phi] \mid \pubx{\phi} & \textit{share terms} 
 \end{array}
 $$
+Intuitively, the meaning of share types $\sty$ are as follows.
+When we ascribe the type $[\phi_1,\phi_2] : \sharety$, this
+means that $[\phi_1,\phi_2]$ are shares of their
+reconstruction, which we can represent as $\phi_1 + \phi_2$
+as discussed in Section \ref{???}. 
+In particular, each of $\phi_1$ and $\phi_2$ independently
+reveal nothing about $\phi_1 + \phi_2$. Likewise,
+$\pubx{\phi} : \outty$ means that $\phi$ has been
+publicly \emph{revealed} via broadcast shares, and our
+type system requires that $\phi \eop \phi_1 + \phi_2$ with
+$[\phi_1,\phi_2] : \sharety$. This implies that the
+process of revealing $\phi$ reveals nothing besides $\phi$.
+The ascription $\pubx{\phi} : \pubty$ is similar, with the
+additional meaning that $\phi$ is a publicly-known value
+independent of any client inputs. This includes known
+constant values used in protocols, and more interestingly
+\emph{secure openings}. Secure openings are commonly used
+to interactively compute public values that are masked with
+OTPs secret-shared with clients in initialization protocols,
+as for example in Beaver Triple multiplication which
+we discuss in Section \ref{section-examples}.
+
+\stylocalfig
+
 We proceed by formally describing the type analysis, then
 discussing an illustrative example, and finally by demonstrating share
 type soundness in Theorem \ref{theorem-sty}. This result shows that
 our analysis enforces noninterference modulo output, in contrast to
-previous systems that only enforce a gradual release property
-(\cite{skalka-near-esop25}). By connecting this analysis with
-protocol correctness properties enforced by the Hoare logic
-discussed in Section \ref{section-smt}, the output can also
-be connected to an intended ideal functionality. 
+the previous system for $\minicat$ that only enforce a gradual release
+property \cite{skalka-near-esop25}. By connecting this analysis with
+protocol correctness properties enforced by the Hoare logic discussed
+in Section \ref{section-smt}, the output can also be connected to an
+intended ideal functionality.\cnote{Update intro grid accordingly.}
 
-\subsection{Non-Interactive Typing Rules} 
-
-\stylocalfig
+\subsection{Non-Interactive Typing Rules}
 
 Our non-interactive typing rules are presented in Figure
 \ref{fig-stylocal}. Judgmements are of the form $\Gamma, \eqs \vdash
@@ -49,7 +71,7 @@ soundness requires that the constraint $\eqs$ must be entailed by
 $\eqspre \wedge \toeq{\prog}$ (see, e.g., Lemma
 \ref{lemma-sty-noninteractive-sound}).
 
-The syntax-directed rules all known semi-homomorphic operations,
+The syntax-directed rules are all known semi-homomorphic operations,
 including addition of shares (\TirName{HEAdd}), and both addition and
 multiplication of shares with a public value (\TirName{HEAddPub} and
 \TirName{HEMultPub}, respectively) \cite{10.1007/978-3-030-68869-1_3}.
@@ -59,13 +81,23 @@ allowable up to algebraic equivalence in the context of a protocol.
 
 \subsection{Interactive Typing Rules} 
 
+As discussed in Section \ref{???}, a \emph{secret sharing scheme}
+includes functions $\genshares$ and $\recon$ which generate
+and reconstruct shares, respectively.
 It is well-known that adding or subtracting a sample from a uniform
 distribution in a finite field yields a value in a uniform
-distribution, meaning that samples can be used as one-time-pads with
+distribution, meaning that samples can be used as OTPs with
 perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
+So we can define:
+\begin{eqnarray*}
+  \genshares(\phi) &\defeq& [\phi - \rx{y}{\cid_2}, \rx{y}{\cid_2}]\\
+  \recon([\phi_1,\phi_2]) &\defeq& \phi_1 \fplus \phi_2
+\end{eqnarray*}
+where we require that $\genshares$ consumes the randomness
+$\setit{\rx{y}{\cid_2}}$ for use as an OTP. 
 
 Of course, there are other methods for encrypting values in MPC
-protocols-- but we can observe that many are algebraically equivalent
+protocols that can be shown to be algebraically equivalent
 to this fundamental schema. For example, in Yao's Garbled Circuits
 (YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents encrypted wire
 values as a random sample (for 1) or its negation (for 0), and shares
@@ -84,13 +116,22 @@ and letting this protocol be $\prog$ the following is valid:
 %\toeq{\xassign{\mx{w}{1}}{\OT{\secret{w}}{1}{\neg\flip{w}}{\flip{w}}}{2}}
    \toeq{\prog} \models \mx{w}{1} \eop \neg\sx{w}{2} \fplus \rx{w}{2}
 \end{mathpar}
+For this reason SMT entailment is also an important enabling technology
+for the interactive rules. 
+
+\styinteractivefig
+
+The interactive share typing rules are defined in Figure \ref{fig-styinteractive},
+with judgements of the form $\eqs \vdash \Gamma_1,R_1, \stredx \Gamma_2,R_2$.
+Each such judgement establishes a type classification for interactively-defined
+variables-- that is, unicast and broadcast messages exchanged between
+clients. 
+
 This allows us to assign the same ciphertype to $\mx{w}{1}$ as above--
 that is, $\cty{\rx{w}{2}}{\setit{\sx{w}{2}}}$.  Since this is a
 one-time-pad scheme, it is also important that we ensure that samples
 are used at most once for encryption. As in previous work 
 \cite{darais2019language} we use type linearity to enforce this.
-
-\styinteractivefig
 
 \subsection{Share Typing Example} To illustrate details of the
 type system we return to the example of additive sharing in the context
