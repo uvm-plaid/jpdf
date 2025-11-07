@@ -18,7 +18,7 @@ case class HoareContext(cons: Constraint = TrueConstraint(), ent: List[Entailmen
   /** Add a new entailment to this Hoare context. */
   private def include(e: Entailment): HoareContext = copy(ent = e :: ent)
   /** Include a new command in this Hoare context. */
-  def include(cmd: Cmd, exprFns: List[ExprFunc], contracts: List[Contract]): HoareContext = cmd.expand(exprFns) match
+  def include(cmd: Cmd, contracts: List[Contract]): HoareContext = cmd match
     case AssertCmd(e1, e2, party) =>
       val a = e1.indexParties(Some(party))
       val b = e2.indexParties(Some(party))
@@ -55,7 +55,9 @@ extension (trg: List[CmdFunc])
 extension (trg: CmdFunc)
   def contract(exprFns: List[ExprFunc], constraintFns: List[ConstraintFunc], contractCtx: List[Contract]): Contract =
     val pre = trg.precond.getOrElse(TrueConstraint()).expand(exprFns, constraintFns)
-    val ctx = trg.body.foldLeft(HoareContext(cons = pre)) { (acc, x) => acc.include(x, exprFns, contractCtx) }
+    val ctx = trg.body
+      .flatMap(_.expand(exprFns))
+      .foldLeft(HoareContext(cons = pre)) { (acc, x) => acc.include(x, contractCtx) }
     val post = trg.postcond.getOrElse(ctx.cons).expand(exprFns, constraintFns)
     // Empty body for "magic" function that just gets admitted
     val ent = if trg.body.isEmpty then Nil else Entailment(trg, ctx.cons, post) :: ctx.ent
