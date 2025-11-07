@@ -242,6 +242,8 @@ typing judgements.
   Then $\eqs, \Gamma',R' : {OK}$.
 \end{lemma}
 
+Next, we make a simple definition to formalize what we mean by the interactive
+variables in the share type environment $\Gamma$.
 \begin{definition} Define $\ov(\Gamma)$ as follows:
 \begin{eqnarray*}
 \ov(\varnothing) &=& \varnothing \\[-1.5mm]
@@ -250,7 +252,10 @@ typing judgements.
 \ov(\setit{[\out{\cid}] : \outty} \cup \Gamma) &=& \setit{\out{\cid}} \cup \ov(\Gamma)
 \end{eqnarray*}
 \end{definition}
-
+Given the above, we can formulate our key Lemma about noninteractive typing
+judgements, which tells us that individual shares in isolation don't reveal anything
+about their reconstruction. This result follows by Theorem \ref{theorem-toeq}
+and known homomorphic properties of secret sharing schemes. 
 \begin{lemma}
   \label{lemma-sty-noninteractive-sound}
   Assume given $\eqspre \wedge \toeq{\prog}, \Gamma,R: {OK}_\cid$  and
