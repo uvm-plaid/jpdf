@@ -82,7 +82,7 @@ allowable up to algebraic equivalence in the context of a protocol.
 \subsection{Interactive Typing Rules} 
 
 As discussed in Section \ref{???}, a \emph{secret sharing scheme}
-includes functions $\genshares$ and $\recon$ which generate
+includes functions $(\genshares,\recon)$ which generate
 and reconstruct shares, respectively.
 It is well-known that adding or subtracting a sample from a uniform
 distribution in a finite field yields a value in a uniform
@@ -121,20 +121,32 @@ for the interactive rules.
 
 \styinteractivefig
 
-The interactive share typing rules are defined in Figure \ref{fig-styinteractive},
-with judgements of the form $\eqs \vdash \Gamma_1,R_1, \stredx \Gamma_2,R_2$.
-Each such judgement establishes a sound type binding for interactively-defined
+The interactive share typing rules are defined in Figure
+\ref{fig-styinteractive}, with judgements of the form $\eqs \vdash
+\Gamma_1,R_1, \stredx \Gamma_2,R_2$.  Each such judgement establishes
+a sound type binding in $\Gamma_2$ for interactively-defined
 variables-- that is, unicast and broadcast messages exchanged between
-clients. In addition to type bindings, judgments track random variables
-used as OTPs, allowing us to use type linearity to enforce one-time
-usage similar to previous related work \cite{darais2019language}.
-To this end, in these rules we define $R_1 \uplus R_2$ as the disjoint
-union of $R_1$ and $R_2$.
+clients-- assuming the bindings in $\Gamma_1$. In addition to type
+bindings, judgments track random variables used as OTPs, allowing us
+to use type linearity to enforce one-time usage similar to previous
+related work \cite{darais2019language}, where any randomness used in
+the typing is not in $R_1$ and added to $R_2$. To this end, in these
+rules $\uplus$ is disjoint union.
 
-The \TirName{Share} rule generates the binding $[\mx{z}{\cid_2}, \rx{y}{\cid_1}]$
-if this is a secret sharing as defined by $\genshares$. It also adds
-$\rx{y}{\cid_1}$ to the set of variables used as OTPs, ensuring that
-it has not already been used. 
+The \TirName{Share} rule generates the binding $[\mx{z}{\cid_2},
+  \rx{y}{\cid_1}] : \sharety$ if this is a secret sharing as defined
+by $\genshares$. It also adds $\rx{y}{\cid_1}$ to the set of variables
+used as OTPs, ensuring that it has not already been used. The
+\TirName{Reveal} rule generates the binding $\pubx{\px{x} + \px{y}} :
+\outty$ with the requirement that $[\px{x},\px{y}]$ are typable as
+shares. The \TirName{SecOpen} rule is similar except it allows the
+assertion $\pubx{\px{x} + \px{y}} : \pubty$ if we can additionally
+show that the shared value is masked by the use of random value
+$\rx{z}{\oid}$ as an OTP. Here we are positing a third party $\oid$
+that secret-shares $\rx{z}{\oid}$ as part of an initialization
+protocol. We illustrate secure openings in practice at more length
+in Section \ref{section-examples}, though we note that appropriate
+properties of initialization protocols can be encoded in $\eqspre$.
 
 
 \subsection{Share Typing Example} To illustrate details of the
