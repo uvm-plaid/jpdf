@@ -178,8 +178,8 @@ sum (xor-ing) of the inputs:
 $$
 \begin{array}{lll}
   \px{1} &:=& \elab{\mesg{s2} + \locflip + 1}{1}; \\
-  \px{2} &:=& \elab{\mesg{s1} + \locflip}{2}\\
-  \out{1} &:=& \elab{\px{1} + \px{2}}{1}\\
+  \px{2} &:=& \elab{\mesg{s1} + \locflip}{2};\\
+  \out{1} &:=& \elab{\px{1} + \px{2}}{1};\\
   \out{2} &:=& \elab{\px{1} + \px{2}}{2}
 \end{array}
 $$
@@ -219,6 +219,11 @@ $$
 
 \subsection{Share Type Soundness}
 
+Now we can prove our share typing soundness result, showing that share
+typing enforces noninteference modulo output, with our main result
+in Theorem \ref{theorem-sty}. We begin by defining a key well-formedness
+property of typing components that we show is preserved by non-interactive
+typing judgements.
 \begin{definition}
   We write $\eqs,\Gamma,R : {OK}$ iff both of the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
@@ -245,18 +250,6 @@ $$
 \ov(\setit{[\out{\cid}] : \outty} \cup \Gamma) &=& \setit{\out{\cid}} \cup \ov(\Gamma)
 \end{eqnarray*}
 \end{definition}
-
-\begin{lemma}
-  Assume given $\Gamma,R, \eqspre \wedge \toeq{\prog} : {OK}_\cid$  and
-  $\iov(\prog) = S \cup V \cup O$
-  and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
-  Then, letting $X \defeq \ov(\Gamma) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$:
-  $$
-  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X \cup \setit{\phi_1 + \phi_2}}
-  = 
-  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup X \cup \setit{\phi_1 + \phi_2, \phi_1}}
-  $$
-\end{lemma}
 
 \begin{lemma}
   \label{lemma-sty-noninteractive-sound}
