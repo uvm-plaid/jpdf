@@ -26,9 +26,27 @@ $$
   \sty &::=& \sharety \mid \pubty \mid \outty & \textit{share types} \\
   \stt &::=& [\phi,\phi] \mid \pubx{\phi} & \textit{share terms} 
 \end{array}
-$$
+$$ We proceed by formally describing the type analysis, then
+discussing an illustrative example, and finally by demonstrating share
+type soundness (Theorem \ref{theorem-sty}).
 
 \subsection{Non-Interactive Typing Rules} 
+
+Our non-interactive typing rules are presented in Figure
+\ref{fig-stylocal}. Judgmements are of the form $\Gamma, \eqs \vdash
+\stt : \sty$, where $\Gamma$ is a set of \emph{share type bindings} of
+the form $\stt : \sty$. In the context of typing a protocol $\prog$
+soundness requires that the constraint $\eqs$ must be entailed by
+$\eqspre \wedge \toeq{\prog}$ (see, e.g., Lemma
+\ref{lemma-sty-noninteractive-sound}).
+
+The syntax-directed rules all known semi-homomorphic operations,
+including addition of shares (\TirName{HEAdd}), and both addition and
+multiplication of shares with a public value (\TirName{HEAddPub} and
+\TirName{HEMultPub}, respectively) \cite{10.1007/978-3-030-68869-1_3}.
+These rules also leverage SMT entailment in the \TirName{ShareEntails}
+and \TirName{PubEntails} rules, since these operations should be
+allowable up to algebraic equivalence in the context of a protocol.
 
 \stylocalfig
 
@@ -144,6 +162,7 @@ $$
 \end{lemma}
 
 \begin{lemma}
+  \label{lemma-sty-noninteractive-sound}
   Assume given $\eqspre \wedge \toeq{\prog}, \Gamma,R: {OK}_\cid$  and
   $\iov(\prog) = S \cup V \cup O$
   and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
@@ -177,6 +196,7 @@ $$
 \end{lemma}
 
 \begin{theorem}[Share Type Soundness]
+  \label{theorem-sty}
   Assume given $\prog$ with 
   $\iov(\prog) = S \cup V \cup O$
   and $\eqspre \wedge \toeq{\prog} \vdash \varnothing,\varnothing \stredx^*
