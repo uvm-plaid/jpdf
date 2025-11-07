@@ -270,7 +270,10 @@ and known homomorphic properties of secret sharing schemes.
   $$
 \end{lemma}
 
+Based on the preceding Lemma, we can show that noninterence with respect
+to classified interactive variables is maintained by typing judgements. 
 \begin{lemma}
+  \label{lemma-styinteractive}
   Assume given $\eqspre \wedge \toeq{\prog}, \Gamma_1,R_1: {OK}_\cid$  and
   $\iov(\prog) = S \cup V \cup O$
   and $\eqspre \wedge \toeq{\prog} \vdash \Gamma_1,R_1 \stredx \Gamma_2,R_2$.
@@ -289,7 +292,10 @@ and known homomorphic properties of secret sharing schemes.
   \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup O}
   $$
 \end{lemma}
-
+Now we can prove our main Theorem, which follows immediately 
+by Lemma \ref{lemma-styinteractive} and induction on $|\Gamma|$
+(i.e., the number of bindings in the environment $\Gamma$ obtained
+by a complete typing). 
 \begin{theorem}[Share Type Soundness]
   \label{theorem-sty}
   Assume given $\prog$ with 
