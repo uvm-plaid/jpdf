@@ -42,8 +42,8 @@ trait Node {
    * Provides a human-readable string representation of an AST node and its decedents.
    */
   def prettyPrint(): String = this match
-    case AssertCmd(e1, e2, i) => s"assert (${e1.prettyPrint()} = ${e2.prettyPrint()})@${i.prettyPrint()}\n"
-    case AssignCmd(e1, e2) => s"${e1.prettyPrint()} := ${e2.prettyPrint()}\n"
+    case AssertCmd(e1, e2, i) => s"assert (${e1.prettyPrint()} = ${e2.prettyPrint()})@${i.prettyPrint()}"
+    case AssignCmd(e1, e2) => s"${e1.prettyPrint()} := ${e2.prettyPrint()}"
     case AtExpr(e, i) => s"${e.prettyPrint()}@${i.prettyPrint()}"
     case Identifier(name) => name
     case MessageExpr(e) => s"m[${e.prettyPrint()}]"
@@ -61,7 +61,9 @@ trait Node {
     case NotConstraint(e) => s"NOT ${e.prettyPrint()}"
     case EqualConstraint(e1, e2) => s"${e1.prettyPrint()} == ${e2.prettyPrint()}"
     case TrueConstraint() => "T"
-    case CallExpr(i, es) => s"${i.prettyPrint()}(${es.map(_.prettyPrint()).mkString(", ")})"
+    case CallExpr(i, parms) => s"${i.prettyPrint()}(${parms.map(_.prettyPrint()).mkString(", ")})"
+    case CallConstraint(id, parms) => s"${id.prettyPrint()}(${parms.map(_.prettyPrint()).mkString(", ")})"
+    case CallCmd(id, parms) => s"${id.prettyPrint()}(${parms.map(_.prettyPrint()).mkString(", ")})"
     case x => throw Exception(s"Unhandled node $x")
 }
 

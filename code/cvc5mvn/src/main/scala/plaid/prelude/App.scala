@@ -6,7 +6,6 @@ import picocli.CommandLine.{Command, Option, Parameters}
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.ListExprFuncExt.expandAll
 import plaid.prelude.ast.ListConstraintFuncExt.expandAll
-import plaid.prelude.ast.ListCmdFuncExt.expandAll
 import plaid.prelude.cvc.TermFactory
 import plaid.prelude.logic.{contracts, verificationFailures}
 
@@ -31,15 +30,22 @@ class App extends Runnable {
     val ast = Loader.program(src)
     val exprFns = ast.exprFuncs.expandAll()
     val constraintFns = ast.constraintFuncs.expandAll(exprFns)
-    val cmdFns = ast.cmdFuncs.expandAll(exprFns, constraintFns)
-    val contracts = cmdFns.contracts()
+    val contracts = ast.cmdFuncs.contracts(exprFns, constraintFns)
+    var totalTests = 0
+    var totalFailures = 0
 
     contracts.foreach(x =>
+      println(s"\n*** ${x.f.id.name}")
       val termManager = TermManager()
       val termFactory = TermFactory(termManager, fieldSize)
       val failures = x.verificationFailures(termFactory)
-      val total = x.internals.size
-      println(s"${x.f.id.name}: ${total - failures.size}/$total entailments verified"))
+      totalTests += x.internals.size
+      totalFailures += failures.size
+      x.internals.foreach(ent =>
+        val test = if ent.origin == x.f then "(postcondition)" else ent.origin.prettyPrint()
+        val status = if failures.contains(ent) then "FAIL" else "PASS"
+        println(s"[$status] $test")))
+    println(s"Ran $totalTests tests\nHad $totalFailures failures")
 }
 
 object App {

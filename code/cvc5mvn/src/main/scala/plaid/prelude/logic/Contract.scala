@@ -1,9 +1,9 @@
 package plaid.prelude.logic
 
 import plaid.prelude.ast.ListCmdFuncExt.dependencyOrdered
-import plaid.prelude.ast.{AndConstraint, AssertCmd, AssignCmd, CallCmd, Cmd, CmdFunc, Constraint, EqualConstraint, Identifier, Node, TrueConstraint}
+import plaid.prelude.ast.{AndConstraint, AssertCmd, AssignCmd, CallCmd, Cmd, CmdFunc, Constraint, ConstraintFunc, EqualConstraint, ExprFunc, Identifier, Node, TrueConstraint}
 
-case class Entailment(src: Node, a: Constraint, b: Constraint)
+case class Entailment(origin: Node, a: Constraint, b: Constraint)
 
 /**
  * A context that is built up as commands are processed in succession. It
@@ -18,7 +18,7 @@ case class HoareContext(cons: Constraint = TrueConstraint(), ent: List[Entailmen
   /** Add a new entailment to this Hoare context. */
   private def include(e: Entailment): HoareContext = copy(ent = e :: ent)
   /** Include a new command in this Hoare context. */
-  def include(cmd: Cmd, contracts: List[Contract]): HoareContext = cmd match
+  def include(cmd: Cmd, exprFns: List[ExprFunc], contracts: List[Contract]): HoareContext = cmd.expand(exprFns) match
     case AssertCmd(e1, e2, party) =>
       val a = e1.indexParties(Some(party))
       val b = e2.indexParties(Some(party))
@@ -48,14 +48,14 @@ extension (trg: List[Contract])
 
 extension (trg: List[CmdFunc])
   /** Calculate contracts for all the commands (which must be expanded). */
-  def contracts(): List[Contract] = trg
+  def contracts(exprFns: List[ExprFunc], constraintFns: List[ConstraintFunc]): List[Contract] = trg
     .dependencyOrdered()
-    .foldLeft(List()) { (acc, x) => x.contract(acc) :: acc }
+    .foldLeft(List()) { (acc, x) => x.contract(exprFns, constraintFns, acc) :: acc }
 
 extension (trg: CmdFunc)
-  def contract(fns: List[Contract]): Contract =
-    val pre = trg.precond.getOrElse(TrueConstraint())
-    val ctx = trg.body.foldLeft(HoareContext(cons = pre)) { (acc, x) => acc.include(x, fns) }
-    val post = trg.postcond.getOrElse(ctx.cons)
+  def contract(exprFns: List[ExprFunc], constraintFns: List[ConstraintFunc], contractCtx: List[Contract]): Contract =
+    val pre = trg.precond.getOrElse(TrueConstraint()).expand(exprFns, constraintFns)
+    val ctx = trg.body.foldLeft(HoareContext(cons = pre)) { (acc, x) => acc.include(x, exprFns, contractCtx) }
+    val post = trg.postcond.getOrElse(ctx.cons).expand(exprFns, constraintFns)
     val overall = Entailment(trg, ctx.cons, post)
     Contract(trg, pre, post, overall :: ctx.ent)
