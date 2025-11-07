@@ -5,8 +5,6 @@ import plaid.prelude.ast.*
 // check if a (final/evaluated) constraint is valid
 object WellFormed {
 
-  // TODO Apply constraints
-  
   /**
    * valid constraint node type
    */

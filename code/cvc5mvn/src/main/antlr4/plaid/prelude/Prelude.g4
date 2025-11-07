@@ -14,7 +14,7 @@ constraintFunc : ident '(' (ident (',' ident)*)? ')' '{' constraint '}' ;
 cmdFunc :
     ('precondition: (' pre ')')?
     ident '(' (typedIdent (',' typedIdent)*)? ')'
-    '{' cmd (';' cmd)* '}'
+    ('{' cmd (';' cmd)* '}')?
     ('postcondition: (' post ')')? ;
 
 pre : constraint ;

@@ -57,5 +57,6 @@ extension (trg: CmdFunc)
     val pre = trg.precond.getOrElse(TrueConstraint()).expand(exprFns, constraintFns)
     val ctx = trg.body.foldLeft(HoareContext(cons = pre)) { (acc, x) => acc.include(x, exprFns, contractCtx) }
     val post = trg.postcond.getOrElse(ctx.cons).expand(exprFns, constraintFns)
-    val overall = Entailment(trg, ctx.cons, post)
-    Contract(trg, pre, post, overall :: ctx.ent)
+    // Empty body for "magic" function that just gets admitted
+    val ent = if trg.body.isEmpty then Nil else Entailment(trg, ctx.cons, post) :: ctx.ent
+    Contract(trg, pre, post, ent)

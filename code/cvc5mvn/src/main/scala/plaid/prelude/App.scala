@@ -34,7 +34,7 @@ class App extends Runnable {
     var totalTests = 0
     var totalFailures = 0
 
-    contracts.foreach(x =>
+    contracts.filter(_.f.body.nonEmpty).foreach(x =>
       println(s"\n*** ${x.f.id.name}")
       val termManager = TermManager()
       val termFactory = TermFactory(termManager, fieldSize)
@@ -45,7 +45,7 @@ class App extends Runnable {
         val test = if ent.origin == x.f then "(postcondition)" else ent.origin.prettyPrint()
         val status = if failures.contains(ent) then "FAIL" else "PASS"
         println(s"[$status] $test")))
-    println(s"Ran $totalTests tests\nHad $totalFailures failures")
+    println(s"\nRan $totalTests tests\nHad $totalFailures failures")
 }
 
 object App {
