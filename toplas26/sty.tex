@@ -105,7 +105,7 @@ its secret input encoding with the ``evaluator'' by using
 it as a selection bit. That is, assuming that client 2 is the garbler and
 client 1 is the evaluator, we can define:
 $$
-\xassign{\mx{w}{1}}{\mux{\secret{w}}{\neg\flip{w}}{\flip{w}}}{2}
+\xassign{\mx{w}{1}}{\mux{\secret{w}}{\flip{w}}{\neg\flip{w}}}{2}
 $$
 where for all $\be_1,\be_2,\be_3$ (with $\neg$ denoting negation in $\mathbb{F}_2$):
 $$
@@ -114,7 +114,7 @@ $$
 and letting this protocol be $\prog$ the following is valid:
 \begin{mathpar}
 %\toeq{\xassign{\mx{w}{1}}{\OT{\secret{w}}{1}{\neg\flip{w}}{\flip{w}}}{2}}
-   \toeq{\prog} \models \mx{w}{1} \eop \neg\sx{w}{2} \fplus \rx{w}{2}
+   \toeq{\prog} \models \mx{w}{1} \eop \sx{w}{2} \fminus \rx{w}{2}
 \end{mathpar}
 For this reason SMT entailment is also an important enabling technology
 for the interactive rules. 
@@ -123,15 +123,19 @@ for the interactive rules.
 
 The interactive share typing rules are defined in Figure \ref{fig-styinteractive},
 with judgements of the form $\eqs \vdash \Gamma_1,R_1, \stredx \Gamma_2,R_2$.
-Each such judgement establishes a type classification for interactively-defined
+Each such judgement establishes a sound type binding for interactively-defined
 variables-- that is, unicast and broadcast messages exchanged between
-clients. 
+clients. In addition to type bindings, judgments track random variables
+used as OTPs, allowing us to use type linearity to enforce one-time
+usage similar to previous related work \cite{darais2019language}.
+To this end, in these rules we define $R_1 \uplus R_2$ as the disjoint
+union of $R_1$ and $R_2$.
 
-This allows us to assign the same ciphertype to $\mx{w}{1}$ as above--
-that is, $\cty{\rx{w}{2}}{\setit{\sx{w}{2}}}$.  Since this is a
-one-time-pad scheme, it is also important that we ensure that samples
-are used at most once for encryption. As in previous work 
-\cite{darais2019language} we use type linearity to enforce this.
+The \TirName{Share} rule generates the binding $[\mx{z}{\cid_2}, \rx{y}{\cid_1}]$
+if this is a secret sharing as defined by $\genshares$. It also adds
+$\rx{y}{\cid_1}$ to the set of variables used as OTPs, ensuring that
+it has not already been used. 
+
 
 \subsection{Share Typing Example} To illustrate details of the
 type system we return to the example of additive sharing in the context
