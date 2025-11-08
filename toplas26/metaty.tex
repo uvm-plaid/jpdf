@@ -2,6 +2,15 @@
 
 \subsection{Share Type Checking with Annotations}
 
+$$
+\begin{array}{rclr}
+  \sta &::=& [e_1,e_2] \kwas e \mid [e_1,e_2] \kwmask [e_1',e_2'] \mid [e_1,e_2] : \outty
+      \mid & \quad \textit{type annotations} \\
+      & & \mid \out{\cid} : \outty \mid [e_1,e_2] : \sharety \mid e : \pubty \\
+  \cmd &::=& \cdots \mid \sta
+\end{array}
+$$
+    
 \begin{mathpar}
   \htrip{e_1 \eop e - e_2}{[e_1,e_2] \kwas e}{\true}
   
