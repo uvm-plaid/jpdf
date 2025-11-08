@@ -219,7 +219,34 @@ class ConstraintAnalyzerTest {
     val expected = Str("abcd")
     assertEquals(expected, actual)
   }
-  
+
+    @Test
+  def genEntailTest(): Unit = {
+    val e1 =
+      """m[z++"s"]@i1 == m[x++"s"]@i1 + m[y++"s"]@i1 AND
+        |m[z++"s"]@i2 == m[x++"s"]@i2 + m[y++"s"]@i2""".stripMargin
+    val e2 =
+      """m[z++"s"]@i1 + m[z++"s"]@i2 ==
+        |m[x++"s"]@i1 + m[y++"s"]@i1 + m[x++"s"]@i2 + m[y++"s"]@i2""".stripMargin
+
+    val program = Program(List(), List(), List())
+    val genEntailVerifier = new Verifier(program, "2")
+
+    val typing = List(
+      TypedIdentifier(Identifier("i2"), PartyIndexType()),
+      TypedIdentifier(Identifier("y"), StringType()),
+      TypedIdentifier(Identifier("x"), StringType()),
+      TypedIdentifier(Identifier("i1"), PartyIndexType()),
+      TypedIdentifier(Identifier("z"), StringType())
+    )
+
+    val result1 = genEntailVerifier.genEntails(typing, Loader.constraint(e1), Loader.constraint(e2))
+    assertTrue(result1)
+
+    val result2 = genEntailVerifier.genEntails(typing, Loader.constraint(e2), Loader.constraint(e1))
+    assertFalse(result2)
+  }
+
  */
 
 }

@@ -1,6 +1,6 @@
 package plaid.prelude.logic
 
-import plaid.prelude.ast.{Identifier, Num, Str}
+import plaid.prelude.ast.{Num, Str}
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -8,8 +8,13 @@ import java.util.concurrent.atomic.AtomicInteger
  * Support for generating unique instances of AST objects.
  */
 object Unique {
-  private val partyCounter = new AtomicInteger(0)
-  private val stringCounter = new AtomicInteger(0)
+  private val start = 1
+  private val partyCounter = new AtomicInteger(start)
+  private val stringCounter = new AtomicInteger(start)
+
+  def reset(): Unit =
+    partyCounter.set(start)
+    stringCounter.set(start)
 
   /**
    * Generate a unique party index using a negative number to avoid collisions.
