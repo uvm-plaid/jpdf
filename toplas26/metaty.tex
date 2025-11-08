@@ -132,3 +132,28 @@ $$
      \shtrip{\Gamma_1, \varnothing, \varnothing}{\cmd[\mv_1/y_1 \cdots \mv_n/y_n]}{\Gamma_2, R,\xdefs}}
     {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2}, \notg{R})}
 \end{mathpar}
+
+
+\begin{definition} Define $\clean(\Gamma)$ as follows:
+\begin{eqnarray*}
+\clean(\varnothing) &=& \varnothing \\[-1.5mm]
+\clean(\setit{[\mx{z}{\cid}, \mx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \clean(\Gamma)\\[-1.5mm]
+\clean(\setit{\pubx{\mx{z}{\cid}} : \pubty} \cup \Gamma) &=& \clean(\Gamma)\\[-1.5mm]
+\clean(\setit{\stt : \sty} \cup \Gamma) &=& \setit{\stt : \sty} \cup \clean(\Gamma)
+\end{eqnarray*}
+\end{definition}
+
+\begin{lemma}
+  Assume $\cmd \redx \prog$ and $\htrip{\eqs_1 \wedge \toeq{\xdefs_1}}{\prog}{\eqs_2}$ and
+  $\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd}{\Gamma_2,R_2,\xdefs_2}$ and   
+  $\eqs_1 \wedge \toeq{\xdefs_1},\clean(\Gamma_1),R_1 : {OK}$.
+  Then $\eqs_1 \wedge \toeq{\xdefs_1} \wedge \toeq{\prog} \vdash \clean(\Gamma_1),R_1 \stredx^* \clean(\Gamma_2),R_2$.
+\end{lemma}
+
+\begin{theorem}
+  Assume $\htrip{\eqspre}{\ttt{main()}}{\eqs}$ and $\ttt{main} : \Gamma_1 \rightarrow (\Gamma_2,R)$
+  and $\eqspre,\Gamma_1,R' : {OK}$ with $R' \cap R = \varnothing$. Given $\ttt{main()} \redx \prog$
+  with $\iov(\prog) = S \cup V \cup O$, then $\prog$ satisfies noninterference modulo output if
+  $\realviews{\setit{\cid_1}}{\setit{\cid_2}} \cup O
+  \subseteq \ov(\clean(\Gamma_2))$ for all $\cid_1$, $\cid_2$ with $\cid_1 \ne \cid_2$.
+\end{theorem}

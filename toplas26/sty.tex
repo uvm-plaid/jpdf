@@ -227,10 +227,11 @@ typing judgements.
 \begin{definition}
   We write $\eqs,\Gamma,R : {OK}$ iff both of the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
-  \item For all $([\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety) \in \Gamma$,
-    we have $\eqs \models \mx{z}{\cid} \eop \phi - \rx{x}{\cid'}$ for
+  \item For all $([\phi_1,\phi_2] : \sharety) \in \Gamma$,
+    we have $\eqs \models \phi_1 \eop \phi - \rx{x}{\cid'} \wedge
+    \phi_2 \eop \rx{y}{\cid'}$ for
     some $\phi$ and unique $\rx{x}{\cid'} \in R$, with $\cid \ne \cid'$.
-  \item For all $([\phi] : \pubty) \in \Gamma$,
+  \item For all $(\pubx{\phi} : \pubty) \in \Gamma$,
     we have $\eqs \models \phi \eop \phi' - \rx{x}{\oid}$ for
     some $\phi'$ and unique $\rx{x}{\oid} \in R$.
   \end{enumerate}
@@ -258,7 +259,7 @@ about their reconstruction. This result follows by Theorem \ref{theorem-toeq}
 and known homomorphic properties of secret sharing schemes. 
 \begin{lemma}
   \label{lemma-sty-noninteractive-sound}
-  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma,R: {OK}_\cid$  and
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma,R: {OK}$  and
   $\iov(\prog) = S \cup V \cup O$
   and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
   Then, letting $X \defeq \ov(\Gamma) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$ for
@@ -274,7 +275,7 @@ Based on the preceding Lemma, we can show that noninterence with respect
 to classified interactive variables is maintained by typing judgements. 
 \begin{lemma}
   \label{lemma-styinteractive}
-  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma_1,R_1: {OK}_\cid$  and
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma_1,R_1: {OK}$  and
   $\iov(\prog) = S \cup V \cup O$
   and $\eqspre \wedge \toeq{\prog} \vdash \Gamma_1,R_1 \stredx \Gamma_2,R_2$.
   Letting $X_1 \defeq \ov(\Gamma_1) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$,
