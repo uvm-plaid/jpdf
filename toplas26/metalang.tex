@@ -144,12 +144,47 @@ constraints, we guarantee entailment for any instantiation, as
 follows.
 
 \begin{lemma}
+  \label{lemma-fresh}
+  Given $\eqs$ and $w, \cid = \fresh(\mathit{string}, \mathit{cid})$ and
+  some $w',\cid'$ where 
+  $\peq[w/y_1,\cid/y_n] \redx \eqs$ and
+  $\peq[w'/y_1,\cid'/y_n] \redx \eqs'$.
+  Then $\store \models \eqs'$ implies $\store \models \eqs$. 
+\end{lemma}
+
+\begin{proof}
+  If $w',\cid'$ are fresh or chosen the result is
+  trivial.  Otherwise, it must be the case that at least two
+  distinct variables $x_1$ and $x_2$ in $\eqs$ are renamed as a single
+  variable $x$ in $\eqs'$, given freshness of $w,\cid$. Let
+  $\mathit{rename}$ be the function that maps variables in $\eqs$ to
+  variables in $\eqs'$ such that $\mathit{rename}(\eqs) = \eqs'$. Assume
+  $\store' \models \eqs'$, and define $\store$ such that:
+  $$
+  \forall x \in \dom(\vars(E)) . \store(x) \defeq \store'(\mathit{rename}(x)) 
+  $$
+  Then $\store$ must be a model of $\eqs$, which is a contradiction. 
+\end{proof}
+
+\begin{lemma}
   \label{lemma-genentails}
   If $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_2$ and
   $\peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1$ and
   $\peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2$, then
   $\eqs_1 \models \eqs_2$.  
 \end{lemma}
+\begin{proof}
+  By assumption and definition of \TirName{GenEntails} we have
+  $\peq_1[\mv_1'/y_n \cdots \mv_n'/y_n] \redx \eqs_1'$ and
+  $\peq_2[\mv_1'/y_n \cdots \mv_n'/y_n] \redx \eqs_2'$ and $\eqs_1'
+  \models \eqs_2'$ for some $\mv_1',\ldots,\mv_n' =
+  \fresh(\tau_1,\ldots,\tau_n)$.  Now suppose on the contrary that
+  $\eqs_1 \not\models \eqs_2$.  This implies the existence of $\store$
+  such that $\store \models \eqs_1$ and $\store \not\models \eqs_2$.
+  But Lemma \ref{lemma-fresh} implies that $\store \models \eqs_1'$,
+  so by definition we have $\store \models \eqs_2'$ implying $\store
+  \models \eqs_2$ by construction, which is a contradiction.
+\end{proof}
 
 \metahtripfig
 

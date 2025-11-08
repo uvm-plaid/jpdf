@@ -1,0 +1,111 @@
+\section{$\metaprot$ Type Checking}
+
+\subsection{Share Type Checking with Annotations}
+
+\begin{mathpar}
+  \htrip{e_1 \eop e_1 \wedge e_2 \eop e_2'}{[e_1,e_2] \kwas [e_1',e_2']}{\true}
+  
+  \htrip{e_1 \eop e_1 \wedge e_2 \eop e_2'}{[e_1,e_2] \kwmask [e_1',e_2']}{\true}
+
+  \htrip{\true}{[e_1,e_2] : \sharety}{\true}
+
+  \htrip{\true}{[e_1,e_2] : \outty}{\true}
+
+  \htrip{\true}{\pubx{e} : \outty}{\true}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\
+        e_1' \redx \phi - \rx{w_3}{\cid_2} \\
+        e_2' \redx \rx{w_3}{\cid_2}}
+      {[e_1,e_2] \kwas [e_1',e_2'] \redx \pskip}
+
+  \inferrule
+      {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
+        e_1' \redx \phi - \rx{w_3}{\oid} \\
+        e_2' \redx \rx{w_3}{\oid}}
+      {[e_1,e_2] \kwmask [e_1',e_2'] \redx \pskip}
+      
+  \inferrule
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}}
+      {[e_1,e_2] : \sharety \redx \pskip}
+      
+  \inferrule
+      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}}
+      {[e_1,e_2] : \outty \redx \pskip}
+      
+  \inferrule
+      {e \redx \pubx{\out{\cid}}}
+      {\pubx{e}: \outty \redx \pskip}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[CoerceGenshare]
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\
+        e_1' \redx \phi - \rx{w_3}{\cid_2} \\
+        e_2' \redx \rx{w_3}{\cid_2}}
+      {\shtrip{\Gamma, R, \xdefs}
+        {[e_1,e_2] \kwas [e_1',e_2']}
+        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety},
+          R \uplus \setit{\rx{w}{\cid}}, \xdefs} }
+      
+  \inferrule[CoerceSecureOpen]
+      {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
+        e_1' \redx \phi - \rx{w_3}{\oid} \\
+        e_2' \redx \rx{w_3}{\oid}}
+      {\shtrip{\Gamma, R, \xdefs}
+        {[e_1,e_2] \kwmask [e_1',e_2']}
+        {\Gamma \cup  \setit{\pubx{\px{x} + \px{y}} : \pubty},
+        R \uplus \setit{\rx{w}{\oid}}, \xdefs} }
+
+  \inferrule[LocalShares]
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}  \\
+        \Gamma \Vdash [\xdefs(\mx{w_1}{\cid_1} ), \xdefs(\mx{w_2}{\cid_2})] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
+        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety}, R, \xdefs}}
+
+  \inferrule[Reveal]
+      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}  \\
+        \Gamma \Vdash [\xdefs(\px{w_1}), \xdefs(\px{w_2})] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \outty}
+        {\Gamma \cup \setit{\pubx{\px{w_1} \fplus \px{w_2}} : \outty}, R, \xdefs}}
+
+  \inferrule[Output]
+      {e \redx \out{\cid} \\
+        \Gamma \Vdash \pubx{\xdefs(\out{x})} : \outty}
+      {\shtrip{\Gamma, R, \xdefs}{\pubx{\out{\cid}} : \outty}
+        {\Gamma \cup \setit{\pubx{\xdefs(\out{\cid})} : \outty}, R, \xdefs}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Defn]
+      {e_1 \redx \mx{w}{\cid_1} \\ e_2 \redx \elab{\be}{\cid_2}}
+      {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[\mx{w}{\cid_1} \mapsto \toeq{\elab{\be}{\cid_2}}]}}
+
+  \inferrule[App]
+      {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2}, \notg{R'}) \\
+        \notg{\Gamma_1}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_1 \\
+        \notg{\Gamma_2}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_2 \\
+        \notg{R'}[e_1/y_1 \cdots e_n/y_n] \redx R'        
+      }
+      {\shtrip{\Gamma \cup \Gamma_1, R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma \cup \Gamma_1 \cup \Gamma_2, R \uplus R', \xdefs}}
+
+  \inferrule[Seq]    
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1}{\Gamma_2,R_2,\xdefs_2} \\
+       \shtrip{\Gamma_2,R_2,\xdefs_2}{\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1;\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+
+  \inferrule[Let]
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd[e/y]}{\Gamma_2,R_2,\xdefs_2}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\elet{y}{e}{\cmd}}{\Gamma_2,R_2,\xdefs_2}}
+      
+  \inferrule[Fn]
+            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\
+              \mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\
+              \notg{\Gamma_1}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_1 \\
+              \notg{\Gamma_2}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_2 \\
+              \notg{R}[e_1/y_1 \cdots e_n/y_n] \redx R \\  
+     \shtrip{\Gamma_1, \varnothing, \varnothing}{\cmd}{\Gamma_2, R,\xdefs}}
+    {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2}, \notg{R})}
+\end{mathpar}
