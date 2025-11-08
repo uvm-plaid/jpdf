@@ -3,9 +3,9 @@
 \subsection{Share Type Checking with Annotations}
 
 \begin{mathpar}
-  \htrip{e_1 \eop e_1 \wedge e_2 \eop e_2'}{[e_1,e_2] \kwas [e_1',e_2']}{\true}
+  \htrip{e_1 \eop e - e_2}{[e_1,e_2] \kwas e}{\true}
   
-  \htrip{e_1 \eop e_1 \wedge e_2 \eop e_2'}{[e_1,e_2] \kwmask [e_1',e_2']}{\true}
+  \htrip{e_1 + e_2  \eop e_1' + e_2'}{[e_1,e_2] \kwmask [e_1',e_2']}{\true}
 
   \htrip{\true}{[e_1,e_2] : \sharety}{\true}
 
@@ -23,7 +23,7 @@
 
   \inferrule
       {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
-        e_1' \redx \phi - \rx{w_3}{\oid} \\
+        e_1' \redx \phi + \rx{w_3}{\oid} \\
         e_2' \redx \rx{w_3}{\oid}}
       {[e_1,e_2] \kwmask [e_1',e_2'] \redx \pskip}
       
@@ -42,17 +42,16 @@
 
 \begin{mathpar}
   \inferrule[CoerceGenshare]
-      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\
-        e_1' \redx \phi - \rx{w_3}{\cid_2} \\
-        e_2' \redx \rx{w_3}{\cid_2}}
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \rx{w_2}{\cid_2} \\
+        e \redx \phi \\ \cid_1 \ne \cid_2}
       {\shtrip{\Gamma, R, \xdefs}
-        {[e_1,e_2] \kwas [e_1',e_2']}
-        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety},
-          R \uplus \setit{\rx{w}{\cid}}, \xdefs} }
+        {[e_1,e_2] \kwas e}
+        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\rx{w_2}{\cid_2}] : \sharety},
+          R \uplus \setit{\rx{w_2}{\cid}}, \xdefs} }
       
   \inferrule[CoerceSecureOpen]
       {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
-        e_1' \redx \phi - \rx{w_3}{\oid} \\
+        e_1' \redx \phi \\
         e_2' \redx \rx{w_3}{\oid}}
       {\shtrip{\Gamma, R, \xdefs}
         {[e_1,e_2] \kwmask [e_1',e_2']}
@@ -103,9 +102,9 @@
   \inferrule[Fn]
             {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\
               \mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\
-              \notg{\Gamma_1}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_1 \\
-              \notg{\Gamma_2}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_2 \\
-              \notg{R}[e_1/y_1 \cdots e_n/y_n] \redx R \\  
-     \shtrip{\Gamma_1, \varnothing, \varnothing}{\cmd}{\Gamma_2, R,\xdefs}}
+              \notg{\Gamma_1}[\mv_1/y_1 \cdots \mv_n/y_n] \redx \Gamma_1 \\
+              \notg{\Gamma_2}[\mv_1/y_1 \cdots \mv_n/y_n] \redx \Gamma_2 \\
+              \notg{R}[\mv_1/y_1 \cdots \mv_n/y_n] \redx R \\  
+     \shtrip{\Gamma_1, \varnothing, \varnothing}{\cmd[\mv_1/y_1 \cdots \mv_n/y_n]}{\Gamma_2, R,\xdefs}}
     {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2}, \notg{R})}
 \end{mathpar}

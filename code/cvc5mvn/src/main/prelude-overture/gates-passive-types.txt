@@ -12,14 +12,18 @@ sshare(x:string, i1:cid, i2:cid) {
 }
 postcondition: ([m[x++"s"]@i1,m[x++"s"]@i2] as genshares(s[x]@1,x,i1))
 
-precondition: ([m[x++"s"]@i1,m[x++"s"]@i2] : shares)
-open(x:string) {
-     p[x++"1"] := m[x++"s"]@1;
-     p[x++"2"] := m[x++"s"]@2;
-     m[x]@i1 := p[x++"1"] + p[x++"2"]@i1;
-     m[x]@i2 := p[x++"1"] + p[x++"2"]@i2
+precondition: ([m[x++"s"]@i1, m[x++"s"]@i2] : shares,
+	       [m[a++"s"]@i1, m[a++"s"]@i2] : shares)
+secopen(d:string;x:string,a:string) {
+     sum(d, x, a);				       
+     p[d++"1"] := m[d++"s"]@1;
+     p[d++"2"] := m[d++"s"]@2;
+     m[d]@i1 := p[d++"1"] + p[d++"2"]@i1;
+     m[d]@i2 := p[d++"1"] + p[d++"2"]@i2
 }
-postcondition: ([p[x++"1"],p[x++"2"]] : public; [m[x]@i1] : public; [m[x]@i2] : public)
+postcondition: ([p[d++"1"],p[d++"2"]] masked [RECON(x),r[a]@o],
+	        [m[d]@i1] : public,
+		[m[d]@i2] : public)
 
 _sum(z:string, x:string, y:string, i:cid) { m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i }
 
@@ -40,10 +44,8 @@ precondition: ( [m[x++"s"]@1,m[x++"s"]@2] : shares;
 	        [m[x++"cs"]@1,m[x++"cs"]@2] : shares ),
 	       ( BEAVERTRIP(z) )
 mult(z : string, x : string, y : string) {
-    sum(z++"d", x, z++"a");
-    open(z++"d");
-    sum(z++"e", y, z++"b");
-    open(z++"e");
+    secopen(z++"d", x, z++"a");
+    secopen(z++"e", y, z++"b");
     _mult(z,y,1); _mult(z,y,2)
 }
 postcondition: ( [m[z++"s"]@i1,m[z++"s"]@i2] : shares ),
