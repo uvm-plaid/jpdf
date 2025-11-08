@@ -43,26 +43,23 @@
 \begin{mathpar}
   \inferrule[CoerceGenshare]
       {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \rx{w_2}{\cid_2} \\
-        e \redx \phi \\ \cid_1 \ne \cid_2}
+        %e \redx \phi \\
+        \cid_1 \ne \cid_2}
       {\shtrip{\Gamma, R, \xdefs}
         {[e_1,e_2] \kwas e}
         {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\rx{w_2}{\cid_2}] : \sharety},
           R \uplus \setit{\rx{w_2}{\cid}}, \xdefs} }
       
   \inferrule[CoerceSecureOpen]
-      {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
-        e_1' \redx \phi \\
-        e_2' \redx \rx{w_3}{\oid}}
+      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_1} \\
+        %e_1' \redx \phi \\
+        e_2' \redx \rx{w}{\oid} \\
+        \Gamma \Vdash [\xdefs(\px{w_1}), \xdefs(\px{w_2})] : \sharety
+      }
       {\shtrip{\Gamma, R, \xdefs}
         {[e_1,e_2] \kwmask [e_1',e_2']}
-        {\Gamma \cup  \setit{\pubx{\px{x} + \px{y}} : \pubty},
+        {\Gamma \cup  \setit{\pubx{\px{w_1} + \px{w_2}} : \pubty},
         R \uplus \setit{\rx{w}{\oid}}, \xdefs} }
-
-  \inferrule[LocalShares]
-      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}  \\
-        \Gamma \Vdash [\xdefs(\mx{w_1}{\cid_1} ), \xdefs(\mx{w_2}{\cid_2})] : \sharety}
-      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
-        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety}, R, \xdefs}}
 
   \inferrule[Reveal]
       {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}  \\
@@ -73,8 +70,20 @@
   \inferrule[Output]
       {e \redx \out{\cid} \\
         \Gamma \Vdash \pubx{\xdefs(\out{x})} : \outty}
-      {\shtrip{\Gamma, R, \xdefs}{\pubx{\out{\cid}} : \outty}
-        {\Gamma \cup \setit{\pubx{\xdefs(\out{\cid})} : \outty}, R, \xdefs}}
+      {\shtrip{\Gamma, R, \xdefs}{\out{\cid} : \outty}
+        {\Gamma \cup \setit{\pubx{\out{\cid}} : \outty}, R, \xdefs}}
+
+  \inferrule[LocalShares]
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}  \\
+        \Gamma \Vdash [\xdefs(\mx{w_1}{\cid_1} ), \xdefs(\mx{w_2}{\cid_2})] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
+        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety}, R, \xdefs}}
+
+  \inferrule[LocalPub]
+      {e \redx \mx{w}{\cid} \\ 
+        \Gamma \Vdash \pubx{\xdefs(\mx{w}{\cid})} : \pubty}
+      {\shtrip{\Gamma, R, \xdefs}{e : \pubty}
+        {\Gamma \cup \setit{\pubx{\mx{w}{\cid}} : \pubty}, R, \xdefs}}
 \end{mathpar}
 
 \begin{mathpar}

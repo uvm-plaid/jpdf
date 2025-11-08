@@ -22,8 +22,8 @@ secopen(d:string;x:string,a:string) {
      m[d]@i2 := p[d++"1"] + p[d++"2"]@i2
 }
 postcondition: ([p[d++"1"],p[d++"2"]] masked [RECON(x),r[a]@o],
-	        [m[d]@i1] : public,
-		[m[d]@i2] : public)
+	        m[d]@i1 : public,
+		m[d]@i2 : public)
 
 _sum(z:string, x:string, y:string, i:cid) { m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i }
 
