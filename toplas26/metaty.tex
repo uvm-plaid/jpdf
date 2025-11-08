@@ -5,12 +5,41 @@
 $$
 \begin{array}{rclr}
   \sta &::=& [e_1,e_2] \kwas e \mid [e_1,e_2] \kwmask [e_1',e_2'] \mid [e_1,e_2] : \outty
-      \mid & \quad \textit{type annotations} \\
-      & & \mid \out{\cid} : \outty \mid [e_1,e_2] : \sharety \mid e : \pubty \\
+      \mid & \quad \textit{share type annotations} \\
+      & & e : \outty \mid [e_1,e_2] : \sharety \mid e : \pubty \\
   \cmd &::=& \cdots \mid \sta
 \end{array}
 $$
-    
+
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \rx{w_2}{\cid_2} \\
+        e \redx \phi}
+      {[e_1,e_2] \kwas e \redx \pskip}
+
+  \inferrule
+      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2} \\
+        e_1' \redx \phi \\
+        e_2' \redx \rx{w_3}{\oid}}
+      {[e_1,e_2] \kwmask [e_1',e_2'] \redx \pskip}
+      
+  \inferrule
+      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}}
+      {[e_1,e_2] : \outty \redx \pskip}
+      
+  \inferrule
+      {e \redx \out{\cid}}
+      {e: \outty \redx \pskip}
+      
+  \inferrule
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}}
+      {[e_1,e_2] : \sharety \redx \pskip}
+      
+  \inferrule
+      {e \redx \out{\cid}}
+      {e: \pubty \redx \pskip}
+\end{mathpar}
+
 \begin{mathpar}
   \htrip{e_1 \eop e - e_2}{[e_1,e_2] \kwas e}{\true}
   
@@ -20,34 +49,11 @@ $$
 
   \htrip{\true}{[e_1,e_2] : \outty}{\true}
 
-  \htrip{\true}{\pubx{e} : \outty}{\true}
+  \htrip{\true}{ e : \outty}{\true}
+
+  \htrip{\true}{ e : \pubty}{\true}
 \end{mathpar}
 
-\begin{mathpar}
-  \inferrule
-      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\
-        e_1' \redx \phi - \rx{w_3}{\cid_2} \\
-        e_2' \redx \rx{w_3}{\cid_2}}
-      {[e_1,e_2] \kwas [e_1',e_2'] \redx \pskip}
-
-  \inferrule
-      {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
-        e_1' \redx \phi + \rx{w_3}{\oid} \\
-        e_2' \redx \rx{w_3}{\oid}}
-      {[e_1,e_2] \kwmask [e_1',e_2'] \redx \pskip}
-      
-  \inferrule
-      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}}
-      {[e_1,e_2] : \sharety \redx \pskip}
-      
-  \inferrule
-      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}}
-      {[e_1,e_2] : \outty \redx \pskip}
-      
-  \inferrule
-      {e \redx \pubx{\out{\cid}}}
-      {\pubx{e}: \outty \redx \pskip}
-\end{mathpar}
 
 \begin{mathpar}
   \inferrule[CoerceGenshare]

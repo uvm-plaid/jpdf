@@ -7,10 +7,11 @@ IDEALF() { (s["x"]@1 + s["y"]@2) + (s["i"]@1 * s["j"]@2) }
 cmdfunctions:
 
 sshare(x:string, i1:cid, i2:cid) {
-   m[x++"s"]@i2 := (s[x] + -r[x])@i1;
-   m[x++"s"]@i1 := r[x]@i1
+   m[x++"s"]@i1 := (s[x] + -r[x])@i2;
+   m[x++"s"]@i2 := r[x]@i2
 }
-postcondition: ([m[x++"s"]@i1,m[x++"s"]@i2] as genshares(s[x]@1,x,i1))
+postcondition: ([m[x++"s"]@i1,r[x]@i2] encodes s[x]@2),
+	        [m[x++"s"]@i1,m[x++"s"]@i2] : shares)
 
 precondition: ([m[x++"s"]@i1, m[x++"s"]@i2] : shares,
 	       [m[a++"s"]@i1, m[a++"s"]@i2] : shares)
