@@ -31,7 +31,7 @@ trait Node {
     case ExprFunc(id, parms, body) => id :: body :: parms
     case ConstraintFunc(id, parms, body) => id :: body :: parms
     case CmdFunc(id, parms, body, precond, postcond) => id :: body ++ parms ++ precond.toList ++ postcond.toList
-    case _ => List()
+    case _ => Nil
 
   /**
    * Collect all the descendants of this node.

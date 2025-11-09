@@ -7,6 +7,14 @@ import plaid.prelude.logic.contract
 
 class ContractTest {
 
+  /** The default precondition is True. */
+  @Test
+  def defaultPrecondition(): Unit =
+    val src = """ f() { m["x"]@1 := 4 } """
+    val contract = Loader.cmdFunc(src).contract(Nil, Nil, Nil)
+    val pre = Loader.constraint("T")
+    assertEquals(pre, contract.pre)
+
   /** The default postcondition is the constraints from a function body. */
   @Test
   def defaultPostcondition(): Unit =

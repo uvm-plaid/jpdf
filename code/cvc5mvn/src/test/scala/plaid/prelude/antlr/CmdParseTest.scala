@@ -17,7 +17,7 @@ class CmdParseTest {
   @Test
   def functionCall(): Unit =
     assertEquals(
-      CallCmd(Identifier("f"), List()),
+      CallCmd(Identifier("f"), Nil),
       Loader.command("f()"))
     assertEquals(
       CallCmd(Identifier("f"), List(Num(0))),

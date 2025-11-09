@@ -245,7 +245,7 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val sort = termManager.mkFiniteFieldSort("7", 10)
     val factory = new TermFactory(termManager, sort)
-    factory.toTerm(CallCmd(Identifier("f"), List()))
+    factory.toTerm(CallCmd(Identifier("f"), Nil))
   }
 
   /** CVC5 interpretation for OT */

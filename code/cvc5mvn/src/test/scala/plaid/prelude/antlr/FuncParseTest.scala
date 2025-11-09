@@ -9,7 +9,7 @@ class FuncParseTest {
   /** Parses expression functions of zero, one, and multiple parameters. */
   @Test
   def exprFunctions(): Unit =
-    val f = ExprFunc(Identifier("f"), List(), Num(0))
+    val f = ExprFunc(Identifier("f"), Nil, Num(0))
     val g = ExprFunc(Identifier("g"), List(Identifier("x")), Num(1))
     val h = ExprFunc(Identifier("h"), List(Identifier("x"), Identifier("y")), Num(2))
     assertEquals(f, Loader.exprFunc("f() { 0 }"))

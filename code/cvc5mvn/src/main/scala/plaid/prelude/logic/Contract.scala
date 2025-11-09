@@ -12,7 +12,7 @@ case class Entailment(origin: Node, a: Constraint, b: Constraint)
  * entailments that have to hold based on all the commands that have been
  * processed so far.
  */
-case class HoareContext(cons: Constraint = TrueConstraint(), ent: List[Entailment] = List()) {
+case class HoareContext(cons: Constraint = TrueConstraint(), ent: List[Entailment] = Nil) {
   /** Add a new postcondition in the constraint of this Hoare context. */
   private def include(c: Constraint): HoareContext = copy(cons = AndConstraint(cons, c))
   /** Add a new entailment to this Hoare context. */
@@ -50,7 +50,7 @@ extension (trg: List[CmdFunc])
   /** Calculate contracts for all the commands (which must be expanded). */
   def contracts(exprFns: List[ExprFunc], constraintFns: List[ConstraintFunc]): List[Contract] = trg
     .dependencyOrdered()
-    .foldLeft(List()) { (acc, x) => x.contract(exprFns, constraintFns, acc) :: acc }
+    .foldLeft(Nil) { (acc, x) => x.contract(exprFns, constraintFns, acc) :: acc }
 
 extension (trg: CmdFunc)
   def contract(exprFns: List[ExprFunc], constraintFns: List[ConstraintFunc], contractCtx: List[Contract]): Contract =

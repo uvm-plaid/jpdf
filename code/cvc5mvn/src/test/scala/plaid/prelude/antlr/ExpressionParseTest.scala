@@ -78,7 +78,7 @@ class ExpressionParseTest {
   /** Function calls can have zero, one, or multiple parameters. */
   @Test
   def functionCall(): Unit =
-    assertEquals(CallExpr(Identifier("f"), List()), Loader.expression("f()"))
+    assertEquals(CallExpr(Identifier("f"), Nil), Loader.expression("f()"))
     assertEquals(CallExpr(Identifier("f"), List(Num(0))), Loader.expression("f(0)"))
     assertEquals(CallExpr(Identifier("f"), List(Num(0), Identifier("x"))), Loader.expression("f(0, x)"))
 

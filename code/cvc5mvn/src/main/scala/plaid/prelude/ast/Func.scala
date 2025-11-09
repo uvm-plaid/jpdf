@@ -44,7 +44,7 @@ object ListExprFuncExt {
     /** Expand all the expression functions in this list. */
     def expandAll(): List[ExprFunc] = trg
       .dependencyOrdered()
-      .foldLeft(List()) { (acc, f) => f.expand(acc) :: acc }
+      .foldLeft(Nil) { (acc, f) => f.expand(acc) :: acc }
 }
 
 object ListConstraintFuncExt {
@@ -54,7 +54,7 @@ object ListConstraintFuncExt {
     /** Expand all the constraint functions in this list. */
     def expandAll(exprCtx: List[ExprFunc]): List[ConstraintFunc] = trg
       .dependencyOrdered()
-      .foldLeft(List()) { (acc, f) => f.expand(exprCtx, acc) :: acc }
+      .foldLeft(Nil) { (acc, f) => f.expand(exprCtx, acc) :: acc }
 }
 
 object ListCmdFuncExt {

@@ -18,8 +18,8 @@ sealed trait Constraint extends Node {
    * this is used, but it would probably work anyway.
    */
   def expand(
-      exprCtx: List[ExprFunc] = List(),
-      constraintCtx: List[ConstraintFunc] = List(),
+      exprCtx: List[ExprFunc] = Nil,
+      constraintCtx: List[ConstraintFunc] = Nil,
       bindings: Map[Identifier, Expr] = Map()): Constraint = transform {
     case EqualConstraint(e1, e2) => Some(EqualConstraint(e1.expand(exprCtx, bindings), e2.expand(exprCtx, bindings)))
     case CallConstraint(id, parms) =>
