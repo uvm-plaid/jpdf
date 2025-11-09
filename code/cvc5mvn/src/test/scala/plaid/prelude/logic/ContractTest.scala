@@ -3,9 +3,27 @@ package plaid.prelude.logic
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import plaid.prelude.antlr.Loader
+import plaid.prelude.ast.{AndConstraint, AtExpr, EqualConstraint, Num, OutputExpr, TrueConstraint}
 import plaid.prelude.logic.contract
 
 class ContractTest {
+
+  /** Assignment commands add equality constraints to the Hoare context. */
+  @Test
+  def assignmentAddsEqualityConstraint(): Unit =
+    val cmd = Loader.command("out@1 := 4")
+    val ctx = HoareContext().include(cmd, Nil)
+    val expected = AndConstraint(TrueConstraint(), EqualConstraint(AtExpr(OutputExpr(), Num(1)), Num(4)))
+    assertEquals(expected, ctx.cons)
+
+  /** Assert commands add entailments to the Hoare context. */
+  @Test
+  def assertAddsEntailment(): Unit =
+    val cmd = Loader.command("assert (4 = 4)@1")
+    val ctx = HoareContext().include(cmd, Nil)
+    val constraint = EqualConstraint(Num(4), Num(4))
+    val expected = List(Entailment(cmd, TrueConstraint(), constraint))
+    assertEquals(expected, ctx.ent)
 
   /** The default precondition is True. */
   @Test
