@@ -1,105 +1,83 @@
-\section{$\metaprot$ Type Checking}
-
 \subsection{Share Type Checking with Annotations}
 
 $$
 \begin{array}{rclr}
-  \sta &::=& [e_1,e_2] \kwas e \mid [e_1,e_2] \kwmask [e_1',e_2'] \mid [e_1,e_2] : \outty
-      \mid & \quad \textit{share type annotations} \\
-      & & e : \outty \mid [e_1,e_2] : \sharety \mid e : \pubty \\
+  \sta &::=& e_1 \kwas e_2 \mid [e_1,e_2] : \sharety \mid \pubx{e} : \pubty \mid \pubx{e} : \outty
+      & \qquad \textit{share type annotations } \\     
   \cmd &::=& \cdots \mid \sta
 \end{array}
 $$
 
 \begin{mathpar}
   \inferrule
-      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \rx{w_2}{\cid_2} \\
-        e \redx \phi}
-      {[e_1,e_2] \kwas e \redx \pskip}
+      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
+      {e_1 \kwas e_2 \redx \pskip}
 
   \inferrule
-      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2} \\
-        e_1' \redx \phi \\
-        e_2' \redx \rx{w_3}{\oid}}
-      {[e_1,e_2] \kwmask [e_1',e_2'] \redx \pskip}
-      
-  \inferrule
-      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}}
-      {[e_1,e_2] : \outty \redx \pskip}
-      
-  \inferrule
-      {e \redx \out{\cid}}
-      {e: \outty \redx \pskip}
-      
-  \inferrule
-      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}}
+      {e_1 \redx x_1 \\ e_2 \redx x_2}
       {[e_1,e_2] : \sharety \redx \pskip}
       
   \inferrule
-      {e \redx \out{\cid}}
-      {e: \pubty \redx \pskip}
+      {e \redx \phi}
+      {\pubx{e} : \pubty \redx \pskip}
+      
+  \inferrule
+      {e \redx \phi}
+      {\pubx{e} : \outty \redx \pskip}
 \end{mathpar}
 
 \begin{mathpar}
-  \htrip{e_1 \eop e - e_2}{[e_1,e_2] \kwas e}{\true}
-  
-  \htrip{e_1 + e_2  \eop e_1' + e_2'}{[e_1,e_2] \kwmask [e_1',e_2']}{\true}
+  \htrip{e_1 \eop e_2}{e_1 \kwas e_2}{\true}
 
   \htrip{\true}{[e_1,e_2] : \sharety}{\true}
 
-  \htrip{\true}{[e_1,e_2] : \outty}{\true}
+  \htrip{\true}{\pubx{e} : \pubty}{\true}
 
-  \htrip{\true}{ e : \outty}{\true}
-
-  \htrip{\true}{ e : \pubty}{\true}
+  \htrip{\true}{\pubx{e} : \outty }{\true}
 \end{mathpar}
 
-
 \begin{mathpar}
-  \inferrule[CoerceGenshare]
-      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \rx{w_2}{\cid_2} \\
-        %e \redx \phi \\
-        \cid_1 \ne \cid_2}
-      {\shtrip{\Gamma, R, \xdefs}
-        {[e_1,e_2] \kwas e}
-        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\rx{w_2}{\cid_2}] : \sharety},
-          R \uplus \setit{\rx{w_2}{\cid}}, \xdefs} }
-      
-  \inferrule[CoerceSecureOpen]
-      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_1} \\
-        %e_1' \redx \phi \\
-        e_2' \redx \rx{w}{\oid} \\
-        \Gamma \Vdash [\xdefs(\px{w_1}), \xdefs(\px{w_2})] : \sharety
-      }
-      {\shtrip{\Gamma, R, \xdefs}
-        {[e_1,e_2] \kwmask [e_1',e_2']}
-        {\Gamma \cup  \setit{\pubx{\px{w_1} + \px{w_2}} : \pubty},
-        R \uplus \setit{\rx{w}{\oid}}, \xdefs} }
+  \inferrule[Coerce]
+      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
+      {\shtrip{\Gamma, R, \xdefs}{e_1 \kwas e_2}{\Gamma, R, \xdefs[\phi_1 \mapsto \phi_2]}}
+
+  \inferrule[LocalShares]
+      {e_1 \redx x_1 \\ e_2 \redx x_2  \\
+        \Gamma \Vdash [\xdefs(x_1), \xdefs(x_2)] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
+        {\Gamma \cup \setit{[x_1,x_2] : \sharety}, R, \xdefs}}
+
+  \inferrule[GenShares]
+      {e_1 \redx x_1 \\ e_2 \redx x_2  \\ \xdefs(x_1) = \phi - \rx{w}{\cid} \\ \xdefs(x_2) =  \rx{w}{\cid}}
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
+        {\Gamma \cup \setit{[x_1,x_2] : \sharety}, R \uplus \setit{\rx{w}{\cid}}, \xdefs}}
+
+  \inferrule[LocalPublic]
+      {e \redx \phi \\ \Gamma \Vdash [\xdefs(\phi)] : \sty}
+      {\shtrip{\Gamma, R, \xdefs}{\pubx{e} : \sty}
+        {\Gamma \cup \setit{\pubx{\phi} : \sty}, R, \xdefs}}
+
+  \inferrule[MaskedPublic]
+      {e_1 \redx x_1 \\ e_2 \redx x_2  \\
+        \Gamma \Vdash [\xdefs(x_1), \xdefs(x_2)] : \sharety \\
+        \xdefs(x_1 + x_2)  = \phi + \rx{w}{\oid}}
+      {\shtrip{\Gamma, R, \xdefs}{\pubx{e_1+e_2} : \pubty}
+        {\Gamma \cup \setit{\pubx{x_1 + x_2} : \pubty}, R \uplus \setit{\rx{w}{\oid}}, \xdefs}}
 
   \inferrule[Reveal]
-      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}  \\
-        \Gamma \Vdash [\xdefs(\px{w_1}), \xdefs(\px{w_2})] : \sharety}
-      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \outty}
-        {\Gamma \cup \setit{\pubx{\px{w_1} \fplus \px{w_2}} : \outty}, R, \xdefs}}
+      {e_1 \redx x_1 \\ e_2 \redx x_2  \\
+        \Gamma \Vdash [\xdefs(x_1), \xdefs(x_2)] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{\pubx{e_1 + e_2} : \outty}
+        {\Gamma \cup \setit{\pubx{x_1 \fplus x_2} : \outty}, R, \xdefs}}
 
   \inferrule[Output]
       {e \redx \out{\cid} \\
         \Gamma \Vdash \pubx{\xdefs(\out{x})} : \outty}
       {\shtrip{\Gamma, R, \xdefs}{\out{\cid} : \outty}
         {\Gamma \cup \setit{\pubx{\out{\cid}} : \outty}, R, \xdefs}}
-
-  \inferrule[LocalShares]
-      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}  \\
-        \Gamma \Vdash [\xdefs(\mx{w_1}{\cid_1} ), \xdefs(\mx{w_2}{\cid_2})] : \sharety}
-      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
-        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety}, R, \xdefs}}
-
-  \inferrule[LocalPub]
-      {e \redx \mx{w}{\cid} \\ 
-        \Gamma \Vdash \pubx{\xdefs(\mx{w}{\cid})} : \pubty}
-      {\shtrip{\Gamma, R, \xdefs}{e : \pubty}
-        {\Gamma \cup \setit{\pubx{\mx{w}{\cid}} : \pubty}, R, \xdefs}}
 \end{mathpar}
+
+
 
 \begin{mathpar}
   \inferrule[Defn]
@@ -134,6 +112,7 @@ $$
 \end{mathpar}
 
 
+
 \begin{definition} Define $\clean(\Gamma)$ as follows:
 \begin{eqnarray*}
 \clean(\varnothing) &=& \varnothing \\[-1.5mm]
@@ -150,10 +129,17 @@ $$
   Then $\eqs_1 \wedge \toeq{\xdefs_1} \wedge \toeq{\prog} \vdash \clean(\Gamma_1),R_1 \stredx^* \clean(\Gamma_2),R_2$.
 \end{lemma}
 
+\begin{lemma}
+  Assume $\htrip{\eqspre}{\ttt{main()}}{\eqs}$ and $\ttt{main} : \Gamma_1 \rightarrow (\Gamma_2,R)$
+  and $\eqspre,\Gamma_1,R' : {OK}$ with $R' \cap R = \varnothing$. Given $\ttt{main()} \redx \prog$,
+  then $\eqspre \wedge \toeq{\prog} \vdash \varnothing, \varnothing \stredx^* \clean(\Gamma_2),R$.
+\end{lemma}
+
 \begin{theorem}
   Assume $\htrip{\eqspre}{\ttt{main()}}{\eqs}$ and $\ttt{main} : \Gamma_1 \rightarrow (\Gamma_2,R)$
-  and $\eqspre,\Gamma_1,R' : {OK}$ with $R' \cap R = \varnothing$. Given $\ttt{main()} \redx \prog$
+  and $\eqspre,\Gamma_1,R' : {OK}$ with $R' \cap R = \varnothing$. Given $\ttt{main()} \redx \prog$,
   with $\iov(\prog) = S \cup V \cup O$, then $\prog$ satisfies noninterference modulo output if
   $\realviews{\setit{\cid_1}}{\setit{\cid_2}} \cup O
   \subseteq \ov(\clean(\Gamma_2))$ for all $\cid_1$, $\cid_2$ with $\cid_1 \ne \cid_2$.
 \end{theorem}
+
