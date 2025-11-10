@@ -77,11 +77,9 @@ constraintfunctions:
 
 // These are Beaver triple constraints. Party 3 is a phantom just for spec.
 BEAVERTRIP(x) {
-  m[x++"as"]@1 == r[x++"a1"]@3 AND
-  m[x++"as"]@2 == r[x++"a2"]@3 AND
-  m[x++"bs"]@1 == r[x++"b1"]@3 AND
-  m[x++"bs"]@2 == r[x++"b2"]@3 AND
-  m[x++"cs"]@1 == ((r[x++"a1"]@3 + r[x++"a2"]@3) * (r[x++"b1"]@3 + r[x++"b2"]@3)) + -r[x++"c"]@3 AND
-  m[x++"cs"]@2 == r[x++"c"]@3
+  m[x++"c"]@3 == r[x++"a"]@3 * r[x++"b"]@3 AND
+  m[x++"as"]@1 + m[x++"as"]@2 == r[x++"a"]@3 AND
+  m[x++"bs"]@1 + m[x++"bs"]@2 == r[x++"b"]@3 AND
+  m[x++"cs"]@1 + m[x++"cs"]@2 == m[x++"c"]@3 
 }
 

@@ -53,26 +53,27 @@ $$
         {\Gamma \cup \setit{[x_1,x_2] : \sharety}, R \uplus \setit{\rx{w}{\cid}}, \xdefs}}
 
   \inferrule[LocalPublic]
-      {e \redx \phi \\ \Gamma \Vdash [\xdefs(\phi)] : \sty}
-      {\shtrip{\Gamma, R, \xdefs}{\pubx{e} : \sty}
-        {\Gamma \cup \setit{\pubx{\phi} : \sty}, R, \xdefs}}
+      {e \redx \phi \\ \Gamma \Vdash \pubx{\xdefs(\phi)} : \pubty}
+      {\shtrip{\Gamma, R, \xdefs}{\pubx{e} : \pubty}
+        {\Gamma \cup \setit{\pubx{\phi} : \pubty}, R, \xdefs}}
 
   \inferrule[MaskedPublic]
       {e_1 \redx x_1 \\ e_2 \redx x_2  \\
-        \Gamma \Vdash [\xdefs(x_1), \xdefs(x_2)] : \sharety \\
+        \Gamma \Vdash [x_1, x_2] : \sharety \\
         \xdefs(x_1 + x_2)  = \phi + \rx{w}{\oid}}
       {\shtrip{\Gamma, R, \xdefs}{\pubx{e_1+e_2} : \pubty}
         {\Gamma \cup \setit{\pubx{x_1 + x_2} : \pubty}, R \uplus \setit{\rx{w}{\oid}}, \xdefs}}
 
   \inferrule[Reveal]
       {e_1 \redx x_1 \\ e_2 \redx x_2  \\
-        \Gamma \Vdash [\xdefs(x_1), \xdefs(x_2)] : \sharety}
+        \Gamma \Vdash [x_1, x_2] : \sharety}
       {\shtrip{\Gamma, R, \xdefs}{\pubx{e_1 + e_2} : \outty}
         {\Gamma \cup \setit{\pubx{x_1 \fplus x_2} : \outty}, R, \xdefs}}
 
   \inferrule[Output]
       {e \redx \out{\cid} \\
-        \Gamma \Vdash \pubx{\xdefs(\out{x})} : \outty}
+       \xdefs(\out{\cid}) = x_1 + x_2 \\
+       \Gamma \Vdash \pubx{x_1 + x_2} : \outty }
       {\shtrip{\Gamma, R, \xdefs}{\out{\cid} : \outty}
         {\Gamma \cup \setit{\pubx{\out{\cid}} : \outty}, R, \xdefs}}
 \end{mathpar}
@@ -81,8 +82,8 @@ $$
 
 \begin{mathpar}
   \inferrule[Defn]
-      {e_1 \redx \mx{w}{\cid_1} \\ e_2 \redx \elab{\be}{\cid_2}}
-      {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[\mx{w}{\cid_1} \mapsto \toeq{\elab{\be}{\cid_2}}]}}
+      {e_1 \redx x \\ e_2 \redx \elab{\be}{\cid}}
+      {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[x \mapsto \toeq{\elab{\be}{\cid}}]}}
 
   \inferrule[App]
       {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2}, \notg{R'}) \\
