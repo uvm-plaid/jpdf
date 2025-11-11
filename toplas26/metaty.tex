@@ -25,81 +25,8 @@ checking. To enable this we introduce \emph{share type annotations}
 
 \shtripstafig
 
-\begin{mathpar}
-  \inferrule[Coerce]
-      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
-      {\shtrip{\Gamma, R, \xdefs}{e_1 \kwas e_2}{\Gamma, R, \xdefs[\phi_1 \mapsto \phi_2]}}
+\shtripcmdfig
 
-  \inferrule[LocalShares]
-      {e_1 \redx x_1 \\ e_2 \redx x_2  \\
-        \Gamma \Vdash [\xdefs(x_1), \xdefs(x_2)] : \sharety}
-      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
-        {\Gamma \cup \setit{[x_1,x_2] : \sharety}, R, \xdefs}}
-
-  \inferrule[GenShares]
-      {e_1 \redx x_1 \\ e_2 \redx x_2  \\ \xdefs(x_1) = \phi - \rx{w}{\cid} \\ \xdefs(x_2) =  \rx{w}{\cid}}
-      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
-        {\Gamma \cup \setit{[x_1,x_2] : \sharety}, R \uplus \setit{\rx{w}{\cid}}, \xdefs}}
-
-  \inferrule[LocalPublic]
-      {e \redx \phi \\ \Gamma \Vdash \pubx{\xdefs(\phi)} : \pubty}
-      {\shtrip{\Gamma, R, \xdefs}{\pubx{e} : \pubty}
-        {\Gamma \cup \setit{\pubx{\phi} : \pubty}, R, \xdefs}}
-
-  \inferrule[MaskedPublic]
-      {e_1 \redx x_1 \\ e_2 \redx x_2  \\
-        \Gamma \Vdash [x_1, x_2] : \sharety \\
-        \xdefs(x_1 + x_2)  = \phi + \rx{w}{\oid}}
-      {\shtrip{\Gamma, R, \xdefs}{\pubx{e_1+e_2} : \pubty}
-        {\Gamma \cup \setit{\pubx{x_1 + x_2} : \pubty}, R \uplus \setit{\rx{w}{\oid}}, \xdefs}}
-
-  \inferrule[Reveal]
-      {e_1 \redx x_1 \\ e_2 \redx x_2  \\
-        \Gamma \Vdash [x_1, x_2] : \sharety}
-      {\shtrip{\Gamma, R, \xdefs}{\pubx{e_1 + e_2} : \outty}
-        {\Gamma \cup \setit{\pubx{x_1 \fplus x_2} : \outty}, R, \xdefs}}
-
-  \inferrule[Output]
-      {e \redx \out{\cid} \\
-       \xdefs(\out{\cid}) = x_1 + x_2 \\
-       \Gamma \Vdash \pubx{x_1 + x_2} : \outty }
-      {\shtrip{\Gamma, R, \xdefs}{\out{\cid} : \outty}
-        {\Gamma \cup \setit{\pubx{\out{\cid}} : \outty}, R, \xdefs}}
-\end{mathpar}
-
-
-
-\begin{mathpar}
-  \inferrule[Defn]
-      {e_1 \redx x \\ e_2 \redx \elab{\be}{\cid}}
-      {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[x \mapsto \toeq{\elab{\be}{\cid}}]}}
-
-  \inferrule[App]
-      {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2}, \notg{R'}) \\
-        \notg{\Gamma_1}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_1 \\
-        \notg{\Gamma_2}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_2 \\
-        \notg{R'}[e_1/y_1 \cdots e_n/y_n] \redx R'        
-      }
-      {\shtrip{\Gamma \cup \Gamma_1, R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma \cup \Gamma_1 \cup \Gamma_2, R \uplus R', \xdefs}}
-
-  \inferrule[Seq]    
-      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1}{\Gamma_2,R_2,\xdefs_2} \\
-       \shtrip{\Gamma_2,R_2,\xdefs_2}{\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
-      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1;\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
-
-  \inferrule[Let]
-      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd[e/y]}{\Gamma_2,R_2,\xdefs_2}}
-      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\elet{y}{e}{\cmd}}{\Gamma_2,R_2,\xdefs_2}}
-      
-  \inferrule[Fn]
-            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\
-              \mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\
-              \notg{\Gamma_1}[\mv_1/y_1 \cdots \mv_n/y_n] \redx \Gamma_1 \\
-              \notg{\Gamma_2}[\mv_1/y_1 \cdots \mv_n/y_n] \redx \Gamma_2 \\
-              \notg{R}[\mv_1/y_1 \cdots \mv_n/y_n] \redx R \\  
-     \shtrip{\Gamma_1, \varnothing, \varnothing}{\cmd[\mv_1/y_1 \cdots \mv_n/y_n]}{\Gamma_2, R,\xdefs}}
-    {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2}, \notg{R})}
-\end{mathpar}
 
 
 \begin{fpfig}[t]{GMW $\ttt{and}$ gate with share type annotations.}{fig-gmwsharetypes}
