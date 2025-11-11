@@ -1,13 +1,34 @@
 \subsection{Share Type Checking with Annotations}
 
-Share types rely on SMT entailments via the \TirName{ShareEntails} and \TirName{PubEntails} rules,
-which are not syntax directed. Our goal with the $\metaprot$ language is to automate share type
-checking. To enable this we introduce \emph{share type annotations} 
+Share types rely on SMT entailments via the \TirName{ShareEntails} and
+\TirName{PubEntails} rules, which are not syntax directed. Our goal
+with the $\metaprot$ language is to automate share type checking. To
+enable this we introduce \emph{share type annotations}. These
+annotations allow programmer specification of properties that can be
+verified as part of the Hoare triple analysis defined in Section
+\ref{section-metahtrip} and that enable automated checking of types.
 
+A fundamental component of the system is automated share type checking
+of noninteractive computations.  We define an algorithmic, syntax
+directed subset of noninteractive share typing as follows:
 \begin{definition}
   Define $\Gamma \Vdash \stt : \sty$ iff $\Gamma,\true \Vdash \stt : \sty$ without the
   use of \TirName{ShareEntails} and \TirName{PubEntails}.
 \end{definition}
+
+The syntax of type annotations $\sta$ is defined in Figure
+\ref{fig-sta}, which we extend the language of commands $\cmd$ to
+include. Type annotations are of the form $e_1 \kwas e_2$, which
+defines an SMT equivalence, and $e : \sty$ which are verified using
+the automated $\Vdash$ typing judgement-- the key idea here being that
+explicit equivalences can stand in for implicit \TirName{ShareEntails}
+and \TirName{PubEntails} judgements. In the semantics type annotations
+are interpreted as no-ops, and their integration in Hoare triple
+derivations requires annotated equivalences to be included in
+preconditions.  In an implementation, Hoare triple verification can be
+conducted independently prior to type checking.
+
+\subsubsection{Annotation Type Checking}
 
 \begin{definition}[$\metaprot$ Type Checking Judgements]
   \emph{Type checking judgements} are of the syntactic form
