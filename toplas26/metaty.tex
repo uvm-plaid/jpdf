@@ -16,6 +16,8 @@ directed subset of noninteractive share typing as follows:
   use of \TirName{ShareEntails} and \TirName{PubEntails}.
 \end{definition}
 
+\stafig
+
 The syntax of type annotations $\sta$ is defined in Figure
 \ref{fig-sta}, which we extend the language of commands $\cmd$ to
 include. Type annotations are of the form $e_1 \kwas e_2$, which
@@ -30,6 +32,9 @@ conducted independently prior to type checking.
 
 \subsubsection{Annotation Type Checking}
 
+Type checking judgements for typing annotations are defined as follows.
+The \emph{definitions} element $\xdefs$ of judgements is an environment
+of SMT equivalences induced either by the program or by annotation. 
 \begin{definition}[$\metaprot$ Type Checking Judgements]
   \emph{Type checking judgements} are of the syntactic form
   $\shtrip{\Gamma, R, \xdefs}{\cmd}{\Gamma, R, \xdefs}$
@@ -37,7 +42,24 @@ conducted independently prior to type checking.
   \emph{definitions}.
 \end{definition}
 
-\stafig
+\shtripstafig
+
+All typing judgements are dependent on closed expressions $e$ which we
+equate up to evaluation. Since the semantics of expressions is total,
+we simply evaluate expressions in preconditions of derivation
+rules. The derivation rules for annotations $\sta$ are given in Figure
+\ref{fig-shtripsta}. First, we note that the \TirName{Coerce} rule
+extends definitions to include the equivalence specified by the $e_1
+\kwas e_2$ annotation form-- we assume the validity of the equivalence
+is enforced by Hoare triple verification and so is not checked (again)
+here.  These definitions extend or even overwrite variable definitions
+established by the protocol itself (see the \TirName{Defn} rule in
+Figure \ref{fig-shtripcmd} discussed below).
+
+In the rules for share type annotations of the form $\notg{\stt} :
+\sty$, 
+
+\subsubsection{Functions and Application}
 
 \begin{definition}[Abstract Share Type Environments]
   We write $\notg{\Gamma}$ to denote sets of bindings $\notg{\stt} : \sty$, and
@@ -61,8 +83,6 @@ conducted independently prior to type checking.
   $\Pi y_1,\ldots,y_n. \notg{\Gamma} \rightarrow (\notg{\Gamma}, \notg{R})$.
   where $y_1,\ldots,y_n$ range over $\stringty$ or $\cidty$ types.
 \end{definition}
-
-\shtripstafig
 
 \shtripcmdfig
 
