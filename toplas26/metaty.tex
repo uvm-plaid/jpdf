@@ -56,8 +56,17 @@ here.  These definitions extend or even overwrite variable definitions
 established by the protocol itself (see the \TirName{Defn} rule in
 Figure \ref{fig-shtripcmd} discussed below).
 
-In the rules for share type annotations of the form $\notg{\stt} :
-\sty$, 
+Programmers can also specify bindings for local computations, for
+example if $\mx{x}{1},\mx{x}{2}$ are shares obtained by, e.g., local
+homomorphic addition, the programmer can specify
+$[\mx{x}{1},\mx{x}{2}] : \sharety$. This supports compositionality of
+type checking. Thus, in the rules for share type annotations of the
+form $\notg{\stt} : \sty$, we have different rules for checking local and interactive
+$\sharety$ type ascriptions (\TirName{LocalShares} and \TirName{GenShares},
+respectively), and for checking local and interactive
+$\pubty$ type ascriptions (\TirName{LocalPublic} and \TirName{MaskedPublic},
+respectively). Observe the use of definitions $\xdefs$ to refer to
+SMT equivalences, and the use of $\Vdash$ to verify share typing.
 
 \subsubsection{Functions and Application}
 
