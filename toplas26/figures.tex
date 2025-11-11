@@ -294,7 +294,7 @@ $$
 }
 
 \newcommand{\ipjfig}{
-\begin{fpfig}[t]{Syntax and derivation rule of $\minicat$ integrity types}{fig-ipj}
+\begin{fpfig}[t]{Syntax and derivation rules of $\minicat$ integrity types}{fig-ipj}
 \small{
 $$
 \begin{array}{rcl@{\hspace{4mm}}l}
@@ -402,7 +402,7 @@ $$
   \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
   \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
   & \gdesc{values}\\[1mm] % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
-  \tau &::=& \mathit{string} \mid \mathit{cid} \mid \{ \flab_1 : \tau_1; \ldots; \flab_n : \tau_n \} & \gdesc{basic types}\\[1mm]
+  \tau &::=& \stringty \mid \cidty \mid \{ \flab_1 : \tau_1; \ldots; \flab_n : \tau_n \} & \gdesc{basic types}\\[1mm]
 \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y : \tau,\ldots,y : \tau) \{ \cmd \} & \textit{functions} % \mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y,\ldots,y) \{ \cmd \} & \textit{functions}
   %\phi &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e} \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi \\
   %\eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs 

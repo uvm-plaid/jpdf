@@ -4,6 +4,18 @@ Share types rely on SMT entailments via the \TirName{ShareEntails} and \TirName{
 which are not syntax directed. Our goal with the $\metaprot$ language is to automate share type
 checking. To enable this we introduce \emph{share type annotations} 
 
+\begin{definition}
+  Define $\Gamma \Vdash \stt : \sty$ iff $\Gamma,\true \Vdash \stt : \sty$ without the
+  use of \TirName{ShareEntails} and \TirName{PubEntails}.
+\end{definition}
+
+\begin{definition}[$\metaprot$ Type Checking Judgements]
+  \emph{Type checking judgements} are of the syntactic form
+  $\shtrip{\Gamma, R, \xdefs}{\cmd}{\Gamma, R, \xdefs}$
+  where $\xdefs : \phi \rightarrow \phi$ are called
+  \emph{definitions}.
+\end{definition}
+
 \stafig
 
 \begin{definition}[Abstract Share Type Environments]
@@ -21,6 +33,12 @@ checking. To enable this we introduce \emph{share type annotations}
       {\setit{e_1,\ldots,e_n} \redx
         \setit{\rx{w_1}{\cid_1}, \ldots, \rx{w_n}{\cid_n}}}
   \end{mathpar}
+\end{definition}
+
+\begin{definition}[$\metaprot$ Function Types]
+  Dependent function types are of the syntactic form
+  $\Pi y_1,\ldots,y_n. \notg{\Gamma} \rightarrow (\notg{\Gamma}, \notg{R})$.
+  where $y_1,\ldots,y_n$ range over $\stringty$ or $\cidty$ types.
 \end{definition}
 
 \shtripstafig
