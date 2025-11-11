@@ -8,32 +8,33 @@ cmdfunctions:
 
 sshare(x:string, i1:cid, i2:cid) {
    m[x++"s"]@i1 := (s[x] + -r[x])@i2;
-   m[x++"s"]@i2 := r[x]@i2
+   m[x++"s"]@i2 := r[x]@i2;
+   [m[x++"s"]@i1,m[x++"s"]@i2] : shares
 }
-postcondition: ([m[x++"s"]@i1,r[x]@i2] encodes s[x]@2),
-	        [m[x++"s"]@i1,m[x++"s"]@i2] : shares)
 
 precondition: ([m[x++"s"]@i1, m[x++"s"]@i2] : shares,
 	       [m[a++"s"]@i1, m[a++"s"]@i2] : shares)
-open(d:string;x:string,a:string) {
+secopen(d:string;x:string,a:string) {
      sum(d, x, a);				       
      p[d++"1"] := m[d++"s"]@1;
      p[d++"2"] := m[d++"s"]@2;
+     p[d++"1"] + p[d++"2"] as RECON(x) + r[x++a]@o;
+     <p[d++"1"] + p[d++"2"]> : public;
      m[d]@i1 := p[d++"1"] + p[d++"2"];
-     m[d]@i2 := p[d++"1"] + p[d++"2"]
+     m[d]@i2 := p[d++"1"] + p[d++"2"];
+     <m[d]@i1> : public;
+     <m[d]@i2> : public	
 }
-postcondition: (p[d++"1"] + p[d++"2"] as RECON(x) + r[x++a]@o;
-		<p[d++"1"] + p[d++"2"]> : public;
-	        m[d]@i1 : public;
-		m[d]@i2 : public)
 
 _sum(z:string, x:string, y:string, i:cid) { m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i }
 
 precondition: ([m[x++"s"]@1,m[x++"s"]@2] : shares;
                [m[y++"s"]@1,m[y++"s"]@2] : shares)
-sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
-postcondition: ( [m[z++"s"]@1,m[z++"s"]@2] : shares),
-               ( RECON(z) == RECON(x) + RECON(y) )
+sum(z:string, x:string, y:string) {
+    _sum(z,x,y,1); _sum(z,x,y,2);
+    [m[z++"s"]@1,m[z++"s"]@2] : shares
+}
+postcondition: ( RECON(z) == RECON(x) + RECON(y) )
 
 _mult(z : string, y : string, i : cid) {
     m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i
@@ -41,17 +42,15 @@ _mult(z : string, y : string, i : cid) {
 
 precondition: ( [m[x++"s"]@1,m[x++"s"]@2] : shares;
                 [m[y++"s"]@1,m[y++"s"]@2] : shares;
-	        [m[x++"as"]@1,m[x++"as"]@2] : shares;
-	        [m[x++"bs"]@1,m[x++"bs"]@2] : shares;
 	        [m[x++"cs"]@1,m[x++"cs"]@2] : shares ),
 	       ( BEAVERTRIP(z) )
 mult(z : string, x : string, y : string) {
     secopen(z++"d", x, z++"a");
     secopen(z++"e", y, z++"b");
-    _mult(z,y,1); _mult(z,y,2)
+    _mult(z,y,1); _mult(z,y,2);
+    [m[z++"s"]@i1,m[z++"s"]@i2] : shares
 }
-postcondition: ( [m[z++"s"]@i1,m[z++"s"]@i2] : shares ),
-               ( RECON(z) == RECON(x) * RECON(y)) )
+postcondition: ( RECON(z) == RECON(x) * RECON(y)) )
 
 // *
 // main entry point

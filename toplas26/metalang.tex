@@ -122,7 +122,42 @@ whole-program (protocol) correctness. Further, the use of annotations
 on function definitions supports \emph{compositional} verification of
 program components. In general postconditions can serve as
 pre-verified properties of functions that can be reused in, and reduce
-overhead of, whole protocol verification.
+overhead of, whole protocol verification. A representative example of
+a GMW $\ttt{and}$ gate \cite{evans2018pragmatic} implementation is
+given in Figure \ref{fig-gmwprepost}. Here, the $\ttt{andgmw}$
+function takes as input strings $x$ and $y$ that distinguish values
+secret-shared between clients 1 and 2 as $\mx{x}{1}, \mx{x}{2}$ and
+$\mx{y}{1},\mx{y}{2}$ respectively-- that is, these shares encode
+$\ttt{RECON}(x)$ and $\ttt{RECON}(y)$ The postcondition of the
+protocol defined by the $\ttt{andgmw}$ specifies that it results in a
+value shared between clients 1 and 2 as $\ttt{RECON}(z)$ that is the
+conjunction of $\ttt{RECON}(x)$ and $\ttt{RECON}(y)$. This is
+non-trivial to prove, and expressing this postcondition in a
+compositional manner reduces proof overhead and improves scalability
+to large circuits that may incorporate a multitude of $\ttt{and}$
+gates.
+
+\begin{fpfig}[t]{GMW $\ttt{and}$ gate with postcondition.}{fig-gmwprepost}
+\begin{verbatimtab}
+RECON(x) { (m[x]@1 + m[x]@2) }
+
+andtablegmw(x, y, z) {
+  let r11 = (r[z] + (m[x] + 1) * (m[y] + 1)) in
+  let r10 = (r[z] + (m[x] + 1) * (m[y] + 0)) in
+  let r01 = (r[z] + (m[x] + 0) * (m[y] + 1)) in
+  let r00 = (r[z] + (m[x] + 0) * (m[y] + 0)) in
+  { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
+}
+
+andgmw(z:string, x:string, y:string) {
+  let table = andtablegmw(x,y,z) in
+  m[z]@2 := OT4((m[x], m[y])@2, table.row4, table.row3, table.row2, table.row1)@1;
+  m[z]@1 := r[z]@1
+}
+postcondition:  ( RECON(z) == RECON(x) * RECON(y))
+\end{verbatimtab}
+\end{fpfig}
+
 
 \subsection{$\metaprot$ Automated Abstract Hoare Logic}
 \label{section-metahtrip}

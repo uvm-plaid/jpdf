@@ -100,6 +100,18 @@ checking. To enable this we introduce \emph{share type annotations}
 \end{mathpar}
 
 
+\begin{fpfig}[t]{GMW $\ttt{and}$ gate with share type annotations.}{fig-gmwsharetypes}
+\begin{verbatimtab}
+andgmw(z:string, x:string, y:string) {
+  let table = andtablegmw(x,y,z) in
+  m[z]@2 := OT4((m[x], m[y])@2, table.row4, table.row3, table.row2, table.row1)@1;
+  m[z]@1 := r[z]@1;
+  m[z]@2 as (RECON(x) * RECON(y)) + r[z]@1;
+  [m[z]@1,m[z]@2] : shares
+}
+postcondition:  ( RECON(z) == RECON(x) * RECON(y))
+\end{verbatimtab}
+\end{fpfig}
 
 \begin{definition} Define $\clean(\Gamma)$ as follows:
 \begin{eqnarray*}
