@@ -12,12 +12,12 @@ checking. To enable this we introduce \emph{share type annotations}
   We define evaluation of these, respectively, as follows:
   \begin{mathpar}
   \inferrule
-      {\notg{\stt}_1 \redx \stt_1 \cdots \notg{\stt}_n \redx \stt_n}
+      {\notg{\stt}_1 \redx \stt_1\ \cdots\ \notg{\stt}_n \redx \stt_n}
       {\setit{\notg{\stt}_1 : \sty_1, \ldots, \notg{\stt}_n : \sty_n} \redx
         \setit{\stt_1 : \sty_1, \ldots, \stt_n : \sty_n}}
       
   \inferrule
-      {e_1 \redx \rx{w_1}{\cid_1} \cdots e_1 \redx \rx{w_n}{\cid_n}}
+      {e_1 \redx \rx{w_1}{\cid_1}\ \cdots\ e_1 \redx \rx{w_n}{\cid_n}}
       {\setit{e_1,\ldots,e_n} \redx
         \setit{\rx{w_1}{\cid_1}, \ldots, \rx{w_n}{\cid_n}}}
   \end{mathpar}
