@@ -593,7 +593,53 @@ $$
 \end{fpfig}
 }
 
-\newcommand{\notgfig}{
+\newcommand{\stafig}{
+\begin{fpfig}[t]{$\metaprot$ share type annotation syntax (top), semantics (middle), and
+    hoare triple derivation rules (bottom).}{fig-sta}
+$$
+\begin{array}{rclr}
+  \notg{\stt} &::=& [e,e] \mid \pubx{e}   & \qquad \textit{abstract share terms} \\   
+  \sta &::=& e_1 \kwas e_2 \mid [e_1,e_2] : \sharety \mid \pubx{e} : \pubty \mid \pubx{e} : \outty
+      & \qquad \textit{share type annotations} \\     
+  \cmd &::=& \cdots \mid \sta
+\end{array}
+$$
+
+\bigskip
+
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
+      {[e_1,e_2] \redx [\phi_1,\phi_2]}
+      
+  \inferrule
+      {e \redx \phi}
+      {\pubx{e} \redx \pubx{\phi}}
+      
+  \inferrule
+      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
+      {e_1 \kwas e_2 \redx \pskip}
+
+  \inferrule
+      {\notg{\stt} \redx \stt}
+      {\stt : \sty \redx \pskip}
+\end{mathpar}
+
+\bigskip
+
+\begin{mathpar}
+  \htrip{e_1 \eop e_2}{e_1 \kwas e_2}{\true}
+
+  \htrip{\true}{[e_1,e_2] : \sharety}{\true}
+
+  \htrip{\true}{\pubx{e} : \pubty}{\true}
+
+  \htrip{\true}{\pubx{e} : \outty }{\true}
+\end{mathpar}
+\end{fpfig}
+}
+
+\newcommand{\oldnotgfig}{
 \begin{fpfig}[t]{Evaluation of expressions within types and constraints.}{fig-notg}
 $$
 \begin{array}{cc}

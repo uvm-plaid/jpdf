@@ -1,40 +1,27 @@
 \subsection{Share Type Checking with Annotations}
 
-$$
-\begin{array}{rclr}
-  \sta &::=& e_1 \kwas e_2 \mid [e_1,e_2] : \sharety \mid \pubx{e} : \pubty \mid \pubx{e} : \outty
-      & \qquad \textit{share type annotations } \\     
-  \cmd &::=& \cdots \mid \sta
-\end{array}
-$$
+Share types rely on SMT entailments via the \TirName{ShareEntails} and \TirName{PubEntails} rules,
+which are not syntax directed. Our goal with the $\metaprot$ language is to automate share type
+checking. To enable this we introduce \emph{share type annotations} 
 
-\begin{mathpar}
-  \inferrule
-      {e_1 \redx \phi_1 \\ e_2 \redx \phi_2}
-      {e_1 \kwas e_2 \redx \pskip}
+\stafig
 
+\begin{definition}[Abstract Share Type Environments]
+  We write $\notg{\Gamma}$ to denote sets of bindings $\notg{\stt} : \sty$, and
+  $\notg{R}$ to denote sets of expressions (that evaluate to random variables).
+  We define evaluation of these, respectively, as follows:
+  \begin{mathpar}
   \inferrule
-      {e_1 \redx x_1 \\ e_2 \redx x_2}
-      {[e_1,e_2] : \sharety \redx \pskip}
+      {\notg{\stt}_1 \redx \stt_1 \cdots \notg{\stt}_n \redx \stt_n}
+      {\setit{\notg{\stt}_1 : \sty_1, \ldots, \notg{\stt}_n : \sty_n} \redx
+        \setit{\stt_1 : \sty_1, \ldots, \stt_n : \sty_n}}
       
   \inferrule
-      {e \redx \phi}
-      {\pubx{e} : \pubty \redx \pskip}
-      
-  \inferrule
-      {e \redx \phi}
-      {\pubx{e} : \outty \redx \pskip}
-\end{mathpar}
-
-\begin{mathpar}
-  \htrip{e_1 \eop e_2}{e_1 \kwas e_2}{\true}
-
-  \htrip{\true}{[e_1,e_2] : \sharety}{\true}
-
-  \htrip{\true}{\pubx{e} : \pubty}{\true}
-
-  \htrip{\true}{\pubx{e} : \outty }{\true}
-\end{mathpar}
+      {e_1 \redx \rx{w_1}{\cid_1} \cdots e_1 \redx \rx{w_n}{\cid_n}}
+      {\setit{e_1,\ldots,e_n} \redx
+        \setit{\rx{w_1}{\cid_1}, \ldots, \rx{w_n}{\cid_n}}}
+  \end{mathpar}
+\end{definition}
 
 \begin{mathpar}
   \inferrule[Coerce]
