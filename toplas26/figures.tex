@@ -599,8 +599,7 @@ $$
 $$
 \begin{array}{rclr}
   \notg{\stt} &::=& [e,e] \mid \pubx{e}   & \qquad \textit{abstract share terms} \\   
-  \sta &::=& e_1 \kwas e_2 \mid [e_1,e_2] : \sharety \mid \pubx{e} : \pubty \mid \pubx{e} : \outty
-      & \qquad \textit{share type annotations} \\     
+  \sta &::=& e_1 \kwas e_2 \mid \notg{\stt} : \sty & \qquad \textit{share type annotations} \\     
   \cmd &::=& \cdots \mid \sta
 \end{array}
 $$
@@ -630,11 +629,7 @@ $$
 \begin{mathpar}
   \htrip{e_1 \eop e_2}{e_1 \kwas e_2}{\true}
 
-  \htrip{\true}{[e_1,e_2] : \sharety}{\true}
-
-  \htrip{\true}{\pubx{e} : \pubty}{\true}
-
-  \htrip{\true}{\pubx{e} : \outty }{\true}
+  \htrip{\true}{\notg{\stt} : \sty}{\true}
 \end{mathpar}
 \end{fpfig}
 }
