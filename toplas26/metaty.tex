@@ -121,6 +121,12 @@ of $\notg{\Gamma_1}$ is contained in the share typing environment, and
 adds the instantiation of $\notg{\Gamma_2}$ as an effect, as will as
 the instantiation of $\notg{R}$ with linearity enforced.
 
+When typing functions, a practical programming detail is where the
+share type environment precondition $\notg{\Gamma_1}$ is defined.
+In our implementation, we write these as an additional component
+of \ttt{precondition} annotations, as illustrated in extended
+examples discussed in Section \ref{section-examples}.
+
 \shtripcmdfig
 
 \subsubsection{Example: GMW \ttt{and} Gate}
@@ -150,7 +156,7 @@ postcondition:  ( RECON(z) == RECON(x) * RECON(y))
 \end{verbatimtab}
 \end{fpfig}
 
-
+\subsubsection{Soundness of $\metaprot$ Type Checking}
 
 \begin{definition} Define $\clean(\Gamma)$ as follows:
 \begin{eqnarray*}
