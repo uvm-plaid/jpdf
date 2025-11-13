@@ -280,6 +280,19 @@ typing judgements.
   Then $\toeq{\prog}, \Gamma_2, R_2 : {OK}$.
 \end{lemma}
 
+\begin{definition}
+  Given  $\prog,\Gamma,R  : {OK}$ and $\iov(\prog) = S \cup V \cup O$.
+  Then $\Gamma$ is \emph{closed for $\prog$} iff for all $H,C$,
+  for all $x \in \houtputs$ there exists $\phi$ such that either
+  $\Gamma,\toeq{\prog} \vdash [x,\phi] : \sharety$ if $C = \setit{1}$
+  or  $\Gamma,\toeq{\prog} \vdash [\phi,x] : \sharety$ if $C = \setit{2}$,
+  and for all $\out{\cid} \in O$ we have $\Gamma,\toeq{\prog} \vdash \pubx{\out{\cid}} : \outty$.
+\end{definition}
+
+\begin{theorem}
+  If $\toeq{\prog} \vdash \varnothing,\varnothing \stredx \Gamma,R$ and $\Gamma$ is closed
+  for $\prog$, then $\prog$ satisfies noninterference modulo output. 
+\end{theorem}
 
 % DEPRECATED
 \begin{comment}
