@@ -146,7 +146,7 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val factory = new TermFactory(termManager, "7")
     val ast = Loader.constraint("m[\"foo\"]@3 == 5")
-    val term = factory.constraintToTerm(ast)
+    val term = factory.toTerm(ast)
     val verifier = new VerifierTmp(factory)
     val actual = verifier.findModelSatisfying(term)
     val expected = Map("m_foo_3" -> 5)
@@ -160,7 +160,7 @@ class TermFactoryTest {
     val ast = AndConstraint(
       EqualConstraint(AtExpr(MessageExpr(Str("x")), Num(3)), AtExpr(RandomExpr(Str("y")), Num(5))),
       EqualConstraint(AtExpr(RandomExpr(Str("y")), Num(5)), Num(1)))
-    val term = factory.constraintToTerm(ast)
+    val term = factory.toTerm(ast)
     val verifier = new VerifierTmp(factory)
     val actual = verifier.findModelSatisfying(term)
     val expected = Map("m_x_3" -> 1, "r_y_5" -> 1)
@@ -172,7 +172,7 @@ class TermFactoryTest {
   def notConstraintTerm(): Unit =
     val termManager = new TermManager()
     val factory = new TermFactory(termManager, "7")
-    val term = factory.constraintToTerm(
+    val term = factory.toTerm(
       NotConstraint(
         EqualConstraint(
           AtExpr(MessageExpr(Str("foo")), Num(3)),
@@ -187,7 +187,7 @@ class TermFactoryTest {
   def trueConstraintTerm(): Unit =
     val termManager = new TermManager()
     val factory = new TermFactory(termManager, "7")
-    val term = factory.constraintToTerm(TrueConstraint())
+    val term = factory.toTerm(TrueConstraint())
     assertEquals(termManager.mkTrue(), term)
 
   /** Creates complex constraint expressions */
@@ -196,7 +196,7 @@ class TermFactoryTest {
     val termManager = new TermManager()
     val factory = new TermFactory(termManager, "7")
     val ast = Loader.constraint("out@1 == out@2 + 1 AND out@2 == out@3 + 2 AND out@3 == 4")
-    val term = factory.constraintToTerm(ast)
+    val term = factory.toTerm(ast)
     val verifier = new VerifierTmp(factory)
     val actual = verifier.findModelSatisfying(term)
     val expected = Map("o_3" -> 4, "o_2" -> 6, "o_1" -> 0)

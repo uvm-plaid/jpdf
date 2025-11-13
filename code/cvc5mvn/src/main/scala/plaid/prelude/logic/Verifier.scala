@@ -15,5 +15,5 @@ extension (trg: Contract)
 
       // TODO Reorganize the CVC5 stuff, this is weird
       val verifier = new VerifierTmp(cvc)
-      !verifier.entails(cvc.constraintToTerm(a), cvc.constraintToTerm(b))
+      !verifier.entails(cvc.toTerm(a), cvc.toTerm(b))
     }

@@ -15,7 +15,7 @@ class VerifierTmpTest {
     satisfiable(Loader.constraint(src))
 
   private def satisfiable(constraint: Constraint): Boolean =
-    val e = termFactory.constraintToTerm(constraint)
+    val e = termFactory.toTerm(constraint)
     verifier.satisfies(e)
 
   /** Single equality constraints are always satisfiable. */
@@ -36,16 +36,16 @@ class VerifierTmpTest {
   /** Everything entails a universally satisfied constraint. */
   @Test
   def everythingEntails(): Unit =
-    val t = termFactory.constraintToTerm(Loader.constraint("T"))
-    val f = termFactory.constraintToTerm(Loader.constraint("NOT T"))
+    val t = termFactory.toTerm(Loader.constraint("T"))
+    val f = termFactory.toTerm(Loader.constraint("NOT T"))
     assertTrue(verifier.entails(t, t))
     assertTrue(verifier.entails(f, t))
 
   /** Nothing entails an unsatisfiable constraint except another unsatisfiable constraint. */
   @Test
   def nothingEntails(): Unit =
-    val t = termFactory.constraintToTerm(Loader.constraint("T"))
-    val f = termFactory.constraintToTerm(Loader.constraint("NOT T"))
+    val t = termFactory.toTerm(Loader.constraint("T"))
+    val f = termFactory.toTerm(Loader.constraint("NOT T"))
     assertFalse(verifier.entails(t, f))
     assertTrue(verifier.entails(f, f))
 }
