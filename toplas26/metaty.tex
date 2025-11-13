@@ -140,7 +140,8 @@ $$
 \ttt{andgmw} : \Pi x,y,z . \varnothing \rightarrow (\setit{[m[z]@1,m[z]@2] : \sharety}, \setit{r[z]@1})  
 $$
 Note that the function does not require any share type preconditions, since
-the (sub)protocol it defines interactively generates new shares using the OTP.
+the (sub)protocol it defines interactively generates new shares using an OTP
+($r[z]@1$).
 
 \begin{fpfig}[t]{GMW $\ttt{and}$ gate with share type annotations.}{fig-gmwsharetypes}
 \begin{verbatimtab}
@@ -151,11 +152,38 @@ andgmw(z:string, x:string, y:string) {
   m[z]@2 as (RECON(x) * RECON(y)) + r[z]@1;
   [m[z]@1,m[z]@2] : shares
 }
-postcondition:  ( RECON(z) == RECON(x) * RECON(y))
+postcondition: (RECON(z) == RECON(x) * RECON(y))
 \end{verbatimtab}
 \end{fpfig}
 
 \subsubsection{Soundness of $\metaprot$ Type Checking}
+
+
+
+
+\begin{lemma}
+  Given $\prog_1,\Gamma_1,R_1 : {OK}$ and $\cmd \redx \prog_2$ and $\htrip{\eqs_1}{\cmd}{\eqs_2}$ with
+  $\eqs_1$ satisfiable and $\toeq{\prog_1} \models \eqs_1 \wedge \toeq{\xdefs_1}$ and
+  $\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd}{\Gamma_2,R_2,\xdefs_2}$.
+  Then $\prog_1;\prog_2,\Gamma_2,R_2 : {OK}$ and $\toeq{\prog_1;\prog_2} \models \toeq{\xdefs_2}$.
+\end{lemma}
+
+\begin{theorem}
+  Given $\htrip{\eqspre}{\ttt{main()}}{\eqs}$ and $\ttt{main} : \Gamma_1 \rightarrow (\Gamma_2,R)$
+  and $\main() \redx \prog$ and $\progpre,\Gamma_1,R' : {OK}$ with $R' \cap R = \varnothing$
+  and $\toeq{\progpre} \models \eqspre$. Then $(\progpre;\prog),\Gamma_2,R : {OK}$.
+\end{theorem}
+
+% DEPRECATED
+\begin{comment}
+\begin{lemma}
+  Assume $\cmd \redx \prog$ and $\htrip{\eqs_1 \wedge \toeq{\xdefs_1}}{\prog}{\eqs_2}$ and
+  $\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd}{\Gamma_2,R_2,\xdefs_2}$ and   
+  $\eqs_1 \wedge \toeq{\xdefs_1},\clean(\Gamma_1),R_1 : {OK}$.
+  Then $\eqs_1 \wedge \toeq{\xdefs_1} \wedge \toeq{\prog} \vdash \clean(\Gamma_1),R_1 \stredx^* \clean(\Gamma_2),R_2$.
+\end{lemma}
+
+
 
 \begin{definition} Define $\clean(\Gamma)$ as follows:
 \begin{eqnarray*}
@@ -187,3 +215,4 @@ postcondition:  ( RECON(z) == RECON(x) * RECON(y))
   \subseteq \ov(\clean(\Gamma_2))$ for all $\cid_1$, $\cid_2$ with $\cid_1 \ne \cid_2$.
 \end{theorem}
 
+\end{comment}

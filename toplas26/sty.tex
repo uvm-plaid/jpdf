@@ -148,7 +148,7 @@ protocol. We illustrate secure openings in practice at more length
 in Section \ref{section-examples}, though we note that appropriate
 properties of initialization protocols can be encoded in $\eqspre$.
 
-We write $\stredx^*$ to denote the reflexive, transitive
+We write $\stredx^*$ to denote the transitive
 closure of $\stredx$. For any protocol $\prog$, the goal of the
 type analysis is to show that all interactive messages can be classified--
 that is, to show that $\eqspre \wedge \toeq{\prog} \vdash
@@ -224,6 +224,65 @@ typing enforces noninteference modulo output, with our main result
 in Theorem \ref{theorem-sty}. We begin by defining a key well-formedness
 property of typing components that we show is preserved by non-interactive
 typing judgements.
+
+\begin{definition}
+  Given $\prog,\Gamma,R$ where $\secrets(\prog) = S$ and:
+  $$
+  \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
+  \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
+  \setit{\pubx{\phi^o_1} : \outty,\ldots,\pubx{\phi^o_k} : \outty}
+  $$
+  Then we write $\prog,\Gamma,R : {OK}$ iff all of the following conditions
+  hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item For all $a,b \in \setit{1,2}$ we have
+    $
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi^o_1,\ldots,\phi^o_k}}
+    = 
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b} \cup
+      \setit{\phi_1,\ldots,\phi_j} \setit{\phi^o_1,\ldots,\phi^o_k}}
+    $.
+  \item For all $a,b \in \setit{1,2}$and $0 < i \le n$ we have
+    $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\phi_i^1 + \phi_i^2}} =
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\phi_i^1 + \phi_i^2, \phi_i^a}}$
+  \item  For all $a,b \in \setit{1,2}$ and $0 < i \le n$, if
+    $\toeq{\prog} \models \phi_i^a \eop \rx{w}{\cid_a} \wedge \phi_i^b \eop \phi - \rx{w}{\cid_a}$ for
+    some $\phi$ and $\rx{w}{\cid_a}$ then $\rx{w}{\cid_a} \in R$.
+  \item For all $0 < i \le j$, if $\toeq{\prog} \models \phi_i \eop \phi + \rx{w}{\cid_{\oid}}$ for
+    some $\phi$  and $\rx{w}{\cid_{\oid}}$ then $\rx{w}{\cid_{\oid}} \in R$.
+  \end{enumerate} 
+\end{definition}
+
+\begin{lemma}
+  \label{lemma-sty-noninteractive-sound}
+  Given $\prog,\Gamma,R$ where $\secrets(\prog) = S$ and:
+  $$
+  \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
+  \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
+  \setit{\pubx{\phi^o_1} : \outty,\ldots,\pubx{\phi^o_k} : \outty}
+  $$
+  and also $\Gamma, \toeq{\prog} \vdash [\phi^1,\phi^2] : \sharety$
+  Then for all $a,b \in \setit{1,2}$ the following conditions hold:
+    \begin{enumerate}[\hspace{5mm}i.]
+    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b} \cup
+      \setit{\phi_1,\ldots,\phi_j} \setit{\phi^o_1,\ldots,\phi^o_k}}
+    =
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b,\phi^b} \cup
+       \setit{\phi_1,\ldots,\phi_j} \setit{\phi^o_1,\ldots,\phi^o_k}}$
+    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\phi_i^1 + \phi_i^2}} =
+      \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\phi_i^1 + \phi_i^2, \phi_i^a}}$
+    \end{enumerate}
+\end{lemma}
+
+\begin{lemma}
+  Given $\prog,\Gamma_1,R_1  : {OK}$
+  and $\toeq{\prog}  \vdash \Gamma_1, R_1 \stredx \Gamma_2, R_2$.
+  Then $\toeq{\prog}, \Gamma_2, R_2 : {OK}$.
+\end{lemma}
+
+
+% DEPRECATED
+\begin{comment}
 \begin{definition}
   We write $\eqs,\Gamma,R : {OK}$ iff both of the following conditions hold:
   \begin{enumerate}[\hspace{5mm}i.]
@@ -306,3 +365,4 @@ by a complete typing).
   \subseteq \ov(\Gamma)$ for all $\cid_1$, $\cid_2$ with $\cid_1 \ne \cid_2$.
   Then $\prog$ satisfies noninterference modulo output.
 \end{theorem}
+\end{comment}
