@@ -1,22 +1,23 @@
-package plaid.prelude.cvc
+package plaid.prelude.logic
 
 import io.github.cvc5.TermManager
 import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.Test
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.Constraint
+import plaid.prelude.cvc.TermFactory
 
-class VerifierTmpTest {
+class VerifierTest {
   private val termManager = new TermManager()
   private val termFactory = new TermFactory(termManager, "7")
-  private val verifier = new VerifierTmp(termFactory)
+  private val verifier = new Verifier(termFactory)
 
   private def satisfiable(src: String): Boolean =
     satisfiable(Loader.constraint(src))
 
   private def satisfiable(constraint: Constraint): Boolean =
     val e = termFactory.toTerm(constraint)
-    verifier.satisfies(e)
+    verifier.satisfiable(e)
 
   /** Single equality constraints are always satisfiable. */
   @Test

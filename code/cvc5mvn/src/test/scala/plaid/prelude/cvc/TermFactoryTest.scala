@@ -5,6 +5,7 @@ import org.junit.Assert.{assertEquals, assertNotEquals}
 import org.junit.Test
 import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.*
+import plaid.prelude.logic.Verifier
 
 class TermFactoryTest {
 
@@ -147,7 +148,7 @@ class TermFactoryTest {
     val factory = new TermFactory(termManager, "7")
     val ast = Loader.constraint("m[\"foo\"]@3 == 5")
     val term = factory.toTerm(ast)
-    val verifier = new VerifierTmp(factory)
+    val verifier = new Verifier(factory)
     val actual = verifier.findModelSatisfying(term)
     val expected = Map("m_foo_3" -> 5)
     assertEquals(mockModel(factory, expected), actual)
@@ -161,7 +162,7 @@ class TermFactoryTest {
       EqualConstraint(AtExpr(MessageExpr(Str("x")), Num(3)), AtExpr(RandomExpr(Str("y")), Num(5))),
       EqualConstraint(AtExpr(RandomExpr(Str("y")), Num(5)), Num(1)))
     val term = factory.toTerm(ast)
-    val verifier = new VerifierTmp(factory)
+    val verifier = new Verifier(factory)
     val actual = verifier.findModelSatisfying(term)
     val expected = Map("m_x_3" -> 1, "r_y_5" -> 1)
     assertEquals(mockModel(factory, expected), actual)
@@ -177,7 +178,7 @@ class TermFactoryTest {
         EqualConstraint(
           AtExpr(MessageExpr(Str("foo")), Num(3)),
           Num(0))))
-    val verifier = new VerifierTmp(factory)
+    val verifier = new Verifier(factory)
     val actual = verifier.findModelSatisfying(term)
     val expected = Map("m_foo_3" -> 1)
     assertEquals(mockModel(factory, expected), actual)
@@ -197,7 +198,7 @@ class TermFactoryTest {
     val factory = new TermFactory(termManager, "7")
     val ast = Loader.constraint("out@1 == out@2 + 1 AND out@2 == out@3 + 2 AND out@3 == 4")
     val term = factory.toTerm(ast)
-    val verifier = new VerifierTmp(factory)
+    val verifier = new Verifier(factory)
     val actual = verifier.findModelSatisfying(term)
     val expected = Map("o_3" -> 4, "o_2" -> 6, "o_1" -> 0)
     assertEquals(mockModel(factory, expected), actual)
