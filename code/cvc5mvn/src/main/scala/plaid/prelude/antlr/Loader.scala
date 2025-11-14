@@ -11,7 +11,7 @@ import scala.jdk.CollectionConverters.*
 object Loader {
 
   /** Creates an ANTLR4 parser for Prelude source code. */
-  def parser(src: String): PreludeParser =
+  private def parser(src: String): PreludeParser =
     val input = new ANTLRInputStream(src)
     val lexer = new PreludeLexer(input)
     val tokens = new CommonTokenStream(lexer)
