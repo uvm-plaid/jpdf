@@ -37,7 +37,7 @@ class TermFactory(val termManager: TermManager, order: String) {
   def toTerm(expr: Expr): Term = expr match
     case x: PublicExpr  => lookupOrCreate(x, null)
     case x: AtExpr =>
-      if (partyIndex != null) throw new IllegalStateException(s"Party index $partyIndex already active")
+      if (partyIndex != null) throw Exception(s"Party index $partyIndex already active")
       partyIndex = CvcUtils.toInt(x.e2)
       val result = toTerm(x.e1)
       partyIndex = null
@@ -47,7 +47,7 @@ class TermFactory(val termManager: TermManager, order: String) {
     case TimesExpr(e1, e2) => termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(e1), toTerm(e2))
     case MinusExpr(e) => termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(e), minusOne)
     case x: Expr =>
-      if (partyIndex == null) throw new IllegalStateException("Party index for memory cannot be null")
+      if (partyIndex == null) throw Exception("Party index for memory cannot be null")
       lookupOrCreate(x, partyIndex)
 
   private def lookupOrCreate(expr: Expr, idx: Integer): Term =

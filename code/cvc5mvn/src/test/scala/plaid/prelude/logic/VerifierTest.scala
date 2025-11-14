@@ -8,16 +8,14 @@ import plaid.prelude.ast.Constraint
 import plaid.prelude.cvc.TermFactory
 
 class VerifierTest {
-  private val termManager = new TermManager()
-  private val termFactory = new TermFactory(termManager, "7")
-  private val verifier = new Verifier(termFactory)
+  private val cvc = new TermFactory(new TermManager(), "7")
 
   private def satisfiable(src: String): Boolean =
     satisfiable(Loader.constraint(src))
 
   private def satisfiable(constraint: Constraint): Boolean =
-    val e = termFactory.toTerm(constraint)
-    verifier.satisfiable(e)
+    val e = cvc.toTerm(constraint)
+    cvc.satisfiable(e)
 
   /** Single equality constraints are always satisfiable. */
   @Test
@@ -37,16 +35,16 @@ class VerifierTest {
   /** Everything entails a universally satisfied constraint. */
   @Test
   def everythingEntails(): Unit =
-    val t = termFactory.toTerm(Loader.constraint("T"))
-    val f = termFactory.toTerm(Loader.constraint("NOT T"))
-    assertTrue(verifier.entails(t, t))
-    assertTrue(verifier.entails(f, t))
+    val t = cvc.toTerm(Loader.constraint("T"))
+    val f = cvc.toTerm(Loader.constraint("NOT T"))
+    assertTrue(cvc.entails(t, t))
+    assertTrue(cvc.entails(f, t))
 
   /** Nothing entails an unsatisfiable constraint except another unsatisfiable constraint. */
   @Test
   def nothingEntails(): Unit =
-    val t = termFactory.toTerm(Loader.constraint("T"))
-    val f = termFactory.toTerm(Loader.constraint("NOT T"))
-    assertFalse(verifier.entails(t, f))
-    assertTrue(verifier.entails(f, f))
+    val t = cvc.toTerm(Loader.constraint("T"))
+    val f = cvc.toTerm(Loader.constraint("NOT T"))
+    assertFalse(cvc.entails(t, f))
+    assertTrue(cvc.entails(f, f))
 }

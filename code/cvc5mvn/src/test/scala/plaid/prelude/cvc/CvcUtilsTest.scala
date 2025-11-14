@@ -22,7 +22,7 @@ class CvcUtilsTest {
     assertEquals(3, CvcUtils.toInt(num))
 
   /** Nodes in the AST that are not numbers do not evalConstraint to integers. */
-  @Test(expected = classOf[IllegalArgumentException])
+  @Test(expected = classOf[Exception])
   def intEvalUnsupported(): Unit =
     CvcUtils.toInt(Str("x"))
 
@@ -33,7 +33,7 @@ class CvcUtilsTest {
     assertEquals("x", CvcUtils.toString(str))
 
   /** Nodes in the AST that are not strings do not evalConstraint to strings. */
-  @Test(expected = classOf[IllegalArgumentException])
+  @Test(expected = classOf[Exception])
   def stringEvalUnsupported(): Unit =
     CvcUtils.toString(Num(3))
 }
