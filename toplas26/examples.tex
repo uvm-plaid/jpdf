@@ -1,51 +1,4 @@
-\begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication, circuit definition, and compositional correctness conditions.}{fig-beaver}
-\footnotesize
-\begin{verbatimtab}
-IDEALF() { (s["x"]@1 + s["y"]@2) + (s["i"]@1 * s["j"]@2) }
-  
-RECON(x) { (m[x]@1 + m[x]@2) }
-
-BEAVERTRIP(x) {
-  m[x++"c"]@3 == r[x++"a"]@3 * r[x++"b"]@3 AND
-  m[x++"a"]@1 + m[x++"a"]@2 == r[x++"a"]@3 AND
-  m[x++"b"]@1 + m[x++"b"]@2 == r[x++"b"]@3 AND
-  m[x++"c"]@1 + m[x++"c"]@2 == m[x++"c"]@3 
-}
-
-genshares(x:string, i1:cid, i2:cid) { m[x]@i2 := (s[x] + -r[x])@i1; m[x]@i1 := r[x]@i1 }
-
-_open(x:string, i1:cid, i2:cid, n:string){ p[x++"n"] := m[x]@i2; m[x++"p"]@i1 := p[x++"n"] + m[x]@i1 }
-
-open(x:string) { _open(x,1,2,"1"); _open(x,2,1,"2") }
-
-secopen(d:string;x:string,a:string) { sum(d, x, a); open(d) }
-
-_sum(z:string, x:string, y:string, i:cid) { m[z]@i := (m[x] + m[y])@i }
-
-sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
-postcondition: ( RECON(z) == RECON(x) + RECON(y) )
-
-_mult(z : string, y : string, i : cid) {
-    m[z]@i := (m[z++"d"] * m[y] + -m[z++"e"] * m[z++"a"] + m[z++"c"])@i
-}
-
-precondition: ( BEAVERTRIP(z) )
-mult(z : string, x : string, y : string) {
-  secopen(z++"d", x, z++"a"); secopen(z++"e", y, z++"b"); _mult(z,y,1); _mult(z,y,2)
-}
-postcondition: ( RECON(z) == RECON(x) * RECON(y) )
-
-precondition: ( BEAVERTRIP("k") ) 
-main() {
-    genshares("x", 1, 2); genshares("y", 2, 1); genshares("i", 1, 2); genshares("j", 2, 1);
-    sum("z","x","y"); mult("k","i","j"); sum("out","z","k");
-    open("out");
-    out@1 = m["out"]@1; out@2 =  m["out"]@2
-    
-}
-postcondition: ( out@1 == IDEALF() AND out@2 == IDEALF() )
-\end{verbatimtab}
-\end{fpfig}
+\input{beaver}
 
 \section{Extended Examples}
 \label{section-examples}
@@ -121,6 +74,7 @@ precondition. This compositional correctness property can then be used
 in circuit construction, without the need for ``re-proof'' in our
 Hoare logic inference.
 
+
 The circuit itself is constructed in \ttt{main} using these
 gates. This is a small example but arbitrarily large circuits
 can be constructed with this library. The precondition of
@@ -131,49 +85,7 @@ output is equal to the ideal functionality $\ttt{IDEALF}$.
 
 \subsection{Share Type Annotations.}
 
-\begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication extended with share type annotations.}{fig-beaver-types}
-\footnotesize
-\begin{verbatimtab}
-genshares(x:string, i1:cid, i2:cid) {
-   m[x++"s"]@i1 := (s[x] + -r[x])@i2; m[x++"s"]@i2 := r[x]@i2;
-   [m[x++"s"]@i1,m[x++"s"]@i2] : shares
-}
 
-([m[x]@i1, m[x]@i2] : shares)
-open(x:string) {
-  _open(x,1,2,"1"); _open(x,2,1,"2");
-  [p[x++"1"],p[x++"2"]] : shares;
-  m[d++"p"]@2 as m[d++"p"]@1  
-}
-
-precondition: ([m[x]@i1, m[x]@i2] : shares,
-	       [m[a]@i1, m[a]@i2] : shares)
-secopen(d:string;x:string,a:string) {
-    sum(d, x, a); open(d);
-    m[d++"p"]@1 as RECON(x) + r[x++a]@3;
-    <m[d++"p"]@1> : public;
-    <m[d++"p"]@2> : public
-}
-
-precondition: ([m[x]@1,m[x]@2] : shares;
-               [m[y]@1,m[y]@2] : shares)
-sum(z:string, x:string, y:string) {
-    _sum(z,x,y,1); _sum(z,x,y,2);
-    [m[z]@1,m[z]@2] : shares
-}
-postcondition: ( RECON(z) == RECON(x) + RECON(y) )
-
-precondition: ( [m[x]@1,m[x]@2] : shares;
-                [m[y]@1,m[y]@2] : shares;
-	        [m[x++"c"]@1,m[x++"c"]@2] : shares ),
-	       ( BEAVERTRIP(z) )
-mult(z : string, x : string, y : string) {
-    secopen(z++"d", x, z++"a"); secopen(z++"e", y, z++"b"); _mult(z,y,1); _mult(z,y,2);
-    [m[z]@i1,m[z]@i2] : shares
-}
-postcondition: ( RECON(z) == RECON(x) * RECON(y)) )
-\end{verbatimtab}
-\end{fpfig}
 
 In Figure \ref{fig-beaver-types} we extend our previous gate definitions with
 share type annotations to enforce confidentiality. The core idea is that
@@ -194,48 +106,6 @@ $\ttt{as RECON(x) +  r[x++a]@3}$.
 
 \subsubsection{Malicious-Secure Arithmetic Circuits}
 
-
-\begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication extended with BDOZ MACs.}{fig-beaver-bdoz}
-\footnotesize
-\begin{verbatimtab}
-MACOK(x, i1, i2) { m[x++"m"]@i2 == m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"]@i2) }
-
-MACed(x) { MACOK(x, 1, 2) AND MACOK(x, 2, 1) }
-
-_open(x:string, i1:cid, i2:cid, n:string){
-    p[x++"sn"] := m[x++"s"]@i2;
-    p[x++"mn"] := m[x++"m"]@i2;
-    assert(p[x++"mn"] = m[x++"k"] + (m["delta"] * p[x++"sn"]))@i1;
-    m[x++"p"]@i1 := p[x++"sn"] + m[x]@i1
-}
-
-precondition: ( MACed(x) )
-open(x:string) { _open(x,1,2,"1"); _open(x,2,1,"2") }
-
-_sum(z:string, x:string, y:string, i:cid){
-    m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i;
-    m[z++"m"]@i := (m[x++"m"] + m[y++"m"])@i;
-    m[z++"k"]@i := (m[x++"k"] + m[y++"k"])@i
-}
-
-precondition: ( MACed(x) AND MACed(y) )
-sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
-postcondition: ( MACed(z) AND RECON(z) == RECON(x) + RECON(y) )
-		 
-_mult(z : string, y : string, i : cid) {
-   m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i;
-   m[z++"m"]@i := (m[z++"d"] * m[y++"m"] + -m[z++"e"] * m[z++"am"] + m[z++"cm"])@i;
-   m[z++"k"]@i := (m[z++"d"] * m[y++"k"] + -m[z++"e"] * m[z++"ak"] + m[z++"ck"])@i
-}
-
-precondition: ( MACed(x) AND MACed(y) AND
-                MACed(z++"a") AND MACed(z++"b") AND MACed(z++"c") AND BEAVERTRIP(z) )
-mult(z : string, x : string, y : string) {
-    secopen(z++"d", x, z++"a"); secopen(z++"e", y, z++"b"); _mult(z,y,1); _mult(z,y,2);
-}
-postcondition: ( RECON(z) == RECON(x) * RECON(y) )
-\end{verbatimtab}
-\end{fpfig}
 
 
 In BDOZ a pre-processing phase is assumed where initial input secrets
