@@ -22,73 +22,140 @@ the postcondition of the $\ttt{mult}$ gate. This is categorically
 better performance than can be achieved using previous brute-force
 methods in $\fieldp{2}$ \cite{skalka-near-ppdp24}.
 
-
+\begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication, circuit definition, and compositional correctness conditions.}{fig-beaver}
+\footnotesize
 \begin{verbatimtab}
-  IDEALF() { (s["x"]@1 + s["y"]@2) + (s["i"]@1 * s["j"]@2) }
+IDEALF() { (s["x"]@1 + s["y"]@2) + (s["i"]@1 * s["j"]@2) }
+  
+RECON(x) { (m[x]@1 + m[x]@2) }
 
-RECON(x) { (m[x++"s"]@1 + m[x++"s"]@2) }
-
-// These are Beaver triple constraints. Party 3 is the oracle.
 BEAVERTRIP(x) {
   m[x++"c"]@3 == r[x++"a"]@3 * r[x++"b"]@3 AND
-  m[x++"as"]@1 + m[x++"as"]@2 == r[x++"a"]@3 AND
-  m[x++"bs"]@1 + m[x++"bs"]@2 == r[x++"b"]@3 AND
-  m[x++"cs"]@1 + m[x++"cs"]@2 == m[x++"c"]@3 
+  m[x++"a"]@1 + m[x++"a"]@2 == r[x++"a"]@3 AND
+  m[x++"b"]@1 + m[x++"b"]@2 == r[x++"b"]@3 AND
+  m[x++"c"]@1 + m[x++"c"]@2 == m[x++"c"]@3 
 }
 
-sshare(x:string, i1:cid, i2:cid) {
-   m[x++"s"]@i2 := (s[x] + -r[x])@i1;
-   m[x++"s"]@i1 := r[x]@i1
-}
+sshare(x:string, i1:cid, i2:cid) { m[x]@i2 := (s[x] + -r[x])@i1; m[x]@i1 := r[x]@i1 }
 
-_open(x:string, i1:cid, i2:cid, n:string){
-    p[x++"n"] := m[x]@i2;
-    m[x++"p"]@i1 = p[x++"n"] + m[x]@i1
-}
+_open(x:string, i1:cid, i2:cid, n:string){ p[x++"n"] := m[x]@i2; m[x++"p"]@i1 = p[x++"n"] + m[x]@i1 }
 
-open(x:string) {
-  _open(x,1,2,"1");
-  _open(x,2,1,"2")
-}
+open(x:string) { _open(x,1,2,"1"); _open(x,2,1,"2") }
 
-secopen(d:string;x:string,a:string) {
-    sum(d, x, a);				       
-    open(d)
-}
+secopen(d:string;x:string,a:string) { sum(d, x, a); open(d) }
 
-_sum(z:string, x:string, y:string, i:cid) { m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i }
+_sum(z:string, x:string, y:string, i:cid) { m[z]@i := (m[x] + m[y])@i }
 
 sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
 postcondition: ( RECON(z) == RECON(x) + RECON(y) )
 
 _mult(z : string, y : string, i : cid) {
-    m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i
+    m[z]@i := (m[z++"d"] * m[y] + -m[z++"e"] * m[z++"a"] + m[z++"c"])@i
 }
 
 precondition: ( BEAVERTRIP(z) )
 mult(z : string, x : string, y : string) {
-    secopen(z++"d", x, z++"a");
-    secopen(z++"e", y, z++"b");
-    _mult(z,y,1); _mult(z,y,2)
+  secopen(z++"d", x, z++"a"); secopen(z++"e", y, z++"b"); _mult(z,y,1); _mult(z,y,2)
 }
 postcondition: ( RECON(z) == RECON(x) * RECON(y) )
 
 precondition: ( BEAVERTRIP("k") ) 
 main() {
-    sshare("x", 1, 2);
-    sshare("y", 2, 1);
-    sshare("i", 1, 2);
-    sshare("j", 2, 1);
-    
-    sum("z","x","y");
-    mult("k","i","j");
-    sum("out","z","k");
+    sshare("x", 1, 2); sshare("y", 2, 1); sshare("i", 1, 2); sshare("j", 2, 1);
+    sum("z","x","y"); mult("k","i","j"); sum("out","z","k");
     open("out")
 }
 postcondition: ( m["out"]@1 == IDEALF() )
 \end{verbatimtab}
+\end{fpfig}
 
 
+\begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication extended with share type annotations.}{fig-beaver-types}
+\footnotesize
+\begin{verbatimtab}
+sshare(x:string, i1:cid, i2:cid) {
+   m[x++"s"]@i1 := (s[x] + -r[x])@i2; m[x++"s"]@i2 := r[x]@i2;
+   [m[x++"s"]@i1,m[x++"s"]@i2] : shares
+}
+
+([m[x]@i1, m[x]@i2] : shares)
+open(x:string) {
+  _open(x,1,2,"1"); _open(x,2,1,"2");
+  [p[x++"1"],p[x++"2"]] : shares;
+  m[d++"p"]@2 as m[d++"p"]@1  
+}
+
+precondition: ([m[x]@i1, m[x]@i2] : shares,
+	       [m[a]@i1, m[a]@i2] : shares)
+secopen(d:string;x:string,a:string) {
+    sum(d, x, a); open(d);
+    m[d++"p"]@1 as RECON(x) + r[x++a]@o;
+    <m[d++"p"]@1> : public;
+    <m[d++"p"]@2> : public
+}
+
+precondition: ([m[x]@1,m[x]@2] : shares;
+               [m[y]@1,m[y]@2] : shares)
+sum(z:string, x:string, y:string) {
+    _sum(z,x,y,1); _sum(z,x,y,2);
+    [m[z]@1,m[z]@2] : shares
+}
+postcondition: ( RECON(z) == RECON(x) + RECON(y) )
+
+precondition: ( [m[x]@1,m[x]@2] : shares;
+                [m[y]@1,m[y]@2] : shares;
+	        [m[x++"c"]@1,m[x++"c"]@2] : shares ),
+	       ( BEAVERTRIP(z) )
+mult(z : string, x : string, y : string) {
+    secopen(z++"d", x, z++"a"); secopen(z++"e", y, z++"b"); _mult(z,y,1); _mult(z,y,2);
+    [m[z]@i1,m[z]@i2] : shares
+}
+postcondition: ( RECON(z) == RECON(x) * RECON(y)) )
+\end{verbatimtab}
+\end{fpfig}
+
+\begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication extended with BDOZ MACs.}{fig-beaver-bdoz}
+\footnotesize
+\begin{verbatimtab}
+MACOK(x, i1, i2) { m[x++"m"]@i2 == m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"]@i2) }
+
+MACed(x) { MACOK(x, 1, 2) AND MACOK(x, 2, 1) }
+
+_open(x:string, i1:cid, i2:cid, n:string){
+    p[x++"sn"] := m[x++"s"]@i2;
+    p[x++"mn"] := m[x++"m"]@i2;
+    assert(p[x++"mn"] = m[x++"k"] + (m["delta"] * p[x++"sn"]))@i1;
+    m[x++"p"]@i1 = p[x++"sn"] + m[x]@i1
+}
+
+precondition: ( MACed(x) )
+open(x:string) { _open(x,1,2,"1"); _open(x,2,1,"2") }
+
+_sum(z:string, x:string, y:string, i:cid){
+    m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i;
+    m[z++"m"]@i := (m[x++"m"] + m[y++"m"])@i;
+    m[z++"k"]@i := (m[x++"k"] + m[y++"k"])@i
+}
+
+precondition: ( MACed(x) AND MACed(y) )
+sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
+postcondition: ( MACed(z) AND RECON(z) == RECON(x) + RECON(y) )
+		 
+_mult(z : string, y : string, i : cid) {
+   m[z++"s"]@i := (m[z++"d"] * m[y++"s"] + -m[z++"e"] * m[z++"as"] + m[z++"cs"])@i;
+   m[z++"m"]@i := (m[z++"d"] * m[y++"m"] + -m[z++"e"] * m[z++"am"] + m[z++"cm"])@i;
+   m[z++"k"]@i := (m[z++"d"] * m[y++"k"] + -m[z++"e"] * m[z++"ak"] + m[z++"ck"])@i
+}
+
+precondition: ( MACed(x) AND MACed(y) AND
+                MACed(z++"a") AND MACed(z++"b") AND MACed(z++"c") AND BEAVERTRIP(z) )
+mult(z : string, x : string, y : string) {
+    secopen(z++"d", x, z++"a"); secopen(z++"e", y, z++"b"); _mult(z,y,1); _mult(z,y,2);
+}
+postcondition: ( RECON(z) == RECON(x) * RECON(y) )
+
+\end{verbatimtab}
+\end{fpfig}
 
 \subsection{Confidentiality Examples}
 
@@ -121,7 +188,7 @@ for any application.
 
 \subsection{Integrity Examples}
 
-\input{bdoz}
+% \input{bdoz}
 
 Returning to the example of malicious-secure 2-party BDOZ arithmetic
 circuits begun in Section \ref{section-ipj}, in Figure \ref{fig-bdozsum} we
@@ -216,158 +283,3 @@ $\ttt{mult}$ library functions will require little SMT overhead
 due to compositional verification, once their pre- and postconditions
 are verified by type checking. 
 
-%%%%%%%%%%%%%%%%%%
-%%% ARCHIVAL BELOW
-%%%%%%%%%%%%%%%%%%
-\begin{comment}
-\begin{verbatimtab}
-andtableygc(g,x,y)
-{
-   let table = (~r[g],~r[g],~r[g],r[g])
-   in permute4(r[x],r[y],table)
-}
-
-m[x]@1 := s2(s[x],r[x],~r[x])@2;
-m[x]@1 as s[x]@2 xor r[x]@2;
-
-// m[x]@1 : { c(r[x]@2, { s[x]@2 }) } 
-
-m[y]@1 := OT(s[y]@1,r[y],~r[y])@2;
-m[y]@1 as s[y]@1 xor r[y]@2;
-
-// m[y]@1 : { c(r[y]@2, { s[y]@1 }) } 
-	      
-m[ag]@1 := OT4(m[x]@1, m[y]@1, andtable(ag,r[x],r[y]))@2;
-m[ag]@1 as  ~((r[x]@2 = m[x]@1) and (r[y]@2 = m[y]@1)) xor r[ag]@2;
-
-// m[ag]@1 : { c(r[ag]@2, {r[x]@2, r[y]@2, m[x]@1,  m[y]@1} }
-
-p[o] := OT2(m[ag]@1, perm2(r[ag],(false,true)))@2
-
-// p[o] : { c(r[ag]@2, {r[x]@2, r[y]@2,  m[x]@1,  m[y]@1}), r[ag]@2  } 
-
-out@1 := p[o]@1
-
-// out@1 == s[x] and s[y]
-\end{verbatimtab}
-
-\begin{verbatimtab}
-    encodegmw(in, i1, i2) {
-      m[in]@i2 := (s[in] xor r[in])@i1;
-      m[in]@i1 := r[in]@i1
-    }
-    
-    andtablegmw(x, y, z) {
-      let r11 = r[z] xor (m[x] xor true) and (m[y] xor true) in
-      let r10 = r[z] xor (m[x] xor true) and (m[y] xor false) in
-      let r01 = r[z] xor (m[x] xor false) and (m[y] xor true) in
-      let r00 = r[z] xor (m[x] xor false) and (m[y] xor false) in
-      { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
-    }
-    
-    andgmw(z, x, y) {
-      let table = andtablegmw(x,y,z) in
-      m[z]@2 := OT4(m[x],m[y],table,2,1);
-      m[z]@2 as ~((m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2)) xor r[z]@1);
-      m[z]@1 := r[z]@1
-    }
-
-    // and gate correctness postcondition
-    {} andgmw { m[z]@1 xor m[z]@2 == (m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2) }
-
-    // and gate type
-    andgmw :
-     Pi z,x,y .
-     {}
-     { { r[z]@1 },
-       (m[z]@1 : { r[z]@1 }; m[z]@2 : {c(r[z]@1, { m[x]@1, m[x]@2, m[y]@1, m[y]@2 })} ),
-       m[z]@1 xor m[z]@2 == (m[x]@1 xor m[x]@2) and (m[y]@1 xor m[y]@2)}
-    
-    xorgmw(z, x, y) {
-      m[z]@1 := (m[x] xor m[y])@1; m[z]@2 := (m[x] xor m[y])@2;
-    }
-    
-    decodegmw(z) {
-      p["1"] := m[z]@1; p["2"] := m[z]@2;
-      out@1 := (p["1"] xor p["2"])@1;
-      out@2 := (p["1"] xor p["2"])@2
-    }
-
-    prot() {
-      encodegmw("x",2,1);
-      encodegmw("y",2,1);
-      encodegmw("z",1,2);
-      andgmw("g1","x","z");
-      xorgmw("g2","g1","y");
-      decodegmw("g2")
-    }
-
-    {} prot { out@1 == (s["x"]@1 and s["z"]@2) xor s["y"]@1 }
-\end{verbatimtab}
-
-\subsection{Integrity Examples}
-
-\begin{verbatimtab}
-  secopen(w1,w2,w3,i1,i2) {
-      pre(m[w1++"m"]@i2 == m[w1++"k"]@i1 + (m["delta"]@i1 * m[w1++"s"]@i2 /\
-          m[w1++"m"]@i2 == m[w1++"k"]@i1 + (m["delta"]@i1 * m[w1++"s"]@i2));
-      let locsum =  macsum(macshare(w1), macshare(w2)) in
-      m[w3++"s"]@i1 := (locsum.share)@i2;
-      m[w3++"m"]@i1 := (locsum.mac)@i2;
-      auth(m[w3++"s"],m[w3++"m"],mack(w1) + mack(w2),i1);
-      m[w3]@i1 := (m[w3++"s"] + (locsum.share))@i1
-  }
-
-  
-  _open(x,i1,i2){
-    m[x++"exts"]@i1 := m[x++"s"]@i2;
-    m[x++"extm"]@i1 := m[x++"m"]@i2;
-    assert(m[x++"extm"] == m[x++"k"] + (m["delta"] * m[x++"exts"]));
-    m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i2
-  }`
-  
-  _sum(z, x, y,i1,i2) {
-      pre(m[x++"m"]@i2 == m[x++"k"]@i1 + (m["delta"]@i1 * m[x++"s"]@i2 /\
-          m[y++"m"]@i2 == m[y++"k"]@i1 + (m["delta"]@i1 * m[y++"s"]@i2));
-      m[z++"s"]@i2 := (m[x++"s"] + m[y++"s"])@i2;
-      m[z++"m"]@i2 := (m[x++"m"] + m[y++"m"])@i2;
-      m[z++"k"]@i1 := (m[x++"k"] + m[y++"k"])@i1;
-      post(m[z++"m"]@i2 == m[z++"k"]@i1 + (m["delta"]@i1 * m[z++"s"]@i2)
-  }
-
-  sum(z,x,y) { _sum(z,x,y,1,2);_sum(z,x,y,2,1) }
-
-  open(x) { _open(x,1,2); _open(x,2,1) } 
-
-
-  sum("a","x","d");
-  open("d");
-  sum("b","y","e");
-  open("e");
-  let xys =
-      macsum(macctimes(macshare("b"), m["d"]),
-             macsum(macctimes(macshare("a"), m["e"]),
-                    macshare("c")))
-  let xyk = mack("b") * m["d"] + mack("a") * m["e"] + mack("c")
-                    
-  secopen("a","x","d",1,2);
-    secopen("a","x","d",2,1);
-    secopen("b","y","e",1,2);
-    secopen("b","y","e",2,1);
-    let xys =
-      macsum(macctimes(macshare("b"), m["d"]),
-             macsum(macctimes(macshare("a"), m["e"]),
-                    macshare("c")))
-    in
-    let xyk = mack("b") * m["d"] + mack("d") * m["d"] + mack("c")               
-    in
-    secreveal(xys,xyk,"1",1,2);
-    secreveal(maccsum(xys,m["d"] * m["e"]),
-              xyk - m["d"] * m["e"],
-              "2",2,1);
-    out@1 := (p[1] + p[2])@1;
-    out@2 := (p[1] + p[2])@2;
-\end{verbatimtab}
-
-
-\end{comment}
