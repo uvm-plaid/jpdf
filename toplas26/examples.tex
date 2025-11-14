@@ -112,63 +112,21 @@ Since $\ttt{m[z++"d"]@i : public}$ and $\ttt{m[z++"e"]@i : public}$
 are both established by $\ttt{secopen}$, and
 $\ttt{m[y]@i}$, $\ttt{m[z++"a"]@i}$, and $\ttt{m[z++"c"]@i}$ are
 all declared to be shares in preconditions, we have that each
-of $\ttt{m[z++"d"] * m[y]@i}$ and $\ttt{-m[z++"e"] * m[z++"a"]}$
+of the shared computations $\ttt{(m[z++"d"] * m[y])@i}$ and $\ttt{(-m[z++"e"] * m[z++"a"])@i}$
 are shares, so the gate outputs are shares, and this will
 be successfully checked by syntax-directed $\Vdash$ type checking that
 results from the declaration $\ttt{[m[z]@i1,m[z]@i2] : shares}$. 
 
 \subsubsection{Malicious-Secure Arithmetic Circuits}
 
-In BDOZ a pre-processing phase is assumed where initial input secrets
-are shared along with their associated MACs and keys. This can be
-expressed in $\eqspre$ for input secrets $\sx{\ttt{"x"}}{1}$ and
-$\sx{\ttt{"y"}}{2}$, for example, which subsume the following
-constraints on shares:
-{\footnotesize$$
-\begin{array}{l}
-\mx{\ttt{"xs"}}{2} \eop \sx{\ttt{"x"}}{1} \fminus \rx{\ttt{"x"}}{1} \wedge 
-\mx{\ttt{"xs"}}{1} \eop \rx{\ttt{"x"}}{1} \wedge \\
-\mx{\ttt{"ys"}}{1} \eop \sx{\ttt{"y"}}{2} \fminus \rx{\ttt{"y"}}{2} \wedge 
-\mx{\ttt{"ys"}}{2} \eop \rx{\ttt{"y"}}{2} 
-\end{array}
-$$}
-and the following constraint on keys and MACs for authentication
-of $\sx{\ttt{"x"}}{1}$ (and similarly for $\sx{\ttt{"y"}}{2}$):
-{\footnotesize$$
-\begin{array}{l}
-\mx{\ttt{"delta"}}{1} \eop \rx{\ttt{"delta"}}{1} \wedge
-\mx{\ttt{"xk"}}{1} \eop \rx{\ttt{"xk"}}{1} \wedge\\
-\mx{\ttt{"xm"}}{2} \eop \mx{\ttt{"xk"}}{1} \fplus (\mx{\ttt{"delta"}}{1} * \mx{\ttt{"xs"}}{2})
-\end{array}
-$$}
-Given these global preconditions, a malicious secure opening of $\sx{\ttt{"x"}}{1} +
-\sx{\ttt{"y"}}{2}$ would be obtained as
-$\ttt{sum}(\ttt{"z"},\ttt{"x"},\ttt{"y"}); \ttt{open}(\ttt{"z"})$,
-which type checks.
-
-
-The definition of the $\ttt{mult}$ gate is presented in Figure
-\ref{fig-bdozmult},
-%where we present just client 1's side of the
-%protocol $\ttt{\_mult1}$ (client 2's side is nearly symmetric but with
-%a small variation-- refer to
-%\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3} for more
-%details).
-%We could call this function on input secrets
-%$\sx{\ttt{"x"}}{1}$ and $\sx{\ttt{"y"}}{2}$ in gate $\ttt{"g1"}$ as
-%$\ttt{mult}(\ttt{"g1"},\ttt{"x"},\ttt{"y"})$, for example, or embed
-%this gate internally in a circuit.
-%
-As for $\ttt{sum}$, the preconditions of $\ttt{mult}$ express
-the expected MAC properties of input shares, as well as the
-expected Beaver Triple property, and its postcondition
-fexpresses the semi-homomorphic encryption property of
-the resulting share, MAC, and key after gate execution-- specifically,
-it preserves the BDOZ authentication property. Finally, the
-postcondition of $\ttt{mult}$ expresses the
-correctness property of the multiplication gate. In any case,
-integrity of any circuit constructed from the $\ttt{sum}$ and
-$\ttt{mult}$ library functions will require little SMT overhead
-due to compositional verification, once their pre- and postconditions
-are verified by type checking. 
+Our Definition \ref{def-integrity} establishes a general semantics of
+integrity, while the $\minicat$ integrity type system presented in
+Section \ref{section-ipj} focuses on the use of BDOZ/SPDZ-style
+MACs. A main concern here is the encorcement of MAC checking which is
+an algebraic property. Here we show how pre and postconditions can be
+used to enforce these properties in our arithmetic circuit library, in
+Figure \ref{fig-beaver-bdoz}. Note that this code is an extension of the
+library presented in Figure \ref{fig-beaver} and does not incorporate
+the type annotations in Figure \ref{fig-beaver-types}, but this is
+just for clarity of the presentation and these features could be combined. 
 
