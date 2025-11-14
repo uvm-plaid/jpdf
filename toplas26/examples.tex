@@ -85,8 +85,6 @@ output is equal to the ideal functionality $\ttt{IDEALF}$.
 
 \subsection{Share Type Annotations.}
 
-
-
 In Figure \ref{fig-beaver-types} we extend our previous gate definitions with
 share type annotations to enforce confidentiality. The core idea is that
 wire values must be \ttt{share}s. The \ttt{genshares}
@@ -102,11 +100,24 @@ to specify properties of secure openings. After noninteractively
 summing a wire value $\ttt{x}$ and a random Beaver triple value
 $\ttt{x++a}$, the federation can publicly open the value since it is
 masked by the random value. This is expressed using the coercion
-$\ttt{as RECON(x) +  r[x++a]@3}$.
+$\ttt{as RECON(x) +  r[x++a]@3}$. The coercion then allows the
+opened value to be declared $\ttt{public}$.
+
+In the \ttt{mult} function, each client $\ttt{i}$ symmetrically
+computes:
+$$
+\ttt{((m[z++"d"] * m[y]) + (-m[z++"e"] * m[z++"a"]) + m[z++"c"])@i}
+$$
+Since $\ttt{m[z++"d"]@i : public}$ and $\ttt{m[z++"e"]@i : public}$
+are both established by $\ttt{secopen}$, and
+$\ttt{m[y]@i}$, $\ttt{m[z++"a"]@i}$, and $\ttt{m[z++"c"]@i}$ are
+all declared to be shares in preconditions, we have that each
+of $\ttt{m[z++"d"] * m[y]@i}$ and $\ttt{-m[z++"e"] * m[z++"a"]}$
+are shares, so the gate outputs are shares, and this will
+be successfully checked by syntax-directed $\Vdash$ type checking that
+results from the declaration $\ttt{[m[z]@i1,m[z]@i2] : shares}$. 
 
 \subsubsection{Malicious-Secure Arithmetic Circuits}
-
-
 
 In BDOZ a pre-processing phase is assumed where initial input secrets
 are shared along with their associated MACs and keys. This can be
