@@ -153,7 +153,6 @@ mult(z : string, x : string, y : string) {
     secopen(z++"d", x, z++"a"); secopen(z++"e", y, z++"b"); _mult(z,y,1); _mult(z,y,2);
 }
 postcondition: ( RECON(z) == RECON(x) * RECON(y) )
-
 \end{verbatimtab}
 \end{fpfig}
 
