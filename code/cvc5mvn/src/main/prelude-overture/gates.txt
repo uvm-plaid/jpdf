@@ -41,7 +41,7 @@ mult(z : string, x : string, y : string) {
     open(z++"e");
     _mult(z,y,1); _mult(z,y,2)
 }
-postcondition: ( SHARED(z) == SHARED(x) * SHARED(y) )
+postcondition: ( MACed(z) AND SHARED(z) == SHARED(x) * SHARED(y) )
 
 // *
 // main entry point

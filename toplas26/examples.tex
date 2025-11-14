@@ -8,8 +8,8 @@ sharing for any field $\fieldp{p}$, in Section \ref{section-sty} we
 discussed the example of YGC input encoding, and in Sections
 \ref{section-metalang} and \ref{section-metaty} we presented and
 discussed the example of gates in the GMW protocol for binary
-circuits. In this section we present an extended example of arithmetic
-circuits with multiplication gates defined using Beaver triples
+circuits. In this section we present an extended example of 2-party
+arithmetic circuits with multiplication gates defined using Beaver triples
 \cite{evans2018pragmatic}. We first define a compositional gate
 library in $\metaprot$ with correctness conditions defined using the
 Hoare logic developed in Section \ref{section-metalang}, along with a
@@ -129,4 +129,25 @@ Figure \ref{fig-beaver-bdoz}. Note that this code is an extension of the
 library presented in Figure \ref{fig-beaver} and does not incorporate
 the type annotations in Figure \ref{fig-beaver-types}, but this is
 just for clarity of the presentation and these features could be combined. 
+
+In this code we use a convention where shared values $\ttt{x}$ are
+represented as a 3-tuple of values, MAC, and keys, where the value and
+MAC of client \ttt{1} are $\ttt{m[x++"s"]@1}$ and $\ttt{m[x++"m"]@1}$
+respectively, and the corresponding key is $\ttt{m[x++"k"]@2}$ is held
+by client \ttt{2}. The correctness condition of this 3-tuple is
+$\ttt{MACOK}(x,2,1)$. The same is true symmetrically, so $\ttt{MACed}$
+establishes both sides of the correctness condition.  In general,
+these are used in gate preconditions to assume that the MAC conditions
+hold for input shares, and output shares are $\ttt{MACed}$. The
+homomorphic properties that preserve $\ttt{MACed}$ness, especially in
+\ttt{mult}, are perhaps even more complex than the algebraic
+correctness of gates, so it is very beneficial to verify them
+compositional especially for large circuits.
+
+Our code is written so that share MACs are checked for when they are
+\ttt{open}ed by both clients, specified by the appropriate
+$\ttt{assert}$ included in the protocol. This ensures malicious
+security of secure openings and outputs. As is standard in BDOZ/SPDZ,
+we assume that input values, MACs, and keys are distributed to clients
+by a pre-processing protocol.
 
