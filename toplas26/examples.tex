@@ -1,3 +1,52 @@
+\begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication, circuit definition, and compositional correctness conditions.}{fig-beaver}
+\footnotesize
+\begin{verbatimtab}
+IDEALF() { (s["x"]@1 + s["y"]@2) + (s["i"]@1 * s["j"]@2) }
+  
+RECON(x) { (m[x]@1 + m[x]@2) }
+
+BEAVERTRIP(x) {
+  m[x++"c"]@3 == r[x++"a"]@3 * r[x++"b"]@3 AND
+  m[x++"a"]@1 + m[x++"a"]@2 == r[x++"a"]@3 AND
+  m[x++"b"]@1 + m[x++"b"]@2 == r[x++"b"]@3 AND
+  m[x++"c"]@1 + m[x++"c"]@2 == m[x++"c"]@3 
+}
+
+genshares(x:string, i1:cid, i2:cid) { m[x]@i2 := (s[x] + -r[x])@i1; m[x]@i1 := r[x]@i1 }
+
+_open(x:string, i1:cid, i2:cid, n:string){ p[x++"n"] := m[x]@i2; m[x++"p"]@i1 := p[x++"n"] + m[x]@i1 }
+
+open(x:string) { _open(x,1,2,"1"); _open(x,2,1,"2") }
+
+secopen(d:string;x:string,a:string) { sum(d, x, a); open(d) }
+
+_sum(z:string, x:string, y:string, i:cid) { m[z]@i := (m[x] + m[y])@i }
+
+sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
+postcondition: ( RECON(z) == RECON(x) + RECON(y) )
+
+_mult(z : string, y : string, i : cid) {
+    m[z]@i := (m[z++"d"] * m[y] + -m[z++"e"] * m[z++"a"] + m[z++"c"])@i
+}
+
+precondition: ( BEAVERTRIP(z) )
+mult(z : string, x : string, y : string) {
+  secopen(z++"d", x, z++"a"); secopen(z++"e", y, z++"b"); _mult(z,y,1); _mult(z,y,2)
+}
+postcondition: ( RECON(z) == RECON(x) * RECON(y) )
+
+precondition: ( BEAVERTRIP("k") ) 
+main() {
+    genshares("x", 1, 2); genshares("y", 2, 1); genshares("i", 1, 2); genshares("j", 2, 1);
+    sum("z","x","y"); mult("k","i","j"); sum("out","z","k");
+    open("out");
+    out@1 = m["out"]@1; out@2 =  m["out"]@2
+    
+}
+postcondition: ( out@1 == IDEALF() AND out@2 == IDEALF() )
+\end{verbatimtab}
+\end{fpfig}
+
 \section{Extended Examples}
 \label{section-examples}
 
@@ -33,59 +82,59 @@ than can be achieved using previous brute-force methods in
 $\fieldp{2}$ \cite{skalka-near-ppdp24}.
 
 \subsection{Arithmetic Circuits with Beaver Triples}
+\label{section-beaver}
 
-\begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication, circuit definition, and compositional correctness conditions.}{fig-beaver}
-\footnotesize
-\begin{verbatimtab}
-IDEALF() { (s["x"]@1 + s["y"]@2) + (s["i"]@1 * s["j"]@2) }
-  
-RECON(x) { (m[x]@1 + m[x]@2) }
 
-BEAVERTRIP(x) {
-  m[x++"c"]@3 == r[x++"a"]@3 * r[x++"b"]@3 AND
-  m[x++"a"]@1 + m[x++"a"]@2 == r[x++"a"]@3 AND
-  m[x++"b"]@1 + m[x++"b"]@2 == r[x++"b"]@3 AND
-  m[x++"c"]@1 + m[x++"c"]@2 == m[x++"c"]@3 
-}
+In Figure \ref{fig-beaver} we define a 2-party arithmetic circuit with
+4 input gates, 3 internal gates, and 1 output gate. The ideal functionality
+is defined as $\ttt{IDEALF}$. As in GMW or BDOZ, circuit wire values
+are represented as additive secret shares between two clients we call
+$\ttt{1}$ and $\ttt{2}$. As in the GMW example discussed in Section
+\ref{section-metaty}, we use string idenfiers $g$ to distinguish
+gates, and gate output wire shares are defined as identifiers
+$\mx{g}{1}$ and $\mx{g}{2}$. The function $\ttt{RECON}$
+represents share reconstruction \emph{in constraints} (not the
+protocols themselves). Input gates are
+implemented using the $\ttt{genshares}$ function as described in
+Section \ref{section-sty}. The $\ttt{open}$ function
+implements a federation reveal of a shared value through
+share broadcast and reconstruction.
 
-sshare(x:string, i1:cid, i2:cid) { m[x]@i2 := (s[x] + -r[x])@i1; m[x]@i1 := r[x]@i1 }
+A \ttt{sum} gate can be defined non-interactively using the
+homomorphic addition. The correctness \ttt{postcondition} is simple
+and perhaps unecessary to accelerate circuit verification, but is
+appealing declaratively.  The multiplication gate \ttt{mult} is more
+complex. We use the common approach of \emph{Beaver Triples}
+\cite{evans2018pragmatic}. Recall that Beaver triples are values
+$a,b,c$ with $a$ and $b$ chosen randomly and $c = a * b$, unique per
+multiplication gate, that are secret-shared with clients during a
+pre-processing phase by an assumed oracular client $\ttt{3}$.
+The uniqueness requirement is necessary because
+$a$ and $b$ are random values that serve as OTP masks for secure
+openings, implemented as \ttt{secopen}. In our encoding we follow the
+convention that each gate output identifier distinguishes the Beaver
+triple, so for example the share of the $a$ value for a gate
+$\ttt{"g"}$ is identified by $\ttt{"ga"}$, etc. The correctness
+property of the multiplication gate, expressed as a
+\ttt{postcondition}, relies on the $\ttt{BEAVERTRIP}$
+precondition. This compositional correctness property can then be used
+in circuit construction, without the need for ``re-proof'' in our
+Hoare logic inference.
 
-_open(x:string, i1:cid, i2:cid, n:string){ p[x++"n"] := m[x]@i2; m[x++"p"]@i1 := p[x++"n"] + m[x]@i1 }
+The circuit itself is constructed in \ttt{main} using these
+gates. This is a small example but arbitrarily large circuits
+can be constructed with this library. The precondition of
+\ttt{main} must require distinct Beaver triples for each
+multiplication gate in the circuit. The postcondition allows
+verification of circuit correctness-- that the protocol
+output is equal to the ideal functionality $\ttt{IDEALF}$.
 
-open(x:string) { _open(x,1,2,"1"); _open(x,2,1,"2") }
-
-secopen(d:string;x:string,a:string) { sum(d, x, a); open(d) }
-
-_sum(z:string, x:string, y:string, i:cid) { m[z]@i := (m[x] + m[y])@i }
-
-sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
-postcondition: ( RECON(z) == RECON(x) + RECON(y) )
-
-_mult(z : string, y : string, i : cid) {
-    m[z]@i := (m[z++"d"] * m[y] + -m[z++"e"] * m[z++"a"] + m[z++"c"])@i
-}
-
-precondition: ( BEAVERTRIP(z) )
-mult(z : string, x : string, y : string) {
-  secopen(z++"d", x, z++"a"); secopen(z++"e", y, z++"b"); _mult(z,y,1); _mult(z,y,2)
-}
-postcondition: ( RECON(z) == RECON(x) * RECON(y) )
-
-precondition: ( BEAVERTRIP("k") ) 
-main() {
-    sshare("x", 1, 2); sshare("y", 2, 1); sshare("i", 1, 2); sshare("j", 2, 1);
-    sum("z","x","y"); mult("k","i","j"); sum("out","z","k");
-    open("out")
-}
-postcondition: ( m["out"]@1 == IDEALF() )
-\end{verbatimtab}
-\end{fpfig}
-
+\subsection{Share Type Annotations.}
 
 \begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication extended with share type annotations.}{fig-beaver-types}
 \footnotesize
 \begin{verbatimtab}
-sshare(x:string, i1:cid, i2:cid) {
+genshares(x:string, i1:cid, i2:cid) {
    m[x++"s"]@i1 := (s[x] + -r[x])@i2; m[x++"s"]@i2 := r[x]@i2;
    [m[x++"s"]@i1,m[x++"s"]@i2] : shares
 }
@@ -101,7 +150,7 @@ precondition: ([m[x]@i1, m[x]@i2] : shares,
 	       [m[a]@i1, m[a]@i2] : shares)
 secopen(d:string;x:string,a:string) {
     sum(d, x, a); open(d);
-    m[d++"p"]@1 as RECON(x) + r[x++a]@o;
+    m[d++"p"]@1 as RECON(x) + r[x++a]@3;
     <m[d++"p"]@1> : public;
     <m[d++"p"]@2> : public
 }
@@ -125,6 +174,26 @@ mult(z : string, x : string, y : string) {
 postcondition: ( RECON(z) == RECON(x) * RECON(y)) )
 \end{verbatimtab}
 \end{fpfig}
+
+In Figure \ref{fig-beaver-types} we extend our previous gate definitions with
+share type annotations to enforce confidentiality. The core idea is that
+wire values must be \ttt{share}s. The \ttt{genshares}
+function includes an annotation specifying that all input gates establish
+the $\ttt{shares}$ invariant for wire values. In the \ttt{sum} function,
+the \ttt{share} type preconditions for input wires are specified. The
+output wire shares can be declared as \ttt{share}s without any coercion
+needed, since given preconditions our typing algorithm ($\Vdash$) is
+able to check the use of homomorphic addition. 
+
+We add coercions and typing assertions to the $\ttt{secopen}$ function
+to specify properties of secure openings. After noninteractively
+summing a wire value $\ttt{x}$ and a random Beaver triple value
+$\ttt{x++a}$, the federation can publicly open the value since it is
+masked by the random value. This is expressed using the coercion
+$\ttt{as RECON(x) +  r[x++a]@3}$.
+
+\subsubsection{Malicious-Secure Arithmetic Circuits}
+
 
 \begin{fpfig}[t]{2-party gate library with Beaver Triple multiplication extended with BDOZ MACs.}{fig-beaver-bdoz}
 \footnotesize
@@ -168,55 +237,6 @@ postcondition: ( RECON(z) == RECON(x) * RECON(y) )
 \end{verbatimtab}
 \end{fpfig}
 
-\subsection{Confidentiality Examples}
-
-%\input{gmw}
-
-In the 2-party GMW protocol \cite{evans2018pragmatic}, another garbled
-binary circuit protocol, values are encrypted in a manner similar to
-BDOZ as described in Section \ref{section-ipj}. In our definition of
-GMW we use the convention that shared values $\macgv{\mesg{w}}$ are
-identified by strings $w$ and encoded as shares $\mx{w}{1}$ and
-$\mx{w}{2}$.  As for YGC, ciphertypes reflect the confidentiality of
-GMW input encodings as defined in the $\ttt{encodegmw}$ function in
-Figure \ref{fig-gmw}. No programmer annotation is needed given the
-syntax of the function body. More interestingly, the $\ttt{andgmw}$
-gate definition shows how a programmer hint can express the relevant
-confidentiality property of the output share $\mx{z}{2}$ on client 2,
-using the $\ttt{as}$ casting. The non-trivial equivalence can be
-verified by SMT once during verification, and subsequently
-confidentiality is expressed in the dependent type of the function (as
-for $\ttt{encode}$).
-
-Note also that the $\ttt{andgmw}$ function is decorated with a
-postcondition that expresses the correctness property of the
-function. Although not strictly necessary for confidentiality, this
-annotation can at least help eliminate bugs, and also can be used
-compositionally for whole-program correctness properties. As for
-confidentiality hints, this postcondition needs to be verified only
-once at the point of definition and subsequently is guaranteed to hold
-for any application.
-
-\subsection{Integrity Examples}
-
-% \input{bdoz}
-
-Returning to the example of malicious-secure 2-party BDOZ arithmetic
-circuits begun in Section \ref{section-ipj}, in Figure \ref{fig-bdozsum} we
-define $\ttt{sum}$ and $\ttt{open}$ functions. The latter implements
-``secure opening''-- each party sends it's local share of a
-global value $\macgv{\mesg{w}}$ along with its MAC to the other party,
-which is authenticated via the $\macbdoz{w}$ check (in \ttt{\_open}),
-and then each party reconstructs $\macgv{\mesg{w}}$. The preconditions
-of $\ttt{open}$ specify the authentication requirements. 
-
-The $\ttt{sum}$ function implements an addition gate. This is
-non-interactive-- each party just sums its local shares
-of the two values. The pre- and postcondition annotations
-on $\ttt{sum}$ express the additive homomorphism associated
-with this encryption scheme-- the sum of MACs of the input
-shares is a valid MAC for the output share on each client,
-which can be checked using the sum of keys of the input shares.
 
 In BDOZ a pre-processing phase is assumed where initial input secrets
 are shared along with their associated MACs and keys. This can be
@@ -245,29 +265,6 @@ Given these global preconditions, a malicious secure opening of $\sx{\ttt{"x"}}{
 $\ttt{sum}(\ttt{"z"},\ttt{"x"},\ttt{"y"}); \ttt{open}(\ttt{"z"})$,
 which type checks.
 
-A common approach to implementing multiplication gates in a BDOZ
-setting is to use \emph{Beaver Triples}. Recall that Beaver triples
-are values $a,b,c$ with $a$ and $b$ chosen randomly and $c = a * b$,
-unique per multiplication gate, that are secret shared with clients
-during pre-processing.  In our encoding we assume the additional
-convention that each gate output identifier distinguishes the Beaver
-triple, so for example the share of the $a$ value for a gate
-$\ttt{"g1"}$ is identified by $\ttt{"g1as"}$, etc.
-
-%, and $\eqspre$
-%subsumes the following constraints for the $a,b,c$ values of gate
-%$\ttt{"g1"}$.  {\footnotesize$$
-%\begin{array}{l}
-%\mx{\ttt{"g1as"}}{1} \eop \rx{\ttt{"g1as"}}{1}\ \wedge 
-%\mx{\ttt{"g1bs"}}{1} \eop \rx{\ttt{"g1bs"}}{1}\ \wedge\\
-%\mx{\ttt{"g1as"}}{2} \eop \rx{\ttt{"g1as"}}{2}\ \wedge 
-%\mx{\ttt{"g1bs"}}{2} \eop \rx{\ttt{"g1bs"}}{2}\ \wedge\\
-%\mx{\ttt{"g1cs"}}{1} \eop \\
-%\qquad ((\mx{\ttt{"g1as"}}{1} \fplus \mx{\ttt{"g1bs"}}{2})\ \ftimes\\
-%\qquad\phantom{(}(\mx{\ttt{"g1bs"}}{1} \fplus \mx{\ttt{"g1bs"}}{2})) \fminus \rx{\ttt{"g1cs"}}{2}\ \wedge\\
-%\mx{\ttt{"g1cs"}}{2} \eop \rx{\ttt{"g1cs"}}{2}
-%\end{array}
-%$$}
 
 The definition of the $\ttt{mult}$ gate is presented in Figure
 \ref{fig-bdozmult},
