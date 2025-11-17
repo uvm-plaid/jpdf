@@ -67,7 +67,7 @@ probability mass functions.
 
 \begin{definition}
   Given $\pmf$, the \emph{conditional distribution}
-  of $X_1$ given $X_2$ where $X_1 \cup X_2 \subseteq \dom(\pmf)$ and $X_1 \cap X_2 = \varnothing$
+  of $X_1$ given $X_2$ where $X_1 \cup X_2 = \dom(\pmf)$ 
   is denoted $\condd{\pmf}{X_1}{X_2}$ and defined as follows:
   $$
   \forall \store \in \mems(X_1 \cup X_2)\ .\ 
@@ -75,21 +75,27 @@ probability mass functions.
   \begin{cases}
     \begin{array}{ll}
       0 & \text{\ if\ } \margd{\pmf}{X_2}(\store_{X_2}) = 0\\
-      \margd{\pmf}{X_1 \cup X_2}(\store) / \margd{\pmf}{X_2}(\store_{X_2})\ & \text{\ o.w.}
+      \pmf(\store) / \margd{\pmf}{X_2}(\store_{X_2})\ & \text{\ o.w.}
      \end{array}
   \end{cases}
   $$
 \end{definition}
-We also define some convenient syntactic sugarings. The first will allow us to
-compare marginal distributions under different realization conditions
-(as in, e.g., Definition \ref{definition-NIMO}), the others are standard.
+We also define some convenient syntactic sugaring for ``implicit
+marginalization'' given a realization.
+%The first will allow us to
+%compare marginal distributions under different realization conditions
+%(as in, e.g., Definition \ref{definition-NIMO}), the others are standard.
 \begin{definition}
-  Given $\pmf$, for all $\store_1 \in \mems(X_1)$ and $\store_2 \in \mems(X_2)$ define:
-  \begin{enumerate}
-  \item $\condd{\pmf}{X_1}{\store_2}(\store_1) \defeq \condd{\pmf}{X_1}{X_2}(\store_1 \uplus \store_2)$
-  \item $\pmf(\store_1)  \defeq \margd{\pmf}{X_1}(\store_1)$ 
-  \item $\pmf(\store_1|\store_2) \defeq \condd{\pmf}{X_1}{X_2}(\store_1 \uplus \store_2)$
-  \end{enumerate}
+  Given $\pmf$ and $X \subseteq \dom(\pmf)$, for all $\store \in \mems(X)$
+  define $\pmf(\store)  \defeq \margd{\pmf}{X}(\store)$.
+  %and
+  %$\store_2 \in \mems(X_2)$ define
+  %$\pmf(\store_1)  \defeq \margd{\pmf}{X_1}(\store_1)$ 
+  %\begin{enumerate}
+  %\item $\condd{\pmf}{X_1}{\store_2}(\store_1) \defeq \condd{\pmf}{X_1}{X_2}(\store_1 \uplus \store_2)$
+  %\item $\pmf(\store_1)  \defeq \margd{\pmf}{X_1}(\store_1)$ 
+  %\item $\pmf(\store_1|\store_2) \defeq \condd{\pmf}{X_1}{X_2}(\store_1 \uplus \store_2)$
+  %\end{enumerate}
 \end{definition}
 As in previous work \cite{darais2019language,barthe2019probabilistic,skalka-near-ppdp24,li2023lilac}, 
 probabilistic independence, aka separation, is an important concept and we adopt the
@@ -201,10 +207,10 @@ security \cite{skalka-near-ppdp24}.
   \label{definition-NIMO}
   We say that a program $\prog$ with $\iov(\prog) = S \cup V \cup O$
   satisfies \emph{noninterference modulo output}
-  iff for all $H$ and $C$ and $\store_1 \in \mems(S_C \cup O)$ and $\store_2 \in \mems(\houtputs)$
+  iff for all $H$ and $C$ %and $\store_1 \in \mems(S_C \cup O)$ and $\store_2 \in \mems(\houtputs)$
   we have:
   $$
-  \condd{\progtt(\prog)}{S_H}{\store_1} = \condd{\progtt(\prog)}{S_H}{\store_1 \uplus \store_2}
+  \condd{\progtt(\prog)}{S_H}{S_C \cup O} = \condd{\progtt(\prog)}{S_H}{S_C \cup O \cup \houtputs}
  $$
 \end{definition}
 This conditional noninterference property implies that
@@ -234,11 +240,10 @@ passive strategy with some choice of inputs or causes an abort.
   \label{def-integrity}
   We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
   \emph{integrity} iff for all $H$, $C$, and $\adversary$,
-  if $\store \in \aruns(\prog)$ 
-  then there exists $\store' \in \mems(S)$ with $\store_{S_H} = \store'_{S_H} $ and:
+  if $\store \in \aruns(\prog)$ we have:
     $$
-    \condd{\progtt(\prog,\adversary)}{X}{\store_{S_H \cup \cinputs}} =
-    \condd{\progtt(\prog)}{X}{\store'}
+    \condd{\progtt(\prog,\adversary)}{X}{S_H \cup \cinputs} =
+    \condd{\progtt(\prog)}{X}{S_H \cup \cinputs}
     $$ 
   where $X \defeq (\houtputs \cup O_H) \cap \dom(\store)$. 
 \end{definition}

@@ -220,6 +220,40 @@ $$
 \subsection{Share Type Soundness}
 \label{section-sty-sound}
 
+
+$$
+\mems(\Phi) \defeq \{ \store \mid \dom(\store) = \setit{\ x_{\phi}\ \mid\ \phi \in \Phi\ } \}
+$$
+
+\begin{definition}
+  Given pmf $\pmf$ and $\Phi$ with $\dom(\pmf) = \bigcup_{\phi \in \Phi} \dom(\phi)$,
+  for all $\store \in \mems(\Phi)$ define:
+%$$
+%\pmf(\phi = v) \defeq \sum_{\store \in \mems(X) \ \text{with}\ \store(\phi) = v} \pmf(\store)
+%$$
+  $$
+  \pmf(\store) \defeq \sum_{\store' \in \mems(X)}
+  \begin{cases}
+    \pmf(\store') \ \text{if}\ \forall \phi \in \Phi . \store'(\phi) = \store(x_\phi)  \\
+    0 \ \text{otherwise}
+  \end{cases}
+  $$
+\end{definition}
+
+\begin{definition}
+  Given $\pmf$, the \emph{conditional distribution}
+  of $X$ given $\Phi$ where $\bigcup_{\phi \in \Phi} \dom(\phi) \cup X = \dom(\pmf)$ 
+  is denoted $\condd{\pmf}{X}{\Phi}$ and defined as follows: 
+  $$
+  \forall \store_1 \in \mems(X)\ .\ \forall \store_2 \in \mems(\Phi) \ .\ 
+  \condd{\pmf}{X}{\Phi}(\store_1 \uplus \store_2) \defeq
+  \begin{cases}
+    0 \text{\ if\ } \margd{\pmf}{\Phi}(\store_2) = 0\\
+    \pmf(\store_1 \uplus \store_2) / \pmf(\store_2) \text{\ otherwise}
+  \end{cases}
+  $$
+\end{definition}
+
 Now we can prove our share typing soundness result, showing that share
 typing enforces noninteference modulo output, with our main result
 in Theorem \ref{theorem-sty}. We begin by defining a key well-formedness
@@ -256,7 +290,7 @@ typing judgements.
 
 \begin{lemma}
   \label{lemma-sty-noninteractive-sound}
-  Given $\prog,\Gamma,R$ where $\secrets(\prog) = S$ and:
+  Given $\prog,\Gamma,R : {OK}$ where $\secrets(\prog) = S$ and:
   $$
   \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
   \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
