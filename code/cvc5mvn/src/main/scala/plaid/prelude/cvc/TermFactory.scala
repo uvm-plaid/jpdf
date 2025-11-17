@@ -6,8 +6,7 @@ import plaid.prelude.ast.*
 import scala.collection.mutable
 
 class TermFactory(order: String) {
-  // TODO We manually specify field size, this should be renamed?
-  private val DEFAULT_FIELD_SIZE = 10
+  private val DEFAULT_SIZE = 10
 
   /** Extract party index for assert commands */
   private def getPartyIndex(command: Cmd): Integer = command match
@@ -15,9 +14,9 @@ class TermFactory(order: String) {
     case _ => null
 
   val termManager = TermManager()
-  val sort: Sort = termManager.mkFiniteFieldSort(order, DEFAULT_FIELD_SIZE)
+  val sort: Sort = termManager.mkFiniteFieldSort(order, DEFAULT_SIZE)
   private val memories = new mutable.HashSet[Memory]()
-  private val minusOne: Term = termManager.mkFiniteFieldElem("-1", sort, DEFAULT_FIELD_SIZE)
+  private val minusOne: Term = termManager.mkFiniteFieldElem("-1", sort, DEFAULT_SIZE)
 
   private val solver = new Solver(termManager)
   solver.setLogic("ALL")
@@ -29,7 +28,7 @@ class TermFactory(order: String) {
     case x: AtExpr =>
       if (idx.nonEmpty) throw Exception(s"Party index $idx already active")
       toTerm(x.e1, Some(CvcUtils.toInt(x.e2)))
-    case Num(n) => termManager.mkFiniteFieldElem(n.toString, sort, DEFAULT_FIELD_SIZE)
+    case Num(n) => termManager.mkFiniteFieldElem(n.toString, sort, DEFAULT_SIZE)
     case PlusExpr(e1, e2) => termManager.mkTerm(Kind.FINITE_FIELD_ADD, toTerm(e1, idx), toTerm(e2, idx))
     case TimesExpr(e1, e2) => termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(e1, idx), toTerm(e2, idx))
     case MinusExpr(e) => termManager.mkTerm(Kind.FINITE_FIELD_MULT, toTerm(e, idx), minusOne)
