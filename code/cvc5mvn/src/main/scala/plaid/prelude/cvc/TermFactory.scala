@@ -25,15 +25,6 @@ class TermFactory(val termManager: TermManager, order: String) {
 
   def getMemories: Set[Memory] = memories.toSet
 
-  private def not(term: Term): Term =
-    termManager.mkTerm(Kind.FINITE_FIELD_ADD, term, termManager.mkFiniteFieldElem("1", sort, DEFAULT_FIELD_SIZE))
-
-  def toTerm(expr: Expr, idx: Integer): Term =
-    partyIndex = idx
-    val result = toTerm(expr)
-    partyIndex = null
-    result
-
   def toTerm(expr: Expr): Term = expr match
     case x: PublicExpr  => lookupOrCreate(x, null)
     case x: AtExpr =>
