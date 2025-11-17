@@ -21,8 +21,8 @@ class TermFactoryTest {
    */
   @Test
   def compareElements(): Unit =
-    val termManager1 = new TermManager()
-    val termManager2 = new TermManager()
+    val termManager1 = TermManager()
+    val termManager2 = TermManager()
     val sort1 = termManager1.mkFiniteFieldSort("2", 10)
     val sort2 = termManager2.mkFiniteFieldSort("2", 10)
     val minusOne1 = termManager1.mkFiniteFieldElem("-1", sort1, 10)
@@ -36,8 +36,8 @@ class TermFactoryTest {
    */
   @Test
   def compareTermsFromTwoTermManagers(): Unit =
-    val termManager1 = new TermManager()
-    val termManager2 = new TermManager()
+    val termManager1 = TermManager()
+    val termManager2 = TermManager()
     val sort1 = termManager1.mkFiniteFieldSort("2", 10)
     val sort2 = termManager2.mkFiniteFieldSort("2", 10)
     val m_x_1 = termManager1.mkConst(sort1, "m_x")
@@ -51,7 +51,7 @@ class TermFactoryTest {
    */
   @Test
   def compareTermsFromTermManagers(): Unit =
-    val tm = new TermManager()
+    val tm = TermManager()
     val sort = tm.mkFiniteFieldSort("2", 10)
     val term1 = tm.mkConst(sort, "m_x")
     val term2 = tm.mkConst(sort, "m_x")
@@ -61,55 +61,48 @@ class TermFactoryTest {
   @Test(expected = classOf[Exception])
   def partyIndexesDoNotStack(): Unit =
     val expr = Loader.expression("(s[\"y\"] + s[\"x\"]@1)@2")
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     factory.toTerm(expr)
 
   /** Memory expressions without associated parties do not convert to terms. */
   @Test(expected = classOf[Exception])
   def memoryPartyIndexRequired(): Unit =
     val expr = Loader.expression("m[\"y\"]")
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     factory.toTerm(expr)
 
   /** Secret expressions without associated parties do not convert to terms. */
   @Test(expected = classOf[Exception])
   def secretPartyIndexRequired(): Unit =
     val expr = Loader.expression("s[\"y\"]")
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     factory.toTerm(expr)
 
   /** Random expressions without associated parties do not convert to terms. */
   @Test(expected = classOf[Exception])
   def randomPartyIndexRequired(): Unit =
     val expr = Loader.expression("r[\"y\"]")
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     factory.toTerm(expr)
 
   /** Output expressions without associated parties do not convert to terms. */
   @Test(expected = classOf[Exception])
   def outputPartyIndexRequired(): Unit =
     val expr = Loader.expression("out")
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     factory.toTerm(expr)
 
   /** Numeric expressions convert to finite field values. */
   @Test
   def numericTerms(): Unit =
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     val term = factory.toTerm(Num(1))
     assertEquals("1", term.getFiniteFieldValue)
 
   /** Registers memory nodes when they are children of other nodes. */
   @Test
   def registerChildren(): Unit =
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     val mem = AtExpr(MessageExpr(Str("x")), Num(3))
     val expr = PlusExpr(Num(6), mem)
     factory.toTerm(expr)
@@ -119,8 +112,7 @@ class TermFactoryTest {
   /** Registers memory nodes when no other memories are registered */
   @Test
   def registerFirstMemory(): Unit =
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     val expr = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(expr)
     val memories = factory.getMemories
@@ -132,8 +124,7 @@ class TermFactoryTest {
   /** Registers memory nodes when other memories exist */
   @Test
   def registerDistinctMemories(): Unit =
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     val expr1 = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(expr1)
     val expr2 = AtExpr(RandomExpr(Str("y")), Num(5))
@@ -144,66 +135,61 @@ class TermFactoryTest {
   /** Creates term for Equal constraint */
   @Test
   def equalConstraintTerm(): Unit =
-    val termManager = new TermManager()
-    val cvc = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     val ast = Loader.constraint("m[\"foo\"]@3 == 5")
-    val term = cvc.toTerm(ast)
-    val actual = cvc.findModelSatisfying(term)
+    val term = factory.toTerm(ast)
+    val actual = factory.findModelSatisfying(term)
     val expected = Map("m_foo_3" -> 5)
-    assertEquals(mockModel(cvc, expected), actual)
+    assertEquals(mockModel(factory, expected), actual)
 
   /** Creates term for And constraint expression */
   @Test
   def andConstraintTerm(): Unit = {
-    val termManager = new TermManager()
-    val cvc = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     val ast = AndConstraint(
       EqualConstraint(AtExpr(MessageExpr(Str("x")), Num(3)), AtExpr(RandomExpr(Str("y")), Num(5))),
       EqualConstraint(AtExpr(RandomExpr(Str("y")), Num(5)), Num(1)))
-    val term = cvc.toTerm(ast)
-    val actual = cvc.findModelSatisfying(term)
+    val term = factory.toTerm(ast)
+    val actual = factory.findModelSatisfying(term)
     val expected = Map("m_x_3" -> 1, "r_y_5" -> 1)
-    assertEquals(mockModel(cvc, expected), actual)
+    assertEquals(mockModel(factory, expected), actual)
   }
 
   /** Creates term for Not constraint */
   @Test
   def notConstraintTerm(): Unit =
-    val termManager = new TermManager()
-    val cvc = new TermFactory(termManager, "7")
-    val term = cvc.toTerm(
+    val factory = TermFactory("7")
+    val term = factory.toTerm(
       NotConstraint(
         EqualConstraint(
           AtExpr(MessageExpr(Str("foo")), Num(3)),
           Num(0))))
-    val actual = cvc.findModelSatisfying(term)
+    val actual = factory.findModelSatisfying(term)
     val expected = Map("m_foo_3" -> 1)
-    assertEquals(mockModel(cvc, expected), actual)
+    assertEquals(mockModel(factory, expected), actual)
 
   /** Creates term for True constraint */
   @Test
   def trueConstraintTerm(): Unit =
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val termManager = TermManager()
+    val factory = TermFactory("7")
     val term = factory.toTerm(TrueConstraint())
     assertEquals(termManager.mkTrue(), term)
 
   /** Creates complex constraint expressions */
   @Test
   def complexConstraintTerms(): Unit =
-    val termManager = new TermManager()
-    val cvc = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     val ast = Loader.constraint("out@1 == out@2 + 1 AND out@2 == out@3 + 2 AND out@3 == 4")
-    val term = cvc.toTerm(ast)
-    val actual = cvc.findModelSatisfying(term)
+    val term = factory.toTerm(ast)
+    val actual = factory.findModelSatisfying(term)
     val expected = Map("o_3" -> 4, "o_2" -> 6, "o_1" -> 0)
-    assertEquals(mockModel(cvc, expected), actual)
+    assertEquals(mockModel(factory, expected), actual)
 
   /** Does not register a new cvc5 term if one already exists for the memory */
   @Test
   def reuseMemories(): Unit =
-    val termManager = new TermManager()
-    val factory = new TermFactory(termManager, "7")
+    val factory = TermFactory("7")
     val expr = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(expr)
     val twin = AtExpr(MessageExpr(Str("x")), Num(3))

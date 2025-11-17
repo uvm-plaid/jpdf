@@ -5,7 +5,7 @@ import plaid.prelude.ast.*
 
 import scala.collection.mutable
 
-class TermFactory(val termManager: TermManager, order: String) {
+class TermFactory(order: String) {
   // TODO We manually specify field size, this should be renamed?
   private val DEFAULT_FIELD_SIZE = 10
 
@@ -14,6 +14,7 @@ class TermFactory(val termManager: TermManager, order: String) {
     case x: AssertCmd => CvcUtils.toInt(x.e3)
     case _ => null
 
+  val termManager = TermManager()
   val sort: Sort = termManager.mkFiniteFieldSort(order, DEFAULT_FIELD_SIZE)
   private val memories = new mutable.HashSet[Memory]()
   private val minusOne: Term = termManager.mkFiniteFieldElem("-1", sort, DEFAULT_FIELD_SIZE)

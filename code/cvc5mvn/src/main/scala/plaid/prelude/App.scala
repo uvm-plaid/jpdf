@@ -35,9 +35,8 @@ class App extends Runnable {
     var totalFailures = 0
 
     contracts.filter(_.f.body.nonEmpty).foreach(x =>
-      println(s"\n*** ${x.f.id.name}")
-      val termManager = TermManager()
-      val termFactory = TermFactory(termManager, fieldSize)
+      println(s"*** ${x.f.id.name}")
+      val termFactory = TermFactory(fieldSize)
       val failures = x.verificationFailures(termFactory)
       totalTests += x.internals.size
       totalFailures += failures.size
