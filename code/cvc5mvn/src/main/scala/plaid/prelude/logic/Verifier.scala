@@ -17,7 +17,7 @@ extension (trg: TermFactory)
     if (!result.isSat) return None
 
     val mod = Integer.parseInt(trg.sort.getFiniteFieldSize)
-    Some(trg.getMemories.map(m =>
+    Some(trg.memories.map(m =>
       val value = solver.getValue(m.term)
       val finiteFieldValue = Integer.parseInt(value.getFiniteFieldValue)
       m.term -> Math.floorMod(finiteFieldValue, mod)).toMap)

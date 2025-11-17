@@ -8,20 +8,18 @@ import scala.collection.mutable
 class TermFactory(order: String) {
   private val DEFAULT_SIZE = 10
 
+  val termManager = TermManager()
+  val sort: Sort = termManager.mkFiniteFieldSort(order, DEFAULT_SIZE)
+  val memories = mutable.HashSet[Memory]()
+  private val minusOne: Term = termManager.mkFiniteFieldElem("-1", sort, DEFAULT_SIZE)
+  private val solver = Solver(termManager)
+
+  solver.setLogic("ALL")
+
   /** Extract party index for assert commands */
   private def getPartyIndex(command: Cmd): Integer = command match
     case x: AssertCmd => CvcUtils.toInt(x.e3)
     case _ => null
-
-  val termManager = TermManager()
-  val sort: Sort = termManager.mkFiniteFieldSort(order, DEFAULT_SIZE)
-  private val memories = new mutable.HashSet[Memory]()
-  private val minusOne: Term = termManager.mkFiniteFieldElem("-1", sort, DEFAULT_SIZE)
-
-  private val solver = new Solver(termManager)
-  solver.setLogic("ALL")
-
-  def getMemories: Set[Memory] = memories.toSet
 
   def toTerm(expr: Expr, idx: Option[Int] = None): Term = expr match
     case x: PublicExpr  => lookupOrCreate(x, null)
@@ -38,9 +36,9 @@ class TermFactory(order: String) {
 
   private def lookupOrCreate(expr: Expr, idx: Option[Int]): Term =
     val name = CvcUtils.getCvcName(expr, idx)
-    val memory = memories.find(_.name == name).getOrElse {
-      Memory(name, termManager.mkConst(sort, name), expr, idx)
-    }
+    val memory = memories
+      .find { _.name == name }
+      .getOrElse { Memory(name, termManager.mkConst(sort, name), expr, idx) }
     memories.add(memory)
     memory.term
 

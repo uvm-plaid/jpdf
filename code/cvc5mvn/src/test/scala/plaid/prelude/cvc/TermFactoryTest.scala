@@ -11,7 +11,7 @@ class TermFactoryTest {
 
   private def mockModel(factory: TermFactory, nameBasedModel: Map[String, Int]): Option[Map[Term, Int]] =
     Some(nameBasedModel.map { case (name, value) =>
-      val term = factory.getMemories.find(_.name == name).get.term
+      val term = factory.memories.find(_.name == name).get.term
       term -> value
     })
 
@@ -106,8 +106,7 @@ class TermFactoryTest {
     val mem = AtExpr(MessageExpr(Str("x")), Num(3))
     val expr = PlusExpr(Num(6), mem)
     factory.toTerm(expr)
-    val memories = factory.getMemories
-    assertEquals(1, memories.size)
+    assertEquals(1, factory.memories.size)
 
   /** Registers memory nodes when no other memories are registered */
   @Test
@@ -115,7 +114,7 @@ class TermFactoryTest {
     val factory = TermFactory("7")
     val expr = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(expr)
-    val memories = factory.getMemories
+    val memories = factory.memories
     assertEquals(1, memories.size)
     val mem = memories.head
     assertEquals("m_x_3", mem.name)
@@ -129,7 +128,7 @@ class TermFactoryTest {
     factory.toTerm(expr1)
     val expr2 = AtExpr(RandomExpr(Str("y")), Num(5))
     factory.toTerm(expr2)
-    val memories = factory.getMemories
+    val memories = factory.memories
     assertEquals(2, memories.size)
 
   /** Creates term for Equal constraint */
@@ -194,6 +193,6 @@ class TermFactoryTest {
     factory.toTerm(expr)
     val twin = AtExpr(MessageExpr(Str("x")), Num(3))
     factory.toTerm(twin)
-    val memories = factory.getMemories
+    val memories = factory.memories
     assertEquals(1, memories.size)
 }
