@@ -162,29 +162,18 @@ of views, i.e., subsets of $M \cup P$.
 \begin{definition}[Corrupt and Honest Views]
   We let $V$ range over \emph{views} which are sets of messages
   and reveals. Given a program $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$,
-  define $\views(\prog) \defeq M \cup P$, and define $\houtputs$ as
-  the messages and reveals in $V = M \cup P$ sent from honest to corrupt
-  parties, called \emph{corrupt views}:
-  $$
+  define $\views(\prog) \defeq M \cup P$. Letting $I_1$, $I_2$ be
+  a partitioning of the federation clients, define:
   \begin{array}{lcl}
-    \houtputs & \defeq
-        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in H \ \}\ \cup\ %\\
+    V_{I_1 \rhd I_2} & \defeq
+        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in I_1 \ \}\ \cup\ %\\
     % & &
     \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
-           \prog \wedge \cid \in C \wedge \cid' \in H \ \} 
+           \prog \wedge \cid \in I_2 \wedge \cid' \in I_1 \ \} 
   \end{array}
   $$
-  and similarly define $\cinputs$ as the subset of $V$ sent from corrupt to honest
-  parties, called \emph{honest views}:
-  $$
-  \begin{array}{lcl}
-    \cinputs &  \defeq
-        & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in C \ \} \ \cup\ %\\
-    %& &
-    \{\ \elab{\mesg{w}}{\cid}\ \mid\  \eassign{\mesg{w}}{\cid}{\be}{\cid'} \in
-              \prog \wedge \cid \in H \wedge \cid' \in C \ \}
-  \end{array}
-  $$
+  Given a partitioning of the federation $H,C$, we call $\houtputs$
+  \emph{corrupt views} and $\hinputs$ \emph{honest views}.
 \end{definition}
 
 \subsection{Hyperproperties of Confidentiality and Integrity}
