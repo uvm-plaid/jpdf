@@ -164,6 +164,7 @@ of views, i.e., subsets of $M \cup P$.
   and reveals. Given a program $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$,
   define $\views(\prog) \defeq M \cup P$. Letting $I_1$, $I_2$ be
   a partitioning of the federation clients, define:
+  $$
   \begin{array}{lcl}
     V_{I_1 \rhd I_2} & \defeq
         & \{\ \rvl{w} \mid\ \reveal{w}{\be}{\cid} \in \prog \wedge \cid \in I_1 \ \}\ \cup\ %\\
@@ -173,7 +174,7 @@ of views, i.e., subsets of $M \cup P$.
   \end{array}
   $$
   Given a partitioning of the federation $H,C$, we call $\houtputs$
-  \emph{corrupt views} and $\hinputs$ \emph{honest views}.
+  \emph{corrupt views} and $\cinputs$ \emph{honest views}.
 \end{definition}
 
 \subsection{Hyperproperties of Confidentiality and Integrity}
