@@ -12,10 +12,10 @@ object Loader {
 
   /** Creates an ANTLR4 parser for Prelude source code. */
   private def parser(src: String): PreludeParser =
-    val input = new ANTLRInputStream(src)
-    val lexer = new PreludeLexer(input)
-    val tokens = new CommonTokenStream(lexer)
-    val parser = new PreludeParser(tokens)
+    val input = ANTLRInputStream(src)
+    val lexer = PreludeLexer(input)
+    val tokens = CommonTokenStream(lexer)
+    val parser = PreludeParser(tokens)
     parser.setBuildParseTree(true)
     parser
 

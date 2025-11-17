@@ -10,7 +10,7 @@ extension (trg: TermFactory)
 
   /** Find a set of assignments that make a term true, if one exists. */
   def findModelSatisfying(term: Term): Option[Map[Term, Int]] =
-    val solver = new Solver(trg.termManager)
+    val solver = Solver(trg.termManager)
     solver.setOption("produce-models", "true")
     solver.assertFormula(term)
     val result = solver.checkSat()

@@ -9,8 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 object Unique {
   private val start = 1
-  private val partyCounter = new AtomicInteger(start)
-  private val stringCounter = new AtomicInteger(start)
+  private val partyCounter = AtomicInteger(start)
+  private val stringCounter = AtomicInteger(start)
 
   def reset(): Unit =
     partyCounter.set(start)

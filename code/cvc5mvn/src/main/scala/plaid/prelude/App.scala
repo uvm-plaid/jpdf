@@ -1,11 +1,10 @@
 package plaid.prelude
 
-import io.github.cvc5.TermManager
 import picocli.CommandLine
 import picocli.CommandLine.{Command, Option, Parameters}
 import plaid.prelude.antlr.Loader
-import plaid.prelude.ast.ListExprFuncExt.expandAll
 import plaid.prelude.ast.ListConstraintFuncExt.expandAll
+import plaid.prelude.ast.ListExprFuncExt.expandAll
 import plaid.prelude.cvc.TermFactory
 import plaid.prelude.logic.{contracts, verificationFailures}
 
@@ -26,7 +25,7 @@ class App extends Runnable {
   var path: String = uninitialized
 
   override def run(): Unit =
-    val src = Files.readString(new File(path).toPath)
+    val src = Files.readString(File(path).toPath)
     val ast = Loader.program(src)
     val exprFns = ast.exprFuncs.expandAll()
     val constraintFns = ast.constraintFuncs.expandAll(exprFns)
@@ -49,6 +48,6 @@ class App extends Runnable {
 
 object App {
   def main(args: Array[String]): Unit =
-    val exitCode = new CommandLine(new App()).execute(args*)
+    val exitCode = CommandLine(App()).execute(args*)
     System.exit(exitCode)
 }
