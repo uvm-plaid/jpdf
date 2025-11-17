@@ -127,7 +127,7 @@ class TermFactoryTest {
     assertEquals(1, memories.size)
     val mem = memories.head
     assertEquals("m_x_3", mem.name)
-    assertEquals(Integer.valueOf(3), mem.partyIndex)
+    assertEquals(Some(3), mem.partyIndex)
 
   /** Registers memory nodes when other memories exist */
   @Test

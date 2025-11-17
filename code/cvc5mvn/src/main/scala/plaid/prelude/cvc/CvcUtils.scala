@@ -4,12 +4,12 @@ import plaid.prelude.ast.*
 
 object CvcUtils {
 
-  def getCvcName(expr: Expr, partyIndex: Integer): String = expr match
-    case MessageExpr(e) => s"m_${toString(e)}_$partyIndex"
+  def getCvcName(expr: Expr, idx: Option[Int]): String = expr match
+    case MessageExpr(e) => s"m_${toString(e)}_${idx.get}"
     case PublicExpr(e) => s"p_${toString(e)}"
-    case RandomExpr(e) => s"r_${toString(e)}_$partyIndex"
-    case SecretExpr(e) => s"s_${toString(e)}_$partyIndex"
-    case _: OutputExpr => s"o_$partyIndex"
+    case RandomExpr(e) => s"r_${toString(e)}_${idx.get}"
+    case SecretExpr(e) => s"s_${toString(e)}_${idx.get}"
+    case _: OutputExpr => s"o_${idx.get}"
     case other => throw Exception(s"Must be memory, found ${other.getClass.getName}")
 
   def toInt(expr: Expr): Int = expr match
