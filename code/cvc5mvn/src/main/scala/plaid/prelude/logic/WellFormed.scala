@@ -78,11 +78,9 @@ object WellFormed {
   })
 
 
-  def checkConstraint(constraint: Constraint): Boolean = {
-      constraintNodeTypes(constraint) &&
-      memoryIndexesAreStrings(constraint) &&
-      partyIndexesAreNumbers(constraint) &&
-      memoryWellFormed(constraint)
-  }
-
+  def checkConstraint(constraint: Constraint): Boolean =
+    constraintNodeTypes(constraint) &&
+    memoryIndexesAreStrings(constraint) &&
+    partyIndexesAreNumbers(constraint) &&
+    memoryWellFormed(constraint)
 }

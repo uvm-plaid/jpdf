@@ -28,7 +28,6 @@ extension (trg: TermFactory)
     val e1EntailsNotE2 = trg.termManager.mkTerm(Kind.AND, e1, notE2)
     !satisfiable(e1EntailsNotE2)
 
-// TODO Should this be another TermFactory extension method?
 extension (trg: Contract)
   /** Finds any entailments in a function contract that are false. */
   def verificationFailures(cvc: TermFactory): List[Entailment] =
