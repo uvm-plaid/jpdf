@@ -163,31 +163,29 @@ let $\prog$ be the following protocol in $\fieldp{2}$ (noting
 that $-$ is equivalent to xor in $\fieldp{2}$):
 $$
 \begin{array}{lll}
-  \elab{\mesg{s1}}{2} &:=& \elab{(\secret{1} \fminus \locflip)}{1}; \\
-  \elab{\mesg{s2}}{1} &:=& \elab{(\secret{2} \fminus \locflip)}{2} 
+  \elab{\mesg{s1}}{2} := \elab{(\secret{1} \fminus \locflip)}{1}; \quad
+  \elab{\mesg{s2}}{1} := \elab{(\secret{2} \fminus \locflip)}{2} 
 \end{array}
 $$
 We can then assert:
 $$
 \toeq{\prog} \vdash \varnothing,\varnothing \stredx
 \setit{[\mx{s2}{1}, \elab{\locflip}{2}] : \sharety,
-  [\mx{s1}{2}, \elab{\locflip}{1}] : \sharety}, \setit{\elab{\locflip}{1},\elab{\locflip}{2}}
+  [\elab{\locflip}{1}, \mx{s1}{2}] : \sharety}, \setit{\elab{\locflip}{1},\elab{\locflip}{2}}
 $$
 Suppose the protocol goes on to reveal the negation of the
 sum (xor-ing) of the inputs:
 $$
-\begin{array}{lll}
-  \px{1} &:=& \elab{\mesg{s2} + \locflip + 1}{1}; \\
-  \px{2} &:=& \elab{\mesg{s1} + \locflip}{2};\\
-  \out{1} &:=& \elab{\px{1} + \px{2}}{1};\\
-  \out{2} &:=& \elab{\px{1} + \px{2}}{2}
+\begin{array}{l}
+  \px{1} := \elab{\mesg{s2} + \locflip + 1}{1};\quad \px{2} := \elab{\mesg{s1} + \locflip}{2};\\
+  \out{1} := \elab{\px{1} + \px{2}}{1};\quad \out{2} := \elab{\px{1} + \px{2}}{2}
 \end{array}
 $$
 Letting this extended protocol be $\prog'$, and letting:
 $$
 \begin{array}{rcl}
 \Gamma &\defeq& \setit{[\mx{s2}{1}, \elab{\locflip}{2}] : \sharety,
-  [\mx{s1}{2}, \elab{\locflip}{1}] : \sharety}\\
+  [\elab{\locflip}{1}, \mx{s1}{2}] : \sharety}\\
 R &\defeq&  \setit{\elab{\locflip}{1},\elab{\locflip}{2}}
 \end{array}
 $$
@@ -220,12 +218,20 @@ $$
 \subsection{Share Type Soundness}
 \label{section-sty-sound}
 
-
-$$
-\mems(\Phi) \defeq \{ \store \mid \dom(\store) = \setit{\ x_{\phi}\ \mid\ \phi \in \Phi\ } \}
-$$
-
+Share type soundness (Theorem \ref{theorem-sty}) means that share
+typing enforces noninterference modulo output. To prove this we need
+to assert probabilistic properties in share typings, including for
+functions of protocol variables such as reconstruction of shares. So
+we make standard extensions of notation for probability distributions
+to express probabilities, and conditional probabilities, of functions
+of program variables $\phi$. For this extension we posit that
+memories can incorporate variables $x_\phi$ that assign valuations
+to functions $\phi$.
 \begin{definition}
+  We let $\Phi$ range over sets of SMT formulas $\phi$, and define
+  $
+  \mems(\Phi) \defeq \{ \store \mid \dom(\store) = \setit{\ x_{\phi}\ \mid\ \phi \in \Phi\ } \}
+  $.
   Given pmf $\pmf$ and $\Phi$ with $\dom(\pmf) = \bigcup_{\phi \in \Phi} \dom(\phi)$,
   for all $\store \in \mems(\Phi)$ define:
 %$$
@@ -248,19 +254,22 @@ $$
   \forall \store_1 \in \mems(X)\ .\ \forall \store_2 \in \mems(\Phi) \ .\ 
   \condd{\pmf}{X}{\Phi}(\store_1 \uplus \store_2) \defeq
   \begin{cases}
-    0 \text{\ if\ } \margd{\pmf}{\Phi}(\store_2) = 0\\
+    0 \text{\ if\ } \pmf(\store_2) = 0\\
     \pmf(\store_1 \uplus \store_2) / \pmf(\store_2) \text{\ otherwise}
   \end{cases}
   $$
 \end{definition}
 
-Now we can prove our share typing soundness result, showing that share
-typing enforces noninteference modulo output, with our main result
-in Theorem \ref{theorem-sty}. We begin by defining a key well-formedness
-property of typing components that we show is preserved by non-interactive
-typing judgements.
-
+To proceed, we define a well-formedness property of tuples $\prog,\Gamma,R$
+intuitively meaning that all the share types in $\Gamma$ are sound with respect
+to $\prog$, and consumed randomness in $R$ as OTPs for initial sharing.
+Property (i) ensures that views do not reveal information about secrets.
+Property (ii) ensures the key property of sharing-- that individual shares
+don't reveal more about secrets than their reconstruction does. Properties
+(iii) and (iv) ensure that OTPs used for generating shares or for
+secure openings, respectively, are included in $R$.
 \begin{definition}
+  \label{def-OK}
   Given $\prog,\Gamma,R$ where $\secrets(\prog) = S$ and:
   $$
   \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
@@ -287,7 +296,10 @@ typing judgements.
     some $\phi$  and $\rx{w}{\cid_{\oid}}$ then $\rx{w}{\cid_{\oid}} \in R$.
   \end{enumerate} 
 \end{definition}
-
+Next we show that, given well-formed typing environments, share type judgements preserve
+the important properties (i-ii) in Definitions \ref{def-OK}. This result follows from
+known semi-homomorphic properties of non-interactive operations that are syntactically
+verified in typing judgements.
 \begin{lemma}
   \label{lemma-sty-noninteractive-sound}
   Given $\prog,\Gamma,R : {OK}$ where $\secrets(\prog) = S$ and:
@@ -308,14 +320,23 @@ typing judgements.
       \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\phi_i^1 + \phi_i^2, \phi_i^a}}$
     \end{enumerate}
 \end{lemma}
-
+Next, we show that interactive typing rules preserve well-formedness of type
+environments. This Lemma follows by Lemma \ref{lemma-sty-noninteractive-sound}
+and the security of share generation using OTPs-- that is, shares
+generated by $\genshares$ are in uniform marginal distributions. 
 \begin{lemma}
+  \label{lemma-OK}
   Given $\prog,\Gamma_1,R_1  : {OK}$
   and $\toeq{\prog}  \vdash \Gamma_1, R_1 \stredx \Gamma_2, R_2$.
   Then $\toeq{\prog}, \Gamma_2, R_2 : {OK}$.
 \end{lemma}
-
+In addition to typing judgements, in order to show that a protocol is
+secure, we need to classify all corrupt views as shares, all
+public values as secure openings, and all outputs as reconstructed
+shares. We capture this formally with the following notion of
+type environment closure.
 \begin{definition}
+  \label{def-sty-closed}
   Given  $\prog,\Gamma,R  : {OK}$ and $\iov(\prog) = S \cup V \cup O$.
   Then $\Gamma$ is \emph{closed for $\prog$} iff for all $H,C$,
   for all $x \in \houtputs$ there exists $\phi$ such that either
@@ -323,13 +344,13 @@ typing judgements.
   or  $\Gamma,\toeq{\prog} \vdash [\phi,x] : \sharety$ if $C = \setit{2}$,
   and for all $\out{\cid} \in O$ we have $\Gamma,\toeq{\prog} \vdash \pubx{\out{\cid}} : \outty$.
 \end{definition}
-
+Now, the following is a consequence of Definitions \ref{def-OK} and \ref{def-sty-closed}, and then
+our main Theorem \ref{theorem-sty} follows by Lemma \ref{lemma-OK} and Theorem \ref{theorem-OK}.
 \begin{theorem}
-  \label{theorem-sty}
+  \label{theorem-OK}
   If $\prog,\Gamma,R : {OK}$ and $\Gamma$ is closed
   for $\prog$, then $\prog$ satisfies noninterference modulo output. 
 \end{theorem}
-
 \begin{theorem}
   \label{theorem-sty}
   If $\toeq{\prog} \vdash \varnothing,\varnothing \stredx \Gamma,R$ and $\Gamma$ is closed
