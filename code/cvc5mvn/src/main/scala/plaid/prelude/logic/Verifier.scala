@@ -35,9 +35,5 @@ extension (trg: Contract)
     trg.internals.filter { x =>
       val a = x.a.expand(bindings = bindings)
       val b = x.b.expand(bindings = bindings)
-
-      if !WellFormed.checkConstraint(a) || !WellFormed.checkConstraint(b) then
-        throw Exception(s"Constraints must be ground")
-
       !cvc.entails(cvc.toTerm(a), cvc.toTerm(b))
     }

@@ -1,16 +1,19 @@
 package plaid.prelude.logic
 
-import org.junit.Assert.{assertFalse, assertTrue}
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import plaid.prelude.antlr.Loader
 
 class WellFormedTest {
 
-  private def assertPasses(src: String): Unit =
-    assertTrue(WellFormed.checkConstraint(Loader.constraint(src)))
+  private def assertPasses(src: String): Unit = {
+    val errors = Loader.constraint(src).checkProperExpansion("?")
+    assertTrue(errors.isEmpty)
+  }
 
   private def assertFails(src: String): Unit =
-    assertFalse(WellFormed.checkConstraint(Loader.constraint(src)))
+    val errors = Loader.constraint(src).checkProperExpansion("?")
+    assertTrue(errors.nonEmpty)
 
   /** Memories should always come with party indexes */
   @Test
