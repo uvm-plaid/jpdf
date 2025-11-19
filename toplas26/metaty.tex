@@ -14,7 +14,8 @@ as we show in Section \ref{section-examples}.
 \label{section-metaty}
 
 Share types rely on SMT entailments via the \TirName{ShareEntails} and
-\TirName{PubEntails} rules, which are not syntax directed. Our goal
+\TirName{PubEntails} rules, which are not syntax directed, and likewise
+the interactive typing judgement is nondeterministic. Our goal
 with the $\metaprot$ language is to automate share type checking. To
 enable this we introduce \emph{share type annotations}. These
 annotations allow programmer specification of properties that can be
@@ -171,10 +172,14 @@ postcondition: (RECON(z) == RECON(x) * RECON(y))
 
 \subsubsection{Soundness of $\metaprot$ Type Checking}
 
-
-
-
+Demonstrating soundness of $\metaprot$ type checking is similar to $\minicat$--
+we show the ${OK}$ invariant is preserved by the algorithm. By Theorem \ref{theorem-OK}
+soundness follows. Lemma \ref{lemma-metaty} follows by appeal to Lemma \ref{lemma-sty-noninteractive-sound}
+since the algorithmic judgement $\Vdash$ is sound with regard to the noninteractive
+typing rules by definition. Theorem \ref{theorem-metaty} follows as a special
+case of Lemma \ref{lemma-metaty}.
 \begin{lemma}
+  \label{lemma-metaty}
   Given $\prog_1,\Gamma_1,R_1 : {OK}$ and $\cmd \redx \prog_2$ and $\htrip{\eqs_1}{\cmd}{\eqs_2}$ with
   $\eqs_1$ satisfiable and $\toeq{\prog_1} \models \eqs_1 \wedge \toeq{\xdefs_1}$ and
   $\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd}{\Gamma_2,R_2,\xdefs_2}$.
@@ -182,10 +187,30 @@ postcondition: (RECON(z) == RECON(x) * RECON(y))
 \end{lemma}
 
 \begin{theorem}
+  \label{theorem-metaty}
   Given $\htrip{\eqspre}{\ttt{main()}}{\eqs}$ and $\ttt{main} : \Gamma_1 \rightarrow (\Gamma_2,R)$
   and $\main() \redx \prog$ and $\progpre,\Gamma_1,R' : {OK}$ with $R' \cap R = \varnothing$
   and $\toeq{\progpre} \models \eqspre$. Then $(\progpre;\prog),\Gamma_2,R : {OK}$.
 \end{theorem}
+
+Note that Theorem \ref{theorem-metaty} assumes the existence of
+$\progpre$ with $\progpre,\Gamma_1,R' : {OK}$ and $R' \cap R =
+\varnothing$ and $\toeq{\progpre} \models \eqspre$. The assumption of
+some preprocessing protocol such as Beaver triple or MAC share
+distribitions is typical, and our approach does not require the
+protocol to be defined in detail, just (weakened) postconditions of it
+that are sufficient to verify the protocol being programmed.
+
+Theorem \ref{theorem-metaty} also does not provide a complete recipe
+for obtaining noninterference modulo output-- as suggested by Theorem
+\ref{theorem-sty}, it is also necessary to check closure of
+$\Gamma_2$. There are various ways this can be accomplished for the
+$\metaprot$ analysis-- for example, we evaluate $\ttt{main}$ to obtain
+all program variables and then check closure of $\Gamma_2$ as
+prescribed by Definition \ref{def-sty-closed}. We can also add checks
+to the type system to guarantee that all messages exchanged between
+clients are classified when type checking functions, which is
+a simple addition.
 
 % DEPRECATED
 \begin{comment}
