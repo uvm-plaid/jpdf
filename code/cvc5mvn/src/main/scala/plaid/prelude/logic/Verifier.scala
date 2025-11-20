@@ -35,5 +35,13 @@ extension (trg: Contract)
     trg.internals.filter { x =>
       val a = x.a.expand(bindings = bindings)
       val b = x.b.expand(bindings = bindings)
+
+      // TODO Validation shouldn't really go here, it needs to be revisited
+      val ctx = trg.f.id.name
+      val constraintErrors = a.checkProperExpansion(ctx) ++ b.checkProperExpansion(ctx)
+      constraintErrors.foreach(x => println(s"ERROR ${x.ctx}: ${x.msg}: ${x.offender}"))
+      if constraintErrors.nonEmpty then
+        throw Exception("Found errors in the constraints, bailing out.")
+
       !cvc.entails(cvc.toTerm(a), cvc.toTerm(b))
     }

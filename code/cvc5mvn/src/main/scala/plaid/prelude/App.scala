@@ -6,7 +6,7 @@ import plaid.prelude.antlr.Loader
 import plaid.prelude.ast.ListConstraintFuncExt.expandAll
 import plaid.prelude.ast.ListExprFuncExt.expandAll
 import plaid.prelude.cvc.TermFactory
-import plaid.prelude.logic.{checkConstraintExpansion, contracts, verificationFailures}
+import plaid.prelude.logic.{contracts, verificationFailures}
 
 import java.io.File
 import java.nio.file.Files
@@ -30,11 +30,6 @@ class App extends Runnable {
     val exprFns = ast.exprFuncs.expandAll()
     val constraintFns = ast.constraintFuncs.expandAll(exprFns)
     val contracts = ast.cmdFuncs.contracts(exprFns, constraintFns)
-  
-    val constraintErrors = contracts.flatMap(_.checkConstraintExpansion())
-    constraintErrors.foreach(x => println(s"ERROR ${x.ctx}: ${x.msg}: ${x.offender}"))
-    if constraintErrors.nonEmpty then
-      throw Exception("Found errors in the constraints, bailing out.")
 
     var totalTests = 0
     var totalFailures = 0

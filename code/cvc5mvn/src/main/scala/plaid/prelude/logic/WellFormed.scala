@@ -61,8 +61,3 @@ extension (trg: Constraint)
     trg.descendants().flatMap(c => checks
       .flatMap { (f, msg) => if !f(c) then List(AstError(ctx, msg, c)) else Nil })
       .toList
-
-extension (trg: Contract)
-  def checkConstraintExpansion(): List[AstError] =
-    val ctx = trg.f.id.name
-    trg.internals.flatMap(x => x.a.checkProperExpansion(ctx) ++ x.b.checkProperExpansion(ctx))
