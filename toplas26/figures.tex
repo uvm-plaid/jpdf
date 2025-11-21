@@ -846,3 +846,16 @@ $$
 \end{fpfig}
 }
 
+\newcommand{\preludetestfig}{
+\begin{fpfig}[t]{Verification time for $\metaprot$ binary and arithmetic circuit libraries and small circuits, in seconds.}{fig-preludetest}
+\begin{center}
+\begin{tabular}{r|c|c|c|c}
+   \textit{field size:} & 2 & $2^{17} - 1$ &  $2^{31} - 1$ &  $2^{61} - 1$ \\
+  \hline
+  \text{GMW} & .377 & N/A & N/A & N/A \\
+  \text{Passive Beaver} & .476 & .48 & .466 & .644 \\
+  \text{Malicious Beaver (BDOZ)} & .464 & .528 & .641 & .653  
+\end{tabular}
+\end{center}
+\end{fpfig}
+}

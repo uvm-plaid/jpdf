@@ -1,6 +1,8 @@
 \section{Extended Examples}
 \label{section-examples}
 
+\preludetestfig
+
 In Section \ref{section-smt} we gave the example of 3-party additive
 sharing for any field $\fieldp{p}$, in Section \ref{section-sty} we
 discussed the example of YGC input encoding, and in Sections
@@ -19,17 +21,21 @@ with additional pre and postcondition annotations to enforce
 integrity properties supported by BDOZ/SPDZ style MACs
 \cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3}.
 
-To evaluate our system especially regarding performance, using the
-Satisfiability Modulo Fields theory in cvc5 on an Apple M1 processor,
-we have verified correctness of these arithmetic gate libraries and
-circuit in fields up to size $\fieldp{2^{31} - 1}$ (an approximation
-of 32-bit integers) which takes $\sim$7ms to compute for 3 parties and
-not significantly more than for, e.g., $\fieldp{2}$. We have also
-verified the semi-homomorphic encryption properties leveraged in the
-BDOZ circuit library functions in fields up to size $\fieldp{2^{31} -
-  1}$ which take $\sim$8ms for the property used for the postcondition
-of the $\ttt{mult}$ gate. This is categorically better performance
-than can be achieved using previous brute-force methods in
+\paragraph{Implementation and Evaluation}
+We have implemented the $\metaprot$ language and automated Hoare logic
+using an Antlr parser and Scala backend with cvc5 Java bindings for
+interaction with the Satisfiability Modulo Fields theory.  To evaluate
+performance, we have written and verified gate libraries and small
+circuits using the GMW protocol for binary circuits as excerpted in
+Figure \ref{fig-gmwprepost} in Section \ref{section-metalang}, and for
+passive and malicious secure arithmetic circuits using Beaver Triple
+multiplication as presented in Figures \ref{fig-beaver} and
+\ref{fig-beaver-bdoz} in this Section.  We have considered field sizes
+typically used to encode binary, 16 bit, 32 bit, and 64 bit
+integers. Results are presented in Figure \ref{fig-preludetest}. In
+summary, verification is efficient, largely due to the performance of
+underlying cvc5 verification. It is categorically better performance
+than can be achieved using previous brute-force methods developed in
 $\fieldp{2}$ \cite{skalka-near-ppdp24}.
 
 \subsection{Arithmetic Circuits with Beaver Triples}
