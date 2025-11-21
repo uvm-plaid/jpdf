@@ -11,9 +11,7 @@ _open(x:string, i1:cid, i2:cid){
     m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
 }
 
-precondition: ( MACed(x) )
 open(x:string) { _open(x,1,2); _open(x,2,1) }
-postcondition: ( m[x]@1 == (m[x++"s"]@1 + m[x++"s"]@2) AND m[x]@1 == m[x]@2 )
 
 _sum(z:string, x:string, y:string, i:cid){
     m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i;

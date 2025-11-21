@@ -2,7 +2,11 @@ exprfunctions:
 
 not(x){ x + 1 }
 
-SHARED(x) { (m[x]@1 + m[x]@2) }
+mux4(s1, s2, b1, b2, b3, b4){
+  (not(s1) * not(s2) * b1) +  (not(s1) * (s2) * b2) + ((s1) * not(s2) * b3) + ((s1) * (s2) * b4) 
+}
+
+RECON(x) { (m[x]@1 + m[x]@2) }
 
 andtablegmw(x, y, z) {
   let r11 = (r[z] + (m[x] + 1) * (m[y] + 1)) in
@@ -14,13 +18,31 @@ andtablegmw(x, y, z) {
 
 cmdfunctions:
 
+OT4(x:string,c1:string,c2:string,b1:string,b2:string,b3:string,b4:string,i1:cid,i2:cid)
+postcondition: ( m[x]@i1 == mux4(m[c1]@i1, m[c2]@i1, m[b1]@i2, m[b2]@i2, m[b3]@i2, m[b4]@i2) )
+
 andgmw(z:string, x:string, y:string) {
   let table = andtablegmw(x,y,z) in
-  m[z]@2 := OT4((m[x], m[y])@2, table.row4, table.row3, table.row2, table.row1)@1;
+  m[z++"r1"]@1 := table.row1@1;
+  m[z++"r2"]@1 := table.row2@1;
+  m[z++"r3"]@1 := table.row3@1;
+  m[z++"r4"]@1 := table.row4@1;
+  OT4(z, x, y, z++"r4", z++"r3", z++"r2", z++"r1", 2, 1);
   m[z]@1 := r[z]@1
 }
-postcondition: ( m[z]@1 == r[z]@1 AND m[z]@2 == (SHARED(x) * SHARED(y)) + r[z]@1)
+postcondition: ( RECON(z) == RECON(x) * RECON(y) )
 
+notgmw(z:string, x:string) {
+  m[z]@1 := m[x]@1;
+  m[z]@2 := not(m[x])@2
+}
+postcondition: ( RECON(z) == not(RECON(x)) )
+
+xorgmw(z:string, x:string, y:string) {
+  m[z]@1 := (m[x] + m[y])@1;
+  m[z]@2 := (m[x] + m[y])@2
+}
+postcondition: ( RECON(z) == RECON(x) + RECON(y) )
 
 main(){ andgmw("g1","x","y") }
-postcondition: ( SHARED("g1") == SHARED("x") * SHARED("y"))
+postcondition: ( RECON("g1") == RECON("x") * RECON("y"))
