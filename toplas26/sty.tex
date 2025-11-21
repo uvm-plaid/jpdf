@@ -1,53 +1,73 @@
 \section{Share Types}
 \label{section-sty}
 
-Our approach to static analysis is to enforce the use of sound
-techniques in semi-homorphic encryption in protocols.  As discussed in
+Our approach to static confidentiality analysis is to enforce the use of sound
+techniques in semi-homomorphic encryption in protocols.  As discussed in
 the example in Section \ref{section-smt-example}, protocols integrate
 interactive elements, such as the sharing of one-time-pad (OTP)
 encrypted secrets, and noninteractive elements, such as addition (of
-shares). We approach this by introducing distinct judgement forms for
+shares). To comport with this we introduce distinct judgement forms for
 interactive and noninteractive protocol elements. Our type system
 as presented will assume 2-client protocols, but this is for
-simplicity and the analysis can be generalized to more parties. 
+clarity of presentation and the analysis can be generalized to more parties.
 
-Both interactive and non-interactive judgements leverage the use
-of SMT interpretations as described in Section \ref{section-smt}.
+Our confidentiality analysis mainly considers protocols in terms of
+their SMT interpretations as described in Section \ref{section-smt}.
 We introduce a \emph{share type} language $\sty$, classifying
 \emph{share terms}. We represent share terms using standard notation
 \cite{10.1007/978-3-030-68869-1_3}. A share term $[\phi_1,\phi_2]$
 represents a secret-shared value where client 1 has $\phi_1$ and
 client 2 has $\phi_2$, and this shared value can be reconstructed
-as $\phi_1 + \phi_2$.\cnote{Comment on generation and
-  reconstruction in general somewhere before this section?.} A
-share term $\pubx{\phi}$ denotes a publicly shared value.
+as a public value $\pubx{\phi}$.
 $$
 \begin{array}{rcl@{\hspace{10mm}}l}
   \sty &::=& \sharety \mid \pubty \mid \outty & \textit{share types} \\
   \stt &::=& [\phi,\phi] \mid \pubx{\phi} & \textit{share terms} 
 \end{array}
 $$
-Intuitively, the meaning of share types $\sty$ are as follows.
-When we ascribe the type $[\phi_1,\phi_2] : \sharety$, this
-means that $[\phi_1,\phi_2]$ are shares of their
-reconstruction, which we can represent as $\phi_1 + \phi_2$
-as discussed in Section \ref{???}. 
-In particular, each of $\phi_1$ and $\phi_2$ independently
-reveal nothing about $\phi_1 + \phi_2$. Likewise,
-$\pubx{\phi} : \outty$ means that $\phi$ has been
-publicly \emph{revealed} via broadcast shares, and our
-type system requires that $\phi \eop \phi_1 + \phi_2$ with
-$[\phi_1,\phi_2] : \sharety$. This implies that the
-process of revealing $\phi$ reveals nothing besides $\phi$.
-The ascription $\pubx{\phi} : \pubty$ is similar, with the
-additional meaning that $\phi$ is a publicly-known value
-independent of any client inputs. This includes known
-constant values used in protocols, and more interestingly
-\emph{secure openings}. Secure openings are commonly used
-to interactively compute public values that are masked with
-OTPs secret-shared with clients in initialization protocols,
-as for example in Beaver Triple multiplication which
-we discuss in Section \ref{section-examples}.
+\paragraph{Share generation and reconstruction}
+A \emph{secret sharing scheme} includes functions
+$(\genshares,\recon)$ which generate and reconstruct shares,
+respectively. The $\genshares$ function takes some
+input $\phi$ and randomness $\rx{x}{w}$ and produces
+two shares (or as many is needed for the number of clients
+in the federation): 
+$$
+\genshares(\phi,\rx{w}{\cid}) = \phi_1,\phi_2
+$$
+and:
+$$
+\recon(\genshares(\phi,\rx{w}{\cid})) = \phi
+$$
+In order for $\genshares$ to be \emph{sound}, we require
+that both of $\phi_1$ and $\phi_2$ are marginally independent
+of $\phi$, and also of any other values in the protocol.
+This entails the requirement that $\rx{w}{\cid}$ is
+consumed by $\genshares$, e.g., as an OTP.
+We formally characterize soundness of $\genshares$
+in our protocol model in Definition \ref{def-genshares}.
+We emphasize that our type system is agnostic with respect
+to the definition of $\genshares$ and $\recon$ modulo
+soundness-- we use an additive shares encoding in this work,
+but the analysis could apply instead to, e.g., Shamir
+sharing.
+
+More generally, when we ascribe the type $[\phi_1,\phi_2] : \sharety$,
+this means that $[\phi_1,\phi_2]$ are shares of their reconstruction
+$\recon(\phi_1,\phi_2)$, noting that shares can be obtained either by
+$\genshares$ or by noninteractive homomorphic protocols.  Likewise,
+$\pubx{\phi} : \outty$ means that $\phi$ has been publicly
+\emph{revealed} via broadcast shares, and our type system requires
+that $\phi \eop \recon(\phi_1, \phi_2)$ with $[\phi_1,\phi_2] :
+\sharety$. This implies that the process of revealing $\phi$ reveals
+nothing besides $\phi$.  The ascription $\pubx{\phi} : \pubty$ is
+similar, with the additional meaning that $\phi$ is a publicly-known
+value independent of any client inputs. This includes known constant
+values used in protocols, and more interestingly \emph{secure
+openings}. Secure openings are commonly used to interactively compute
+public values that are masked with OTPs secret-shared with clients in
+initialization protocols, as for example in Beaver Triple
+multiplication which we discuss in Section \ref{section-examples}.
 
 \stylocalfig
 
@@ -81,22 +101,59 @@ allowable up to algebraic equivalence in the context of a protocol.
 
 \subsection{Interactive Typing Rules} 
 
-As discussed in Section \ref{???}, a \emph{secret sharing scheme}
-includes functions $(\genshares,\recon)$ which generate
-and reconstruct shares, respectively.
+The interactive share typing rules are defined in Figure
+\ref{fig-styinteractive}, with judgements of the form $\eqs \vdash
+\Gamma_1,R_1, \stredx \Gamma_2,R_2$.  Each such judgement establishes
+a sound type binding in $\Gamma_2$ for interactively-defined
+variables-- that is, unicast and broadcast messages exchanged between
+clients-- assuming the bindings in $\Gamma_1$. In addition to type
+bindings, judgments track randomness used by $\genshares$, allowing us
+to use type linearity to enforce one-time usage similar to previous
+related work \cite{darais2019language}, where any randomness used in
+the typing is not in $R_1$ and added to $R_2$. To this end, in these
+rules $\uplus$ is disjoint union.
+
+The \TirName{Share} rule generates the binding $[\mx{z}{\cid_2},
+  \rx{y}{\cid_1}] : \sharety$ if this is a secret sharing as defined
+by $\genshares$. It also adds $\rx{y}{\cid_1}$ to the set of variables
+consumed by $\genshares$, ensuring that it has not already been used. The
+\TirName{Reveal} rule generates the binding $\pubx{\recon(\px{x},\px{y})} :
+\outty$ with the requirement that $[\px{x},\px{y}]$ are typable as
+shares. The \TirName{SecOpen} rule is similar except it allows the
+assertion $\pubx{\recon(\px{x},\px{y})} : \pubty$ if we can additionally
+show that the shared value is masked by the use of random value
+$\rx{z}{\oid}$ as an OTP. Here we are positing a third party $\oid$
+that secret-shares $\rx{z}{\oid}$ as part of an initialization
+protocol. We illustrate secure openings in practice at more length
+in Section \ref{section-examples}, though we note that appropriate
+properties of initialization protocols can be encoded in $\eqspre$.
+
+We write $\stredx^*$ to denote the transitive
+closure of $\stredx$. For any protocol $\prog$, the goal of the
+type analysis is to show that all interactive messages can be classified--
+that is, to show that $\eqspre \wedge \toeq{\prog} \vdash
+\varnothing,\varnothing \stredx^* \Gamma,R$ where all
+interactive messages are classified in $\Gamma$. 
+
+\styinteractivefig
+
+\subsection{Instantiating $\genshares$}
+
 It is well-known that adding or subtracting a sample from a uniform
 distribution in a finite field yields a value in a uniform
 distribution, meaning that samples can be used as OTPs with
 perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
 So we can define:
 \begin{eqnarray*}
-  \genshares(\phi) &\defeq& [\phi - \rx{y}{\cid_2}, \rx{y}{\cid_2}]\\
-  \recon([\phi_1,\phi_2]) &\defeq& \phi_1 \fplus \phi_2
+  \genshares(\phi,\rx{y}{\cid}) &\defeq& \phi - \rx{y}{\cid}, \rx{y}{\cid}\\
+  \recon(\phi_1,\phi_2) &\defeq& \phi_1 \fplus \phi_2
 \end{eqnarray*}
 where we require that $\genshares$ consumes the randomness
 $\setit{\rx{y}{\cid_2}}$ for use as an OTP. 
 
-Of course, there are other methods for encrypting values in MPC
+This approach highlights an imporant interaction between our type
+system and SMT entailment as defined by the $\TirName{ShareEntails}$
+rule. In particular there are other methods for encrypting values in MPC
 protocols that can be shown to be algebraically equivalent
 to this fundamental schema. For example, in Yao's Garbled Circuits
 (YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents encrypted wire
@@ -119,43 +176,6 @@ and letting this protocol be $\prog$ the following is valid:
 For this reason SMT entailment is also an important enabling technology
 for the interactive rules. 
 
-\styinteractivefig
-
-The interactive share typing rules are defined in Figure
-\ref{fig-styinteractive}, with judgements of the form $\eqs \vdash
-\Gamma_1,R_1, \stredx \Gamma_2,R_2$.  Each such judgement establishes
-a sound type binding in $\Gamma_2$ for interactively-defined
-variables-- that is, unicast and broadcast messages exchanged between
-clients-- assuming the bindings in $\Gamma_1$. In addition to type
-bindings, judgments track random variables used as OTPs, allowing us
-to use type linearity to enforce one-time usage similar to previous
-related work \cite{darais2019language}, where any randomness used in
-the typing is not in $R_1$ and added to $R_2$. To this end, in these
-rules $\uplus$ is disjoint union.
-
-The \TirName{Share} rule generates the binding $[\mx{z}{\cid_2},
-  \rx{y}{\cid_1}] : \sharety$ if this is a secret sharing as defined
-by $\genshares$. It also adds $\rx{y}{\cid_1}$ to the set of variables
-used as OTPs, ensuring that it has not already been used. The
-\TirName{Reveal} rule generates the binding $\pubx{\px{x} + \px{y}} :
-\outty$ with the requirement that $[\px{x},\px{y}]$ are typable as
-shares. The \TirName{SecOpen} rule is similar except it allows the
-assertion $\pubx{\px{x} + \px{y}} : \pubty$ if we can additionally
-show that the shared value is masked by the use of random value
-$\rx{z}{\oid}$ as an OTP. Here we are positing a third party $\oid$
-that secret-shares $\rx{z}{\oid}$ as part of an initialization
-protocol. We illustrate secure openings in practice at more length
-in Section \ref{section-examples}, though we note that appropriate
-properties of initialization protocols can be encoded in $\eqspre$.
-
-We write $\stredx^*$ to denote the transitive
-closure of $\stredx$. For any protocol $\prog$, the goal of the
-type analysis is to show that all interactive messages can be classified--
-that is, to show that $\eqspre \wedge \toeq{\prog} \vdash
-\varnothing,\varnothing \stredx^* \Gamma,R$ where all
-interactive messages are classified in $\Gamma$. 
-
-
 \subsection{Share Typing Example} To illustrate details of the
 type system we return to the example of additive sharing in the context
 of a 2-client protocol. We first focus on initial secret sharing steps--
@@ -167,7 +187,7 @@ $$
   \elab{\mesg{s2}}{1} := \elab{(\secret{2} \fminus \locflip)}{2} 
 \end{array}
 $$
-We can then assert:
+By $\TirName{GenShares}$ we can then assert:
 $$
 \toeq{\prog} \vdash \varnothing,\varnothing \stredx
 \setit{[\mx{s2}{1}, \elab{\locflip}{2}] : \sharety,
