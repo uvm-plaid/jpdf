@@ -7,13 +7,13 @@ cmdfunctions:
 _open(x:string, i1:cid, i2:cid){
     m[x++"exts"]@i1 := m[x++"s"]@i2;
     m[x++"extm"]@i1 := m[x++"m"]@i2;
-    // assert(m[x++"extm"] = m[x++"k"] + (m["delta"] * m[x++"exts"]))@i1;
+    assert(m[x++"extm"] = m[x++"k"] + (m["delta"] * m[x++"exts"]))@i1;
     m[x]@i1 := (m[x++"exts"] + m[x++"s"])@i1
 }
 
 precondition: ( MACed(x) )
 open(x:string) { _open(x,1,2); _open(x,2,1) }
-postcondition: ( m[x]@1 == (m[x++"s"]@1 + m[x++"s"]@2) )
+postcondition: ( m[x]@1 == (m[x++"s"]@1 + m[x++"s"]@2) AND m[x]@1 == m[x]@2 )
 
 _sum(z:string, x:string, y:string, i:cid){
     m[z++"s"]@i := (m[x++"s"] + m[y++"s"])@i;
@@ -33,8 +33,7 @@ _mult(z : string, y : string, i : cid) {
 
 precondition: ( MACed(x) AND MACed(y) AND
                 MACed(z++"a") AND MACed(z++"b") AND MACed(z++"c") AND BEAVERTRIP(z) )
-mult(z : string, x : string, y : string) {
-    
+mult(z : string, x : string, y : string) {    
     sum(z++"d", x, z++"a");
     open(z++"d");
     sum(z++"e", y, z++"b");

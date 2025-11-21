@@ -6,6 +6,9 @@ mux(s1, b1, b2){ (not(s1) * b1) + (s1 * b2) }
 
 cmdfunctions:
 
+ot2(x : string, c : string, b1 : string, b2 : string, i1 : cid, i2 : cid)
+postcondition: ( m[x]@i1 == mux(m[c]@i1, m[b1]@i2, m[b2]@i2) )
+
 main() {
    m["x"]@1 := mux(r["x"], 1, 0)@2
 }
