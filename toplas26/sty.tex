@@ -287,19 +287,50 @@ secure openings, respectively, are included in $R$.
       \setit{\phi_1,\ldots,\phi_j} \setit{\phi^o_1,\ldots,\phi^o_k}}
     $.
   \item For all $a,b \in \setit{1,2}$ and $0 < i \le n$ we have
-    $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\phi_i^1 + \phi_i^2}} =
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\phi_i^1 + \phi_i^2, \phi_i^a}}$
+    $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2)}} =
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2), \phi_i^b}}$
   \item  For all $a,b \in \setit{1,2}$ and $0 < i \le n$, if
-    $\toeq{\prog} \models \phi_i^a \eop \rx{w}{\cid_a} \wedge \phi_i^b \eop \phi - \rx{w}{\cid_a}$ for
-    some $\phi$ and $\rx{w}{\cid_a}$ then $\rx{w}{\cid_a} \in R$.
+    $([x_1,x_2] : \sharety) \in \Gamma$ with $\genshares(\phi,\rx{w}{\cid}) = \phi_1,\phi_2$
+    and $\toeq{\prog} \models x_1 \eop \phi_1 \wedge x_2 \eop \phi_2$ 
+    for some $\phi$ and $\rx{w}{\cid}$ then $\rx{w}{\cid} \in R$.
   \item For all $0 < i \le j$, if $\toeq{\prog} \models \phi_i \eop \phi + \rx{w}{\cid_{\oid}}$ for
     some $\phi$  and $\rx{w}{\cid_{\oid}}$ then $\rx{w}{\cid_{\oid}} \in R$.
   \end{enumerate} 
 \end{definition}
+With the definition of ${OK}$ in place, we can define what we mean by soundness
+of $\genshares$. In this definition, the first condition establishes that
+initial shares are independent of honest secrets, and the second establishes
+that they reveal no more than their reconstruction. These conditions are
+obviously met by ``vanilla'' additive or Shamir shares which generate
+shares in uniform marginal distributions.
+\begin{definition}
+  \label{def-genshares}
+  We say that $\genshares$ is \emph{sound} iff given any $\prog,\Gamma,R : {OK}$
+  and $\phi$ and $\rx{w}{\cid} \not \in R$ with $\genshares(\phi,\rx{w}{\cid}) =
+  \phi_1,\phi_2$ and $\toeq{\prog} \models x_1 \eop \phi_1 \wedge x_2 \eop \phi_2$
+  with $\secrets(\prog) = S$ and:
+  $$
+  \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
+  \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
+  \setit{\pubx{\phi^o_1} : \outty,\ldots,\pubx{\phi^o_k} : \outty}
+  $$
+  we have for all $a,b \in \setit{1,2}$:
+  \begin{enumerate}[\hspace{5mm}i.]
+    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b} \cup
+      \setit{\phi_1,\ldots,\phi_j} \setit{\phi^o_1,\ldots,\phi^o_k}}
+    =
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b,x_b} \cup
+       \setit{\phi_1,\ldots,\phi_j} \setit{\phi^o_1,\ldots,\phi^o_k}}$
+    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(x_1,x_2)}} =
+      \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(x_1,x_2), x_b}}$
+    \end{enumerate}
+\end{definition} 
+
 Next we show that, given well-formed typing environments, share type judgements preserve
 the important properties (i-ii) in Definitions \ref{def-OK}. This result follows from
 known semi-homomorphic properties of non-interactive operations that are syntactically
-verified in typing judgements.
+verified in typing judgements, and by Definition \ref{def-genshares} and the
+assumption of soundness of $\genshares$.
 \begin{lemma}
   \label{lemma-sty-noninteractive-sound}
   Given $\prog,\Gamma,R : {OK}$ where $\secrets(\prog) = S$ and:
@@ -316,8 +347,8 @@ verified in typing judgements.
     =
     \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b,\phi^b} \cup
        \setit{\phi_1,\ldots,\phi_j} \setit{\phi^o_1,\ldots,\phi^o_k}}$
-    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\phi_i^1 + \phi_i^2}} =
-      \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\phi_i^1 + \phi_i^2, \phi_i^a}}$
+    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2)}} =
+      \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1, \phi_i^2), \phi_i^b}}$
     \end{enumerate}
 \end{lemma}
 Next, we show that interactive typing rules preserve well-formedness of type
