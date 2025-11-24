@@ -1,16 +1,17 @@
 \section{Share Types}
 \label{section-sty}
 
-Our approach to static confidentiality analysis is to enforce the use of sound
-techniques in semi-homomorphic encryption in protocols.  As discussed in
-the example in Section \ref{section-smt-example}, protocols integrate
-interactive elements, such as the sharing of one-time-pad (OTP)
-encrypted secrets, and noninteractive elements, such as addition (of
-shares). To comport with this we introduce distinct judgement forms for
-interactive and noninteractive protocol elements. Our type system
-as presented will assume 2-client protocols, but this is for
-clarity of presentation and the analysis can be generalized to more parties.
-We define the federation as $\setit{1,2}$ (client 1 and client 2).
+Our approach to static confidentiality analysis is to enforce the use
+of sound techniques in semi-homomorphic encryption in protocols.  As
+discussed in the example in Section \ref{section-smt-example},
+protocols integrate interactive elements, such as the sharing of
+one-time-pad (OTP) encrypted secrets, and noninteractive elements,
+such as addition (of shares). To comport with this we introduce
+distinct judgement forms for interactive and noninteractive protocol
+elements. Our type system as presented will assume 2-client protocols,
+but this is for clarity of presentation and the analysis can be
+generalized to more parties.  So in this Section we define the
+federation as $\setit{1,2}$ (client 1 and client 2).
 
 Our confidentiality analysis mainly considers protocols in terms of
 their SMT interpretations as described in Section \ref{section-smt}.
@@ -28,7 +29,7 @@ $$
 $$
 \paragraph{Share generation and reconstruction}
 A \emph{secret sharing scheme} includes functions
-$(\genshares,\recon)$ which generate and reconstruct shares,
+$(\genshares,\recon)$ that generate and reconstruct shares,
 respectively. The $\genshares$ function takes some
 input $\phi$ and randomness $\rx{x}{w}$ and produces
 two shares (or as many is needed for the number of clients
@@ -80,7 +81,7 @@ the previous system for $\minicat$ that only enforce a gradual release
 property \cite{skalka-near-esop25}. By connecting this analysis with
 protocol correctness properties enforced by the Hoare logic discussed
 in Section \ref{section-smt}, the output can also be connected to an
-intended ideal functionality.\cnote{Update intro grid accordingly.}
+intended ideal functionality.
 
 \subsection{Non-Interactive Typing Rules}
 

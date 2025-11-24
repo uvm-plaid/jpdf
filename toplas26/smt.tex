@@ -107,8 +107,8 @@ correctness and security.
 
 The mapping $\toeq{\cdot}$ from programs $\prog$ to constraints is
 defined in Figure \ref{fig-toeq}. The interpretation of OT is omitted
-from this figure which is general. For $\mathbb{F}_2$ (where we allow
-negation $\neg$ of expressions) the interpretation is:
+from this figure which is general. For $\mathbb{F}_2$ (using 
+$\neg$ to denote negation) the interpretation is:
 \begin{mathpar}
   \toeq{\elab{\OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2}} =
   (\toeq{\elab{\be_1}{\cid_1}} \ftimes \toeq{\elab{\be_3}{\cid_2}}) \fplus
@@ -118,7 +118,7 @@ In general we will assume that any preprocessing predicate is defined
 via a constraint $\eqspre$, i.e., $\preproc(\store) \iff \store
 \models \eqspre$ for all $\store$. Intuitively, a protocol satisfies
 a correctness (post)condition $\eqs$ if its SMT interpretation
-entails $\eqs$.
+together with $\eqspre$ entails $\eqs$.
 
 %The correctness of the
 %SMT interpretation of programs is characterized as follows.
@@ -168,22 +168,18 @@ its (non-adversarial) runs as follows.
   $\sigma \models \eqspre \wedge \toeq{\prog}$ iff $\store \in \runs(\prog)$.
 \end{theorem}
 \noindent This result follows as a consequence of a more general Lemma
-that incorporates a notion of preconditions. 
+that incorporates a notion of preconditions:
 \begin{lemma}
   \label{lemma-toeq}
   Given $\eqs, \prog, \store$ with $\store \models \eqs$.
   Then $(\store,\prog) \redxs \store'$ iff $\store' \models
   \eqs \wedge \toeq{\prog}$.
 \end{lemma}
-\cnote{Prove me?}
 
 \subsection{$\minicat$ Hoare Logic}
 
-When reasoning about MPC protocols it is important to reason about
-postconditions, e.g., to verify correctness conditions. It is also
-important to reason about preconditions of protocols, e.g., to express
-properties of assumed initialization protocols such as Beaver Triples.
-To support this reasoning we introduce a Hoare logic for $\minicat$,
+To reasoning effectively about pre and postconditions we introduce
+a Hoare logic for $\minicat$,
 where $\htrip{\eqs_1}{\prog}{\eqs_2}$ means that $\eqs_1,\eqs_2$ are
 the preconditions and postconditions, respectively, of $\prog$.
 A semantic notion of validity for Hoare triples is defined as
@@ -207,15 +203,14 @@ and transitivity of $\models$.
 \end{lemma}
 
 Now we can introduce a validity-preserving derivation system for the
-$\minicat$ Hoare logic. Since the language is computationally simple
-the Hoare logic can be relatively simple and mostly standard.
-The derivation rules are specified in Figure \ref{fig-minicathtrip}.
-They are mostly familiar except perhaps for \TirName{Assert}, which
-just enforces the expected equality as a precondition, and
-\TirName{Hyp}. It is unknown to the authors and not immediately
-obvious whether \TirName{Hyp} is derivable from other rules, but
-it is validity preserving as we show below. Its main use in this
-paper will be to enable an automated Hoare logic check we develop
+$\minicat$ Hoare logic.  The derivation rules are specified in Figure
+\ref{fig-minicathtrip}, where in rule \TirName{Frame} we define
+$\avars(\prog)$ as the variables in $\prog$ that are assigned to.  The
+rules are mostly standard except for \TirName{Assert} which includes
+the expected equality in a precondition, and \TirName{Hyp}.  It is
+possible that \TirName{Hyp} is derivable, but in any case it is
+validity preserving as we show in the following Lemma. Its main use in
+this paper will be to enable an automated Hoare logic check we develop
 later (Section \ref{section-metahtrip}).
 \begin{lemma}
   If $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable, then it is valid.
