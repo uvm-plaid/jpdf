@@ -35,7 +35,7 @@ language design.
 \subsection{Overview and Contributions}
 
 Our work is based on the $\metaprot$/$\minicat$ framework developed in
-previous work \cite{skalka-near-ppdp24}. The prior work developed the 
+previous work \cite{skalka-near-ppdp24, skalka-near-esop25}. The prior work developed the 
 language and semantics, plus two mechanisms for verifying security: an
 automated approach for protocols in $\mathbb{F}_2$ (the binary field),
 based on enumerating all possible executions of the protocol, that scales 
@@ -45,31 +45,52 @@ In Section \ref{section-lang} we recall the $\minicat$ language model and key de
 Section \ref{section-model} we recall formulations of program distributions,
 and key probabilistic hyperproperties of MPC in $\minicat$. 
 
-Together, our contributions \emph{automate} the verification of security
+Together, our contributions \emph{automate} the \emph{compositional} verification of security
 properties in $\metaprot$/$\minicat$. In this work, we build on~\cite{skalka-near-ppdp24}
 by developing automatic verification approaches that work for arbitrary
 finite fields and scale to large protocols. To accomplish this, we develop new
-type systems for compositional verification, and use SMT to automate the checks
+Hoare logics and type systems for compositional verification, and use SMT to automate the checks
 that were accomplished by enumeration in prior work. Specifically, we make the
 following contributions:
 %
+% \begin{enumerate}[i.]
+% \item In Section \ref{section-smt}, an interpretation of protocols in
+%   $\minicat$ as SMT constraints (Theorem \ref{theorem-toeq}) and
+%   methodology for verifying correctness properties.
+% \item In Section \ref{section-cpj}, a confidentiality type system for
+%   $\minicat$ protocols with a soundness property guaranteeing that
+%   information is released only through explicit declassifications
+%   (Theorem \ref{theorem-cpj}).
+% \item In Section \ref{section-ipj}, an integrity type system for
+%   $\minicat$ protocols with a soundness property guaranteeing
+%   robustness in malicious settings (Theorem \ref{theorem-ipj}).
+% \item In Section \ref{section-metalang}, a dependent Hoare type system and
+%   algorithm for the $\metaprot$ language that is sound for the
+%   confidentiality and integrity type systems (Theorem
+%   \ref{theorem-mtj}), with independently verified, compositional $\Pi$
+%   types for functions.
+% \end{enumerate}
 \begin{enumerate}[i.]
-\item In Section \ref{section-smt}, an interpretation of protocols in
-  $\minicat$ as SMT constraints (Theorem \ref{theorem-toeq}) and
-  methodology for verifying correctness properties.
-\item In Section \ref{section-cpj}, a confidentiality type system for
-  $\minicat$ protocols with a soundness property guaranteeing that
-  information is released only through explicit declassifications
-  (Theorem \ref{theorem-cpj}).
-\item In Section \ref{section-ipj}, an integrity type system for
-  $\minicat$ protocols with a soundness property guaranteeing
-  robustness in malicious settings (Theorem \ref{theorem-ipj}).
-\item In Section \ref{section-metalang}, a dependent Hoare type system and
-  algorithm for the $\metaprot$ language that is sound for the
-  confidentiality and integrity type systems (Theorem
-  \ref{theorem-mtj}), with independently verified, compositional $\Pi$
-  types for functions.
+\item In Section~\ref{section-smt}, a Hoare logic for Overture protocols, for the compositional verification of both semi-honest and malicious security.
+\item In Section~\ref{section-sty}, a novel share type system, enabling security verification for protocols that use secret sharing as a building block; our approach works for any secret sharing scheme and enforces noninterference modulo output.
+\item In Section~\ref{section-ipj}, an integrity type system for extending semi-honest security to malicious security.
+\item In Section~\ref{section-metalang}, a Hoare logic for Prelude programs with an automated implementation, for the compositional verification of high-level protocol specifications.
+\item In Section~\ref{sec:metapr-type-check}, a compositional type-based verification approach for Prelude programs that combines share types with the automated Hoare logic of Section 7.
 \end{enumerate}
+%
+A prior conference version of this work~\cite{skalka-near-esop25}
+proposed a whole-program analysis for Prelude programs that ensures
+confidentiality, and combined it with an integrity type system to
+prove security of Prelude programs. This extended version adds the
+compositional Hoare logics presented in Sections 4 and 7, adds the
+share type system presented in Section 5, and fully develops the
+compositional type-based verification approach in Section 8. In
+addition, we develop an implementation capable of automating the
+verification of examples given in the prior work, and our extensions
+in this work additionally enable the type-based verification of
+noninterference modulo output for secret sharing protocols that
+leverage Beaver triples (see Section~\ref{section-examples}).
+
 In all cases, our type systems are boosted by verification mechanisms
 provided by Satisfiability Modulo Finite Fields \cite{SMFF}. In
 Section \ref{section-examples} we develop and discuss extended example
