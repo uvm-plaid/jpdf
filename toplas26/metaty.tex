@@ -124,22 +124,23 @@ dependence on $\stringty$ and $\cidty$ types.
 As defined in \TirName{Fn}, a dependent function type $\Pi
 y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2},
 \notg{R})$ specifies that, given share typing assumptions in
-$\notg{\Gamma_1}$, application the function results in the bindings in
-$\notg{\Gamma_2}$ by using the random values in $\notg{R}$. It is
-always the case that the type is closed, i.e., only $y_1,\ldots,y_n$
-can occur free in $\notg{\Gamma_1}$, $\notg{\Gamma_2}$ $\notg{R}$.
-Type checking for functions is accomplished by using fresh ``witness''
-values of $\stringty$ and $\cidty$ types to instantiate dependent
-variables, similarly to the \TirName{GenEntails} rule. As defined in
-the \TirName{App} rule, typing ensures that application of the
-function instantiates the dependencies, checks that the instantiation
-of $\notg{\Gamma_1}$ is contained in the share typing environment, and
-adds the instantiation of $\notg{\Gamma_2}$ as an effect, as will as
-the instantiation of $\notg{R}$ with linearity enforced. A practical
-programming detail is where the share type environment precondition
-$\notg{\Gamma_1}$ is defined.  In our implementation, we write these
-as an additional component of \ttt{precondition} annotations, as
-illustrated in extended examples discussed in Section
+$\notg{\Gamma_1}$, application of the function results in the bindings
+in $\notg{\Gamma_2}$ using the random values in $\notg{R}$ for share
+generation or secure openings.  We require that the type is closed,
+i.e., only $y_1,\ldots,y_n$ can occur free in $\notg{\Gamma_1}$,
+$\notg{\Gamma_2}$ $\notg{R}$.  Type checking for functions is
+accomplished by using fresh ``witness'' values of $\stringty$ and
+$\cidty$ types to instantiate dependent variables, similarly to the
+\TirName{GenEntails} rule. As defined in the \TirName{App} rule,
+typing ensures that application of the function instantiates the
+dependencies, checks that the instantiation of $\notg{\Gamma_1}$ is
+contained in the share typing environment, and adds the instantiation
+of $\notg{\Gamma_2}$ as an effect along with instantiation of
+$\notg{R}$ with linearity enforced. A practical programming detail is
+where the share type environment precondition $\notg{\Gamma_1}$ is
+defined by the programmer-- by convention we write these as
+additional components of \ttt{precondition} annotations, as
+illustrated in the extended examples discussed in Section
 \ref{section-examples}.
 
 \shtripcmdfig
@@ -149,7 +150,7 @@ illustrated in extended examples discussed in Section
 Returning to the GMW \ttt{and} gate example introduced in Figure \ref{fig-gmwprepost},
 we can extend the definition of \ttt{andgmw} with type annotations to ensure a
 valid share typing, as in Figure \ref{fig-gmwsharetypes}. Here a coercion
-is needed to specify that the gate output are shares obtained using
+is needed to specify that the gate output wire values are secret-shared using
 $\ttt{r[z]@1}$ as an OTP. The type for $\ttt{andgmw}$ can then be
 obtained as:
 $$
@@ -191,8 +192,8 @@ case of Lemma \ref{lemma-metaty}.
 \begin{theorem}
   \label{theorem-metaty}
   Given $\htrip{\eqspre}{\ttt{main()}}{\eqs}$ and $\ttt{main} : \Gamma_1 \rightarrow (\Gamma_2,R)$
-  and $\main() \redx \prog$ and $\progpre,\Gamma_1,R' : {OK}$ with $R' \cap R = \varnothing$
-  and $\toeq{\progpre} \models \eqspre$. Then $(\progpre;\prog),\Gamma_2,R : {OK}$.
+  and $\main() \redx \prog$ and $\progpre,\Gamma_1,R' : {OK}$ %with $R' \cap R = \varnothing$
+  and $\toeq{\progpre} \models \eqspre$. Then $(\progpre;\prog),\Gamma_2,R \uplus R': {OK}$.
 \end{theorem}
 
 Note that Theorem \ref{theorem-metaty} assumes the existence of
@@ -200,11 +201,12 @@ $\progpre$ with $\progpre,\Gamma_1,R' : {OK}$ and $R' \cap R =
 \varnothing$ and $\toeq{\progpre} \models \eqspre$. The assumption of
 some preprocessing protocol such as Beaver triple or MAC share
 distribitions is typical, and our approach does not require the
-protocol to be defined in detail, just (weakened) postconditions of it
-that are sufficient to verify the protocol being programmed.
+protocol to be defined by the programmer, but rather just (weakened)
+postconditions of it that are sufficient to verify the protocol being
+programmed.
 
 Theorem \ref{theorem-metaty} also does not provide a complete recipe
-for obtaining noninterference modulo output-- as suggested by Theorem
+for obtaining noninterference modulo output-- as per Theorem
 \ref{theorem-sty}, it is also necessary to check closure of
 $\Gamma_2$. There are various ways this can be accomplished for the
 $\metaprot$ analysis-- for example, we evaluate $\ttt{main}$ to obtain

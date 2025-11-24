@@ -117,7 +117,7 @@ $\cheatj{\Delta}{H,C}{\seclev}$, axiomatized in Figure
 \ref{fig-cheatj}. The composition of typing and this latter rewriting
 obtains essentially a traditional taint analysis, modulo MAC checking.
 Our main type soundness result for integrity is then given as follows.
-Proof details are given in the Appendix.
+Proof details are available in the appendix of \cite{skalka-near-esop25}.
 \begin{theorem}
   \label{theorem-ipj}
   Given  $\eqspre$ and $\prog$ with
@@ -125,5 +125,5 @@ Proof details are given in the Appendix.
   $\ipj{\eqs}{\prog}{\Delta}$ is valid
   and for all $H,C$ with $\cheatj{\Delta}{H,C}{\seclev}$ 
   we have $\seclev(x) = \hilab$ for all $x \in \houtputs \cup O_H$, then $\prog$
-  has integrity for all $H,C$.
+  has integrity for all $H,C$ and $\adversary$.
 \end{theorem}
