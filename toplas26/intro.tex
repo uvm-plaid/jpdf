@@ -72,8 +72,8 @@ following contributions:
 % \end{enumerate}
 \begin{enumerate}[i.]
 \item In Section~\ref{section-smt}, a Hoare logic for Overture protocols, for the compositional verification of both semi-honest and malicious security.
-\item In Section~\ref{section-sty}, a novel share type system, enabling security verification for protocols that use secret sharing as a building block; our approach works for any secret sharing scheme and enforces noninterference modulo output.
-\item In Section~\ref{section-ipj}, an integrity type system for extending semi-honest security to malicious security.
+\item In Section~\ref{section-sty}, a novel share type system, enabling security verification for protocols that use secret sharing as a building block; our approach works for any secret sharing scheme and enforces passive security (confidentiality).
+\item In Section~\ref{section-ipj}, an integrity type system for extending passive security to malicious security.
 \item In Section~\ref{section-metalang}, a Hoare logic for Prelude programs with an automated implementation, for the compositional verification of high-level protocol specifications.
 \item In Section~\ref{sec:metapr-type-check}, a compositional type-based verification approach for Prelude programs that combines share types with the automated Hoare logic of Section 7.
 \end{enumerate}
@@ -83,20 +83,23 @@ proposed a whole-program analysis for Prelude programs that ensures
 confidentiality, and combined it with an integrity type system to
 prove security of Prelude programs. This extended version adds the
 compositional Hoare logics presented in Sections 4 and 7, adds the
-share type system presented in Section 5, and fully develops the
-compositional type-based verification approach in Section 8. In
-addition, we develop an implementation capable of automating the
-verification of examples given in the prior work, and our extensions
-in this work additionally enable the type-based verification of
-noninterference modulo output for secret sharing protocols that
-leverage Beaver triples (see Section~\ref{section-examples}).
+share type system presented in Section 5 that enforces a stronger
+security property than the type system in~\cite{skalka-near-esop25},
+and fully develops the compositional type-based verification approach
+in Section 8. In addition, we develop an implementation capable of
+automating the verification of examples given in the prior work, and
+our extensions in this work additionally enable the type-based
+verification of noninterference modulo output for more complex secret
+sharing protocols,e.g., that leverage Beaver triples (see
+Section~\ref{section-examples}).
 
 In all cases, our type systems are boosted by verification mechanisms
 provided by Satisfiability Modulo Finite Fields \cite{SMFF}. In
 Section \ref{section-examples} we develop and discuss extended example
 applications of our type analyses to real protocols including
-the Goldreich-Micali-Wigderson (GMW), Bendlin-Damgard-Orland-Zakarias
-(BDOZ), and Yao's Garbled Circuits (YGC) protocols.
+the Goldreich-Micali-Wigderson (GMW), Ben-Or-Goldwasser-Widgerson (BGW),
+and Bendlin-Damgard-Orland-Zakarias (BDOZ), and report related
+performance metrics.
 
 \subsection{Related Work}
 \label{section-related-work}
@@ -115,17 +118,27 @@ We summarize this comparison in Figure \ref{fig-comp-wrap}.
 % hyperproperties, and whether they consider passive and/or malicious
 % security models.
 
-The most closely related work is \cite{skalka-near-ppdp24}, where
-foundations for $\minicat/\metaprot$ are introduced including a
-verification algorithm. However, this algorithm only works for
-$\mathbb{F}_2$-- e.g., binary circuits-- and does not scale due to
-exponential complexity, necessitating semi-automated proof
-techniques. In contrast, our type systems scale to arbitrary prime
-fields and whole program analysis for larger circuits (protocols). So
-our work is a significant advancement of $\minicat/\metaprot$.  Our
-work is also closely related to Satisfiability Modulo Finite Fields
-\cite{SMFF} but only in the sense that we apply their method as we
-discuss in Section \ref{section-smt} and subsequently.
+The current work extends previous work \cite{skalka-near-esop25} as
+discussed above. Key differences as noted in Figure
+\ref{fig-comp-wrap} include a Hoare logic and a more expressive
+confidentiality type systems supporting analysis of more complex
+programs that enforces passive security in the real/ideal model, vs.~a
+weaker gradual release property as in \cite{skalka-near-esop25}.
+Furthermore our Hoare logic analysis has been fully implemented in the
+current work in an Antlr/Scala/cvc5-based framework.
+
+Besides \cite{skalka-near-esop25} the most closely related work is
+\cite{skalka-near-ppdp24}, where foundations for $\minicat/\metaprot$
+are introduced including a verification algorithm. However, this
+algorithm only works for $\mathbb{F}_2$-- e.g., binary circuits-- and
+does not scale due to exponential complexity, necessitating
+semi-automated proof techniques. In contrast, our type systems scale
+to arbitrary prime fields and whole program analysis for larger
+circuits (protocols). So our work is a significant advancement of
+$\minicat/\metaprot$.  Our work is also closely related to
+Satisfiability Modulo Finite Fields \cite{SMFF} in that we use it as
+an enabling technology as discussed in Section \ref{section-smt} and
+subsequently.
 
 Other low-level languages with probabilistic features for privacy
 preserving protocols have been proposed. The
