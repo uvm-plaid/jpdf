@@ -3,13 +3,15 @@
 
 The $\minifed$ language establishes a basic model of synchronous
 protocols between a federation of \emph{clients} exchanging values in
-the binary field. We identify clients by natural numbers and federations- finite sets of
-clients- are always given statically.  Our threat model assumes a
-partition of the federation into \emph{honest} $H$ and \emph{corrupt}
-$C$ subsets. We model probabilistic programming via a \emph{random
-tape} semantics. That is, we will assume that programs can make
-reference to values chosen from a uniform random distributions defined
-in the initial program memory.  Programs aka protocols execute
+a finite field. In order to align with existing SMT theories
+\cite{SMFF} we restrict our consideration to prime fields. We identify
+clients by natural numbers and federations- finite sets of clients-
+are always given statically.  Our threat model assumes a partition of
+the federation into \emph{honest} $H$ and \emph{corrupt} $C$
+subsets. We model probabilistic programming via a random tape
+semantics. That is, we will assume that programs can make reference to
+values chosen from a uniform random distributions defined in the
+initial program memory.  Programs aka protocols execute
 deterministically given the random tape.
 
 \subsection{Syntax}
@@ -19,7 +21,7 @@ deterministically given the random tape.
 The syntax of $\minifed$, defined in Figure \ref{fig-minicat-syntax},
 includes values $v$ and standard operations of addition, subtraction,
 and multiplication in a finite field $\mathbb{F}_p$ where $p$ is some
-prime.  Protocols are given input secret values $\secret{w}$ as well
+prime. Protocols are given input secret values $\secret{w}$ as well
 as random samples $\flip{w}$ on the input tape, implemented using a
 \emph{memory} as described below (Section
 \ref{section-lang-semantics}) where $w$ is a distinguishing 

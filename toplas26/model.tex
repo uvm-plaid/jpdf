@@ -103,10 +103,8 @@ following standard notation to express conditional and unconditional separation:
 \begin{definition}
 %  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
 %  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
-  We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all
-    $\store \in \mems(X_1 \cup X_2)$ and $\store' \in \mems(X_3)$ we have
-  $\pmf(\store|\store') =
-  \pmf(\store_{X_1}|\store') * \pmf(\store_{X_2}|\store')$. If $X_1$ is empty
+  We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff $\condd{\pmf}{X_2 \cup X_3}{X_1}
+  = \condd{\pmf}{X_2}{X_1} * \condd{\pmf}{X_3}{X_1}$. If $X_1$ is empty
   we write $\sep{\pmf}{X_2}{X_3}$.
 \end{definition}
 
