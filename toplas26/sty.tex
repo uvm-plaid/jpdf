@@ -291,41 +291,77 @@ don't reveal more about secrets than their reconstruction does. Property
 secure openings, respectively, are included in $R$.
 \begin{definition}
   \label{def-OK}
-  Given $\prog,\Gamma,R$ where $\secrets(\prog) = S$ and:
-  $$
-  \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
-  \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
-  \setit{\pubx{\phi^o_1} : \outty,\ldots,\pubx{\phi^o_k} : \outty}
-  $$
+  Given $\prog,\Gamma,R$ where $\iov(\prog) = S \cup M \cup P \cup O$. For all $a,b\in \setit{1,2}$ with $a \ne b$ let:
+  \begin{eqnarray*}
+    %\Phi_a^m & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \\
+    %\Phi_a^p & \defeq & \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma}\\
+    \Phi_a & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \cup
+                        \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma} \\% \Phi_a^m \cup \Phi_a^p \\
+    \Phi^p & \defeq & \setit{ \recon(\phi_1,\phi_2) \mid (\pubx{\recon(\phi_1,\phi_2)} : \pubty) \in \Gamma}\\
+    \Phi^o & \defeq & \setit{ \recon(\phi_1,\phi_2) \mid (\pubx{\recon(\phi_1,\phi_2)} : \outty) \in \Gamma}
+  \end{eqnarray*}
   Then we write $\prog,\Gamma,R : {OK}$ iff all of the following conditions
   hold:
   \begin{enumerate}[\hspace{5mm}i.]
   \item For all $a,b \in \setit{1,2}$ we have
     $
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi^o_1,\ldots,\phi^o_k}}
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \Phi^o}
     = 
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b} \cup
-      %\setit{\phi_1,\ldots,\phi_j}
-      \setit{\phi^o_1,\ldots,\phi^o_k}}
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup  \Phi_a \cup \Phi^o}
     $.
-  \item For all $a,b \in \setit{1,2}$ and $0 < i \le n$ we have
-    $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2)}} =
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2), \phi_i^b}}$
-  \item $\sep{\progd(\prog)}{(S \cup O)}{\setit{\phi_1,\ldots,\phi_j}}$
-  \item  For all $a,b \in \setit{1,2}$ and $0 < i \le n$, if
-    $([x_1,x_2] : \sharety) \in \Gamma$ with $\genshares(\phi,\rx{w}{\cid}) = \phi_1,\phi_2$
+  \item For all $a,b \in \setit{1,2}$ and $([\phi_1,\phi_2] : \sharety) \in \Gamma$ we have:
+    %$\condsep{\progd(\prog)}{\setit{\recon(\phi_i^1,\phi_i^2)}}{\setit{\phi_i^b}}{\recon(\phi_i^1,\phi_i^2)}$
+    $$\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_i^1,\phi_i^2)}} =
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}}  \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_i^1,\phi_i^2), \phi_i^b}}$$
+  \item $\sep{\progd(\prog)}{(S \cup O)}{\Phi^p}$
+  \item  For all $a,b \in \setit{1,2}$ and if
+    $([x_1,x_2] : \sharety) \in \Gamma$ with $x_a \in \imesgs{M}{\setit{b}}{\setit{a}}$ then
+    $\genshares(\phi,\rx{w}{\cid}) = \phi_1,\phi_2$
     and $\toeq{\prog} \models x_1 \eop \phi_1 \wedge x_2 \eop \phi_2$ 
-    for some $\phi$ and $\rx{w}{\cid}$ then $\rx{w}{\cid} \in R$.
-  \item For all $0 < i \le j$, if $\toeq{\prog} \models \phi_i \eop \phi + \rx{w}{\cid_{\oid}}$ for
-    some $\phi$  and $\rx{w}{\cid_{\oid}}$ then $\rx{w}{\cid_{\oid}} \in R$.
+    for some $\phi$ and $\rx{w}{\cid} \in R$.
+  \item For all $\phi \in \Phi^p$ if $\toeq{\prog} \models \phi \eop \phi' + \rx{w}{\cid_{\oid}}$ for some $\phi'$
+    and $\rx{w}{\cid_{\oid}}$ then $\rx{w}{\cid_{\oid}} \in R$.
   \end{enumerate} 
 \end{definition}
+%\begin{definition}
+%  \label{def-OK}
+%  Given $\prog,\Gamma,R$ where $\secrets(\prog) = S$ and:
+%  $$
+%  \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
+%  \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
+%  \setit{\pubx{\phi^o_1} : \outty,\ldots,\pubx{\phi^o_k} : \outty}
+%  $$
+%  Then we write $\prog,\Gamma,R : {OK}$ iff all of the following conditions
+%  hold:
+%  \begin{enumerate}[\hspace{5mm}i.]
+%  \item For all $a,b \in \setit{1,2}$ we have
+%    $
+%    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi^o_1,\ldots,\phi^o_k}}
+%    = 
+%    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b} \cup
+%      %\setit{\phi_1,\ldots,\phi_j}
+%      \setit{\phi^o_1,\ldots,\phi^o_k}}
+%    $.
+%  \item For all $a,b \in \setit{1,2}$ and $0 < i \le n$ we have
+%    %$\condsep{\progd(\prog)}{\setit{\recon(\phi_i^1,\phi_i^2)}}{\setit{\phi_i^b}}{\recon(\phi_i^1,\phi_i^2)}$
+%    $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2)}} =
+%    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2), \phi_i^b}}$
+%  \item $\sep{\progd(\prog)}{(S \cup O)}{\setit{\phi_1,\ldots,\phi_j}}$
+%  \item  For all $a,b \in \setit{1,2}$ and $0 < i \le n$, if
+%    $([x_1,x_2] : \sharety) \in \Gamma$ with $\genshares(\phi,\rx{w}{\cid}) = \phi_1,\phi_2$
+%    and $\toeq{\prog} \models x_1 \eop \phi_1 \wedge x_2 \eop \phi_2$ 
+%    for some $\phi$ and $\rx{w}{\cid}$ then $\rx{w}{\cid} \in R$.
+%  \item For all $0 < i \le j$, if $\toeq{\prog} \models \phi_i \eop \phi + \rx{w}{\cid_{\oid}}$ for
+%    some $\phi$  and $\rx{w}{\cid_{\oid}}$ then $\rx{w}{\cid_{\oid}} \in R$.
+%  \end{enumerate} 
+%\end{definition}
 With the definition of ${OK}$ in place, we can define what we mean by soundness
 of $\genshares$. In this definition, the first condition establishes that
 initial shares are independent of honest secrets, and the second establishes
 that they reveal no more than their reconstruction. These conditions are
 obviously met by ``vanilla'' additive or Shamir shares which generate
 shares in uniform marginal distributions.
+
 \begin{definition}
   \label{def-genshares}
   We say that $\genshares$ is \emph{sound} iff given any $\prog,\Gamma,R : {OK}$
@@ -351,30 +387,57 @@ shares in uniform marginal distributions.
     \end{enumerate}
 \end{definition} 
 
+%\begin{definition}
+%  \label{def-genshares}
+%  We say that $\genshares$ is \emph{sound} iff given any $\prog,\Gamma,R : {OK}$
+%  and $\phi$ and $\rx{w}{\cid} \not \in R$ with $\genshares(\phi,\rx{w}{\cid}) =
+%  \phi_1,\phi_2$ and $\toeq{\prog} \models x_1 \eop \phi_1 \wedge x_2 \eop \phi_2$
+%  with $\secrets(\prog) = S$ and:
+%  $$
+%  \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
+%  \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
+%  \setit{\pubx{\phi^o_1} : \outty,\ldots,\pubx{\phi^o_k} : \outty}
+%  $$
+%  we have for all $a,b \in \setit{1,2}$:
+%  \begin{enumerate}[\hspace{5mm}i.]
+%    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b} \cup
+%      %\setit{\phi_1,\ldots,\phi_j}
+%      \setit{\phi^o_1,\ldots,\phi^o_k}}
+%    =
+%    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b,x_b} \cup
+%      %\setit{\phi_1,\ldots,\phi_j}
+%      \setit{\phi^o_1,\ldots,\phi^o_k}}$
+%    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(x_1,x_2)}} =
+%      \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(x_1,x_2), x_b}}$
+%    \end{enumerate}
+%\end{definition} 
+
 Next we show that, given well-formed typing environments, share type judgements preserve
 the important properties (i-ii) in Definitions \ref{def-OK}. This result follows from
 known semi-homomorphic properties of non-interactive operations that are syntactically
 verified in typing judgements.
 \begin{lemma}
   \label{lemma-sty-noninteractive-sound}
-  Given $\prog,\Gamma,R : {OK}$ where $\secrets(\prog) = S$ and:
-  $$
-  \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
-  \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
-  \setit{\pubx{\phi^o_1} : \outty,\ldots,\pubx{\phi^o_k} : \outty}
-  $$
-  and also $\Gamma, \toeq{\prog} \vdash [\phi^1,\phi^2] : \sharety$
-  Then for all $a,b \in \setit{1,2}$ the following conditions hold:
+  Given $\prog,\Gamma,R : {OK}$ where $\secrets(\prog) = S$. For all $a,b\in \setit{1,2}$ with $a \ne b$ let:
+  \begin{eqnarray*}
+    %\Phi_a^m & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \\
+    %\Phi_a^p & \defeq & \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma}\\
+    \Phi_a & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \cup
+                        \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma} \\% \Phi_a^m \cup \Phi_a^p \\
+    \Phi^o & \defeq & \setit{ \recon(\phi_1,\phi_2) \mid (\pubx{\recon(\phi_1,\phi_2)} : \outty) \in \Gamma}
+  \end{eqnarray*} 
+  and also suppose $\Gamma, \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
+  Then for all $a,b \in \setit{1,2}$ with $a \ne b$ the following conditions hold:
     \begin{enumerate}[\hspace{5mm}i.]
-    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b} \cup
-      %\setit{\phi_1,\ldots,\phi_j}
-      \setit{\phi^o_1,\ldots,\phi^o_k}}
-    =
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b,\phi^b} \cup
-      % \setit{\phi_1,\ldots,\phi_j}
-      \setit{\phi^o_1,\ldots,\phi^o_k}}$
-    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2)}} =
-      \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1, \phi_i^2), \phi_i^b}}$
+    \item
+    $
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \Phi^o}
+    = 
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup  \Phi_a \cup \setit{\phi_a} \cup \Phi^o}
+    $
+  \item 
+    $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2)}} =
+    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}}  \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2), \phi_b}}$
     \end{enumerate}
 \end{lemma}
 \begin{proof}
