@@ -12,9 +12,9 @@ protocols. This includes an automated verification of algebraic
 program properties expressed as Hoare logic assertions that we
 introduce in this Section. Furthermore, we can compositionally verify
 confidentiality and integrity properties expressed as types, as we
-will show in Section \ref{section-sharety}. We present and discuss
-extended examples of $\metaprot$ programs in Section
-\ref{section-examples}.
+will discuss in Sections \ref{section-metaty} and especially
+\ref{section-examples} where we present and discuss
+extended examples of $\metaprot$ programs.
 
 \metaprotsyntaxfig
 
@@ -24,7 +24,7 @@ The syntax of $\metaprot$ is defined in Figure
 \ref{fig-metaprotsyntax}.  It includes a syntax of values $\mv$ that
 include client ids $\cid$, identifier strings $w$, expressions $\be$
 in field $\mathbb{F}_p$, record values, and $\minicat$ variables
-$x$. $\metaprot$ expression forms allow dynamic construction of these
+$x$. $\metaprot$ \emph{expression} forms allow dynamic construction of these
 values. Note in particular that $\concat$ is string concatentation.
 $\metaprot$ \emph{instructions} allow dynamic
 construction of $\minicat$ protocols $\prog$ that incorporate expression
@@ -37,8 +37,9 @@ automation as we discuss below in Section \ref{section-metahtrip}.
 
 Formally, we consider a complete metaprogram to include
 both a codebase and a ``main'' program that uses the codebase.
-We disallow recursion, mainly to guarantee decidability
-of type dependence (Section \ref{section-metalangty}).
+For all function (expression or instruction forms) we disallow
+recursion which is important guarantee decidability
+of type dependence (Section \ref{section-metaty}).
 \begin{definition}
 A \emph{codebase} $\codebase$ is a list of function 
 declarations. We write $ \codebase(f) = y_1,\ldots,y_n,\ e$
@@ -59,11 +60,11 @@ write $e[\mv/y]$ and $\instr[\mv/y]$ to denote the substitution of
 $\mv$ for free occurrences of $y$ in $e$ or $\instr$ respectively. The
 rules are mostly standard.
 
-Note that we do not include an evaluation
-rule for the form $\eqcast{\mx{e}{e}}{e}$ which is a type
-annotation that we assume is erased from programs prior to
-evaluation. We defer discussion of this form to Section
-\ref{section-sharety}
+%Note that we do not include an evaluation
+%rule for the form $\eqcast{\mx{e}{e}}{e}$ which is a type
+%annotation that we assume is erased from programs prior to
+%evaluation. We defer discussion of this form to Section
+%\ref{section-sharety}
 
 \paragraph{Sanity conditions on programs.} We assume that
 any $\metaprot$ codebase $\codebase$ includes a function
@@ -75,16 +76,17 @@ $\ttt{main}() \redx \prog$ and $\prog$ is well-formed.
 
 \subsection{Abstract pre and postcondition annotations}
 
-$\metaprot$ instruction functions can optionally be annotated with
-pre and postconditions. To model this in our theory we posit
-functions $\precond$  and $\postcond$ 
-that specify conditions for instruction functions $f \in \dom(\codebase)$.
-Note that $\precond(f)$ or $\precond(f)$ may be undefined if no annotation
-is given for $f$. In actual code, we write pre and postconditions directly before and
-after functions to define them. Here is a simple example function $\ttt{bar}$
-with. Note that the pre and postconditions are abstract with respect to the
-input string $\ttt{x}$, and that string concatenation  
-can be used in pre and postcondition constraints:
+$\metaprot$ instruction functions can optionally be annotated with pre
+and postconditions. To model this in our theory we posit functions
+$\precond$ and $\postcond$ that specify conditions for instruction
+functions $f \in \dom(\codebase)$.  Note that $\precond(f)$ or
+$\precond(f)$ may be undefined if no annotation is given for $f$. In
+actual code, we write pre and postconditions directly before and after
+functions to define them. Here is a simple example function
+$\ttt{bar}$ with pre and postcondition annotations. Note that the
+annotations are abstract with respect to the input string $\ttt{x}$,
+and that string concatenation can be used in pre and postcondition
+constraints:
 \begin{verbatimtab}
 precondition: ( m[x++"foo"]@1 == 3 )
 bar(x:string){ m[x++"bar"]@2 := (m[x++"foo"] + m[x++"baz"])@1 }
@@ -93,7 +95,7 @@ postcondition: ( [m[z++"bar"]@2 == m[x++"baz"]@1 + 3 )
 Since expressions can occur in $\metaprot$ constraints, they are not
 SMT constraints, but abstractions of constraints parameterized by
 the formal parameters of the function they annotate. We denote these
-\emph{abstract constraints} as $\eqs$ with the syntax given
+\emph{abstract constraints} as $\peq$ with the syntax given
 in Figure \ref{fig-peq}. When the function is applied, the pre and postconditions
 are instantiated as SMT constraints, via evaluating the expressions
 within the constraints. The evaluation semantics of abstract constraints
@@ -193,8 +195,9 @@ follows.
   distinct variables $x_1$ and $x_2$ in $\eqs$ are renamed as a single
   variable $x$ in $\eqs'$, given freshness of $w,\cid$. Let
   $\mathit{rename}$ be the function that maps variables in $\eqs$ to
-  variables in $\eqs'$ such that $\mathit{rename}(\eqs) = \eqs'$. Assume
-  $\store' \models \eqs'$, and define $\store$ such that:
+  variables in $\eqs'$ such that $\mathit{rename}(\eqs) = \eqs'$. Suppose
+  on the contrary that 
+  $\store' \models \eqs'$ and $\store' \not\models \eqs$, and define $\store$ such that:
   $$
   \forall x \in \dom(\vars(E)) . \store(x) \defeq \store'(\mathit{rename}(x)) 
   $$
@@ -226,13 +229,14 @@ follows.
 The \TirName{HardPack} rule uses \TirName{GenEntails} to ensure that
 the annotated pre and postconditions are correct for a given function,
 if they are defined. It is in fact not necessary for \emph{any} pre
-and postconditions to be defined, but their intent is to enable
-fine-tuning of postconditions for improving verification efficiency as
-discussed above and later in Section \ref{section-examples}.  While
-not relevant to the theory, an important implementation detail is that
-verification of any given function $f$ only needs to be performed
-once, and can then be memoized for other applications using
-the $\TirName{App}$ rule as a consequence of Lemma \ref{lemma-genentails}
+and postconditions to be defined, since the analysis will infer valid
+pre and postconditions in their absence by rule \TirName{Fn}, but
+their intent is to enable fine-tuning of pre and postconditions for
+improving verification efficiency as discussed above and later in
+Section \ref{section-examples}.  An important implementation detail is
+that verification of any given function $f$ only needs to be performed
+once, and can then be memoized for other applications using the
+\TirName{App} rule as a consequence of Lemma \ref{lemma-genentails}
 (and more precisely of Corollary \ref{cor-metahtrip}).
 
 The \TirName{Assign} and \TirName{Assert} rules propagate equations
@@ -341,18 +345,18 @@ system.
       
     \peq_2 \redx \eqs_2^1 \wedge \eqs_2^2
   \end{mathpar}
-  and by inversion of the $\TirName{Seq}$ rule we have:
-  \begin{mathpar}
-    \htrip{\peq_1^1}{\cmd_1}{\peq_2^1}
-
-    \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}
-  \end{mathpar}
-  and by the induction hypothesis we have:
-  \begin{mathpar}
-    \htrip{\eqs_1^1}{\cmd_1}{\eqs_2^1}
-
-    \htrip{\eqs_1^2}{\cmd_2}{\eqs_2^2}
-  \end{mathpar}
+  and by inversion of the $\TirName{Seq}$ rule we have $\htrip{\peq_1^1}{\cmd_1}{\peq_2^1}$ and $\htrip{\peq_1^2}{\cmd_2}{\peq_2^2}$,
+  %\begin{mathpar}
+  %  \htrip{\peq_1^1}{\cmd_1}{\peq_2^1}
+  %
+  %  \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}
+  %\end{mathpar}
+  and by the induction hypothesis we have $\htrip{\eqs_1^1}{\cmd_1}{\eqs_2^1}$ and $\htrip{\eqs_1^2}{\cmd_2}{\eqs_2^2}$.
+  %\begin{mathpar}
+  %  \htrip{\eqs_1^1}{\cmd_1}{\eqs_2^1}
+  %
+  %  \htrip{\eqs_1^2}{\cmd_2}{\eqs_2^2}
+  %\end{mathpar}
   But by \TirName{Hyp} we have:
   $\htrip{\eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)}{\cmd_1}{\eqs_2^1 \wedge \eqs_1^2}$
   and by sanity conditions we have
@@ -438,5 +442,5 @@ analysis. These both follow immediately by reasoning in the
   \label{cor-mainhtrip}
   If $\htrip{\peq_1}{\ttt{main()}}{\peq_2}$ and $\ttt{main}() \redx \prog$ and
   $\peq_1 \redx \eqs_1$ and $\peq_2 \redx \eqs_2$ then
-  $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+  $\htrip{\eqs_1}{\prog}{\eqs_2}$ is valid.
 \end{corollary}

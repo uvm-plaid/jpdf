@@ -27,7 +27,7 @@ A fundamental component of the system is automated share type checking
 of noninteractive computations.  We define an algorithmic, syntax
 directed subset of noninteractive share typing as follows:
 \begin{definition}
-  Define $\Gamma \Vdash \stt : \sty$ iff $\Gamma,\true \Vdash \stt : \sty$ without the
+  Define $\Gamma \Vdash \stt : \sty$ iff $\Gamma,\true \vdash \stt : \sty$ without the
   use of \TirName{ShareEntails} and \TirName{PubEntails}.
 \end{definition}
 
@@ -36,11 +36,12 @@ directed subset of noninteractive share typing as follows:
 The syntax of type annotations $\sta$ is defined in Figure
 \ref{fig-sta}, which we extend the language of commands $\cmd$ to
 include. Type annotations are of the form $e_1 \kwas e_2$, which
-defines an SMT equivalence, and $e : \sty$ which are verified using
-the automated $\Vdash$ typing judgement-- the key idea here being that
-explicit equivalences can stand in for implicit \TirName{ShareEntails}
-and \TirName{PubEntails} judgements. In the semantics type annotations
-are interpreted as no-ops, and their integration in Hoare triple
+defines an SMT equivalence-- the key idea here being that explicit
+equivalences can stand in for implicit \TirName{ShareEntails} and
+\TirName{PubEntails} judgements-- and $\notg{\stt} : \sty$ which
+defines a share type assertion verified using the automated $\Vdash$
+typing judgement. In the $\metaprot$ semantics type annotations are
+interpreted as $\pskip$s, while their integration in Hoare triple
 derivations requires annotated equivalences to be included in
 preconditions.  In an implementation, Hoare triple verification can be
 conducted independently prior to type checking.
@@ -80,7 +81,7 @@ form $\notg{\stt} : \sty$, we have different rules for checking local and intera
 $\sharety$ type ascriptions (\TirName{LocalShares} and \TirName{GenShares},
 respectively), and for checking local and interactive
 $\pubty$ type ascriptions (\TirName{LocalPublic} and \TirName{MaskedPublic},
-respectively). In these rules we use of definitions $\xdefs$ to refer to
+respectively). In these rules we use $\xdefs$ to recover defined
 SMT equivalences, and $\Vdash$ to verify share typing.
 
 \subsubsection{Functions and Application}
@@ -92,7 +93,7 @@ which may allow automatic share typing without any use of
 \TirName{Coerce}. The most complex rules are for function application
 and definition (\TirName{App} and \TirName{Fn}). These rules allow for
 generalization and instantiation of share type environments and
-thus compositionality in typing. Generalized, aka abstract
+thus compositionality in typing. Generalized aka abstract
 share type environments are dependent on $\stringty$ and
 $\cidty$ types, and we equate them up to evaluation in
 our rules.
@@ -112,8 +113,7 @@ our rules.
         \setit{\rx{w_1}{\cid_1}, \ldots, \rx{w_n}{\cid_n}}}
   \end{mathpar}
 \end{definition}
-
-We also introduce dependent $\Pi$ types for functions, that allow
+\noindent We also introduce dependent $\Pi$ types for functions, that allow
 dependence on $\stringty$ and $\cidty$ types.
 \begin{definition}[$\metaprot$ Function Types]
   Dependent function types are of the syntactic form

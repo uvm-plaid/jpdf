@@ -390,7 +390,7 @@ $$
 \newcommand{\metaprotsyntaxfig}{
   \begin{fpfig}[t]{$\metaprot$ syntax}{fig-metaprotsyntax}
 $$
-\begin{array}{rcl@{\hspace{4mm}}r}
+\begin{array}{rcl@{\hspace{7mm}}r}
   %\notg{x} &::=& \elab{\flip{e}}{e} \mid \elab{\secret{e}}{e} \mid \elab{\mesg{e}}{e} \mid \rvl{e} \mid \out{e}\\[2mm]
   \multicolumn{3}{l}{\flab \in \mathrm{Field},\   y \in \mathrm{EVar}, \  f \in \mathrm{FName}}\\[1mm]
   %x &\in& \mathrm{EVar}\\
@@ -401,7 +401,7 @@ $$
   %  & \textit{expressions}\\
   \cmd &::=& %\msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
   \assign{e}{e} \mid f(e,\ldots,e) \mid \elet{y}{e}{\instr} \mid  \cmd;\cmd 
-    \mid \elab{\assert{e = e}}{e} \mid \eqcast{\mx{e}{e}}{e} & \gdesc{instructions}\\[1mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
+    \mid \elab{\assert{e = e}}{e} & \gdesc{instructions}\\[1mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
   \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
   \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
   & \gdesc{values}\\[1mm] % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
@@ -522,7 +522,7 @@ $$
       
   \inferrule
       {e_1 \redx \elab{\be_1}{\cid_1} \\ e_2 \redx \elab{\be_2}{\cid_2} }
-      {e_1 \bop e_2 \redx \toeq{\elab{\be_1}{\cid_1}} \eop \toeq{\elab{\be_2}{\cid_2}}}
+      {e_1 \eop e_2 \redx \toeq{\elab{\be_1}{\cid_1}} \eop \toeq{\elab{\be_2}{\cid_2}}}
       
   \inferrule
       {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\eqs_2} \redx \eqs_2 }
@@ -552,7 +552,7 @@ $$
 \begin{mathpar}          
   \inferrule[Mesg]
             {}
-            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \toeq{\elab{e_2}{e_3}}}}
+            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \elab{e_2}{e_3}}}
 
   %\inferrule[Encode]
   %          {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
