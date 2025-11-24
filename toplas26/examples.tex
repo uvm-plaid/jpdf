@@ -9,17 +9,19 @@ discussed the example of YGC input encoding, and in Sections
 \ref{section-metalang} and \ref{section-metaty} we presented and
 discussed the example of gates in the GMW protocol for binary
 circuits. In this section we present an extended example of 2-party
-arithmetic circuits with multiplication gates defined using Beaver triples
-\cite{evans2018pragmatic}. We first define a compositional gate
-library in $\metaprot$ with correctness conditions defined using the
-Hoare logic developed in Section \ref{section-metalang}, along with a
-small example circuit.  Then we will extend the library with type
-annotations illustrating the use of share types developed in
-Sections \ref{section-sty} and \ref{section-metaty} to enforce
-confidentiality properties. Last, we will extend the base library
-with additional pre and postcondition annotations to enforce
-integrity properties supported by BDOZ/SPDZ style MACs
-\cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3}.
+arithmetic circuits with multiplication gates defined using Beaver
+triples \cite{evans2018pragmatic}. We first define a compositional
+gate library in $\metaprot$ with correctness conditions defined using
+the Hoare logic developed in Section \ref{section-metalang}, along
+with a small example circuit (Figure \ref{fig-beaver}).  Then we
+extend the library with type annotations illustrating the use of share
+types developed in Sections \ref{section-sty} and \ref{section-metaty}
+to enforce confidentiality properties (Figure
+\ref{fig-beaver-types}). Lastly, we extend the base library with
+additional pre and postcondition annotations to enforce integrity
+properties supported by BDOZ/SPDZ style MACs
+\cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3} (Figure
+\ref{fig-beaver-bdoz}).
 
 \paragraph{Implementation and Evaluation}
 We have implemented the $\metaprot$ language and automated Hoare logic
@@ -34,7 +36,7 @@ multiplication as presented in Figures \ref{fig-beaver} and
 typically used to encode binary, 16 bit, 32 bit, and 64 bit
 integers. Results are presented in Figure \ref{fig-preludetest}. In
 summary, verification is efficient, largely due to the performance of
-underlying cvc5 verification. It is categorically better performance
+underlying cvc5 verification, with categorically better performance
 than can be achieved using previous brute-force methods developed in
 $\fieldp{2}$ \cite{skalka-near-ppdp24}.
 
@@ -58,11 +60,11 @@ Section \ref{section-sty}. The $\ttt{open}$ function
 implements a federation reveal of a shared value through
 share broadcast and reconstruction.
 
-A \ttt{sum} gate can be defined non-interactively using the
+A \ttt{sum} gate can be defined non-interactively using 
 homomorphic addition. The correctness \ttt{postcondition} is simple
 and perhaps unecessary to accelerate circuit verification, but is
 appealing declaratively.  The multiplication gate \ttt{mult} is more
-complex. We use the common approach of \emph{Beaver Triples}
+complex, where we use the common approach of \emph{Beaver Triples}
 \cite{evans2018pragmatic}. Recall that Beaver triples are values
 $a,b,c$ with $a$ and $b$ chosen randomly and $c = a * b$, unique per
 multiplication gate, that are secret-shared with clients during a
@@ -81,12 +83,12 @@ Hoare logic inference.
 
 
 The circuit itself is constructed in \ttt{main} using these
-gates. This is a small example but arbitrarily large circuits
-can be constructed with this library. The precondition of
-\ttt{main} must require distinct Beaver triples for each
-multiplication gate in the circuit. The postcondition allows
-verification of circuit correctness-- that the protocol
-output is equal to the ideal functionality $\ttt{IDEALF}$.
+gates. This is a small example but arbitrarily large circuits can be
+constructed with this library. The precondition of \ttt{main} requires
+distinct Beaver triples for each multiplication gate in the circuit
+(just one in this example). The postcondition allows verification of
+circuit correctness-- that the protocol output is equal to the ideal
+functionality $\ttt{IDEALF}$.
 
 \subsection{Share Type Annotations.}
 
