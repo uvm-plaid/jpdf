@@ -17,8 +17,8 @@ automated language-based proof methods. Recent research in the SMT
 community has developed theories of finite fields \cite{SMFF} with
 clear relevance to verification of cryptographic schemes that rely on
 field arithmetic. The goal of this paper is to combine hyperproperty
-formulations of security with SMT verification to enforce correctness
-and security properties of MPC protocols.
+formulations of security with SMT verification as a foundation for
+enforcing correctness and security properties of MPC protocols.
 
 Our focus is on low-level MPC protocols. Previous high-level
 MPC-enabled languages such as Wysteria \cite{rastogi2014wysteria} and
@@ -38,7 +38,7 @@ Our work is based on the $\metaprot$/$\minicat$ framework developed in
 previous work \cite{skalka-near-ppdp24, skalka-near-esop25}. The prior work developed the 
 language and semantics, plus two mechanisms for verifying security: an
 automated approach for protocols in $\mathbb{F}_2$ (the binary field),
-based on enumerating all possible executions of the protocol, that scales 
+based on enumerating all possible executions of the protocol that scales 
 only to very small protocols; and a manual approach based on a program logic.
 %
 In Section \ref{section-lang} we recall the $\minicat$ language model and key definitions. In
