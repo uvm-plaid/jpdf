@@ -1,16 +1,19 @@
 \section{Conclusion and Future Work}
 
-In this paper we have defined confidentiality and integrity type
-systems for the $\metaprot/\minifed$ language model. These type
-systems resemble previous security type systems in probabilistic
-settings, but their accuracy is boosted by the integral use of SMT
-verification.  Our work significantly improves automation,
-scalability, and flexibility of static analysis in the
-$\metaprot/\minifed$ as compared to prior work.
+In this paper we have developed the $\minicat$ language for defining
+low-level MPC protocols, and the $\metaprot$ metaprogramming language
+for specifying $\minicat$ protocols compositionally and at a higher
+level of abstraction. We have developed a Hoare logic based on
+SMT-style verification for $\minicat$, as well as confidentiality and
+integrity type systems that enforce passive and malicious security in
+the real/ideal model. These establish a foundation for an automated
+Hoare logic and type system in $\metaprot$ that is compositional,
+scalable, and generalizes to arbitrary prime fields and secret sharing
+schemes.
 
-We see several promising avenues for future work. Concurrency will be
-important to capture common MPC idioms such as commitment and circuit
-optimizations and to consider the UC security model
-\cite{evans2018pragmatic,viaduct-UC}. We also hope to improve our type
-system to enforce the declassification bounds determined by ideal
-functionalities, beyond gradual release.
+Our automated $\metaprot$ Hoare logic leverages Satisfiability
+Modulo Finite Fields for efficiency, scalability, and generalizability
+to arbitrary prime fields. We developed examples of real binary and
+arithmetic circuit protocols, illustrated the applicability of
+our analyses to enforce confidentiality and integrity properties,
+and evaluated performance of our implementation on these examples.
