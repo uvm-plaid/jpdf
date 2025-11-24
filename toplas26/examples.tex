@@ -104,8 +104,8 @@ able to check the use of homomorphic addition.
 
 We add coercions and typing assertions to the $\ttt{secopen}$ function
 to specify properties of secure openings. After noninteractively
-summing a wire value $\ttt{x}$ and a random Beaver triple value
-$\ttt{x++a}$, the federation can publicly open the value since it is
+summing a wire value $\ttt{RECON(x)}$ and a random Beaver triple value
+$\ttt{r[x++a]@3}$, the federation can publicly open the value since it is
 masked by the random value. This is expressed using the coercion
 $\ttt{as RECON(x) +  r[x++a]@3}$. The coercion then allows the
 opened value to be declared $\ttt{public}$.
@@ -115,7 +115,7 @@ computes:
 $$
 \ttt{((m[z++"d"] * m[y]) + (-m[z++"e"] * m[z++"a"]) + m[z++"c"])@i}
 $$
-Since $\ttt{m[z++"d"]@i : public}$ and $\ttt{m[z++"e"]@i : public}$
+Since $\ttt{m[z++"d"]@i : public}\ $ and $\ \ttt{m[z++"e"]@i : public}$
 are both established by $\ttt{secopen}$, and
 $\ttt{m[y]@i}$, $\ttt{m[z++"a"]@i}$, and $\ttt{m[z++"c"]@i}$ are
 all declared to be shares in preconditions, we have that each
