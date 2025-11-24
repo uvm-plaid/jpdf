@@ -104,25 +104,25 @@ able to check the use of homomorphic addition.
 
 We add coercions and typing assertions to the $\ttt{secopen}$ function
 to specify properties of secure openings. After noninteractively
-summing a wire value $\ttt{RECON(x)}$ and a random Beaver triple value
-$\ttt{r[x++a]@3}$, the federation can publicly open the value since it is
+summing the secret-shared wire value $\ttt{RECON(x)}$ and Beaver triple value
+$\ttt{r[x++a]@3}$, the federation can publicly open the result since it is
 masked by the random value. This is expressed using the coercion
 $\ttt{as RECON(x) +  r[x++a]@3}$. The coercion then allows the
-opened value to be declared $\ttt{public}$.
+securely opened value to be declared $\ttt{public}$.
 
 In the \ttt{mult} function, each client $\ttt{i}$ symmetrically
 computes:
 $$
 \ttt{((m[z++"d"] * m[y]) + (-m[z++"e"] * m[z++"a"]) + m[z++"c"])@i}
 $$
-Since $\ttt{m[z++"d"]@i : public}\ $ and $\ \ttt{m[z++"e"]@i : public}$
+Since $\ttt{m[z++"d"]@i\,:\,public}\ $ and $\ \ttt{m[z++"e"]@i\,:\,public}$
 are both established by $\ttt{secopen}$, and
 $\ttt{m[y]@i}$, $\ttt{m[z++"a"]@i}$, and $\ttt{m[z++"c"]@i}$ are
 all declared to be shares in preconditions, we have that each
 of the shared computations $\ttt{(m[z++"d"] * m[y])@i}$ and $\ttt{(-m[z++"e"] * m[z++"a"])@i}$
 are shares, so the gate outputs are shares, and this will
 be successfully checked by syntax-directed $\Vdash$ type checking that
-results from the declaration $\ttt{[m[z]@i1,m[z]@i2] : shares}$. 
+results from the declaration $\ttt{[m[z]@i1,m[z]@i2]\,:\,shares}$. 
 
 \subsubsection{Malicious-Secure Arithmetic Circuits}
 
@@ -140,21 +140,24 @@ just for clarity of the presentation and these features could be combined.
 In this code we use a convention where shared values $\ttt{x}$ are
 represented as a 3-tuple of values, MAC, and keys, where the value and
 MAC of client \ttt{1} are $\ttt{m[x++"s"]@1}$ and $\ttt{m[x++"m"]@1}$
-respectively, and the corresponding key is $\ttt{m[x++"k"]@2}$ is held
-by client \ttt{2}. The correctness condition of this 3-tuple is
-$\ttt{MACOK}(x,2,1)$. The same is true symmetrically, so $\ttt{MACed}$
-establishes both sides of the correctness condition.  In general,
-these are used in gate preconditions to assume that the MAC conditions
-hold for input shares, and output shares are $\ttt{MACed}$. The
+respectively, and the corresponding key $\ttt{m[x++"k"]@2}$ is held by
+client \ttt{2}. The correctness condition of this 3-tuple is
+$\ttt{MACOK}(x,2,1)$. The same is true symmetrically, so the
+$\ttt{MACed}$ predicate establishes both sides of the correctness
+condition.  In general, this predicate is used in gate preconditions
+to assume that the MAC conditions hold for input shares, and in
+postconditions to ensure that output shares are $\ttt{MACed}$. The
 homomorphic properties that preserve $\ttt{MACed}$ness, especially in
 \ttt{mult}, are perhaps even more complex than the algebraic
-correctness of gates, so it is very beneficial to verify them
-compositional especially for large circuits.
+correctness of gates, so it is beneficial to verify them compositional
+especially for large circuits.
 
 Our code is written so that share MACs are checked for when they are
 \ttt{open}ed by both clients, specified by the appropriate
 $\ttt{assert}$ included in the protocol. This ensures malicious
 security of secure openings and outputs. As is standard in BDOZ/SPDZ,
 we assume that input values, MACs, and keys are distributed to clients
-by a pre-processing protocol.
+by a pre-processing protocol with relevant postconditions
+declared in the preconditions of $\ttt{main}$ (as in Figure
+\ref{fig-beaver} with respect to Beaver triples).
 
