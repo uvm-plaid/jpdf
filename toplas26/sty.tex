@@ -491,19 +491,19 @@ our main Theorem \ref{theorem-sty} follows by Lemma \ref{lemma-OK} and Theorem \
   %add the binding to $\Gamma'$ with  $\prog,\Gamma',R  : {OK}$ by Lemma
   %\ref{lemma-OK}.
   Let $\Phi_a$ and $\Phi^o$ be as defined in Definition \ref{def-OK}. 
-  By Definitions \ref{def-sty-closed} we have that $x \in \houtputs$
+  By Definition \ref{def-sty-closed} we have that $x \in \houtputs$
   implies $x \in \Phi_a$ and $(\out{\cid} : \outty) \in \Gamma$ for all
   $\out{\cid} \in O$. 
   Therefore by Definition \ref{def-OK} (and marginalizing away
   extraneous $(\stt : \sty) \in \Gamma$) we have:
   $$
-  \condd{\progd(\prog)}{S_H}{S_C \cup O} = \condd{\progd(\prog)}{S_H}{S_C \cup V_C \cup \Phi^p \cup O}
+  \condd{\progd(\prog)}{S_H}{S_C \cup O} = \condd{\progd(\prog)}{S_H}{S_C \cup \houtputs \cup \Phi^p \cup O}
   $$
   By definition of $\TirName{Output}$ it is also the case that for all
   $\out{\cid} \in O$ we have $\toeq{\prog} \models o = \phi$ for some
   $\phi \in \Phi^o$. Therefore we have:
   $$
-  \condd{\progd(\prog)}{S_H}{S_C \cup O} = \condd{\progd(\prog)}{S_H}{S_C \cup V_C \cup O}
+  \condd{\progd(\prog)}{S_H}{S_C \cup O} = \condd{\progd(\prog)}{S_H}{S_C \cup \houtputs \cup O}
   $$
   which is noninterference modulo output by Definition \ref{definition-NIMO}.
 \end{proof}
