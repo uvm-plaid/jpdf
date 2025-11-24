@@ -222,15 +222,21 @@ later (Section \ref{section-metahtrip}).
 \end{lemma}
 
 \begin{proof}
-  \cnote{de-obfuscate.}
-  Assume $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable without \TirName{Hyp}.
-  Then $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$, since all the other rules
-  are well-known to be validity preserving. 
-  Now since $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$ by assumption, we have
-  $
+  By induction on the derivation and cases analysis on the last derivation
+  step. We only need to consider $\TirName{Hyp}$ since other cases are standard.
+  In this case the consequent is of the form
+  $\htrip{\eqs_1 \wedge (\eqs_2 \impl \eqs)}{\prog}{\eqs_2 \wedge \eqs}$
+  where $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable by inversion
+  of \TirName{Hyp} and hence valid by the induction hypothesis.
+  Thus $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$,
+  %, and
+  % therefore in particular $\eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog}$
+  % iff $\eqs_1 \wedge \eqs \wedge \toeq{\prog}$. Now 
+  and we can strengthen the condition on the rhs of $\models$:
+  $$
   \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 
-  $,
-  and clearly:
+  $$
+  so by standard reasoning we have:
   $$
   \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge (\eqs_2 \impl \eqs)
   $$
