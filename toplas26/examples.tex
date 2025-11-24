@@ -50,7 +50,7 @@ In Figure \ref{fig-beaver} we define a 2-party arithmetic circuit with
 is defined as $\ttt{IDEALF}$. As in GMW or BDOZ, circuit wire values
 are represented as additive secret shares between two clients we call
 $\ttt{1}$ and $\ttt{2}$. As in the GMW example discussed in Section
-\ref{section-metaty}, we use string idenfiers $g$ to distinguish
+\ref{section-metaty}, we use string identifiers $g$ to distinguish
 gates, and gate output wire shares are defined as identifiers
 $\mx{g}{1}$ and $\mx{g}{2}$. The function $\ttt{RECON}$
 represents share reconstruction \emph{in constraints} (not the
@@ -62,7 +62,7 @@ share broadcast and reconstruction.
 
 A \ttt{sum} gate can be defined non-interactively using 
 homomorphic addition. The correctness \ttt{postcondition} is simple
-and perhaps unecessary to accelerate circuit verification, but is
+and perhaps unnecessary to accelerate circuit verification, but is
 appealing declaratively.  The multiplication gate \ttt{mult} is more
 complex, where we use the common approach of \emph{Beaver Triples}
 \cite{evans2018pragmatic}. Recall that Beaver triples are values
@@ -129,7 +129,7 @@ results from the declaration $\ttt{[m[z]@i1,m[z]@i2] : shares}$.
 Our Definition \ref{def-integrity} establishes a general semantics of
 integrity, while the $\minicat$ integrity type system presented in
 Section \ref{section-ipj} focuses on the use of BDOZ/SPDZ-style
-MACs. A main concern here is the encorcement of MAC checking which is
+MACs. A main concern here is the enforcement of MAC checking which is
 an algebraic property. Here we show how pre and postconditions can be
 used to enforce these properties in our arithmetic circuit library, in
 Figure \ref{fig-beaver-bdoz}. Note that this code is an extension of the

@@ -87,7 +87,7 @@ intended ideal functionality.
 \subsection{Non-Interactive Typing Rules}
 
 Our non-interactive typing rules are presented in Figure
-\ref{fig-stylocal}. Judgmements are of the form $\Gamma, \eqs \vdash
+\ref{fig-stylocal}. Judgements are of the form $\Gamma, \eqs \vdash
 \stt : \sty$, where $\Gamma$ is a set of \emph{share type bindings} of
 the form $\stt : \sty$. In the context of typing a protocol $\prog$
 soundness requires that the constraint $\eqs$ must be entailed by
@@ -437,7 +437,7 @@ verified in typing judgements.
   In the base case where the judgement follows by the \TirName{Shared} rule, the result
   follows trivially by Definition \ref{def-OK}. In cases \TirName{HEAdd}, \TirName{HEAddPub}, and
   \TirName{HEMultPub} the result follows by Definition \ref{def-OK} and known
-  semi-homorphic properties of secret sharing \cite{10.1007/978-3-030-68869-1_3}.
+  semi-homomorphic properties of secret sharing \cite{10.1007/978-3-030-68869-1_3}.
   Case \TirName{ShareEntails} follows by correctness of the SMT interpretation of
   protocols as in Theorem \ref{theorem-toeq}.
 \end{proof}
@@ -518,7 +518,7 @@ our main Theorem \ref{theorem-sty} follows by Lemma \ref{lemma-OK} and Theorem \
 
 \begin{proof}
   By Lemma \ref{lemma-OK} we have that $\prog,\Gamma,R : {OK}$, so the result follows
-  by Therorem \ref{theorem-OK}.
+  by Theorem \ref{theorem-OK}.
 \end{proof}
 
 % DEPRECATED
@@ -570,7 +570,7 @@ and known homomorphic properties of secret sharing schemes.
   $$
 \end{lemma}
 
-Based on the preceding Lemma, we can show that noninterence with respect
+Based on the preceding Lemma, we can show that noninteference with respect
 to classified interactive variables is maintained by typing judgements. 
 \begin{lemma}
   \label{lemma-styinteractive}
