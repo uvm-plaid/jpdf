@@ -206,23 +206,23 @@ $$
 \begin{mathpar}
   \inferrule[GenShares]
       {
-        \genshares(\phi,\rx{y}{\cid}) = \phi_1,\phi_2 \\ 
+        \genshares(\phi,\rx{w}{\cid}) = \phi_1,\phi_2 \\ 
         \eqs \models x_1 \eop \phi_1 \wedge x_2 \eop \phi_2  
       }
-      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{[x_1,x_2] : \sharety}, R \uplus \setit{\rx{y}{\cid_1}}}
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{[x_1,x_2] : \sharety}, R \uplus \setit{\rx{w}{\cid}}}
 
   \inferrule[SecOpen]
       {
-        \Gamma, \eqs \vdash [\px{x},\px{y}] : \sharety\\
-        \eqs \models  \px{x} + \px{y} \eop \phi' + \rx{y}{\oid}
+        \Gamma, \eqs \vdash [\px{w_1},\px{w_2}] : \sharety\\
+        \eqs \models  \px{w_1} + \px{w_2} \eop \phi' + \rx{w}{\oid}
       }
-      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\recon(\px{x},\px{y})}  : \pubty}, R \uplus \setit{\rx{y}{\cid_{\oid}}}}
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\recon(\px{w_1},\px{w_2})}  : \pubty}, R \uplus \setit{\rx{w}{\cid_{\oid}}}}
 
   \inferrule[Reveal]
       {
-        \Gamma, \eqs \vdash [\px{x},\px{y}] : \sharety
+        \Gamma, \eqs \vdash [\px{w_1},\px{w_2}] : \sharety
       }
-      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\recon(\px{x},\px{y})}  : \outty}, R}
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\recon(\px{w_1},\px{w_2})}  : \outty}, R}
 
   \inferrule[Output]
       {

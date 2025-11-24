@@ -41,7 +41,8 @@ and:
 $$
 \recon(\genshares(\phi,\rx{w}{\cid})) = \phi
 $$
-In order for $\genshares$ to be \emph{sound}, we require
+In order for $\genshares$ to be \emph{sound} with regard to
+confidentiality, we require
 that both of $\phi_1$ and $\phi_2$ are marginally independent
 of $\phi$, and also of any other values in the protocol.
 This entails the requirement that $\rx{w}{\cid}$ is
@@ -90,15 +91,12 @@ Our non-interactive typing rules are presented in Figure
 \stt : \sty$, where $\Gamma$ is a set of \emph{share type bindings} of
 the form $\stt : \sty$. In the context of typing a protocol $\prog$
 soundness requires that the constraint $\eqs$ must be entailed by
-$\eqspre \wedge \toeq{\prog}$ (see, e.g., Lemma
-\ref{lemma-sty-noninteractive-sound}).
-
-The syntax-directed rules are all known semi-homomorphic operations,
+$\toeq{\prog}$. The syntax-directed rules are all known semi-homomorphic operations,
 including addition of shares (\TirName{HEAdd}), and both addition and
 multiplication of shares with a public value (\TirName{HEAddPub} and
 \TirName{HEMultPub}, respectively) \cite{10.1007/978-3-030-68869-1_3}.
 These rules also leverage SMT entailment in the \TirName{ShareEntails}
-and \TirName{PubEntails} rules, since these operations should be
+and \TirName{PubEntails} rules, meaning these operations are
 allowable up to algebraic equivalence in the context of a protocol.
 
 \subsection{Interactive Typing Rules} 
@@ -117,15 +115,15 @@ rules $\uplus$ is disjoint union.
 
 The \TirName{GenShares} rule generates the binding $[x_1,
   x_2] : \sharety$ if the term is a secret sharing as defined
-by $\genshares$, and adds $\rx{y}{\cid_1}$ to the set of variables
+by $\genshares$, and adds $\rx{w}{\cid}$ to the set of variables
 consumed by $\genshares$, ensuring one-time usage. The
-\TirName{Reveal} rule generates the binding $\pubx{\recon(\px{x},\px{y})} :
-\outty$ with the requirement that $[\px{x},\px{y}]$ are typable as
+\TirName{Reveal} rule generates the binding $\pubx{\recon(\px{w_1},\px{w_2})} :
+\outty$ with the requirement that $[\px{w_1},\px{w_2}]$ are typable as
 shares. The \TirName{SecOpen} rule is similar except it allows the
-assertion $\pubx{\recon(\px{x},\px{y})} : \pubty$ if we can additionally
+assertion $\pubx{\recon(\px{w_1},\px{w_2})} : \pubty$ if we can additionally
 show that the shared value is masked by the use of random value
-$\rx{z}{\oid}$ as an OTP. Here we are positing a third party $\oid$
-that secret-shares $\rx{z}{\oid}$ as part of an initialization
+$\rx{w}{\oid}$ as an OTP. Here we are positing a third party $\oid$
+that secret-shares $\rx{w}{\oid}$ as part of an initialization
 protocol. We illustrate secure openings in practice at more length
 in Section \ref{section-examples}, though we note that appropriate
 properties of initialization protocols can be encoded in $\eqspre$.
@@ -147,19 +145,19 @@ distribution, meaning that samples can be used as OTPs with
 perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
 So we can define:
 \begin{eqnarray*}
-  \genshares(\phi,\rx{y}{\cid}) &\defeq& \phi - \rx{y}{\cid}, \rx{y}{\cid}\\
+  \genshares(\phi,\rx{w}{\cid}) &\defeq& \phi - \rx{w}{\cid}, \rx{w}{\cid}\\
   \recon(\phi_1,\phi_2) &\defeq& \phi_1 \fplus \phi_2
 \end{eqnarray*}
-where we require that $\genshares$ consumes the randomness
-$\setit{\rx{y}{\cid_2}}$ for use as an OTP. 
+where we require that $\genshares$ consumes the random value
+$\rx{w}{\cid}$ as an OTP. 
 
-This approach highlights an imporant interaction between our type
+This approach highlights an important interaction between our type
 system and SMT entailment as defined by the $\TirName{ShareEntails}$
 rule. In particular there are other methods for encrypting values in MPC
 protocols that can be shown to be algebraically equivalent
 to this fundamental schema. For example, in Yao's Garbled Circuits
 (YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents encrypted wire
-values as a random sample (for 1) or its negation (for 0), and shares
+values as a random sample (for 0) or its negation (for 1), and shares
 its secret input encoding with the ``evaluator'' by using
 it as a selection bit. That is, assuming that client 2 is the garbler and
 client 1 is the evaluator, we can define:
@@ -180,7 +178,10 @@ for the interactive rules.
 
 \subsection{Share Typing Example} To illustrate details of the
 type system we return to the example of additive sharing in the context
-of a 2-client protocol. We first focus on initial secret sharing steps--
+of a 2-client protocol. While the ideal functionality of this simple protocol
+precisely reveals input secrets, it serves as an understandable example
+of the type system mechanics.
+We first focus on initial secret sharing steps--
 let $\prog$ be the following protocol in $\fieldp{2}$ (noting
 that $-$ is equivalent to xor in $\fieldp{2}$):
 $$
@@ -303,7 +304,7 @@ intuitively meaning that all the share types in $\Gamma$ are sound with respect
 to $\prog$, and consumed randomness in $R$ as OTPs for initial sharing.
 This is a representation invariant that we will show is preserved by
 typing, and under closure conditions (Definition \ref{def-sty-closed})
-guarantees confidentiality (Theorem \ref{theorem-OK}).
+the invariant guarantees confidentiality (Theorem \ref{theorem-OK}).
 Property (i) ensures that views do not reveal information about secrets
 consistent with noninterference modulo output.
 Property (ii) ensures a key property of sharing-- that individual shares

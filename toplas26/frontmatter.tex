@@ -1,4 +1,4 @@
-\title{SMT-Boosted Security Types for Low-Level MPC}
+\title{SMT-Boosted Security Types and Correctness for Low-Level MPC}
 
 \author{Christian Skalka}
 \affiliation{%
@@ -31,11 +31,11 @@
 \begin{abstract}
   Secure Multi-Party Computation (MPC) is an important enabling
   technology for data privacy in modern distributed applications. We
-  develop a new type theory to automatically enforce correctness,
-  confidentiality, and integrity properties of protocols written in
-  the \emph{Prelude/Overture} language framework. Judgements in the
-  type theory are predicated on SMT verifications in a theory of
-  finite fields, which supports precise and efficient analysis. Our
-  approach is automated, compositional, scalable, and generalizes to
-  arbitrary prime fields.
+  develop a new Hoare logic and type theory to automatically enforce
+  correctness, confidentiality, and integrity properties of protocols
+  written in the \emph{Prelude/Overture} language framework. Both
+  definition and automation of our analyses leverages SMT verification
+  in a theory of finite fields, supporting precision and
+  efficiency. Our approach is compositional, scalable, and generalizes
+  to arbitrary prime fields and secret sharing schemes.
 \end{abstract} 
