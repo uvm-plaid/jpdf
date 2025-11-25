@@ -255,7 +255,7 @@ to functions $\phi$.
   $
   \mems(\Phi) \defeq \{ \store \mid \dom(\store) = \setit{\ x_{\phi}\ \mid\ \phi \in \Phi\ } \}
   $.
-  Given pmf $\pmf$ and $\Phi$ with $\dom(\pmf) = \bigcup_{\phi \in \Phi} \dom(\phi)$,
+  Given pmf $\pmf$ and $\Phi$ with $\rvs(\pmf) = \bigcup_{\phi \in \Phi} \dom(\phi)$,
   for all $\store \in \mems(\Phi)$ define:
 %$$
 %\pmf(\phi = v) \defeq \sum_{\store \in \mems(X) \ \text{with}\ \store(\phi) = v} \pmf(\store)
@@ -271,7 +271,7 @@ to functions $\phi$.
 
 \begin{definition}
   Given $\pmf$, the \emph{conditional distribution}
-  of $X$ given $\Phi$ where $\bigcup_{\phi \in \Phi} \dom(\phi) \cup X = \dom(\pmf)$ 
+  of $X$ given $\Phi$ where $\bigcup_{\phi \in \Phi} \dom(\phi) \cup X = \rvs(\pmf)$ 
   is denoted $\condd{\pmf}{X}{\Phi}$ and defined as follows: 
   $$
   \forall \store_1 \in \mems(X)\ .\ \forall \store_2 \in \mems(\Phi) \ .\ 

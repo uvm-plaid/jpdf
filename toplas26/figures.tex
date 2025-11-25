@@ -298,7 +298,6 @@ $$
 
 \newcommand{\ipjfig}{
 \begin{fpfig}[t]{Syntax and derivation rules of $\minicat$ integrity types}{fig-ipj}
-\small{
 $$
 \begin{array}{rcl@{\hspace{4mm}}l}
   \latel &::=& \hilab \mid \lolab & \gdesc{integrity labels} \\
@@ -363,13 +362,11 @@ $$
 %                \elab{\assert{\mesg{w\ttt{m}} \eop \mesg{w\ttt{k}} \fplus \ttt{(}\mesg{\ttt{delta}} \ftimes
 %                  \mesg{w\ttt{s}}\ttt{)}}}{\cid}}{\Delta;\mx{w\ttt{s}}{\cid}: \hilab }}
 \end{mathpar}
-}
 \end{fpfig}
 }
 
 \newcommand{\cheatjfig}{
 \begin{fpfig}[t]{Assigning integrity labels to variables}{fig-cheatj}
-\small{
 \begin{mathpar}
   \inferrule
       {}
@@ -383,7 +380,6 @@ $$
       {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in C}
       {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\lolab}}}
 \end{mathpar}
-}
 \end{fpfig}
 }
 

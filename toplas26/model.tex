@@ -36,9 +36,9 @@ memories, so for example $\{ \elab{\secret{x}}{1} \mapsto 0\} \uplus
 \{\elab{\mesg{y}}{2} \mapsto 1 \} = \{ \elab{\secret{x}}{1} \mapsto 0,
 \elab{\mesg{y}}{2} \mapsto 1 \}$.
 \begin{definition}
-  A \emph{probability mass function} $\pmf$ is a function
-  mapping memories in $\mems(X)$ (the \emph{domain} of $\pmf$), to
-  values in $\mathbb{R}$ such that:
+  A \emph{probability mass function} $\pmf$ over variables $X$
+  (where we define $\rvs(\pmf) \defeq X$) is a function
+  with domain $\mems(X)$ and range $\mathbb{R}$ such that:
   $$
   \sum_{\store \in \mems(X)} \pmf(\store) \  = \ 1
   $$
@@ -46,8 +46,8 @@ memories, so for example $\{ \elab{\secret{x}}{1} \mapsto 0\} \uplus
   %of random variables with non-zero probability:
   %$\support(\pmf) \defeq \{ (v_1,\ldots,v_n) \mid
   %\pmf(\{ x_1 \mapsto v_1, \ldots, x_n \mapsto v_n\}) > 0 \} $
-  We write $\rvs(\pmf) = X$ to denote the variables
-  over which $\pmf$ is defined. 
+  %We write $\rvs(\pmf) = X$ to denote the variables
+  %over which $\pmf$ is defined. 
 \end{definition}
 %To recover succinct and familiar notation, we may omit the domain of a
 %distribution when it is clear from an application context-
