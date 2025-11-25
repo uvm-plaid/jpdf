@@ -29,7 +29,7 @@ identifier string. Protocols are sequences of assignment commands of three
 different forms:
 \begin{itemize}
 \item $\eassign{\mesg{w}}{\cid_2}{\be}{\cid_1}$: This
-  is a \emph{message send} where expression $\be$ is computed
+  is a unicast \emph{message send} where expression $\be$ is computed
   by client $\cid_1$ and sent to client $\cid_2$ as message
   $\mesg{w}$.
 \item $\reveal{w}{\be}{\cid}$: This
@@ -236,4 +236,4 @@ ill-defined. That is, we generally assume that for any
 program $\prog$ there exists $\store$
 with $(\store, \prog) \redxs \store$. This rules out
 use of undefined variables and, in the adversarial semantics,
-programs consisting of just a failing $\assert$.
+programs consisting of just a failing $\ttt{assert}$.

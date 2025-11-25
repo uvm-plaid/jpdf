@@ -37,7 +37,7 @@ memories, so for example $\{ \elab{\secret{x}}{1} \mapsto 0\} \uplus
 \elab{\mesg{y}}{2} \mapsto 1 \}$.
 \begin{definition}
   A \emph{probability mass function} $\pmf$ is a function
-  mapping memories in $\mems(X)$ for given variables $X$ to
+  mapping memories in $\mems(X)$ (the \emph{domain} of $\pmf$), to
   values in $\mathbb{R}$ such that:
   $$
   \sum_{\store \in \mems(X)} \pmf(\store) \  = \ 1
@@ -46,6 +46,8 @@ memories, so for example $\{ \elab{\secret{x}}{1} \mapsto 0\} \uplus
   %of random variables with non-zero probability:
   %$\support(\pmf) \defeq \{ (v_1,\ldots,v_n) \mid
   %\pmf(\{ x_1 \mapsto v_1, \ldots, x_n \mapsto v_n\}) > 0 \} $
+  We write $\rvs(\pmf) = X$ to denote the variables
+  over which $\pmf$ is defined. 
 \end{definition}
 %To recover succinct and familiar notation, we may omit the domain of a
 %distribution when it is clear from an application context-
@@ -57,7 +59,7 @@ Now, we can define a notion of marginal and conditional
 distributions as follows, which are standard for discrete
 probability mass functions. 
 \begin{definition}
-  Given $\pmf$ with $\dom(\pmf) = \mems(X_2)$, the \emph{marginal distribution}
+  Given $\pmf$ with $\rvs(\pmf) = X_2$, the \emph{marginal distribution}
   of variables $X_1 \subseteq X_2$ in $\pmf$ is denoted $\margd{\pmf}{X_1}$ and defined as follows:
   $$
   \forall \store \in \mems(X_1) \quad . \quad \margd{\pmf}{X_1}(\store) \defeq
@@ -67,7 +69,7 @@ probability mass functions.
 
 \begin{definition}
   Given $\pmf$, the \emph{conditional distribution}
-  of $X_1$ given $X_2$ where $X_1 \cup X_2 = \dom(\pmf)$ 
+  of $X_1$ given $X_2$ where $X_1 \cup X_2 = \rvs(\pmf)$ 
   is denoted $\condd{\pmf}{X_1}{X_2}$ and defined as follows:
   $$
   \forall \store \in \mems(X_1 \cup X_2)\ .\ 
@@ -86,10 +88,10 @@ pmfs to realizations when their domains don't match.
 %compare marginal distributions under different realization conditions
 %(as in, e.g., Definition \ref{definition-NIMO}), the others are standard.
 \begin{definition}
-  Given $\pmf$ and $\store$ with $\dom(\pmf) \ne \dom(\store)$,
-  $\pmf(\store) \defeq \margd{\pmf}{\dom(\store) \cap \dom(\pmf)}(\store_{\dom(\store) \cap \dom(\pmf)})$.
+  Given $\pmf$ and $\store$ with $\rvs(\pmf) \ne \dom(\store)$,
+  $\pmf(\store) \defeq \margd{\pmf}{\dom(\store) \cap \rvs(\pmf)}(\store_{\dom(\store) \cap \rvs(\pmf)})$.
   %\defeq \margd{\pmf}{\dom(\store)}(\store)$
-  %if $\dom(\store) \subset \dom(\pmf)$, and define $\pmf(\store) \defeq \pmf(\store_{\dom(\pmf)})$ if
+  %if $\dom(\store) \subset \rvs(\pmf)$, and define $\pmf(\store) \defeq \pmf(\store_{\rvs(\pmf)})$ if
   %$\dom(\pmf) \subset \dom(\store)$.
   %and
   %$\store_2 \in \mems(X_2)$ define
