@@ -287,7 +287,10 @@ Now we define what we mean by soundness of $\genshares$. In essence
 we mean perfect secrecy \cite{barthe2019probabilistic} in the context
 of protocols where multiple encodings can occur. These
 conditions are obviously met by, e.g., ``vanilla'' additive or Shamir
-shares which generate shares in uniform marginal distributions.
+shares which generate shares in uniform marginal distributions. Here
+and later we leverage (conditional) probabilistic independence as
+characterized in Definition
+\ref{def-condsep}.
 \begin{definition}
   \label{def-genshares}
   We say that $\genshares$ is \emph{sound} iff given any $\prog$ with
@@ -318,8 +321,8 @@ secure openings, respectively, are included in $R$.
   \begin{eqnarray*}
     %\Phi_a^m & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \\
     %\Phi_a^p & \defeq & \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma}\\
-    \Phi_a & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \cup
-                        \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma} \\% \Phi_a^m \cup \Phi_a^p \\
+    \Phi_b & \defeq & \setit{ \phi_b \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \cup
+                        \setit{ \phi_a \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma} \\% \Phi_a^m \cup \Phi_a^p \\
     \Phi^p & \defeq & \setit{ \recon(\phi_1,\phi_2) \mid (\pubx{\recon(\phi_1,\phi_2)} : \pubty) \in \Gamma}\\
     \Phi^o & \defeq & \setit{ \recon(\phi_1,\phi_2) \mid (\pubx{\recon(\phi_1,\phi_2)} : \outty) \in \Gamma}
   \end{eqnarray*}
@@ -328,14 +331,17 @@ secure openings, respectively, are included in $R$.
   \begin{enumerate}[\hspace{5mm}i.]
   \item For all $a,b \in \setit{1,2}$ we have
     $
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \Phi^o}
-    = 
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup  \Phi_a \cup \Phi^o}
+    \condsep{\progtt(\prog)}{(S_{\setit{b}} \cup \Phi^o)}{\Phi_b}{S_{\setit{a}}}
     $.
-  \item For all $a,b \in \setit{1,2}$ and $([\phi_1,\phi_2] : \sharety) \in \Gamma$ we have:
-    %$\condsep{\progd(\prog)}{\setit{\recon(\phi_i^1,\phi_i^2)}}{\setit{\phi_i^b}}{\recon(\phi_i^1,\phi_i^2)}$
-    $$\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_i^1,\phi_i^2)}} =
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}}  \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_i^1,\phi_i^2), \phi_i^b}}$$
+    %$
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup \Phi^o}
+    %= 
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup  \Phi_a \cup \Phi^o}
+    %$.
+    \item For all $a,b \in \setit{1,2}$ and $([\phi_1,\phi_2] : \sharety) \in \Gamma$ we have:
+    $$\condsep{\progd(\prog)}{(S_{\setit{b}} \cup  \Phi_b \cup \Phi^o \cup \setit{\recon(\phi_i^1,\phi_i^2)})}{\phi_i^a}{S_{\setit{a}}}$$
+    %$$\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_i^1,\phi_i^2)}} =
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}}  \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_i^1,\phi_i^2), \phi_i^b}}$$
   \item $\sep{\progd(\prog)}{(S \cup O)}{\Phi^p}$
   \item  For all $a,b \in \setit{1,2}$ and if
     $([x_1,x_2] : \sharety) \in \Gamma$ with $x_a \in \imesgs{M}{\setit{b}}{\setit{a}}$ then
@@ -414,22 +420,26 @@ verified in typing judgements.
   \begin{eqnarray*}
     %\Phi_a^m & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \\
     %\Phi_a^p & \defeq & \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma}\\
-    \Phi_a & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \cup
-                        \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma} \\% \Phi_a^m \cup \Phi_a^p \\
+    \Phi_b & \defeq & \setit{ \phi_b \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \cup
+                        \setit{ \phi_a \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma} \\% \Phi_a^m \cup \Phi_a^p \\
     \Phi^o & \defeq & \setit{ \recon(\phi_1,\phi_2) \mid (\pubx{\recon(\phi_1,\phi_2)} : \outty) \in \Gamma}
   \end{eqnarray*} 
   and also suppose $\Gamma, \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
   Then for all $a,b \in \setit{1,2}$ with $a \ne b$ the following conditions hold:
     \begin{enumerate}[\hspace{5mm}i.]
     \item
-    $
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \Phi^o}
-    = 
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup  \Phi_a \cup \setit{\phi_a} \cup \Phi^o}
-    $
-  \item 
-    $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2)}} =
-    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}}  \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2), \phi_b}}$
+      $
+      \condsep{\progtt(\prog)}{(S_{\setit{b}} \cup \Phi^o)}{(\Phi_b \cup \setit{\phi_b})}{S_{\setit{a}}}
+      $
+    %$
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup \Phi^o}
+    %= 
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup  \Phi_a \cup \setit{\phi_a} \cup \Phi^o}
+    %$
+    \item
+       $\condsep{\progtt(\prog)}{(S_{\setit{b}} \cup  \Phi_b \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2)})}{\phi_a}{S_{\setit{a}}}$
+    %$\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2)}} =
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}}  \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2), \phi_b}}$
     \end{enumerate}
 \end{lemma}
 \begin{proof}
@@ -499,13 +509,18 @@ our main Theorem \ref{theorem-sty} follows by Lemma \ref{lemma-OK} and Theorem \
   Therefore by Definition \ref{def-OK} (and marginalizing away
   extraneous $(\stt : \sty) \in \Gamma$) we have:
   $$
-  \condd{\progd(\prog)}{S_H}{S_C \cup O} = \condd{\progd(\prog)}{S_H}{S_C \cup \houtputs \cup \Phi^o \cup O}
+  \condsep{\progd(\prog)}{(S_C \cup \Phi^o \cup O)}{\houtputs}{S_H}
   $$
   By definition of $\TirName{Output}$ it is also the case that for all
   $\out{\cid} \in O$ we have $\toeq{\prog} \models o \eop \phi$ for some
-  $\phi \in \Phi^o$. Therefore we have:
+  $\phi \in \Phi^o$. Therefore since we can assume wlog that all revealed
+  values are assigned to outputs, we have
+  $
+  \condsep{\progd(\prog)}{(S_C \cup O)}{\houtputs}{S_H}
+  $,
+  so by definition we have that for all $\store \in \runs(\prog)$: 
   $$
-  \condd{\progd(\prog)}{S_H}{S_C \cup O} = \condd{\progd(\prog)}{S_H}{S_C \cup \houtputs \cup O}
+  \condd{\progd(\prog)}{S_H}{S_C \cup O}(\store) = \condd{\progd(\prog)}{S_H}{S_C \cup \houtputs \cup O}(\store)
   $$
   which is noninterference modulo output by Definition \ref{definition-NIMO}.
 \end{proof}

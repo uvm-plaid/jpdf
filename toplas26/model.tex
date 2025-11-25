@@ -80,14 +80,17 @@ probability mass functions.
   \end{cases}
   $$
 \end{definition}
-We also define some convenient syntactic sugaring for ``implicit
-marginalization'' given a realization.
+We also define some convenient syntactic sugaring for application of
+pmfs to realizations when their domains don't match.
 %The first will allow us to
 %compare marginal distributions under different realization conditions
 %(as in, e.g., Definition \ref{definition-NIMO}), the others are standard.
 \begin{definition}
-  Given $\pmf$ and $X \subseteq \dom(\pmf)$, for all $\store \in \mems(X)$
-  define $\pmf(\store)  \defeq \margd{\pmf}{X}(\store)$.
+  Given $\pmf$ and $\store$ with $\dom(\pmf) \ne \dom(\store)$,
+  $\pmf(\store) \defeq \margd{\pmf}{\dom(\store) \cap \dom(\pmf)}(\store_{\dom(\store) \cap \dom(\pmf)})$.
+  %\defeq \margd{\pmf}{\dom(\store)}(\store)$
+  %if $\dom(\store) \subset \dom(\pmf)$, and define $\pmf(\store) \defeq \pmf(\store_{\dom(\pmf)})$ if
+  %$\dom(\pmf) \subset \dom(\store)$.
   %and
   %$\store_2 \in \mems(X_2)$ define
   %$\pmf(\store_1)  \defeq \margd{\pmf}{X_1}(\store_1)$ 
@@ -101,6 +104,7 @@ As in previous work \cite{darais2019language,barthe2019probabilistic,skalka-near
 probabilistic independence, aka separation, is an important concept and we adopt the
 following standard notation to express conditional and unconditional separation:
 \begin{definition}
+  \label{def-condsep}
 %  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
 %  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
   We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff $\condd{\pmf}{X_2 \cup X_3}{X_1}
@@ -195,10 +199,10 @@ security \cite{skalka-near-ppdp24}.
   \label{definition-NIMO}
   We say that a program $\prog$ with $\iov(\prog) = S \cup V \cup O$
   satisfies \emph{noninterference modulo output}
-  iff for all $H$ and $C$ %and $\store_1 \in \mems(S_C \cup O)$ and $\store_2 \in \mems(\houtputs)$
+  iff for all $H$ and $C$ and $\store \in \runs(\prog)$ 
   we have:
   $$
-  \condd{\progtt(\prog)}{S_H}{S_C \cup O} = \condd{\progtt(\prog)}{S_H}{S_C \cup O \cup \houtputs}
+  \condd{\progtt(\prog)}{S_H}{S_C \cup O}(\store) = \condd{\progtt(\prog)}{S_H}{S_C \cup O \cup \houtputs}(\store)
  $$
 \end{definition}
 This conditional noninterference property implies that
@@ -228,10 +232,11 @@ passive strategy with some choice of inputs or causes an abort.
   \label{def-integrity}
   We say that a protocol $\prog$ with $\iov(\prog) = S \cup V \cup O$ has
   \emph{integrity} iff for all $H$, $C$, and $\adversary$,
-  if $\store \in \aruns(\prog)$ we have:
+  if $\store \in \aruns(\prog)$ there exists $\store' \in \runs(\prog)$ with
+  $\store_{S_H \cup X}' = \store_{S_H \cup X}$ and:
     $$
     \condd{\progtt(\prog,\adversary)}{X}{S_H \cup Y}(\store) =
-    \condd{\progtt(\prog)}{X}{S_H \cup Y}(\store)
+    \condd{\progtt(\prog)}{X}{S_H \cup Y}(\store')
     $$ 
   where $X \defeq (\houtputs \cup O_H) \cap \dom(\store)$ and $Y = \cinputs \cap \dom(\store)$. 
 \end{definition}
