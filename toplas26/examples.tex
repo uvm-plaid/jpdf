@@ -120,7 +120,7 @@ are both established by $\ttt{secopen}$, and
 $\ttt{m[y]@i}$, $\ttt{m[z++"a"]@i}$, and $\ttt{m[z++"c"]@i}$ are
 all declared to be shares in preconditions, we have that each
 of the shared computations $\ttt{(m[z++"d"] * m[y])@i}$ and $\ttt{(-m[z++"e"] * m[z++"a"])@i}$
-are shares, so the gate outputs are shares, and this will
+are shares, so the gate outputs, which are then sums of shares, are shares, and this will
 be successfully checked by syntax-directed $\Vdash$ type checking that
 results from the declaration $\ttt{[m[z]@i1,m[z]@i2]\,:\,shares}$. 
 
