@@ -138,7 +138,7 @@ and conditioned to quantify input/output information dependencies.
   $$
   For any $\adversary$ the basic \emph{$\adversary$ distribution of $\prog$}, written
   $\progtt(\prog,\adversary)$, is
-  defined such that for all $\store \in \mems(\iov(\prog) \cup R)$:
+  defined such that for all $\store \in \mems(\vars(\prog))$:
   $$
   \progtt(\prog,\adversary)(\store) =  1 / |\botruns(\prog)| \ \text{if}\ \store \in \botruns(\prog), \text{otherwise}\ 0
   $$
@@ -147,7 +147,7 @@ and conditioned to quantify input/output information dependencies.
   \begin{array}{c}
     \botruns(\prog)\ \defeq\ % \\
     \{ \store\{ x_1 \mapsto \bot, \ldots, x_n \mapsto \bot \} \mid 
-    \store \in \aruns(\prog) \wedge \{ x_1,\ldots,x_n\} = (V \cup O) - \dom(\store) \}
+    \store \in \aruns(\prog) \wedge \{ x_1,\ldots,x_n\} = \iov(\prog) - \dom(\store) \}
   \end{array}
   $$
 \end{definition}
