@@ -88,8 +88,8 @@ pmfs to realizations when their domains don't match.
 %compare marginal distributions under different realization conditions
 %(as in, e.g., Definition \ref{definition-NIMO}), the others are standard.
 \begin{definition}
-  Given $\pmf$ and $\store$ with $\rvs(\pmf) \ne \dom(\store)$,
-  $\pmf(\store) \defeq \margd{\pmf}{\dom(\store) \cap \rvs(\pmf)}(\store_{\dom(\store) \cap \rvs(\pmf)})$.
+  Given $\pmf$ and $\store$ with $\rvs(\pmf) \subseteq \dom(\store)$,
+  $\pmf(\store) \defeq \pmf(\store_{\rvs(\pmf)})$.
   %\defeq \margd{\pmf}{\dom(\store)}(\store)$
   %if $\dom(\store) \subset \rvs(\pmf)$, and define $\pmf(\store) \defeq \pmf(\store_{\rvs(\pmf)})$ if
   %$\dom(\pmf) \subset \dom(\store)$.
@@ -109,8 +109,9 @@ following standard notation to express conditional and unconditional separation:
   \label{def-condsep}
 %  We write $\vc{\pmf}{x}{y}$ iff $\pmf(\{ x \mapsto 0\}\ |\ \{ y \mapsto 0 \}) =
 %  \pmf(\{ x \mapsto 1\}\ |\ \{ y \mapsto 1 \}) = 1$.
-  We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff $\condd{\pmf}{X_2 \cup X_3}{X_1}
-  = \condd{\pmf}{X_2}{X_1} * \condd{\pmf}{X_3}{X_1}$. If $X_1$ is empty
+  We write $\condsep{\pmf}{X_1}{X_2}{X_3}$ iff for all $\store \in \mems(X_1 \cup X_2 \cup X_2)$
+  we have $\condd{\pmf}{X_2 \cup X_3}{X_1}(\store)
+  = \condd{\pmf}{X_2}{X_1}(\store) * \condd{\pmf}{X_3}{X_1}(\store)$. If $X_1$ is empty
   we write $\sep{\pmf}{X_2}{X_3}$.
 \end{definition}
 
