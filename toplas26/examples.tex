@@ -1,4 +1,4 @@
-\section{Extended Examples}
+\section{Implementation and Extended Examples}
 \label{section-examples}
 
 \preludetestfig
@@ -23,22 +23,38 @@ properties supported by BDOZ/SPDZ style MACs
 \cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3} (Figure
 \ref{fig-beaver-bdoz}).
 
-\paragraph{Implementation and Evaluation}
+\subsection{Evaluation}
 We have implemented the $\metaprot$ language and automated Hoare logic
 using an Antlr parser and Scala backend with cvc5 Java bindings for
-interaction with the Satisfiability Modulo Fields theory.  To evaluate
-performance, we have written and verified gate libraries and small
-circuits using the GMW protocol for binary circuits as excerpted in
+interaction with proof engines.  To evaluate
+performance, we have written and verified gate libraries
+using the GMW protocol for binary circuits as excerpted in
 Figure \ref{fig-gmwprepost} in Section \ref{section-metalang}, and for
 passive and malicious secure arithmetic circuits using Beaver Triple
 multiplication as presented in Figures \ref{fig-beaver} and
 \ref{fig-beaver-bdoz} in this Section.  We have considered field sizes
 typically used to encode binary, 16 bit, 32 bit, and 64 bit
-integers. Results are presented in Figure \ref{fig-preludetest}. In
-summary, verification is efficient, largely due to the performance of
-underlying cvc5 verification, with categorically better performance
-than can be achieved using previous brute-force methods developed in
-$\fieldp{2}$ \cite{skalka-near-ppdp24}.
+integers.
+
+In addition to libraries, we have verified 2, 8, and 64-bit vector
+zero-test GMW circuits containing 3, 15, and 127 gates respectively,
+based on ``Bristol Fashion'' circuits \cite{bristol}. By verified, we
+mean automated verification of the zero-test specification expressed
+as a \ttt{postcondition}. We considered both the cvc5 Bit-Vector and
+Satisfiability Modulo Finite Fields (SMFF) theories as proof engines
+for these binary circuits.
+
+Results are presented in Figure \ref{fig-preludetest}. We found that
+verification of library components was efficient even up to large
+field sizes. Verification of the zero-test circuits revealed a clear
+performance advantage for the Bit-Vector theory, which verified
+the 64-bit zero test in GMW in less than 7 seconds. In contrast,
+it took several minutes to verify even the small 2-bit zero-test
+circuit in SMFF, and larger circuits took too long to consider
+for a practical evaluation. In all cases, the SMT-based approach
+supported categorically better performance
+than can be achieved using previous brute-force methods developed for
+$\fieldp{2}$ and binary circuits \cite{skalka-near-ppdp24}.
 
 \subsection{Arithmetic Circuits with Beaver Triples}
 \label{section-beaver}
