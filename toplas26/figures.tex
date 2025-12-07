@@ -31,7 +31,7 @@
 \begin{fpfig}[t]{Syntax of $\minicat$}{fig-minicat-syntax}
 $$
     \begin{array}{rcl@{\hspace{4mm}}r}
-      \multicolumn{4}{l}{v \in \mathbb{F}_p,\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
+      \multicolumn{4}{l}{v \in \fieldp{p},\ w \in \mathrm{String},\ \cid \in \mathrm{Clients} }\\[2mm] %, \bop \in \{ \eand, \eor, \exor \}} \\[2mm]
       \be &::=& v \mid \flip{w} \mid \secret{w} \mid \mesg{w} \mid \rvl{w} \mid \be \fminus \be \mid \be \fplus \be \mid \be \ftimes \be \mid \OT{\be}{\cid}{\be}{\be} & \textit{expressions}\\[1mm]
       x &::=& \elab{\flip{w}}{\cid} \mid \elab{\secret{w}}{\cid} \mid \elab{\mesg{w}}{\cid} \mid  \rvl{w} \mid \out{\cid} & \textit{variables} \\[1mm]
       \prog &::=& \eassign{\mesg{w}}{\cid}{\be}{\cid} \mid \reveal{w}{\be}{\cid} \mid \pubout{\cid}{\be}{\cid} \mid \prog;\prog \mid \pskip & \textit{protocols}
@@ -848,12 +848,16 @@ $$
 \newcommand{\preludetestfig}{
 \begin{fpfig}[t]{Verification time for $\metaprot$ binary and arithmetic circuit libraries and small circuits, in seconds.}{fig-preludetest}
 \begin{center}
-\begin{tabular}{r|c|c|c|c}
-   \textit{field size:} & 2 & $2^{17} - 1$ &  $2^{31} - 1$ &  $2^{61} - 1$ \\
+\begin{tabular}{r|c|c|c|c|c}
+  \textit{SMT theory} & Bit-Vecor & SMFF $\fieldp{2}$ & SMFF $\fieldp{2^{17} - 1}$ &  SMFF $\fieldp{2^{31} - 1}$ &
+      SMFF $\fieldp{2^{61} - 1}$ \\
   \hline
-  \text{GMW} & .377 & N/A & N/A & N/A \\
-  \text{Passive Beaver} & .476 & .48 & .466 & .644 \\
-  \text{Malicious Beaver (BDOZ)} & .464 & .528 & .641 & .653  
+  \text{Passive Beaver Library} & N/A & .476 & .48 & .466 & .644 \\
+  \text{Malicious Beaver (BDOZ) Library} & N/A & .464 & .528 & .641 & .653\\
+  \text{GMW Library} & N/A & .377 & N/A & N/A & N/A \\
+  \text{2-Bit Zero Test} & .927 & 363.01 & N/A & N/A & N/A \\
+  \text{8-Bit Zero Test} & 1.053 & Unknown & N/A & N/A & N/A \\
+  \text{64-Bit Zero Test} & 6.501 & Unknown & N/A & N/A & N/A 
 \end{tabular}
 \end{center}
 \end{fpfig}
