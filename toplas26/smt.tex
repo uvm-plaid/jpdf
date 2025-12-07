@@ -6,14 +6,14 @@ $\mathbb{F}_2$ can be implemented with Datalog
 \cite{skalka-near-ppdp24}, which is a form of constraint
 programming. In this paper we extend this idea to arbitrary prime
 fields by using a more general form of SMT constraint programming,
-Satisfiability Modulo Finite Fields \cite{SMFF}. As we will show in
-subsequent sections, this interpretation supports automated
+Satisfiability Modulo Finite Fields \cite{SMFF}. As we will
+show in subsequent sections, this interpretation supports automated
 enforcement of correctness guarantees, and also static type analyses
-for enforcing confidentiality and integrity properties.
-In this section we formulate a Hoare Logic for $\minicat$
-as a foundation for protocol verification.
+for enforcing confidentiality and integrity properties.  In this
+section we formulate a Hoare Logic for $\minicat$ as a foundation for
+protocol verification.
 
-\subsection{Constraint Satisfiability Modulo Finite Fields}
+\subsection{Constraint Satisfiability and Entailment}
 
 We introduce the following syntax of SMT-style constraints for
 $\minicat$:
@@ -55,11 +55,12 @@ express properties of shared values via constraints.
 %\end{fpfig}
 
 This language of constraints has an obvious direct interpretation in
-Satisfiability Modulo Finite Fields \cite{SMFF}. We can leverage this
-to implement a critical \emph{entailment} property, written $\eqs_1
-\models \eqs_2$.  Our entailment relation is based on satisfiability
-in a standard sense, where we represent models as memories $\store$
-(mappings from variables to values).
+SMT, in particular the cvc5 Bit-Vector theory in the case of $\fieldp{2}$ and
+Satisfiability Modulo Finite Fields \cite{SMFF} more generally. We can
+leverage this to implement a critical \emph{entailment} property,
+written $\eqs_1 \models \eqs_2$.  Our entailment relation is based on
+satisfiability in a standard sense, where we represent models as
+memories $\store$ (mappings from variables to values).
 \begin{definition}
   We write $\store \models \eqs$ iff $\store$ satisfies, aka is a model
   of, $\eqs$. We write $\eqs_1 \models

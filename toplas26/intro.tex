@@ -86,20 +86,23 @@ compositional Hoare logics presented in Sections 4 and 7, adds the
 share type system presented in Section 5 that enforces a stronger
 security property than the type system in~\cite{skalka-near-esop25},
 and fully develops the compositional type-based verification approach
-in Section 8. In addition, we develop an implementation capable of
+in Section 8. In addition, we develop an algorithm capable of
 automating the verification of examples given in the prior work, and
 our extensions in this work additionally enable the type-based
 verification of noninterference modulo output for more complex secret
 sharing protocols,e.g., that leverage Beaver triples (see
 Section~\ref{section-examples}).
 
-In all cases, our type systems are boosted by verification mechanisms
-provided by Satisfiability Modulo Finite Fields \cite{SMFF}. In
-Section \ref{section-examples} we develop and discuss extended example
-applications of our type analyses to real protocols including
-the Goldreich-Micali-Wigderson (GMW), Ben-Or-Goldwasser-Widgerson (BGW),
-and Bendlin-Damgard-Orland-Zakarias (BDOZ), and report related
-performance metrics.
+In Section \ref{section-examples} we develop and discuss extended
+example applications of our type analyses to real protocols including
+the Goldreich-Micali-Wigderson (GMW), Ben-Or-Goldwasser-Widgerson
+(BGW), and Bendlin-Damgard-Orland-Zakarias (BDOZ). We also summarize
+our implementation of the $\metaprot$ Hoare logic and evaluate
+verification of both binary and arithmetic gate and circuit
+properties. Our implementation integrates with cvc5 SMT to support
+efficient verification, including Satisfiability Modulo Finite Fields
+(SMFF) \cite{SMFF} for binary and arithmetic circuits, and the
+Bit-Vector theory for binary circuits.
 
 \subsection{Related Work}
 \label{section-related-work}
