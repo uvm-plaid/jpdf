@@ -1,6 +1,8 @@
 \section{$\metaprot$ Type Checking}
 \label{sec:metapr-type-check}
 
+\stafig
+
 Now we develop a compositional type system for $\metaprot$ based on 
 $\minicat$ typing and the automated Hoare logic developed in
 Section \ref{section-metalang}. We focus on share types for confidentiality
@@ -31,7 +33,7 @@ directed subset of noninteractive share typing as follows:
   use of \TirName{ShareEntails} and \TirName{PubEntails}.
 \end{definition}
 
-\stafig
+\shtripstafig
 
 The syntax of type annotations $\sta$ is defined in Figure
 \ref{fig-sta}, which we extend the language of commands $\cmd$ to
@@ -57,8 +59,6 @@ of SMT equivalences induced either by the program or by annotation.
   where $\xdefs : \phi \rightarrow \phi$ are called
   \emph{definitions}.
 \end{definition}
-
-\shtripstafig
 
 All typing judgements are dependent on closed expressions $e$ which we
 equate up to evaluation. Since the semantics of expressions is total,
