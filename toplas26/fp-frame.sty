@@ -51,8 +51,13 @@
     \gdef\fpcaption{#2}% Save the second argument (the caption) for later.
     \gdef\fplabel{#3}%   Save the third argument (the label) as well.
     %\begin{fpframe}
+    \setbox0=\vbox\bgroup
+    \advance\hsize by -2\fboxsep
+    \advance\hsize by -2\fboxrule
+    \linewidth\hsize
   }
   {%
+    \egroup\noindent\framebox[\columnwidth]{\box0}
     %\end{fpframe}
     \ifx\fpcaption\empty
     \else
