@@ -51,7 +51,7 @@ as either shares or public values in order for the protocol to be well-typed.
 
 In addition to the interactive rules, we have rules for local computation.
 Again, these are all modulo equivalence of vectors under $\eqs$. These rules
-allow standard homorphic encryption operations, and in particular ensure
+allow standard homomorphic encryption operations, and in particular ensure
 that all openings are secure in a NIMO sense. These can be combined with
 the Hoare logic to obtain a precise bound on information release, e.g.,
 that outputs are secure openings of the ideal functionality.
@@ -551,7 +551,7 @@ The remaining rules are as follows, with the rule for application
 being the most interesting as usual. Since we allow dependent
 generalization in function types, as in previous work (and as in the
 Hoare logic) we equate expressions up to the result of their
-evaluation. To make rules a little more succint we define ``evaluating
+evaluation. To make rules a little more succinct we define ``evaluating
 substitution'' $\redxsub(\notg{R}),\redxsub(\notg{\Gamma})$ to also
 impose evaluation \cnote{probably should do this for $\peq$ as
   well}. I.e., given $\redxsub = [e_1/y_1 \cdots e_n/y_n]$:
@@ -577,7 +577,7 @@ and so on.:
 The \TirName{App} rule relies on function typings, which are a dependent type form
 $\Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R},\notg{\Gamma_2})$ where
 $y_1,\ldots,y_n$ are the expression parameters, $\notg{\Gamma_1}$ is the
-generalized typing precondition, and $(\notg{R},\notg{\Gamma_2})$ is the generalized
+generalized typing precondition, and $(\notg{R},\notg{\Gamma_2})$ are the generalized
 typing postconditions including any randomness consumed by OTP encryption.
 Function typings are computed as follows (compositionally):
 $$
