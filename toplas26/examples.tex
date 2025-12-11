@@ -1,8 +1,6 @@
 \section{Implementation and Extended Examples}
 \label{section-examples}
 
-\preludetestfig
-
 In Section \ref{section-smt} we gave the example of 3-party additive
 sharing for any field $\fieldp{p}$, in Section \ref{section-sty} we
 discussed the example of YGC input encoding, and in Sections
@@ -24,6 +22,7 @@ properties supported by BDOZ/SPDZ style MACs
 \ref{fig-beaver-bdoz}).
 
 \subsection{Evaluation}
+
 We have implemented the $\metaprot$ language and automated Hoare logic
 using an Antlr parser and Scala backend with cvc5 Java bindings for
 interaction with proof engines.  To evaluate performance, we have
@@ -39,6 +38,8 @@ components was efficient even up to large field sizes. Since typing is
 compositional (see, e.g., Figure \ref{fig-beaver-types}), verification
 of gate properties relevant to \emph{security} will scale to larger
 circuits.
+
+\preludetestfig
 
 Circuit \emph{correctness} also benefits from compositional
 verification-- for example, the correctness of a GMW ``and'' gate (as
