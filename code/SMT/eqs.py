@@ -1,7 +1,7 @@
 ## NOTE for chris, to get cvc5 pythonic api and finite fields theory: 
 ##
-## source /Users/ceskalka/csl/cvc5/build/venv-3.13.0/bin/activate
-## export PYTHONPATH="/Users/ceskalka/csl/cvc5/build/src/api/python:/opt/homebrew/anaconda3/bin"
+## run smtenv in terminal (zsh function for venv activation). 
+## MAY NOT NEED TO DO THIS ANYMORE?: export PYTHONPATH="/Users/ceskalka/csl/cvc5/build/src/api/python:/opt/homebrew/anaconda3/bin"
 ## 
 
 from cvc5.pythonic import *
