@@ -1,0 +1,357 @@
+> Recommendation #1: Major Revision
+> 
+> Associate Editor
+> Comments for Author:
+> Thank you for submitting this work to TOPLAS.  Based on the reviews the paper is suitable for TOPLAS and in particular there is sufficient addition relative to the conference version.  However the reviews identify several weaknesses which should be addressed in a revised version.  We would like to see the following:
+> (1) more detailed comparison with the ESOP version;
+> (2) more substantial discussion of related work;
+> (3) improved motivation and connections in technical presentation;
+> (4) more clear evaluation criteria and findings with respect to the goals of efficiency and compositionality;
+> (5) at least baseline performance comparison with [29] and preferably with another competing tool such as cryptol/SAW.  
+> 
+> The reviews provide many detailed comments and suggestions which of course should be taken into consideration.
+> 
+> - - - - - - - - - -
+> 
+> From the reviewers:
+> 
+> Referee: 1
+> 
+> Comments to the Author
+> The article presents work on domain-specific language family for
+> proving security-relevant hyperproperties -- specifically, real/ideal
+> relationships for establishing secure multi-party computation.  The
+> base language, Overture, is a small sequential language for describing
+> cryptographic protocols, with explicit syntax for describing which
+> participant ("client") executes a computation or accesses state.
+> Computations are here over general finite fields, in contrast to
+> previous work that only considered the field F_2.
+> 
+> Extending work presented in the ESOP paper, the present article
+> contributes a Hoare logic for Overture that not only applies to
+> general fields but is compositional as functions are given explicit
+> specifications; in fact the existence of a frame rule also provides an
+> aspect of (client-)local reasoning. The logic is rather
+> straightforward, resting on the fact that assertions can directly
+> reflect the code and on conventions like the one that disallows
+> assigning to variables repeatedly.  Then, a type system is presented
+> which supports reasoning about cryptographic shares, by introducing
+> types that model visibility aspects ("public") and terms model
+> operations on shares (splitting, reconstruction, ..). Complementing
+> this confidentiality-based type system, a taint analysis is then
+> presented for addressing integrity.
+> 
+> To facilitate more abstract protocol modeling, an extension of
+> Overture, Prelude is defined, with a logic and type systems that arise
+> by lifting the earlier formalisms. Example derivations illustrate the
+> capabilities and lead up to an evaluation on actual MPC protocols,
+> with experimental results.
+> 
+> Strengths:
+> -------------
+> 
+> - facilitates automatic verification of multiple security properties
+>  under different attacker models in a uniform language-based
+>  perspective
+> 
+> - the development appears technically solid, and is clearly described
+> 
+> - the theoretical work on designing the reasoning formalisms is
+>  underpinned with a practical implementation, and concrete examples.
+> 
+> Weaknesses/limitations:
+> --------------------------------
+> 
+> - the article could be more explicit in describing any insight that
+>  allows the authors to move from F_2 to general fields; at present,
+>  it seems this is only due to improved SMT libraries.
+> 
+> - the differences the ESOP paper appears more substantial than is
+>  typically the case, but this is mostly discussed in the
+>  introduction; more specific comparisons in the technical parts would
+>  have been appreciated
+> 
+> - the discussion of related work appears cursory; future work is not discussed
+> 
+> - a limitation of the present language appears to be that clients
+> appear to be effectively hard-coded, preventing protocols that are
+> defined over an unbounded (or unknown) number of participants.
+> 
+> Overall, the article presents technically sound work. Once the points
+> below are addressed and discussions of limitations/future work
+> etc. are provided, I recommend that it be accepted.
+> 
+> 
+> Specific comments:
+> ============
+> 
+> Avoid using citations as nouns throughout the article. In conference
+> submissions, space limitations make this acceptable but journal
+> articles don't have this constraint.
+
+TRY TO TODO
+ 
+> Section 1.2:
+> ---------------
+> 
+> The discussion w.r.t. the citations other than [29] and [30] is a
+> little bit thin, not going beyond one or two brief points; for
+> example, knowing a little more about, e.g. ,the various notions of
+> security that label the columns of Fig. 1 would strengthen a reader's
+> appreciation for the present work (I'm not asking for seeing formal
+> definitions here!)
+
+TODO
+
+> 
+> Page 3, lines 27 - 30: although you described the differences between the
+> present article and [30] on the previous page, the connection to Fig. 1
+> isn't clear here, since [30] does not occur as a row in the table.
+
+TODO
+
+> Page 3, line 43: Motivation for "And" is not clear here.
+> 
+> Section 2
+> ------------
+> 
+> Page 4, line 32: explain in what sense the protocols are 'synchronous', and
+> where that is reflected in the language.
+> 
+> Fig 2: Formally, the category of variables (x) is dead, although the
+> text suggest that the are left-hand sides of assignments; refactoring
+> the grammar a little bit would make things more clear.
+> 
+> Only the last paragraph of Section 2.2 discusses OT but it's not clear
+> why no rule modeling the semantics described is included in Fig 3.
+> Also, in the caption of the figure, what do 'T' and 'B' denote?
+> 
+> Fig 4: in the rule for rewrite, \sigma_C occurs free-- maybe you just
+> mean rewrite_A(\sigma, \varepsilon). Also, the rules for adversarial
+> semantics of programs now include explicit failure configurations \bot,
+> reached when assertions at honest clients) fail. What's the motivation
+> for explicitly modeling such failure / partiality here but not in Fig
+> 3, where execution can also fail; for example, when r[w]@\iota \not
+> \in \dom \sigma holds, [| \sigma, r[w]+s[w] |]_\iota fails to
+> evaluate, and I'd assume this would be propagated through the
+> evaluation of programs \pi in just the same way as in Fig 4.
+> 
+> [Update: the comments at the end of Section 2 is relevant to my
+> previous point; consider moving some of them up to 2.2 etc.
+> 
+> 'store' and 'memory' seem to be used synonymously; better stick
+> with one word.
+> 
+> Section 3
+> ------------
+> 
+> Page 7, lines 40/41 : are the hyperproperty notions you focus on not
+> only sound but also complete w.r.t. the corresponding traditional MPC
+> security notions? If not, is there an instructive counterexample?
+> 
+> Page 8, line 5: what's the English word for rvs? - it wasn't introduced
+> before. What's the point in defining rvs(P) := X here? Maybe rvs(P)
+> the random variables mentioned in P (i.e the variables mapped to
+> nonzero probabilities by P), i.e something like a 'support'?
+> 
+> Section5
+> -----------
+> 
+> Page 12, line 41: maybe replace r[x]@w by r[x]@\iota
+> 
+> Page 17, line 26: in the typing judgment, [ \phi^1, \phi^2 ] should
+> read [ \phi_1, \phi_2], cf the judgment in line 22.
+> 
+> Section 6
+> ------------
+> 
+> Page 18 line 34: explain the "...and k_\Delta at the end of the
+> sentence.
+> 
+> Page 18, line 51: maybe it's possible to avoid the clash between the
+> use of \Delta in the typing judgment with its use in k_\Delta in line
+> 34?
+> 
+> Page 19, Figure 10, middle rule: what does index 2 mean in \L_2 in the conclusion?
+> 
+> Page 20, line31: the text refers to an appendix of the conference
+> paper (citation [30]) that the present submission extends, but the
+> conference paper as published by Springer does not have a technical
+> appendix. Maybe there's yest another version of the work (a technical
+> report etc.)? Why not include the appendix also in this submission, to
+> make the journal paper self-contained?
+> 
+> Section 7
+> ------------
+> 
+> Page 21, lines 39/40: it is said here that individual functions must
+> not be recursive. I don't see a condition ruling out mutually
+> recursive function definitions but suspect this is also forbidden. If
+> so, I'm not sure that explicit type annotations for function arguments
+> (as e.g. in rule FN in Fig 16) are needed (Church vs Curry-style) ; my
+> intuition would be that complete type inference might be possible. Can
+> you explain why that's not the case?
+> 
+> Page 22, Fig 14: the last element of grammar for abstract constraints
+>  should be \not \u{E} rather than \not E. Also, what's the
+>  motivation for including the rule E \Rightarrow E (last rule of the
+>  figure)?
+> 
+> Page 25, line 5: continuing my question regarding Church vs Curry
+> typing of functions, I suspect that if you indeed need type-annotated
+> formal parameters, the substitutions v_i/y_i here should be restricted
+> to so hat v_i : \tau_i. Without this condition, asking for existence
+> of the E1, E2 with the conditions given seems too strong.
+> 
+> Page 26, Fig 17: the rule for \theta: \zeta \Rightarrow skip should
+> probably have \u{\theta}:\zeta in the conclusion.
+> 
+> Page 20, lines 16 - 20: it seems that there is no formal theorem yet
+> that establishes noninterference modulo output . Is this difficult? Is
+> this future work?
+> 
+> Section 9
+> ------------
+> 
+> Page 31, line 18: I suggest including verification timings for the
+> brute-force techniques in Fig 21 if possible.
+> 
+> It would also be instructive to see how e.g Beaver Triple
+> multiplication would be modeled and verified in e.g. Cryptol - if such
+> a comparison works out nicely, it could also be a motivation that can
+> be mentioned in the introduction.
+> 
+> Section 10
+> -------------
+> 
+> A section on future work -- language extensions, applications to other
+> (styles of?) protocols, improving the typechecking performance,... --
+> would be appropriate for a journal paper.
+> 
+> Is the implementation publicly accessible, perhaps in a way that
+> allows the reader to rerun the performance experiments or at least try
+> out some examples?
+> 
+> 
+> Bibliography
+> -----------------
+> Page 35: Citation [1] is incomplete (no authors)
+> 
+> 
+> Referee: 2
+> 
+> Comments to the Author
+> Summary:
+> 
+> The paper presents a framework for compositionally verifying security properties of MPC protocols written in the Prelude/Overture language. As suggested by the title, the key technique is an integration of constraint predicates into the security typing rules, which allows the actual implementation to use SMT solving. Compared to the conference version of this work, the main advancement is a Share type system that allows more nuanced confidentiality analysis of secret sharing protocols.
+> 
+> --------------
+> Overall Thoughts:
+> 
+> Generally speaking, I think the technical contributions are worth accepting, but the presentation is rough. The submission does not stand on its own, with many references to things being explained in [29], [30], or just being "standard" and needing no explanation. This is despite the framework being quite complex with many pieces (Overture syntax and semantics, adversarial semantics, Overture SMT-based Hoare logic, Overture Hoare logic, share types, integrity types. Rinse and repeat for Prelude syntax and semantics, abstract Hoare logic, share type checking), where often it's not quite clear how the pieces fit together to build up to the desired goal. It sometimes reads like a long appendix or tech report, with some sections being a series of the definitions stitched together, and the typing and Hoare logic rules seldomly being fully explained.
+> 
+> ---------------
+> More Detailed Comments:
+> 
+> First, a few technical comments:
+> 1. Since the final Prelude type checking does require (or at least strongly benefits from) non-trivial annotations, I would like to see a clearer explanation of the goals of the end framework wrt. automation and programmer involvement, and a clearer description and evaluation of programmer effort compared to related work.
+> 
+> 2. Being able to implement automated verification is one of the contributions of this work, but I found the evaluation lacking, without clear methodology (e.g., what machine were the experiments run on?), or detailed results. It would be difficult for a researcher to reproduce. Moreover, there is no real ``stress-testing'' or ablation studies of the tool. Given that an aim of the work is compositionality, how does the framework scale? Where does performance start to break down?
+> 
+> 3. Furthermore, the emergence of Satisfiability Modulo Finite Fields is one of the stated motivations, but then the evaluation showed that SMFF did not perform well comparatively to bit-vector based theory. It would be interesting to see more discussion of results.
+> 
+> Beyond enriching the evaluation, I thought the biggest weakness of the paper was presentation, since it generally lacked a) motivation for why all the framework components were needed and how they fit together, and b) self-sufficient explanations of needed background, definitions, and judgments. Here are some more specific suggestions that may help improve the presentation.
+> 
+> 1. The paper would strongly benefit from a key ideas section that puts together the main components of both the Overture half of the paper and the Prelude half of the paper, building mental scaffolding for all the technical sections, which otherwise feel disjointed (especially the switch to Prelude).
+
+TODO: graphic?
+
+> 2. Providing more background up-front on finite fields, semi-homomorphic encryption, and MPC and then discussing how the target domain informs language design decisions would make this work accessible to a much broader audience. Right now these ideas appear here and there throughout the text but are not teased out. Compared to the ESOP paper, I found this version harder to read, in part because the Share Types (while interesting!) are much more tightly coupled to semi-homomorphic encryption concepts. This is not a weakness, but it would make the paper benefit from a gentler on ramp.
+> 
+> 3. Figures and examples could be better used. Especially in the Prelude section and the implementation, there is a tendency to give an example, but not really to work through it (e.g., Fig. 15). As well, when the figures just have plain code, it is hard to see the annotations, etc. Consider using highlighting or color coding to make it easier to follow.
+
+TODO: graphic?
+
+> ----
+> Small nits or typos:
+> 
+> Page 5, line 13. In the caption of Fig. 3, there's enough space to just say Top and Bottom instead of T and B.
+> 
+> Page 10, line 16/17. Unnecessary comma after guarantees
+> 
+> Page 11, line 25. Missing 'of' after sums.
+> Page 11, line 43. "To reasoning" instead of "To reason"
+> 
+> Page 12, line 41 onwards. First sentence about genshares says it takes in a randomness r[x]@w, but the rest of the explanation uses r[w]@i.
+> 
+> Referee: 3
+> 
+> Comments to the Author
+> Summary
+> ------------
+> This paper presents a framework for automated verification of low-level MPC protocols by combining: a low-level protocol language (Overture), a higher-level specification language (Prelude), SMT-based Hoare logic, and type systems for confidentiality and integrity.
+> 
+> Overture provides a formal model of MPC protocols with probabilistic and adversarial semantics.
+> Prelude is a high-level programming and verification layer built on top of Overture for specifying MPC computations. It supports compositional reasoning via a Hoare logic and integrates with SMT-backed verification to ensure correctness and security properties. The key goal is to bridge the gap between high-level program specifications, and
+> low-level cryptographic protocols
+> 
+> Strengths
+> ------------
+> 
+> + A major strength is the clean separation between Prelude and Overture: Prelude expresses what to compute whereas Overture expresses how to compute securely.
+> 
+> + Prelude introduces a Hoare logic for high-level MPC programs
+> 
+> + The integration of Prelude with SMT-based constraint reasoning through Overture
+> 
+> + A key strength is that the system decomposes verification into orthogonal layers: correctness layer using Prelude Hoare logic, confidentiality layer using share types, integrity layer using integrity types and assertions; and hyperproperties. Together, imply security.
+> 
+> Weaknesses
+> -----------------
+> - I find it hard to see the end-to-end verification pipeline. It helps to have an overview section of what's happening at the high-level.
+> 
+> - I am also confused on the delta over [29] and [30]. Section 1.1 talks about the diff w.r.t [29] and [30] separately. Are share types completely new to this version? I think they are also introduced in [30]. It helps to present what is completely novel in this work. My interpretation is that Hoare logic is the new addition as well as the verification algorithm in Section 8.
+> 
+> - A major weakness is the evaluation given the paper focus on automation. There is no baseline comparison---at the very least, there should be  with Overture [29]. Evaluation with Cryptol/SAW will be helpful to understand the scope of automation.
+
+TODO????
+
+> - Another weakness is the lack of the performance discussion on MPC systems. Also, the evaluation seems very limited in scope (focuses on correctness) in terms of performance or scalability. Particularly, Fig.21 seems unsatisfying. I agree that the contribution focuses on SMT-based automation but not scalability, however, evaluation focusing on performance issues will help us understand the positioning of the work.
+> 
+> - The treatment of OT seems incomplete. I don't understand why it is not included in the semantics.
+
+TODO
+
+> - (Section 5) While share types seems nice, it is not clear how expressive they are. A discussion will help.
+> 
+> - The role of Prelude semantics in the overall framework is less clear. In particular, the connection between Prelude semantics and the underlying Overture execution model is not fully explicit, and most reasoning proceeds via Hoare logic and SMT encodings rather than direct semantic arguments. Clarifying this relationship and providing additional semantic examples would strengthen the presentation.
+
+TODO: I don't undestand this.
+
+> 
+> Detailed Comments w.r.t prior work sections
+> -----------------------------------------------------------
+> 
+> - Figure 2: What exactly is the role of w? Line 45 says it is a distinguishing identifier string but the intuition is not clear. What is the relation between x and w?
+> 
+> - What does assert(rewrite_A(\sigma_C, e_1) == rewrite_A(\sigma_C, e_2)) evaluate to? The adversarial semantics in Fig.4 seem incomplete since they do not explain what happens in the above case.
+> 
+> - What is the intuition for A-distribution? It appears that it is used to pad variables so that the runs can be compared (memory) point-wise.
+> 
+> - What are some examples of prepoc in Definition 2.4?
+> 
+> - Definition 3.3 requires more description. Specifically, what does P_X2(σ_X2) = 0 mean?
+> 
+> - I am confused with Definition 3.8. There should be more explanation on the conditional distribution in the context of noninterference. First, what does S_C mean? secrets owned by corrupted parties? Why would that be the case? Also, what does the set S_C U O mean? Intuitively, I would think it should the be public varset from O.
+> 
+> - In Definition 3.8, why is BD conditioned on S_H? Which part of the definition models guessing? Is that BD conditioned on S_H? The connection between Def 3.3 and 3.8 must require more explanation.
+> 
+> 
+> - Line 34 (p 9): What is "probabilistically separable from secrets" mean?
+> 
+> - Where is the judgment BD(π) |- M_C * S_H introduced? Presumably, it is talking about probabilistic separation here?
+> 
+> - L 40, (p 10). Definition -> definition
+> 
+> -
+> 
