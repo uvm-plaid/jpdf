@@ -1,0 +1,20 @@
+\section{Conclusion}
+
+In this paper we have developed the $\minicat$ language for defining
+low-level MPC protocols, and the $\metaprot$ metaprogramming language
+for specifying $\minicat$ protocols compositionally and at a higher
+level of abstraction. We have developed a Hoare logic based on
+SMT-style verification for $\minicat$, as well as confidentiality and
+integrity type systems that enforce passive and malicious security in
+the real/ideal model. These establish a foundation for an automated
+Hoare logic and type system in $\metaprot$ that is compositional,
+scalable, and generalizes to arbitrary prime fields and secret sharing
+schemes.
+
+Our automated $\metaprot$ Hoare logic and type theory leverages
+Satisfiability Modulo Finite Fields for efficiency, scalability, and
+generalizability to arbitrary prime fields. We developed examples of
+real binary and arithmetic circuit protocols, illustrated the
+applicability of our analyses to enforce confidentiality and integrity
+properties, and evaluated performance of our implementation on these
+examples.

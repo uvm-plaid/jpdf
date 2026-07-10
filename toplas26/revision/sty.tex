@@ -1,0 +1,624 @@
+\section{Share Types}
+\label{section-sty}
+
+Our approach to static confidentiality analysis is to enforce the use
+of sound techniques in semi-homomorphic encryption in protocols.  As
+discussed in the example in Section \ref{section-smt-example},
+protocols integrate interactive elements, such as the sharing of
+one-time-pad (OTP) encrypted secrets, and noninteractive elements,
+such as addition (of shares). To comport with this we introduce
+distinct judgement forms for interactive and noninteractive protocol
+elements. Our type system as presented will assume 2-client protocols,
+but this is for clarity of presentation and the analysis can be
+generalized to more parties.  So in this Section we define the
+federation as $\setit{1,2}$ (client 1 and client 2).
+
+Our confidentiality analysis mainly considers protocols in terms of
+their SMT interpretations as described in Section \ref{section-smt}.
+We introduce a \emph{share type} language $\sty$, classifying
+\emph{share terms}. We represent share terms using standard notation
+\cite{10.1007/978-3-030-68869-1_3}. A share term $[\phi_1,\phi_2]$
+represents a secret-shared value where client 1 has $\phi_1$ and
+client 2 has $\phi_2$, and this shared value can be reconstructed
+as a public value $\pubx{\phi}$.
+$$
+\begin{array}{rcl@{\hspace{10mm}}l}
+  \sty &::=& \sharety \mid \pubty \mid \outty & \textit{share types} \\
+  \stt &::=& [\phi,\phi] \mid \pubx{\phi} & \textit{share terms} 
+\end{array}
+$$
+\paragraph{Share generation and reconstruction}
+A \emph{secret sharing scheme} includes functions
+$(\genshares,\recon)$ that generate and reconstruct shares,
+respectively. The $\genshares$ function takes some
+input $\phi$ and randomness $\rx{x}{w}$ and produces
+two shares (or as many is needed for the number of clients
+in the federation): 
+$$
+\genshares(\phi,\rx{w}{\cid}) = \phi_1,\phi_2
+$$
+and:
+$$
+\recon(\genshares(\phi,\rx{w}{\cid})) = \phi
+$$
+In order for $\genshares$ to be \emph{sound} with regard to
+confidentiality, we require
+that both of $\phi_1$ and $\phi_2$ are marginally independent
+of $\phi$, and also of any other values in the protocol.
+This entails the requirement that $\rx{w}{\cid}$ is
+consumed by $\genshares$, e.g., as an OTP.
+We formally characterize soundness of $\genshares$
+in our protocol model in Definition \ref{def-genshares}.
+We emphasize that our type system is agnostic with respect
+to the definition of $\genshares$ and $\recon$ modulo
+soundness-- we use an additive shares encoding in this work,
+but the analysis could apply instead to, e.g., Shamir
+sharing.
+
+More generally, when we ascribe the type $[\phi_1,\phi_2] : \sharety$,
+this means that $[\phi_1,\phi_2]$ are shares of their reconstruction
+$\recon(\phi_1,\phi_2)$, noting that shares can be obtained either by
+$\genshares$ or by noninteractive homomorphic protocols.  Likewise,
+$\pubx{\phi} : \outty$ means that $\phi$ has been publicly
+\emph{revealed} via broadcast shares, and our type system requires
+that $\phi \eop \recon(\phi_1, \phi_2)$ with $[\phi_1,\phi_2] :
+\sharety$. This implies that the process of revealing $\phi$ reveals
+nothing besides $\phi$.  The ascription $\pubx{\phi} : \pubty$ is
+similar, with the additional meaning that $\phi$ is a publicly-known
+value independent of any client inputs. This includes known constant
+values used in protocols, and more interestingly \emph{secure
+openings}. Secure openings are commonly used to interactively compute
+public values that are masked with OTPs secret-shared with clients in
+initialization protocols, as for example in Beaver Triple
+multiplication which we discuss in Section \ref{section-examples}.
+
+\stylocalfig
+
+We proceed by formally describing the type analysis, then
+discussing an illustrative example, and finally by demonstrating share
+type soundness in Theorem \ref{theorem-sty}. This result shows that
+our analysis enforces noninterference modulo output, in contrast to
+the previous system for $\minicat$ that only enforce a gradual release
+property \cite{skalka-near-esop25}. By connecting this analysis with
+protocol correctness properties enforced by the Hoare logic discussed
+in Section \ref{section-smt}, the output can also be connected to an
+intended ideal functionality.
+
+\subsection{Non-Interactive Typing Rules}
+
+Our non-interactive typing rules are presented in Figure
+\ref{fig-stylocal}. Judgements are of the form $\Gamma, \eqs \vdash
+\stt : \sty$, where $\Gamma$ is a set of \emph{share type bindings} of
+the form $\stt : \sty$. In the context of typing a protocol $\prog$
+soundness requires that the constraint $\eqs$ must be entailed by
+$\toeq{\prog}$. The syntax-directed rules are all known semi-homomorphic operations,
+including addition of shares (\TirName{HEAdd}), and both addition and
+multiplication of shares with a public value (\TirName{HEAddPub} and
+\TirName{HEMultPub}, respectively) \cite{10.1007/978-3-030-68869-1_3}.
+These rules also leverage SMT entailment in the \TirName{ShareEntails}
+and \TirName{PubEntails} rules, meaning these operations are
+allowable up to algebraic equivalence in the context of a protocol.
+
+\subsection{Interactive Typing Rules} 
+
+The interactive share typing rules are defined in Figure
+\ref{fig-styinteractive}, with judgements of the form $\eqs \vdash
+\Gamma_1,R_1, \stredx \Gamma_2,R_2$.  Each such judgement establishes
+a sound type binding in $\Gamma_2$ for interactively-defined
+variables-- that is, unicast and broadcast messages exchanged between
+clients-- assuming the bindings in $\Gamma_1$. In addition to type
+bindings, judgments track randomness used by $\genshares$, allowing us
+to use type linearity to enforce one-time usage similar to previous
+related work \cite{darais2019language}, where any randomness used in
+the typing is not in $R_1$ and added to $R_2$. To this end, in these
+rules $\uplus$ is disjoint union.
+
+The \TirName{GenShares} rule generates the binding $[x_1,
+  x_2] : \sharety$ if the term is a secret sharing as defined
+by $\genshares$, and adds $\rx{w}{\cid}$ to the set of variables
+consumed by $\genshares$, ensuring one-time usage. The
+\TirName{Reveal} rule generates the binding $\pubx{\recon(\px{w_1},\px{w_2})} :
+\outty$ with the requirement that $[\px{w_1},\px{w_2}]$ are typable as
+shares. The \TirName{SecOpen} rule is similar except it allows the
+assertion $\pubx{\recon(\px{w_1},\px{w_2})} : \pubty$ if we can additionally
+show that the shared value is masked by the use of random value
+$\rx{w}{\oid}$ as an OTP. Here we are positing a third party $\oid$
+that secret-shares $\rx{w}{\oid}$ as part of an initialization
+protocol. We illustrate secure openings in practice at more length
+in Section \ref{section-examples}, though we note that appropriate
+properties of initialization protocols can be encoded in $\eqspre$.
+
+We write $\stredx^*$ to denote the transitive
+closure of $\stredx$. For any protocol $\prog$, the goal of the
+type analysis is to show that all interactive messages can be classified--
+that is, to show that $\eqspre \wedge \toeq{\prog} \vdash
+\varnothing,\varnothing \stredx^* \Gamma,R$ where all
+interactive messages are classified in $\Gamma$. 
+
+\styinteractivefig
+
+\subsection{Instantiating $\genshares$}
+
+It is well-known that adding or subtracting a sample from a uniform
+distribution in a finite field yields a value in a uniform
+distribution, meaning that samples can be used as OTPs with
+perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
+So we can define:
+\begin{eqnarray*}
+  \genshares(\phi,\rx{w}{\cid}) &\defeq& \phi - \rx{w}{\cid}, \rx{w}{\cid}\\
+  \recon(\phi_1,\phi_2) &\defeq& \phi_1 \fplus \phi_2
+\end{eqnarray*}
+where we require that $\genshares$ consumes the random value
+$\rx{w}{\cid}$ as an OTP. 
+
+This approach highlights an important interaction between our type
+system and SMT entailment as defined by the $\TirName{ShareEntails}$
+rule. In particular there are other methods for encrypting values in MPC
+protocols that can be shown to be algebraically equivalent
+to this fundamental schema. For example, in Yao's Garbled Circuits
+(YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents encrypted wire
+values as a random sample (for 0) or its negation (for 1), and shares
+its secret input encoding with the ``evaluator'' by using
+it as a selection bit. That is, assuming that client 2 is the garbler and
+client 1 is the evaluator, we can define:
+$$
+\xassign{\mx{w}{1}}{\mux{\secret{w}}{\flip{w}}{\neg\flip{w}}}{2}
+$$
+where for all $\be_1,\be_2,\be_3$ (with $\neg$ denoting negation in $\mathbb{F}_2$):
+$$
+\mux{\be_1}{\be_2}{\be_3} \defeq (\neg\be_1 \ftimes \be_2) \fplus (\be_1 \ftimes \be_3)
+$$
+and letting this protocol be $\prog$ the following is valid:
+\begin{mathpar}
+%\toeq{\xassign{\mx{w}{1}}{\OT{\secret{w}}{1}{\neg\flip{w}}{\flip{w}}}{2}}
+   \toeq{\prog} \models \mx{w}{1} \eop \sx{w}{2} \fminus \rx{w}{2}
+\end{mathpar}
+For this reason SMT entailment is also an important enabling technology
+for the interactive rules. 
+
+\subsection{Share Typing Example} To illustrate details of the
+type system we return to the example of additive sharing in the context
+of a 2-client protocol. While the ideal functionality of this simple protocol
+precisely reveals input secrets, it serves as an understandable example
+of the type system mechanics.
+We first focus on initial secret sharing steps--
+let $\prog$ be the following protocol in $\fieldp{2}$ (noting
+that $-$ is equivalent to xor in $\fieldp{2}$):
+$$
+\begin{array}{lll}
+  \elab{\mesg{s1}}{2} := \elab{(\secret{1} \fminus \locflip)}{1}; \quad
+  \elab{\mesg{s2}}{1} := \elab{(\secret{2} \fminus \locflip)}{2} 
+\end{array}
+$$
+By $\TirName{GenShares}$ we can then assert:
+$$
+\toeq{\prog} \vdash \varnothing,\varnothing \stredx
+\setit{[\mx{s2}{1}, \elab{\locflip}{2}] : \sharety,
+  [\elab{\locflip}{1}, \mx{s1}{2}] : \sharety}, \setit{\elab{\locflip}{1},\elab{\locflip}{2}}
+$$
+Suppose the protocol goes on to reveal the negation of the
+sum (xor-ing) of the inputs:
+$$
+\begin{array}{l}
+  \px{1} := \elab{\mesg{s2} + \locflip + 1}{1};\quad \px{2} := \elab{\mesg{s1} + \locflip}{2};\\
+  \out{1} := \elab{\px{1} + \px{2}}{1};\quad \out{2} := \elab{\px{1} + \px{2}}{2}
+\end{array}
+$$
+Letting this extended protocol be $\prog'$, and letting:
+$$
+\begin{array}{rcl}
+\Gamma &\defeq& \setit{[\mx{s2}{1}, \elab{\locflip}{2}] : \sharety,
+  [\elab{\locflip}{1}, \mx{s1}{2}] : \sharety}\\
+R &\defeq&  \setit{\elab{\locflip}{1},\elab{\locflip}{2}}
+\end{array}
+$$
+observe we can then obtain share typings for noninteractive components for
+addition of shares by \TirName{Shared} and \TirName{HeAdd}:
+$$
+\Gamma, \toeq{\prog'} \vdash
+[\mx{s2}{1} + \elab{\locflip}{1}, \mx{s1}{2} + \elab{\locflip}{2}] : \sharety
+$$
+and hence for negation by \TirName{HeAddPub}:
+$$
+\Gamma, \toeq{\prog'} \vdash
+[\mx{s2}{1} + \elab{\locflip}{1} + 1, \mx{s1}{2} + \elab{\locflip}{2}] : \sharety
+$$
+This implies:
+$$
+\toeq{\prog'} \vdash \varnothing,\varnothing \stredx
+\Gamma \cup \setit{\pubx{\px{1} + \px{2}} : \outty}, R 
+$$
+Hence by \TirName{PubEntails} we have:
+$$
+\begin{array}{l}
+\Gamma \cup \setit{\pubx{\px{1} + \px{2}} : \outty}, \toeq{\prog'} \vdash
+\pubx{\out{1}} : \outty \\
+\Gamma \cup \setit{\pubx{\px{1} + \px{2}} : \outty}, \toeq{\prog'} \vdash
+\pubx{\out{2}} : \outty
+\end{array}
+$$
+
+\subsection{Share Type Soundness}
+\label{section-sty-sound}
+
+Share type soundness (Theorem \ref{theorem-sty}) means that share
+typing enforces noninterference modulo output. To prove this we need
+to assert probabilistic properties in share typings, including for
+functions of protocol variables such as reconstruction of shares. So
+we make standard extensions of notation for probability distributions
+to express probabilities, and conditional probabilities, of functions
+of program variables $\phi$. For this extension we posit that
+memories can incorporate variables $x_\phi$ that assign valuations
+to functions $\phi$.
+\begin{definition}
+  We let $\Phi$ range over sets of SMT formulas $\phi$, and define
+  $
+  \mems(\Phi) \defeq \{ \store \mid \dom(\store) = \setit{\ x_{\phi}\ \mid\ \phi \in \Phi\ } \}
+  $.
+  Given pmf $\pmf$ and $\Phi$ with $\rvs(\pmf) = \bigcup_{\phi \in \Phi} \dom(\phi)$,
+  for all $\store \in \mems(\Phi)$ define:
+%$$
+%\pmf(\phi = v) \defeq \sum_{\store \in \mems(X) \ \text{with}\ \store(\phi) = v} \pmf(\store)
+  %$$
+  \cnote{THERE IS A PROBLEM WITH THIS! Should be marginalized on $\Phi$ somehow...}
+  $$
+  \pmf(\store) \defeq \sum_{\store' \in \mems(X)}
+  \begin{cases}
+    \pmf(\store') \ \text{if}\ \forall \phi \in \Phi . \store'(\phi) = \store(x_\phi)  \\
+    0 \ \text{otherwise}
+  \end{cases}
+  $$
+\end{definition}
+
+\begin{definition}
+  Given $\pmf$, the \emph{conditional distribution}
+  of $X$ given $\Phi$ where $\bigcup_{\phi \in \Phi} \dom(\phi) \cup X = \rvs(\pmf)$ 
+  is denoted $\condd{\pmf}{X}{\Phi}$ and defined as follows: 
+  $$
+  \forall \store_1 \in \mems(X)\ .\ \forall \store_2 \in \mems(\Phi) \ .\ 
+  \condd{\pmf}{X}{\Phi}(\store_1 \uplus \store_2) \defeq
+  \begin{cases}
+    0 \text{\ if\ } \pmf(\store_2) = 0\\
+    \pmf(\store_1 \uplus \store_2) / \pmf(\store_2) \text{\ otherwise}
+  \end{cases}
+  $$
+\end{definition}
+
+Now we define what we mean by soundness of $\genshares$. In essence
+we mean perfect secrecy \cite{barthe2019probabilistic} in the context
+of protocols where multiple encodings can occur. These
+conditions are obviously met by, e.g., ``vanilla'' additive or Shamir
+shares which generate shares in uniform marginal distributions. Here
+and later we leverage (conditional) probabilistic independence as
+characterized in Definition
+\ref{def-condsep}.
+\begin{definition}
+  \label{def-genshares}
+  We say that $\genshares$ is \emph{sound} iff given any $\prog$ with
+  $\vars(\prog) = S \cup V \cup O \cup R$
+  and $\phi$ and $\rx{w}{\cid} \not \in R$ and $\genshares(\phi,\rx{w}{\cid}) =
+  \phi_1,\phi_2$ we have for all $a \in \setit{1,2}$:
+  $$
+  \sep{\progd(\prog)}{(S \cup V \cup O \cup \setit{\phi})}{\setit{\phi_a}}
+  $$
+\end{definition} 
+
+Next we define a well-formedness property of tuples $\prog,\Gamma,R$
+intuitively meaning that all the share types in $\Gamma$ are sound with respect
+to $\prog$, and consumed randomness in $R$ as OTPs for initial sharing.
+This is a representation invariant that we will show is preserved by
+typing, and under closure conditions (Definition \ref{def-sty-closed})
+the invariant guarantees confidentiality (Theorem \ref{theorem-OK}).
+Property (i) ensures that views do not reveal information about secrets
+consistent with noninterference modulo output.
+Property (ii) ensures a key property of sharing-- that individual shares
+don't reveal more about secrets than their reconstruction does. Property
+(iii) ensures that public values are independent of outputs or secrets. Properties
+(iv) and (v) ensure that OTPs used for generating shares or for
+secure openings, respectively, are included in $R$.
+\begin{definition}
+  \label{def-OK}
+  Given $\prog,\Gamma,R$ where $\iov(\prog) = S \cup M \cup P \cup O$. For all $a,b\in \setit{1,2}$ with $a \ne b$ let:
+  \begin{eqnarray*}
+    %\Phi_a^m & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \\
+    %\Phi_a^p & \defeq & \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma}\\
+    \Phi_b & \defeq & \setit{ \phi_b \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \cup
+                        \setit{ \phi_a \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma} \\% \Phi_a^m \cup \Phi_a^p \\
+    \Phi^p & \defeq & \setit{ \recon(\phi_1,\phi_2) \mid (\pubx{\recon(\phi_1,\phi_2)} : \pubty) \in \Gamma}\\
+    \Phi^o & \defeq & \setit{ \recon(\phi_1,\phi_2) \mid (\pubx{\recon(\phi_1,\phi_2)} : \outty) \in \Gamma}
+  \end{eqnarray*}
+  Then we write $\prog,\Gamma,R : {OK}$ iff all of the following conditions
+  hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item For all $a,b \in \setit{1,2}$ we have
+    $
+    \condsep{\progtt(\prog)}{(S_{\setit{b}} \cup \Phi^o)}{\Phi_b}{S_{\setit{a}}}
+    $.
+    %$
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup \Phi^o}
+    %= 
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup  \Phi_a \cup \Phi^o}
+    %$.
+    \item For all $a,b \in \setit{1,2}$ and $([\phi_1,\phi_2] : \sharety) \in \Gamma$ we have:
+    $$\condsep{\progd(\prog)}{(S_{\setit{b}} \cup  \Phi_b \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2)})}{\phi_a}{S_{\setit{a}}}$$
+    %$$\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_i^1,\phi_i^2)}} =
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}}  \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_i^1,\phi_i^2), \phi_i^b}}$$
+  \item $\sep{\progd(\prog)}{(S \cup O)}{\Phi^p}$
+  \item  For all $a,b \in \setit{1,2}$ and if
+    $([x_1,x_2] : \sharety) \in \Gamma$ with $x_a \in \imesgs{M}{\setit{b}}{\setit{a}}$ then
+    $\genshares(\phi,\rx{w}{\cid}) = \phi_1,\phi_2$
+    and $\toeq{\prog} \models x_1 \eop \phi_1 \wedge x_2 \eop \phi_2$ 
+    for some $\phi$ and $\rx{w}{\cid} \in R$.
+  \item For all $\phi \in \Phi^p$ if $\toeq{\prog} \models \phi \eop \phi' + \rx{w}{\cid_{\oid}}$ for some $\phi'$
+    and $\rx{w}{\cid_{\oid}}$ then $\rx{w}{\cid_{\oid}} \in R$.
+  \end{enumerate} 
+\end{definition}
+%\begin{definition}
+%  \label{def-OK}
+%  Given $\prog,\Gamma,R$ where $\secrets(\prog) = S$ and:
+%  $$
+%  \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
+%  \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
+%  \setit{\pubx{\phi^o_1} : \outty,\ldots,\pubx{\phi^o_k} : \outty}
+%  $$
+%  Then we write $\prog,\Gamma,R : {OK}$ iff all of the following conditions
+%  hold:
+%  \begin{enumerate}[\hspace{5mm}i.]
+%  \item For all $a,b \in \setit{1,2}$ we have
+%    $
+%    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi^o_1,\ldots,\phi^o_k}}
+%    = 
+%    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b} \cup
+%      %\setit{\phi_1,\ldots,\phi_j}
+%      \setit{\phi^o_1,\ldots,\phi^o_k}}
+%    $.
+%  \item For all $a,b \in \setit{1,2}$ and $0 < i \le n$ we have
+%    %$\condsep{\progd(\prog)}{\setit{\recon(\phi_i^1,\phi_i^2)}}{\setit{\phi_i^b}}{\recon(\phi_i^1,\phi_i^2)}$
+%    $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2)}} =
+%    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(\phi_i^1,\phi_i^2), \phi_i^b}}$
+%  \item $\sep{\progd(\prog)}{(S \cup O)}{\setit{\phi_1,\ldots,\phi_j}}$
+%  \item  For all $a,b \in \setit{1,2}$ and $0 < i \le n$, if
+%    $([x_1,x_2] : \sharety) \in \Gamma$ with $\genshares(\phi,\rx{w}{\cid}) = \phi_1,\phi_2$
+%    and $\toeq{\prog} \models x_1 \eop \phi_1 \wedge x_2 \eop \phi_2$ 
+%    for some $\phi$ and $\rx{w}{\cid}$ then $\rx{w}{\cid} \in R$.
+%  \item For all $0 < i \le j$, if $\toeq{\prog} \models \phi_i \eop \phi + \rx{w}{\cid_{\oid}}$ for
+%    some $\phi$  and $\rx{w}{\cid_{\oid}}$ then $\rx{w}{\cid_{\oid}} \in R$.
+%  \end{enumerate} 
+%\end{definition}
+
+%\begin{definition}
+%  \label{def-genshares}
+%  We say that $\genshares$ is \emph{sound} iff given any $\prog,\Gamma,R : {OK}$
+%  and $\phi$ and $\rx{w}{\cid} \not \in R$ with $\genshares(\phi,\rx{w}{\cid}) =
+%  \phi_1,\phi_2$ and $\toeq{\prog} \models x_1 \eop \phi_1 \wedge x_2 \eop \phi_2$
+%  with $\secrets(\prog) = S$ and:
+%  $$
+%  \Gamma = \setit{[\phi_1^1,\phi_1^2] : \sharety, \ldots, [\phi_n^1,\phi_n^2] : \sharety}
+%  \cup \setit{\pubx{\phi_1} : \pubty,\ldots,\pubx{\phi_j} : \pubty} \cup
+%  \setit{\pubx{\phi^o_1} : \outty,\ldots,\pubx{\phi^o_k} : \outty}
+%  $$
+%  we have for all $a,b \in \setit{1,2}$:
+%  \begin{enumerate}[\hspace{5mm}i.]
+%    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b} \cup
+%      %\setit{\phi_1,\ldots,\phi_j}
+%      \setit{\phi^o_1,\ldots,\phi^o_k}}
+%    =
+%    \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{S_{\setit{\cid_b}} \cup \setit{\phi_1^b,\ldots,\phi_n^b,x_b} \cup
+%      %\setit{\phi_1,\ldots,\phi_j}
+%      \setit{\phi^o_1,\ldots,\phi^o_k}}$
+%    \item $\condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(x_1,x_2)}} =
+%      \condd{\progtt(\prog)}{S_{\setit{\cid_a}}}{\setit{\recon(x_1,x_2), x_b}}$
+%    \end{enumerate}
+%\end{definition} 
+
+Next we show that, given well-formed typing environments, share type judgements preserve
+the important properties (i-ii) in Definitions \ref{def-OK}. This result follows from
+known semi-homomorphic properties of non-interactive operations that are syntactically
+verified in typing judgements.
+\begin{lemma}
+  \label{lemma-sty-noninteractive-sound}
+  Given $\prog,\Gamma,R : {OK}$ where $\secrets(\prog) = S$. For all $a,b\in \setit{1,2}$ with $a \ne b$ let:
+  \begin{eqnarray*}
+    %\Phi_a^m & \defeq & \setit{ \phi_a \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \\
+    %\Phi_a^p & \defeq & \setit{ \phi_b \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma}\\
+    \Phi_b & \defeq & \setit{ \phi_b \mid ([\phi_1,\phi_2] : \sharety) \in \Gamma} \cup
+                        \setit{ \phi_a \mid (\pubx{\recon(\phi_1,\phi_2)} : \sty) \in \Gamma} \\% \Phi_a^m \cup \Phi_a^p \\
+    \Phi^o & \defeq & \setit{ \recon(\phi_1,\phi_2) \mid (\pubx{\recon(\phi_1,\phi_2)} : \outty) \in \Gamma}
+  \end{eqnarray*} 
+  and also suppose $\Gamma, \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
+  Then for all $a,b \in \setit{1,2}$ with $a \ne b$ the following conditions hold:
+    \begin{enumerate}[\hspace{5mm}i.]
+    \item
+      $
+      \condsep{\progtt(\prog)}{(S_{\setit{b}} \cup \Phi^o)}{(\Phi_b \cup \setit{\phi_b})}{S_{\setit{a}}}
+      $
+    %$
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup \Phi^o}
+    %= 
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup  \Phi_a \cup \setit{\phi_a} \cup \Phi^o}
+    %$
+    \item
+       $\condsep{\progtt(\prog)}{(S_{\setit{b}} \cup  \Phi_b \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2)})}{\phi_a}{S_{\setit{a}}}$
+    %$\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}} \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2)}} =
+    %\condd{\progtt(\prog)}{S_{\setit{a}}}{S_{\setit{b}}  \cup  \Phi_a \cup \Phi^o \cup \setit{\recon(\phi_1,\phi_2), \phi_b}}$
+    \end{enumerate}
+\end{lemma}
+\begin{proof}
+  The proof is by induction on the derivation of $\Gamma, \toeq{\prog} \vdash [\phi^1,\phi^2] : \sharety$.
+  In the base case where the judgement follows by the \TirName{Shared} rule, the result
+  follows trivially by Definition \ref{def-OK}. In cases \TirName{HEAdd}, \TirName{HEAddPub}, and
+  \TirName{HEMultPub} the result follows by Definition \ref{def-OK} and known
+  semi-homomorphic properties of secret sharing \cite{10.1007/978-3-030-68869-1_3}.
+  Case \TirName{ShareEntails} follows by correctness of the SMT interpretation of
+  protocols as in Theorem \ref{theorem-toeq}.
+\end{proof}
+
+Next, we show that interactive typing rules preserve well-formedness of type
+environments. This Lemma follows by Lemma \ref{lemma-sty-noninteractive-sound},
+and the security of share generation using OTPs as articulated in
+Definition \ref{def-genshares}-- that is, shares
+generated by $\genshares$ are in uniform marginal distributions. 
+\begin{lemma}
+  \label{lemma-OK}
+  Given $\prog,\Gamma_1,R_1  : {OK}$
+  and $\toeq{\prog}  \vdash \Gamma_1, R_1 \stredx \Gamma_2, R_2$.
+  Then $\toeq{\prog}, \Gamma_2, R_2 : {OK}$.
+\end{lemma}
+\begin{proof}
+  The proof follows by case analysis on  $\toeq{\prog}  \vdash \Gamma_1, R_1 \stredx \Gamma_2, R_2$.
+  In case \TirName{GenShares} the result follows by Definition \ref{def-genshares},
+  which satisfies relevant conditions (i-ii,iv) of Definition \ref{def-OK}. In case
+  \TirName{SecOpen} the public value must be reconstructed shares, so Lemma
+  \ref{lemma-sty-noninteractive-sound} enforces relevant conditions (i-ii) of Definition
+  \ref{def-OK}, and the requirement that the public value be masked with an OTP satisfies conditions
+  (iii) and (iv) of Definition \ref{def-OK}. In case \TirName{Reveal} since
+  the output value must be reconstructed shares, Lemma \ref{lemma-sty-noninteractive-sound}
+  satisfies relevant case (ii) of  Definition \ref{def-OK}. 
+\end{proof}
+
+In addition to typing judgements, in order to show that a protocol is
+secure, we need to classify all corrupt views as shares, all
+public values as secure openings, and all outputs as reconstructed
+shares by adding them to $\Gamma$. We capture this formally with the following notion of
+type environment closure.
+\begin{definition}
+  \label{def-sty-closed}
+  $\Gamma$ is \emph{closed for $\prog$} iff for all $H,C$,
+  for all $x \in \houtputs$ there exists $\phi$ such that either
+  $([x,\phi] : \sharety) \in \Gamma$ if $C = \setit{1}$
+  or  $([\phi,x] : \sharety) \in \Gamma$ if $C = \setit{2}$,
+  and for all $\out{\cid} \in O$ we have $(\pubx{\out{\cid}} : \outty) \in \Gamma$.
+\end{definition}
+Now, the following is a consequence of Definitions \ref{def-OK} and \ref{def-sty-closed}, and then
+our main Theorem \ref{theorem-sty} follows by Lemma \ref{lemma-OK} and Theorem \ref{theorem-OK}.
+\begin{theorem}
+  \label{theorem-OK}
+  If $\prog,\Gamma,R : {OK}$ and $\Gamma$ is closed
+  for $\prog$, then $\prog$ satisfies noninterference modulo output. 
+\end{theorem}
+\begin{proof}
+  Let $\iov(\prog) = S \cup V \cup O$ and assume some partitioning $H,C$
+  with $H = \setit{a}$ and $C = \setit{b}$ for $a,b \in \setit{1,2}$.
+  %For any $\out{\cid} \in O$ with $\Gamma,\toeq{\prog} \vdash \pubx{\out{\cid}} : \outty$
+  %we can assume wlog that $(\out{\cid} : \outty) \in \Gamma$, since we can
+  %add the binding to $\Gamma'$ with  $\prog,\Gamma',R  : {OK}$ by Lemma
+  %\ref{lemma-OK}.
+  Let $\Phi_b$ and $\Phi^o$ be as defined in Definition \ref{def-OK}. 
+  By Definition \ref{def-sty-closed} we have that $x \in \houtputs$
+  implies $x \in \Phi_b$ and $(\out{\cid} : \outty) \in \Gamma$ for all
+  $\out{\cid} \in O$. 
+  Therefore by Definition \ref{def-OK} (and marginalizing away
+  extraneous $(\stt : \sty) \in \Gamma$) we have:
+  $$
+  \condsep{\progd(\prog)}{(S_C \cup \Phi^o \cup O)}{\houtputs}{S_H}
+  $$
+  By definition of $\TirName{Output}$ it is also the case that for all
+  $\out{\cid} \in O$ we have $\toeq{\prog} \models o \eop \phi$ for some
+  $\phi \in \Phi^o$. Therefore since we can assume wlog that all revealed
+  values are assigned to outputs, we have
+  $
+  \condsep{\progd(\prog)}{(S_C \cup O)}{\houtputs}{S_H}
+  $,
+  so by definition we have that for all $\store \in \runs(\prog)$: 
+  $$
+  \condd{\progd(\prog)}{S_H}{S_C \cup O}(\store) = \condd{\progd(\prog)}{S_H}{S_C \cup \houtputs \cup O}(\store)
+  $$
+  which is noninterference modulo output by Definition \ref{definition-NIMO}.
+\end{proof}
+
+\begin{theorem}
+  \label{theorem-sty}
+  If $\toeq{\prog} \vdash \varnothing,\varnothing \stredx \Gamma,R$ and $\Gamma$ is closed
+  for $\prog$, then $\prog$ satisfies noninterference modulo output. 
+\end{theorem}
+
+\begin{proof}
+  By Lemma \ref{lemma-OK} we have that $\prog,\Gamma,R : {OK}$, so the result follows
+  by Theorem \ref{theorem-OK}.
+\end{proof}
+
+% DEPRECATED
+\begin{comment}
+\begin{definition}
+  We write $\eqs,\Gamma,R : {OK}$ iff both of the following conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item For all $([\phi_1,\phi_2] : \sharety) \in \Gamma$,
+    we have $\eqs \models \phi_1 \eop \phi - \rx{x}{\cid'} \wedge
+    \phi_2 \eop \rx{y}{\cid'}$ for
+    some $\phi$ and unique $\rx{x}{\cid'} \in R$, with $\cid \ne \cid'$.
+  \item For all $(\pubx{\phi} : \pubty) \in \Gamma$,
+    we have $\eqs \models \phi \eop \phi' - \rx{x}{\oid}$ for
+    some $\phi'$ and unique $\rx{x}{\oid} \in R$.
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}
+  Given $\eqs,\Gamma,R  : {OK}$.
+  and $\eqs  \vdash \Gamma,R \stredx R',\Gamma'$.
+  Then $\eqs, \Gamma',R' : {OK}$.
+\end{lemma}
+
+Next, we make a simple definition to formalize what we mean by the interactive
+variables in the share type environment $\Gamma$.
+\begin{definition} Define $\ov(\Gamma)$ as follows:
+\begin{eqnarray*}
+\ov(\varnothing) &=& \varnothing \\[-1.5mm]
+\ov(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \setit{\mx{z}{\cid}} \cup \ov(\Gamma)\\[-1.5mm]
+\ov(\setit{[\px{x} + \px{y}] : \pubty} \cup \Gamma) &=& \setit{\px{x},\px{y}} \cup \ov(\Gamma)\\[-1.5mm]
+\ov(\setit{[\out{\cid}] : \outty} \cup \Gamma) &=& \setit{\out{\cid}} \cup \ov(\Gamma)
+\end{eqnarray*}
+\end{definition}
+Given the above, we can formulate our key Lemma about noninteractive typing
+judgements, which tells us that individual shares in isolation don't reveal anything
+about their reconstruction. This result follows by Theorem \ref{theorem-toeq}
+and known homomorphic properties of secret sharing schemes. 
+\begin{lemma}
+  \label{lemma-sty-noninteractive-sound}
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma,R: {OK}$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
+  Then, letting $X \defeq \ov(\Gamma) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$ for
+  $\cid_1 \ne \cid_2$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X \cup \setit{\phi_1 + \phi_2}}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup X \cup \setit{\phi_1 + \phi_2, \phi_1}}
+  $$
+\end{lemma}
+
+Based on the preceding Lemma, we can show that noninteference with respect
+to classified interactive variables is maintained by typing judgements. 
+\begin{lemma}
+  \label{lemma-styinteractive}
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma_1,R_1: {OK}$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\eqspre \wedge \toeq{\prog} \vdash \Gamma_1,R_1 \stredx \Gamma_2,R_2$.
+  Letting $X_1 \defeq \ov(\Gamma_1) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$,
+  for $\cid_1 \ne \cid_2$ assume also:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X_1 \cup O}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup O}
+  $$
+  Then, letting $X_2 \defeq \ov(\Gamma_2) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$,
+  we have:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X_2 \cup O}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup O}
+  $$
+\end{lemma}
+Now we can prove our main Theorem, which follows immediately 
+by Lemma \ref{lemma-styinteractive} and induction on $|\Gamma|$
+(i.e., the number of bindings in the environment $\Gamma$ obtained
+by a complete typing). 
+\begin{theorem}[Share Type Soundness]
+  \label{theorem-sty}
+  Assume given $\prog$ with 
+  $\iov(\prog) = S \cup V \cup O$
+  and $\eqspre \wedge \toeq{\prog} \vdash \varnothing,\varnothing \stredx^*
+  \Gamma,R$ where $\realviews{\setit{\cid_1}}{\setit{\cid_2}} \cup O
+  \subseteq \ov(\Gamma)$ for all $\cid_1$, $\cid_2$ with $\cid_1 \ne \cid_2$.
+  Then $\prog$ satisfies noninterference modulo output.
+\end{theorem}
+\end{comment}

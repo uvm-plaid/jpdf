@@ -1,0 +1,160 @@
+\section{Confidentiality Types}
+\label{section-cpj}
+
+It is well-known that adding or subtracting a sample from a uniform
+distribution in a finite field yields a value in a uniform
+distribution, meaning that samples can be used as one-time-pads with
+perfect secrecy \cite{barthe2019probabilistic,darais2019language}.
+In our type system for confidentiality, we aim to approximate
+distributions by tracking which program variables an expression
+may depend on. But we also want to capture this fundamental mechanism
+of encryption. As we will show, SMT can be used in this and
+other contexts to support confidentiality properties of protocols.
+
+For example, given some string $y$ and a message send such as:
+$$
+\xassign{\mx{w}{1}}{\secret{w} \ftimes \flip{w}}{2}
+$$
+we would assign the following type to denote that $\mx{w}{1}$ is dependent on
+both $\sx{w}{2}$ and $\rx{w}{2}$:
+$$
+\mx{w}{1} : \setit{\sx{w}{2}, \rx{w}{2}}
+$$
+But in the case of 2-party reconstructive sharing:
+$$
+\xassign{\mx{w}{1}}{\secret{w} \fminus \flip{w}}{2}
+$$
+we want the type of $\mx{w}{1}$ to be an ``encrypted'' type that is
+by itself independent of $\sx{w}{2}$. However, we also want to track
+the \emph{joint} dependence of $\mx{w}{2}$ on $\rx{w}{2}$ and
+$\sx{w}{2}$, in case information about $\rx{w}{2}$ is subsequently
+leaked.  In short, we assign $\mx{w}{1}$ a ``ciphertext type'', aka a
+\emph{ciphertype}:
+$$
+\mx{w}{1} : \cty{\rx{w}{2}}{\setit{\sx{w}{2}}}
+$$
+indicating syntactically that $\mx{w}{1}$ is an encryption of a
+value dependent on $\sx{w}{2}$ with $\rx{w}{2}$.
+
+Of course, there are other methods for encrypting values in MPC
+protocols-- but we can observe that many are algebraically equivalent
+to this fundamental schema. For example, in Yao's Garbled Circuits
+(YGC) in $\mathbb{F}_{2}$, the ``garbler'' represents encrypted wire
+values as a random sample (for 1) or its negation (for 0), and shares
+its secret input encoding with the ``evaluator'' by using
+it as a selection bit. That is, assuming that client 2 is the garbler and
+client 1 is the evaluator, we can define:
+$$
+\xassign{\mx{w}{1}}{\mux{\secret{w}}{\neg\flip{w}}{\flip{w}}}{2}
+$$
+where for all $\be_1,\be_2,\be_3$ (with $\neg$ denoting negation in $\mathbb{F}_2$):
+$$
+\mux{\be_1}{\be_2}{\be_3} \defeq (\neg\be_1 \ftimes \be_2) \fplus (\be_1 \ftimes \be_3)
+$$
+and letting this protocol be $\prog$ the following is valid:
+\begin{mathpar}
+%\toeq{\xassign{\mx{w}{1}}{\OT{\secret{w}}{1}{\neg\flip{w}}{\flip{w}}}{2}}
+   \toeq{\prog} \models \mx{w}{1} \eop \neg\sx{w}{2} \fplus \rx{w}{2}
+\end{mathpar}
+This allows us to assign the same ciphertype to $\mx{w}{1}$ as above--
+that is, $\cty{\rx{w}{2}}{\setit{\sx{w}{2}}}$.  Since this is a
+one-time-pad scheme, it is also important that we ensure that samples
+are used at most once for encryption. As in previous work 
+\cite{darais2019language} we use type linearity to enforce this.
+
+\cpjfig
+
+The syntax of types $\ty$ and type environments $\Gamma$ are presented
+in Figure \ref{fig-cpj}\footnote{In general we use $2^{\chi}$ to
+denote the powerset of terms in any grammatical sort $\chi$.}. We also
+define type judgements for expressions and programs by direct
+interpretation as terms $\phi$ and constraints $\eqs$ respectively,
+via the encoding $\toeq{\cdot}$. The \TirName{Encode} rule enforces
+linearity by requiring that variables used for encryption are added to
+judgements, and guaranteed to not be used elsewhere via a form of
+union that ensures disjointness of combined sets:
+\begin{definition}
+  $R_1;R_2 = R_1 \cup R_2$ if $R_1 \cap R_2 = \varnothing$ and is otherwise
+  undefined.
+\end{definition}
+The \TirName{DepTy} rule handles all cases and just records the
+dependencies on variables in the term, a conservative approximation of
+dependencies.  The \TirName{Send} rule records the types of messages,
+reveals, and outputs in environments, and the \TirName{Seq} rule
+combines the types of sequenced programs.  Given this we define
+validity of program type judgements as follows.
+\begin{definition}
+  Given preprocessing predicate $\eqspre$ and protocol $\prog$ we say
+  $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$ is \emph{valid} iff it is derivable and
+  $\eqspre \wedge \toeq{\prog} \models \eqs$.
+\end{definition}
+It is important to note that this presentation of derivations is
+logical, not algorithmic-- in particular it is not syntax-directed
+due to the \TirName{Encode} rule.
+
+\subsection{Detecting Leakage Through Dependencies}
+
+Given a valid typing, we can leverage structural type information to
+conservatively approximate the information accessible by the
+adversary who has control over all corrupt clients in $C$ given
+a partitioning $H,C$. In particular, if the adversary has access to an
+encrypted value and another value that is dependent on its one-time-pad
+key-- i.e., access to values with types of the forms:
+$$
+\setit{\cty{\rx{w}{\cid}}{\ty}} \qquad \setit{\rx{w}{\cid}, \ldots} 
+$$
+then we can conservatively assume that the adversary can decrypt the
+value of type $\ty$ and thus have access to those values.
+
+In Figure \ref{fig-leakj} we define derivation rules for the
+``leakage'' judgement $\leakj{\Gamma}{C}{\ty}$ which intuitively says
+that given a protocol with type environment $\Gamma$ and corrupt
+clients $C$, the adversary may be able to observe dependencies on
+values of type $\ty$ in their adversarial messages.  The real aim of
+this relation is to determine if
+$\leakj{\Gamma}{C}{\setit{\sx{w}{\cid}}}$ with $\cid \in H$-- that is,
+if the adversary may observe dependencies on honest secrets.
+
+Our main type soundness result combines typing and leakage judgements,
+and guarantees gradual release of protocols-- that is, that adversarial
+messages reflect no dependencies on honest secrets. Proof details are
+provided in an Appendix.
+\begin{theorem}
+  \label{theorem-cpj}
+  Given $\prog$ with $\views(\prog) = M \cup P$, if $\cpj{R}{\eqs}{\eqspre \wedge \toeq{\prog}}{\Gamma}$
+  is valid and for all $H,C$ we have $\leakj{\Gamma}{M_C}{T}$ with $T$ closed
+  and $S_H \cap T = \varnothing$, then $\prog$ satisfies gradual release.
+\end{theorem}
+
+\leakjfig
+
+It is important to recall from \cite{skalka-near-ppdp24} that gradual
+release does \emph{not} imply passive security, since it only concerns
+adversarial messages, but not public reveals of outputs where
+dependencies on input secrets can occur even in secure
+protocols. Nevertheless, gradual release is an important
+confidentiality property for MPC (and other distributed) protocols.
+
+\begin{comment}
+\subsection{Examples}
+
+\begin{verbatimtab}
+m[s1]@2 := (s[1] - r[local] - r[x])@1
+m[s1]@3 := r[x]@1
+
+// m[s1]@2 : { c(r[x]@1, { c(r[local]@1, {s[1]@1} ) }
+// m[s1]@3 : { r[x]@1 }
+\end{verbatimtab}
+
+\begin{verbatimtab}
+m[x]@1 := s2(s[x],-r[x],r[x])@2
+
+// m[x]@1 == s[x]@2 + -r[x]@2 
+// m[x]@1 : { c(r[x]@2, { s[x]@2 }) } 
+
+m[y]@1 := OT(s[y]@1,-r[y],r[y])@2
+
+// m[y]@1 == s[y]@1 + -r[y]@2
+// m[y]@1 : { c(r[y]@2, { s[y]@1 }) } 
+\end{verbatimtab}
+\end{comment}

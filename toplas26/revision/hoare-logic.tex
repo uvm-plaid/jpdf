@@ -1,0 +1,374 @@
+% Prelude Hoare logic counterexample
+%
+% {x = 0} f(){assert x = 0} {x = 0}
+%
+% {}g(){f()}{x = 0}
+
+\section{Automated Hoare Logic for $\metaprot$}
+
+\subsection{Corrections to $\metaprot$ Generalized Constraint Forms and Evaluation}
+
+The syntax of $\notg{\eqs}$ in the ESOP paper was too complicated. It should simply be:
+$$
+\begin{array}{rcl@{\hspace{4mm}}r}
+  \notg{\eqs} &::=& e \eop e \mid \notg{\eqs} \wedge \notg{\eqs} \mid \notg{\eqs} \vee \notg{\eqs}
+  \mid \notg{\eqs} \impl \notg{\eqs}
+\end{array}
+$$
+The semantics of generalized constraint evaluation can also be greatly simplified, as
+follows:
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx \be_1 \\ e_2 \redx \be_2}
+      {e_1 \eop e_2 \redx \toeq{\be_1} \eop \toeq{\be_2}}
+
+  \inferrule
+      {\notg{\eqs_1} \redx \eqs_1 \\ \notg{\eqs_2} \redx \eqs_2 }
+      {\notg{\eqs_1} \wedge \notg{\eqs_2} \redx \eqs_1 \wedge \eqs_2}
+\end{mathpar}
+Given these changes, we also have some corrections to the $\TirName{Assert}$ and $\TirName{Mesg}$
+rules below in the Hoare Logic, which referred to a syntactic form ``$\toeq{e}$'' which now seems meaningless.
+
+The upshot is that evaluation of generalized constraints, mainly in the $\TirName{GenEntails}$
+rule, can be defined very directly in terms of evaluation of $\metaprot$ expressions.
+
+\subsection{$\minicat$ Hoare Logic}
+
+\begin{mathpar}
+  \inferrule[Assign]
+            {}
+            {\htrip{\eqs[\toeq{\elab{\be}{\cid_2}}/x]}{\xassign{x}{\be}{\cid_2}}{\eqs}}
+  
+  \inferrule[Assert]
+            {E \models \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}
+            {\htrip{E}{\elab{\assert{\be_1 = \be_2}}{\cid}}{E}}
+
+  %\reveal{w}{\be}{\cid}
+  %
+  %\pubout{\cid}{\be}{\cid}
+  \inferrule[Seq]
+      {\htrip{\eqs_1}{\prog_1}{\eqs_2} \\ \htrip{\eqs_2}{\prog_2}{\eqs_3} }
+      {\htrip{\eqs_1}{\prog_1;\prog_2}{\eqs_3}}
+
+  \inferrule[Consequence]
+      {\htrip{\eqs_1'}{\prog}{\eqs_2'} \\ \eqs_1 \models \eqs_1' \\  \eqs_2' \models \eqs_2 }
+      {\htrip{\eqs_1}{\prog}{\eqs_2}}
+
+  \inferrule[Frame]
+      {\htrip{\eqs_1}{\prog}{\eqs_2} \\ \vars(\eqs) \cap \avars(\prog) = \varnothing}
+      {\htrip{\eqs_1 \wedge \eqs}{\prog}{\eqs_2 \wedge \eqs}}
+      
+\inferrule[Hyp]
+          {\htrip{\eqs_1}{\prog}{\eqs_2}}
+          {\htrip{\eqs_1 \wedge (\eqs_2 \impl \eqs)}{\prog}{\eqs_2 \wedge \eqs}}
+\end{mathpar}
+
+%Derived rule:
+%\begin{mathpar}
+%\inferrule[Assigns]
+%          {\htrip{\eqs_1}{\prog}{\eqs_2}}% \\ \vars(\eqs_1) \cap \dom(\subn) = \varnothing}
+%          {\htrip{\eqs_1 \wedge \subn_{\prog}(\eqs)}{\prog}{\eqs_2 \wedge \eqs}}
+%\end{mathpar}
+
+
+\begin{lemma}
+  \label{theorem-toeq}
+  Given $\eqs, \prog, \store$ with $\store \models \eqs$ and $(\store,\prog)$
+  closed.
+  Then $(\store,\prog) \redxs \store'$ iff $\store' \models
+  \eqs \wedge \toeq{\prog}$.
+\end{lemma}
+
+\begin{theorem}
+  \label{theorem-toeq}
+  $\sigma \models \eqspre \wedge \toeq{\prog}$ iff $\store \in \runs(\prog)$.
+\end{theorem}
+
+\begin{definition}
+$\htrip{\eqs_1}{\prog}{\eqs_2}$ is \emph{valid} iff $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$.
+\end{definition}
+
+\begin{lemma}
+  \label{theorem-toeq}
+  Given $\eqs_1, \eqs_2, \prog, \store$ with $\store \models \eqs_1$
+  and $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$. Then
+  $(\store,\prog) \redxs \store'$ implies $\store' \models
+  \eqs_2$.
+\end{lemma}
+
+\begin{lemma}
+  If $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable, then it is valid.
+\end{lemma}
+
+\begin{proof}
+  Assume $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable without \TirName{Hyp}.
+  Then $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$, since all other rules
+  are sound. 
+  Now since $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$ by assumption, we have
+  $
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 
+  $,
+  and clearly:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge (\eqs_2 \impl \eqs)
+  $$
+  and since $\eqs_2 \wedge (\eqs_2 \impl \eqs)$ iff
+  $\eqs_2 \wedge \eqs$, we have by \TirName{Consequence}:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge \eqs
+  $$
+\end{proof}
+
+\subsection{$\metaprot$ Automated Abstract Hoare Logic}
+
+Adding basic types to command function declarations to support generalize pre/post conditions. 
+
+$$
+\begin{array}{rcl@{\hspace{4mm}}r}
+\tau &::=& \fieldp{p} \mid \mathit{string} \mid \mathit{cid} \mid \{ \flab_1 : \tau_1; \ldots; \flab_n : \tau_n \} & \gdesc{basic types}\\[2mm]
+\mathit{fn} &::=& f(y,\ldots,y) \{ e \} \mid  f(y : \tau,\ldots,y : \tau) \{ \cmd \} & \textit{functions}
+\end{array}
+$$
+\medskip
+
+\noindent This is the generalized rule for entailment:
+
+\begin{mathpar}
+\inferrule[GenEntails]
+          {\mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\ \peq_1[\mv_1/y_n \cdots \mv_n/y_n] \redx \eqs_1 \\
+           \peq_2[\mv_1/y_n \cdots \mv_n/y_n] \redx \eqs_2 \\ \eqs_1 \models \eqs_2}
+          {\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_2 }
+\end{mathpar}
+
+\begin{lemma}
+  \label{lemma-genentails}
+  If $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_2$ and
+  $\peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1$ and
+  $\peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2$, then
+  $\eqs_1 \models \eqs_2$.  
+\end{lemma}
+
+
+\begin{fpfig}[t]{Algorithmic $\metaprot$ Abstract Hoare Triple Deduction Rules}{fig-metahtrip}
+\begin{mathpar}
+  \inferrule[Mesg]
+            {}
+            {\htrip{\eqtrue}{\xassign{e_1}{e_2}{e_3}}{e_1 \eop \toeq{\elab{e_2}{e_3}}}}
+
+  %\inferrule[Encode]
+  %          {\mx{e_1}{e_2} \redx x \\ \notg{\phi} \redx \phi \\
+  %            \eqs \models x \eop \phi\\
+  %            \atj{\phi}{R}{\ty}}
+  %          {\mtj{\eqcast{\mx{e_1}{e_2}}{\notg{\phi}}}{\eqs}{(x : \ty)}{R}{\varnothing}{\eqs}}
+  %
+  \inferrule[Assert]
+            {}
+            {\htrip{\toeq{\elab{e_1}{e_3}} \eop \toeq{\elab{e_2}{e_3}}}{\elab{\assert{e_1 = e_2}}{e_3}}{\eqtrue}}
+
+  \inferrule[Seq]          
+            {\htrip{\peq_1^1}{\cmd_1}{\peq_2^1} \\ \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}}
+            {\htrip{\peq_1^1 \wedge (\peq_2^1 \impl \peq_1^2)}{\cmd_1;\cmd_2}{\peq_2^1 \wedge \peq_2^2}}
+
+  \inferrule[Let]
+            {\htrip{\peq_1}{\cmd[e/y]}{\peq_2}}
+            {\htrip{\peq_1}{\elet{y}{e}{\cmd}}{\peq_2}}
+
+  \inferrule[App]
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+            {\htrip{\peq_1[e_1/y_1 \cdots e_n/y_n]}{f(e_1,\ldots,e_n)}{\peq_2[e_1/y_1 \cdots e_n/y_n]}}
+
+  \inferrule[Fn]
+            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \htrip{\peq_1}{\cmd}{\peq_2}}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+
+  \inferrule[Hardpack]
+            {\precond(f) = \peq_1 \\ \postcond(f) = \peq_2 \\
+              \htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'} \\
+              \forall y_1:\tau_1,\ldots,y_n:\tau_n . 
+            \peq_1 \models \peq_1'\ \text{and}\ \peq_1 \wedge \peq_2' \models \peq_2}
+            {\htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}}
+\end{mathpar}
+\end{fpfig}
+
+The rules in Figure \ref{fig-metahtrip} rely on the soundness of the
+\TirName{Hyp} rule below, which may be derivable but at least is
+provably sound for the assumed correctness property of the logic which
+is:
+$$
+\htrip{\eqs_1}{\prog}{\eqs_2} \ \textit{implies}\ \eqs_1 \wedge \toeq{\prog} \models \eqs_2
+$$
+
+\begin{mathpar}
+\inferrule[Hyp]
+          {\htrip{\eqs_1}{\prog}{\eqs_2}}
+          {\htrip{\eqs_1 \wedge (\eqs_2 \impl \eqs)}{\prog}{\eqs_2 \wedge \eqs}}
+\end{mathpar}
+
+\begin{lemma}
+  \TirName{Hyp} is sound.
+\end{lemma}
+\begin{proof}
+  Assume $\htrip{\eqs_1}{\prog}{\eqs_2}$ is derivable without \TirName{Hyp}.
+  Then $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$, since all other rules
+  are sound. 
+  Now since $\eqs_1 \wedge \toeq{\prog} \models \eqs_2$ by assumption, we have
+  $
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 
+  $,
+  and clearly:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge (\eqs_2 \impl \eqs)
+  $$
+  and since $\eqs_2 \wedge (\eqs_2 \impl \eqs)$ iff
+  $\eqs_2 \wedge \eqs$, we have by \TirName{Consequence}:
+  $$
+  \eqs_1 \wedge (\eqs_2 \impl \eqs) \wedge \toeq{\prog} \models \eqs_2 \wedge \eqs
+  $$
+\end{proof}
+
+
+
+\begin{lemma}
+  \label{lemma-closure}
+  If $\htrip{\peq_1}{\prog}{\peq_2}$ and $\instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog$
+  then $\peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1$ and
+  $\peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2$ for some $\eqs_1, \eqs_2$. 
+\end{lemma}
+
+\begin{lemma}[$\metaprot$ Hoare Triple Correctness]
+  \label{lemma-htrip}
+  If $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx
+  \eqs_1$, $\peq_2 \redx \eqs_2$, and $\cmd \redx
+  \prog$, then $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+\end{lemma}
+
+\begin{proof}
+  By structural induction on the derivation of $\cmd \redx \prog$ and
+  case analysis on $\cmd$.
+
+  \textit{Case} $\cmd = (\xassign{e_1}{e_2}{e_3})$. In this case by definition
+  and inversion of $\redx$ and $\TirName{Assign}$ we have:
+  \begin{mathpar}
+    e_1 \redx x
+
+    e_2 \redx \be
+
+    e_3 \redx \cid
+
+    \prog = (\xassign{x}{\be}{\cid})
+
+    \peq_1 \redx \true
+
+    \peq_2  \redx x \eop \toeq{\elab{\be}{\cid}}
+  \end{mathpar}
+  Now by \TirName{Assign} we have
+  $\htrip{\toeq{\elab{\be}{\cid}} \eop \toeq{\elab{\be}{\cid}}}{\xassign{x}{\be}{\cid}}{x \eop \toeq{\elab{\be}{\cid}}}$, so
+  we have
+  $\htrip{\true}{\xassign{x}{\be}{\cid}}{x \eop
+    \toeq{\elab{\be}{\cid}}}$ by \TirName{Consequence}.
+
+  \textit{Case} $\cmd = \elab{\assert{e_1 = e_2}}{e_3}$. In this case by definition we have:
+  \begin{mathpar}
+    e_1 \redx \be_1
+
+    e_2 \redx \be_2
+
+    e_3 \redx \cid
+
+    \prog = \elab{\assert{\be_1 = \be_2}}{\cid}
+
+    \peq_1 \redx \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}
+    
+    \peq_2 \redx \true
+  \end{mathpar}
+  But we have $\htrip{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}$ by $\TirName{Assert}$, so
+  $\htrip{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\true}$ by $\TirName{Consequence}$.
+
+  \textit{Case} $\cmd = \cmd_1;\cmd_2$. In this case by assumption and
+  definition and inversion of $\redx$ and $\TirName{Seq}$ we have:
+  \begin{mathpar}
+    \cmd_1 \redx \prog_1
+
+    \cmd_2 \redx \prog_2
+
+    \prog = \prog_1;\prog_2
+
+    \peq_1 \redx \eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)
+      
+    \peq_2 \redx \eqs_2^1 \wedge \eqs_2^2
+  \end{mathpar}
+  and by inversion of the $\TirName{Seq}$ rule we have:
+  \begin{mathpar}
+    \htrip{\peq_1^1}{\cmd_1}{\peq_2^1}
+
+    \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}
+  \end{mathpar}
+  and by the induction hypothesis we have:
+  \begin{mathpar}
+    \htrip{\eqs_1^1}{\cmd_1}{\eqs_2^1}
+
+    \htrip{\eqs_1^2}{\cmd_2}{\eqs_2^2}
+  \end{mathpar}
+  But by \TirName{Hyp} we have:
+  $\htrip{\eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)}{\cmd_1}{\eqs_2^1 \wedge \eqs_1^2}$
+  and by sanity conditions \cnote{need to clarify these} we have
+  $\vars(\eqs_2^1) \cap \avars(\prog_2) = \varnothing$ so by \TirName{Frame} we
+  have
+  $\htrip{\eqs_2^1 \wedge \eqs_1^2}{\cmd_2}{\eqs_2^1 \wedge \eqs_2^2}$.
+  Thus by $\TirName{Seq}$ we have:
+  $$\htrip{\eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$$
+
+  \textit{Case} $\cmd = f(e_1,\ldots,e_n)$. In this case by assumption and
+  definition and inversion of $\TirName{App}$ and $\redx$ we have:
+  \begin{mathpar}
+    \codebase(f) = y_1,\ldots,y_n, \instr
+    
+    e_1 \redx \mv_1 \cdots e_n \redx \mv_n
+
+    \instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
+
+    \peq_1 = \peq^0_1[\mv_1/y_1]\cdots[\mv_n/y_n]
+
+    \peq_2 = \peq^0_2[\mv_1/y_1]\cdots[\mv_n/y_n]
+    
+    \htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2}
+  \end{mathpar}
+  Note that sanity conditions on pre- and post-condition annotations
+  means there exists $\eqs_1$ and $\eqs_2$ where $\peq_1 \redx
+  \eqs_1$ and $\peq_2 \redx \eqs_2$. Now, the judgement
+  $\htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2}$
+  follows by one or two subcases. Where it follows by \TirName{Fn} the
+  result is immediate by definition and the induction
+  hypothesis. Otherwise it follows by \TirName{Hardpack} and we
+  proceed as follows.
+
+  By inversion of \TirName{Hardpack} we have
+  $\htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'}$ by
+  \TirName{Fn} where $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1
+  \models \peq_1'$. Then $\peq_1'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+  \eqs_1'$ and $\peq_2'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+  \eqs_2'$ by Lemma \ref{lemma-closure}. 
+  By Lemma \ref{lemma-genentails} we have $\eqs_1
+  \models \eqs_1'$, so by \TirName{Consequence} we have
+  $\htrip{\eqs_1}{\prog}{\eqs_2'}$, and by \TirName{Hyp}
+  we have:
+  $$\htrip{\eqs_1 \wedge (\eqs_2' \impl \eqs_2)}{\prog}{\eqs_2' \wedge \eqs_2}$$
+
+  Furthermore, also by inversion of \TirName{Hardpack} we have
+  $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1 \wedge 
+  \peq_2' \models \peq^0_2$. 
+  By Lemma \ref{lemma-genentails} we thus have $\eqs_1
+  \wedge \eqs_2' \models \eqs_2$, which implies
+  $\eqs_1 \models \eqs_2' \impl \eqs_2$.
+  Thus by \TirName{Consequence} we have $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+
+  Finally, \textit{case} $\prog = \elet{y}{e}{\cmd}$ follows trivially
+  by the induction hypothesis, which covers all cases to prove
+  the result.
+\end{proof}
+
+\begin{theorem}
+  If $\htrip{\eqs_1}{\ttt{main()}}{\eqs_2}$ as a consequence of
+  \TirName{HardPack} and $\ttt{main}() \redx \prog$ then
+  $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+\end{theorem}

@@ -1,0 +1,446 @@
+\section{The $\metaprot$ Language and Automated Hoare Logic}
+\label{section-metalang}
+
+The $\metaprot$ language \cite{skalka-near-ppdp24} includes structured
+data and function definitions for defining composable protocol
+elements at a higher level of abstraction than $\minicat$.  The
+$\metaprot$ language is a \emph{metalanguage} aka metaprogramming
+language, where an $\fedprot$ protocol is the result of
+computation. In addition to these declarative benefits of $\metaprot$,
+component definitions support compositional verification of larger
+protocols. This includes an automated verification of algebraic
+program properties expressed as Hoare logic assertions that we
+introduce in this Section. Furthermore, we can compositionally verify
+confidentiality and integrity properties expressed as types, as we
+will discuss in Sections \ref{section-metaty} and especially
+\ref{section-examples} where we present and discuss
+extended examples of $\metaprot$ programs.
+
+\metaprotsyntaxfig
+
+\subsection{Syntax and Semantics}
+
+The syntax of $\metaprot$ is defined in Figure
+\ref{fig-metaprotsyntax}.  It includes a syntax of values $\mv$ that
+include client ids $\cid$, identifier strings $w$, expressions $\be$
+in field $\mathbb{F}_p$, record values, and $\minicat$ variables
+$x$. $\metaprot$ \emph{expression} forms allow dynamic construction of these
+values. Note in particular that $\concat$ is string concatenation.
+$\metaprot$ \emph{instructions} allow dynamic
+construction of $\minicat$ protocols $\prog$ that incorporate expression
+evaluation. The syntax also supports definitions of functions that
+compute values $\mv$ and, as a distinct form, functions that compute
+protocols $\prog$.  The latter requires type annotations on arguments
+which are restricted to being either strings, client ids, or
+records-- we use this type information to support Hoare logic
+automation as we discuss below in Section \ref{section-metahtrip}.
+
+Formally, we consider a complete metaprogram to include
+both a codebase and a ``main'' program that uses the codebase.
+For all function (expression or instruction forms) we disallow
+recursion which is important guarantee decidability
+of type dependence (Section \ref{section-metaty}).
+\begin{definition}
+A \emph{codebase} $\codebase$ is a list of function 
+declarations. We write $ \codebase(f) = y_1,\ldots,y_n,\ e$
+if $f(y_1,\ldots,y_n) \{ e \} \in \codebase$, and we
+write  $ \codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \instr$
+if $f(y_1 : \tau_1, \ldots, y_n : \tau_n) \{ \instr \} \in \codebase$.
+%A \emph{metaprogram}, aka \emph{metaprotocol}  is a pair of a 
+%codebase and expression $\codebase, e$. We may omit
+%$\codebase$ if it is clear from context.  
+\end{definition}
+
+\metaprotexprsemanticsfig
+
+We define a big-step evaluation relation $\redx$ in Figures
+\ref{fig-metaprotexprsemantics} and \ref{fig-metaprotinstrsemantics}
+for expressions and instructions, respectively.  In this definition we
+write $e[\mv/y]$ and $\instr[\mv/y]$ to denote the substitution of
+$\mv$ for free occurrences of $y$ in $e$ or $\instr$ respectively. The
+rules are mostly standard.
+
+%Note that we do not include an evaluation
+%rule for the form $\eqcast{\mx{e}{e}}{e}$ which is a type
+%annotation that we assume is erased from programs prior to
+%evaluation. We defer discussion of this form to Section
+%\ref{section-sharety}
+
+\paragraph{Sanity conditions on programs.} We assume that
+any $\metaprot$ codebase $\codebase$ includes a function
+$\ttt{main}()$. And as for $\minicat$, we assume that $\metaprot$
+programs are semantically well-formed-- that is, that
+$\ttt{main}() \redx \prog$ and $\prog$ is well-formed.
+
+\metaprotinstrsemanticsfig
+
+\subsection{Abstract pre and postcondition annotations}
+
+$\metaprot$ instruction functions can optionally be annotated with pre
+and postconditions. To model this in our theory we posit functions
+$\precond$ and $\postcond$ that specify conditions for instruction
+functions $f \in \dom(\codebase)$.  Note that $\precond(f)$ or
+$\precond(f)$ may be undefined if no annotation is given for $f$. In
+actual code, we write pre and postconditions directly before and after
+functions to define them. Here is a simple example function
+$\ttt{bar}$ with pre and postcondition annotations. Note that the
+annotations are abstract with respect to the input string $\ttt{x}$,
+and that string concatenation can be used in pre and postcondition
+constraints:
+\begin{verbatimtab}
+precondition: ( m[x++"foo"]@1 == 3 )
+bar(x:string){ m[x++"bar"]@2 := (m[x++"foo"] + m[x++"baz"])@1 }
+postcondition: ( [m[z++"bar"]@2 == m[x++"baz"]@1 + 3 )
+\end{verbatimtab}
+Since expressions can occur in $\metaprot$ constraints, they are not
+SMT constraints, but abstractions of constraints parameterized by
+the formal parameters of the function they annotate. We denote these
+\emph{abstract constraints} as $\peq$ with the syntax given
+in Figure \ref{fig-peq}. When the function is applied, the pre and postconditions
+are instantiated as SMT constraints, via evaluating the expressions
+within the constraints. The evaluation semantics of abstract constraints
+are also given in Figure \ref{fig-peq}.
+
+\peqfig
+
+In the case of \ttt{main}, since it has no arguments, the
+pre and postconditions must be concrete SMT expressions.
+For example, given the \ttt{bar} function above, we
+could define a full program as follows, where \ttt{T}
+is the true constraint. 
+\begin{verbatimtab}
+precondition: ( T )
+main(){
+  m["thisfoo"]@1 := 3; m["thisbaz"]@1 := 2; bar("this")
+}
+postcondition: ( [m["thisbar"]@2 == 5 )
+\end{verbatimtab}
+There are no preconditions to this \ttt{main} because they are
+all established by the program, and the postcondition follows
+as a consequence of the application \ttt{bar("this")}.
+
+The use of pre and postconditions in \ttt{main} allows verification of
+whole-program (protocol) correctness. Further, the use of annotations
+on function definitions supports \emph{compositional} verification of
+program components. In general postconditions can serve as
+pre-verified properties of functions that can be reused in, and reduce
+overhead of, whole protocol verification. A representative example of
+a GMW $\ttt{and}$ gate \cite{evans2018pragmatic} implementation is
+given in Figure \ref{fig-gmwprepost}. Here, the $\ttt{andgmw}$
+function takes as input strings $x$ and $y$ that distinguish values
+secret-shared between clients 1 and 2 as $\mx{x}{1}, \mx{x}{2}$ and
+$\mx{y}{1},\mx{y}{2}$ respectively-- that is, these shares encode
+$\ttt{RECON}(x)$ and $\ttt{RECON}(y)$ The postcondition of the
+protocol defined by the $\ttt{andgmw}$ specifies that it results in a
+value shared between clients 1 and 2 as $\ttt{RECON}(z)$ that is the
+conjunction of $\ttt{RECON}(x)$ and $\ttt{RECON}(y)$. This is
+non-trivial to prove, and expressing this postcondition in a
+compositional manner reduces proof overhead and improves scalability
+to large circuits that may incorporate a multitude of $\ttt{and}$
+gates.
+
+\begin{fpfig}[t]{GMW $\ttt{and}$ gate with postcondition.}{fig-gmwprepost}
+\begin{verbatimtab}
+RECON(x) { (m[x]@1 + m[x]@2) }
+
+andtablegmw(x, y, z) {
+  let r11 = (r[z] + (m[x] + 1) * (m[y] + 1)) in
+  let r10 = (r[z] + (m[x] + 1) * (m[y] + 0)) in
+  let r01 = (r[z] + (m[x] + 0) * (m[y] + 1)) in
+  let r00 = (r[z] + (m[x] + 0) * (m[y] + 0)) in
+  { row1 = r11; row2 = r10; row3 = r01; row4 = r00 }
+}
+
+andgmw(z:string, x:string, y:string) {
+  let table = andtablegmw(x,y,z) in
+  m[z]@2 := OT4((m[x], m[y])@2, table.row4, table.row3, table.row2, table.row1)@1;
+  m[z]@1 := r[z]@1
+}
+postcondition:  ( RECON(z) == RECON(x) * RECON(y))
+\end{verbatimtab}
+\end{fpfig}
+
+
+\subsection{$\metaprot$ Automated Abstract Hoare Logic}
+\label{section-metahtrip}
+
+In the $\metaprot$ theory, we introduce Hoare logic assertions
+of the form $\htrip{\peq_1}{\cmd}{\peq_2}$. The correctness
+condition of this assertion is compositional, in that instantiated
+abstract Hoare triples evaluate to valid $\minicat$ Hoare triples.
+This is formally elaborated below in Lemma
+\ref{lemma-metahtrip} and Corollaries \ref{cor-metahtrip} and
+\ref{cor-mainhtrip} below.
+
+In Figure \ref{fig-metahtrip} we give the derivation rules for the
+abstract Hoare logic. These are based on $\minicat$ Hoare logic, but
+are algorithmic. A main predicate for these rules is the
+$\TirName{GenEntails}$ rule, which encodes a generalized version of
+entailment. By using fresh variables to instantiate abstract
+constraints, we guarantee entailment for any instantiation, as
+follows.
+
+\begin{lemma}
+  \label{lemma-fresh}
+  Given $\eqs$ and $w, \cid = \fresh(\stringty, \cidty)$ and
+  some $w',\cid'$ where 
+  $\peq[w/y_1,\cid/y_n] \redx \eqs$ and
+  $\peq[w'/y_1,\cid'/y_n] \redx \eqs'$.
+  Then $\store \models \eqs'$ implies $\store \models \eqs$. 
+\end{lemma}
+
+\begin{proof}
+  If $w',\cid'$ are fresh or chosen the result is
+  trivial.  Otherwise, it must be the case that at least two
+  distinct variables $x_1$ and $x_2$ in $\eqs$ are renamed as a single
+  variable $x$ in $\eqs'$, given freshness of $w,\cid$. Let
+  $\mathit{rename}$ be the function that maps variables in $\eqs$ to
+  variables in $\eqs'$ such that $\mathit{rename}(\eqs) = \eqs'$. Suppose
+  on the contrary that 
+  $\store' \models \eqs'$ and $\store' \not\models \eqs$, and define $\store$ such that:
+  $$
+  \forall x \in \dom(\vars(E)) . \store(x) \defeq \store'(\mathit{rename}(x)) 
+  $$
+  Then $\store$ must be a model of $\eqs$, which is a contradiction. 
+\end{proof}
+
+\begin{lemma}
+  \label{lemma-genentails}
+  If $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq_1 \models \peq_2$ and
+  $\peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1$ and
+  $\peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2$, then
+  $\eqs_1 \models \eqs_2$.  
+\end{lemma}
+\begin{proof}
+  By assumption and definition of \TirName{GenEntails} we have
+  $\peq_1[\mv_1'/y_n \cdots \mv_n'/y_n] \redx \eqs_1'$ and
+  $\peq_2[\mv_1'/y_n \cdots \mv_n'/y_n] \redx \eqs_2'$ and $\eqs_1'
+  \models \eqs_2'$ for some $\mv_1',\ldots,\mv_n' =
+  \fresh(\tau_1,\ldots,\tau_n)$.  Now suppose on the contrary that
+  $\eqs_1 \not\models \eqs_2$.  This implies the existence of $\store$
+  such that $\store \models \eqs_1$ and $\store \not\models \eqs_2$.
+  But Lemma \ref{lemma-fresh} implies that $\store \models \eqs_1'$,
+  so by definition we have $\store \models \eqs_2'$ implying $\store
+  \models \eqs_2$ by construction, which is a contradiction.
+\end{proof}
+
+\metahtripfig
+
+The \TirName{HardPack} rule uses \TirName{GenEntails} to ensure that
+the annotated pre and postconditions are correct for a given function,
+if they are defined. It is in fact not necessary for \emph{any} pre
+and postconditions to be defined, since the analysis will infer valid
+pre and postconditions in their absence by rule \TirName{Fn}, but
+their intent is to enable fine-tuning of pre and postconditions for
+improving verification efficiency as discussed above and later in
+Section \ref{section-examples}.  An important implementation detail is
+that verification of any given function $f$ only needs to be performed
+once, and can then be memoized for other applications using the
+\TirName{App} rule as a consequence of Lemma \ref{lemma-genentails}
+(and more precisely of Corollary \ref{cor-metahtrip}).
+
+The \TirName{Assign} and \TirName{Assert} rules propagate equations
+induced by assignments and assertions to post and preconditions
+respectively.  Note that without the use of \TirName{HardPack}, the
+entire protocol would accumulate in postconditions of \ttt{main}. The
+\TirName{Seq} rule relies on the correctness of our \TirName{Hyp} rule
+to join pre and postconditions as we discuss in the relevant case of
+Lemma \ref{lemma-metahtrip}, which is the foundational correctness
+result for the analysis.
+
+\paragraph{Pre and post sanity conditions.} We require that
+annotated pre and postconditions on functions will evaluate to SMT
+constraints when instantiated with function arguments, and refer only
+to variables that occur in their bodies. Deduction rules other than
+\TirName{HardPack} enforce this by definition.  For any $f$ with
+$\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd$,
+$\precond(f) = \peq_1$, and $\postcond(f) = \peq_2$, we require that
+for all $[\mv_1/y_1]\cdots[\mv_n/y_n]$ there exists $\eqs_1$, $\eqs_2$
+where:
+\begin{mathpar}
+  \cmd[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
+  
+  \peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1
+  
+  \peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2
+\end{mathpar}
+and $\vars(\eqs_1) \cup \vars(\eqs_2) \subseteq \vars(\prog)$.
+
+\subsection{Abstact Hoare Logic Soundness}
+
+We begin by showing that the analysis preserves the property that in
+any $\htrip{\peq_1}{\prog}{\peq_2}$, fully instantiating $\prog$
+also fully instantiates $\peq_1$ and $\peq_2$. The result
+follows by sanity conditions on pre and postcondition annotations,
+the definition of analysis, and induction on $\cmd$.
+\begin{lemma}
+  \label{lemma-closure}
+  If $\htrip{\peq_1}{\prog}{\peq_2}$ and $\instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog$
+  then $\peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1$ and
+  $\peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2$ for some $\eqs_1, \eqs_2$. 
+\end{lemma}
+
+Now we can prove our main result in a general form. The proof
+follows mainly by appeal to the $\minicat$ Hoare logic deduction
+system.
+\begin{lemma}[$\metaprot$ Hoare Triple Correctness]
+  \label{lemma-metahtrip}
+  If $\htrip{\peq_1}{\cmd}{\peq_2}$ with $\peq_1 \redx
+  \eqs_1$, $\peq_2 \redx \eqs_2$, and $\cmd \redx
+  \prog$, then $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+\end{lemma}
+
+\begin{proof}
+  By structural induction on the derivation of $\cmd \redx \prog$ and
+  case analysis on $\cmd$.
+
+  \textit{Case} $\cmd = (\xassign{e_1}{e_2}{e_3})$. In this case by definition
+  and inversion of $\redx$ and $\TirName{Assign}$ we have:
+  \begin{mathpar}
+    e_1 \redx x
+
+    e_2 \redx \be
+
+    e_3 \redx \cid
+
+    \prog = (\xassign{x}{\be}{\cid})
+
+    \peq_1 \redx \true
+
+    \peq_2  \redx x \eop \toeq{\elab{\be}{\cid}}
+  \end{mathpar}
+  Now by \TirName{Assign} we have
+  $\htrip{\toeq{\elab{\be}{\cid}} \eop \toeq{\elab{\be}{\cid}}}{\xassign{x}{\be}{\cid}}{x \eop \toeq{\elab{\be}{\cid}}}$, so
+  we have
+  $\htrip{\true}{\xassign{x}{\be}{\cid}}{x \eop
+    \toeq{\elab{\be}{\cid}}}$ by \TirName{Consequence}.
+
+  \textit{Case} $\cmd = \elab{\assert{e_1 = e_2}}{e_3}$. In this case by definition we have:
+  \begin{mathpar}
+    e_1 \redx \be_1
+
+    e_2 \redx \be_2
+
+    e_3 \redx \cid
+
+    \prog = \elab{\assert{\be_1 = \be_2}}{\cid}
+
+    \peq_1 \redx \toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}
+    
+    \peq_2 \redx \true
+  \end{mathpar}
+  But we have $\htrip{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}$ by $\TirName{Assert}$, so
+  $\htrip{\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}}}{\elab{\assert{\be_1 = \be_2}}{\cid}}{\true}$ by $\TirName{Consequence}$.
+
+  \textit{Case} $\cmd = \cmd_1;\cmd_2$. In this case by assumption and
+  definition and inversion of $\redx$ and $\TirName{Seq}$ we have:
+  \begin{mathpar}
+    \cmd_1 \redx \prog_1
+
+    \cmd_2 \redx \prog_2
+
+    \prog = \prog_1;\prog_2
+
+    \peq_1 \redx \eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)
+      
+    \peq_2 \redx \eqs_2^1 \wedge \eqs_2^2
+  \end{mathpar}
+  and by inversion of the $\TirName{Seq}$ rule we have $\htrip{\peq_1^1}{\cmd_1}{\peq_2^1}$ and $\htrip{\peq_1^2}{\cmd_2}{\peq_2^2}$,
+  %\begin{mathpar}
+  %  \htrip{\peq_1^1}{\cmd_1}{\peq_2^1}
+  %
+  %  \htrip{\peq_1^2}{\cmd_2}{\peq_2^2}
+  %\end{mathpar}
+  and by the induction hypothesis we have $\htrip{\eqs_1^1}{\cmd_1}{\eqs_2^1}$ and $\htrip{\eqs_1^2}{\cmd_2}{\eqs_2^2}$.
+  %\begin{mathpar}
+  %  \htrip{\eqs_1^1}{\cmd_1}{\eqs_2^1}
+  %
+  %  \htrip{\eqs_1^2}{\cmd_2}{\eqs_2^2}
+  %\end{mathpar}
+  But by \TirName{Hyp} we have:
+  $\htrip{\eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)}{\cmd_1}{\eqs_2^1 \wedge \eqs_1^2}$
+  and by sanity conditions we have
+  $\vars(\eqs_2^1) \cap \avars(\prog_2) = \varnothing$ so by \TirName{Frame} we
+  have
+  $\htrip{\eqs_2^1 \wedge \eqs_1^2}{\cmd_2}{\eqs_2^1 \wedge \eqs_2^2}$.
+  Thus by $\TirName{Seq}$ we have:
+  $$\htrip{\eqs_1^1 \wedge (\eqs_2^1 \impl \eqs_1^2)}{\prog_1;\prog_2}{\eqs_2^1 \wedge \eqs_2^2}$$
+
+  \textit{Case} $\cmd = f(e_1,\ldots,e_n)$. In this case by assumption and
+  definition and inversion of $\TirName{App}$ and $\redx$ we have:
+  \begin{mathpar}
+    \codebase(f) = y_1,\ldots,y_n, \instr
+    
+    e_1 \redx \mv_1 \cdots e_n \redx \mv_n
+
+    \instr[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
+
+    \peq_1 = \peq^0_1[\mv_1/y_1]\cdots[\mv_n/y_n]
+
+    \peq_2 = \peq^0_2[\mv_1/y_1]\cdots[\mv_n/y_n]
+    
+    \htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2}
+  \end{mathpar}
+  Note that sanity conditions on pre- and post-condition annotations
+  means there exists $\eqs_1$ and $\eqs_2$ where $\peq_1 \redx
+  \eqs_1$ and $\peq_2 \redx \eqs_2$. Now, the judgement
+  $\htrip{\peq^0_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq^0_2}$
+  follows by one or two subcases. Where it follows by \TirName{Fn} the
+  result is immediate by definition and the induction
+  hypothesis. Otherwise it follows by \TirName{Hardpack} and we
+  proceed as follows.
+
+  By inversion of \TirName{Hardpack} we have
+  $\htrip{\peq_1'}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2'}$ by
+  \TirName{Fn} where $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1
+  \models \peq_1'$. Then $\peq_1'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+  \eqs_1'$ and $\peq_2'[\mv_1/y_1]\cdots[\mv_n/y_n] \redx
+  \eqs_2'$ by Lemma \ref{lemma-closure}. 
+  By Lemma \ref{lemma-genentails} we have $\eqs_1
+  \models \eqs_1'$, so by \TirName{Consequence} we have
+  $\htrip{\eqs_1}{\prog}{\eqs_2'}$, and by \TirName{Hyp}
+  we have:
+  $$\htrip{\eqs_1 \wedge (\eqs_2' \impl \eqs_2)}{\prog}{\eqs_2' \wedge \eqs_2}$$
+
+  Furthermore, also by inversion of \TirName{Hardpack} we have
+  $\forall y_1:\tau_1,\ldots,y_n:\tau_n . \peq^0_1 \wedge 
+  \peq_2' \models \peq^0_2$. 
+  By Lemma \ref{lemma-genentails} we thus have $\eqs_1
+  \wedge \eqs_2' \models \eqs_2$, which implies
+  $\eqs_1 \models \eqs_2' \impl \eqs_2$.
+  Thus by \TirName{Consequence} we have $\htrip{\eqs_1}{\prog}{\eqs_2}$.
+
+  Finally, \textit{case} $\prog = \elet{y}{e}{\cmd}$ follows trivially
+  by the induction hypothesis, which covers all cases to prove
+  the result.
+\end{proof}
+
+As a consequence of the preceding Lemma, we can state important
+Corollaries that characterize, first, the compositionality of function
+constraints, and second, the correctness of whole program
+analysis. These both follow immediately by reasoning in the
+\TirName{App} case of Lemma \ref{lemma-metahtrip}.
+
+\begin{corollary}[Compositionality of Abstract Function Constraints]
+  \label{cor-metahtrip}
+  Given:
+  \begin{mathpar}
+    \htrip{\peq_1}{f(y_1:\tau_1,\ldots,y_n:\tau_n)}{\peq_2}
+
+    \codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd
+
+    \cmd[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog
+
+    \peq_1[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_1
+
+    \peq_2[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \eqs_2
+  \end{mathpar}
+  Then $\htrip{\eqs_1}{\prog}{\eqs_2}$ is valid.
+\end{corollary}
+
+\begin{corollary}
+  \label{cor-mainhtrip}
+  If $\htrip{\peq_1}{\ttt{main()}}{\peq_2}$ and $\ttt{main}() \redx \prog$ and
+  $\peq_1 \redx \eqs_1$ and $\peq_2 \redx \eqs_2$ then
+  $\htrip{\eqs_1}{\prog}{\eqs_2}$ is valid.
+\end{corollary}

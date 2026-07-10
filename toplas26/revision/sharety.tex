@@ -1,0 +1,605 @@
+\section{Share Types}
+
+
+\subsection{Logical Rules for $\minifed$}
+
+The logical typing rules enforce confidentiality. They impose
+coordination across clients and are defined in terms of vectors of
+expressions $\xvec$. Critically \emph{\bf all rules are defined modulo
+equivalence of vectors given $\eqs$}. We start by defining share
+generation and reconstruction. While we assume additive shares in this
+work, the type system is generally (intentionally) agnostic wrt to
+these abstractions, and so could be swapped out for, e.g., Shamir
+shares.
+
+\begin{eqnarray*}
+  \genshares(\phi,y,\cid) &\defeq& \setit{\rx{y}{\cid}}, [\phi - \rx{y}{\cid}, \rx{y}{\cid}]\\
+  \recon(\phi_1,\phi_2) &\defeq& \phi_1 \fplus \phi_2
+\end{eqnarray*}
+
+Generally the type system works more like an information flow type system
+than our previous work. The following rules define allowable interactions
+between clients. The idea is that all interactive messages must be categorized
+as either shares or public values in order for the protocol to be well-typed.
+
+\begin{mathpar}
+  \inferrule[Share]
+      %{\eqs \models \genshares(\phi_1,y,\cid_1) \eop R_2,[\mx{z}{\cid_2},\phi_2] } %\\ \cid_1 \ne \cid_2}
+      {\eqs \models \mx{z}{\cid_2} \eop \phi - \rx{y}{\cid_1} \\ \cid_1 \ne \cid_2}
+      {\Gamma,R,\eqs \vdash \setit{ \mx{z}{\cid_2} } : R \uplus \setit{\rx{y}{\cid_1}}, \Gamma \uplus \setit{[\mx{z}{\cid_2}, \rx{y}{\cid_1}] : \sharety}}
+
+  \inferrule[SecOpen]
+      {
+        \Gamma, \eqs \vdash [\phi,\px{x}] : \sharety\\
+        \eqs \models  \recon(\phi,\px{x}) \eop \phi' - \rx{y}{\oid}
+      }
+      {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R \uplus \setit{\rx{y}{\cid_o}}, \Gamma \uplus \setit{\pubx{\recon(\phi,\px{x})} : \pubty}}
+
+  \inferrule[Reveal]
+      {\Gamma, \eqs \vdash [\phi,\px{x}] : \sharety}
+      {\Gamma,R,\eqs \vdash \setit{ \px{x} }: R, \Gamma \uplus \setit{\pubx{\recon(\phi,\px{x})} : \outty}}
+
+  \inferrule[Output]
+      {\Gamma, \eqs \vdash [\out{\cid}] : \outty}
+      {\Gamma,R,\eqs \vdash \setit{ \out{\cid} }: R, \Gamma \uplus \setit{ \pubx{\out{\cid}} : \outty}}
+
+  \inferrule[Views]
+      {\Gamma_1,\eqs,R_1 \vdash X_1 : R_2,\Gamma_2 \\
+        \Gamma_2,\eqs,R_2 \vdash X_2 : R_3,\Gamma_3}
+      {\Gamma_1, \eqs,R_1 \vdash X_1 \uplus X_2 : R_3,\Gamma_3}
+\end{mathpar}
+
+In addition to the interactive rules, we have rules for local computation.
+Again, these are all modulo equivalence of vectors under $\eqs$. These rules
+allow standard homomorphic encryption operations, and in particular ensure
+that all openings are secure in a NIMO sense. These can be combined with
+the Hoare logic to obtain a precise bound on information release, e.g.,
+that outputs are secure openings of the ideal functionality.
+
+%\begin{mathpar}
+%  \eqs \vdash \islocal(\px{x},\cid)
+%
+%  \eqs \vdash \islocal(\mx{x}{\cid},\cid)
+%
+%  \eqs \vdash \islocal(\rx{x}{\cid},\cid)
+%
+%  \eqs \vdash \islocal(\sx{x}{\cid},\cid)
+%
+%  \inferrule
+%      {\eqs \vdash \islocal(\phi_1,\cid) \\ \eqs \vdash \islocal(\phi_2,\cid) }
+%      {\eqs \vdash \islocal(\phi_1 \bop \phi_2,\cid)}
+%
+%  \inferrule
+%      {\eqs \vdash \phi \eop \phi' \\ \eqs \vdash \islocal(\phi',\cid)}
+%      {\eqs \vdash \islocal(\phi,\cid)}
+%\end{mathpar}
+%
+%\begin{definition}
+%  The judgement $\Gamma,\eqs \vdash [\phi_1,\phi_2]$ is \emph{well-formed}
+%  iff $\eqs \vdash \islocal(\phi_1,\cid_1)$ and $\eqs \vdash \islocal(\phi_2,\cid_2)$
+%  with $\cid_1 \ne \cid_2$.
+%\end{definition}
+
+\begin{mathpar}
+  \inferrule[Sharing]
+      {}
+      {\Gamma,\eqs \vdash [\phi_1,\phi_2] : \Gamma([\phi_1,\phi_2])}
+      
+  \inferrule[Public]
+      {}
+      {\Gamma,\eqs \vdash \pubx{\phi_1} : \Gamma(\pubx{\phi_1})}
+      
+  \inferrule[Val]
+      {}
+      {\Gamma,\eqs \vdash \pubx{v} : \pubty}
+
+  \inferrule[HEAdd]
+      {\Gamma,\eqs \vdash [\phi^1_1,\phi^1_2] : \sharety\\
+        \Gamma,\eqs \vdash [\phi^2_1,\phi^2_2] : \sharety}
+      {\Gamma,\eqs \vdash [\phi^1_1\fplus\phi^2_1,\phi^1_2\fplus\phi^2_2] : \sharety}
+
+  \inferrule[HEAddPub]
+      {\Gamma,\eqs \vdash \pubx{\phi} : \pubty\\
+        \Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety}
+      {\Gamma,\eqs \vdash [\phi_1\fplus\phi,\phi_2] : \sharety}
+            
+  \inferrule[HEMultPub]
+      {\Gamma,\eqs \vdash [\phi] : \pubty\\
+        \Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety}
+      {\Gamma,\eqs \vdash [\phi_1\ftimes\phi,\phi_2\ftimes\phi] : \sharety}
+
+  \inferrule[PubOp]
+      {\Gamma,\eqs \vdash \pubx{\phi_1} : \pubty\\
+        \Gamma,\eqs \vdash \pubx{\phi_2} : \pubty}
+      {\Gamma,\eqs \vdash \pubx{\phi_1\bop\phi_2}: \pubty}
+      
+  \inferrule[ShareEntails]
+      {\Gamma,\eqs \vdash [\phi_1',\phi_2'] : \sharety \\
+        \eqs \models \phi_1 \eop \phi_1' \wedge \phi_2 \eop \phi_2'}
+      {\Gamma,\eqs \vdash [\phi_1,\phi_2] : \sharety} 
+      
+  \inferrule[PubEntails]
+      {\Gamma,\eqs \vdash \pubx{\phi'} : \pubty \\ \eqs \models \phi \eop \phi'}
+      {\Gamma,\eqs \vdash \pubx{\phi} : \pubty} 
+\end{mathpar}
+
+%\begin{mathpar}
+%  \inferrule
+%      {\prog \vdash_{\cid_1} \magical(\Gamma)\\
+%        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi} =
+%        \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{\scrape(\Gamma, \cid_2),\mx{z}{\cid_2} + \phi,\mx{z}{\cid_2}}
+%      }
+%      {\prog \vdash_{\cid_1} \magical(\Gamma;[\mx{z}{\cid_2},\phi_2] : \sharety)}
+%\end{mathpar}
+
+\begin{definition}
+  We write $\Gamma,R,\eqs : {OK}_\cid$ iff both of the following conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item For all $([\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety) \in \Gamma$,
+    we have $\eqs \models \mx{z}{\cid} \eop \phi - \rx{x}{\cid'}$ for
+    some $\phi$ and unique $\rx{x}{\cid'} \in R$, with $\cid \ne \cid'$.
+  \item For all $([\phi] : \pubty) \in \Gamma$,
+    we have $\eqs \models \phi \eop \phi' - \rx{x}{\oid}$ for
+    some $\phi'$ and unique $\rx{x}{\oid} \in R$.
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}
+  Given $\Gamma,R,\eqspre \wedge \toeq{\prog} : {OK}_\cid$ and $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma,R,\eqspre \wedge \toeq{\prog} \vdash \setit{x} : R',\Gamma'$
+  for $x \in V_{\setit{\cid}}$. Then $\Gamma',R',\eqspre \wedge \toeq{\prog} : {OK}_\cid$.
+\end{lemma}
+
+\begin{definition} Define $\vscrape(\Gamma)$ and $\sscrape(\Gamma)$ as follows:
+\begin{eqnarray*}
+\vscrape(\varnothing) &=& \varnothing \\[-1.5mm]
+\vscrape(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \setit{\mx{z}{\cid}} \cup \vscrape(\Gamma)\\[-1.5mm]
+\vscrape(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \setit{\px{x}} \cup \vscrape(\Gamma)\\[-1.5mm]
+\vscrape(\setit{[\phi] : \outty} \cup \Gamma) &=& \setit{\phi} \cup \vscrape(\Gamma)
+\end{eqnarray*}
+and:
+\begin{eqnarray*}
+\sscrape(\varnothing) &=& \varnothing \\[-1.5mm]
+\sscrape(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \sscrape(\Gamma)\\[-1.5mm]
+\vscrape(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \sscrape(\Gamma)\\[-1.5mm]
+\vscrape(\setit{[\phi] : \outty} \cup \Gamma) &=& \setit{\phi} \cup \sscrape(\Gamma)
+\end{eqnarray*}
+\end{definition}
+
+\begin{lemma}
+  Given $\Gamma,R, \eqspre \wedge \toeq{\prog} : {OK}_\cid$ and
+  $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] :
+  \sharety$. Then with $\cid'\ne \cid$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma) \cup \setit{\phi_1 + \phi_2}}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma) \cup \setit{\phi_1 + \phi_2, \phi_1}}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  Given $\Gamma,R, \eqspre \wedge \toeq{\prog} : {OK}_\cid$ and $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma,R, \eqspre \wedge \toeq{\prog} \vdash \setit{x} : R',\Gamma'$
+  for $x \in V_{\setit{\cid}}$.
+  If we have for $\cid' \ne \cid$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma)}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \sscrape(\Gamma)}
+  $$
+  then we have:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \vscrape(\Gamma')}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid'}}}{S_{\setit{\cid}} \cup \sscrape(\Gamma')}
+  $$
+\end{lemma}
+
+\begin{theorem}
+  Given $\prog$ with $\iov(\prog) = S \cup V \cup O$ and $\eqspre$.
+  Then $\varnothing,\varnothing,\eqspre \wedge \toeq{\prog} \vdash
+  \houtputs :  R',\Gamma'$ implies:
+  $$
+  \condd{\progtt(\prog)}{S_H}{S_C \cup O} =
+  \condd{\progtt(\prog)}{S_H}{S_C \cup O \cup \houtputs}
+  $$
+  for any partitioning $H,C$ of two clients.
+\end{theorem} 
+
+
+\subsection{$\minicat$ Try Again}
+
+\begin{mathpar}
+  \inferrule[Share]
+      %{\eqs \models \genshares(\phi_1,y,\cid_1) \eop R_2,[\mx{z}{\cid_2},\phi_2] } %\\ \cid_1 \ne \cid_2}
+      {\eqs \models \mx{z}{\cid_2} \eop \phi - \rx{y}{\cid_1} \\ \cid_1 \ne \cid_2}
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{[\mx{z}{\cid_2}, \rx{y}{\cid_1}] : \sharety}, R \uplus \setit{\rx{y}{\cid_1}}}
+
+  \inferrule[SecOpen]
+      {
+        \Gamma, \eqs \vdash [\px{x},\px{y}] : \sharety\\
+        \eqs \models  \px{x} + \px{y} \eop \phi' - \rx{y}{\oid}
+      }
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\px{x} + \px{y}}  : \pubty}, R \uplus \setit{\rx{y}{\cid_o}}}
+
+  \inferrule[Reveal]
+      {
+        \Gamma, \eqs \vdash [\px{x},\px{y}] : \sharety
+      }
+      {\eqs \vdash \Gamma,R \stredx \Gamma \cup \setit{\pubx{\px{x} + \px{y}}  : \outty}, R}
+
+  \inferrule[Output]
+      {
+        \Gamma, \eqs \vdash \pubx{\out{\cid}} : \outty
+      }
+      {\eqs \vdash \Gamma,R \stredx \Gamma \uplus \setit{\pubx{\out{\cid}} : \outty}, R}
+
+%  \inferrule[Reveal]
+%      {\Gamma, \eqs \vdash [\px{x},\px{y}]}
+%      {\eqs \vdash \Gamma,R \stredx \Gamma \uplus \setit{\pubx{\recon(\phi,\px{x})} : \outty}}
+%
+%  \inferrule[Output]
+%      {\Gamma, \eqs \vdash [\out{\cid}] : \outty}
+%      {\Gamma,R,\eqs \vdash \setit{ \out{\cid} }: R, \Gamma \uplus \setit{ \pubx{\out{\cid}} : \outty}}
+%
+%  \inferrule[Views]
+%      {\Gamma_1,\eqs,R_1 \vdash X_1 : R_2,\Gamma_2 \\
+%        \Gamma_2,\eqs,R_2 \vdash X_2 : R_3,\Gamma_3}
+%      {\Gamma_1, \eqs,R_1 \vdash X_1 \uplus X_2 : R_3,\Gamma_3}
+\end{mathpar}
+
+\begin{definition}
+  We write $\eqs,\Gamma,R : {OK}$ iff both of the following conditions hold:
+  \begin{enumerate}[\hspace{5mm}i.]
+  \item For all $([\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety) \in \Gamma$,
+    we have $\eqs \models \mx{z}{\cid} \eop \phi - \rx{x}{\cid'}$ for
+    some $\phi$ and unique $\rx{x}{\cid'} \in R$, with $\cid \ne \cid'$.
+  \item For all $([\phi] : \pubty) \in \Gamma$,
+    we have $\eqs \models \phi \eop \phi' - \rx{x}{\oid}$ for
+    some $\phi'$ and unique $\rx{x}{\oid} \in R$.
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}
+  Given $\eqs,\Gamma,R  : {OK}$.
+  and $\eqs  \vdash \Gamma,R \stredx R',\Gamma'$.
+  Then $\eqs, \Gamma',R' : {OK}$.
+\end{lemma}
+
+\begin{definition} Define $\ov(\Gamma)$ as follows:
+\begin{eqnarray*}
+\ov(\varnothing) &=& \varnothing \\[-1.5mm]
+\ov(\setit{[\mx{z}{\cid}, \rx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \setit{\mx{z}{\cid}} \cup \ov(\Gamma)\\[-1.5mm]
+\ov(\setit{[\phi + \px{x}] : \pubty} \cup \Gamma) &=& \setit{\px{x}} \cup \ov(\Gamma)\\[-1.5mm]
+\ov(\setit{[\phi] : \outty} \cup \Gamma) &=& \setit{\phi} \cup \ov(\Gamma)
+\end{eqnarray*}
+\end{definition}
+
+\begin{lemma}
+  Assume given $\Gamma,R, \eqspre \wedge \toeq{\prog} : {OK}_\cid$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
+  Then, letting $X \defeq \ov(\Gamma) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X \cup \setit{\phi_1 + \phi_2}}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup X \cup \setit{\phi_1 + \phi_2, \phi_1}}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma,R: {OK}_\cid$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\Gamma, \eqspre \wedge \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
+  Then, letting $X \defeq \ov(\Gamma) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$ for
+  $\cid_1 \ne \cid_2$:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X \cup \setit{\phi_1 + \phi_2}}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup X \cup \setit{\phi_1 + \phi_2, \phi_1}}
+  $$
+\end{lemma}
+
+\begin{lemma}
+  Assume given $\eqspre \wedge \toeq{\prog}, \Gamma_1,R_1: {OK}_\cid$  and
+  $\iov(\prog) = S \cup V \cup O$
+  and $\eqspre \wedge \toeq{\prog} \vdash \Gamma_1,R_1 \stredx \Gamma_2,R_2$.
+  Letting $X_1 \defeq \ov(\Gamma_1) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$,
+  for $\cid_1 \ne \cid_2$ assume also:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X_1 \cup O}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup O}
+  $$
+  Then, letting $X_2 \defeq \ov(\Gamma_2) \cap \realviews{\setit{\cid_1}}{\setit{\cid_2}}$,
+  we have:
+  $$
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}}  \cup X_2 \cup O}
+  = 
+  \condd{\progtt(\prog)}{S_{\setit{\cid_1}}}{S_{\setit{\cid_2}} \cup O}
+  $$
+\end{lemma}
+
+\begin{theorem}[Confidentiality Type Soundness]
+  Assume given $\prog$ with 
+  $\iov(\prog) = S \cup V \cup O$
+  and $\eqspre \wedge \toeq{\prog} \vdash \varnothing,\varnothing \stredx^*
+  \Gamma,R$ where $\realviews{\setit{\cid_1}}{\setit{\cid_2}} \cup O
+  \subseteq \ov(\Gamma)$ for all $\cid_1$, $\cid_2$ with $\cid_1 \ne \cid_2$.
+  Then $\prog$ satisfies noninterference modulo output.
+\end{theorem}
+
+\section{$\metaprot$ Try Again}
+
+\begin{mathpar}
+  \htrip{e_1 \eop e_1 \wedge e_2 \eop e_2'}{[e_1,e_2] \kwas [e_1',e_2']}{\true}
+  
+  \htrip{e_1 \eop e_1 \wedge e_2 \eop e_2'}{[e_1,e_2] \kwmask [e_1',e_2']}{\true}
+
+  \htrip{\true}{[e_1,e_2] : \sharety}{\true}
+
+  \htrip{\true}{[e_1,e_2] : \outty}{\true}
+
+  \htrip{\true}{\pubx{e} : \outty}{\true}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\
+        e_1' \redx \phi - \rx{w_3}{\cid_2} \\
+        e_2' \redx \rx{w_3}{\cid_2}}
+      {[e_1,e_2] \kwas [e_1',e_2'] \redx \pskip}
+
+  \inferrule
+      {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
+        e_1' \redx \phi - \rx{w_3}{\oid} \\
+        e_2' \redx \rx{w_3}{\oid}}
+      {[e_1,e_2] \kwmask [e_1',e_2'] \redx \pskip}
+      
+  \inferrule
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}}
+      {[e_1,e_2] : \sharety \redx \pskip}
+      
+  \inferrule
+      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}}
+      {[e_1,e_2] : \outty \redx \pskip}
+      
+  \inferrule
+      {e \redx \pubx{\out{\cid}}}
+      {\pubx{e}: \outty \redx \pskip}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[CoerceGenshare]
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\
+        e_1' \redx \phi - \rx{w_3}{\cid_2} \\
+        e_2' \redx \rx{w_3}{\cid_2}}
+      {\shtrip{\Gamma, R, \xdefs}
+        {[e_1,e_2] \kwas [e_1',e_2']}
+        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety},
+          R \uplus \setit{\rx{w}{\cid}}, \xdefs} }
+      
+  \inferrule[CoerceSecureOpen]
+      {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
+        e_1' \redx \phi - \rx{w_3}{\oid} \\
+        e_2' \redx \rx{w_3}{\oid}}
+      {\shtrip{\Gamma, R, \xdefs}
+        {[e_1,e_2] \kwmask [e_1',e_2']}
+        {\Gamma \cup  \setit{\pubx{\px{x} + \px{y}} : \pubty},
+        R \uplus \setit{\rx{w}{\oid}}, \xdefs} }
+
+  \inferrule[LocalShares]
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}  \\
+        \Gamma \Vdash [\xdefs(\mx{w_1}{\cid_1} ), \xdefs(\mx{w_2}{\cid_2})] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
+        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety}, R, \xdefs}}
+
+  \inferrule[Reveal]
+      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}  \\
+        \Gamma \Vdash [\xdefs(\px{w_1}), \xdefs(\px{w_2})] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \outty}
+        {\Gamma \cup \setit{\pubx{\px{w_1} \fplus \px{w_2}} : \outty}, R, \xdefs}}
+
+  \inferrule[Output]
+      {e \redx \out{\cid} \\
+        \Gamma \Vdash \pubx{\xdefs(\out{x})} : \outty}
+      {\shtrip{\Gamma, R, \xdefs}{\pubx{\out{\cid}} : \outty}
+        {\Gamma \cup \setit{\pubx{\xdefs(\out{\cid})} : \outty}, R, \xdefs}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Defn]
+      {e_1 \redx \mx{w}{\cid_1} \\ e_2 \redx \elab{\be}{\cid_2}}
+      {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[\mx{w}{\cid_1} \mapsto \toeq{\elab{\be}{\cid_2}}]}}
+
+  \inferrule[App]
+      {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2}, \notg{R'}) \\
+        \notg{\Gamma_1}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_1 \\
+        \notg{\Gamma_2}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_2 \\
+        \notg{R'}[e_1/y_1 \cdots e_n/y_n] \redx R'        
+      }
+      {\shtrip{\Gamma \cup \Gamma_1, R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma \cup \Gamma_1 \cup \Gamma_2, R \uplus R', \xdefs}}
+
+  \inferrule[Seq]    
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1}{\Gamma_2,R_2,\xdefs_2} \\
+       \shtrip{\Gamma_2,R_2,\xdefs_2}{\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1;\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+
+  \inferrule[Let]
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd[e/y]}{\Gamma_2,R_2,\xdefs_2}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\elet{y}{e}{\cmd}}{\Gamma_2,R_2,\xdefs_2}}
+      
+  \inferrule[Fn]
+            {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\
+              \mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\
+              \notg{\Gamma_1}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_1 \\
+              \notg{\Gamma_2}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma_2 \\
+              \notg{R}[e_1/y_1 \cdots e_n/y_n] \redx R \\  
+     \shtrip{\Gamma_1, \varnothing, \varnothing}{\cmd}{\Gamma_2, R,\xdefs}}
+    {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2}, \notg{R})}
+\end{mathpar}
+
+\subsection{Algorithmic Rules for $\metaprot$}
+
+The $\minifed$ type system is undecidable given validity up to equivalence of expression
+vectors, so as in previous work we want a decidable algorithm for $\metaprot$ that must
+rely on type annotations and explicit type preconditions. For example, a GMW or BGW
+sum gate should assume that the inputs are shares, and assert that the outputs are shares.
+To this end we extend the syntax of commands to include type annotations:
+$$
+\cmd ::= \cdots \mid [e,e] \kwas \genshares(\notg{\phi},e,e) \mid [e,e] : \sharety \mid
+     [e,e] : \pubty \mid [e] : \pubty
+$$
+These annotations need to be verified, and in general may rely on an SMT equivalence.
+Currently the only examples of the latter I've found are for the genshares case, but
+coercion forms for others could easily be added. The relevant equivalence for
+genshares can be inferred as a precondition in the Hoare logic, as follows.
+\begin{mathpar}
+  %\inferrule[Assert]
+  %    {}
+  %    {\htrip{\mx{e^1_1}{e^1_2} \eop \phi - \rx{y}{\cid} \wedge
+  %            \mx{e^2_1}{e^2_2} \eop \rx{y}{\cid}}
+  %           {[\mx{e^1_1}{e^1_2},\mx{e^2_1}{e^2_2}] \kwas \genshares(\phi,y,\cid)}{\eqtrue}}
+  \inferrule[CoerceShares]
+      {}
+      {\htrip{e_1 \eop \notg{\phi} - \rx{e}{e'} \wedge e_2 \eop \rx{e}{e'}}
+             {[e_1,e_2] \kwas \genshares(\notg{\phi},e,e')}{\eqtrue}}
+      
+  %\inferrule[CoerceShares]
+  %    {}
+  %    {\htrip{e \eop e_1 \fplus e_2}{[e] \kwas \recon(e_1,e_2)}{\eqtrue}} 
+\end{mathpar}
+The typing rules are then given as follows. First, the type annotations, which
+rely on local computation typing which is purely syntax-directed given an empty
+constraint. $\xdefs$ is a mapping from $x$s to $\phi$s (their ``definitions'')
+which is just the explicit definition of $x$ in the protocol (see rule
+\TirName{Defn}).
+
+%$$
+%\begin{array}{rclr}
+%\sta &::=& [\mx{e}{e},\mx{e}{e}] \kwas [\phi - \rx{e}{e}, \rx{e}{e}] \mid
+%(\mx{e}{e},\mx{e}{e}) : \sharety \mid & \quad \textit{type annotations} \\
+%& & (\px{e}{e},\px{e}{e}) : \pubty \mid [e] : \pubty \\
+%\cmd &::=& \cdots \mid \sta
+%\end{array}
+%$$
+
+\begin{mathpar}
+  \inferrule[CoerceGenshare]
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2} \\
+        e_1' \redx \phi - \rx{w_3}{\cid_2} \\
+        e_2' \redx \rx{w_3}{\cid_2}}
+      {\shtrip{\Gamma, R, \xdefs}
+        {[e_1,e_2] \kwas [e_1',e_2']}
+        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety},
+          R \uplus \setit{\rx{w}{\cid}}, \xdefs} }
+      
+  \inferrule[CoerceSecureOpen]
+      {e_1 \redx \px{x} \\ e_2 \redx \px{y} \\
+        e_1' \redx \phi - \rx{w_3}{\oid} \\
+        e_2' \redx \rx{w_3}{\oid}}
+      {\shtrip{\Gamma, R, \xdefs}
+        {[e_1,e_2] \kwmask [e_1',e_2']}
+        {\Gamma \cup  \setit{\pubx{\px{x} + \px{y}} : \pubty},
+        R \uplus \setit{\rx{w}{\oid}}, \xdefs} }
+
+  \inferrule[LocalShares]
+      {e_1 \redx \mx{w_1}{\cid_1} \\ e_2 \redx \mx{w_2}{\cid_2}  \\\\
+        \Gamma,\eqtrue \vdash [\xdefs(\mx{w_1}{\cid_1} ), \xdefs(\mx{w_2}{\cid_2})] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \sharety}
+        {\Gamma \cup \setit{[\mx{w_1}{\cid_1},\mx{w_2}{\cid_2}] : \sharety}, R, \xdefs}}
+
+  \inferrule[Reveal]
+      {e_1 \redx \px{w_1} \\ e_2 \redx \px{w_2}  \\
+        \Gamma,\eqtrue \vdash [\xdefs(\px{w_1}), \xdefs(\px{w_2})] : \sharety}
+      {\shtrip{\Gamma, R, \xdefs}{[e_1,e_2] : \outty}
+        {\Gamma \cup \setit{\pubx{\px{w_1} \fplus \px{w_2}} : \outty}, R, \xdefs}}
+
+  \inferrule[Output]
+      {e \redx \out{\cid} \\
+        \Gamma,\eqtrue \vdash \pubx{\xdefs(\out{x})} : \outty}
+      {\shtrip{\Gamma, R, \xdefs}{\pubx{\out{\cid}} : \outty}
+        {\Gamma \cup \setit{\pubx{\xdefs(\out{\cid})} : \outty}, R, \xdefs}}
+\end{mathpar}
+
+\begin{mathpar}
+  \inferrule[Defn]
+      {e_1 \redx \mx{w}{\cid_1} \\ e_2 \redx \elab{\be}{\cid_2}}
+      {\shtrip{\Gamma, R, \xdefs}{e_1 := e_2}{\Gamma, R, \xdefs[\mx{w}{\cid_1} \mapsto \toeq{\elab{\be}{\cid_2}}]}}
+
+  \inferrule[App]
+      {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R'},\notg{\Gamma_2}) \\
+       \redxsub = [e_1/y_1 \cdots e_n/y_n]}
+      {\shtrip{\Gamma;\redxsub(\notg{\Gamma_1}), R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma;\redxsub(\notg{\Gamma_2}), R;\redxsub(\notg{R'}), \xdefs}}
+
+  \inferrule[Seq]    
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1}{\Gamma_2,R_2,\xdefs_2} \\
+       \shtrip{\Gamma_2,R_2,\xdefs_2}{\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1;\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+
+  \inferrule[Let]
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd[e/y]}{\Gamma_2,R_2,\xdefs_2}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\elet{y}{e}{\cmd}}{\Gamma_2,R_2,\xdefs_2}}
+      
+  \inferrule[Fn]
+    {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\
+      \redxsub = [\mv_1/y_1 \cdots \mv_n/y_n] \\
+     \shtrip{\redxsub(\notg{\Gamma_1}), \varnothing, \varnothing}{\cmd}{\redxsub(\notg{\Gamma_2}), \redxsub(\notg{R}),\xdefs}}
+    {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R},\notg{\Gamma_2})}
+\end{mathpar}
+The remaining rules are as follows, with the rule for application
+being the most interesting as usual. Since we allow dependent
+generalization in function types, as in previous work (and as in the
+Hoare logic) we equate expressions up to the result of their
+evaluation. To make rules a little more succinct we define ``evaluating
+substitution'' $\redxsub(\notg{R}),\redxsub(\notg{\Gamma})$ to also
+impose evaluation \cnote{probably should do this for $\peq$ as
+  well}. I.e., given $\redxsub = [e_1/y_1 \cdots e_n/y_n]$:
+    $$
+    \redxsub(\notg{\Gamma}) = \Gamma \ \text{where}\ \notg{\Gamma}[e_1/y_1 \cdots e_n/y_n] \redx \Gamma
+    $$
+and so on.:
+\begin{mathpar}
+  \inferrule[App]
+      {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R'},\notg{\Gamma_2}) \\
+       \redxsub = [e_1/y_1 \cdots e_n/y_n]}
+      {\shtrip{\Gamma;\redxsub(\notg{\Gamma_1}), R, \xdefs}{f(e_1,\ldots,e_n)}{\Gamma;\redxsub(\notg{\Gamma_2}), R;\redxsub(\notg{R'}), \xdefs}}
+
+  \inferrule[Seq]    
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1}{\Gamma_2,R_2,\xdefs_2} \\
+       \shtrip{\Gamma_2,R_2,\xdefs_2}{\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd_1;\cmd_2}{\Gamma_3,R_3,\xdefs_3}}
+
+  \inferrule[Let]
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd[e/y]}{\Gamma_2,R_2,\xdefs_2}}
+      {\shtrip{\Gamma_1,R_1,\xdefs_1}{\elet{y}{e}{\cmd}}{\Gamma_2,R_2,\xdefs_2}}
+\end{mathpar}
+The \TirName{App} rule relies on function typings, which are a dependent type form
+$\Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R},\notg{\Gamma_2})$ where
+$y_1,\ldots,y_n$ are the expression parameters, $\notg{\Gamma_1}$ is the
+generalized typing precondition, and $(\notg{R},\notg{\Gamma_2})$ are the generalized
+typing postconditions including any randomness consumed by OTP encryption.
+Function typings are computed as follows (compositionally):
+$$
+\inferrule[Fn]
+    {\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd \\ \mv_1,\ldots,\mv_n = \fresh(\tau_1,\ldots,\tau_n) \\
+      \redxsub = [\mv_1/y_1 \cdots \mv_n/y_n] \\
+     \shtrip{\redxsub(\notg{\Gamma_1}), \varnothing, \varnothing}{\cmd}{\redxsub(\notg{\Gamma_2}), \redxsub(\notg{R}),\xdefs}}
+    {f : \Pi y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{R},\notg{\Gamma_2})}
+ $$
+
+Note that in rule $\TirName{Fn}$, the precondition $\notg{\Gamma_1}$
+and the typing annotations that may contribute to
+$(\notg{R},\notg{\Gamma_2})$ need to be specified somewhere, a style
+choice. Currently they are being written as additional clauses to the
+\ttt{precondition} and \ttt{postcondition} of functions, e.g.:
+\begin{verbatimtab}
+precondition: ([m[x++"s"]@1,m[x++"s"]@2] : shares;
+               [m[y++"s"]@1,m[y++"s"]@2] : shares)
+sum(z:string, x:string, y:string){ _sum(z,x,y,1); _sum(z,x,y,2) }
+postcondition: ( [m[z++"s"]@1,m[z++"s"]@2] : shares),
+               ( SHARED(z) == SHARED(x) + SHARED(y) )
+\end{verbatimtab}
+This example illustrates how we can write both confidentiality and correctness properties--
+or not include either as desired. That is, the confidentiality type system will ensure
+gradual release, without any SMT pre or postconditions. 

@@ -1,0 +1,260 @@
+\section{$\metaprot$ Type Checking}
+\label{sec:metapr-type-check}
+
+\stafig
+
+Now we develop a compositional type system for $\metaprot$ based on 
+$\minicat$ typing and the automated Hoare logic developed in
+Section \ref{section-metalang}. We focus on share types for confidentiality
+which is more complex and general than our integrity type system.
+An algorithmic approach to the latter was developed previously for
+$\metaprot$ \cite{skalka-near-esop25}, and also the core element
+of the system-- BDOZ/SPDZ-style MAC checking-- can be treated as
+algebraic correctness conditions enforceable by Hoare triples
+as we show in Section \ref{section-examples}.
+
+\subsection{Share Type Checking with Annotations}
+\label{section-metaty}
+
+Share types rely on SMT entailments via the \TirName{ShareEntails} and
+\TirName{PubEntails} rules, which are not syntax directed, and likewise
+the interactive typing judgement is nondeterministic. Our goal
+with the $\metaprot$ language is to automate share type checking. To
+enable this we introduce \emph{share type annotations}. These
+annotations allow programmer specification of properties that can be
+verified as part of the Hoare triple analysis defined in Section
+\ref{section-metahtrip} and that enable automated checking of types.
+
+A fundamental component of the system is automated share type checking
+of noninteractive computations.  We define an algorithmic, syntax
+directed subset of noninteractive share typing as follows:
+\begin{definition}
+  Define $\Gamma \Vdash \stt : \sty$ iff $\Gamma,\true \vdash \stt : \sty$ without the
+  use of \TirName{ShareEntails} and \TirName{PubEntails}.
+\end{definition}
+
+\shtripstafig
+
+The syntax of type annotations $\sta$ is defined in Figure
+\ref{fig-sta}, which we extend the language of commands $\cmd$ to
+include. Type annotations are of the form $e_1 \kwas e_2$, which
+defines an SMT equivalence-- the key idea here being that explicit
+equivalences can stand in for implicit \TirName{ShareEntails} and
+\TirName{PubEntails} judgements-- and $\notg{\stt} : \sty$ which
+defines a share type assertion verified using the automated $\Vdash$
+typing judgement. In the $\metaprot$ semantics type annotations are
+interpreted as $\pskip$s, while their integration in Hoare triple
+derivations requires annotated equivalences to be included in
+preconditions.  In an implementation, Hoare triple verification can be
+conducted independently prior to type checking.
+
+\subsubsection{Annotation Type Checking}
+
+Type checking judgements for typing annotations are defined as follows.
+The \emph{definitions} element $\xdefs$ of judgements is an environment
+of SMT equivalences induced either by the program or by annotation. 
+\begin{definition}[$\metaprot$ Type Checking Judgements]
+  \emph{Type checking judgements} are of the syntactic form
+  $\shtrip{\Gamma, R, \xdefs}{\cmd}{\Gamma, R, \xdefs}$
+  where $\xdefs : \phi \rightarrow \phi$ are called
+  \emph{definitions}.
+\end{definition}
+
+All typing judgements are dependent on closed expressions $e$ which we
+equate up to evaluation. Since the semantics of expressions is total,
+we simply evaluate expressions in preconditions of derivation
+rules. The derivation rules for annotations $\sta$ are given in Figure
+\ref{fig-shtripsta}. First, we note that the \TirName{Coerce} rule
+extends definitions to include the equivalence specified by the $e_1
+\kwas e_2$ annotation form-- we assume the validity of the equivalence
+is enforced by Hoare triple verification and so is not checked (again)
+here.  These definitions extend or even overwrite variable definitions
+established by the protocol itself (see the \TirName{Defn} rule in
+Figure \ref{fig-shtripcmd} discussed below).
+
+Programmers can also specify bindings for local computations, for
+example if $\mx{x}{1},\mx{x}{2}$ are shares obtained by, e.g., local
+homomorphic addition, the programmer can specify
+$[\mx{x}{1},\mx{x}{2}] : \sharety$. This supports compositionality of
+type checking. Thus, in the rules for share type annotations of the
+form $\notg{\stt} : \sty$, we have different rules for checking local and interactive
+$\sharety$ type ascriptions (\TirName{LocalShares} and \TirName{GenShares},
+respectively), and for checking local and interactive
+$\pubty$ type ascriptions (\TirName{LocalPublic} and \TirName{MaskedPublic},
+respectively). In these rules we use $\xdefs$ to recover defined
+SMT equivalences, and $\Vdash$ to verify share typing.
+
+\subsubsection{Functions and Application}
+
+\shtripcmdfig
+
+Rules for other commands are defined in Figure \ref{fig-shtripcmd}.
+As anticipated above, the \TirName{Defn} rule automatically adds the
+protocol definition of variables to $\xdefs$ as a default equivalence,
+which may allow automatic share typing without any use of
+\TirName{Coerce}. The most complex rules are for function application
+and definition (\TirName{App} and \TirName{Fn}). These rules allow for
+generalization and instantiation of share type environments and
+thus compositionality in typing. Generalized aka abstract
+share type environments are dependent on $\stringty$ and
+$\cidty$ types, and we equate them up to evaluation in
+our rules.
+\begin{definition}[Abstract Share Type Environments]
+  We write $\notg{\Gamma}$ to denote sets of bindings $\notg{\stt} : \sty$, and
+  $\notg{R}$ to denote sets of expressions (that evaluate to random variables).
+  We define evaluation of these, respectively, as follows:
+  \begin{mathpar}
+  \inferrule
+      {\notg{\stt}_1 \redx \stt_1\ \cdots\ \notg{\stt}_n \redx \stt_n}
+      {\setit{\notg{\stt}_1 : \sty_1, \ldots, \notg{\stt}_n : \sty_n} \redx
+        \setit{\stt_1 : \sty_1, \ldots, \stt_n : \sty_n}}
+      
+  \inferrule
+      {e_1 \redx \rx{w_1}{\cid_1}\ \cdots\ e_1 \redx \rx{w_n}{\cid_n}}
+      {\setit{e_1,\ldots,e_n} \redx
+        \setit{\rx{w_1}{\cid_1}, \ldots, \rx{w_n}{\cid_n}}}
+  \end{mathpar}
+\end{definition}
+
+\noindent We also introduce dependent $\Pi$ types for functions, that allow
+dependence on $\stringty$ and $\cidty$ types.
+\begin{definition}[$\metaprot$ Function Types]
+  Dependent function types are of the syntactic form
+  $\Pi y_1,\ldots,y_n. \notg{\Gamma} \rightarrow (\notg{\Gamma}, \notg{R})$.
+  where $y_1,\ldots,y_n$ range over $\stringty$ or $\cidty$ types.
+\end{definition}
+As defined in \TirName{Fn}, a dependent function type $\Pi
+y_1,\ldots,y_n. \notg{\Gamma_1} \rightarrow (\notg{\Gamma_2},
+\notg{R})$ specifies that, given share typing assumptions in
+$\notg{\Gamma_1}$, application of the function results in the bindings
+in $\notg{\Gamma_2}$ using the random values in $\notg{R}$ for share
+generation or secure openings.  We require that the type is closed,
+i.e., only $y_1,\ldots,y_n$ can occur free in $\notg{\Gamma_1}$,
+$\notg{\Gamma_2}$ $\notg{R}$.  Type checking for functions is
+accomplished by using fresh ``witness'' values of $\stringty$ and
+$\cidty$ types to instantiate dependent variables, similarly to the
+\TirName{GenEntails} rule. As defined in the \TirName{App} rule,
+typing ensures that application of the function instantiates the
+dependencies, checks that the instantiation of $\notg{\Gamma_1}$ is
+contained in the share typing environment, and adds the instantiation
+of $\notg{\Gamma_2}$ as an effect along with instantiation of
+$\notg{R}$ with linearity enforced. A practical programming detail is
+where the share type environment precondition $\notg{\Gamma_1}$ is
+defined by the programmer-- by convention we write these as
+additional components of \ttt{precondition} annotations, as
+illustrated in the extended examples discussed in Section
+\ref{section-examples}.
+
+\subsubsection{Example: GMW \ttt{and} Gate}
+
+Returning to the GMW \ttt{and} gate example introduced in Figure \ref{fig-gmwprepost},
+we can extend the definition of \ttt{andgmw} with type annotations to ensure a
+valid share typing, as in Figure \ref{fig-gmwsharetypes}. Here a coercion
+is needed to specify that the gate output wire values are secret-shared using
+$\ttt{r[z]@1}$ as an OTP. The type for $\ttt{andgmw}$ can then be
+obtained as:
+$$
+\ttt{andgmw} : \Pi x,y,z . \varnothing \rightarrow (\setit{[m[z]@1,m[z]@2] : \sharety}, \setit{r[z]@1})  
+$$
+Note that the function does not require any share type preconditions, since
+the (sub)protocol it defines interactively generates new shares using an OTP
+($r[z]@1$).
+
+\begin{fpfig}[t]{GMW $\ttt{and}$ gate with share type annotations.}{fig-gmwsharetypes}
+\begin{verbatimtab}
+andgmw(z:string, x:string, y:string) {
+  let table = andtablegmw(x,y,z) in
+  m[z]@2 := OT4((m[x], m[y])@2, table.row4, table.row3, table.row2, table.row1)@1;
+  m[z]@1 := r[z]@1;
+  m[z]@2 as (RECON(x) * RECON(y)) + r[z]@1;
+  [m[z]@1,m[z]@2] : shares
+}
+postcondition: (RECON(z) == RECON(x) * RECON(y))
+\end{verbatimtab}
+\end{fpfig}
+
+\subsubsection{Soundness of $\metaprot$ Type Checking}
+
+Demonstrating soundness of $\metaprot$ type checking is similar to $\minicat$--
+we show the ${OK}$ invariant is preserved by the algorithm. By Theorem \ref{theorem-OK}
+soundness follows. Lemma \ref{lemma-metaty} follows by appeal to Lemma \ref{lemma-sty-noninteractive-sound}
+since the algorithmic judgement $\Vdash$ is sound with regard to the noninteractive
+typing rules by definition. Theorem \ref{theorem-metaty} follows as a special
+case of Lemma \ref{lemma-metaty}.
+\begin{lemma}
+  \label{lemma-metaty}
+  Given $\prog_1,\Gamma_1,R_1 : {OK}$ and $\cmd \redx \prog_2$ and $\htrip{\eqs_1}{\cmd}{\eqs_2}$ with
+  $\eqs_1$ satisfiable and $\toeq{\prog_1} \models \eqs_1 \wedge \toeq{\xdefs_1}$ and
+  $\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd}{\Gamma_2,R_2,\xdefs_2}$.
+  Then $\prog_1;\prog_2,\Gamma_2,R_2 : {OK}$ and $\toeq{\prog_1;\prog_2} \models \toeq{\xdefs_2}$.
+\end{lemma}
+
+\begin{theorem}
+  \label{theorem-metaty}
+  Given $\htrip{\eqspre}{\ttt{main()}}{\eqs}$ and $\ttt{main} : \Gamma_1 \rightarrow (\Gamma_2,R)$
+  and $\main() \redx \prog$ and $\progpre,\Gamma_1,R' : {OK}$ %with $R' \cap R = \varnothing$
+  and $\toeq{\progpre} \models \eqspre$. Then $(\progpre;\prog),\Gamma_2,R \uplus R': {OK}$.
+\end{theorem}
+
+Note that Theorem \ref{theorem-metaty} assumes the existence of
+$\progpre$ with $\progpre,\Gamma_1,R' : {OK}$ and $R' \cap R =
+\varnothing$ and $\toeq{\progpre} \models \eqspre$. The assumption of
+some preprocessing protocol such as Beaver triple or MAC share
+distributions is typical, and our approach does not require the
+protocol to be defined by the programmer, but rather just (weakened)
+postconditions of it that are sufficient to verify the protocol being
+programmed.
+
+Theorem \ref{theorem-metaty} also does not provide a complete recipe
+for obtaining noninterference modulo output-- as per Theorem
+\ref{theorem-sty}, it is also necessary to check closure of
+$\Gamma_2$. There are various ways this can be accomplished for the
+$\metaprot$ analysis-- for example, we evaluate $\ttt{main}$ to obtain
+all program variables and then check closure of $\Gamma_2$ as
+prescribed by Definition \ref{def-sty-closed}. We can also add checks
+to the type system to guarantee that all messages exchanged between
+clients are classified when type checking functions, which is
+a simple addition.
+
+% DEPRECATED
+\begin{comment}
+\begin{lemma}
+  Assume $\cmd \redx \prog$ and $\htrip{\eqs_1 \wedge \toeq{\xdefs_1}}{\prog}{\eqs_2}$ and
+  $\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd}{\Gamma_2,R_2,\xdefs_2}$ and   
+  $\eqs_1 \wedge \toeq{\xdefs_1},\clean(\Gamma_1),R_1 : {OK}$.
+  Then $\eqs_1 \wedge \toeq{\xdefs_1} \wedge \toeq{\prog} \vdash \clean(\Gamma_1),R_1 \stredx^* \clean(\Gamma_2),R_2$.
+\end{lemma}
+
+
+
+\begin{definition} Define $\clean(\Gamma)$ as follows:
+\begin{eqnarray*}
+\clean(\varnothing) &=& \varnothing \\[-1.5mm]
+\clean(\setit{[\mx{z}{\cid}, \mx{y}{\cid'}] : \sharety} \cup \Gamma) &=& \clean(\Gamma)\\[-1.5mm]
+\clean(\setit{\pubx{\mx{z}{\cid}} : \pubty} \cup \Gamma) &=& \clean(\Gamma)\\[-1.5mm]
+\clean(\setit{\stt : \sty} \cup \Gamma) &=& \setit{\stt : \sty} \cup \clean(\Gamma)
+\end{eqnarray*}
+\end{definition}
+
+\begin{lemma}
+  Assume $\cmd \redx \prog$ and $\htrip{\eqs_1 \wedge \toeq{\xdefs_1}}{\prog}{\eqs_2}$ and
+  $\shtrip{\Gamma_1,R_1,\xdefs_1}{\cmd}{\Gamma_2,R_2,\xdefs_2}$ and   
+  $\eqs_1 \wedge \toeq{\xdefs_1},\clean(\Gamma_1),R_1 : {OK}$.
+  Then $\eqs_1 \wedge \toeq{\xdefs_1} \wedge \toeq{\prog} \vdash \clean(\Gamma_1),R_1 \stredx^* \clean(\Gamma_2),R_2$.
+\end{lemma}
+
+\begin{lemma}
+  Assume $\htrip{\eqspre}{\ttt{main()}}{\eqs}$ and $\ttt{main} : \Gamma_1 \rightarrow (\Gamma_2,R)$
+  and $\eqspre,\Gamma_1,R' : {OK}$ with $R' \cap R = \varnothing$. Given $\ttt{main()} \redx \prog$,
+  then $\eqspre \wedge \toeq{\prog} \vdash \varnothing, \varnothing \stredx^* \clean(\Gamma_2),R$.
+\end{lemma}
+
+\begin{theorem}
+  Assume $\htrip{\eqspre}{\ttt{main()}}{\eqs}$ and $\ttt{main} : \Gamma_1 \rightarrow (\Gamma_2,R)$
+  and $\eqspre,\Gamma_1,R' : {OK}$ with $R' \cap R = \varnothing$. Given $\ttt{main()} \redx \prog$,
+  with $\iov(\prog) = S \cup V \cup O$, then $\prog$ satisfies noninterference modulo output if
+  $\realviews{\setit{\cid_1}}{\setit{\cid_2}} \cup O
+  \subseteq \ov(\clean(\Gamma_2))$ for all $\cid_1$, $\cid_2$ with $\cid_1 \ne \cid_2$.
+\end{theorem}
+
+\end{comment}

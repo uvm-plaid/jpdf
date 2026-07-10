@@ -1,0 +1,186 @@
+\section{Implementation and Extended Examples}
+\label{section-examples}
+
+In Section \ref{section-smt} we gave the example of 3-party additive
+sharing for any field $\fieldp{p}$, in Section \ref{section-sty} we
+discussed the example of YGC input encoding, and in Sections
+\ref{section-metalang} and \ref{section-metaty} we presented and
+discussed the example of gates in the GMW protocol for binary
+circuits. In this section we present an extended example of 2-party
+arithmetic circuits with multiplication gates defined using Beaver
+triples \cite{evans2018pragmatic}. We first define a compositional
+gate library in $\metaprot$ with correctness conditions defined using
+the Hoare logic developed in Section \ref{section-metalang}, along
+with a small example circuit (Figure \ref{fig-beaver}).  Then we
+extend the library with type annotations illustrating the use of share
+types developed in Sections \ref{section-sty} and \ref{section-metaty}
+to enforce confidentiality properties (Figure
+\ref{fig-beaver-types}). Lastly, we extend the base library with
+additional pre and postcondition annotations to enforce integrity
+properties supported by BDOZ/SPDZ style MACs
+\cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3} (Figure
+\ref{fig-beaver-bdoz}).
+
+\subsection{Evaluation}
+
+We have implemented the $\metaprot$ language and automated Hoare logic
+using an Antlr parser and Scala backend with cvc5 Java bindings for
+interaction with proof engines.  To evaluate performance, we have
+written and verified gate libraries using the GMW protocol for binary
+circuits as excerpted in Figure \ref{fig-gmwprepost} in Section
+\ref{section-metalang}, and for passive and malicious secure
+arithmetic circuits using Beaver Triple multiplication as presented in
+Figures \ref{fig-beaver} and \ref{fig-beaver-bdoz} in this Section.
+We have considered field sizes typically used to encode binary, 16
+bit, 32 bit, and 64 bit integers. Results are presented in Figure
+\ref{fig-preludetest}. We found that verification of library
+components was efficient even up to large field sizes. Since typing is
+compositional (see, e.g., Figure \ref{fig-beaver-types}), verification
+of gate properties relevant to \emph{security} will scale to larger
+circuits.
+
+\preludetestfig
+
+Circuit \emph{correctness} also benefits from compositional
+verification-- for example, the correctness of a GMW ``and'' gate (as
+in Figure \ref{fig-gmwprepost}) only needs to be proven once, though
+instantiated and integrated into the whole-program analysis needed to
+verify a large circuit specification. We have verified 2, 8, and
+64-bit vector zero-test GMW circuits containing 3, 15, and 127 gates
+respectively, based on ``Bristol Fashion'' circuits \cite{bristol}. By
+verified, we mean automated verification of the zero-test
+specification expressed as a \ttt{postcondition}. We considered both
+the cvc5 Bit-Vector and Satisfiability Modulo Finite Fields (SMFF)
+theories as proof engines for these binary circuits.
+
+Verification of the zero-test circuits was efficient in the Bit-Vector
+theory, which verified the 64-bit zero test in GMW in less than 7
+seconds. However, it took several minutes to verify even the small
+2-bit zero-test circuit in SMFF, and larger circuits took too long to
+consider for a practical evaluation. This could be attributed to the
+relative maturity of the Bit-Vector theory as compared to SMFF.  In
+any case, the SMT-based approach achieves categorically better
+performance than previous brute-force methods developed for binary
+circuits \cite{skalka-near-ppdp24}.
+
+\subsection{Arithmetic Circuits with Beaver Triples}
+\label{section-beaver}
+
+\input{beaver}
+
+In Figure \ref{fig-beaver} we define a 2-party arithmetic circuit with
+4 input gates, 3 internal gates, and 1 output gate. The ideal functionality
+is defined as $\ttt{IDEALF}$. As in GMW or BDOZ, circuit wire values
+are represented as additive secret shares between two clients we call
+$\ttt{1}$ and $\ttt{2}$. As in the GMW example discussed in Section
+\ref{section-metaty}, we use string identifiers $g$ to distinguish
+gates, and gate output wire shares are defined as identifiers
+$\mx{g}{1}$ and $\mx{g}{2}$. The function $\ttt{RECON}$
+represents share reconstruction \emph{in constraints} (not the
+protocols themselves). Input gates are
+implemented using the $\ttt{genshares}$ function as described in
+Section \ref{section-sty}. The $\ttt{open}$ function
+implements a federation reveal of a shared value through
+share broadcast and reconstruction.
+
+A \ttt{sum} gate can be defined non-interactively using 
+homomorphic addition. The correctness \ttt{postcondition} is simple
+and perhaps unnecessary to accelerate circuit verification, but is
+appealing declaratively.  The multiplication gate \ttt{mult} is more
+complex, where we use the common approach of \emph{Beaver Triples}
+\cite{evans2018pragmatic}. Recall that Beaver triples are values
+$a,b,c$ with $a$ and $b$ chosen randomly and $c = a * b$, unique per
+multiplication gate, that are secret-shared with clients during a
+pre-processing phase by an assumed oracular client $\ttt{3}$.
+The uniqueness requirement is necessary because
+$a$ and $b$ are random values that serve as OTP masks for secure
+openings, implemented as \ttt{secopen}. In our encoding we follow the
+convention that each gate output identifier distinguishes the Beaver
+triple, so for example the share of the $a$ value for a gate
+$\ttt{"g"}$ is identified by $\ttt{"ga"}$, etc. The correctness
+property of the multiplication gate, expressed as a
+\ttt{postcondition}, relies on the $\ttt{BEAVERTRIP}$
+precondition. This compositional correctness property can then be used
+in circuit construction, without the need for ``re-proof'' in our
+Hoare logic inference.
+
+
+The circuit itself is constructed in \ttt{main} using these
+gates. This is a small example but arbitrarily large circuits can be
+constructed with this library. The precondition of \ttt{main} requires
+distinct Beaver triples for each multiplication gate in the circuit
+(just one in this example). The postcondition allows verification of
+circuit correctness-- that the protocol output is equal to the ideal
+functionality $\ttt{IDEALF}$.
+
+\subsection{Share Type Annotations.}
+
+In Figure \ref{fig-beaver-types} we extend our previous gate definitions with
+share type annotations to enforce confidentiality. The core idea is that
+wire values must be \ttt{share}s. The \ttt{genshares}
+function includes an annotation specifying that all input gates establish
+the $\ttt{shares}$ invariant for wire values. In the \ttt{sum} function,
+the \ttt{share} type preconditions for input wires are specified. The
+output wire shares can be declared as \ttt{share}s without any coercion
+needed, since given preconditions our typing algorithm ($\Vdash$) is
+able to check the use of homomorphic addition. 
+
+We add coercions and typing assertions to the $\ttt{secopen}$ function
+to specify properties of secure openings. After noninteractively
+summing the secret-shared wire value $\ttt{RECON(x)}$ and Beaver triple value
+$\ttt{r[x++a]@3}$, the federation can publicly open the result since it is
+masked by the random value. This is expressed using the coercion
+$\ttt{as RECON(x) +  r[x++a]@3}$. The coercion then allows the
+securely opened value to be declared $\ttt{public}$.
+
+In the \ttt{mult} function, each client $\ttt{i}$ symmetrically
+computes:
+$$
+\ttt{((m[z++"d"] * m[y]) + (-m[z++"e"] * m[z++"a"]) + m[z++"c"])@i}
+$$
+Since $\ttt{m[z++"d"]@i\,:\,public}\ $ and $\ \ttt{m[z++"e"]@i\,:\,public}$
+are both established by $\ttt{secopen}$, and
+$\ttt{m[y]@i}$, $\ttt{m[z++"a"]@i}$, and $\ttt{m[z++"c"]@i}$ are
+all declared to be shares in preconditions, we have that each
+of the shared computations $\ttt{(m[z++"d"] * m[y])@i}$ and $\ttt{(-m[z++"e"] * m[z++"a"])@i}$
+are shares, so the gate outputs, which are then sums of shares, are shares, and this will
+be successfully checked by syntax-directed $\Vdash$ type checking that
+results from the declaration $\ttt{[m[z]@i1,m[z]@i2]\,:\,shares}$. 
+
+\subsubsection{Malicious-Secure Arithmetic Circuits}
+
+Our Definition \ref{def-integrity} establishes a general semantics of
+integrity, while the $\minicat$ integrity type system presented in
+Section \ref{section-ipj} focuses on the use of BDOZ/SPDZ-style
+MACs. A main concern here is the enforcement of MAC checking which is
+an algebraic property. Here we show how pre and postconditions can be
+used to enforce these properties in our arithmetic circuit library, in
+Figure \ref{fig-beaver-bdoz}. Note that this code is an extension of the
+library presented in Figure \ref{fig-beaver} and does not incorporate
+the type annotations in Figure \ref{fig-beaver-types}, but this is
+just for clarity of the presentation and these features could be combined. 
+
+In this code we use a convention where shared values $\ttt{x}$ are
+represented as a 3-tuple of values, MAC, and keys, where the value and
+MAC of client \ttt{1} are $\ttt{m[x++"s"]@1}$ and $\ttt{m[x++"m"]@1}$
+respectively, and the corresponding key $\ttt{m[x++"k"]@2}$ is held by
+client \ttt{2}. The correctness condition of this 3-tuple is
+$\ttt{MACOK}(x,2,1)$. The same is true symmetrically, so the
+$\ttt{MACed}$ predicate establishes both sides of the correctness
+condition.  In general, this predicate is used in gate preconditions
+to assume that the MAC conditions hold for input shares, and in
+postconditions to ensure that output shares are $\ttt{MACed}$. The
+homomorphic properties that preserve $\ttt{MACed}$ness, especially in
+\ttt{mult}, are perhaps even more complex than the algebraic
+correctness of gates, so it is beneficial to verify them compositional
+especially for large circuits.
+
+Our code is written so that share MACs are checked for when they are
+\ttt{open}ed by both clients, specified by the appropriate
+$\ttt{assert}$ included in the protocol. This ensures malicious
+security of secure openings and outputs. As is standard in BDOZ/SPDZ,
+we assume that input values, MACs, and keys are distributed to clients
+by a pre-processing protocol with relevant postconditions
+declared in the preconditions of $\ttt{main}$ (as in Figure
+\ref{fig-beaver} with respect to Beaver triples).
+
