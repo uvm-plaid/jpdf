@@ -1,0 +1,38 @@
+Improved MPC/HE background in intro. (Joe?)
+
+==================
+
+Better roadmap for paper and products.
+
+- Online repo with code and examples (Steven?)
+
+- Textual story for:
+ + Roadmap of formal results
+ + Implementation workflow
+ + Graphical presentation (Joe?)
+
+===================
+
+Better comparison with overture (mainly PPDP24, also ESOP25)
+
+- Additional text in intro. Points of comparison:
+ + Expressiveness of type system. In particular, share types incorporate correctness.
+ + Implementation in PPDP paper could only do whole-program analysis.
+   - See improved evaluation below; connect with this part.
+
+===================
+
+Improved evaluation
+
+- Add Felix/Steven's addition and multiplication circuit results.
+ + Revision to SMT constraints to support bit vector ops.
+   - Revise syntax of \phi, S4.1, F5
+   - Revise F14 with eval contexts for \phis
+ + Extend discussion in S9
+ + Add results to F21. Add graph of exp growth?
+- More details about evaluation platform (Steven?)
+- Add "whole program" timing results for large circuits to demonstrate value of compositionality,
+enhance comparison with [29]. (Steven can generate results?)
+
+
+
