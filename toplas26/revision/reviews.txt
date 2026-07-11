@@ -111,7 +111,9 @@ TODO
 TODO
 
 > Page 3, line 43: Motivation for "And" is not clear here.
-> 
+
+Not sure what they mean?
+
 > Section 2
 > ------------
 > 
@@ -148,6 +150,9 @@ TODO
 > Page 7, lines 40/41 : are the hyperproperty notions you focus on not
 > only sound but also complete w.r.t. the corresponding traditional MPC
 > security notions? If not, is there an instructive counterexample?
+
+No, not complete. We actually have a good example of this from the CSF paper.
+
 > 
 > Page 8, line 5: what's the English word for rvs? - it wasn't introduced
 > before. What's the point in defining rvs(P) := X here? Maybe rvs(P)
@@ -158,7 +163,9 @@ TODO
 > -----------
 > 
 > Page 12, line 41: maybe replace r[x]@w by r[x]@\iota
-> 
+
+Yes.
+ 
 > Page 17, line 26: in the typing judgment, [ \phi^1, \phi^2 ] should
 > read [ \phi_1, \phi_2], cf the judgment in line 22.
 > 
@@ -180,6 +187,9 @@ TODO
 > appendix. Maybe there's yest another version of the work (a technical
 > report etc.)? Why not include the appendix also in this submission, to
 > make the journal paper self-contained?
+
+Chris: https://arxiv.org/pdf/2501.17824 (This is the integrity proof).
+
 > 
 > Section 7
 > ------------
@@ -191,24 +201,37 @@ TODO
 > (as e.g. in rule FN in Fig 16) are needed (Church vs Curry-style) ; my
 > intuition would be that complete type inference might be possible. Can
 > you explain why that's not the case?
-> 
+
+This is definitely possible, but seemed out of scope and an easy addition
+if it were desired.
+ 
 > Page 22, Fig 14: the last element of grammar for abstract constraints
 >  should be \not \u{E} rather than \not E. Also, what's the
 >  motivation for including the rule E \Rightarrow E (last rule of the
 >  figure)?
-> 
+
+Yes. Fix, along with other stuff in this fig for BV constraints.
+Maybe fix F12 wrt reflevity rule?
+ 
 > Page 25, line 5: continuing my question regarding Church vs Curry
 > typing of functions, I suspect that if you indeed need type-annotated
 > formal parameters, the substitutions v_i/y_i here should be restricted
 > to so hat v_i : \tau_i. Without this condition, asking for existence
 > of the E1, E2 with the conditions given seems too strong.
+
+Yes, add this.
 > 
 > Page 26, Fig 17: the rule for \theta: \zeta \Rightarrow skip should
 > probably have \u{\theta}:\zeta in the conclusion.
-> 
+
+Yes, fix.
+ 
 > Page 20, lines 16 - 20: it seems that there is no formal theorem yet
 > that establishes noninterference modulo output . Is this difficult? Is
 > this future work?
+
+
+
 > 
 > Section 9
 > ------------

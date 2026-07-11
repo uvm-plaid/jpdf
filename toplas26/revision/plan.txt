@@ -4,12 +4,12 @@ Improved MPC/HE background in intro. (Joe?)
 
 Better roadmap for paper and products.
 
-- Online repo with code and examples (Steven?)
-
 - Textual story for:
  + Roadmap of formal results
  + Implementation workflow
  + Graphical presentation (Joe?)
+
+- Online repo with code and examples (Steven?)
 
 ===================
 
@@ -34,5 +34,11 @@ Improved evaluation
 - Add "whole program" timing results for large circuits to demonstrate value of compositionality,
 enhance comparison with [29]. (Steven can generate results?)
 
+- Online repo with code and examples as above (Steven?)
 
+===================
 
+Beef up future work
+ - Generalize from F2 to Fp?
+ - Better methods for modularization.
+ - Incorporate non-information theoretic elements, e.g., sym keys for YGC.
