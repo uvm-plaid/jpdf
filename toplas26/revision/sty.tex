@@ -260,9 +260,8 @@ to functions $\phi$.
 %$$
 %\pmf(\phi = v) \defeq \sum_{\store \in \mems(X) \ \text{with}\ \store(\phi) = v} \pmf(\store)
   %$$
-  \cnote{THERE IS A PROBLEM WITH THIS! Should be marginalized on $\Phi$ not $X$...}
   $$
-  \pmf(\store) \defeq \sum_{\store' \in \mems(X)}
+  \pmf(\store) \defeq \sum_{\store' \in \mems(\Phi)}
   \begin{cases}
     \pmf(\store') \ \text{if}\ \forall \phi \in \Phi . \store'(\phi) = \store(x_\phi)  \\
     0 \ \text{otherwise}
