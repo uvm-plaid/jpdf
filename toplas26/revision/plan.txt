@@ -20,6 +20,8 @@ Better comparison with overture (mainly PPDP24, also ESOP25)
  + Implementation in PPDP paper could only do whole-program analysis.
    - See improved evaluation below; connect with this part.
 
+- Add PPDP to table in intro, separate from 29.
+
 ===================
 
 Improved evaluation

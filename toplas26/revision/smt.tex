@@ -4,8 +4,11 @@
 In previous work it was shown that the semantics of $\minicat$ in
 $\mathbb{F}_2$ can be implemented with Datalog
 \cite{skalka-near-ppdp24}, which is a form of constraint
-programming. In this paper we extend this idea to arbitrary prime
-fields by using a more general form of SMT constraint programming,
+programming. In this paper we explore using SMT instead which
+has several advantages. SMT is a highly studied and optimized
+system with a variety of theories. In particular, we can leverage
+the cvc5 Bit-Vector theory for verification in $\fieldp{2}$
+and extend verification to abritrary prime fields using 
 Satisfiability Modulo Finite Fields \cite{SMFF}. As we will
 show in subsequent sections, this interpretation supports automated
 enforcement of correctness guarantees, and also static type analyses
@@ -16,18 +19,27 @@ protocol verification.
 \subsection{Constraint Satisfiability and Entailment}
 
 We introduce the following syntax of SMT-style constraints for
-$\minicat$:
+$\minicat$. The language of constraint terms includes field values
+and operations ($+$, $-$, and $*$), and also bit operations
+(construction $\bv{\cdot}$, summation $\oplus$, and multiplication
+$\otimes$). We note that bit vector operations are included \emph{only}
+in the constraint language-- they allow us to leverage cvc5 bit vector
+operations and constraints, while protocols (circuits) themselves
+still manipulate individual bits. We illustrate how this can be used for
+verification in Section \ref{section-examples}.
 $$
-\begin{array}{rcl}
-  \phi ::= x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi  \qquad
-  \eqs ::= \phi \eop \phi \mid \eqs \wedge \eqs \mid \eqs \vee \eqs \mid \neg\eqs \mid \eqs \impl \eqs 
+\begin{array}{rclr}
+  \phi &::=& v \mid x \mid \phi \fplus \phi \mid \phi \fminus \phi \mid \phi \ftimes \phi
+     \mid \bv{\phi_1,\ldots,\phi_n} \mid \phi \oplus \phi \mid \phi \otimes \phi & \textit{constraint terms}\\ 
+     \eqs &::=& \phi \eop \phi \mid \eqs \wedge \eqs \mid \eqs \vee \eqs \mid \neg\eqs \mid \eqs \impl \eqs
+        & \textit{constraints} 
 \end{array}
 $$
 %
 %In Figure \ref{fig-eqs} we define a syntax of SMT-style constraints
 %$\eqs$, where
-Note that constraint terms $\phi$ are similar to expressions $\be$
-except that $\phi$ can ``cross party lines''. This is needed
+While constraint terms $\phi$ are similar to expressions $\be$,
+in contrast they can ``cross party lines''. This is needed
 to express correctness properties-- for example, in the
 Goldreich-Micali-Wigderson (GMW) protocol wire values in circuits are
 represented by reconstructive shares \cite{evans2018pragmatic}.  If by
@@ -56,7 +68,7 @@ express properties of shared values via constraints.
 
 This language of constraints has an obvious direct interpretation in
 SMT, in particular the cvc5 Bit-Vector theory in the case of $\fieldp{2}$ and
-Satisfiability Modulo Finite Fields \cite{SMFF} more generally. We can
+Satisfiability Modulo Finite Fields \cite{SMFF} for other prime fields. We can
 leverage this to implement a critical \emph{entailment} property,
 written $\eqs_1 \models \eqs_2$.  Our entailment relation is based on
 satisfiability in a standard sense, where we represent models as
@@ -77,25 +89,7 @@ technique in SMT to implement our (common) notion of entailment.
 \subsection{Programs as Constraint Systems}
 \label{section-smt-toeq}
 
-\begin{fpfig}[t]{Interpretation of $\minicat$ expressions (T) and programs (B) as
-  constraints}{fig-toeq}
-\begin{mathpar}
-  \toeq{x} = x
-
-  \toeq{\elab{\be_1 \fplus \be_2}{\cid}} = (\toeq{\elab{\be_1}{\cid}} \fplus \toeq{\elab{\be_2}{\cid}})
-
-  \toeq{\elab{\be_1 \fminus \be_2}{\cid}} = (\toeq{\elab{\be_1}{\cid}} \fminus \toeq{\elab{\be_2}{\cid}})
-
-  \toeq{\elab{\be_1 \ftimes \be_2}{\cid}} = (\toeq{\elab{\be_1}{\cid}} \ftimes \toeq{\elab{\be_2}{\cid}})
-\end{mathpar}
-\begin{mathpar}
-  \toeq{\xassign{x}{\be}{\cid}} = (x \eop \toeq{\elab{\be}{\cid}})
-  
-  \toeq{\elab{\assert{\be_1 = \be_2}}{\cid}} =  (\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}})
-
-  \toeq{\prog_1;\prog_2} = (\toeq{\prog_1} \wedge \toeq{\prog_2})
-\end{mathpar}
-\end{fpfig}
+\toeqfig
 
 A central idea of our approach is that we can interpret any protocol
 $\prog$ as a set of equality constraints (denoted $\toeq{\prog}$) and use an SMT

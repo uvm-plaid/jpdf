@@ -230,7 +230,7 @@ Yes, fix.
 > that establishes noninterference modulo output . Is this difficult? Is
 > this future work?
 
-
+This is integrity types, share types establish NIMO in Theorem 5.9.
 
 > 
 > Section 9
@@ -238,6 +238,9 @@ Yes, fix.
 > 
 > Page 31, line 18: I suggest including verification timings for the
 > brute-force techniques in Fig 21 if possible.
+
+I think this is the whole program analysis.
+
 > 
 > It would also be instructive to see how e.g Beaver Triple
 > multiplication would be modeled and verified in e.g. Cryptol - if such
@@ -254,11 +257,17 @@ Yes, fix.
 > Is the implementation publicly accessible, perhaps in a way that
 > allows the reader to rerun the performance experiments or at least try
 > out some examples?
-> 
+
+TODO: repo?
+
+
 > 
 > Bibliography
 > -----------------
 > Page 35: Citation [1] is incomplete (no authors)
+
+Yes, fix.
+
 > 
 > 
 > Referee: 2
@@ -296,13 +305,15 @@ TODO
 
 > 3. Figures and examples could be better used. Especially in the Prelude section and the implementation, there is a tendency to give an example, but not really to work through it (e.g., Fig. 15). As well, when the figures just have plain code, it is hard to see the annotations, etc. Consider using highlighting or color coding to make it easier to follow.
 
-TODO: graphic?
+TODO: graphic? colored fonts in code?
 
 > ----
 > Small nits or typos:
 > 
 > Page 5, line 13. In the caption of Fig. 3, there's enough space to just say Top and Bottom instead of T and B.
-> 
+
+OK
+
 > Page 10, line 16/17. Unnecessary comma after guarantees
 > 
 > Page 11, line 25. Missing 'of' after sums.
@@ -361,13 +372,20 @@ TODO: I don't undestand this.
 > - Figure 2: What exactly is the role of w? Line 45 says it is a distinguishing identifier string but the intuition is not clear. What is the relation between x and w?
 > 
 > - What does assert(rewrite_A(\sigma_C, e_1) == rewrite_A(\sigma_C, e_2)) evaluate to? The adversarial semantics in Fig.4 seem incomplete since they do not explain what happens in the above case.
+
+TODO: I don't understand this.
+
 > 
 > - What is the intuition for A-distribution? It appears that it is used to pad variables so that the runs can be compared (memory) point-wise.
-> 
+
+TODO: Add comments.
+ 
 > - What are some examples of prepoc in Definition 2.4?
 > 
 > - Definition 3.3 requires more description. Specifically, what does P_X2(σ_X2) = 0 mean?
-> 
+
+Did I defined \sigma_X?
+ 
 > - I am confused with Definition 3.8. There should be more explanation on the conditional distribution in the context of noninterference. First, what does S_C mean? secrets owned by corrupted parties? Why would that be the case? Also, what does the set S_C U O mean? Intuitively, I would think it should the be public varset from O.
 > 
 > - In Definition 3.8, why is BD conditioned on S_H? Which part of the definition models guessing? Is that BD conditioned on S_H? The connection between Def 3.3 and 3.8 must require more explanation.

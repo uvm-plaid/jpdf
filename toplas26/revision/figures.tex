@@ -121,6 +121,30 @@ $$
 \end{fpfig}
 }
 
+\newcommand{\toeqfig}{
+\begin{fpfig}[t]{Interpretation of $\minicat$ expressions (top) and programs (bottom) as
+  constraints}{fig-toeq}
+\begin{mathpar}
+  \toeq{v} = v
+  
+  \toeq{x} = x
+
+  \toeq{\elab{\be_1 \fplus \be_2}{\cid}} = (\toeq{\elab{\be_1}{\cid}} \fplus \toeq{\elab{\be_2}{\cid}})
+
+  \toeq{\elab{\be_1 \fminus \be_2}{\cid}} = (\toeq{\elab{\be_1}{\cid}} \fminus \toeq{\elab{\be_2}{\cid}})
+
+  \toeq{\elab{\be_1 \ftimes \be_2}{\cid}} = (\toeq{\elab{\be_1}{\cid}} \ftimes \toeq{\elab{\be_2}{\cid}})
+\end{mathpar}
+\begin{mathpar}
+  \toeq{\xassign{x}{\be}{\cid}} = (x \eop \toeq{\elab{\be}{\cid}})
+  
+  \toeq{\elab{\assert{\be_1 = \be_2}}{\cid}} =  (\toeq{\elab{\be_1}{\cid}} \eop \toeq{\elab{\be_2}{\cid}})
+
+  \toeq{\prog_1;\prog_2} = (\toeq{\prog_1} \wedge \toeq{\prog_2})
+\end{mathpar}
+\end{fpfig}
+}
+
 \newcommand{\minicathtripfig}{
 \begin{fpfig}[t]{$\minicat$ Hoare logic derivation rules}{fig-minicathtrip}
 \begin{mathpar}
@@ -392,13 +416,13 @@ $$
   %x &\in& \mathrm{EVar}\\
   %f &\in& \mathrm{FName}\\[2mm]
   e &::=& \mv \mid \flip{e} \mid \secret{e} \mid \mesg{e} \mid \rvl{e} \mid \outkw \mid e \bop e 
-   \mid y \mid & \gdesc{expressions}\\
+   \mid y \mid \bv{e,\ldots,e} \mid & \gdesc{expressions}\\
   & & e.\flab \mid \elab{e}{e} \mid \elet{y}{e}{e} \mid  f(e,\ldots,e) \mid \{ \flab = e; \ldots; \flab = e \} \\[1mm]
   %  & \textit{expressions}\\
   \cmd &::=& %\msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
   \assign{e}{e} \mid f(e,\ldots,e) \mid \elet{y}{e}{\instr} \mid  \cmd;\cmd 
     \mid \elab{\assert{e = e}}{e} & \gdesc{instructions}\\[1mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
-  \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
+  \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \oplus \mid \otimes\concat  \\[1mm]% \textit{operators}\\[2mm]
   \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
   & \gdesc{values}\\[1mm] % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
   \tau &::=& \stringty \mid \cidty \mid \{ \flab_1 : \tau_1; \ldots; \flab_n : \tau_n \} & \gdesc{basic types}\\[1mm]
@@ -508,10 +532,15 @@ $$
 $$
   \begin{array}{rclr}
     \peq &::=& e \eop e \mid \notg{\eqs} \wedge \notg{\eqs} \mid \notg{\eqs} \vee \notg{\eqs}
-  \mid \notg{\eqs} \impl \notg{\eqs} \mid \neg\eqs & \qquad \textit{abstract constraints}
+    \mid \notg{\eqs} \impl \notg{\eqs} \mid \neg\notg{\eqs} & \qquad \textit{abstract constraints}%\\
+    %C &::=& [\,] \mid \bv{\phi_1,\ldots,\phi_j,C,e_1,\ldots,e_k} \mid C \bop C & \textit{constraint contexts}
   \end{array}
 $$
 \begin{mathpar}
+  \inferrule
+      {e_1 \redx \phi_1 \cdots e_n \redx \phi_n}
+      {\bv{e_1,\ldots,e_n} \redx \bv{\phi_1,\ldots,\phi_n}}
+  
   \inferrule
       {e_1 \redx \elab{\be_1}{\cid_1} \\ e_2 \redx \elab{\be_2}{\cid_2} }
       {e_1 \bop e_2 \redx \toeq{\elab{\be_1}{\cid_1}} \bop \toeq{\elab{\be_2}{\cid_2}}}
@@ -535,10 +564,10 @@ $$
   \inferrule
       {\peq \redx \eqs}
       {\neg\peq\redx \neg\eqs}
-
-  \inferrule
-      {}
-      {\eqs \redx \eqs}
+  %    
+  %\inferrule
+  %    {}
+  %    {\eqs \redx \eqs}
 \end{mathpar}
 \end{fpfig}
 }
