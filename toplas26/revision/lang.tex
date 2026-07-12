@@ -135,7 +135,7 @@ Thus, we denote interpretation of expressions $\be$ computed on a
 client $\cid$ as $\lcod{\store,\be}{\cid}$. This interpretation is
 defined in Figure \ref{fig-minicat-redx}, along with the big-step
 reduction relation $\redx$ to evaluate commands. Reduction is a mapping
-from \emph{configurations} $(\store,\prog)$ to final stores
+from \emph{configurations} $(\store,\prog)$ to final memories
 where all three command forms- message send, broadcast, and
 output- are implemented as updates to the memory $\store$. 
 
@@ -146,13 +146,23 @@ in $\minicat$, albeit assuming some shared randomness. Alternatively,
 a simple passive secure OT can be defined with the addition of public
 key cryptography as a primitive. But given the diversity of approaches
 to OT, we instead assume that OT is abstract with respect to its
-implementation, and any use is of the form
-$\mx{w}{\cid_1} := \elab{\OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2}$ --
-given a \emph{choice bit} $\be_1$ provided by a receiver $\cid_1$, the
-sender $\cid_2$ sends either $\be_2$
-or $\be_3$.  Critically, $\cid_2$ learns nothing about $\be_1$ and
-$\cid_1$ learns nothing about the unselected value. We return to
-the formal interpretation of OT in Section \ref{section-smt}.
+implementation. In particular, we do not define a semantics of OT in
+Figure \ref{fig-minicat-redx}. However we will be able to define a
+formal specification of OT-- we return to this in Section
+\ref{section-smt}. Informally, any use is of the form $\mx{w}{\cid_1}
+:= \elab{\OT{\be_1}{\cid_1}{\be_2}{\be_3}}{\cid_2}$ -- given a
+\emph{choice bit} $\be_1$ provided by a receiver $\cid_1$, the sender
+$\cid_2$ sends either $\be_2$ or $\be_3$. Critically, $\cid_2$ learns
+nothing about $\be_1$ and $\cid_1$ learns nothing about the unselected
+value.
+
+\paragraph{Sanity conditions on protocols} To simplify
+the presentation we will disregard protocols that are semantically
+ill-defined. That is, we generally assume that for any
+program $\prog$ there exists $\store$
+with $(\store, \prog) \redxs \store$. This rules out
+use of undefined variables and, in the adversarial semantics,
+programs consisting of just a failing $\ttt{assert}$.
 
 \subsection{$\minicat$ Adversarial Semantics}
   
@@ -171,8 +181,9 @@ typically incorporates ``abort''. Honest parties implement strategies
 to detect rule-breaking-- aka \emph{cheating}-- by using, e.g.,
 message authentication codes with semi-homomorphic properties as in
 BDOZ/SPDZ \cite{10.1007/978-3-030-68869-1_3}. If cheating is detected,
-the protocol is aborted. To model this, we extend $\minifed$ with an
-\ttt{assert} command:
+the protocol is aborted. Note that abort is an explicit action, not
+semantic ill-formedness (disallowed by sanity conditions). To model
+this, we extend $\minifed$ with an \ttt{assert} command:
 $$
     \begin{array}{rcl@{\hspace{2mm}}r}
       \prog &::=& \cdots \mid \elab{\assert{\be = \be}}{\cid}
@@ -182,7 +193,7 @@ As we will discuss, this form of asserting equality between expressions
 is sufficient to capture MAC checking and support integrity in protocols.
 The big-step adversarial semantics relation $\aredx$ is then defined
 in Figure \ref{fig-minicat-aredx} as a mapping from configurations to
-a store $\store$ or $\bot$.
+a memory $\store$ or $\bot$.
 
 \subsubsection{Protocol Runs}
 
@@ -234,11 +245,3 @@ distributions and hyperproperties of protocols.
   \end{array}
   $$
 \end{definition}
-
-\paragraph{Sanity conditions on protocols} To simplify
-the presentation we will disregard protocols that are semantically
-ill-defined. That is, we generally assume that for any
-program $\prog$ there exists $\store$
-with $(\store, \prog) \redxs \store$. This rules out
-use of undefined variables and, in the adversarial semantics,
-programs consisting of just a failing $\ttt{assert}$.

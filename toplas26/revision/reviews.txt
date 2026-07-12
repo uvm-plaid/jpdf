@@ -110,10 +110,6 @@ TODO
 
 TODO
 
-> Page 3, line 43: Motivation for "And" is not clear here.
-
-Just bad writing, deleted. 
-
 > Section 2
 > ------------
 > 
@@ -126,12 +122,22 @@ This has been clarified in the text.
 > text suggest that the are left-hand sides of assignments; refactoring
 > the grammar a little bit would make things more clear.
 
-
+This is a subtle but important point. It is very helpful for formal development
+to refer to located identifiers by a single metavariable. However, not every
+located variable can occur on the lhs of an assignment (specifically
+secrets and random samples). So this was our best solution. Clarifying text
+has been added before Defn. 2.1
 
 > Only the last paragraph of Section 2.2 discusses OT but it's not clear
 > why no rule modeling the semantics described is included in Fig 3.
 > Also, in the caption of the figure, what do 'T' and 'B' denote?
-> 
+
+We explicitly don't provide a semantics for OT, just its specification,
+to allow use of various implementations. The paragraph before S2.2 has
+been updated to clarify this.
+
+T and B have been changed to top and bottom.
+ 
 > Fig 4: in the rule for rewrite, \sigma_C occurs free-- maybe you just
 > mean rewrite_A(\sigma, \varepsilon). Also, the rules for adversarial
 > semantics of programs now include explicit failure configurations \bot,
@@ -144,9 +150,15 @@ This has been clarified in the text.
 > 
 > [Update: the comments at the end of Section 2 is relevant to my
 > previous point; consider moving some of them up to 2.2 etc.
-> 
+
+The paragraph about sanity conditions has been moved up to S2.2, and
+clarifying comments have been added to the beginning of S2.3.
+
 > 'store' and 'memory' seem to be used synonymously; better stick
 > with one word.
+
+Updated to use "memory" consistently.
+
 > 
 > Section 3
 > ------------
@@ -155,7 +167,7 @@ This has been clarified in the text.
 > only sound but also complete w.r.t. the corresponding traditional MPC
 > security notions? If not, is there an instructive counterexample?
 
-No, not complete. We actually have a good example of this from the CSF paper.
+TODO No, not complete. We actually have a good example of this from the CSF paper.
 
 > 
 > Page 8, line 5: what's the English word for rvs? - it wasn't introduced
@@ -168,7 +180,7 @@ No, not complete. We actually have a good example of this from the CSF paper.
 > 
 > Page 12, line 41: maybe replace r[x]@w by r[x]@\iota
 
-Yes.
+TODO Yes.
  
 > Page 17, line 26: in the typing judgment, [ \phi^1, \phi^2 ] should
 > read [ \phi_1, \phi_2], cf the judgment in line 22.
@@ -214,7 +226,7 @@ if it were desired.
 >  motivation for including the rule E \Rightarrow E (last rule of the
 >  figure)?
 
-Yes. Fix, along with other stuff in this fig for BV constraints.
+TODO Yes. Fix, along with other stuff in this fig for BV constraints.
 Maybe fix F12 wrt reflevity rule?
  
 > Page 25, line 5: continuing my question regarding Church vs Curry
@@ -223,12 +235,12 @@ Maybe fix F12 wrt reflevity rule?
 > to so hat v_i : \tau_i. Without this condition, asking for existence
 > of the E1, E2 with the conditions given seems too strong.
 
-Yes, add this.
+TODO Yes, add this.
 > 
 > Page 26, Fig 17: the rule for \theta: \zeta \Rightarrow skip should
 > probably have \u{\theta}:\zeta in the conclusion.
 
-Yes, fix.
+TODO Yes, fix.
  
 > Page 20, lines 16 - 20: it seems that there is no formal theorem yet
 > that establishes noninterference modulo output . Is this difficult? Is
@@ -270,7 +282,7 @@ TODO: repo?
 > -----------------
 > Page 35: Citation [1] is incomplete (no authors)
 
-Yes, fix.
+TODO Yes, fix.
 
 > 
 > 
@@ -388,7 +400,7 @@ TODO: Add comments.
 > 
 > - Definition 3.3 requires more description. Specifically, what does P_X2(σ_X2) = 0 mean?
 
-Did I defined \sigma_X?
+TODO Did I defined \sigma_X?
  
 > - I am confused with Definition 3.8. There should be more explanation on the conditional distribution in the context of noninterference. First, what does S_C mean? secrets owned by corrupted parties? Why would that be the case? Also, what does the set S_C U O mean? Intuitively, I would think it should the be public varset from O.
 > 
