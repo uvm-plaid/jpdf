@@ -222,7 +222,7 @@ Chris: https://arxiv.org/pdf/2501.17824 (This is the integrity proof).
 > intuition would be that complete type inference might be possible. Can
 > you explain why that's not the case?
 
-This is definitely possible, but seemed out of scope and an easy addition
+TODO This is definitely possible, but seemed out of scope and an easy addition
 if it were desired.
  
 > Page 22, Fig 14: the last element of grammar for abstract constraints
@@ -230,8 +230,8 @@ if it were desired.
 >  motivation for including the rule E \Rightarrow E (last rule of the
 >  figure)?
 
-TODO Yes. Fix, along with other stuff in this fig for BV constraints.
-Maybe fix F12 wrt reflevity rule?
+These details have been fixed, along with some additions to accommodate
+bit vector terms in constraints.
  
 > Page 25, line 5: continuing my question regarding Church vs Curry
 > typing of functions, I suspect that if you indeed need type-annotated
@@ -261,12 +261,13 @@ This is integrity types, share types establish NIMO in Theorem 5.9.
 
 I think this is the whole program analysis.
 
-> 
 > It would also be instructive to see how e.g Beaver Triple
 > multiplication would be modeled and verified in e.g. Cryptol - if such
 > a comparison works out nicely, it could also be a motivation that can
 > be mentioned in the introduction.
-> 
+
+TODO
+ 
 > Section 10
 > -------------
 > 
@@ -286,7 +287,7 @@ TODO: repo?
 > -----------------
 > Page 35: Citation [1] is incomplete (no authors)
 
-TODO Yes, fix.
+Authors added.
 
 > 
 > 
@@ -307,21 +308,27 @@ TODO Yes, fix.
 > 
 > First, a few technical comments:
 > 1. Since the final Prelude type checking does require (or at least strongly benefits from) non-trivial annotations, I would like to see a clearer explanation of the goals of the end framework wrt. automation and programmer involvement, and a clearer description and evaluation of programmer effort compared to related work.
-> 
+
+TODO.
+
 > 2. Being able to implement automated verification is one of the contributions of this work, but I found the evaluation lacking, without clear methodology (e.g., what machine were the experiments run on?), or detailed results. It would be difficult for a researcher to reproduce. Moreover, there is no real ``stress-testing'' or ablation studies of the tool. Given that an aim of the work is compositionality, how does the framework scale? Where does performance start to break down?
-> 
+
+TODO.
+ 
 > 3. Furthermore, the emergence of Satisfiability Modulo Finite Fields is one of the stated motivations, but then the evaluation showed that SMFF did not perform well comparatively to bit-vector based theory. It would be interesting to see more discussion of results.
-> 
+
+TODO.
+
 > Beyond enriching the evaluation, I thought the biggest weakness of the paper was presentation, since it generally lacked a) motivation for why all the framework components were needed and how they fit together, and b) self-sufficient explanations of needed background, definitions, and judgments. Here are some more specific suggestions that may help improve the presentation.
 > 
 > 1. The paper would strongly benefit from a key ideas section that puts together the main components of both the Overture half of the paper and the Prelude half of the paper, building mental scaffolding for all the technical sections, which otherwise feel disjointed (especially the switch to Prelude).
 
-TODO: graphic?
+TODO: graphic? Joe?
 
 > 2. Providing more background up-front on finite fields, semi-homomorphic encryption, and MPC and then discussing how the target domain informs language design decisions would make this work accessible to a much broader audience. Right now these ideas appear here and there throughout the text but are not teased out. Compared to the ESOP paper, I found this version harder to read, in part because the Share Types (while interesting!) are much more tightly coupled to semi-homomorphic encryption concepts. This is not a weakness, but it would make the paper benefit from a gentler on ramp.
 >
 
-TODO
+TODO: Joe?
 
 > 3. Figures and examples could be better used. Especially in the Prelude section and the implementation, there is a tendency to give an example, but not really to work through it (e.g., Fig. 15). As well, when the figures just have plain code, it is hard to see the annotations, etc. Consider using highlighting or color coding to make it easier to follow.
 
@@ -332,15 +339,25 @@ TODO: graphic? colored fonts in code?
 > 
 > Page 5, line 13. In the caption of Fig. 3, there's enough space to just say Top and Bottom instead of T and B.
 
-OK
+This has been fixed.
 
 > Page 10, line 16/17. Unnecessary comma after guarantees
-> 
+
+Corrected.
+ 
 > Page 11, line 25. Missing 'of' after sums.
+
+Corrected.
+
 > Page 11, line 43. "To reasoning" instead of "To reason"
-> 
+
+Corrected.
+
 > Page 12, line 41 onwards. First sentence about genshares says it takes in a randomness r[x]@w, but the rest of the explanation uses r[w]@i.
-> 
+
+Corrected.
+
+ 
 > Referee: 3
 > 
 > Comments to the Author

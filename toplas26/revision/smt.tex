@@ -11,7 +11,7 @@ the cvc5 Bit-Vector theory for verification in $\fieldp{2}$
 and extend verification to abritrary prime fields using 
 Satisfiability Modulo Finite Fields \cite{SMFF}. As we will
 show in subsequent sections, this interpretation supports automated
-enforcement of correctness guarantees, and also static type analyses
+enforcement of correctness guarantees as well as static type analysis
 for enforcing confidentiality and integrity properties.  In this
 section we formulate a Hoare Logic for $\minicat$ as a foundation for
 protocol verification.
@@ -127,7 +127,7 @@ together with $\eqspre$ entails $\eqs$.
 Consider the following 3-party additive secret sharing protocol, where
 each party generates two additive secret shares
 \cite{evans2018pragmatic} for their respective secrets. Each party
-publicly reveals the sums all their shares, and the sum of those is
+publicly reveals the sums of all their shares, and the sum of those is
 the protocol output for each party.  
 $$
 \begin{array}{c@{\qquad}c}
@@ -173,7 +173,7 @@ that incorporates a notion of preconditions:
 
 \subsection{$\minicat$ Hoare Logic}
 
-To reasoning effectively about pre and postconditions we introduce
+To reason effectively about pre and postconditions we introduce
 a Hoare logic for $\minicat$,
 where $\htrip{\eqs_1}{\prog}{\eqs_2}$ means that $\eqs_1,\eqs_2$ are
 the preconditions and postconditions, respectively, of $\prog$.
