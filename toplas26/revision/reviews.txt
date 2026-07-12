@@ -112,18 +112,22 @@ TODO
 
 > Page 3, line 43: Motivation for "And" is not clear here.
 
-Not sure what they mean?
+Just bad writing, deleted. 
 
 > Section 2
 > ------------
 > 
 > Page 4, line 32: explain in what sense the protocols are 'synchronous', and
 > where that is reflected in the language.
-> 
+
+This has been clarified in the text.
+
 > Fig 2: Formally, the category of variables (x) is dead, although the
 > text suggest that the are left-hand sides of assignments; refactoring
 > the grammar a little bit would make things more clear.
-> 
+
+
+
 > Only the last paragraph of Section 2.2 discusses OT but it's not clear
 > why no rule modeling the semantics described is included in Fig 3.
 > Also, in the caption of the figure, what do 'T' and 'B' denote?

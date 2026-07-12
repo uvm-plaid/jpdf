@@ -3,7 +3,10 @@
 
 The $\minifed$ language establishes a basic model of synchronous
 protocols between a federation of \emph{clients} exchanging values in
-a finite field. In order to align with existing SMT theories
+a finite field. Synchronous means that the sender and receiver in each
+communication ``block'' until data is exchanged. This is consistent
+with standard models of MPC and real protocols \cite{evans2018pragmatic}.
+In order to align with existing SMT theories
 \cite{SMFF} we restrict our consideration to prime fields. We identify
 clients by natural numbers and federations- finite sets of clients-
 are always given statically.  Our threat model assumes a partition of
@@ -45,11 +48,13 @@ different forms:
 \end{itemize}
 The distinction between
 messages and broadcast public reveal is consistent with previous
-formulations, e.g., \cite{6266151}. To identify and distinguish
+formulations, e.g., \cite{6266151}. While this distinction is important,
+it will frequently be helpful to refer to located variables in general
+so we collect them in a syntactic sort $x$. To help identify and distinguish
 between collections of variables in protocols we introduce the
 following notation.
 \begin{definition}
-We let $x$ range over \emph{variables} which are identifiers where
+We let $x$ range over \emph{located variables} which are identifiers where
 client ownership is specified- e.g.,
 $\elab{\mesg{\mathit{foo}}}{\cid}$ is a message $\mathit{foo}$ that
 was sent to $\cid$. We let $X$ range over sets of variables, and more
