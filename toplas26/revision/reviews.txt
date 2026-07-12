@@ -89,7 +89,7 @@
 > submissions, space limitations make this acceptable but journal
 > articles don't have this constraint.
 
-TRY TO TODO
+Corrected (hopefully all instances).
  
 > Section 1.2:
 > ---------------
@@ -337,12 +337,12 @@ TODO.
 > 
 > 1. The paper would strongly benefit from a key ideas section that puts together the main components of both the Overture half of the paper and the Prelude half of the paper, building mental scaffolding for all the technical sections, which otherwise feel disjointed (especially the switch to Prelude).
 
-TODO: graphic? Joe?
+TODO: graphic? Joe? 
 
 > 2. Providing more background up-front on finite fields, semi-homomorphic encryption, and MPC and then discussing how the target domain informs language design decisions would make this work accessible to a much broader audience. Right now these ideas appear here and there throughout the text but are not teased out. Compared to the ESOP paper, I found this version harder to read, in part because the Share Types (while interesting!) are much more tightly coupled to semi-homomorphic encryption concepts. This is not a weakness, but it would make the paper benefit from a gentler on ramp.
 >
 
-TODO: Joe?
+TODO: Joe? This may also help clarify F1 as reviewer suggests.
 
 > 3. Figures and examples could be better used. Especially in the Prelude section and the implementation, there is a tendency to give an example, but not really to work through it (e.g., Fig. 15). As well, when the figures just have plain code, it is hard to see the annotations, etc. Consider using highlighting or color coding to make it easier to follow.
 

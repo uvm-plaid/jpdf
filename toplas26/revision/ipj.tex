@@ -31,15 +31,16 @@ extensions of $\mathbb{F}_p$.
 
 \ipjfig
 
-As in \cite{skalka-near-ppdp24}, we use $\macgv{\mesg{w}}$ to refer to
-secret-shared values reconstructed with addition, and by
-convention each share of $\macgv{\mesg{w}}$ is represented as
-$\elab{\mesg{w\ttt{s}}}{\cid}$, the MAC of which is represented as a
-$\elab{\mesg{w\ttt{m}}}{\cid}$ for all $\cid$, and each client holds a
-key $\elab{\mesg{w\ttt{k}}}{\cid}$ for authentication of the other's
-share. Each client also holds a global key $\mesg{\ttt{delta}}$. For
-any such share identified by string $w$, the BDOZ MAC scheme is defined 
-by the equality predicate $\macbdoz{w}$:
+As in previous work \cite{skalka-near-ppdp24}, we use
+$\macgv{\mesg{w}}$ to refer to secret-shared values reconstructed with
+addition, and by convention each share of $\macgv{\mesg{w}}$ is
+represented as $\elab{\mesg{w\ttt{s}}}{\cid}$, the MAC of which is
+represented as a $\elab{\mesg{w\ttt{m}}}{\cid}$ for all $\cid$, and
+each client holds a key $\elab{\mesg{w\ttt{k}}}{\cid}$ for
+authentication of the other's share. Each client also holds a global
+key $\mesg{\ttt{delta}}$. For any such share identified by string $w$,
+the BDOZ MAC scheme is defined by the equality predicate
+$\macbdoz{w}$:
 $$
 \macbdoz{w} \defeq
 \mesg{w\ttt{m}} = \mesg{w\ttt{k}} \fplus \ttt{(}\mesg{\ttt{delta}} \ftimes

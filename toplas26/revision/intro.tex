@@ -126,7 +126,7 @@ discussed above. Key differences as noted in Figure
 \ref{fig-comp-wrap} include a Hoare logic and a more expressive
 confidentiality type system supporting analysis of more complex
 programs that enforces passive security in the real/ideal model, vs.~a
-weaker gradual release property as in \cite{skalka-near-esop25}.
+weaker gradual release property.
 Furthermore our Hoare logic analysis has been fully implemented in the
 current work in an Antlr/Scala/cvc5-based framework.
 
@@ -150,12 +150,12 @@ type system to automatically enforce so-called probabilistic trace
 obliviousness.  But similar to previous work on oblivious data
 structures \cite{10.1145/3498713}, obliviousness is related to pure
 noninterference, not the conditional form related to passive MPC
-security (Definition \ref{definition-NIMO}). The Haskell-based security
-type system in \cite{6266151} enforces a version of noninterference
-that is sound for passive security, but does not consider malicious
-security. Properties of real/ideal passive and malicious security
-for a probabilistic language have been (manually) formulated in
-EasyCrypt \cite{8429300}.
+security (Definition \ref{definition-NIMO}). A Haskell-based security
+type system has been defined as an embedded DSL \cite{6266151}
+that enforces a version of noninterference that is sound for passive
+security, but does not consider malicious security. Properties of
+real/ideal passive and malicious security for a probabilistic language
+have been (manually) formulated in EasyCrypt \cite{8429300}.
 
 \compwrapfig
 
