@@ -31,7 +31,7 @@ $$
 A \emph{secret sharing scheme} includes functions
 $(\genshares,\recon)$ that generate and reconstruct shares,
 respectively. The $\genshares$ function takes some
-input $\phi$ and randomness $\rx{x}{w}$ and produces
+input $\phi$ and randomness $\rx{x}{\cid}$ and produces
 two shares (or as many is needed for the number of clients
 in the federation): 
 $$
@@ -444,7 +444,7 @@ verified in typing judgements.
     \end{enumerate}
 \end{lemma}
 \begin{proof}
-  The proof is by induction on the derivation of $\Gamma, \toeq{\prog} \vdash [\phi^1,\phi^2] : \sharety$.
+  The proof is by induction on the derivation of $\Gamma, \toeq{\prog} \vdash [\phi_1,\phi_2] : \sharety$.
   In the base case where the judgement follows by the \TirName{Shared} rule, the result
   follows trivially by Definition \ref{def-OK}. In cases \TirName{HEAdd}, \TirName{HEAddPub}, and
   \TirName{HEMultPub} the result follows by Definition \ref{def-OK} and known

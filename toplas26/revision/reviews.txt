@@ -174,17 +174,21 @@ TODO No, not complete. We actually have a good example of this from the CSF pape
 > before. What's the point in defining rvs(P) := X here? Maybe rvs(P)
 > the random variables mentioned in P (i.e the variables mapped to
 > nonzero probabilities by P), i.e something like a 'support'?
-> 
+
+Yes, it means "random variables". The definition has been updated.
+
 > Section5
 > -----------
 > 
 > Page 12, line 41: maybe replace r[x]@w by r[x]@\iota
 
-TODO Yes.
+This has been corrected.
  
 > Page 17, line 26: in the typing judgment, [ \phi^1, \phi^2 ] should
 > read [ \phi_1, \phi_2], cf the judgment in line 22.
-> 
+
+Corrected.
+
 > Section 6
 > ------------
 > 
