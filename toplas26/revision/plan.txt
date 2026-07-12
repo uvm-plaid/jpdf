@@ -44,3 +44,4 @@ Beef up future work
  - Generalize from F2 to Fp?
  - Better methods for modularization.
  - Incorporate non-information theoretic elements, e.g., sym keys for YGC.
+ - Parallelism and commits.

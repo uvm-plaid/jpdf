@@ -18,9 +18,9 @@ with accompanying MAC values.  Each client $\cid$ gets a pair of
 values $(v_\cid,m_\cid)$, where $v_\cid$ is a share of $v$
 reconstructed by addition, i.e., $v = \fcod{v_1 \fplus v_2}$, and
 $m_\cid$ is a MAC of $v_\cid$.  More precisely, $m_\cid = k +
-(k_\Delta * v_\cid)$ where \emph{keys} $k$ and $k_\Delta$ are known
-only to $\cid' \ne \cid$ and $k_\Delta$. The \emph{local key} $k$ is
-unique per MAC, while the \emph{global key} $k_\Delta$ is common to
+(k_\delta * v_\cid)$ where \emph{keys} $k$ and $k_\delta$ are known
+only to $\cid' \ne \cid$. The \emph{local key} $k$ is
+unique per MAC, while the \emph{global key} $k_\delta$ is common to
 all MACs authenticated by $\cid'$. This is a semi-homomorphic
 encryption scheme that supports addition of shares and multiplication
 of shares by a constant-- for more details the reader is referred to

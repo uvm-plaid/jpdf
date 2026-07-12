@@ -255,7 +255,8 @@ to variables that occur in their bodies. Deduction rules other than
 \TirName{HardPack} enforce this by definition.  For any $f$ with
 $\codebase(f) = y_1 : \tau_1, \ldots, y_n : \tau_n, \cmd$,
 $\precond(f) = \peq_1$, and $\postcond(f) = \peq_2$, we require that
-for all $[\mv_1/y_1]\cdots[\mv_n/y_n]$ there exists $\eqs_1$, $\eqs_2$
+for all $[\mv_1/y_1]\cdots[\mv_n/y_n]$ with $\mv_1 : \tau_1, \ldots
+\mv_n : \tau_n$ there exists $\eqs_1$, $\eqs_2$
 where:
 \begin{mathpar}
   \cmd[\mv_1/y_1]\cdots[\mv_n/y_n] \redx \prog

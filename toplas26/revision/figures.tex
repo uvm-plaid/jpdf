@@ -398,7 +398,7 @@ $$
       
   \inferrule
       {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in H}
-      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\hilab \wedge (\bigwedge_{x \in V} \seclev_2(x))}}}
+      {\cheatj{\Delta; x : \ity{\cid}{V}}{H,C}{\extend{\seclev}{x}{\hilab \wedge (\bigwedge_{x \in V} \seclev(x))}}}
       
   \inferrule
       {\cheatj{\Delta}{H,C}{\seclev} \\ \cid \in C}
@@ -649,7 +649,7 @@ $$
 
   \inferrule
       {\notg{\stt} \redx \stt}
-      {\stt : \sty \redx \pskip}
+      {\notg{\stt} : \sty \redx \pskip}
 \end{mathpar}
 
 \bigskip

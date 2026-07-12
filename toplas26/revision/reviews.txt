@@ -116,7 +116,8 @@ TODO
 > Page 4, line 32: explain in what sense the protocols are 'synchronous', and
 > where that is reflected in the language.
 
-This has been clarified in the text.
+This has been clarified in the text. NEED TO UPDATE: Note issues with
+parallelism (e.g., commit).
 
 > Fig 2: Formally, the category of variables (x) is dead, although the
 > text suggest that the are left-hand sides of assignments; refactoring
@@ -175,7 +176,7 @@ TODO No, not complete. We actually have a good example of this from the CSF pape
 > the random variables mentioned in P (i.e the variables mapped to
 > nonzero probabilities by P), i.e something like a 'support'?
 
-Yes, it means "random variables". The definition has been updated.
+That's correct, rvs means "random variables". The definition has been updated.
 
 > Section5
 > -----------
@@ -194,13 +195,23 @@ Corrected.
 > 
 > Page 18 line 34: explain the "...and k_\Delta at the end of the
 > sentence.
-> 
+
+That was errant text that has been deleted. 
+ 
 > Page 18, line 51: maybe it's possible to avoid the clash between the
 > use of \Delta in the typing judgment with its use in k_\Delta in line
 > 34?
-> 
+
+Yes, this is a good point... we were using k_\Delta to be consistent
+with other texts, especially [24]. But it does clash with the
+integrity type environment \Delta. We have changed it to k_\delta--
+since we are using delta in several code examples are avoiding a
+renaming that could introduce code issues. 
+ 
 > Page 19, Figure 10, middle rule: what does index 2 mean in \L_2 in the conclusion?
-> 
+
+That was vestigial and a typo. The Figure has been corrected.
+
 > Page 20, line31: the text refers to an appendix of the conference
 > paper (citation [30]) that the present submission extends, but the
 > conference paper as published by Springer does not have a technical
@@ -210,7 +221,8 @@ Corrected.
 
 Chris: https://arxiv.org/pdf/2501.17824 (This is the integrity proof).
 
-> 
+TODO: Include or not?
+
 > Section 7
 > ------------
 > 
@@ -239,18 +251,20 @@ bit vector terms in constraints.
 > to so hat v_i : \tau_i. Without this condition, asking for existence
 > of the E1, E2 with the conditions given seems too strong.
 
-TODO Yes, add this.
-> 
+Excellent point, this restriction has been made explicit.
+ 
 > Page 26, Fig 17: the rule for \theta: \zeta \Rightarrow skip should
 > probably have \u{\theta}:\zeta in the conclusion.
 
-TODO Yes, fix.
+This has been corrected. 
  
 > Page 20, lines 16 - 20: it seems that there is no formal theorem yet
 > that establishes noninterference modulo output . Is this difficult? Is
 > this future work?
 
 This is integrity types, share types establish NIMO in Theorem 5.9.
+
+TODO intro revision will help.
 
 > 
 > Section 9
@@ -274,6 +288,8 @@ TODO
 > A section on future work -- language extensions, applications to other
 > (styles of?) protocols, improving the typechecking performance,... --
 > would be appropriate for a journal paper.
+
+TODO	
 > 
 > Is the implementation publicly accessible, perhaps in a way that
 > allows the reader to rerun the performance experiments or at least try
@@ -281,8 +297,6 @@ TODO
 
 TODO: repo?
 
-
-> 
 > Bibliography
 > -----------------
 > Page 35: Citation [1] is incomplete (no authors)
