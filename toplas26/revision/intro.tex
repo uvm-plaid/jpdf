@@ -71,8 +71,9 @@ $\ttt{andgmw}$ definitions. In the first lines of the program, clients
 $x_2$ for client 1, and $y_1$ and $y_2$ for client 2. Shares are
 identified in the program by strings $\ttt{"x1"}$, $\ttt{"y1"}$, etc.,
 as are the gates in the protocol. So the circuit is wired in the
-same way as the logic circuit diagram on the right.
-
+same way as the logic circuit diagram on the right. Each gate
+specifies a subprotocol where the operations are performed on
+encrypted wire data-- in the case of GMW, these are secret shares. 
 
 
 \begin{fpfig}[t]{A two-bit adder circuit (without carry) in $\metaprot$ with
@@ -145,6 +146,27 @@ same way as the logic circuit diagram on the right.
 \end{tabular}
 \end{center}
 \end{fpfig}
+
+
+An important feature of the example is the $\ttt{postcondition}$ that
+specifies the correctness of the circuit. Here the $\ttt{|...|}$
+syntax denotes a concatenation of bits into a bit vector, and
+$\ttt{BVAdd}$ is bit vector addition. These operations are components
+of the SMT cvc5 Bit-Vector theory and the postcondition is
+automatically verified using it. $\ttt{RECON}$ is a constraint-level
+function indicating the reconstructed value represented by secret
+shares. So the postcondition says that the reconstructed shares of
+the outputs are equal to the sum of the reconstructed secret shares
+of the inputs.
+
+In the remainder of the paper we will go into more complete detail
+about the underyling definitions of $\ttt{genshares}$, $\ttt{xorgmw}$,
+and $\ttt{andgmw}$. This includes their share type checking that
+guarantees passive simulator security in this and other examples.
+Another important point is that other protocols can be used to define
+gates, for example malicious secure protocols, since $\metaprot$
+and $\minicat$ support low-level protocol specification.
+
 
 \subsection{Overview and Contributions}
 
