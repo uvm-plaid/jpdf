@@ -9,6 +9,8 @@ Better roadmap for paper and products.
  + Implementation workflow
  + Graphical presentation (Joe?)
 
+- Add 2-bit adder to intro?
+
 - Online repo with code and examples (Steven?)
 
 ===================
