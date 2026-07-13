@@ -51,9 +51,17 @@ automated. So we define the $\metaprot$ language as a higher-level
 metaprogramming language that evaluates to $\minicat$ protocols.
 $\metaprot$ supports compositional definition of protocol components
 and also supports automation of constraint verification and type
-checking.  Thus $\metaprot$ program analysis automates security and
-correctness properties of the low-level $\minicat$ protocols that
-$\metaprot$ programs evaluate to.
+checking especially by leveraging SMT automation.  Thus $\metaprot$
+program analysis automates security and correctness properties of the
+low-level $\minicat$ protocols that $\metaprot$ programs evaluate to.
+
+The specification of an MPC protocol is called its \emph{ideal
+functionality} and a standard approach is to implement ideal
+functionalities as either arithmetic or boolean circuits. An advantage
+of this is that subprotocols for primitive operations, such as
+addition and multiplication, or logic gates, can be implemented and
+optimized as subprotocols. Consider the example of a two-bit adder
+binary circuit in Figure \ref{fig-adder}.
 
 \begin{fpfig}[t]{A two-bit adder circuit (without carry) in $\metaprot$ with
     verification postcondition, using the GMW protocol.}{fig-adder}
