@@ -56,12 +56,24 @@ program analysis automates security and correctness properties of the
 low-level $\minicat$ protocols that $\metaprot$ programs evaluate to.
 
 The specification of an MPC protocol is called its \emph{ideal
-functionality} and a standard approach is to implement ideal
-functionalities as either arithmetic or boolean circuits. An advantage
-of this is that subprotocols for primitive operations, such as
-addition and multiplication, or logic gates, can be implemented and
+functionality} and a standard approach \cite{269581} is to implement
+ideal functionalities as either arithmetic or boolean circuits. An
+advantage of this is that subprotocols for primitive operations, such
+as addition and multiplication, or logic gates, can be implemented and
 optimized as subprotocols. Consider the example of a two-bit adder
-binary circuit in Figure \ref{fig-adder}.
+binary circuit in Figure \ref{fig-adder}. The ideal functionality of
+the circuit is two-bit vector addition (ignoring carry). On the left
+is a $\metaprot$ program that implements the protocol by ``wiring''
+secure logic gates implemented using the Goldreich-Micali-Wigderson
+(GMW) protocol. These are encapsulated in the $\ttt{xorgmw}$ and
+$\ttt{andgmw}$ definitions. In the first lines of the program, clients
+1 and 2 each generate secret shares of their secret bits-- $x_1$ and
+$x_2$ for client 1, and $y_1$ and $y_2$ for client 2. Shares are
+identified in the program by strings $\ttt{"x1"}$, $\ttt{"y1"}$, etc.,
+as are the gates in the protocol. So the circuit is wired in the
+same way as the logic circuit diagram on the right.
+
+
 
 \begin{fpfig}[t]{A two-bit adder circuit (without carry) in $\metaprot$ with
     verification postcondition, using the GMW protocol.}{fig-adder}
