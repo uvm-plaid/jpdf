@@ -167,55 +167,74 @@ Another important point is that other protocols can be used to define
 gates, for example malicious secure protocols, since $\metaprot$
 and $\minicat$ support low-level protocol specification.
 
+\subsection{A Brief Introduction to MPC Protocols}
 
-\subsection{Overview and Contributions}
+\cnote{Joe?}
 
-Our work is based on the $\metaprot$/$\minicat$ framework developed in
-previous work \cite{skalka-near-ppdp24, skalka-near-esop25}. The prior work developed the 
-language and semantics, plus two mechanisms for verifying security: an
-automated approach for protocols in $\mathbb{F}_2$ (the binary field),
-based on enumerating all possible executions of the protocol that scales 
-only to very small protocols; and a manual approach based on a program logic.
-%
-In Section \ref{section-lang} we recall the $\minicat$ language model and key definitions. In
-Section \ref{section-model} we recall formulations of program distributions,
-and key probabilistic hyperproperties of MPC in $\minicat$. 
+\subsection{Roadmap of the Theory and Implementation}
 
-Together, our contributions \emph{automate} the \emph{compositional} verification of security
-properties in $\metaprot$/$\minicat$. In this work, we build on~\cite{skalka-near-ppdp24}
-by developing automatic verification approaches that work for arbitrary
-finite fields and scale to large protocols. To accomplish this, we develop new
-Hoare logics and type systems for compositional verification, and use SMT to automate the checks
-that were accomplished by enumeration in prior work. Specifically, we make the
-following contributions:
-%
-% \begin{enumerate}[i.]
-% \item In Section \ref{section-smt}, an interpretation of protocols in
-%   $\minicat$ as SMT constraints (Theorem \ref{theorem-toeq}) and
-%   methodology for verifying correctness properties.
-% \item In Section \ref{section-cpj}, a confidentiality type system for
-%   $\minicat$ protocols with a soundness property guaranteeing that
-%   information is released only through explicit declassifications
-%   (Theorem \ref{theorem-cpj}).
-% \item In Section \ref{section-ipj}, an integrity type system for
-%   $\minicat$ protocols with a soundness property guaranteeing
-%   robustness in malicious settings (Theorem \ref{theorem-ipj}).
-% \item In Section \ref{section-metalang}, a dependent Hoare type system and
-%   algorithm for the $\metaprot$ language that is sound for the
-%   confidentiality and integrity type systems (Theorem
-%   \ref{theorem-mtj}), with independently verified, compositional $\Pi$
-%   types for functions.
-% \end{enumerate}
-\begin{enumerate}[i.]
-\item In Section~\ref{section-smt}, a Hoare logic for Overture protocols, for the compositional verification of both semi-honest and malicious security.
-\item In Section~\ref{section-sty}, a novel share type system, enabling security verification for protocols that use secret sharing as a building block; our approach works for any secret sharing scheme and enforces passive security (confidentiality).
-\item In Section~\ref{section-ipj}, an integrity type system for extending passive security to malicious security.
-\item In Section~\ref{section-metalang}, a Hoare logic for Prelude programs with an automated implementation, for the compositional verification of high-level protocol specifications.
-\item In Section~\ref{sec:metapr-type-check}, a compositional type-based verification approach for Prelude programs that combines share types with the automated Hoare logic of Section 7.
-\end{enumerate}
+Here we summarize the main theoretical developments and results in
+the paper and their connections.  In Section \ref{section-lang}
+we define the $\minicat$ language model. In Section \ref{section-model}
+we articulate our security model as hyperproperties of
+noninterference modulo output (Definition \ref{definition-NIMO})
+and integrity (Definition \ref{def-integrity}). As has been
+shown in previous work \cite{skalka-near-ppdp24, skalka-near-esop25},
+noninterference modulo output is sound for passive simulator
+security, while the addition of integrity obtains malicious security.
+
+In Section \ref{section-smt} we develop an SMT-based Hoare logic
+endowed with notions of validity and derivability, where the latter is
+shown to imply the former (Lemma \ref{lemma-hoare-sound}). This is an
+important foundation both for our verification method and for notions
+of constraint correctness in type systems.  In Section
+\ref{section-sty} we develop a novel share type system, enabling
+security verification for protocols that use secret sharing as a
+building block; our approach works for any secret sharing scheme and
+enforces noninterference modulo output and therefore passive security
+(Theorem \ref{theorem-sty}). The share type system also supports
+verification of protocols with respect to ideal functionality.  In
+Section \ref{section-ipj}, we develop a different type system that
+enforces integrity (Theorem \ref{theorem-ipj}). Thus both share and
+integrity typability of a $\minicat$ protocol imply that it is
+malicious secure.
+
+In Section \ref{section-metalang} we define the $\metaprot$ syntax and
+semantics, including pre- and postcondition annotations on functions
+(as in the example in Figure \ref{fig-adder}. Intuitively, any
+$\metaprot$ program evaluates to a $\minicat$ protocol, so we refer to
+it as a metaprogramming language. We define an automated Hoare logic
+for $\minicat$ programs, to verify pre- and postcondition
+annotations. This automated Hoare logic is shown to be sound in the
+sense that pre- and postconditions will be valid for any function
+applications (Lemma \ref{lemma-metahtrip}). An implication of this
+(Corollary \ref{cor-metahtrip}) means that function pre- and
+postconditions are compositional and need only be verified once,
+achieving greater performance efficiency. In Section
+\ref{sec:metapr-type-check}, we develop an automated type system for
+$\metaprot$ that guarantees that any well-typed $\metaprot$ program
+evaluates to a share-typable $\minicat$ protocol (Theorem
+\ref{theorem-metaty}) and hence its passive security.
+
+In Section \ref{section-examples} we develop and discuss extended
+example applications of our type analyses to real protocols including
+the Goldreich-Micali-Wigderson (GMW), Ben-Or-Goldwasser-Widgerson
+(BGW), and Bendlin-Damgard-Orland-Zakarias (BDOZ). We also summarize
+our implementation of the $\metaprot$ Hoare logic and evaluate
+verification of both binary and arithmetic gate and circuit
+properties. Our implementation integrates with cvc5 SMT to support
+efficient verification, including Satisfiability Modulo Finite Fields
+(SMFF) \cite{SMFF} for binary and arithmetic circuits, and the
+Bit-Vector theory for binary circuits. \cnote{Elaborate on this and
+  add comments here about repo (Steven?) and graphic of implementation
+  workflow (Joe?).}
 
 
+\subsection{Related Work}
+\label{section-related-work}
 
+\cnote{This and other material should be used as a better
+  comparison with PPDP and ESOP papers:
 A prior conference version of this work~\cite{skalka-near-esop25}
 proposed a whole-program analysis for Prelude programs that ensures
 confidentiality, and combined it with an integrity type system to
@@ -230,22 +249,7 @@ our extensions in this work additionally enable the type-based
 verification of noninterference modulo output for more complex secret
 sharing protocols,e.g., that leverage Beaver triples (see
 Section~\ref{section-examples}).
-
-In Section \ref{section-examples} we develop and discuss extended
-example applications of our type analyses to real protocols including
-the Goldreich-Micali-Wigderson (GMW), Ben-Or-Goldwasser-Widgerson
-(BGW), and Bendlin-Damgard-Orland-Zakarias (BDOZ). We also summarize
-our implementation of the $\metaprot$ Hoare logic and evaluate
-verification of both binary and arithmetic gate and circuit
-properties. Our implementation integrates with cvc5 SMT to support
-efficient verification, including Satisfiability Modulo Finite Fields
-(SMFF) \cite{SMFF} for binary and arithmetic circuits, and the
-Bit-Vector theory for binary circuits.
-
-
-
-\subsection{Related Work}
-\label{section-related-work}
+}
 
 The goal of the $\minicat/\metaprot$ framework is to automate
 correctness and security verification of low-level protocols.  Other
