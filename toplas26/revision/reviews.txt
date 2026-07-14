@@ -170,6 +170,8 @@ Updated to use "memory" consistently.
 
 TODO No, not complete. We actually have a good example of this from the CSF paper.
 
+DISCUSS
+
 > 
 > Page 8, line 5: what's the English word for rvs? - it wasn't introduced
 > before. What's the point in defining rvs(P) := X here? Maybe rvs(P)
@@ -222,6 +224,8 @@ That was vestigial and a typo. The Figure has been corrected.
 Chris: https://arxiv.org/pdf/2501.17824 (This is the integrity proof).
 
 TODO: Include or not?
+
+DISCUSS
 
 > Section 7
 > ------------
@@ -281,6 +285,8 @@ I think this is the whole program analysis.
 > be mentioned in the introduction.
 
 TODO
+
+DISCUSS
  
 > Section 10
 > -------------
@@ -296,6 +302,8 @@ TODO
 > out some examples?
 
 TODO: repo?
+
+DISCUSS
 
 > Bibliography
 > -----------------
@@ -337,12 +345,16 @@ TODO.
 > 
 > 1. The paper would strongly benefit from a key ideas section that puts together the main components of both the Overture half of the paper and the Prelude half of the paper, building mental scaffolding for all the technical sections, which otherwise feel disjointed (especially the switch to Prelude).
 
-TODO: graphic? Joe? 
+TODO: graphic? Joe?
+
+DISCUSS
 
 > 2. Providing more background up-front on finite fields, semi-homomorphic encryption, and MPC and then discussing how the target domain informs language design decisions would make this work accessible to a much broader audience. Right now these ideas appear here and there throughout the text but are not teased out. Compared to the ESOP paper, I found this version harder to read, in part because the Share Types (while interesting!) are much more tightly coupled to semi-homomorphic encryption concepts. This is not a weakness, but it would make the paper benefit from a gentler on ramp.
 >
 
 TODO: Joe? This may also help clarify F1 as reviewer suggests.
+
+DISCUSS
 
 > 3. Figures and examples could be better used. Especially in the Prelude section and the implementation, there is a tendency to give an example, but not really to work through it (e.g., Fig. 15). As well, when the figures just have plain code, it is hard to see the annotations, etc. Consider using highlighting or color coding to make it easier to follow.
 
@@ -404,15 +416,17 @@ Corrected.
 
 TODO????
 
+DISCUSS
+
 > - Another weakness is the lack of the performance discussion on MPC systems. Also, the evaluation seems very limited in scope (focuses on correctness) in terms of performance or scalability. Particularly, Fig.21 seems unsatisfying. I agree that the contribution focuses on SMT-based automation but not scalability, however, evaluation focusing on performance issues will help us understand the positioning of the work.
 
 TODO 
  
 > - The treatment of OT seems incomplete. I don't understand why it is not included in the semantics.
 
-We explicitly don't provide a semantics for OT, just its SMT specification,
-to allow use of various implementations. The paragraph about OT before S2.2 has
-been updated to clarify this.
+We intentionally don't provide a semantics for OT, just its SMT
+specification, to allow use of various implementations. The paragraph
+about OT before S2.2 has been updated to clarify this.
 
 > - (Section 5) While share types seems nice, it is not clear how expressive they are. A discussion will help.
 

@@ -193,7 +193,9 @@ As we will discuss, this form of asserting equality between expressions
 is sufficient to capture MAC checking and support integrity in protocols.
 The big-step adversarial semantics relation $\aredx$ is then defined
 in Figure \ref{fig-minicat-aredx} as a mapping from configurations to
-a memory $\store$ or $\bot$.
+a memory $\store$ or $\bot$. Note that any corrupted party is free to
+ignore any failing $\ttt{assert}$, in addition to rewriting their
+own protocol steps.
 
 \subsubsection{Protocol Runs}
 
@@ -207,12 +209,14 @@ and/or MACed share distributions as in BDOZ/SPDZ
 $\runs(\prog)$ as the set of final memories resulting from execution
 of $\prog$ given any initial memory, possibly augmented with a
 preprocessed memory (a memory that satisfies a predicate $\preproc$),
-and $\aruns(\prog)$ is the analog in the malicious setting. Since we
-constrain programs to not overwrite any variable, we are assured that
-final memories contain both a complete record of all initial secrets
-as well as views resulting from communicated information. This
-formulation will be fundamental to our consideration of probability
-distributions and hyperproperties of protocols.
+and $\aruns(\prog)$ is the analog in the malicious setting. It is
+necessary to define $\aruns$ independently since adversaries can
+rewrite their own protocol steps and thus affect protocol
+semantics. Since we constrain programs to not overwrite any variable,
+we are assured that final memories contain both a complete record of
+all initial secrets as well as views resulting from communicated
+information. This formulation will be fundamental to our consideration
+of probability distributions and hyperproperties of protocols.
 %In this
 %setting, given a program $\prog$ with $\iov(\prog) = S \cup V$ and
 %$\flips(\prog) = F$ we will consider all $\store \in \mems(S \cup V
@@ -234,7 +238,8 @@ distributions and hyperproperties of protocols.
     (\store_1 \uplus \store_2,\prog) \redxs \store \}
   \end{array}
   $$
-  And similarly for any $\adversary$ define:
+  And similarly for any adversary $\adversary$ we define adversarial runs
+  as follows:
   $$
   \begin{array}{c}
     \aruns(\prog) \defeq 
