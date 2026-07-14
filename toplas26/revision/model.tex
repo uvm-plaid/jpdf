@@ -197,7 +197,23 @@ outputs of $\idealf$, they do not enjoy strict noninterference.
 Public reveals and protocol outputs are fundamentally forms of
 declassification. But the following property of probabilistic
 noninterference \emph{conditioned on output} is sound for passive
-security \cite{skalka-near-ppdp24}.
+security. Intuitively, in this definition we can think of
+$\condd{\progtt(\prog)}{S_H}{S_C \cup O}$ as the distribution
+of honest inputs $S_H$ given the adversarial knowledge of
+corrupt inputs $S_C$ and public outputs $O$. This establishes
+an upper bound on information that is allowed to be leaked to the
+adversary as determined by the ideal functionality under the
+assumption of corrupted parties-- or, more precisely, the
+adversaries ability to guess $S_H$. We can think of
+$\condd{\progtt(\prog)}{S_H}{S_C \cup O \cup \houtputs}$
+as the distribution of $S_H$ given the same corrupt inputs
+and public outputs, and additionally the adversarial views
+$\houtputs$ communicated during runs of $\prog$. If these distributions
+are the same, we can deduce that the protocol reveals no
+more information about $S_H$ than the corrupt inputs $S_C$
+and public outputs $O$ alone. More details and a proof
+that this property is sound for passive simulator security
+are reported in previous work \cite{skalka-near-ppdp24}.
 \begin{definition}[Noninterference modulo output]
   \label{definition-NIMO}
   We say that a program $\prog$ with $\iov(\prog) = S \cup V \cup O$
@@ -208,9 +224,6 @@ security \cite{skalka-near-ppdp24}.
   \condd{\progtt(\prog)}{S_H}{S_C \cup O}(\store) = \condd{\progtt(\prog)}{S_H}{S_C \cup O \cup \houtputs}(\store)
  $$
 \end{definition}
-This conditional noninterference property implies that
-corrupt views give the adversary no better chance of guessing honest
-secrets than just the output and corrupt inputs do.
 
 In practice, MPC protocols typically satisfy a \emph{gradual
 release} property \cite{sabelfeld2009declassification}, where messages

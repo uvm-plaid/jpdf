@@ -172,6 +172,8 @@ TODO No, not complete. We actually have a good example of this from the CSF pape
 
 DISCUSS
 
+Working answer: non-information theoretic protocols.
+
 > 
 > Page 8, line 5: what's the English word for rvs? - it wasn't introduced
 > before. What's the point in defining rvs(P) := X here? Maybe rvs(P)
@@ -207,8 +209,8 @@ That was errant text that has been deleted.
 Yes, this is a good point... we were using k_\Delta to be consistent
 with other texts, especially [24]. But it does clash with the
 integrity type environment \Delta. We have changed it to k_\delta--
-since we are using delta in several code examples are avoiding a
-renaming that could introduce code issues. 
+since we are using delta in several code examples we are avoiding a
+renaming (to other than delta) that could introduce code issues. 
  
 > Page 19, Figure 10, middle rule: what does index 2 mean in \L_2 in the conclusion?
 

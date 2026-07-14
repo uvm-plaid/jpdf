@@ -205,18 +205,23 @@ over $\mathbb{F}_p$. Input memories also contain input secret values
 and possibly other initial view elements as a result of
 pre-processing, e.g., Beaver triples for efficient multiplication,
 and/or MACed share distributions as in BDOZ/SPDZ
-\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3}. We define
-$\runs(\prog)$ as the set of final memories resulting from execution
-of $\prog$ given any initial memory, possibly augmented with a
-preprocessed memory (a memory that satisfies a predicate $\preproc$),
-and $\aruns(\prog)$ is the analog in the malicious setting. It is
-necessary to define $\aruns$ independently since adversaries can
-rewrite their own protocol steps and thus affect protocol
-semantics. Since we constrain programs to not overwrite any variable,
-we are assured that final memories contain both a complete record of
-all initial secrets as well as views resulting from communicated
-information. This formulation will be fundamental to our consideration
-of probability distributions and hyperproperties of protocols.
+\cite{evans2018pragmatic,10.1007/978-3-030-68869-1_3}. We therefore
+posit a predicate $\preproc$ on memories that specifies relevant
+preconditions, e.g., that it contains Beaver triples with
+associated properties, or pre-distributed keys for MAC checking.
+
+We define $\runs(\prog)$ as the set of final memories resulting from
+execution of $\prog$ given any initial memory, possibly augmented with
+a preprocessed memory (a memory that satisfies a predicate
+$\preproc$), and $\aruns(\prog)$ is the analog in the malicious
+setting. It is necessary to define $\aruns$ independently since
+adversaries can rewrite their own protocol steps and thus affect
+protocol semantics. Since we constrain programs to not overwrite any
+variable, we are assured that final memories contain both a complete
+record of all initial secrets as well as views resulting from
+communicated information. This formulation will be fundamental to our
+consideration of probability distributions and hyperproperties of
+protocols.
 %In this
 %setting, given a program $\prog$ with $\iov(\prog) = S \cup V$ and
 %$\flips(\prog) = F$ we will consider all $\store \in \mems(S \cup V
