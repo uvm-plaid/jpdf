@@ -148,7 +148,8 @@ illustrated in the extended examples discussed in Section
 \subsubsection{Example: GMW \ttt{and} Gate}
 
 Returning to the GMW \ttt{and} gate example introduced in Figure \ref{fig-gmwprepost},
-we can extend the definition of \ttt{andgmw} with type annotations to ensure a
+we note that the $\ttt{xorgmw}$ gate needs no type annotations for type checking.
+We can extend the definition of \ttt{andgmw} with type annotations to ensure a
 valid share typing, as in Figure \ref{fig-gmwsharetypes}. Here a coercion
 is needed to specify that the gate output wire values are secret-shared using
 $\ttt{r[z]@1}$ as an OTP. The type for $\ttt{andgmw}$ can then be

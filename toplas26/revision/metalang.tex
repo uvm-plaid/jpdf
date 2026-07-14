@@ -125,25 +125,29 @@ on function definitions supports \emph{compositional} verification of
 program components. In general postconditions can serve as
 pre-verified properties of functions that can be reused in, and reduce
 overhead of, whole protocol verification. A representative example of
-a GMW $\ttt{and}$ gate \cite{evans2018pragmatic} implementation is
-given in Figure \ref{fig-gmwprepost}. Here, the $\ttt{andgmw}$
-function takes as input strings $x$ and $y$ that distinguish values
-secret-shared between clients 1 and 2 as $\mx{x}{1}, \mx{x}{2}$ and
-$\mx{y}{1},\mx{y}{2}$ respectively-- that is, these shares encode
-$\ttt{RECON}(x)$ and $\ttt{RECON}(y)$ The postcondition of the
-protocol defined by the $\ttt{andgmw}$ specifies that it results in a
-value shared between clients 1 and 2 as $\ttt{RECON}(z)$ that is the
-conjunction of $\ttt{RECON}(x)$ and $\ttt{RECON}(y)$. This is
-non-trivial to prove, and expressing this postcondition in a
-compositional manner reduces proof overhead and improves scalability
-to large circuits that may incorporate a multitude of $\ttt{and}$
-gates.
+GMW $\ttt{and}$ gates \cite{evans2018pragmatic} implementations is
+given in Figure \ref{fig-gmwprepost}. Here, the $\ttt{xorgmw}$ and
+$\ttt{andgmw}$ functions takes as input strings $x$ and $y$ that
+distinguish values secret-shared between clients 1 and 2 as
+$\mx{x}{1}, \mx{x}{2}$ and $\mx{y}{1},\mx{y}{2}$ respectively-- that
+is, these shares encode $\ttt{RECON}(x)$ and $\ttt{RECON}(y)$.  The
+postcondition of the non-interactive $\ttt{xorgmw}$ protocol specifies
+that it results in a value shared between clients 1 and 2 as
+$\ttt{RECON}(z)$ that is the xor-ing of $\ttt{RECON}(x)$ and
+$\ttt{RECON}(y)$. The postcondition of the interactive protocol
+defined by the $\ttt{andgmw}$ specifies that it results in a value
+shared between clients 1 and 2 as $\ttt{RECON}(z)$ that is the
+conjunction of $\ttt{RECON}(x)$ and $\ttt{RECON}(y)$. The
+postcondition for $\ttt{andgmw}$ especially is non-trivial to prove,
+and expressing these postconditions in a compositional manner reduces
+proof overhead and improves scalability to large circuits that may
+incorporate a multitude of $\ttt{and}$ gates.
 
 \begin{fpfig}[t]{GMW $\ttt{and}$ gates with postcondition.}{fig-gmwprepost}
 \begin{verbatimtab}
 RECON(x) { (m[x]@1 + m[x]@2) }
 
-orgmw(z:string, x:string , y:string) {
+xorgmw(z:string, x:string , y:string) {
   m[z]@1 := (m[x] + m[y])@1;
   m[z]@2 := (m[x] + m[y])@2
 }
