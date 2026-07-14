@@ -251,14 +251,21 @@ prior work has considered automated verification of high-level
 protocols and manual verification of low-level protocols.  We
 summarize this comparison in Figure \ref{fig-comp-wrap}.  In this
 Figure we consider related systems in several dimensions.  This
-inclues whether the language system provides \emph{probabilistic features}
-(e.g., sampling) that are fundamental to low-level protocols. It also
-includes whether existing verification methods include \emph{probabilistic
-conditioning} that is essential to condition analysis of information
-leakage inherent in ideal functionalities. We consider whether
-the system is designed for \emph{low-level} protocols, as opposed
-to being a framework for integrating them in applications
-(e.g., during compilation). 
+inclues whether the language system provides \emph{probabilistic
+features} (e.g., sampling) that are fundamental to low-level
+protocols. It also includes whether existing verification methods
+include \emph{probabilistic conditioning} that is essential to
+condition analysis of information leakage inherent in ideal
+functionalities. We consider whether the system is designed for
+\emph{low-level} protocols, as opposed to being a framework for
+integrating them in applications (e.g., during compilation). We
+consider whether the system has integrated methods and/or mechanisms
+for proving \emph{passive} and \emph{malicious security}, and whether
+sound \emph{hyperproperties} have been formulated to support
+enforcement of security via program analysis such as type systems.
+Finally, we consider whether proof/enforcement mechanisms are
+\emph{automated} in the system, vs., e.g., realized in proof
+assistants.
 
 
 \cnote{This and other material should be used as a better
