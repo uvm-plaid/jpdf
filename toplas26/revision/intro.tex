@@ -171,7 +171,15 @@ and $\minicat$ support low-level protocol specification.
 
 \subsection{A Brief Introduction to MPC Protocols}
 
-\cnote{Joe?}
+\cnote{Joe? Points to hit:
+  \begin{itemize}
+  \item Secret shares (especially additive since we use them).
+  \item Semi-homomorphic encryption.
+  \item Simulator security, passive and malicious.
+  \item Ideal functionalities, and the importance of probabilistic conditioning
+    due to information released by ideal functionality.
+  \end{itemize}
+}
 
 \subsection{Roadmap of the Theory and Implementation}
 
@@ -232,8 +240,26 @@ Bit-Vector theory for binary circuits. \cnote{Elaborate on this and
   workflow (Joe?).}
 
 
-\subsection{Related Work}
+\subsection{Related Work and Our Contributions}
 \label{section-related-work}
+
+\compwrapfig
+
+The goal of the $\minicat/\metaprot$ framework is to automate
+correctness and security verification of low-level protocols.  Other
+prior work has considered automated verification of high-level
+protocols and manual verification of low-level protocols.  We
+summarize this comparison in Figure \ref{fig-comp-wrap}.  In this
+Figure we consider related systems in several dimensions.  This
+inclues whether the language system provides \emph{probabilistic features}
+(e.g., sampling) that are fundamental to low-level protocols. It also
+includes whether existing verification methods include \emph{probabilistic
+conditioning} that is essential to condition analysis of information
+leakage inherent in ideal functionalities. We consider whether
+the system is designed for \emph{low-level} protocols, as opposed
+to being a framework for integrating them in applications
+(e.g., during compilation). 
+
 
 \cnote{This and other material should be used as a better
   comparison with PPDP and ESOP papers:
@@ -252,20 +278,6 @@ verification of noninterference modulo output for more complex secret
 sharing protocols,e.g., that leverage Beaver triples (see
 Section~\ref{section-examples}).
 }
-
-The goal of the $\minicat/\metaprot$ framework is to automate
-correctness and security verification of low-level protocols.  Other
-prior work has considered automated verification of high-level
-protocols and manual verification of low-level protocols.
-We summarize this comparison in Figure \ref{fig-comp-wrap}.
-
-% We consider related systems in several
-% dimensions, including whether they are aimed at low-level design with
-% probabilistic features, whether they support reasoning about
-% conditional probabilities which are central to real/ideal security,
-% whether they consider MPC security through the lens of
-% hyperproperties, and whether they consider passive and/or malicious
-% security models.
 
 The current work extends previous work \cite{skalka-near-esop25} as
 discussed above. Key differences as noted in Figure
@@ -302,8 +314,6 @@ that enforces a version of noninterference that is sound for passive
 security, but does not consider malicious security. Properties of
 real/ideal passive and malicious security for a probabilistic language
 have been (manually) formulated in EasyCrypt \cite{8429300}.
-
-\compwrapfig
 
 Several high-level languages have been developed for writing MPC
 applications. Previous work on analysis for the
