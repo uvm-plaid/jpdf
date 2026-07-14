@@ -139,11 +139,17 @@ compositional manner reduces proof overhead and improves scalability
 to large circuits that may incorporate a multitude of $\ttt{and}$
 gates.
 
-\begin{fpfig}[t]{GMW $\ttt{and}$ gate with postcondition.}{fig-gmwprepost}
+\begin{fpfig}[t]{GMW $\ttt{and}$ gates with postcondition.}{fig-gmwprepost}
 \begin{verbatimtab}
 RECON(x) { (m[x]@1 + m[x]@2) }
 
-andtablegmw(x, y, z) {
+orgmw(z:string, x:string , y:string) {
+  m[z]@1 := (m[x] + m[y])@1;
+  m[z]@2 := (m[x] + m[y])@2
+}
+postcondition:  ( RECON(z) == RECON(x) + RECON(y))
+
+andtablegmw(x:string, y:string , z:string) {
   let r11 = (r[z] + (m[x] + 1) * (m[y] + 1)) in
   let r10 = (r[z] + (m[x] + 1) * (m[y] + 0)) in
   let r01 = (r[z] + (m[x] + 0) * (m[y] + 1)) in
