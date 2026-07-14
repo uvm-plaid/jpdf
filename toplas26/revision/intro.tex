@@ -235,8 +235,10 @@ verification of both binary and arithmetic gate and circuit
 properties. Our implementation integrates with cvc5 SMT to support
 efficient verification, including Satisfiability Modulo Finite Fields
 (SMFF) \cite{SMFF} for binary and arithmetic circuits, and the
-Bit-Vector theory for binary circuits. \cnote{Elaborate on this and
-  add comments here about repo (Steven?) and graphic of implementation
+Bit-Vector theory for binary circuits. The $\metaprot$ Hoare logic
+analysis has been fully implemented in the current work in an
+Antlr/Scala/cvc5-based workflow.  \cnote{Elaborate on this and add
+  comments here about repo (Steven?) and graphic of implementation
   workflow (Joe?).}
 
 
@@ -267,46 +269,57 @@ Finally, we consider whether proof/enforcement mechanisms are
 \emph{automated} in the system, vs., e.g., realized in proof
 assistants.
 
+The most closely related works are previous versions of the
+$\metaprot/\minicat$ framework
+\cite{skalka-near-ppdp24,skalka-near-esop25}. In the earliest work
+\cite{skalka-near-ppdp24} foundations for $\minicat/\metaprot$ are
+introduced including a verification algorithm. However, this algorithm
+only works for $\mathbb{F}_2$-- e.g., binary circuits-- and the
+datalog-based automation is a brute-force whole program analysis.
+Subsequent work \cite{skalka-near-esop25} extends the language model
+to arbitrary prime fields and introduces the use of SMT to optimize
+verification in prime fields, though the automation is still a
+whole-program analyis. The type systems presented in these works
+support a gradual release property, weaker than noninterference
+modulo output, and integrity properties. The current work provides
+several advancements of $\metaprot/\minicat$:
+\begin{itemize}
+\item We develop a compositional Hoare logic that provides a foundation for
+  compositional verification and type safety results.
+\item We define a share type system that enforces noninterference modulo
+  output as a result of type safety. This implies that share
+  types enforce passive security and, together with integrity
+  typability, imply malicious security.
+\item Share types also support verification of ideal functionality
+  specification of protocol outputs.
+\item We extend the share type system to $\metaprot$, along with
+  a compositional language of pre- and postconditions for functions.
+  Type safety in $\metaprot$ ensures that share typing in programs
+  is preserved by evaluation to $\minicat$ protocols.
+\item The extensions in this work additionally enable the type-based
+enforcement of noninterference modulo output for more complex secret
+sharing protocols, e.g., that leverage Beaver triples.
+\item We implement and evaluate the compositional verification of
+  pre- and postconditions by considering examples of large circuits,
+  specifically Bristol circuits. This evaluation demonstrates
+  empirical advantes of compositional vs. whole-program verification.
+  \cnote{Presumably, need to do experiments (Steven?).}
+\end{itemize}
 
-\cnote{This and other material should be used as a better
-  comparison with PPDP and ESOP papers:
-A prior conference version of this work~\cite{skalka-near-esop25}
-proposed a whole-program analysis for Prelude programs that ensures
-confidentiality, and combined it with an integrity type system to
-prove security of Prelude programs. This extended version adds the
-compositional Hoare logics presented in Sections 4 and 7, adds the
-share type system presented in Section 5 that enforces a stronger
-security property than the type system in~\cite{skalka-near-esop25},
-and fully develops the compositional type-based verification approach
-in Section 8. In addition, we develop an algorithm capable of
-automating the verification of examples given in the prior work, and
-our extensions in this work additionally enable the type-based
-verification of noninterference modulo output for more complex secret
-sharing protocols,e.g., that leverage Beaver triples (see
-Section~\ref{section-examples}).
-}
 
-The current work extends previous work \cite{skalka-near-esop25} as
-discussed above. Key differences as noted in Figure
-\ref{fig-comp-wrap} include a Hoare logic and a more expressive
-confidentiality type system supporting analysis of more complex
-programs that enforces passive security in the real/ideal model, vs.~a
-weaker gradual release property.
-Furthermore our Hoare logic analysis has been fully implemented in the
-current work in an Antlr/Scala/cvc5-based framework.
-
-Besides \cite{skalka-near-esop25} the most closely related work is
-\cite{skalka-near-ppdp24}, where foundations for $\minicat/\metaprot$
-are introduced including a verification algorithm. However, this
-algorithm only works for $\mathbb{F}_2$-- e.g., binary circuits-- and
-does not scale due to exponential complexity, necessitating
-semi-automated proof techniques. In contrast, our type systems scale
-to arbitrary prime fields and whole program analysis for larger
-circuits (protocols). So our work is a significant advancement of
-$\minicat/\metaprot$.  Our work is also closely related to
-Satisfiability Modulo Finite Fields \cite{SMFF} in that we use it as
-an enabling technology as discussed in Section \ref{section-smt} and
-subsequently.
+The SAW/Cryptol framework \cite{10.1007/978-3-319-48869-1_5} supports
+definitions of cryptographic protocols and verification using SMT.
+The Swanky extension \cite{swanky} is especially related to our work,
+since it is intended to apply to MPC protocols in binary and prime
+fields. For example, Swanky has been used in the implementation of ZK
+systems \cite{cryptoeprint:2020/1410}. However, while the goals of our
+system are overlapping with regard to verification of protocol
+correctness, we are also focused on type systems for enforcement of
+security properties, incorporating reasoning about probabilistic
+behavior of protocols. Our language model also more readily
+accommodates primitives for message passing between multiple parties.
+\cnote{Mention here as future work? Definitely include in Future Work
+  section.}
 
 Other low-level languages with probabilistic features for privacy
 preserving protocols have been proposed. The
@@ -316,8 +329,8 @@ obliviousness.  But similar to previous work on oblivious data
 structures \cite{10.1145/3498713}, obliviousness is related to pure
 noninterference, not the conditional form related to passive MPC
 security (Definition \ref{definition-NIMO}). A Haskell-based security
-type system has been defined as an embedded DSL \cite{6266151}
-that enforces a version of noninterference that is sound for passive
+type system has been defined as an embedded DSL \cite{6266151} that
+enforces a version of noninterference that is sound for passive
 security, but does not consider malicious security. Properties of
 real/ideal passive and malicious security for a probabilistic language
 have been (manually) formulated in EasyCrypt \cite{8429300}.
@@ -353,8 +366,3 @@ secrecy of one-time-pads and indistinguishability in secret sharing,
 that are critical to MPC. Lilac \cite{li2023lilac} extends this line
 of work with formalisms for conditional independence which is 
 also particularly important for MPC \cite{skalka-near-ppdp24}.
-
-The Cryptol and SAW tools \cite{10.1007/978-3-319-48869-1_5} allow
-programmers to program security protocols that are verified using
-SMT. However they are used for cryptographic protocols more generally,
-and are not designed specifically for MPC as our framework is.
