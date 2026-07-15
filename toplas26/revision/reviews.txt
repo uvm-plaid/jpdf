@@ -273,9 +273,12 @@ This has been corrected.
 > that establishes noninterference modulo output . Is this difficult? Is
 > this future work?
 
-This is integrity types, share types establish NIMO in Theorem 5.9.
-
-TODO intro revision will help.
+Theorem 5.8 establishes noninterference modulo output for share types
+in overture, and Theorem 8.6 establishes it for Prelude indirectly via
+soundness of Prelude type checking. We have added a lot of new material
+to the introduction to clarify how the various theoretical elements of
+the paper fit together, specifically Sections 1.1-3, that we hope
+will clarify the formal results.
 
 > 
 > Section 9
@@ -285,6 +288,8 @@ TODO intro revision will help.
 > brute-force techniques in Fig 21 if possible.
 
 I think this is the whole program analysis.
+
+TODO
 
 > It would also be instructive to see how e.g Beaver Triple
 > multiplication would be modeled and verified in e.g. Cryptol - if such
@@ -302,8 +307,8 @@ DISCUSS
 > (styles of?) protocols, improving the typechecking performance,... --
 > would be appropriate for a journal paper.
 
-TODO	
-> 
+We have added a discussion of future work to the Conclusion (last section).
+ 
 > Is the implementation publicly accessible, perhaps in a way that
 > allows the reader to rerun the performance experiments or at least try
 > out some examples?
@@ -336,9 +341,25 @@ Authors added.
 > More Detailed Comments:
 > 
 > First, a few technical comments:
-> 1. Since the final Prelude type checking does require (or at least strongly benefits from) non-trivial annotations, I would like to see a clearer explanation of the goals of the end framework wrt. automation and programmer involvement, and a clearer description and evaluation of programmer effort compared to related work.
 
-TODO.
+
+> 1. Since the final Prelude type checking does require (or at least
+> strongly benefits from) non-trivial annotations, I would like to see
+> a clearer explanation of the goals of the end framework
+> wrt. automation and programmer involvement, and a clearer
+> description and evaluation of programmer effort compared to related
+> work.
+
+We addressed this concern in a few ways. The first is with the addition of new motivating
+and evaluation examples, specifically adder and multiplication gates up to 64 bits and
+verification. In the introduction we present a 2-bit adder gate as a motivating example for
+new discussion in that section (Section 1.1) that connects with other elements of the paper.
+This required an extension to the constraint language to support bit vector addition and
+multiplication. We return to this example in the evaluation (Section 9) where it provides
+an opportunity to evaluate performance of the system on larger, realistic circuits.
+
+We also add more thorough discussion of the overall system to Sections 1.1-2, and a
+more thorough discussion of related work to Sections 1.3 and 10.
 
 > 2. Being able to implement automated verification is one of the contributions of this work, but I found the evaluation lacking, without clear methodology (e.g., what machine were the experiments run on?), or detailed results. It would be difficult for a researcher to reproduce. Moreover, there is no real ``stress-testing'' or ablation studies of the tool. Given that an aim of the work is compositionality, how does the framework scale? Where does performance start to break down?
 
@@ -349,12 +370,21 @@ TODO.
 TODO.
 
 > Beyond enriching the evaluation, I thought the biggest weakness of the paper was presentation, since it generally lacked a) motivation for why all the framework components were needed and how they fit together, and b) self-sufficient explanations of needed background, definitions, and judgments. Here are some more specific suggestions that may help improve the presentation.
-> 
-> 1. The paper would strongly benefit from a key ideas section that puts together the main components of both the Overture half of the paper and the Prelude half of the paper, building mental scaffolding for all the technical sections, which otherwise feel disjointed (especially the switch to Prelude).
+ 
+> 1. The paper would strongly benefit from a key ideas section that
+> puts together the main components of both the Overture half of the
+> paper and the Prelude half of the paper, building mental scaffolding
+> for all the technical sections, which otherwise feel disjointed
+> (especially the switch to Prelude).
+
+We have significantly revised Section 1 to address this concern. This includes:
+- A new Figure 1 with a high-level motivating example.
+- New Section 1.1 that gives a better summary overview of the language framework.
+- New Section 1.3 that provides a better roadmap to the theoretical and implementation elements of
+the paper. 
 
 TODO: graphic? Joe?
 
-DISCUSS
 
 > 2. Providing more background up-front on finite fields, semi-homomorphic encryption, and MPC and then discussing how the target domain informs language design decisions would make this work accessible to a much broader audience. Right now these ideas appear here and there throughout the text but are not teased out. Compared to the ESOP paper, I found this version harder to read, in part because the Share Types (while interesting!) are much more tightly coupled to semi-homomorphic encryption concepts. This is not a weakness, but it would make the paper benefit from a gentler on ramp.
 >
@@ -363,9 +393,15 @@ TODO: Joe? This may also help clarify F1 as reviewer suggests.
 
 DISCUSS
 
-> 3. Figures and examples could be better used. Especially in the Prelude section and the implementation, there is a tendency to give an example, but not really to work through it (e.g., Fig. 15). As well, when the figures just have plain code, it is hard to see the annotations, etc. Consider using highlighting or color coding to make it easier to follow.
+> 3. Figures and examples could be better used. Especially in the
+>  Prelude section and the implementation, there is a tendency to give
+>  an example, but not really to work through it (e.g., Fig. 15). As
+>  well, when the figures just have plain code, it is hard to see the
+>  annotations, etc. Consider using highlighting or color coding to
+>  make it easier to follow.
 
-TODO: graphic? colored fonts in code?
+We have added a new example (presented in Figure 1) that connects the
+various sections, including the evaluation.
 
 > ----
 > Small nits or typos:
@@ -437,17 +473,28 @@ about OT before S2.2 has been updated to clarify this.
 
 > - (Section 5) While share types seems nice, it is not clear how expressive they are. A discussion will help.
 
-TODO
+We have added a more extensive high-level discussion of share types in
+Sections 1.3 and 1.4 that clarify their expressiveness especially in
+comparison to previous work.
 
-> - The role of Prelude semantics in the overall framework is less clear. In particular, the connection between Prelude semantics and the underlying Overture execution model is not fully explicit, and most reasoning proceeds via Hoare logic and SMT encodings rather than direct semantic arguments. Clarifying this relationship and providing additional semantic examples would strengthen the presentation.
+> The role of Prelude semantics in the overall framework is less
+> clear. In particular, the connection between Prelude semantics and
+> the underlying Overture execution model is not fully explicit, and
+> most reasoning proceeds via Hoare logic and SMT encodings rather
+> than direct semantic arguments. Clarifying this relationship and
+> providing additional semantic examples would strengthen the
+> presentation.
 
-TODO: I don't undestand this, but intro could help.
+We have significantly revised Section 1 to address this concern. This includes:
+- A new Figure 1 with a high-level motivating example.
+- New Section 1.1 that gives a better summary overview of the language framework.
+- New Section 1.3 that provides a better roadmap to the theoretical and implementation elements of
+the paper.
 
-> 
-> Detailed Comments w.r.t prior work sections
-> -----------------------------------------------------------
-> 
-> - Figure 2: What exactly is the role of w? Line 45 says it is a distinguishing identifier string but the intuition is not clear. What is the relation between x and w?
+
+> Figure 2: What exactly is the role of w? Line 45 says it is a
+> distinguishing identifier string but the intuition is not
+> clear. What is the relation between x and w?
 
 TODO. Text before and including D2.1 in S2.1 have been updated to clarify x.
 
