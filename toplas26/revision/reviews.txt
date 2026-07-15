@@ -90,7 +90,6 @@
 > articles don't have this constraint.
 
 Corrected (hopefully all instances).
- 
 > Section 1.2:
 > ---------------
 > 
