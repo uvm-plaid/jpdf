@@ -34,6 +34,9 @@ protocols $\prog$.  The latter requires type annotations on arguments
 which are restricted to being either strings, client ids, or
 records-- we use this type information to support Hoare logic
 automation as we discuss below in Section \ref{section-metahtrip}.
+While type inference for this simple type system would be possible,
+it would complicate the novel theory and implementation elements
+of our presentation, so we just check annotations instead.
 
 Formally, we consider a complete metaprogram to include
 both a codebase and a ``main'' program that uses the codebase.

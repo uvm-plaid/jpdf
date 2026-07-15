@@ -228,11 +228,9 @@ That was vestigial and a typo. The Figure has been corrected.
 > report etc.)? Why not include the appendix also in this submission, to
 > make the journal paper self-contained?
 
-Chris: https://arxiv.org/pdf/2501.17824 (This is the integrity proof).
-
-TODO: Include or not?
-
-DISCUSS
+Yes, this citation should have referred to an arXiv version of [33] that
+includes the appendix. This has been corrected.
+ 
 
 > Section 7
 > ------------
@@ -245,8 +243,10 @@ DISCUSS
 > intuition would be that complete type inference might be possible. Can
 > you explain why that's not the case?
 
-TODO This is definitely possible, but seemed out of scope and an easy addition
-if it were desired.
+Yes, in fact we didn't do inference because it would be theoretically
+easy but an unnecessary complication to the presentation and
+implementation, as opposed to just requiring annotations. We have
+added clarifying text there.
  
 > Page 22, Fig 14: the last element of grammar for abstract constraints
 >  should be \not \u{E} rather than \not E. Also, what's the
