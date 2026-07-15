@@ -22,11 +22,27 @@ examples.
 
 \subsection{Future Work}
 
-There are several directions for future work on 
+There are several directions for future work on the topics explored in
+this paper through the $\metaprot/\minicat$ framework. One interesting
+theoretical question is whether there are conditions under which
+verification of a protocol in $\fieldp{2}$ generalizes to arbitrary
+prime fields. It is often the case that MPC protocols are presented in
+a way that generalizes over the field size, but it is not clear how to
+articulate necessary conditions for generalizing from verification in
+$\fieldp{2}$. This would have an obvious advantage since verification in
+$\fieldp{2}$ is more efficient than verification in larger fields.
 
+With regard to efficiency of implementation, integration of our system
+with the Swanky framework \cite{swanky} would be an interesting
+direction to explore. This framework could present opportunities for
+accelerating SMT verification due to the optimizations especially
+in their SAW backend.
 
- - Generalize from F2 to Fp?
- - Better methods for modularization.
- - Incorporate non-information theoretic elements, e.g., sym keys for YGC.
- - Parallelism and commits.
- - Swanky.
+Another major direction to explore would be an extension of the
+$\metaprot/\minicat$ framework to non-information-theoretic, or
+\emph{computational} security. This is security gained through
+computaitonal hardness of, e.g., public or symmetric key cryptography.
+Several MPC protocols rely on this sort of security, such as versions
+of OT, committment, garbled circuits, etc. Making this extension would
+require theoretical and practical extensions of $\metaprot/\minicat$
+and make it applicable to a broader class of MPC protocols.
