@@ -101,14 +101,19 @@ Corrected (hopefully all instances).
 > appreciation for the present work (I'm not asking for seeing formal
 > definitions here!)
 
-TODO
+We have added a leading paragraph to this section, now numbered 1.4,
+that describes each of these categories. We have also added a more thorough
+discussion of the comparison to these previous papers (now [32] and [33])
+in this Section.
 
 > 
 > Page 3, lines 27 - 30: although you described the differences between the
 > present article and [30] on the previous page, the connection to Fig. 1
 > isn't clear here, since [30] does not occur as a row in the table.
 
-TODO
+Both [32] and [33] now appear as independent rows in the table, and as
+mentioned above we have added text to Section 1.4 for a more thorough
+and clear comparison.
 
 > Section 2
 > ------------
@@ -116,18 +121,18 @@ TODO
 > Page 4, line 32: explain in what sense the protocols are 'synchronous', and
 > where that is reflected in the language.
 
-This has been clarified in the text. NEED TO UPDATE: Note issues with
-parallelism (e.g., commit).
+This has been clarified in the text. 
 
 > Fig 2: Formally, the category of variables (x) is dead, although the
 > text suggest that the are left-hand sides of assignments; refactoring
 > the grammar a little bit would make things more clear.
 
-This is a subtle but important point. It is very helpful for formal development
-to refer to located identifiers by a single metavariable. However, not every
-located variable can occur on the lhs of an assignment (specifically
-secrets and random samples). So this was our best solution. Clarifying text
-has been added before Defn. 2.1
+This is a subtle but important point. It is very helpful for formal
+development to refer to located identifiers by a single
+metavariable. However, not every located variable can occur on the lhs
+of an assignment (specifically secrets and random samples cannot). So
+this was our best syntactic solution. Clarifying text has been added
+before Defn. 2.1
 
 > Only the last paragraph of Section 2.2 discusses OT but it's not clear
 > why no rule modeling the semantics described is included in Fig 3.
