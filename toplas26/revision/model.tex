@@ -193,27 +193,27 @@ our type system.
 \subsubsection{Confidentiality}
 
 Since MPC protocols release some information about secrets through
-outputs of $\idealf$, they do not enjoy strict noninterference.
-Public reveals and protocol outputs are fundamentally forms of
-declassification. But the following property of probabilistic
+their outputs-- that equal the ideal functionality
+$\idealf$ applied to all secret inputs-- they do not enjoy strict
+noninterference. Public reveals and protocol outputs are fundamentally
+forms of declassification. But the following property of probabilistic
 noninterference \emph{conditioned on output} is sound for passive
 security. Intuitively, in this definition we can think of
-$\condd{\progtt(\prog)}{S_H}{S_C \cup O}$ as the distribution
-of honest inputs $S_H$ given the adversarial knowledge of
-corrupt inputs $S_C$ and public outputs $O$. This establishes
-an upper bound on information that is allowed to be leaked to the
-adversary as determined by the ideal functionality under the
-assumption of corrupted parties-- or, more precisely, the
-adversary's ability to guess $S_H$. We can think of
-$\condd{\progtt(\prog)}{S_H}{S_C \cup O \cup \houtputs}$
-as the distribution of $S_H$ given the same corrupt inputs
-and public outputs, and additionally the adversarial views
-$\houtputs$ communicated during runs of $\prog$. If these distributions
-are the same, we can deduce that the protocol reveals no
-more information about $S_H$ than the corrupt inputs $S_C$
-and public outputs $O$ alone. More details and a proof
-that this property is sound for passive simulator security
-are reported in previous work \cite{skalka-near-ppdp24}.
+$\condd{\progtt(\prog)}{S_H}{S_C \cup O}$ as the distribution of
+honest inputs $S_H$ given the adversarial knowledge of corrupt inputs
+$S_C$ and public outputs $O$. This establishes an upper bound on
+information that can be leaked to the adversary as determined by the
+ideal functionality under the assumption of corrupted parties-- or,
+put another way, the adversary's ability to guess $S_H$ knowing $O$
+and $S_C$.  We can think of $\condd{\progtt(\prog)}{S_H}{S_C \cup O
+  \cup \houtputs}$ as the distribution of $S_H$ given the same corrupt
+inputs and public outputs, and additionally the adversarial views
+$\houtputs$ communicated during runs of $\prog$. If these
+distributions are the same, we can deduce that the protocol reveals no
+more information about $S_H$ than the corrupt inputs $S_C$ and public
+outputs $O$ alone. More details and a proof that this property is
+sound for passive simulator security are reported in previous work
+\cite{skalka-near-ppdp24}.
 \begin{definition}[Noninterference modulo output]
   \label{definition-NIMO}
   We say that a program $\prog$ with $\iov(\prog) = S \cup V \cup O$
@@ -225,11 +225,18 @@ are reported in previous work \cite{skalka-near-ppdp24}.
  $$
 \end{definition}
 
-In practice, MPC protocols typically satisfy a \emph{gradual
-release} property \cite{sabelfeld2009declassification}, where messages
-exchanged remain probabilistically separable from secrets, with only
-declassification events (reveals and outputs) releasing information
-about honest secrets.  
+In practice, MPC protocols typically satisfy a \emph{gradual release}
+property \cite{sabelfeld2009declassification}, where the distribution
+of messages exchanged during the protocol are independent of the
+distribution of input secrets, with only final reveal and output
+stages having dependence on input secrets. Referring to Example
+\ref{section-smt-example}, the messages exchanged during the protocol
+in this case are all in independent uniform distributions, while the
+broadcast reveals $\rvl{1-3}$ used to reconstruct the outputs
+$\out{1-3}$ are dependent. Gradual release is strictly weaker than
+noninterference. It says that intentional reveals
+(declassifications) are the only point of information escape in the
+protocol, but does not specify what information may be revealed.
 \begin{definition}
   Given $H,C$, a protocol $\prog$ with $\iov(\prog) = S \cup M \cup P \cup O$
   satisfies \emph{gradual release} iff
