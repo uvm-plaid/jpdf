@@ -424,7 +424,7 @@ $$
   \cmd &::=& %\msend{e}{e}{e}{e} \mid \reveal{e}{e}{e} \mid \pubout{e}{e}{e} \mid
   \assign{e}{e} \mid f(e,\ldots,e) \mid \elet{y}{e}{\instr} \mid  \cmd;\cmd 
     \mid \elab{\assert{e = e}}{e} & \gdesc{instructions}\\[1mm] %\pre{\eqs} \mid \post{\eqs} \\[1mm]
-  \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \oplus \mid \otimes\concat  \\[1mm]% \textit{operators}\\[2mm]
+  \bop &::=& \fplus \mid \fminus \mid \ftimes \mid \oplus \mid \ominus \mid \concat  \\[1mm]% \textit{operators}\\[2mm]
   \mv &::=& w \mid \cid \mid \be \mid x \mid \{ \flab = \mv;\ldots;\flab = \mv \} 
   & \gdesc{values}\\[1mm] % \mid \ttt{()} \\[1mm] %& \textit{values}\\[2mm]
   \tau &::=& \stringty \mid \cidty \mid \{ \flab_1 : \tau_1; \ldots; \flab_n : \tau_n \} & \gdesc{basic types}\\[1mm]
