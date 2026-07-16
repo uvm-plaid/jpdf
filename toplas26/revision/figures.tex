@@ -879,18 +879,41 @@ $$
 \newcommand{\preludetestfig}{
 \begin{fpfig}[t]{Verification time for $\metaprot$ binary and arithmetic circuit libraries and small circuits, in seconds.}{fig-preludetest}
 \begin{center}
-\begin{tabular}{r|c|c|c|c|c}
-  \textit{SMT theory} & Bit-Vector & SMFF $\fieldp{2}$ & SMFF $\fieldp{2^{17} - 1}$ &  SMFF $\fieldp{2^{31} - 1}$ &
+\begin{tabular}{c}
+\begin{tabular}{l|c|c|c|c|c}
+         & Bit-Vector & SMFF $\fieldp{2}$ & SMFF $\fieldp{2^{17} - 1}$ &  SMFF $\fieldp{2^{31} - 1}$ &
       SMFF $\fieldp{2^{61} - 1}$ \\
   \hline
   \text{Passive Beaver Library} & 1.012 & .911 & 1.135 & 1.114 & 1.059 \\
   \text{Malicious Beaver (BDOZ) Library} & 1.175 & 1.158 & 1.182 & 1.153 & 1.178 \\
   \text{GMW Library} & .932 & .936 \\ % & N/A & N/A & N/A \\
-  \text{GMW 2-Bit Zero Test (3 Gates)} & 1.134 & 261.098 \\ % & N/A & N/A & N/A \\
-  %\text{GMW 4-Bit Zero Test (7 Gates)} & 1.154 & Unknown \\ % & N/A & N/A & N/A \\
-  \text{GMW 8-Bit Zero Test (15 Gates)} & 1.250 & Unknown \\ % & N/A & N/A & N/A \\
-  \text{GMW 64-Bit Zero Test (127 Gates)} & 6.550 & Unknown \\ %& N/A & N/A & N/A 
+\end{tabular}\\[10mm]
+\hline\\
+\begin{tabular}{l|c|c|c}
+  &  \begin{tabular}{l}Bit-Vector,\\Compositional\end{tabular} &
+       \begin{tabular}{l} Bit-Vector,\\Whole-Program\end{tabular} & SMFF $\fieldp{2}$ \\
+  \hline
+  \text{GMW 2-Bit Zero Test (3 Gates)} & 1.134 & 10000 & 261.098 \\ % & N/A & N/A & N/A \\
+  \text{GMW 2-Bit Addition (4 Gates)} & 10000 & 10000 & 261.098 \\ % & N/A & N/A & N/A \\
+  %\text{GMW 4-Bit Zero Test (7 Gates)} & 1.154 & 10000 & Unknown \\ % & N/A & N/A & N/A \\
+  \text{GMW 8-Bit Zero Test (15 Gates)} & 1.250 & 10000 & Unknown \\ % & N/A & N/A & N/A \\
+  \text{GMW 64-Bit Zero Test (127 Gates)} & 6.550 & 10000 & Unknown \\ %& N/A & N/A & N/A 
+  \text{GMW 64-Bit Addition (376 Gates)} & 6.550 & 10000 & Unknown \\ %& N/A & N/A & N/A 
+  \text{GMW 64-Bit Subtraction (439 Gates)} & 6.550 & 10000 & Unknown \\ %& N/A & N/A & N/A 
 \end{tabular}
+\end{tabular}
+%\begin{tabular}{r|c|c|c|c|c}
+%  \textit{SMT theory} & Bit-Vector & SMFF $\fieldp{2}$ & SMFF $\fieldp{2^{17} - 1}$ &  SMFF $\fieldp{2^{31} - 1}$ &
+%      SMFF $\fieldp{2^{61} - 1}$ \\
+%  \hline
+%  \text{Passive Beaver Library} & 1.012 & .911 & 1.135 & 1.114 & 1.059 \\
+%  \text{Malicious Beaver (BDOZ) Library} & 1.175 & 1.158 & 1.182 & 1.153 & 1.178 \\
+%  \text{GMW Library} & .932 & .936 \\ % & N/A & N/A & N/A \\
+%  \text{GMW 2-Bit Zero Test (3 Gates)} & 1.134 & 261.098 \\ % & N/A & N/A & N/A \\
+%  %\text{GMW 4-Bit Zero Test (7 Gates)} & 1.154 & Unknown \\ % & N/A & N/A & N/A \\
+%  \text{GMW 8-Bit Zero Test (15 Gates)} & 1.250 & Unknown \\ % & N/A & N/A & N/A \\
+%  \text{GMW 64-Bit Zero Test (127 Gates)} & 6.550 & Unknown \\ %& N/A & N/A & N/A 
+%\end{tabular}
 \end{center}
 \end{fpfig}
 }
