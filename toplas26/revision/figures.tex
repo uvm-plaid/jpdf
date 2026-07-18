@@ -877,7 +877,7 @@ $$
 }
 
 \newcommand{\preludetestfig}{
-\begin{fpfig}[t]{Verification time for $\metaprot$ binary and arithmetic circuit libraries and small circuits, in seconds.}{fig-preludetest}
+\begin{fpfig}[t]{Average verification times for $\metaprot$ binary and arithmetic circuit libraries and small circuits over 20 trials, in seconds. Cells marked with * were limited to a single trial due to excessive verification times.}{fig-preludetest}
 \begin{center}
 \begin{tabular}{c}
 \begin{tabular}{l|c|c|c|c|c}
@@ -893,13 +893,12 @@ $$
   &  \begin{tabular}{l}Bit-Vector,\\Compositional\end{tabular} &
        \begin{tabular}{l} Bit-Vector,\\Whole-Program\end{tabular} & SMFF $\fieldp{2}$ \\
   \hline
-  \text{GMW 2-Bit Zero Test (3 Gates)} & .035 & .085 & 261.098 \\ % & N/A & N/A & N/A \\
-  \text{GMW 2-Bit Addition (4 Gates)} & .043 & .029 & 261.098 \\ % & N/A & N/A & N/A \\
-  %\text{GMW 4-Bit Zero Test (7 Gates)} & 1.154 & 10000 & Unknown \\ % & N/A & N/A & N/A \\
-  \text{GMW 8-Bit Zero Test (15 Gates)} & .058 & 0.059 & Unknown \\ % & N/A & N/A & N/A \\
-  \text{GMW 64-Bit Zero Test (127 Gates)} & .373 & 1.119 & Unknown \\ %& N/A & N/A & N/A 
-  \text{GMW 64-Bit Addition (376 Gates)} & 8.909 & 4623.666 & Unknown \\ %& N/A & N/A & N/A 
-  \text{GMW 64-Bit Subtraction (439 Gates)} & 6.854 & 10661.325 & Unknown \\ %& N/A & N/A & N/A 
+  \text{GMW 2-Bit Zero Test (3 Gates)} & Unknown & Unknown & 261.098 \\
+  \text{GMW 2-Bit Addition (4 Gates)} & .038 & .032 & 261.098 \\
+  \text{GMW 8-Bit Zero Test (15 Gates)} & .051 & .057 & Unknown \\
+  \text{GMW 64-Bit Zero Test (127 Gates)} & 0.308 & 1.071 & Unknown \\
+  \text{GMW 64-Bit Addition (376 Gates)} & 5.735 & 4623.666* & Unknown \\
+  \text{GMW 64-Bit Subtraction (439 Gates)} & 9.985 & 10661.325* & Unknown \\
 \end{tabular}
 \end{tabular}
 %\begin{tabular}{r|c|c|c|c|c}

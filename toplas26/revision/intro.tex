@@ -237,9 +237,17 @@ efficient verification, including Satisfiability Modulo Finite Fields
 (SMFF) \cite{SMFF} for binary and arithmetic circuits, and the
 Bit-Vector theory for binary circuits. The $\metaprot$ Hoare logic
 analysis has been fully implemented in the current work in an
-Antlr/Scala/cvc5-based workflow.  \cnote{Elaborate on this and add
-  comments here about repo (Steven?) and graphic of implementation
-  workflow (Joe?).}
+Antlr/Scala/cvc5-based workflow.
+
+The implementation that produced our experimental results is available on
+GitHub. It uses ANRLR4 to parse Prelude the source code, Scala to convert the
+Prelude abstract syntax tree into cvc5 constraints, and the cvc5 solver to
+prove that for all functions the precondition and function body meet the
+postcondition. When built, the tool runs as a single Java archive (JAR). The
+repository includes installation instructions, source code, further
+documentation, and a variety of Prelude examples.
+
+\cnote{Elaborate on this and add and graphic of implementation workflow (Joe?).}
 
 
 \subsection{Related Work and Our Contributions}
