@@ -65,7 +65,7 @@ binary circuit in Figure \ref{fig-adder}. The ideal functionality of
 the circuit is two-bit vector addition (ignoring carry). On the left
 is a $\metaprot$ program that implements the protocol by ``wiring''
 secure logic gates implemented using the Goldreich-Micali-Wigderson
-(GMW) protocol. These are encapsulated in the $\ttt{xorgmw}$ and
+(GMW) protocol~\cite{goldreich1987play}. These are encapsulated in the $\ttt{xorgmw}$ and
 $\ttt{andgmw}$ definitions. In the first lines of the program, clients
 1 and 2 each generate secret shares of their secret bits-- $x_1$ and
 $x_2$ for client 1, and $y_1$ and $y_2$ for client 2. Shares are
@@ -171,15 +171,121 @@ and $\minicat$ support low-level protocol specification.
 
 \subsection{A Brief Introduction to MPC Protocols}
 
-\cnote{Joe? Points to hit:
-  \begin{itemize}
-  \item Secret shares (especially additive since we use them).
-  \item Semi-homomorphic encryption.
-  \item Simulator security, passive and malicious.
-  \item Ideal functionalities, and the importance of probabilistic conditioning
-    due to information released by ideal functionality.
-  \end{itemize}
-}
+An MPC protocol allows a collection of parties to compute a function
+of their private inputs without revealing those inputs to each other.
+The function to be computed is typically called the \emph{ideal
+  functionality}, and a correct protocol must produce the same output
+as the ideal functionality. An MPC protocol is secure if it reveals no
+additional information to the parties beyond what is intentionally
+revealed by the ideal functionality. The information available to a
+party (its input, randomness, received messages, and outputs) is
+called its \emph{view}; an adversary can observe the views of all
+corrupted parties~\cite{evans2018pragmatic,Lindell2017}.
+
+\emph{Secret sharing} splits a secret value into \emph{shares} that
+allow limited computations but prevent individual parties from
+learning the secret. \emph{Additive secret sharing} is one example: to
+additively share $x \in \mathbb{F}_p$ between two parties, we sample a
+uniform $r \in \mathbb{F}_p$ and gives the shares $x_1=r$ and
+$x_2=x-r$ to the respective parties. To reconstruct the secret, we
+compute $x_1+x_2=x$. Each share by itself is uniform and therefore
+does not reveal $x$, but two shares together uniquely determine $x$.
+This construction is a finite-field \emph{one-time pad} (OTP): for
+every possible $x$, the observed value $x-r$ has the same uniform
+distribution, so even an adversary with unlimited computational power
+learns nothing about $x$. The mask must be fresh for every secret. For
+example, reusing $r$ to mask $x$ and $y$ reveals their difference,
+since $(x-r)-(y-r)=x-y$. In this paper $\ttt{RECON}$ denotes
+reconstruction, and over $\mathbb{F}_2$ additive reconstruction is
+XOR, as used for GMW wire values \cite{goldreich1987play, evans2018pragmatic}.
+
+Additive secret sharing is a form of \emph{semi-homomorphic}
+encryption: it allows limited forms of computation without decryption.
+Adding two additive sharings componentwise gives a sharing of the sum.
+However, additive secret shares cannot be multiplied to obtain shares
+of the product; to support multiplication, MPC protocols use
+additional machinery (e.g. oblivious transfer in GMW, or preprocessed
+Beaver triples in arithmetic protocols~\cite{goldreich1987play,
+  evans2018pragmatic, BDOZ,10.1007/978-3-030-68869-1_3}).
+
+\emph{Oblivious transfer} (OT) is a two-party protocol that allows one
+party to select a value from the other without revealing which one was
+selected. The \emph{sender} supplies two values $m_0,m_1$, and the
+\emph{receiver} supplies a choice bit $b$. The receiver obtains $m_b$
+without learning $m_{1-b}$, while the sender learns nothing about $b$.
+For example, GMW uses OT to select an entry from a table that
+implements a Boolean gate without revealing either party's
+secret-shared input bits. Different OT implementations rely on
+different assumptions, so our language treats OT abstractly and
+requires only these functional and privacy guarantees
+\cite{goldreich1987play, evans2018pragmatic}.
+
+Another approach moves expensive work into an input-independent
+\emph{preprocessing} phase that distributes correlated randomness
+before the parties know their private inputs. A Beaver
+triple~\cite{beaver1991efficient} consists of secret shares of random
+values $a,b,c$ satisfying $c=ab$. To multiply shared $x$ and $y$, the
+parties reconstruct the masked differences $d=x-a$ and $e=y-b$, then
+locally obtain shares of $xy=c+db+ea+de$. Reusing a Beaver triple
+leads to correlations that break security, so triples and other
+preprocessing resources must be fresh where required and securely
+generated; this paper specifies their needed properties without
+implementing that generation protocol \cite{evans2018pragmatic,
+  BDOZ,10.1007/978-3-030-68869-1_3}.
+
+MPC confidentiality is conventionally defined by comparing a
+\emph{real} protocol execution with an \emph{ideal} execution in which
+a trusted party receives the inputs, evaluates the ideal
+functionality, and returns only its specified outputs. A simulator for
+a corrupt coalition receives only the information available in the
+ideal execution---in particular, the coalition's inputs and prescribed
+outputs---and must generate a simulated view indistinguishable from
+its real protocol view. The existence of such a simulator means that
+\emph{anything learned from the real messages could also have been
+  learned from the allowed ideal information}---in other words, the
+real protocol reveals no more than the ideal
+functionality~\cite{Lindell2017}.
+
+Depending on the setting, indistinguishability may mean equality of
+distributions, statistical closeness, or computational
+indistinguishability. Equality gives \emph{perfect}, or
+\emph{information-theoretic}, security even against unlimited
+computation. Statistical security permits a small difference between
+the distributions, bounding the distinguishing advantage even for
+unlimited computation. Computational security instead considers
+efficient adversaries and rests on a hardness assumption. Its
+\emph{security parameter}, such as a key length (or a field size for
+field-based authentication), controls both cost and protection; a
+distinguishing advantage is \emph{negligible} when it decreases faster
+than any inverse polynomial as that parameter grows. This paper uses
+equality of finite distributions in its core model.
+
+The adversary model determines how the corrupt parties behave. A
+\emph{passive} (or honest-but-curious) adversary records and analyzes
+the combined view of corrupt parties, but those parties follow the
+protocol. A \emph{malicious} (or active) adversary may instead choose
+arbitrary inputs, messages, and local computations. Malicious security
+therefore combines confidentiality and
+integrity~\cite{evans2018pragmatic}.
+
+BDOZ and SPDZ protect integrity using \emph{authenticated
+  shares}~\cite{SPDZ1, SPDZ2, BDOZ, 10.1007/978-3-030-68869-1_3}. A
+\emph{message authentication code} (MAC) is a tag that binds a value
+to secret authentication information; in these protocols, another
+party holds the information needed to check a share's tag. A corrupt
+party cannot tamper with a share, since it is impossible to produce a
+corresponding valid tag. The MACs are linearly homomorphic, so tags
+can be updated consistently when shares are added. Before revealing an
+authenticated value, the parties check the resulting tag and abort if
+it is invalid.
+
+Ideal outputs may \emph{intentionally} reveal information, so MPC
+security differs from ordinary noninterference. MPC security requires
+only that the protocol's execution reveal nothing \emph{additional}
+compared to the ideal functionality. Section \ref{section-model}
+formalizes this idea as \emph{noninterference modulo output} and uses
+it as a hyperproperty sound for passive simulator
+security.
 
 \subsection{Summary of the Theory and Implementation}
 
