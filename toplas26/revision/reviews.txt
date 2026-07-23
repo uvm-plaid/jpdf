@@ -381,9 +381,7 @@ We have significantly revised Section 1 to address this concern. This includes:
 - A new Figure 1 with a high-level motivating example.
 - New Section 1.1 that gives a better summary overview of the language framework.
 - New Section 1.3 that provides a better roadmap to the theoretical and implementation elements of
-the paper. 
-
-TODO: graphic? Joe?
+the paper, including a graphical overview of how the elements are related.
 
 
 > 2. Providing more background up-front on finite fields, semi-homomorphic encryption, and MPC and then discussing how the target domain informs language design decisions would make this work accessible to a much broader audience. Right now these ideas appear here and there throughout the text but are not teased out. Compared to the ESOP paper, I found this version harder to read, in part because the Share Types (while interesting!) are much more tightly coupled to semi-homomorphic encryption concepts. This is not a weakness, but it would make the paper benefit from a gentler on ramp.
