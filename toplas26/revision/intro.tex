@@ -298,6 +298,117 @@ and integrity (Definition \ref{def-integrity}). As has been
 shown in previous work \cite{skalka-near-ppdp24, skalka-near-esop25},
 noninterference modulo output is sound for passive simulator
 security, while the addition of integrity obtains malicious security.
+Figure \ref{fig-framework-workflow} summarizes how the languages,
+analyses, and guarantees fit together.
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\sffamily\footnotesize,
+  language/.style={
+    draw=blue!60!black, fill=blue!8, rounded corners=2pt,
+    align=center, text width=27mm, minimum height=9mm, inner sep=3pt
+  },
+  analysis/.style={
+    draw=orange!70!black, fill=orange!10, rounded corners=2pt,
+    align=center, text width=28mm, minimum height=9mm, inner sep=3pt
+  },
+  guarantee/.style={
+    draw=green!50!black, fill=green!9, rounded corners=2pt,
+    align=center, text width=28mm, minimum height=9mm, inner sep=3pt
+  },
+  implementation/.style={
+    draw=black!55, fill=black!4, rounded corners=2pt,
+    align=center, text width=27mm, minimum height=9mm, inner sep=3pt
+  },
+  group/.style={
+    draw=black!45, dashed, rounded corners=3pt, inner sep=6pt
+  },
+  flow/.style={
+    -{Latex[length=2mm]}, thick, draw=black!70
+  },
+  link/.style={
+    thick, draw=black!70
+  },
+  edge label/.style={
+    font=\scriptsize, inner sep=0pt, yshift=4pt, text=black!80
+  }
+]
+
+\node[language] (prelude) at (0,4.1)
+  {\textbf{Prelude}\\language and annotations\\Sec.~\ref{section-metalang}};
+\node[analysis] (prelude-hoare) at (0,2.4)
+  {Automated abstract\\Hoare logic\\Sec.~\ref{section-metahtrip}};
+\node[analysis] (prelude-types) at (0,0.7)
+  {Automated share\\type checking\\Sec.~\ref{sec:metapr-type-check}};
+
+\node[language] (overture) at (4.2,4.1)
+  {\textbf{Overture}\\protocol semantics\\Sec.~\ref{section-lang}};
+\node[analysis] (overture-hoare) at (4.2,2.4)
+  {SMT interpretation\\and Hoare logic\\Sec.~\ref{section-smt}};
+\node[analysis] (share-types) at (4.2,0.7)
+  {Share types\\Sec.~\ref{section-sty}};
+\node[analysis] (integrity-types) at (4.2,-1.0)
+  {Integrity types\\Sec.~\ref{section-ipj}};
+
+\node[guarantee] (correctness) at (8.4,2.4)
+  {Functional correctness\\of pre/postconditions};
+\node[guarantee] (passive) at (8.4,0.7)
+  {Noninterference modulo output\\and passive security\\Sec.~\ref{section-model}};
+\node[guarantee] (integrity) at (8.4,-1.0)
+  {Integrity\\Sec.~\ref{section-model}};
+\node[guarantee] (malicious) at (12.3,-0.15)
+  {Malicious security\\Sec.~\ref{section-model}};
+
+\node[group, fit=(prelude)(prelude-hoare)(prelude-types),
+  label={[font=\bfseries\small,text=black!70]above:Prelude language}] {};
+\node[group, fit=(overture)(overture-hoare)(share-types)(integrity-types),
+  label={[font=\bfseries\small,text=black!70]above:Overture language}] {};
+\node[group, fit=(correctness)(passive)(integrity)(malicious),
+  label={[font=\bfseries\small,text=black!70]above:Guarantees}] {};
+
+\draw[flow] (prelude) -- node[edge label] {evaluates to} (overture);
+\draw[flow] (prelude-hoare) -- node[edge label] {instantiates} (overture-hoare);
+\draw[flow] (prelude-types) -- node[edge label] {preserves} (share-types);
+\draw[flow] (overture-hoare) -- node[edge label] {proves} (correctness);
+\draw[flow] (share-types) -- node[edge label] {enforces} (passive);
+\draw[flow] (integrity-types) -- node[edge label] {enforces} (integrity);
+
+\coordinate (security-join) at (10.35,-0.15);
+\draw[link] (passive.east) -| (security-join);
+\draw[link] (integrity.east) -| (security-join);
+\draw[flow] (security-join) -- node[edge label] {} (malicious.west);
+
+% \node[implementation, text width=23mm] (source) at (-0.5,-3.4)
+%   {Prelude\\source};
+% \node[implementation, text width=21mm] (parser) at (2.25,-3.4)
+%   {ANTLR4\\parser};
+% \node[implementation, text width=34mm] (backend) at (5.55,-3.4)
+%   {Scala AST and backend\\compositional Hoare analysis};
+% \node[implementation, text width=32mm] (solver) at (9.45,-3.4)
+%   {cvc5 Java bindings\\Bit-Vector or finite-field solver};
+% \node[implementation, text width=29mm] (result) at (13.0,-3.4)
+%   {verified pre/postconditions\\and experiments\\Sec.~\ref{section-examples}};
+
+% \node[group, fit=(source)(parser)(backend)(solver)(result),
+%   label={[font=\bfseries\small,text=black!70]above:
+%     implemented JAR workflow (Sec.~\ref{section-examples})}] {};
+
+% \draw[flow] (source) -- (parser);
+% \draw[flow] (parser) -- (backend);
+% \draw[flow] (backend) -- (solver);
+% \draw[flow] (solver) -- (result);
+
+\end{tikzpicture}
+}
+\caption{Relationships among the paper's formal components and security
+guarantees. Blue boxes denote languages and their semantics, orange
+boxes denote verification analyses, and green boxes denote the
+correctness and security guarantees they establish. Dashed outlines
+group components by abstraction level.}
+\label{fig-framework-workflow}
+\end{figure*}
 
 In Section \ref{section-smt} we develop an SMT-based Hoare logic
 endowed with notions of validity and derivability, where the latter is
@@ -317,7 +428,7 @@ malicious secure.
 
 In Section \ref{section-metalang} we define the $\metaprot$ syntax and
 semantics, including pre- and postcondition annotations on functions
-(as in the example in Figure \ref{fig-adder}. Intuitively, any
+(as in the example in Figure \ref{fig-adder}). Intuitively, any
 $\metaprot$ program evaluates to a $\minicat$ protocol, so we refer to
 it as a metaprogramming language. We define an automated Hoare logic
 for $\minicat$ programs, to verify pre- and postcondition
@@ -352,8 +463,6 @@ prove that for all functions the precondition and function body meet the
 postcondition. When built, the tool runs as a single Java archive (JAR). The
 repository includes installation instructions, source code, further
 documentation, and a variety of Prelude examples.
-
-\cnote{Elaborate on this and add and graphic of implementation workflow (Joe?).}
 
 
 \subsection{Related Work and Our Contributions}
