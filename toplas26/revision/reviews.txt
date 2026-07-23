@@ -389,9 +389,7 @@ TODO: graphic? Joe?
 > 2. Providing more background up-front on finite fields, semi-homomorphic encryption, and MPC and then discussing how the target domain informs language design decisions would make this work accessible to a much broader audience. Right now these ideas appear here and there throughout the text but are not teased out. Compared to the ESOP paper, I found this version harder to read, in part because the Share Types (while interesting!) are much more tightly coupled to semi-homomorphic encryption concepts. This is not a weakness, but it would make the paper benefit from a gentler on ramp.
 >
 
-TODO: Joe? This may also help clarify F1 as reviewer suggests.
-
-DISCUSS
+We have added a new Section 1.2 to give complete background on these concepts.
 
 > 3. Figures and examples could be better used. Especially in the
 >  Prelude section and the implementation, there is a tendency to give
