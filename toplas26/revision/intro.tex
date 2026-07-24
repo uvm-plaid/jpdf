@@ -298,6 +298,10 @@ and integrity (Definition \ref{def-integrity}). As has been
 shown in previous work \cite{skalka-near-ppdp24, skalka-near-esop25},
 noninterference modulo output is sound for passive simulator
 security, while the addition of integrity obtains malicious security.
+Compared to this prior whole-program analysis, our use of weaker
+customized postconditions supports compositional reuse of verified
+components. Section \ref{section-examples} quantifies the resulting
+performance improvement.
 Figure \ref{fig-framework-workflow} summarizes how the languages,
 analyses, and guarantees fit together.
 
