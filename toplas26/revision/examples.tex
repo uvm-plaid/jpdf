@@ -52,9 +52,9 @@ scatter plot shown in Figure \ref{fig-solve-time-scatter} demonstrates that the
 compositional use of customized postconditions improves verification time by
 orders of magnitude, especially for 64-bit addition and subtraction, which have
 the most gates of all the circuits we tested. The SMFF solver, however, fared
-poorly in all these circuits. We beleve the optimizations that make the
-bit-vector solver efficient in these cases are unavilable to the SMFF solver,
-even when it runs in in $\mathbb{F}_2$. In all but the simplest cases, it did
+poorly in all these circuits. We believe the optimizations that make the
+bit-vector solver efficient in these cases are unavailable to the SMFF solver,
+even when it runs in $\mathbb{F}_2$. In all but the simplest cases, it did
 not finish.
 
 \solvetimescatterfig
@@ -98,7 +98,7 @@ represents share reconstruction \emph{in constraints} (not the
 protocols themselves). Input gates are
 implemented using the $\ttt{genshares}$ function as described in
 Section \ref{section-sty}. The $\ttt{open}$ function
-implements a federation reveal of a shared value through
+implements a federation-wide reveal of a shared value through
 share broadcast and reconstruction.
 
 A \ttt{sum} gate can be defined non-interactively using 

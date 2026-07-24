@@ -40,8 +40,8 @@ of our presentation, so we just check annotations instead.
 
 Formally, we consider a complete metaprogram to include
 both a codebase and a ``main'' program that uses the codebase.
-For all function (expression or instruction forms) we disallow
-recursion which is important guarantee decidability
+For all functions (both the expression and instruction forms) we disallow
+recursion, which allows us to guarantee the decidability
 of type dependence (Section \ref{section-metaty}).
 \begin{definition}
 A \emph{codebase} $\codebase$ is a list of function 
