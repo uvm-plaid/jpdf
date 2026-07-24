@@ -173,11 +173,7 @@ Updated to use "memory" consistently.
 > only sound but also complete w.r.t. the corresponding traditional MPC
 > security notions? If not, is there an instructive counterexample?
 
-TODO No, not complete. We actually have a good example of this from the CSF paper.
-
-DISCUSS
-
-Working answer: non-information theoretic protocols.
+No, the notion we focus on is not complete wrt traditional MPC security. We have added discussion on this point in Section 3.4.1.
 
 > 
 > Page 8, line 5: what's the English word for rvs? - it wasn't introduced
@@ -313,9 +309,11 @@ We have added a discussion of future work to the Conclusion (last section).
 > allows the reader to rerun the performance experiments or at least try
 > out some examples?
 
-TODO: repo?
+We have made the implementation available at the following URL:
 
-DISCUSS
+https://github.com/uvm-plaid/prelude-public
+
+We have added a link in Section 1.3.
 
 > Bibliography
 > -----------------
@@ -521,7 +519,7 @@ We have added text before Definition 2.4 to highlight these examples.
 
 > - Definition 3.3 requires more description. Specifically, what does P_X2(σ_X2) = 0 mean?
 
-TODO Did I defined \sigma_X?
+This means that the marginal probability that X2 equals σ_X2 is zero. We have added explanation for this definition.
  
 > I am confused with Definition 3.8. There should be more explanation
 > on the conditional distribution in the context of

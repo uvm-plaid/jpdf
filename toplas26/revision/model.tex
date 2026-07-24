@@ -82,6 +82,9 @@ probability mass functions.
   \end{cases}
   $$
 \end{definition}
+The first case applies when the marginal probability that $X_2$ takes
+the value assigned by the restricted memory $\store_{X_2}$ is zero;
+without this case, the conditional probability would be undefined.
 We also define some convenient syntactic sugaring for application of
 pmfs to realizations when their domains don't match.
 %The first will allow us to
@@ -243,6 +246,19 @@ protocol, but does not specify what information may be revealed.
   $\sep{\progtt(\prog)}{M_C}{S_H}$.
 \end{definition}
 
+Noninterference modulo output directly implies passive simulator
+security~\cite{skalka-near-ppdp24}, so a sound analysis for
+noninterference modulo output is also a sound analysis for passive
+simulator security. However, such an analysis is not necessarily
+complete: there exist MPC protocols that satisfy passive simulator
+security, but which do not satisfy noninterference modulo output. In
+particular, our definition of noninterference modulo output requires
+equality of the two distributions, which does not hold in protocols
+for which indistinguishability relies on computational hardness
+assumptions (this includes protocols based on public-key cryptography,
+such as many protocols for oblivious transfer). Our approach is not
+capable of proving security for these protocols.
+
 \subsubsection{Integrity}
 
 \emph{Integrity} is an important hyperproperty in security models that
@@ -267,5 +283,4 @@ Integrity plus noninterference modulo output implies malicious security
 in the real/ideal model \cite{skalka-near-ppdp24}, and integrity plus
 gradual release is a probabilistic form of robust declassification
 \cite{sabelfeld2009declassification}.
-
 
