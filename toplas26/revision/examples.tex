@@ -32,24 +32,30 @@ circuits as excerpted in Figure \ref{fig-gmwprepost} in Section
 arithmetic circuits using Beaver Triple multiplication as presented in
 Figures \ref{fig-beaver} and \ref{fig-beaver-bdoz} in this Section.
 We have considered field sizes typically used to encode binary, 16
-bit, 32 bit, and 64 bit integers. Results are presented in Figure
-\ref{fig-preludetest}.
+bit, 32 bit, and 64 bit integers. We ran all experiments on an Intel(R)
+Core(TM) Ultra 7 255H CPU. Results are presented in Figure \ref{fig-preludetest}.
 
 \preludetestfig
 
 We found that verification of library components was efficient even up to large
 field sizes. Since typing is compositional (see, e.g., Figure
 \ref{fig-beaver-types}), verification of gate properties relevant to
-\emph{security} will scale to larger circuits. For an empirical comparison, we
-ran the experiments shown in Figure \ref{fig-preludetest} with and without
-customized postconditions. Omitting these postconditions reduces verification
-to the prior whole-program analysis approach of Overture, since the solver can
-no longer reuse component summaries and must verify constraints for the
-fully expanded circuit directly. The scatter plot shown in Figure
-\ref{fig-solve-time-scatter} demonstrates that the compositional use of
-customized postconditions improves verification time by orders of magnitude,
-especially for 64-bit addition and subtraction, which have the most gates of
-all the circuits we tested.
+\emph{security} should scale to larger circuits.
+
+For an empirical comparison of how compositionality can reduce solve time in
+GMW arithmetic circuits, we ran the experiments shown in Figure
+\ref{fig-preludetest} with and without customized postconditions. Omitting
+these postconditions reduces verification to the prior whole-program analysis
+approach of Overture, since the solver can no longer reuse component summaries
+and must verify constraints for the fully expanded circuit directly. The
+scatter plot shown in Figure \ref{fig-solve-time-scatter} demonstrates that the
+compositional use of customized postconditions improves verification time by
+orders of magnitude, especially for 64-bit addition and subtraction, which have
+the most gates of all the circuits we tested. The SMFF solver, however, fared
+poorly in all these circuits. We beleve the optimizations that make the
+bit-vector solver efficient in these cases are unavilable to the SMFF solver,
+even when it runs in in $\mathbb{F}_2$. In all but the simplest cases, it did
+not finish.
 
 \solvetimescatterfig
 

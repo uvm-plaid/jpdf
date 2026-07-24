@@ -283,16 +283,22 @@ will clarify the formal results.
 > Page 31, line 18: I suggest including verification timings for the
 > brute-force techniques in Fig 21 if possible.
 
-I think this is the whole program analysis.
-
-TODO
+This is the whole-program analysis. We added "whole program" wherever
+we used the term brute-force to help clarify.
 
 > It would also be instructive to see how e.g Beaver Triple
 > multiplication would be modeled and verified in e.g. Cryptol - if such
 > a comparison works out nicely, it could also be a motivation that can
 > be mentioned in the introduction.
 
-TODO
+We did not do a comparison with Cryptol.
+
+TODO Explain why
+
+We also added emphasis that the "Bit-Vector, Compositional" solve times
+are made possible by this new work, whereas the "Bit-Vector, Whole-Program"
+solve times are effectively those of verifying the protocol directly in
+Overture.
 
 DISCUSS
  
@@ -309,7 +315,8 @@ We have added a discussion of future work to the Conclusion (last section).
 > allows the reader to rerun the performance experiments or at least try
 > out some examples?
 
-We have made the implementation available at the following URL:
+Yes. There is a publicly available GitHub repository. We added a link to this
+repository in the Introduction.
 
 https://github.com/uvm-plaid/prelude-public
 
@@ -361,11 +368,12 @@ more thorough discussion of related work to Sections 1.3 and 10.
 
 > 2. Being able to implement automated verification is one of the contributions of this work, but I found the evaluation lacking, without clear methodology (e.g., what machine were the experiments run on?), or detailed results. It would be difficult for a researcher to reproduce. Moreover, there is no real ``stress-testing'' or ablation studies of the tool. Given that an aim of the work is compositionality, how does the framework scale? Where does performance start to break down?
 
-TODO.
+We added relevent machine specs to the Evaluation section. We added a comparison of solve
+times using compositionality versus not using compositionality. We also added a scatter plot (Figure 24) to illustrate how the framework scales in the examples present.
  
 > 3. Furthermore, the emergence of Satisfiability Modulo Finite Fields is one of the stated motivations, but then the evaluation showed that SMFF did not perform well comparatively to bit-vector based theory. It would be interesting to see more discussion of results.
 
-TODO.
+We added some discussion of the results from SMFF specifically, since we had previously only shown them in the table.
 
 > Beyond enriching the evaluation, I thought the biggest weakness of the paper was presentation, since it generally lacked a) motivation for why all the framework components were needed and how they fit together, and b) self-sufficient explanations of needed background, definitions, and judgments. Here are some more specific suggestions that may help improve the presentation.
  
