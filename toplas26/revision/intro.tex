@@ -346,6 +346,8 @@ analyses, and guarantees fit together.
   {Automated abstract\\Hoare logic\\Sec.~\ref{section-metahtrip}};
 \node[analysis] (prelude-types) at (0,0.7)
   {Automated share\\type checking\\Sec.~\ref{sec:metapr-type-check}};
+\node[analysis, dashed] (prelude-integrity) at (0,-1.0)
+  {Automated integrity\\type checking\\Prior work~\cite{skalka-near-esop25}};
 
 \node[language] (overture) at (4.2,4.1)
   {\textbf{Overture}\\protocol semantics\\Sec.~\ref{section-lang}};
@@ -365,7 +367,7 @@ analyses, and guarantees fit together.
 \node[guarantee] (malicious) at (12.3,-0.15)
   {Malicious security\\Sec.~\ref{section-model}};
 
-\node[group, fit=(prelude)(prelude-hoare)(prelude-types),
+\node[group, fit=(prelude)(prelude-hoare)(prelude-types)(prelude-integrity),
   label={[font=\bfseries\small,text=black!70]above:Prelude language}] {};
 \node[group, fit=(overture)(overture-hoare)(share-types)(integrity-types),
   label={[font=\bfseries\small,text=black!70]above:Overture language}] {};
@@ -375,6 +377,7 @@ analyses, and guarantees fit together.
 \draw[flow] (prelude) -- node[edge label] {evaluates to} (overture);
 \draw[flow] (prelude-hoare) -- node[edge label] {instantiates} (overture-hoare);
 \draw[flow] (prelude-types) -- node[edge label] {preserves} (share-types);
+\draw[flow] (prelude-integrity) -- node[edge label] {preserves} (integrity-types);
 \draw[flow] (overture-hoare) -- node[edge label] {proves} (correctness);
 \draw[flow] (share-types) -- node[edge label] {enforces} (passive);
 \draw[flow] (integrity-types) -- node[edge label] {enforces} (integrity);
