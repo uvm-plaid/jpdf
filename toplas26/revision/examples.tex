@@ -1,23 +1,22 @@
 \section{Implementation and Extended Examples}
 \label{section-examples}
 
-In Section \ref{section-smt} we gave the example of 3-party additive
-sharing for any field $\fieldp{p}$, in Section \ref{section-sty} we
-discussed the example of YGC input encoding, and in Sections
-\ref{section-metalang} and \ref{section-metaty} we presented and
-discussed the example of gates in the GMW protocol for binary
-circuits. In this section we present an extended example of 2-party
-arithmetic circuits with multiplication gates defined using Beaver
-triples \cite{evans2018pragmatic}. We first define a compositional
-gate library in $\metaprot$ with correctness conditions defined using
-the Hoare logic developed in Section \ref{section-metalang}, along
-with a small example circuit (Figure \ref{fig-beaver}).  Then we
-extend the library with type annotations illustrating the use of share
-types developed in Sections \ref{section-sty} and \ref{section-metaty}
-to enforce confidentiality properties (Figure
-\ref{fig-beaver-types}). Lastly, we extend the base library with
-additional pre and postcondition annotations to enforce integrity
-properties supported by BDOZ/SPDZ style MACs
+In Section \ref{section-smt} we gave the example of 3-party additive sharing
+for any field $\fieldp{p}$, in Section \ref{section-sty} we discussed the
+example of YGC input encoding, and in Sections \ref{section-metalang} and
+\ref{section-metaty} we presented and discussed the example of gates in the GMW
+protocol for binary circuits. In this section we present an extended example of
+2-party arithmetic circuits with multiplication gates defined using Beaver
+triples \cite{evans2018pragmatic}. We first define a compositional gate library
+in $\metaprot$ with correctness conditions defined using the Hoare logic
+developed in Section \ref{section-metalang}, along with a small example circuit
+(Figure \ref{fig-beaver}). Then we extend the library with type annotations
+illustrating the use of share types developed in Sections \ref{section-sty} and
+\ref{section-metaty} to illustrate how confidentiality properties can be
+enforced (Figure \ref{fig-beaver-types}); this annotated variant is
+illustrative and is not part of the current implementation. Lastly, we extend
+the base library with additional pre and postcondition annotations to enforce
+integrity properties supported by BDOZ/SPDZ style MACs
 \cite{SPDZ1,SPDZ2,BDOZ,10.1007/978-3-030-68869-1_3} (Figure
 \ref{fig-beaver-bdoz}).
 
@@ -39,8 +38,8 @@ Core(TM) Ultra 7 255H CPU. Results are presented in Figure \ref{fig-preludetest}
 
 We found that verification of library components was efficient even up to large
 field sizes. Since typing is compositional (see, e.g., Figure
-\ref{fig-beaver-types}), verification of gate properties relevant to
-\emph{security} should scale to larger circuits.
+\ref{fig-beaver-types} for an illustrative extension), verification of gate
+properties relevant to \emph{security} should scale to larger circuits.
 
 For an empirical comparison of how compositionality can reduce solve time in
 GMW arithmetic circuits, we ran the experiments shown in Figure
@@ -131,17 +130,18 @@ distinct Beaver triples for each multiplication gate in the circuit
 circuit correctness-- that the protocol output is equal to the ideal
 functionality $\ttt{IDEALF}$.
 
-\subsection{Share Type Annotations.}
+\subsection{Share Type Annotations (Illustrative).}
 
-In Figure \ref{fig-beaver-types} we extend our previous gate definitions with
-share type annotations to enforce confidentiality. The core idea is that
-wire values must be \ttt{share}s. The \ttt{genshares}
-function includes an annotation specifying that all input gates establish
-the $\ttt{shares}$ invariant for wire values. In the \ttt{sum} function,
-the \ttt{share} type preconditions for input wires are specified. The
-output wire shares can be declared as \ttt{share}s without any coercion
-needed, since given preconditions our typing algorithm ($\Vdash$) is
-able to check the use of homomorphic addition. 
+Figure \ref{fig-beaver-types} presents an illustrative extension of our
+previous gate definitions with share type annotations to enforce
+confidentiality. This annotated variant is not part of the current
+implementation. The core idea is that wire values must be \ttt{share}s. The
+\ttt{genshares} function includes an annotation specifying that all input gates
+establish the $\ttt{shares}$ invariant for wire values. In the \ttt{sum}
+function, the \ttt{share} type preconditions for input wires are specified. The
+output wire shares can be declared as \ttt{share}s without any coercion needed,
+since given preconditions the typing judgment ($\Vdash$) can check the use of
+homomorphic addition.
 
 We add coercions and typing assertions to the $\ttt{secopen}$ function
 to specify properties of secure openings. After noninteractively
