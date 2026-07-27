@@ -459,13 +459,15 @@ Corrected.
 > 
 > - A major weakness is the evaluation given the paper focus on automation. There is no baseline comparison---at the very least, there should be  with Overture [29]. Evaluation with Cryptol/SAW will be helpful to understand the scope of automation.
 
-TODO????
+We added a comparison to Overture in what used to be Figure 21 and is now Figure 23. We added some discussion about how Cryptol/SAW cannot prove the security properties we are expressing with Prelude.
+
+TODO: Joe, can you please make sure what I've said above about Cryptol is accurate?
 
 DISCUSS
 
 > - Another weakness is the lack of the performance discussion on MPC systems. Also, the evaluation seems very limited in scope (focuses on correctness) in terms of performance or scalability. Particularly, Fig.21 seems unsatisfying. I agree that the contribution focuses on SMT-based automation but not scalability, however, evaluation focusing on performance issues will help us understand the positioning of the work.
 
-TODO 
+We added a comparison to Overture in what used to be Figure 21 and is now Figure 23. The comparison focuses on Bristol Fashion circuits where a single protocol uses multiple gates, and the compositional analysis of Prelude matters.
  
 > - The treatment of OT seems incomplete. I don't understand why it is not included in the semantics.
 
