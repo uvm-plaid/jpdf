@@ -538,19 +538,21 @@ sharing protocols, e.g., that leverage Beaver triples.
 \end{itemize}
 
 The SAW/Cryptol framework \cite{10.1007/978-3-319-48869-1_5} supports
-definitions of cryptographic protocols and verification using SMT.
-The Swanky extension \cite{swanky} is especially related to our work,
-since it is intended to apply to MPC protocols in binary and prime
-fields. For example, Swanky has been used in the implementation of ZK
-systems \cite{cryptoeprint:2020/1410}. However, while the goals of our
-system are overlapping with regard to verification of protocol
-correctness, we are also focused on type systems for enforcement of
-security properties, incorporating reasoning about probabilistic
-behavior of protocols. Our language model also more readily
-accommodates primitives for message passing between multiple parties.
-But as we discuss in Section \ref{section-conclusion}, leveraging
-Swanky to accelerate verification is an interesting direction for
-future work.
+definitions of cryptographic protocols and verification of functional
+correctness using SMT. The Swanky extension \cite{swanky} is
+especially related to our work, since it is intended to apply to MPC
+protocols in binary and prime fields. For example, Swanky has been
+used in the implementation of ZK systems
+\cite{cryptoeprint:2020/1410}. However, while the goals of our system
+are overlapping with regard to verification of protocol correctness,
+we are also focused on type systems for enforcement of security
+properties, incorporating reasoning about probabilistic behavior of
+protocols. SAW/Cryptol and Swanky, by contrast, are not designed to
+verify security properties of protocols, since these are inherently
+probabilistic. Our language model also more readily accommodates
+primitives for message passing between multiple parties. But as we
+discuss in Section \ref{section-conclusion}, leveraging Swanky to
+accelerate verification is an interesting direction for future work.
 
 Other low-level languages with probabilistic features for privacy
 preserving protocols have been proposed. The

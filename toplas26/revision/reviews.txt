@@ -291,16 +291,14 @@ we used the term brute-force to help clarify.
 > a comparison works out nicely, it could also be a motivation that can
 > be mentioned in the introduction.
 
-We did not do a comparison with Cryptol.
-
-TODO Explain why
+We have added discussion of the differences with Cryptol/SAW and
+Swanky in Section 1.4 - these tools are designed to verify functional
+correctness rather than security properties.
 
 We also added emphasis that the "Bit-Vector, Compositional" solve times
 are made possible by this new work, whereas the "Bit-Vector, Whole-Program"
 solve times are effectively those of verifying the protocol directly in
 Overture.
-
-DISCUSS
  
 > Section 10
 > -------------
@@ -364,7 +362,7 @@ multiplication. We return to this example in the evaluation (Section 9) where it
 an opportunity to evaluate performance of the system on larger, realistic circuits.
 
 We also add more thorough discussion of the overall system to Sections 1.1-2, and a
-more thorough discussion of related work to Sections 1.3 and 10.
+more thorough discussion of related work to Sections 1.4 and 10.
 
 > 2. Being able to implement automated verification is one of the contributions of this work, but I found the evaluation lacking, without clear methodology (e.g., what machine were the experiments run on?), or detailed results. It would be difficult for a researcher to reproduce. Moreover, there is no real ``stress-testing'' or ablation studies of the tool. Given that an aim of the work is compositionality, how does the framework scale? Where does performance start to break down?
 
@@ -459,11 +457,7 @@ Corrected.
 > 
 > - A major weakness is the evaluation given the paper focus on automation. There is no baseline comparison---at the very least, there should be  with Overture [29]. Evaluation with Cryptol/SAW will be helpful to understand the scope of automation.
 
-We added a comparison to Overture in what used to be Figure 21 and is now Figure 23. We added some discussion about how Cryptol/SAW cannot prove the security properties we are expressing with Prelude.
-
-TODO: Joe, can you please make sure what I've said above about Cryptol is accurate?
-
-DISCUSS
+We have added a comparison to Overture [29] in what used to be Figure 21 and is now Figure 23. We also added discussion of the differences with Cryptol/SAW and Swanky in Section 1.4 - these tools are designed to verify functional correctness rather than security properties, which prevents a direct empirical comparison.
 
 > - Another weakness is the lack of the performance discussion on MPC systems. Also, the evaluation seems very limited in scope (focuses on correctness) in terms of performance or scalability. Particularly, Fig.21 seems unsatisfying. I agree that the contribution focuses on SMT-based automation but not scalability, however, evaluation focusing on performance issues will help us understand the positioning of the work.
 
